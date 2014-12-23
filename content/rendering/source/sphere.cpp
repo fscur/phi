@@ -1,0 +1,70 @@
+#include "sphere.h"
+
+namespace phi
+{
+    sphere::sphere(glm::vec3 position, float radius, int rings, int sectors, material* material)
+        : sceneObject(position, size<float>(radius, radius, radius), material)
+    {   
+		_radius = radius;
+        _mesh = create(rings, sectors);
+    }
+
+	sphere::~sphere()
+    {
+    }
+
+	mesh* sphere::create(GLuint rings, GLuint sectors)
+	{
+		float piOver2 = PI * 0.5f;
+
+		std::vector<vertex> vertices;
+		std::vector<GLuint> indices;
+
+		float const R = 1.0f/(float)(rings-1.0f);
+        float const S = 1.0f/(float)(sectors-1.0f);
+        GLuint r, s;
+
+        for(r = 0; r < rings; r++)
+		{
+			for(s = 0; s < sectors; s++) 
+			{
+                float const y = glm::sin(-piOver2 + PI * r * R);
+                float const x = glm::cos(2.0f * PI * s * S) * glm::sin(PI * r * R);
+                float const z = glm::sin(2.0f * PI * s * S) * glm::sin(PI * r * R);
+
+				glm::vec3 position = glm::vec3(x, y, z);
+				glm::vec3 normal = glm::vec3(x,y,z);
+				glm::vec2 texCoord = glm::vec2(s * R, r * R);
+				vertices.push_back(vertex(position, texCoord, normal));
+			}
+		}
+			
+        for(r = 0; r < rings-1; r++) 
+		{
+			for(s = 0; s < sectors-1; s++) 
+			{
+				int a = r * sectors + s;
+				int b = (r+1) * sectors + s;
+				int c = (r+1) * sectors + (s+1);
+				int d = r * sectors + (s+1);
+
+				indices.push_back(a);
+				indices.push_back(b);
+				indices.push_back(c);
+				indices.push_back(c);
+				indices.push_back(d);
+				indices.push_back(a);
+			}
+        }
+
+		mesh::calcTangents(vertices, indices);
+
+		return mesh::create(vertices, indices);
+	}
+
+	void sphere::setRadius(float radius)
+	{ 
+		_radius = radius;
+		setSize(size<float>(radius, radius, radius));
+	}
+}
