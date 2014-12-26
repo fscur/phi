@@ -13,7 +13,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../core/headers)
 include_directories(headers)
 
 #libs
-set (LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../${os}/${CMAKE_BUILD_TYPE})
+set (LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../${os})
 link_directories(${LIBS_DIR})
 
 #packages
@@ -90,12 +90,12 @@ target_link_libraries(rendering core)
 
 install(TARGETS rendering 
     RUNTIME 
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}/${CMAKE_BUILD_TYPE} 
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os} 
     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
     LIBRARY 
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}/${CMAKE_BUILD_TYPE}
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}
     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
     ARCHIVE 
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}/${CMAKE_BUILD_TYPE}
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}
     CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 )
