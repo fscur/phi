@@ -23,21 +23,24 @@ namespace phi
         if (!_instance)
         {
             _instance = new resourceManager();
-
-            _instance->loadTextures();
-            _instance->loadMaterials();
-            _instance->loadFonts();
-            _instance->loadMeshes();
         }
 
         return _instance;
     }
+	
+	void resourceManager::init(resourceManagerInfo info)
+	{
+		_info = info;
+        _instance->loadTextures();
+        _instance->loadMaterials();
+        _instance->loadFonts();
+        _instance->loadMeshes();
+	}
 
     bool resourceManager::loadMaterials()
     {
         material* bricks = new material(
             getTexture("diffuse"), //diffuse texture
-            //NULL,
             getTexture("normal"), //normal texture
             getTexture("specular"), //specular texture,
             color::white, // ambient color
@@ -97,21 +100,23 @@ namespace phi
 
     bool resourceManager::loadTextures()
     {
-        //TODO: Load all textures in Resources/Textures
-		addTexture("alpha", texture::fromFile(TEXTURES_PATH + "alpha.bmp"));
-        addTexture("button", texture::fromFile(TEXTURES_PATH + "button.png"));
-        addTexture("close", texture::fromFile(TEXTURES_PATH + "close.bmp"));
-		
-		addTexture("default_diffuseMap", texture::fromFile(TEXTURES_PATH + "default_diffuseMap.bmp"));
-        addTexture("default_normalMap", texture::fromFile(TEXTURES_PATH + "default_normalMap.bmp"));
-        addTexture("default_specularMap", texture::fromFile(TEXTURES_PATH + "default_specularMap.bmp"));
-        addTexture("test", texture::fromFile(TEXTURES_PATH + "test.tga"));
-		addTexture("diffuse", texture::fromFile(TEXTURES_PATH + "diffuse.bmp"));
-		addTexture("normal", texture::fromFile(TEXTURES_PATH + "normal.bmp"));
-        addTexture("specular", texture::fromFile(TEXTURES_PATH + "specular.bmp"));
+		std::string path = _info.path + TEXTURES_PATH;
 
-		addTexture("BubbleGrip-ColorMap", texture::fromFile(TEXTURES_PATH + "BubbleGrip-ColorMap.bmp"));
-        addTexture("BubbleGrip-NormalMap", texture::fromFile(TEXTURES_PATH + "BubbleGrip-NormalMap.bmp"));
+        //TODO: Load all textures in Resources/Textures
+		addTexture("alpha", texture::fromFile(path + "alpha.bmp"));
+        addTexture("button", texture::fromFile(path + "button.png"));
+        addTexture("close", texture::fromFile(path + "close.bmp"));
+		
+		addTexture("default_diffuseMap", texture::fromFile(path + "default_diffuseMap.bmp"));
+        addTexture("default_normalMap", texture::fromFile(path + "default_normalMap.bmp"));
+        addTexture("default_specularMap", texture::fromFile(path + "default_specularMap.bmp"));
+        addTexture("test", texture::fromFile(path + "test.tga"));
+		addTexture("diffuse", texture::fromFile(path + "diffuse.bmp"));
+		addTexture("normal", texture::fromFile(path + "normal.bmp"));
+        addTexture("specular", texture::fromFile(path + "specular.bmp"));
+
+		addTexture("BubbleGrip-ColorMap", texture::fromFile(path + "BubbleGrip-ColorMap.bmp"));
+        addTexture("BubbleGrip-NormalMap", texture::fromFile(path + "BubbleGrip-NormalMap.bmp"));
 
         return true;
     }
@@ -129,6 +134,8 @@ namespace phi
 
     bool resourceManager::loadMeshes()
     {
+		std::string path = _info.path + MODELS_PATH;
+		addMesh("box", phi::mesh::fromObj(path + "cube.model"));
         //TODO: Load meshes from directory
 
         return true;
@@ -146,7 +153,7 @@ namespace phi
 
     void resourceManager::addFont(std::string name, int size)
     {
-        std::string fontName = FONTS_PATH + name + ".ttf";
+        std::string fontName = _info.path + FONTS_PATH + name + ".ttf";
         TTF_Font* font = TTF_OpenFont(fontName.c_str(), size);
         (*_fonts)[name + std::to_string(size)] = font;
     }

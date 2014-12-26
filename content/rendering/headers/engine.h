@@ -11,14 +11,21 @@ namespace phi
     const static const GLuint PHI_DEBUG_MODE = 1;
     const static const GLuint PHI_SHADOW_MAPS = 101;
 
-    class engine
+	struct engineInfo
+	{
+	public:
+		std::string applicationPath;
+		size<GLuint> size;
+	};
+
+	class engine
     {
     private:
         static engine* _instance;
 		std::vector<scene*> _scenes;
         scene* _scene;
 		sceneRenderer* _sceneRenderer;
-
+		engineInfo _info;
         bool _isShadowMapEnabled;
         bool _debugMode;
 
@@ -36,7 +43,9 @@ namespace phi
 		RENDERING_API scene* getScene() const { return _scene; }
 		RENDERING_API void setSceneRenderer(sceneRenderer* value) { _sceneRenderer = value; }
 
-        RENDERING_API bool init(size<GLuint> size);
+		RENDERING_API engineInfo getInfo() const { return _info; }
+
+        RENDERING_API bool init(engineInfo info);
         RENDERING_API void handleInput();
         RENDERING_API void update();
         RENDERING_API void render();

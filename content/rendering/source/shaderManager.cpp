@@ -7,7 +7,24 @@ namespace phi
 	shaderManager::shaderManager()
 	{
 		_shaders = new std::map<std::string, shader*>();
+	}
 
+	shaderManager::~shaderManager()
+	{
+	}
+
+	shaderManager* shaderManager::get()
+	{
+		if (!_instance)
+			_instance = new shaderManager();
+
+		return _instance;
+	}
+
+	void shaderManager::init(shaderManagerInfo info)
+	{
+		_info = info;
+		
 		addBasicShader();
 
 		addFsAmbientLightShader();
@@ -26,22 +43,6 @@ namespace phi
 		addHudTextShader();
 		addHudQuadShader();
 		//addSkyDomeShader();
-		
-		//for(std::map<std::string, shader*>::iterator i = _shaders->begin(); i != _shaders->end(); i++) 
-			//(i->second)->init();
-
-	}
-
-	shaderManager::~shaderManager()
-	{
-	}
-
-	shaderManager* shaderManager::get()
-	{
-		if (!_instance)
-			_instance = new shaderManager();
-
-		return _instance;
 	}
 
 	void shaderManager::addShader(std::string name, shader* shader)
@@ -54,7 +55,7 @@ namespace phi
 
 	shader* shaderManager::loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes)
 	{
-		shader* s = new shader(name, SHADERS_PATH + vertFile, SHADERS_PATH + fragFile, attributes);
+		shader* s = new shader(name, _info.path + SHADERS_PATH + vertFile, _info.path + SHADERS_PATH + fragFile, attributes);
 		s->init();
 		return s;
 	}

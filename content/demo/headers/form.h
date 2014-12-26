@@ -2,15 +2,15 @@
 #define _FORM_H_
 
 #include <string>
-#include "demo.h"
 #include <SDL\SDL.h>
+#include "demo.h"
+#include "size.h"
 
 class form
 {
 private:
     std::string _title;
-    int _width;
-    int _height;
+    phi::size<unsigned int> _size;
     bool _isClosed;
     bool _isFullScreen;
     SDL_Window* _window;
@@ -26,6 +26,10 @@ private:
     Uint32 _renderCost;
     unsigned int _fps;
 
+	std::string _applicationPath;
+
+private:
+	void initWindow();
 protected:
     virtual void update() = 0;
     virtual void render() = 0;
@@ -35,19 +39,17 @@ public:
     form();
     ~form();
 
-    std::string getTitle() { return _title; }
-    int getWidth() { return _width; }
-    int getHeight() { return _height; }
-    bool getIsFullScreen() { return _isFullScreen; }
-    unsigned int getFps() { return _fps; }
-    double getDt() { return _dt; }
-    double getInputCost() { return _inputCost; }
-    double getUpdateCost() { return _updateCost; }
-    double getRenderCost() { return _renderCost; }
-
+    std::string getTitle() const { return _title; }
+    phi::size<unsigned int> getSize() const { return _size; }
+    bool getIsFullScreen() const { return _isFullScreen; }
+    unsigned int getFps() const { return _fps; }
+    double getDt() const { return _dt; }
+    double getInputCost() const { return _inputCost; }
+    double getUpdateCost() const { return _updateCost; }
+    double getRenderCost() const { return _renderCost; }
+	std::string getApplicationPath() const { return _applicationPath; }
 	void setTitle(std::string value);
-    void setWidth(int value);
-	void setHeight(int value);
+    void setSize(phi::size<unsigned int> value);
 	void setIsFullScreen(bool value);
 
     virtual void onResize(SDL_Event e){}
@@ -58,8 +60,9 @@ public:
     virtual void onKeyDown(SDL_Event e){}
     virtual void onKeyUp(SDL_Event e){}
     virtual void onClosing(){}
+    
+	virtual void initialize(std::string applicationPath) { _applicationPath = applicationPath; }
 
-    virtual void initialize();
     bool loop();
     void centerScreen();
     void close();

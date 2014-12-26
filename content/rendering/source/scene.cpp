@@ -4,14 +4,13 @@
 
 namespace phi
 {
-	scene::scene(int width, int height)
+	scene::scene()
 	{
 		_allObjectsCount = 0;
 		_visibleObjectsCount = 0;
-		_width = width;
-		_height = height;
+		_size = size<GLuint>(800, 600);
 		_deltaTime = 0.008f;
-		_activeCamera = new camera(0.1f, 1000.0f, (float)_width / (float)_height, 0.78539816f);
+		_activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, 0.78539816f);
 		_cameras.push_back(_activeCamera);
 		_allObjects = new std::vector<sceneObject*>();
 		_directionalLights = new std::vector<directionalLight*>();
@@ -35,11 +34,6 @@ namespace phi
 
 		for (GLuint i = 0; i < _cameras.size(); i++)
 			DELETE(_cameras[i]);
-	}
-
-	bool scene::init()
-	{
-		return true;
 	}
 
 	void scene::input()
@@ -181,12 +175,10 @@ namespace phi
 //#endif
 	}
 
-	void scene::resize(size<GLuint> size)
+	void scene::setSize(size<GLuint> size)
 	{
-		_width = size.width;
-		_height = size.height;
-
-		_activeCamera->getFrustum()->setAspect((float)_width/(float)_height);
+		_size = size;
+		_activeCamera->getFrustum()->setAspect((float)_size.width/(float)_size.height);
 	}
 
 	void scene::add(sceneObject* sceneObject)

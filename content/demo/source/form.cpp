@@ -10,8 +10,7 @@
 form::form()
 {
     _title = "Form";
-    _width = 800;
-    _height = 600;
+    _size = phi::size<unsigned int>(800, 600);
 	_window = nullptr;
     _glContext = nullptr;
     _isClosed = false;
@@ -23,6 +22,8 @@ form::form()
     _inputCost = 0;
     _updateCost = 0;
     _renderCost = 0;
+
+	initWindow();
 }
 
 form::~form()
@@ -44,24 +45,14 @@ void form::setTitle(std::string value)
     SDL_SetWindowTitle(_window, _title.c_str());
 }
 
-void form::setWidth(int value)
+void form::setSize(phi::size<unsigned int> value)
 {
-    _width = value;
+    _size = value;
 
     if (_window == NULL)
         return;
 
-    SDL_SetWindowSize(_window, _width, _height);
-}
-
-void form::setHeight(int value)
-{
-    _height = value;
-
-    if (_window == NULL)
-        return;
-
-    SDL_SetWindowSize(_window, _width, _height);
+    SDL_SetWindowSize(_window, (int)_size.width, (int)_size.height);
 }
 
 void form::setIsFullScreen(bool value)
@@ -80,15 +71,15 @@ void form::setIsFullScreen(bool value)
     }
 }
 
-void form::initialize()
+void form::initWindow()
 {
-    //createGLWindow
+	//createGLWindow
     _window = SDL_CreateWindow(
         _title.c_str(),
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        _width,
-        _height,
+        _size.width,
+        _size.height,
         SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
     if (_window == NULL)

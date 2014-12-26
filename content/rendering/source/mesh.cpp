@@ -5,8 +5,6 @@
 #include <iostream>
 #include <vector>
 
-#define MODELS_PATH "./Resources/Models/"
-
 namespace phi
 {
 	mesh::mesh()
@@ -214,9 +212,8 @@ namespace phi
 		LOG("FromMb: Loading " << fileName);
 
 		std::string line = std::string();
-		std::string filePath = MODELS_PATH + fileName;
 
-		if (!globals::contains(filePath, ".mb"))
+		if (!globals::contains(fileName, ".mb"))
 		{
 			LOG("Read OBJ: Invalid file format.");
 			return nullptr;
@@ -229,7 +226,7 @@ namespace phi
 		GLuint iSize;
 
 		std::ifstream iFile;
-		iFile.open(filePath.c_str(), std::ios::in | std::ios::binary);
+		iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
 		iFile.seekg(0);
 		iFile.read ((char*)&vSize, sizeof(GLuint));
 		iFile.read ((char*)&iSize, sizeof(GLuint));
@@ -264,9 +261,8 @@ namespace phi
 		LOG("FromObj: Loading " << fileName);
 
 		std::string line = std::string();
-		std::string filePath = MODELS_PATH + fileName;
 
-		if (!globals::contains(filePath, ".model"))
+		if (!globals::contains(fileName, ".model"))
 		{
 			LOG("Read OBJ: Invalid file format.");
 			return nullptr;
@@ -283,7 +279,7 @@ namespace phi
 		std::vector<GLuint> indices;
 
 		//read obj and fill vectors of indices
-		std::ifstream file(filePath);
+		std::ifstream file(fileName);
 
 		if (file.is_open()) 
 		{

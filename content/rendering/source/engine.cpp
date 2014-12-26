@@ -26,13 +26,25 @@ namespace phi
 		DELETE(dsRenderer);
     }
 
-	bool engine::init(size<GLuint> size)
+	bool engine::init(engineInfo info)
     {
         bool result = false;
 
-		basicRenderer = new phi::basicSceneRenderer(size);
-		fsRenderer = new phi::fsSceneRenderer(size);
-		dsRenderer = new phi::dsSceneRenderer(size);
+		_info = info;
+
+		basicRenderer = new phi::basicSceneRenderer(_info.size);
+		fsRenderer = new phi::fsSceneRenderer(_info.size);
+		dsRenderer = new phi::dsSceneRenderer(_info.size);
+
+		setSceneRenderer(phi::engine::basicRenderer);
+
+		resourceManagerInfo resInfo;
+		resInfo.path = info.applicationPath;
+		resourceManager::get()->init(resInfo);
+
+		shaderManagerInfo shaderInfo;
+		shaderInfo.path = info.applicationPath;
+		shaderManager::get()->init(shaderInfo);
 
         if (!result)
             return false;
@@ -66,7 +78,7 @@ namespace phi
 
 	void engine::resize(size<GLuint> size)
 	{
-		_scene->resize(size);
+		_scene->setSize(size);
 		basicRenderer->resize(size);
 		fsRenderer->resize(size);
 		dsRenderer->resize(size);

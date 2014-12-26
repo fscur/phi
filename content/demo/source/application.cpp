@@ -2,7 +2,10 @@
 #include "globals.h"
 #include <SDL\SDL_ttf.h>
 
-application::application(void)
+std::string application::path = "";
+std::string application::exePath = "";
+
+application::application()
 {
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
         LOG("SDL could not initialize! SDL_Error: " << SDL_GetError());

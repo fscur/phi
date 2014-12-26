@@ -30,8 +30,7 @@ namespace phi
     private:
         GLuint _allObjectsCount;
         GLuint _visibleObjectsCount;
-        GLuint _width;
-        GLuint _height;
+        size<GLuint> _size;
         float _deltaTime;
 		color _backColor;
 		color _ambientColor;
@@ -52,7 +51,7 @@ namespace phi
         void debugRender();
 
     public:
-        RENDERING_API scene(int width, int height);
+        RENDERING_API scene();
         RENDERING_API ~scene();
 
         RENDERING_API camera* getActiveCamera() const { return _activeCamera; }
@@ -66,12 +65,12 @@ namespace phi
 		RENDERING_API std::vector<pointLight*>* getPointLights() const { return _pointLights; }
 		RENDERING_API std::vector<spotLight*>* getSpotLights() const { return _spotLights; }
 
+        RENDERING_API void setSize(size<GLuint> size);
 		RENDERING_API void setActiveCamera(camera* value) { _activeCamera = value; }
 		RENDERING_API void setBackColor(color value) { _backColor = value; }
 		RENDERING_API void setAmbientLightColor(color value) { _ambientColor = value; }
         RENDERING_API void setDeltaTime(float value) { _deltaTime = value; }
 
-        RENDERING_API bool init();
         RENDERING_API void input();
         RENDERING_API void update();
         RENDERING_API void render();
@@ -88,8 +87,6 @@ namespace phi
 		RENDERING_API spotLight* getSpotLight(GLuint index) const { return (*_spotLights)[index]; }
 
         RENDERING_API void remove(sceneObject* sceneObject);
-
-        RENDERING_API void resize(size<GLuint> size);
     };
 }
 #endif

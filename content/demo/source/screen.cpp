@@ -25,18 +25,17 @@ screen::~screen()
 
 void screen::initEngine()
 {
-	phi::engine::get()->init(phi::size<GLuint>(getWidth(), getHeight()));
-	phi::engine::get()->setSceneRenderer(phi::engine::fsRenderer);
+	phi::engineInfo info;
+	info.applicationPath = getApplicationPath();
+	info.size = getSize();
+
+	phi::engine::get()->init(info);
 }
 
 void screen::initScene()
 {
-	phi::scene* s = new phi::scene(getWidth(), getHeight());
-	s->init();
-
-	//s->enable(PHI_DEFFERED_SHADING_MODE);
-
-	s->resize(phi::size<GLuint>(getWidth(), getHeight(), 0));
+	phi::scene* s = new phi::scene();
+	s->setSize(getSize());
 	s->getActiveCamera()->setPosition(glm::vec3(5.0f, 5.0f, 5.0f));
 	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
@@ -68,7 +67,7 @@ void screen::initUI()
 
 	_hud = new phi::hud();
 
-	phi::button* closeButton = new phi::button(phi::size<GLuint>(getWidth(), getHeight()));
+	phi::button* closeButton = new phi::button(getSize());
 	closeButton->setText("X");
 	closeButton->setBackgroundColor(phi::color::red);
 	closeButton->setForegroundColor(phi::color::white);
@@ -78,7 +77,7 @@ void screen::initUI()
 	closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
 	_hud->addControl(closeButton);
 
-	phi::button* expandButton = new phi::button(phi::size<GLuint>(getWidth(), getHeight()));
+	phi::button* expandButton = new phi::button(getSize());
 	expandButton->setText("Texto");
 	expandButton->setBackgroundColor(phi::color::blue);
 	expandButton->setForegroundColor(phi::color::white);
@@ -88,7 +87,7 @@ void screen::initUI()
 	expandButton->getClick()->bind<screen, &screen::expandButtonClick>(this);
 	_hud->addControl(expandButton);
 
-	_labelFps = new phi::label(phi::size<GLuint>(getWidth(), getHeight()));
+	_labelFps = new phi::label(getSize());
 	_labelFps->setX(68);
 	_labelFps->setY(10);
 	_labelFps->setSize(phi::size<GLuint>(150, 20));
@@ -97,7 +96,7 @@ void screen::initUI()
 	_labelFps->setFont(new phi::font("Consola", 24));
 	_hud->addControl(_labelFps);
 
-	_labelObjects= new phi::label(phi::size<GLuint>(getWidth(), getHeight()));
+	_labelObjects= new phi::label(getSize());
 	_labelObjects->setX(68);
 	_labelObjects->setY(28);
 	_labelObjects->setSize(phi::size<GLuint>(150, 20));
@@ -105,7 +104,7 @@ void screen::initUI()
 	_labelObjects->setBackgroundColor(labelBackground);
 	_hud->addControl(_labelObjects);
 
-	_labelDt = new phi::label(phi::size<GLuint>(getWidth(), getHeight()));
+	_labelDt = new phi::label(getSize());
 	_labelDt->setX(220);
 	_labelDt->setY(10);
 	_labelDt->setSize(phi::size<GLuint>(300, 20));
@@ -113,7 +112,7 @@ void screen::initUI()
 	_labelDt->setBackgroundColor(labelBackground);
 	_hud->addControl(_labelDt);
 
-	_labelInputCost = new phi::label(phi::size<GLuint>(getWidth(), getHeight()));
+	_labelInputCost = new phi::label(getSize());
 	_labelInputCost->setX(220);
 	_labelInputCost->setY(28);
 	_labelInputCost->setSize(phi::size<GLuint>(300, 20));
@@ -121,7 +120,7 @@ void screen::initUI()
 	_labelInputCost->setBackgroundColor(labelBackground);
 	_hud->addControl(_labelInputCost);
 
-	_labelUpdateCost = new phi::label(phi::size<GLuint>(getWidth(), getHeight()));
+	_labelUpdateCost = new phi::label(getSize());
 	_labelUpdateCost->setX(220);
 	_labelUpdateCost->setY(46);
 	_labelUpdateCost->setSize(phi::size<GLuint>(300, 20));
@@ -129,7 +128,7 @@ void screen::initUI()
 	_labelUpdateCost->setBackgroundColor(labelBackground);
 	_hud->addControl(_labelUpdateCost);
 
-	_labelRenderCost = new phi::label(phi::size<GLuint>(getWidth(), getHeight()));
+	_labelRenderCost = new phi::label(getSize());
 	_labelRenderCost->setX(220);
 	_labelRenderCost->setY(64);
 	_labelRenderCost->setSize(phi::size<GLuint>(300, 20));
@@ -137,7 +136,7 @@ void screen::initUI()
 	_labelRenderCost->setBackgroundColor(labelBackground);
 	_hud->addControl(_labelRenderCost);
 
-	_slider1 = new phi::slider(phi::size<GLuint>(getWidth(), getHeight()));
+	_slider1 = new phi::slider(getSize());
 	_slider1->setX(20);
 	_slider1->setY(200);
 	_slider1->setSize(phi::size<GLuint>(500, 30));
@@ -208,16 +207,16 @@ void screen::initUI()
 //    //_txtObjects->SetText(to_string(visibleObjects) + "/" + to_string(allObjects));
 //}
 
-void screen::initialize()
+void screen::initialize(std::string applicationPath)
 {
-	form::initialize();
-
+	form::initialize(applicationPath);
+	
 	setTitle("Teste");
-	setWidth(1024);
-	setHeight(768);
+	setSize(phi::size<unsigned int>(1024, 768));
 	centerScreen();
 
 	initEngine();
+
 	initScene();
 	initUI();
 }
@@ -304,7 +303,7 @@ void screen::onMouseUp(SDL_Event e)
 		//glReadPixels((GLuint)_lastMousePos.x, GetHeight() - (GLuint)_lastMousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
 
 		glm::vec2 screenCoords = glm::vec2(e.motion.x, e.motion.y);
-		phi::size<float> screenSize = phi::size<float>((float)getWidth(), (float)getHeight());
+		phi::size<float> screenSize = phi::size<float>((float)getSize().width, (float)getSize().height);
 		_ray = phi::engine::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
 		std::vector<phi::sceneObject*> sceneObjects = phi::engine::get()->getScene()->getVisibleObjects();
 

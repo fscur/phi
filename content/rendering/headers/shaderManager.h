@@ -10,12 +10,18 @@ namespace phi
 {
 	static const std::string SHADERS_PATH = "./resources/shaders/";
 
+	struct shaderManagerInfo
+	{
+	public:
+		std::string path;
+	};
+
     class shaderManager
     {
     private:
         static shaderManager*  _instance;
         std::map<std::string, shader*>* _shaders;
-
+		shaderManagerInfo _info;
     private: 
         shaderManager();
 		shader* loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
@@ -39,6 +45,7 @@ namespace phi
         RENDERING_API ~shaderManager();
 
         RENDERING_API static shaderManager* get();
+		RENDERING_API void init(shaderManagerInfo info);
         RENDERING_API void addShader(std::string name, shader* shader);
         RENDERING_API shader* getShader(std::string name);
 

@@ -10,6 +10,13 @@ namespace phi
 {
 	static const std::string TEXTURES_PATH = "./resources/textures/";
 	static const std::string FONTS_PATH = "./resources/fonts/";
+	static const std::string MODELS_PATH = "./resources/models/";
+
+	struct resourceManagerInfo
+	{
+	public:
+		std::string path;
+	};
 
     class resourceManager
     {
@@ -19,6 +26,7 @@ namespace phi
         std::map<std::string, texture*>* _textures;
         std::map<std::string, material*>* _materials;
         std::map<std::string, TTF_Font*>* _fonts;
+		resourceManagerInfo _info;
     private:
         resourceManager();
 
@@ -35,6 +43,8 @@ namespace phi
     public:
         RENDERING_API ~resourceManager();
         RENDERING_API static resourceManager* get();
+
+		RENDERING_API void init(resourceManagerInfo info);
 
         RENDERING_API void addTexture(std::string name, texture* texture);
         RENDERING_API void addMaterial(std::string name, material* material);

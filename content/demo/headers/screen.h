@@ -37,14 +37,14 @@ private:
     phi::slider* _slider1;
 
 private:
-    void initEngine();
+	void initEngine();
     void initScene();
     void initUI();
 public:
     screen();
     ~screen(void);
 
-    void initialize() override;
+    void initialize(std::string applicationPath) override;
     void onResize(SDL_Event e) override;
     void onMouseDown(SDL_Event e) override;
     void onMouseMove(SDL_Event e) override;
