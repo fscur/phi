@@ -14,7 +14,8 @@
 
 namespace phi
 {
-	class mesh
+	class mesh :
+        public resource
 	{
 	private:
 		GLuint _vao;
@@ -43,10 +44,10 @@ namespace phi
 	public:
 		
 		RENDERING_API void addVertices(std::vector<vertex> vertices, std::vector<GLuint> indices);
-		RENDERING_API mesh();
+		RENDERING_API mesh(std::string name, std::string path);
 		RENDERING_API ~mesh();
 
-		RENDERING_API static mesh* create(std::vector<vertex> &vertices, std::vector<GLuint> &indices);
+		RENDERING_API static mesh* create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint> &indices);
 		RENDERING_API static std::string getToken(std::string line);
 
 		RENDERING_API bool getIsBound() const { return _isBound; }
@@ -63,8 +64,8 @@ namespace phi
 
 		RENDERING_API void saveToMb(std::string fileName);
 
-		RENDERING_API static mesh* fromMb(const std::string fileName);
-		RENDERING_API static mesh* fromObj(const std::string fileName, bool calcNormals = false);
+		RENDERING_API static mesh* fromMb(std::string name, const std::string fileName);
+		RENDERING_API static mesh* fromObj(std::string name, const std::string fileName, bool calcNormals = false);
 	};
 }
 #endif

@@ -10,6 +10,7 @@ add_definitions(-DRENDERING_EXPORTS)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../inc/GLM)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../core/headers)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../io/headers)
 include_directories(headers)
 
 #libs
@@ -75,6 +76,7 @@ file(GLOB source_files source/*.cpp)
 add_library(rendering SHARED ${source_files} ${header_files})
 
 add_dependencies(rendering core)
+add_dependencies(rendering io)
 
 #target_link_libraries(rendering ${ASSIMP_LIBRARIES})
 target_link_libraries(rendering ${SDL_LIBRARY})
@@ -87,6 +89,7 @@ if (WIN32)
 endif (WIN32)
 
 target_link_libraries(rendering core)
+target_link_libraries(rendering io)
 
 install(TARGETS rendering 
     RUNTIME 

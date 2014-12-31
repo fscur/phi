@@ -10,17 +10,19 @@
 #include <string>
 #include "size.h"
 #include "SDL_Extensions.h"
+#include "resource.h"
 
 namespace phi
 {
-    class texture
+    class texture :
+        public resource
     {
     private:
         GLuint _id;
 	protected:
 		size<GLuint> _size;
     private:
-		texture(GLuint id, size<GLuint> size);
+		texture(GLuint id, size<GLuint> size, std::string name, std::string path);
     public:
         RENDERING_API ~texture();
 

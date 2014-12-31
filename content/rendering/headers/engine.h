@@ -5,6 +5,7 @@
 #include "basicSceneRenderer.h"
 #include "fsSceneRenderer.h"
 #include "dsSceneRenderer.h"
+#include "resourcesRepository.h"
 
 namespace phi
 {
@@ -41,9 +42,9 @@ namespace phi
         RENDERING_API ~engine();
     
 		RENDERING_API scene* getScene() const { return _scene; }
-		RENDERING_API void setSceneRenderer(sceneRenderer* value) { _sceneRenderer = value; }
-
 		RENDERING_API engineInfo getInfo() const { return _info; }
+
+        RENDERING_API void setSceneRenderer(sceneRenderer* value) { _sceneRenderer = value; }
 
         RENDERING_API bool init(engineInfo info);
         RENDERING_API void handleInput();

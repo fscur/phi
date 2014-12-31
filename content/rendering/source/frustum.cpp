@@ -1,5 +1,4 @@
 #include "frustum.h"
-#include "resourceManager.h"
 #include <iostream>
 #include <glm\gtc\matrix_transform.hpp>
 

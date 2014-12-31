@@ -62,7 +62,7 @@ namespace phi
 		//Mesh::CalcNormals(vertices, indices);
 		mesh::calcTangents(vertices, indices);
 
-		return mesh::create(vertices, indices);
+		return mesh::create("skyDome", vertices, indices);
 	}
 
 	void skyDome::setRadius(float radius)

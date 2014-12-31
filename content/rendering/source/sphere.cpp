@@ -59,7 +59,7 @@ namespace phi
 
 		mesh::calcTangents(vertices, indices);
 
-		return mesh::create(vertices, indices);
+		return mesh::create("sphere", vertices, indices);
 	}
 
 	void sphere::setRadius(float radius)

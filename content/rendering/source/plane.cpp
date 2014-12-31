@@ -52,7 +52,7 @@ namespace phi
         indices.push_back(3);
         indices.push_back(0);
 
-		_mesh = mesh::create(vertices, indices);
+		_mesh = mesh::create("plane", vertices, indices);
 
         _normal = glm::normalize(normal);
 

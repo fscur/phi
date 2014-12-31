@@ -7,7 +7,8 @@
 
 namespace phi
 {
-	mesh::mesh()
+	mesh::mesh(std::string name, std::string path) :
+        resource(name, path)
 	{
 		_vao = 0;
 
@@ -31,9 +32,9 @@ namespace phi
 		glDeleteVertexArrays(1, &_vao);
 	}
 
-	mesh* mesh::create(std::vector<vertex> &vertices, std::vector<GLuint> &indices)
+	mesh* mesh::create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint> &indices)
 	{
-		mesh* m = new mesh();
+		mesh* m = new mesh(name, "");
 		m->addVertices(vertices, indices);
 		return m;
 	}
@@ -207,7 +208,7 @@ namespace phi
 		oFile.close();
 	}
 
-	mesh* mesh::fromMb(std::string fileName)
+	mesh* mesh::fromMb(std::string name, std::string fileName)
 	{
 		LOG("FromMb: Loading " << fileName);
 
@@ -250,13 +251,13 @@ namespace phi
 
 		iFile.close();
 
-		mesh* _mesh = new mesh();
+		mesh* _mesh = new mesh(name, fileName);
 		_mesh->addVertices(vertices, indices);
 
 		return _mesh;
 	}
 
-	mesh* mesh::fromObj(const std::string fileName, bool shouldCalcNormals)
+	mesh* mesh::fromObj(std::string name, const std::string fileName, bool shouldCalcNormals)
 	{   
 		LOG("FromObj: Loading " << fileName);
 
@@ -417,7 +418,7 @@ namespace phi
 		if (tSize > 0)
 			calcTangents(vertices, indices);
 
-		return mesh::create(vertices, indices);
+		return mesh::create(name, vertices, indices);
 	}
 
 	void mesh::calcNormals(std::vector<vertex> &vertices, std::vector<GLuint> indices)

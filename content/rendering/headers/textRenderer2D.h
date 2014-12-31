@@ -3,7 +3,6 @@
 
 #include "rendering.h"
 
-#include "resourceManager.h"
 #include "shaderManager.h"
 #include "shader.h"
 #include "quad.h"

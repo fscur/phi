@@ -28,7 +28,7 @@ namespace phi
         void updateTextLocation();
 
     public:
-		UI_API button(size<GLuint> viewportSize);
+        UI_API button(size<GLuint> viewportSize);
         UI_API ~button();
 
         UI_API std::string getText() { return _text; }
@@ -43,7 +43,7 @@ namespace phi
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;
         UI_API void setSize(size<GLuint> value) override;
-		UI_API void setViewportSize(size<GLuint> value) override;
+        UI_API void setViewportSize(size<GLuint> value) override;
 
         UI_API void onMouseDown(mouseEventArgs e) override;
         UI_API void onMouseUp(mouseEventArgs e) override;

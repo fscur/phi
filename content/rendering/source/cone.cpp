@@ -139,7 +139,7 @@ namespace phi
             indices.push_back(index);
         }
 		
-		return mesh::create(vertices, indices);
+		return mesh::create("cone", vertices, indices);
 	}
 
 	void cone::setRadius(float radius)

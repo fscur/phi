@@ -8,9 +8,9 @@ namespace phi
         _y = 0;
         _size = 0;
         _text = "";
-        _texture = resourceManager::get()->getTexture("button");
+        _texture = ui::repository->getResource<texture>("button");
         _textRenderer = new textRenderer2D(viewportSize);
-        _font = new font("Consola", 14);
+        _font = ui::repository->getResource<font>("Consola_14");
         _textX = 0;
         _textY = 0;
     }

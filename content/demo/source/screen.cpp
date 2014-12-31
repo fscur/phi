@@ -1,5 +1,4 @@
 #include "screen.h"
-#include "resourceManager.h"
 #include "box.h"
 #include "plane.h"
 #include "sphere.h"
@@ -30,7 +29,7 @@ void screen::initEngine()
 	info.size = getSize();
 
 	phi::engine::get()->init(info);
-}
+ }
 
 void screen::initScene()
 {
@@ -40,11 +39,11 @@ void screen::initScene()
 	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-	box* box1 = new box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::resourceManager::get()->getMaterial("Bricks"));
+	box* box1 = new box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::rendering::repository->getResource<phi::material>("bricks"));
 	box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
 	s->add(box1);
 
-	phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.1f, 1000.0f), phi::resourceManager::get()->getMaterial("White"));
+	phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.1f, 1000.0f), phi::rendering::repository->getResource<phi::material>("white"));
 	s->add(floor);
 
 	phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(0.0f, 2.0f, 2.0f), phi::color::white, 1.0f, glm::vec3(-0.4f, -1.0f, -0.7f));
@@ -62,6 +61,8 @@ void screen::initScene()
 
 void screen::initUI()
 {
+    phi::ui::init(getApplicationPath());
+
 	phi::color labelBackground = phi::color::transparent;
 	phi::color labelForeground = phi::color::white;
 
@@ -93,7 +94,7 @@ void screen::initUI()
 	_labelFps->setSize(phi::size<GLuint>(150, 20));
 	_labelFps->setForegroundColor(labelForeground);
 	_labelFps->setBackgroundColor(labelBackground);
-	_labelFps->setFont(new phi::font("Consola", 24));
+	_labelFps->setFont(phi::ui::repository->getResource<phi::font>("Consola_24"));
 	_hud->addControl(_labelFps);
 
 	_labelObjects= new phi::label(getSize());

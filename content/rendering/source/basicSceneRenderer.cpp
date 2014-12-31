@@ -3,7 +3,7 @@
 namespace phi
 {
 	basicSceneRenderer::basicSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize),
-		_defaultDiffuseMap(resourceManager::get()->getTexture("default_diffuseMap"))
+		_defaultDiffuseMap(rendering::repository->getResource<texture>("default_diffuseMap"))
 	{
 	}
 	

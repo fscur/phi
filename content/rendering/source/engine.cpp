@@ -1,7 +1,6 @@
 #include "engine.h"
 #include "globals.h"
 #include "shaderManager.h"
-#include "resourceManager.h"
 
 namespace phi
 {
@@ -32,15 +31,14 @@ namespace phi
 
 		_info = info;
 
+        if (!rendering::initialized)
+            rendering::init(_info.applicationPath);
+
 		basicRenderer = new phi::basicSceneRenderer(_info.size);
 		fsRenderer = new phi::fsSceneRenderer(_info.size);
 		dsRenderer = new phi::dsSceneRenderer(_info.size);
 
 		setSceneRenderer(phi::engine::basicRenderer);
-
-		resourceManagerInfo resInfo;
-		resInfo.path = info.applicationPath;
-		resourceManager::get()->init(resInfo);
 
 		shaderManagerInfo shaderInfo;
 		shaderInfo.path = info.applicationPath;
@@ -70,7 +68,7 @@ namespace phi
     void engine::release()
     {
         //TODO: Think about how to handle HUD system, as we need the resource manager and shader manager to display the HUD for now
-        resourceManager::get()->release();
+        rendering::release();
         shaderManager::get()->release();
 
         DELETE(_instance);

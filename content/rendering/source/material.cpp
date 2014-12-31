@@ -1,9 +1,10 @@
-#include "Material.h"
-#include "ResourceManager.h"
+#include "material.h"
 
 namespace phi
 {
     material::material(
+        std::string name,
+        std::string path,
         texture* diffuseTexture, 
         texture* normalTexture, 
         texture* specularTexture,
@@ -13,22 +14,23 @@ namespace phi
         float ka,
         float kd,
         float ks,
-        float shininess)
+        float shininess) :
+        resource(name, path)
     {
         if (diffuseTexture == nullptr)
-            _diffuseTexture = resourceManager::get()->getTexture("default_diffuseMap");
+            _diffuseTexture = rendering::repository->getResource<texture>("default_diffuseMap");
         else
             _diffuseTexture = diffuseTexture;
 
         if (normalTexture == nullptr)
-            _normalTexture = resourceManager::get()->getTexture("default_normalMap");
+            _normalTexture = rendering::repository->getResource<texture>("default_normalMap");
         else
-		    _normalTexture = normalTexture;
+            _normalTexture = normalTexture;
 
         if (specularTexture == nullptr)
-            _specularTexture = resourceManager::get()->getTexture("default_specularMap");
+            _specularTexture = rendering::repository->getResource<texture>("default_specularMap");
         else
-		    _specularTexture = specularTexture;
+            _specularTexture = specularTexture;
 
         _ambientColor = ambientColor;
         _diffuseColor = diffuseColor;

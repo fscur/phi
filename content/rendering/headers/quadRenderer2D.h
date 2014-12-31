@@ -1,7 +1,6 @@
 #ifndef _PHI_QUAD_RENDERER_H_
 #define _PHI_QUAD_RENDERER_H_
 #include "rendering.h"
-#include "resourceManager.h"
 #include "shaderManager.h"
 #include "shader.h"
 #include "quad.h"

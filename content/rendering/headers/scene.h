@@ -6,7 +6,6 @@
 
 #include "globals.h"
 #include "mathUtils.h"
-#include "resourceManager.h"
 #include "shaderManager.h"
 
 #include "sceneObject.h"
