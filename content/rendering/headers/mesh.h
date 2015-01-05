@@ -1,8 +1,6 @@
 #ifndef _PHI_MESH_H_
 #define _PHI_MESH_H_
 
-#include "vertex.h"
-
 #if WIN32
 #include <GL/glew.h>
 #else
@@ -11,6 +9,8 @@
 #include <string>
 #include <list>
 #include <vector>
+#include "vertex.h"
+#include "resource.h"
 
 namespace phi
 {

@@ -331,7 +331,7 @@ namespace phi
 
 	void dsSceneRenderer::dsFinalBlit()
 	{
-		_defaultRenderTarget->bindForWriting();
+		renderingSystem::mainRenderTarget->bindForWriting();
 		_gBuffer->bindForReading();
 		_gBuffer->blit(6, 0, 0, _viewportSize.width, _viewportSize.height);
 	}

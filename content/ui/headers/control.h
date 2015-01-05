@@ -10,6 +10,7 @@
 #include "input.h"
 #include "globals.h"
 #include "size.h"
+#include "uiSystem.h"
 
 namespace phi
 {

@@ -10,7 +10,7 @@ namespace phi
     private:
         static mesh* _lastMesh;
     public:
-        static void render(mesh* mesh);
+        RENDERING_API static void render(mesh* mesh);
     };
 }
 

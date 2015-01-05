@@ -15,9 +15,9 @@ namespace phi
 		void fsSpotLightPasses();
 
 	public:
-		RENDERING_API fsSceneRenderer(size<GLuint> viewportSize);
-		RENDERING_API ~fsSceneRenderer();
-		RENDERING_API void onRender() override;
+		SCENES_API fsSceneRenderer(size<GLuint> viewportSize);
+		SCENES_API ~fsSceneRenderer();
+		SCENES_API void onRender() override;
 	};
 }
 

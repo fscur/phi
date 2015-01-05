@@ -1,28 +1,41 @@
+#include "renderingSystem.h"
 #include "globals.h"
-#include "rendering.h"
 #include "texture.h"
 #include "material.h"
 #include "mesh.h"
+#include "shaderManager.h"
 
 namespace phi
 {
-    resourcesRepository* rendering::repository;
-    bool rendering::initialized = false;
+    renderingSystemInfo renderingSystem::info;
+    defaultRenderTarget* renderingSystem::mainRenderTarget = nullptr;
+    resourcesRepository* renderingSystem::repository = nullptr;
+    bool renderingSystem::initialized = false;
 
-    void rendering::init(std::string path)
+    void renderingSystem::init(renderingSystemInfo info)
     {
+        renderingSystem::info = info;
+        mainRenderTarget = new defaultRenderTarget(info.size, color::black);
+        mainRenderTarget->init();
+        mainRenderTarget->setViewport(0, 0, info.size);
+        mainRenderTarget->bind();
+
         repository = new resourcesRepository();
-        
-        initTextures(path);
-        initMaterials(path);
-        initMeshes(path);
+
+        shaderManagerInfo shaderInfo;
+        shaderInfo.path = info.applicationPath;
+        shaderManager::get()->init(shaderInfo);
+
+        initTextures();
+        initMaterials();
+        initMeshes();
 
         initialized = true;
     }
 
-    void rendering::initTextures(std::string path)
+    void renderingSystem::initTextures()
     {
-        std::string texturesPath = path + RENDERING_TEXTURES_PATH;
+        std::string texturesPath = info.applicationPath + RENDERING_TEXTURES_PATH;
         repository->addResource(texture::fromFile(texturesPath + "default_diffuseMap.bmp"));
         repository->addResource(texture::fromFile(texturesPath + "default_normalMap.bmp"));
         repository->addResource(texture::fromFile(texturesPath + "default_specularMap.bmp"));
@@ -36,7 +49,7 @@ namespace phi
         repository->addResource(texture::fromFile(texturesPath + "BubbleGrip-NormalMap.bmp"));
     }
 
-    void rendering::initMaterials(std::string path)
+    void renderingSystem::initMaterials()
     {
         repository->addResource(new material("bricks", "",
             repository->getResource<texture>("diffuse"), //diffuse texture
@@ -87,15 +100,23 @@ namespace phi
             8.0f)); // shininess
     }
 
-    void rendering::initMeshes(std::string path)
+    void renderingSystem::initMeshes()
     {
-        std::string meshesPath = path + RENDERING_MESHES_PATH;
+        std::string meshesPath = info.applicationPath + RENDERING_MESHES_PATH;
         repository->addResource(mesh::fromObj("box", meshesPath + "cube.model"));
     }
 
-    void rendering::release()
+    void renderingSystem::release()
     {
+        DELETE(mainRenderTarget);
         repository->release();
         DELETE(repository);
+    }
+
+    void renderingSystem::resize(size<GLuint> viewportSize)
+    {
+        info.size = viewportSize;
+        mainRenderTarget->setSize(info.size);
+        mainRenderTarget->setViewport(0, 0, info.size);
     }
 }

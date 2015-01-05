@@ -32,10 +32,10 @@ namespace phi
             float bDiff = colorTo.b - colorFrom->b;
             float aDiff = colorTo.a - colorFrom->a;
 
-            float r = glm::sign(rDiff) * 0.005f; // TODO: use time interval instead of fixed value per frame
-            float g = glm::sign(gDiff) * 0.005f;
-            float b = glm::sign(bDiff) * 0.005f;
-            float a = glm::sign(aDiff) * 0.005f;
+            float r = glm::sign(rDiff) * 0.05f; // TODO: use time interval instead of fixed value per frame
+            float g = glm::sign(gDiff) * 0.05f;
+            float b = glm::sign(bDiff) * 0.05f;
+            float a = glm::sign(aDiff) * 0.05f;
 
             colorFrom->r += r < 0 ? glm::max(r, rDiff) : glm::min(r, rDiff);
             colorFrom->g += g < 0 ? glm::max(g, gDiff) : glm::min(g, gDiff);

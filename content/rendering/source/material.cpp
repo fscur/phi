@@ -1,4 +1,5 @@
 #include "material.h"
+#include "renderingSystem.h"
 
 namespace phi
 {
@@ -18,17 +19,17 @@ namespace phi
         resource(name, path)
     {
         if (diffuseTexture == nullptr)
-            _diffuseTexture = rendering::repository->getResource<texture>("default_diffuseMap");
+            _diffuseTexture = renderingSystem::repository->getResource<texture>("default_diffuseMap");
         else
             _diffuseTexture = diffuseTexture;
 
         if (normalTexture == nullptr)
-            _normalTexture = rendering::repository->getResource<texture>("default_normalMap");
+            _normalTexture = renderingSystem::repository->getResource<texture>("default_normalMap");
         else
             _normalTexture = normalTexture;
 
         if (specularTexture == nullptr)
-            _specularTexture = rendering::repository->getResource<texture>("default_specularMap");
+            _specularTexture = renderingSystem::repository->getResource<texture>("default_specularMap");
         else
             _specularTexture = specularTexture;
 

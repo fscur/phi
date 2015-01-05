@@ -1,4 +1,5 @@
 #include "font.h"
+#include "resource.h"
 
 namespace phi
 {

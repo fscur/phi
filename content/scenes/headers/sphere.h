@@ -16,11 +16,11 @@ namespace phi
 		sphere(){};
 		mesh* create(GLuint rings, GLuint sectors);
     public:
-        RENDERING_API sphere(glm::vec3 position, float radius, int rings, int sectors, material* material);
-        RENDERING_API ~sphere(void);
+        SCENES_API sphere(glm::vec3 position, float radius, int rings, int sectors, material* material);
+        SCENES_API ~sphere(void);
 
-		RENDERING_API void setRadius(float radius);
-		RENDERING_API float getRadius() const { return _radius; }
+		SCENES_API void setRadius(float radius);
+		SCENES_API float getRadius() const { return _radius; }
     };
 }
 

@@ -1,4 +1,5 @@
 #include "hud.h"
+#include "renderingSystem.h"
 
 namespace phi
 {

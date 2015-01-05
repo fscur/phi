@@ -1,9 +1,10 @@
 #include "basicSceneRenderer.h"
+#include "renderingSystem.h"
 
 namespace phi
 {
 	basicSceneRenderer::basicSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize),
-		_defaultDiffuseMap(rendering::repository->getResource<texture>("default_diffuseMap"))
+		_defaultDiffuseMap(renderingSystem::repository->getResource<texture>("default_diffuseMap"))
 	{
 	}
 	

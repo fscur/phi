@@ -34,7 +34,6 @@ namespace phi
 		RENDERING_API texture* getDepthTexture() const { return _depthTexture; }
 
         RENDERING_API bool init() override;
-        RENDERING_API void bind() override;
         RENDERING_API void clear() override;
         RENDERING_API void blit(GLuint buffer, GLuint x, GLuint y, GLsizei width, GLsizei height);
 		

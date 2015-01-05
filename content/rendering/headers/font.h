@@ -4,7 +4,7 @@
 #include <SDL\SDL_ttf.h>
 #include <string>
 #include "rendering.h"
-
+#include "resource.h"
 
 namespace phi
 {

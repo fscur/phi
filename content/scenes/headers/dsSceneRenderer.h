@@ -22,9 +22,9 @@ namespace phi
 		void dsFinalBlit();
 
 	public:
-		RENDERING_API dsSceneRenderer(size<GLuint> viewportSize);
-		RENDERING_API ~dsSceneRenderer();
-		RENDERING_API void onRender() override;
+		SCENES_API dsSceneRenderer(size<GLuint> viewportSize);
+		SCENES_API ~dsSceneRenderer();
+		SCENES_API void onRender() override;
 	};
 }
 

@@ -6,6 +6,8 @@
 #include "colorAnimator.h"
 #include "fsSceneRenderer.h"
 #include "dsSceneRenderer.h"
+#include "renderingSystem.h"
+#include "uiSystem.h"
 
 screen::screen() : form()
 {
@@ -19,16 +21,16 @@ screen::screen() : form()
 
 screen::~screen()
 {
-	phi::engine::get()->release();
+	phi::scenesManager::get()->release();
 }
 
-void screen::initEngine()
+void screen::initScenesManager()
 {
-	phi::engineInfo info;
+	phi::scenesManagerInfo info;
 	info.applicationPath = getApplicationPath();
 	info.size = getSize();
 
-	phi::engine::get()->init(info);
+	phi::scenesManager::get()->init(info);
  }
 
 void screen::initScene()
@@ -39,11 +41,11 @@ void screen::initScene()
 	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-	box* box1 = new box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::rendering::repository->getResource<phi::material>("bricks"));
+	box* box1 = new box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
 	box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
 	s->add(box1);
 
-	phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.1f, 1000.0f), phi::rendering::repository->getResource<phi::material>("white"));
+	phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.1f, 1000.0f), phi::renderingSystem::repository->getResource<phi::material>("white"));
 	s->add(floor);
 
 	phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(0.0f, 2.0f, 2.0f), phi::color::white, 1.0f, glm::vec3(-0.4f, -1.0f, -0.7f));
@@ -55,13 +57,16 @@ void screen::initScene()
 	phi::spotLight* sLight = new phi::spotLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::orange, 100.0f, phi::attenuation(), glm::vec3(0.0f, -1.0f, 0.0f), 0.8f);
 	s->add(sLight);
 
-	phi::engine::get()->addScene(s);
-	phi::engine::get()->loadScene(0);
+	phi::scenesManager::get()->addScene(s);
+	phi::scenesManager::get()->loadScene(0);
 }
 
 void screen::initUI()
 {
-    phi::ui::init(getApplicationPath());
+    phi::uiSystemInfo info = phi::uiSystemInfo();
+    info.applicationPath = getApplicationPath();
+    info.size = getSize();
+    phi::uiSystem::init(info);
 
 	phi::color labelBackground = phi::color::transparent;
 	phi::color labelForeground = phi::color::white;
@@ -94,7 +99,7 @@ void screen::initUI()
 	_labelFps->setSize(phi::size<GLuint>(150, 20));
 	_labelFps->setForegroundColor(labelForeground);
 	_labelFps->setBackgroundColor(labelBackground);
-	_labelFps->setFont(phi::ui::repository->getResource<phi::font>("Consola_24"));
+	_labelFps->setFont(phi::uiSystem::repository->getResource<phi::font>("Consola_24"));
 	_hud->addControl(_labelFps);
 
 	_labelObjects= new phi::label(getSize());
@@ -216,8 +221,7 @@ void screen::initialize(std::string applicationPath)
 	setSize(phi::size<unsigned int>(1024, 768));
 	centerScreen();
 
-	initEngine();
-
+	initScenesManager();
 	initScene();
 	initUI();
 }
@@ -225,7 +229,7 @@ void screen::initialize(std::string applicationPath)
 void screen::onResize(SDL_Event e)
 {
 	phi::size<GLuint> sz = phi::size<GLuint>(e.window.data1, e.window.data2);
-	phi::engine::get()->resize(sz);
+	phi::scenesManager::get()->resize(sz);
 	_hud->setViewportSize(sz);
 }
 
@@ -273,7 +277,7 @@ void screen::onMouseMove(SDL_Event e)
 
 	glm::vec2 displacement = glm::vec2(dx, dy);
 
-	phi::camera* camera = phi::engine::get()->getScene()->getActiveCamera();
+	phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 
 	dx *= _rotationSpeed;
 	dy *= _rotationSpeed;
@@ -305,8 +309,8 @@ void screen::onMouseUp(SDL_Event e)
 
 		glm::vec2 screenCoords = glm::vec2(e.motion.x, e.motion.y);
 		phi::size<float> screenSize = phi::size<float>((float)getSize().width, (float)getSize().height);
-		_ray = phi::engine::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
-		std::vector<phi::sceneObject*> sceneObjects = phi::engine::get()->getScene()->getVisibleObjects();
+		_ray = phi::scenesManager::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
+		std::vector<phi::sceneObject*> sceneObjects = phi::scenesManager::get()->getScene()->getVisibleObjects();
 
 		/*for (unsigned int i = 0; i < sceneObjects.size(); i++)
 		{
@@ -325,7 +329,7 @@ void screen::onMouseUp(SDL_Event e)
 
 void screen::onMouseWheel(SDL_Event e)
 {
-	phi::camera* camera = phi::engine::get()->getScene()->getActiveCamera();
+	phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 
 	if (e.wheel.y > 0)
 		camera->zoomIn();
@@ -379,7 +383,7 @@ void screen::update()
 	if (a > 2 * phi::PI)
 		a -=2 * phi::PI;
 
-	phi::engine::get()->update();
+	phi::scenesManager::get()->update();
 	phi::colorAnimator::update();
 
 	_labelFps->setText("FPS: " + std::to_string(getFps()));
@@ -392,16 +396,17 @@ void screen::update()
 	//int allObjects = Engine::Get()->GetScene()->GetAllObjectsCount();
 	//_labelObjects->setText(to_string(visibleObjects) + "/" + to_string(allObjects));
 
-	phi::pointLight* p = dynamic_cast<phi::pointLight*>(phi::engine::get()->getScene()->getPointLight(0));
+	phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
 	p->setPosition(glm::vec3(glm::cos(a) * 5.0f, 0.5f, glm::sin(a) * 3.5f));
 
-	phi::spotLight* s = dynamic_cast<phi::spotLight*>(phi::engine::get()->getScene()->getSpotLight(0));
+	phi::spotLight* s = phi::scenesManager::get()->getScene()->getSpotLight(0);
 	auto dir = s->getDirection();
 	s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));
 }
 
 void screen::render()
 {
-	phi::engine::get()->render();
+    phi::renderingSystem::mainRenderTarget->clear();
+	phi::scenesManager::get()->render();
 	_hud->render();
 }

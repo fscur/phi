@@ -9,10 +9,10 @@ namespace phi
         _y = 0;
         _size = size<GLuint>();
         _text = "";
-        _texture = ui::repository->getResource<texture>("button");
+        _texture = uiSystem::repository->getResource<texture>("button");
         _textureRenderer = new quadRenderer2D(glm::vec2(0, 0), size<GLuint>(0, 0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
-        _font = ui::repository->getResource<font>("Consola_18");
+        _font = uiSystem::repository->getResource<font>("Consola_18");
         _textX = 0;
         _textY = 0;
         _clickedOver = false;
@@ -117,7 +117,7 @@ namespace phi
 
     void button::onMouseEnter(mouseEventArgs e)
     {
-        colorAnimator::animateColor(&_currentColor, color(glm::min(1.0f, _backgroundColor.r + 0.2f), glm::min(1.0f, _backgroundColor.g + 0.2f), glm::min(1.0f, _backgroundColor.b + 0.2f), 1));
+        colorAnimator::animateColor(&_currentColor, color(glm::min(1.0f, _backgroundColor.r + 0.3f), glm::min(1.0f, _backgroundColor.g + 0.3f), glm::min(1.0f, _backgroundColor.b + 0.3f), 1));
     }
 
     void button::onMouseLeave(mouseEventArgs e)

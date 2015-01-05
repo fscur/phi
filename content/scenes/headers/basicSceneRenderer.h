@@ -12,9 +12,9 @@ namespace phi
 		texture* _defaultDiffuseMap;
 
 	public:
-		RENDERING_API basicSceneRenderer(size<GLuint> viewportSize);
-		RENDERING_API ~basicSceneRenderer();
-		RENDERING_API void onRender() override;
+		SCENES_API basicSceneRenderer(size<GLuint> viewportSize);
+		SCENES_API ~basicSceneRenderer();
+		SCENES_API void onRender() override;
 	};
 }
 

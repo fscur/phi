@@ -15,13 +15,13 @@ namespace phi
 		skyDome(){};
 		mesh* create(GLuint rings, GLuint sectors);
     public:
-        RENDERING_API skyDome(float radius, int rings, int sectors, material* material);
-        RENDERING_API ~skyDome(void);
+        SCENES_API skyDome(float radius, int rings, int sectors, material* material);
+        SCENES_API ~skyDome(void);
 
-		RENDERING_API float getRadius() const { return _radius; }
-		RENDERING_API void setRadius(float radius);
+		SCENES_API float getRadius() const { return _radius; }
+		SCENES_API void setRadius(float radius);
 
-		RENDERING_API void render();
+		SCENES_API void render();
     };
 }
 
