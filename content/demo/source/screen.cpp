@@ -8,6 +8,15 @@
 #include "fsSceneRenderer.h"
 #include "dsSceneRenderer.h"
 
+float a;
+float z_eye;
+
+float xm0;
+float ym0;
+glm::vec3 camPos;
+glm::vec3 camRight;
+glm::vec3 camUp;
+
 screen::screen() : form()
 {
 	_temp = 0.0f;
@@ -36,25 +45,33 @@ void screen::initScene()
 {
 	phi::scene* s = new phi::scene();
 	s->setSize(getSize());
-	s->getActiveCamera()->setPosition(glm::vec3(5.0f, 5.0f, 5.0f));
+	s->getActiveCamera()->setPosition(glm::vec3(0.0f, 5.0f, 20.0f));
 	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-	box* box1 = new box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::resourceManager::get()->getMaterial("Bricks"));
-	box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
+	phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(2.0f, 2.0f, 2.0f), phi::resourceManager::get()->getMaterial("Blue"));
+	//box1->setPosition(glm::vec3(6.0f, 0.0f, 3.0f));
 	s->add(box1);
+
+	/*phi::box* box2 = new phi::box(glm::vec3(), phi::size<float>(2.0f, 2.0f, 2.0f), phi::resourceManager::get()->getMaterial("Red"));
+	box2->setPosition(glm::vec3(6.0f, 0.0f, 10.0f));
+	s->add(box2);
+	
+	phi::box* box3 = new phi::box(glm::vec3(), phi::size<float>(0.5f, 0.5f, 0.5f), phi::resourceManager::get()->getMaterial("White"));
+	box3->setPosition(glm::vec3(3.0f, 0.0f, 0.0f));
+	s->add(box3);*/
 
 	phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.1f, 1000.0f), phi::resourceManager::get()->getMaterial("White"));
 	s->add(floor);
 
-	phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(0.0f, 2.0f, 2.0f), phi::color::white, 1.0f, glm::vec3(-0.4f, -1.0f, -0.7f));
+	phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(0.0f, 2.0f, 2.0f), phi::color::white, 1.0f, glm::vec3(0.4f, -1.0f, -0.7f));
 	s->add(dirLight);
-
+	/*
 	phi::pointLight* pLight = new phi::pointLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::blue, 10.0f, phi::attenuation());
 	s->add(pLight);
 
 	phi::spotLight* sLight = new phi::spotLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::orange, 100.0f, phi::attenuation(), glm::vec3(0.0f, -1.0f, 0.0f), 0.8f);
-	s->add(sLight);
+	s->add(sLight);*/
 
 	phi::engine::get()->addScene(s);
 	phi::engine::get()->loadScene(0);
@@ -149,64 +166,6 @@ void screen::initUI()
 	_hud->addControl(_slider1);
 }
 
-//void Screen::CloseButtonMouseEnter(MouseEventArgs e)
-//{
-//    _closeButton->SetBackColor(Color::White);
-//}
-
-//void Screen::CloseButtonMouseLeave(MouseEventArgs e)
-//{
-//    _closeButton->SetBackColor(Color::Gray);
-//}
-
-//void Screen::Update()
-//{
-//	Scene* scene = Engine::Get()->GetScene();
-//
-//    ////LOG(dt);
-//    _temp += 0.01;
-//
-//    float sine = (float)sin(_temp);
-//    float cossine = (float)cos(_temp);
-//
-//    PointLight* light0 = dynamic_cast<PointLight*>(scene->GetLight(1));
-//	vec3 position0 = light0->GetPosition();
-//    light0->SetPosition(vec3(cossine * 4.0f, position0.y, sine * 4.0f));
-//	
-//	/*PointLight* light1 = dynamic_cast<PointLight*>(scene->GetLight(2));
-//	vec3 position1 = light1->GetPosition();
-//    light1->SetPosition(vec3(-cossine * 4.0f, position1.y, sine * 4.0f));
-//
-//	SpotLight* light2 = dynamic_cast<SpotLight*>(scene->GetLight(3));
-//    vec3 direction = light2->GetDirection();
-//    light2->SetDirection(vec3(cossine, -abs(sine), direction.z));*/
-//
-//	//DirectionalLight* light = dynamic_cast<DirectionalLight*>(scene->GetLight(0));
-//    //light->SetDirection(vec3(cossine, -1.0f, sine));
-//
-//    //light = dynamic_cast<PointLight*>(Globals::GetAt<Light>(_lights, 2));
-//    //light->SetPosition(vec3(0.0f, -cossine, sine));
-//
-//    //light = dynamic_cast<PointLight*>(Globals::GetAt<Light>(_lights, 3));
-//    //light->SetPosition(vec3(cossine, -sine, 0.0));
-//
-//    /*SceneObject* box =  scene->GetSceneObject(0);
-//    box->Pitch(0.01);*/
-//
-//    Engine::Get()->Update();
-//
-//    /*_txtFps->SetText("FPS: " + to_string(GetFps()));
-//    _txtDt->SetText("TotalTime/Frame (s): " + to_string(GetDt()));
-//    _txtInputCost->SetText("InputCost (s): " + to_string(GetInputCost()));
-//    _txtUpdateCost->SetText("UpdateCost (s): " + to_string(GetUpdateCost()));
-//    _txtRenderCost->SetText("RenderCost (s): " + to_string(GetRenderCost()));*/
-//
-//    int visibleObjects = Engine::Get()->GetScene()->GetVisibleObjectsCount();
-//    int allObjects = Engine::Get()->GetScene()->GetAllObjectsCount();
-//
-//    //_txtObjects->SetText(to_string(visibleObjects) + "/" + to_string(allObjects));
-//}
-
 void screen::initialize(std::string applicationPath)
 {
 	form::initialize(applicationPath);
@@ -228,121 +187,101 @@ void screen::onResize(SDL_Event e)
 	_hud->setViewportSize(sz);
 }
 
-void screen::onMouseDown(SDL_Event e)
+void screen::onBeginInput()
 {
-	bool handled = false;
+	_commandsManager.onBeginInput(getSize());
+}
 
-	//handled = _hud->HandleMouseDown(e);
+void screen::onMouseDown(phi::mouseEventArgs e)
+{	
+	if (_commandsManager.onMouseDown(e))
+		return;
+
+	/*bool handled = false;
+
+	handled = _hud->HandleMouseDown(e);
 
 	if (handled)
 		return;
 
 	_isMouseDown = true;
 	_mouseDownPos = glm::vec2(e.motion.x, e.motion.y);
+
+	*/
 }
 
-void screen::onMouseMove(SDL_Event e) 
+void screen::onMouseMove(phi::mouseEventArgs e) 
 {
-	glm::vec2 mousePos = glm::vec2(e.motion.x, e.motion.y);
-
-	bool handled = false;
-
-	//handled = _hud->HandleMouseMove(e);
-
-	if (handled)
+	if (_commandsManager.onMouseMove(e))
 		return;
-
-	if (!_isMouseDown)
-	{
-		_lastMousePos = mousePos;
-		return;
-	}
-
-	if (_isMouseDown && glm::length(_mouseDownPos - _lastMousePos) > 5)
-		_rotating = true;
-
-	if (!_rotating)
-	{
-		_lastMousePos = mousePos;
-		return;
-	}
-
-	float dx = (float)(_lastMousePos.x - mousePos.x);
-	float dy = (float)(_lastMousePos.y - mousePos.y);
-
-	glm::vec2 displacement = glm::vec2(dx, dy);
-
-	phi::camera* camera = phi::engine::get()->getScene()->getActiveCamera();
-
-	dx *= _rotationSpeed;
-	dy *= _rotationSpeed;
-
-	camera->orbit(camera->getTarget(), camera->getUp(), dx);
-	camera->orbit(camera->getTarget(), camera->getRight(), dy);
-
-	_lastMousePos = mousePos;
 }
 
-void screen::onMouseUp(SDL_Event e)
+void screen::onMouseUp(phi::mouseEventArgs e)
 {
-	bool handled = false;
+	if (_commandsManager.onMouseUp(e))
+		return;
+
+	//bool handled = false;
 
 	//handled = _hud->HandleMouseUp(e);
 
-	if (handled)
+	//if (handled)
+	//	return;
+
+	//if (!_rotating)
+	//{
+	//	 Return the depth buffer value at (x,y)
+	//	glPixelTransferf( GL_DEPTH_SCALE, 1.0f );
+	//	glPixelTransferf( GL_DEPTH_BIAS, 0.0f );
+	//	float z = 1;    // default to far clipping plane
+	//	// glReadPixels returns the depth buffer value mapping the current
+	//	// glDepthRange near-to-far to 0.0-1.0
+	//	glReadPixels((GLuint)_lastMousePos.x, GetHeight() - (GLuint)_lastMousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
+
+	//	glm::vec2 screenCoords = glm::vec2(e.motion.x, e.motion.y);
+	//	phi::size<float> screenSize = phi::size<float>((float)getSize().width, (float)getSize().height);
+	//	_ray = phi::engine::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
+	//	std::vector<phi::sceneObject*> sceneObjects = phi::engine::get()->getScene()->getVisibleObjects();
+
+	//	/*for (unsigned int i = 0; i < sceneObjects.size(); i++)
+	//	{
+	//	SceneObject* sceneObject = sceneObjects[i];
+
+	//	sceneObject->SetSelected(false);
+
+	//	if (_ray.Intersects(sceneObject->GetAABB()))
+	//	sceneObject->SetSelected(true);
+	//	}*/
+	//}
+
+	//_rotating = false;
+	//_isMouseDown = false;
+}
+
+void screen::onMouseWheel(phi::mouseEventArgs e)
+{
+	if (_commandsManager.onMouseWheel(e))
+		return;
+}
+
+void screen::onKeyDown(phi::keyboardEventArgs e)
+{
+	if (_commandsManager.onKeyDown(e))
 		return;
 
-	if (!_rotating)
-	{
-		// Return the depth buffer value at (x,y)
-		//glPixelTransferf( GL_DEPTH_SCALE, 1.0f );
-		//glPixelTransferf( GL_DEPTH_BIAS, 0.0f );
-		//float z = 1;    // default to far clipping plane
-		//// glReadPixels returns the depth buffer value mapping the current
-		//// glDepthRange near-to-far to 0.0-1.0
-		//glReadPixels((GLuint)_lastMousePos.x, GetHeight() - (GLuint)_lastMousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
-
-		glm::vec2 screenCoords = glm::vec2(e.motion.x, e.motion.y);
-		phi::size<float> screenSize = phi::size<float>((float)getSize().width, (float)getSize().height);
-		_ray = phi::engine::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
-		std::vector<phi::sceneObject*> sceneObjects = phi::engine::get()->getScene()->getVisibleObjects();
-
-		/*for (unsigned int i = 0; i < sceneObjects.size(); i++)
-		{
-		SceneObject* sceneObject = sceneObjects[i];
-
-		sceneObject->SetSelected(false);
-
-		if (_ray.Intersects(sceneObject->GetAABB()))
-		sceneObject->SetSelected(true);
-		}*/
-	}
-
-	_rotating = false;
-	_isMouseDown = false;
-}
-
-void screen::onMouseWheel(SDL_Event e)
-{
-	phi::camera* camera = phi::engine::get()->getScene()->getActiveCamera();
-
-	if (e.wheel.y > 0)
-		camera->zoomIn();
-	else
-		camera->zoomOut();
-}
-
-void screen::onKeyDown(SDL_Event e)
-{
-	form::onKeyDown(e);
-
-	if (e.key.keysym.sym == SDLK_ESCAPE)
+	if (e.key == PHIK_ESCAPE)
 		close();
 }
 
-void screen::onKeyUp(SDL_Event e)
+void screen::onKeyUp(phi::keyboardEventArgs e)
 {
-	form::onKeyUp(e);
+	if (_commandsManager.onKeyUp(e))
+		return;
+}
+
+void screen::onEndInput()
+{
+	_commandsManager.onEndInput();
 }
 
 void screen::onClosing()
@@ -370,33 +309,39 @@ void screen::closeButtonClick(phi::mouseEventArgs e)
 	close();
 }
 
-float a;
-
 void screen::update()
 {
-	a+= 0.001;
+	a+= 0.0001;
 	if (a > 2 * phi::PI)
 		a -=2 * phi::PI;
 
 	phi::engine::get()->update();
 	phi::colorAnimator::update();
 
-	_labelFps->setText("FPS: " + std::to_string(getFps()));
+	/*_labelFps->setText("FPS: " + std::to_string(getFps()));
 	_labelDt->setText("TotalTime/Frame (s): " + std::to_string(getDt()));
 	_labelInputCost->setText("InputCost (s): " + std::to_string(getInputCost()));
 	_labelUpdateCost->setText("UpdateCost (s): " + std::to_string(getUpdateCost()));
-	_labelRenderCost->setText("RenderCost (s): " + std::to_string(getRenderCost()));
+	_labelRenderCost->setText("RenderCost (s): " + std::to_string(getRenderCost()));*/
 
 	//int visibleObjects = Engine::Get()->GetScene()->GetVisibleObjectsCount();
 	//int allObjects = Engine::Get()->GetScene()->GetAllObjectsCount();
 	//_labelObjects->setText(to_string(visibleObjects) + "/" + to_string(allObjects));
-
+/*
 	phi::pointLight* p = dynamic_cast<phi::pointLight*>(phi::engine::get()->getScene()->getPointLight(0));
 	p->setPosition(glm::vec3(glm::cos(a) * 5.0f, 0.5f, glm::sin(a) * 3.5f));
 
 	phi::spotLight* s = dynamic_cast<phi::spotLight*>(phi::engine::get()->getScene()->getSpotLight(0));
 	auto dir = s->getDirection();
-	s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));
+	s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));*/
+
+	/*phi::box* b0 = dynamic_cast<phi::box*>(phi::engine::get()->getScene()->getSceneObject(0));
+	glm::vec3 pos0 = phi::mathUtils::rotateAboutAxis(b0->getPosition(), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.001);
+	b0->setPosition(pos0);
+
+	phi::box* b1 = dynamic_cast<phi::box*>(phi::engine::get()->getScene()->getSceneObject(1));
+	glm::vec3 pos1 = phi::mathUtils::rotateAboutAxis(b1->getPosition(), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.001);
+	b1->setPosition(pos1);*/
 }
 
 void screen::render()

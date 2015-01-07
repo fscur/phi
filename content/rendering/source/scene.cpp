@@ -10,7 +10,7 @@ namespace phi
 		_visibleObjectsCount = 0;
 		_size = size<GLuint>(800, 600);
 		_deltaTime = 0.008f;
-		_activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, 0.78539816f);
+		_activeCamera = new camera(1.0f, 100.0f, 800.0f / 600.0f, phi::PI_OVER_4);
 		_cameras.push_back(_activeCamera);
 		_allObjects = new std::vector<sceneObject*>();
 		_directionalLights = new std::vector<directionalLight*>();

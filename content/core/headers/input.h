@@ -2,26 +2,10 @@
 #define _PHI_INPUT_H_
 
 #include "core.h"
-#include "eventHandler.h"
+#include "mouseEventHandler.h"
 
 namespace phi
 {
-    struct mouseEventArgs
-    {
-    public:
-        int x;
-        int y;
-        bool leftButtonPressed;
-        bool rightButtonPressed;
-        bool middleButtonPressed;
-        float wheelDelta;
-    };
-
-    class mouseEventHandler :
-        public eventHandler<mouseEventArgs>
-    {
-    };
-
     class input
     {
     public:

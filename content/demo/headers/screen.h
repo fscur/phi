@@ -10,6 +10,7 @@
 #include "slider.h"
 #include "ray.h"
 #include "size.h"
+#include "commandsManager.h"
 
 class screen :
     public form
@@ -36,6 +37,7 @@ private:
     phi::label* _labelRenderCost;
     phi::slider* _slider1;
 
+	phi::commandsManager _commandsManager;
 private:
 	void initEngine();
     void initScene();
@@ -46,13 +48,17 @@ public:
 
     void initialize(std::string applicationPath) override;
     void onResize(SDL_Event e) override;
-    void onMouseDown(SDL_Event e) override;
-    void onMouseMove(SDL_Event e) override;
-    void onMouseUp(SDL_Event e) override;
-    void onMouseWheel(SDL_Event e) override;
-    void onKeyDown(SDL_Event e) override;
-    void onKeyUp(SDL_Event e) override;
     void onClosing() override;
+
+	void onBeginInput() override;
+    void onMouseDown(phi::mouseEventArgs e) override;
+    void onMouseMove(phi::mouseEventArgs e) override;
+    void onMouseUp(phi::mouseEventArgs e) override;
+    void onMouseWheel(phi::mouseEventArgs e) override;
+    void onKeyDown(phi::keyboardEventArgs e) override;
+    void onKeyUp(phi::keyboardEventArgs e) override;
+	void onEndInput() override;
+
     void closeButtonClick(phi::mouseEventArgs e);
     void expandButtonClick(phi::mouseEventArgs e);
     void sliderValueChanged(phi::eventArgs e);

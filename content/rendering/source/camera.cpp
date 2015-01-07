@@ -73,10 +73,10 @@ namespace phi
     }
 
     void camera::orbit(glm::vec3 origin, glm::vec3 axis, float angle)
-    {
-        //_position = MathUtils::RotateAboutAxis(_position, origin, axis, angle);
-        _direction = glm::normalize(mathUtils::rotateAboutAxis(_direction, axis, angle));
-        _position = _target - (_direction * _focus);
+    {  
+		_position = mathUtils::rotateAboutAxis(_position, origin, axis, angle);
+		_target = mathUtils::rotateAboutAxis(_target, origin, axis, angle);
+		_direction = _target - _position;
         _changed = true;
     }
 
@@ -87,9 +87,11 @@ namespace phi
         _changed = true;
     }
 
-    void camera::zoomIn()
+    void camera::zoomIn(glm::vec3 targetPos)
     {
-        float dist = mathUtils::distance(_target, _position);
+        float dist = mathUtils::distance(targetPos, _position);
+		glm::vec3 direction = glm::normalize(targetPos - _position);
+
         float factor = _zoomFactor;
 
         if (dist < 1.0)
@@ -97,19 +99,20 @@ namespace phi
 
         dist *= factor;
 
-        glm::vec3 offset = _direction * dist;
+        glm::vec3 offset = direction * dist;
         _focus -= dist;
         translate(offset);
         _changed = true;
     }
 
-    void camera::zoomOut()
+    void camera::zoomOut(glm::vec3 targetPos)
     {
-        float dist = mathUtils::distance(_target, _position);
+        float dist = mathUtils::distance(targetPos, _position);
+		glm::vec3 direction = glm::normalize(targetPos - _position);
 
         dist *= -_zoomFactor / (1 -_zoomFactor);
 
-        glm::vec3 offset = _direction * dist;
+        glm::vec3 offset = direction * dist;
         _focus -= dist;
         translate(offset);
         _changed = true;

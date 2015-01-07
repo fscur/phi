@@ -67,6 +67,20 @@ namespace phi
 
         addMaterial("Red", red);
 
+		material* blue = new material(
+			nullptr, //diffuse texture
+            nullptr, //normal texture
+            nullptr, //specular texture,
+            color::blue, // ambient color
+			color::blue, //diffuse color
+            color::blue, //specular color
+            0.2f, // ambient reflectance coeff
+            1.0f, // diffuse reflectance coeff
+            0.0f, // specular reflectance coeff
+            0.0f); // shininess
+
+        addMaterial("Blue", blue);
+
         material* white = new material(
 			nullptr, //diffuse texture
             nullptr, //normal texture
@@ -76,8 +90,8 @@ namespace phi
             color::white, //specular color
             0.1f, // ambient reflectance coeff
             0.8f, // diffuse reflectance coeff
-            0.3f, // specular reflectance coeff
-            64.0f); // shininess
+            0.0f, // specular reflectance coeff
+            0.0f); // shininess
 
         addMaterial("White", white);
 

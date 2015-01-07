@@ -54,8 +54,8 @@ namespace phi
         RENDERING_API void debugRender() override;
 
         RENDERING_API void dolly(float amount);
-        RENDERING_API void zoomIn();
-        RENDERING_API void zoomOut();
+        RENDERING_API void zoomIn(glm::vec3 targetPos);
+        RENDERING_API void zoomOut(glm::vec3 targetPos);
         RENDERING_API void orbit(glm::vec3 origin, glm::vec3 axis, float angle);
 
         RENDERING_API ray castRay(glm::vec2 screenCoords, size<float> screenSize);
