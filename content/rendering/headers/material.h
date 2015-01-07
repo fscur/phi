@@ -6,7 +6,8 @@
 
 namespace phi
 {
-    class material
+    class material :
+        public resource
     {
     private:
         texture* _diffuseTexture;
@@ -22,6 +23,8 @@ namespace phi
 
     public:
         RENDERING_API material(
+            std::string name,
+            std::string path,
             texture* diffuseTexture = nullptr, 
             texture* normalTexture = nullptr, 
             texture* specularTexture = nullptr, 

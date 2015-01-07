@@ -9,8 +9,8 @@ namespace phi
 		public mesh
 	{
 	public:
-		quad();
-		~quad();
+		RENDERING_API quad();
+		RENDERING_API ~quad();
 	};
 }
 

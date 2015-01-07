@@ -44,32 +44,32 @@ namespace phi
 		shader(){}
 
 	public:
-		shader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
-		~shader();
+		RENDERING_API shader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
+		RENDERING_API ~shader();
 
-		GLuint getId() const { return _id; }
-		std::string getName() const { return _name; }
+		RENDERING_API GLuint getId() const { return _id; }
+		RENDERING_API std::string getName() const { return _name; }
 
-		bool init();
+		RENDERING_API bool init();
 		
-		void addUniform(std::string name);
-		void setUniform(std::string name, GLuint value) { glUniform1i(_uniforms[name], value); }
-		void setUniform(std::string name, GLfloat value) { glUniform1f(_uniforms[name], value); }
-		void setUniform(std::string name, color value) { glUniform4f(_uniforms[name], value.r, value.g, value.b, value.a); }
-		void setUniform(std::string name, size<GLfloat> value) { glUniform3f(_uniforms[name], value.width, value.height, value.depth); }
-		void setUniform(std::string name, glm::mat3 value) { glUniformMatrix3fv(_uniforms[name], 1, GL_FALSE, &value[0][0]); }
-		void setUniform(std::string name, glm::mat4 value) { glUniformMatrix4fv(_uniforms[name], 1, GL_FALSE, &value[0][0]); }
-		void setUniform(std::string name, glm::vec2 value) { glUniform2f(_uniforms[name], value.x, value.y); }
-		void setUniform(std::string name, glm::vec3 value) { glUniform3f(_uniforms[name], value.x, value.y, value.z); }
-		void setUniform(std::string name, glm::vec4 value) { glUniform4f(_uniforms[name], value.x, value.y, value.z, value.w); }
-		void setUniform(std::string name, texture* value);
+		RENDERING_API void addUniform(std::string name);
+		RENDERING_API void setUniform(std::string name, GLuint value) { glUniform1i(_uniforms[name], value); }
+		RENDERING_API void setUniform(std::string name, GLfloat value) { glUniform1f(_uniforms[name], value); }
+		RENDERING_API void setUniform(std::string name, color value) { glUniform4f(_uniforms[name], value.r, value.g, value.b, value.a); }
+		RENDERING_API void setUniform(std::string name, size<GLfloat> value) { glUniform3f(_uniforms[name], value.width, value.height, value.depth); }
+		RENDERING_API void setUniform(std::string name, glm::mat3 value) { glUniformMatrix3fv(_uniforms[name], 1, GL_FALSE, &value[0][0]); }
+		RENDERING_API void setUniform(std::string name, glm::mat4 value) { glUniformMatrix4fv(_uniforms[name], 1, GL_FALSE, &value[0][0]); }
+		RENDERING_API void setUniform(std::string name, glm::vec2 value) { glUniform2f(_uniforms[name], value.x, value.y); }
+		RENDERING_API void setUniform(std::string name, glm::vec3 value) { glUniform3f(_uniforms[name], value.x, value.y, value.z); }
+		RENDERING_API void setUniform(std::string name, glm::vec4 value) { glUniform4f(_uniforms[name], value.x, value.y, value.z, value.w); }
+		RENDERING_API void setUniform(std::string name, texture* value);
 		
         RENDERING_API void initAttribs();
 
-		void bind();
-		void unbind();
+		RENDERING_API void bind();
+		RENDERING_API void unbind();
 
-		void release();
+		RENDERING_API void release();
 	};
 }
 

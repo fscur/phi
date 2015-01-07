@@ -13,7 +13,6 @@ namespace phi
         RENDERING_API ~defaultRenderTarget();
         RENDERING_API bool init() override;
         RENDERING_API void clear() override;
-        RENDERING_API void bind() override;
     };
 }
 

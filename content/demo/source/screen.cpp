@@ -1,5 +1,4 @@
 #include "screen.h"
-#include "resourceManager.h"
 #include "box.h"
 #include "plane.h"
 #include "sphere.h"
@@ -7,6 +6,8 @@
 #include "colorAnimator.h"
 #include "fsSceneRenderer.h"
 #include "dsSceneRenderer.h"
+#include "renderingSystem.h"
+#include "uiSystem.h"
 
 float a;
 float z_eye;
@@ -29,17 +30,17 @@ screen::screen() : form()
 
 screen::~screen()
 {
-	phi::engine::get()->release();
+	phi::scenesManager::get()->release();
 }
 
-void screen::initEngine()
+void screen::initScenesManager()
 {
-	phi::engineInfo info;
+	phi::scenesManagerInfo info;
 	info.applicationPath = getApplicationPath();
 	info.size = getSize();
 
-	phi::engine::get()->init(info);
-}
+	phi::scenesManager::get()->init(info);
+ }
 
 void screen::initScene()
 {
@@ -49,8 +50,8 @@ void screen::initScene()
 	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-	phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(2.0f, 2.0f, 2.0f), phi::resourceManager::get()->getMaterial("Blue"));
-	//box1->setPosition(glm::vec3(6.0f, 0.0f, 3.0f));
+	box* box1 = new box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
+	box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
 	s->add(box1);
 
 	/*phi::box* box2 = new phi::box(glm::vec3(), phi::size<float>(2.0f, 2.0f, 2.0f), phi::resourceManager::get()->getMaterial("Red"));
@@ -73,12 +74,17 @@ void screen::initScene()
 	phi::spotLight* sLight = new phi::spotLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::orange, 100.0f, phi::attenuation(), glm::vec3(0.0f, -1.0f, 0.0f), 0.8f);
 	s->add(sLight);*/
 
-	phi::engine::get()->addScene(s);
-	phi::engine::get()->loadScene(0);
+	phi::scenesManager::get()->addScene(s);
+	phi::scenesManager::get()->loadScene(0);
 }
 
 void screen::initUI()
 {
+    phi::uiSystemInfo info = phi::uiSystemInfo();
+    info.applicationPath = getApplicationPath();
+    info.size = getSize();
+    phi::uiSystem::init(info);
+
 	phi::color labelBackground = phi::color::transparent;
 	phi::color labelForeground = phi::color::white;
 
@@ -110,7 +116,7 @@ void screen::initUI()
 	_labelFps->setSize(phi::size<GLuint>(150, 20));
 	_labelFps->setForegroundColor(labelForeground);
 	_labelFps->setBackgroundColor(labelBackground);
-	_labelFps->setFont(new phi::font("Consola", 24));
+	_labelFps->setFont(phi::uiSystem::repository->getResource<phi::font>("Consola_24"));
 	_hud->addControl(_labelFps);
 
 	_labelObjects= new phi::label(getSize());
@@ -174,8 +180,7 @@ void screen::initialize(std::string applicationPath)
 	setSize(phi::size<unsigned int>(1024, 768));
 	centerScreen();
 
-	initEngine();
-
+	initScenesManager();
 	initScene();
 	initUI();
 }
@@ -183,7 +188,7 @@ void screen::initialize(std::string applicationPath)
 void screen::onResize(SDL_Event e)
 {
 	phi::size<GLuint> sz = phi::size<GLuint>(e.window.data1, e.window.data2);
-	phi::engine::get()->resize(sz);
+	phi::scenesManager::get()->resize(sz);
 	_hud->setViewportSize(sz);
 }
 
@@ -262,6 +267,35 @@ void screen::onMouseWheel(phi::mouseEventArgs e)
 {
 	if (_commandsManager.onMouseWheel(e))
 		return;
+
+	if (!_rotating)
+	{
+		// Return the depth buffer value at (x,y)
+		//glPixelTransferf( GL_DEPTH_SCALE, 1.0f );
+		//glPixelTransferf( GL_DEPTH_BIAS, 0.0f );
+		//float z = 1;    // default to far clipping plane
+		//// glReadPixels returns the depth buffer value mapping the current
+		//// glDepthRange near-to-far to 0.0-1.0
+		//glReadPixels((GLuint)_lastMousePos.x, GetHeight() - (GLuint)_lastMousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
+
+		glm::vec2 screenCoords = glm::vec2(e.motion.x, e.motion.y);
+		phi::size<float> screenSize = phi::size<float>((float)getSize().width, (float)getSize().height);
+		_ray = phi::scenesManager::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
+		std::vector<phi::sceneObject*> sceneObjects = phi::scenesManager::get()->getScene()->getVisibleObjects();
+
+		/*for (unsigned int i = 0; i < sceneObjects.size(); i++)
+		{
+		SceneObject* sceneObject = sceneObjects[i];
+
+		sceneObject->SetSelected(false);
+
+		if (_ray.Intersects(sceneObject->GetAABB()))
+		sceneObject->SetSelected(true);
+		}*/
+	}
+
+	_rotating = false;
+	_isMouseDown = false;
 }
 
 void screen::onKeyDown(phi::keyboardEventArgs e)
@@ -315,7 +349,7 @@ void screen::update()
 	if (a > 2 * phi::PI)
 		a -=2 * phi::PI;
 
-	phi::engine::get()->update();
+	phi::scenesManager::get()->update();
 	phi::colorAnimator::update();
 
 	/*_labelFps->setText("FPS: " + std::to_string(getFps()));
@@ -328,10 +362,10 @@ void screen::update()
 	//int allObjects = Engine::Get()->GetScene()->GetAllObjectsCount();
 	//_labelObjects->setText(to_string(visibleObjects) + "/" + to_string(allObjects));
 /*
-	phi::pointLight* p = dynamic_cast<phi::pointLight*>(phi::engine::get()->getScene()->getPointLight(0));
+	phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
 	p->setPosition(glm::vec3(glm::cos(a) * 5.0f, 0.5f, glm::sin(a) * 3.5f));
 
-	phi::spotLight* s = dynamic_cast<phi::spotLight*>(phi::engine::get()->getScene()->getSpotLight(0));
+	phi::spotLight* s = phi::scenesManager::get()->getScene()->getSpotLight(0);
 	auto dir = s->getDirection();
 	s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));*/
 
@@ -346,6 +380,7 @@ void screen::update()
 
 void screen::render()
 {
-	phi::engine::get()->render();
+    phi::renderingSystem::mainRenderTarget->clear();
+	phi::scenesManager::get()->render();
 	_hud->render();
 }

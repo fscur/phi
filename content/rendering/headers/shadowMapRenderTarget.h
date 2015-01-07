@@ -15,7 +15,6 @@ namespace phi
 		RENDERING_API shadowMapRenderTarget(GLuint width, GLuint height);
         RENDERING_API ~shadowMapRenderTarget();
         RENDERING_API bool init() override;
-        RENDERING_API void bind() override;
         RENDERING_API void clear() override;
         RENDERING_API texture* getShadowMap();
     };

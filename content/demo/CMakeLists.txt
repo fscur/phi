@@ -11,6 +11,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../inc/GLM)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../core/headers)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../rendering/headers)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../ui/headers)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../scenes/headers)
 include_directories(headers)
 
 #libs
@@ -90,6 +91,7 @@ endif (WIN32)
 target_link_libraries(demo core)
 target_link_libraries(demo rendering)
 target_link_libraries(demo ui)
+target_link_libraries(demo scenes)
 
 install(TARGETS demo 
     RUNTIME 

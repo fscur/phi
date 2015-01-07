@@ -3,7 +3,7 @@
 namespace phi
 {
 	quad::quad() :
-		mesh()
+		mesh("quad", "")
 	{
 		std::vector<vertex> vertices;
 		vertices.push_back(vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f)));

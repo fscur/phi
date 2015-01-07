@@ -1,11 +1,13 @@
-#include "texture.h"
-#include "globals.h"
 #include <stdio.h>
 #include <SDL\SDL_image.h>
+#include "texture.h"
+#include "globals.h"
+#include "path.h"
 
 namespace phi
 {
-    texture::texture(GLuint id, size<GLuint> size)
+    texture::texture(GLuint id, size<GLuint> size, std::string name, std::string path) :
+        resource(name, path)
     {
         _id = id;
         _size = size;
@@ -59,7 +61,7 @@ namespace phi
 
 		SDL_FreeSurface(surface);
 
-		return new texture(id, size<GLuint>(width, height));
+		return new texture(id, size<GLuint>(width, height), path::getFileNameWithoutExtension(fileName), fileName);
 	}
 
 	texture* texture::create(size<GLuint> size, GLint internalFormat, GLint format, GLint type, GLuint level, GLvoid* data)
@@ -68,6 +70,6 @@ namespace phi
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
 		glTexImage2D(GL_TEXTURE_2D, level, internalFormat, size.width, size.height, 0, format, type, data);
-		return new texture(id, size);
+		return new texture(id, size, "", "");
 	}
 }

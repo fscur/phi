@@ -45,11 +45,6 @@ namespace phi
         return true;
     }
 
-    void shadowMapRenderTarget::bind()
-    {
-        renderTarget::bind();
-    }
-
     void shadowMapRenderTarget::clear()
     {
         glClear(GL_DEPTH_BUFFER_BIT);

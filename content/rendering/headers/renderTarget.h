@@ -39,7 +39,7 @@ namespace phi
 
 		RENDERING_API virtual bool init();
 
-		RENDERING_API virtual void bind();
+		RENDERING_API void bind();
 		RENDERING_API void bindForWriting();
 		RENDERING_API void bindForReading();
 

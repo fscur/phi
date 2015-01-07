@@ -2,7 +2,7 @@
 #define _SCREEN_H_
 
 #include <SDL/SDL.h>
-#include "Engine.h"
+#include "scenesManager.h"
 #include "Form.h"
 #include "hud.h"
 #include "button.h"
@@ -39,7 +39,7 @@ private:
 
 	phi::commandsManager _commandsManager;
 private:
-	void initEngine();
+	void initScenesManager();
     void initScene();
     void initUI();
 public:

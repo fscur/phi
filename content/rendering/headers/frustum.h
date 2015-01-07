@@ -2,9 +2,9 @@
 #define _PHI_FRUSTUM_H_
 
 #include "rendering.h"
-#include "plane.h"
 #include "eventHandler.h"
-
+#include "glm\vec3.hpp"
+#include "glm\mat4x4.hpp"
 #include <iostream>
 #include <vector>
 

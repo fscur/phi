@@ -29,11 +29,11 @@ void rCommandFunction(std::vector<std::string> args)
 	std::string r = args[0];
 
 	if (r == "0")
-		phi::engine::get()->setSceneRenderer(phi::engine::basicRenderer);
+		phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::basicRenderer);
 	else if (r == "1")
-		phi::engine::get()->setSceneRenderer(phi::engine::fsRenderer);
+		phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::fsRenderer);
 	else if (r == "2")
-		phi::engine::get()->setSceneRenderer(phi::engine::dsRenderer);
+		phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::dsRenderer);
 }
 
 void initCommandLineCommands()

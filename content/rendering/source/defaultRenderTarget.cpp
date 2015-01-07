@@ -29,11 +29,6 @@ namespace phi
         return true;
     }
 
-    void defaultRenderTarget::bind()
-    {
-        renderTarget::bind();
-    }
-
     void defaultRenderTarget::clear()
     {
 		glEnable(GL_DEPTH_TEST);

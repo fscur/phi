@@ -105,11 +105,6 @@ namespace phi
         return true;
     }
 
-    void gBuffer::bind()
-    {
-        renderTarget::bind();
-    }
-
     void gBuffer::clear()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -1,25 +1,16 @@
 #include "font.h"
+#include "resource.h"
 
 namespace phi
 {
-    font::font(std::string name, int size)
+    font::font(std::string name, std::string path, int size) :
+        resource(name, path)
     {
-        _ttfFont = resourceManager::get()->getFont(name, size);
+        _ttfFont = TTF_OpenFont(path.c_str(), size);
+        _size = size;
     }
 
     font::~font()
 	{
-    }
-
-    void font::setName(std::string name)
-    {
-        _name = name;
-        _ttfFont = resourceManager::get()->getFont(name, _size);
-    }
-    
-    void font::setSize(int size)
-    {
-        _size = size;
-        _ttfFont = resourceManager::get()->getFont(_name, size);
     }
 }

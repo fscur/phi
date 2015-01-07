@@ -78,7 +78,10 @@ namespace phi
 
 	void renderTarget::bind()
 	{
-		if (!_isInitialized)
+        if (_isBound)
+            return;
+
+        if (!_isInitialized)
 		{
 			LOG("RenderTarget not initialized.");
 			return;
