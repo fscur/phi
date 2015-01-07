@@ -9,6 +9,9 @@ namespace phi
 	class box :
 		public sceneObject
 	{
+    private:
+        mesh* create();
+
 	public:
 		SCENES_API box(glm::vec3 position, phi::size<float> size, phi::material* material);
 		SCENES_API ~box(void);

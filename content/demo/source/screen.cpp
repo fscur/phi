@@ -43,22 +43,21 @@ void screen::initScene()
 	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-	/*phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
+	phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
 	box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-	s->add(box1);*/
+	s->add(box1);
 
 	phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.1f, 1000.0f), phi::renderingSystem::repository->getResource<phi::material>("white"));
 	s->add(floor);
 
-	phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(0.0f, 2.0f, 2.0f), phi::color::white, 1.0f, glm::vec3(0.4f, -1.0f, -0.7f));
+	phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(0.0f, 2.0f, 2.0f), phi::color::white, 1.0f, glm::vec3(1.0f, -1.0f, -1.0f));
 	s->add(dirLight);
 
-	/*
 	phi::pointLight* pLight = new phi::pointLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::blue, 10.0f, phi::attenuation());
 	s->add(pLight);
 
 	phi::spotLight* sLight = new phi::spotLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::orange, 100.0f, phi::attenuation(), glm::vec3(0.0f, -1.0f, 0.0f), 0.8f);
-	s->add(sLight);*/
+	s->add(sLight);
 
 	phi::scenesManager::get()->addScene(s);
 	phi::scenesManager::get()->loadScene(0);
@@ -313,7 +312,7 @@ void screen::closeButtonClick(phi::mouseEventArgs e)
 
 void screen::update()
 {
-	a+= 0.0001;
+	a+= 0.01;
 	if (a > 2 * phi::PI)
 		a -=2 * phi::PI;
 
@@ -329,13 +328,13 @@ void screen::update()
 	//int visibleObjects = scenesManager::Get()->GetScene()->GetVisibleObjectsCount();
 	//int allObjects = scenesManager::Get()->GetScene()->GetAllObjectsCount();
 	//_labelObjects->setText(to_string(visibleObjects) + "/" + to_string(allObjects));
-/*
+
 	phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
 	p->setPosition(glm::vec3(glm::cos(a) * 5.0f, 0.5f, glm::sin(a) * 3.5f));
 
 	phi::spotLight* s = phi::scenesManager::get()->getScene()->getSpotLight(0);
 	auto dir = s->getDirection();
-	s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));*/
+	s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));
 
 	/*phi::box* b0 = dynamic_cast<phi::box*>(phi::scenesManager::get()->getScene()->getSceneObject(0));
 	glm::vec3 pos0 = phi::mathUtils::rotateAboutAxis(b0->getPosition(), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.001);
