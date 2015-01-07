@@ -32,7 +32,7 @@ namespace phi
 
     void control::inputMouseMove(mouseEventArgs e)
     {
-		if (e.x >= _x && e.x <= _x + _size.width && e.y >= _y && e.y <= _y + _size.height)
+		if (e.x >= _x && e.x <= _x + (int)_size.width && e.y >= _y && e.y <= _y + (int)_size.height)
         {
             if (!_isMouseOver)
             {

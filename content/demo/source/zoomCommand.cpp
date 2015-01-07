@@ -1,5 +1,5 @@
 #include "zoomCommand.h"
-#include "engine.h"
+#include "scenesManager.h"
 
 #if WIN32
     #include <GL/glew.h>
@@ -13,7 +13,7 @@ namespace phi
 	{
 		GLfloat zBufferValue;
 	
-		phi::camera* camera = phi::engine::get()->getScene()->getActiveCamera();
+		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 		glm::mat4 proj = camera->getPerspProjMatrix();
 	
 		glm::vec2 mousePos = info->mousePos;	

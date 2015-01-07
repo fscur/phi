@@ -54,8 +54,8 @@ namespace phi
         SCENES_API void debugRender() override;
 
         SCENES_API void dolly(float amount);
-        SCENES_API void zoomIn();
-        SCENES_API void zoomOut();
+        SCENES_API void zoomIn(glm::vec3 targetPos);
+        SCENES_API void zoomOut(glm::vec3 targetPos);
         SCENES_API void orbit(glm::vec3 origin, glm::vec3 axis, float angle);
 
         SCENES_API ray castRay(glm::vec2 screenCoords, size<float> screenSize);

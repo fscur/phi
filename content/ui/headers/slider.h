@@ -12,8 +12,8 @@ namespace phi
     class slider : public control
     {
     private:
-        static const int TRACK_HEIGHT = 10;
-        static const int SLIDER_HEIGHT = 8;
+        static const unsigned int TRACK_HEIGHT = 10;
+        static const unsigned int SLIDER_HEIGHT = 8;
 
         quadRenderer2D* _trackQuad;
         quadRenderer2D* _sliderQuad;

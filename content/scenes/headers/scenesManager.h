@@ -9,8 +9,8 @@
 
 namespace phi
 {
-    const static const GLuint PHI_DEBUG_MODE = 1;
-    const static const GLuint PHI_SHADOW_MAPS = 101;
+    static const GLuint PHI_DEBUG_MODE = 1;
+    static const GLuint PHI_SHADOW_MAPS = 101;
 
 	struct scenesManagerInfo
 	{

@@ -10,13 +10,6 @@
 #include "uiSystem.h"
 
 float a;
-float z_eye;
-
-float xm0;
-float ym0;
-glm::vec3 camPos;
-glm::vec3 camRight;
-glm::vec3 camUp;
 
 screen::screen() : form()
 {
@@ -50,23 +43,16 @@ void screen::initScene()
 	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-	box* box1 = new box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
+	/*phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
 	box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-	s->add(box1);
+	s->add(box1);*/
 
-	/*phi::box* box2 = new phi::box(glm::vec3(), phi::size<float>(2.0f, 2.0f, 2.0f), phi::resourceManager::get()->getMaterial("Red"));
-	box2->setPosition(glm::vec3(6.0f, 0.0f, 10.0f));
-	s->add(box2);
-	
-	phi::box* box3 = new phi::box(glm::vec3(), phi::size<float>(0.5f, 0.5f, 0.5f), phi::resourceManager::get()->getMaterial("White"));
-	box3->setPosition(glm::vec3(3.0f, 0.0f, 0.0f));
-	s->add(box3);*/
-
-	phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.1f, 1000.0f), phi::resourceManager::get()->getMaterial("White"));
+	phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.1f, 1000.0f), phi::renderingSystem::repository->getResource<phi::material>("white"));
 	s->add(floor);
 
 	phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(0.0f, 2.0f, 2.0f), phi::color::white, 1.0f, glm::vec3(0.4f, -1.0f, -0.7f));
 	s->add(dirLight);
+
 	/*
 	phi::pointLight* pLight = new phi::pointLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::blue, 10.0f, phi::attenuation());
 	s->add(pLight);
@@ -201,18 +187,6 @@ void screen::onMouseDown(phi::mouseEventArgs e)
 {	
 	if (_commandsManager.onMouseDown(e))
 		return;
-
-	/*bool handled = false;
-
-	handled = _hud->HandleMouseDown(e);
-
-	if (handled)
-		return;
-
-	_isMouseDown = true;
-	_mouseDownPos = glm::vec2(e.motion.x, e.motion.y);
-
-	*/
 }
 
 void screen::onMouseMove(phi::mouseEventArgs e) 
@@ -245,8 +219,8 @@ void screen::onMouseUp(phi::mouseEventArgs e)
 
 	//	glm::vec2 screenCoords = glm::vec2(e.motion.x, e.motion.y);
 	//	phi::size<float> screenSize = phi::size<float>((float)getSize().width, (float)getSize().height);
-	//	_ray = phi::engine::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
-	//	std::vector<phi::sceneObject*> sceneObjects = phi::engine::get()->getScene()->getVisibleObjects();
+	//	_ray = phi::scenesManager::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
+	//	std::vector<phi::sceneObject*> sceneObjects = phi::scenesManager::get()->getScene()->getVisibleObjects();
 
 	//	/*for (unsigned int i = 0; i < sceneObjects.size(); i++)
 	//	{
@@ -278,10 +252,10 @@ void screen::onMouseWheel(phi::mouseEventArgs e)
 		//// glDepthRange near-to-far to 0.0-1.0
 		//glReadPixels((GLuint)_lastMousePos.x, GetHeight() - (GLuint)_lastMousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
 
-		glm::vec2 screenCoords = glm::vec2(e.motion.x, e.motion.y);
+		/*glm::vec2 screenCoords = glm::vec2(e.motion.x, e.motion.y);
 		phi::size<float> screenSize = phi::size<float>((float)getSize().width, (float)getSize().height);
 		_ray = phi::scenesManager::get()->getScene()->getActiveCamera()->castRay(screenCoords, screenSize);
-		std::vector<phi::sceneObject*> sceneObjects = phi::scenesManager::get()->getScene()->getVisibleObjects();
+		std::vector<phi::sceneObject*> sceneObjects = phi::scenesManager::get()->getScene()->getVisibleObjects();*/
 
 		/*for (unsigned int i = 0; i < sceneObjects.size(); i++)
 		{
@@ -325,12 +299,6 @@ void screen::onClosing()
 
 void screen::expandButtonClick(phi::mouseEventArgs e)
 {
-	/*if(_shadowMap)
-	_tempCamera = Engine::Get()->GetScene()->GetActiveCamera();
-	else
-	_tempCamera = _debugCamera;*/
-
-	_shadowMap = !_shadowMap;
 }
 
 void screen::sliderValueChanged(phi::eventArgs e)
@@ -358,8 +326,8 @@ void screen::update()
 	_labelUpdateCost->setText("UpdateCost (s): " + std::to_string(getUpdateCost()));
 	_labelRenderCost->setText("RenderCost (s): " + std::to_string(getRenderCost()));*/
 
-	//int visibleObjects = Engine::Get()->GetScene()->GetVisibleObjectsCount();
-	//int allObjects = Engine::Get()->GetScene()->GetAllObjectsCount();
+	//int visibleObjects = scenesManager::Get()->GetScene()->GetVisibleObjectsCount();
+	//int allObjects = scenesManager::Get()->GetScene()->GetAllObjectsCount();
 	//_labelObjects->setText(to_string(visibleObjects) + "/" + to_string(allObjects));
 /*
 	phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
@@ -369,11 +337,11 @@ void screen::update()
 	auto dir = s->getDirection();
 	s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));*/
 
-	/*phi::box* b0 = dynamic_cast<phi::box*>(phi::engine::get()->getScene()->getSceneObject(0));
+	/*phi::box* b0 = dynamic_cast<phi::box*>(phi::scenesManager::get()->getScene()->getSceneObject(0));
 	glm::vec3 pos0 = phi::mathUtils::rotateAboutAxis(b0->getPosition(), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.001);
 	b0->setPosition(pos0);
 
-	phi::box* b1 = dynamic_cast<phi::box*>(phi::engine::get()->getScene()->getSceneObject(1));
+	phi::box* b1 = dynamic_cast<phi::box*>(phi::scenesManager::get()->getScene()->getSceneObject(1));
 	glm::vec3 pos1 = phi::mathUtils::rotateAboutAxis(b1->getPosition(), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.001);
 	b1->setPosition(pos1);*/
 }

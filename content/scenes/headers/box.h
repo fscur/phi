@@ -10,8 +10,8 @@ namespace phi
 		public sceneObject
 	{
 	public:
-		RENDERING_API box(glm::vec3 position, phi::size<float> size, phi::material* material);
-		RENDERING_API ~box(void);
+		SCENES_API box(glm::vec3 position, phi::size<float> size, phi::material* material);
+		SCENES_API ~box(void);
 	};
 }
 

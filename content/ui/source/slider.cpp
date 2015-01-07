@@ -112,7 +112,7 @@ namespace phi
 
 		float y = _trackQuad->getLocation().y + _trackQuad->getSize().height * 0.5f - SLIDER_HEIGHT * 0.5f;
 		_sliderQuad->setLocation(glm::vec2(_trackQuad->getLocation().x, y));
-		_sliderQuad->setSize(size<GLuint>(percent * _size.width, SLIDER_HEIGHT));
+		_sliderQuad->setSize(size<GLuint>((unsigned int)(percent * _size.width), SLIDER_HEIGHT));
 		_sliderQuad->update();
 	}
 

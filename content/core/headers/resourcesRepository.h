@@ -16,10 +16,11 @@ namespace phi
         CORE_API ~resourcesRepository();
         CORE_API void release();
         CORE_API void addResource(resource* r);
+
         template<class T>
         T* getResource(std::string name)
         {
-            for (int i = 0; i < _resources.size(); i++)
+            for (unsigned int i = 0; i < _resources.size(); i++)
             {
                 if (_resources[i]->getName() == name)
                     return (T*)_resources[i];
