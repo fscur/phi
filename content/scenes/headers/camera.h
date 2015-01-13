@@ -11,18 +11,18 @@ namespace phi
         public sceneObject
     {
     private:
-        float _znear;
-        float _zfar;
-        float _aspect;
-        float _fov;
         float _focus;
         glm::mat4 _orthoProjMatrix;
         glm::mat4 _viewMatrix;
         glm::vec3 _target;
         float _zoomFactor;
         frustum* _frustum;
+		float _boundsRadius;
+		float _minHeight;
+		float _maxHeight;
 
     private:
+		void setPositionWithinBoundsRadius(glm::vec3 position);
         void updateCoordinateSystem();
     public:
         SCENES_API camera(
@@ -39,26 +39,26 @@ namespace phi
         SCENES_API glm::mat4 getOrthoProjMatrix() const { return _orthoProjMatrix; }
 
         SCENES_API frustum* getFrustum() const { return _frustum; }
-        SCENES_API void setFrustum(frustum* frustum);
-
         SCENES_API glm::vec3 getTarget() const { return _target; }
-        SCENES_API void setTarget(glm::vec3 target);
-
-        SCENES_API float getFocus() const { return _focus; }
-        SCENES_API void setFocus(float focus);
-
+		SCENES_API float getFocus() const { return _focus; }
         SCENES_API bool getChanged() const override { return _changed || _frustum->getChanged(); }
+		SCENES_API float getBoundsRadius() const { return _boundsRadius; }
+
+		SCENES_API void setFrustum(frustum* frustum);
+        SCENES_API void setTarget(glm::vec3 target);
+        SCENES_API void setFocus(float focus);
+		SCENES_API void setBoundsRadius(float focus);
 
         SCENES_API bool init();
         SCENES_API void update();
         SCENES_API void debugRender() override;
 
-        SCENES_API void dolly(float amount);
+        SCENES_API void moveTo(glm::vec3 position);
         SCENES_API void zoomIn(glm::vec3 targetPos);
         SCENES_API void zoomOut(glm::vec3 targetPos);
         SCENES_API void orbit(glm::vec3 origin, glm::vec3 axis, float angle);
 
-        SCENES_API ray castRay(glm::vec2 screenCoords, size<float> screenSize);
+        SCENES_API ray castRay(glm::vec2 screenCoords, size<unsigned int> screenSize);
     };
 }
 #endif

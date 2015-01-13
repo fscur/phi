@@ -1,26 +1,25 @@
 #include "rotateCommand.h"
 #include "scenesManager.h"
 
-#if WIN32
-    #include <GL/glew.h>
-#else
-    #include <OpenGL/gl3.h>
-#endif
+
 #include "box.h"
 namespace phi
 {
 	commandInfo* rotateStartCommand::execute(commandInfo* info)
 	{
-		rotateStartCommandInfo* rotateStartInfo = new rotateStartCommandInfo(*info);
-
 		GLfloat zBufferValue;
-	
+
+		glReadPixels(info->mousePos.x, info->viewportSize.height - info->mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+
+		if (zBufferValue == 1.0f)
+			return nullptr;
+
+		rotateCommandInfo* rotateInfo = new rotateCommandInfo(*info);
 		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 		glm::mat4 proj = camera->getPerspProjMatrix();
 	
 		glm::vec2 mousePos = info->mousePos;	
-
-		glReadPixels(mousePos.x, info->viewportSize.height - mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+		rotateInfo->lastMousePos = mousePos;
 
 		float z = -proj[3].z / (zBufferValue * -2.0 + 1.0 - proj[2].z);
 
@@ -58,22 +57,18 @@ namespace phi
 
 		glm::vec3 targetPos = camPos + camDir * z + camRight * x + camUp * y;
 
-		rotateStartInfo->targetPos = targetPos;
-		rotateStartInfo->zEye = z;
+		rotateInfo->targetPos = targetPos;
+		rotateInfo->zEye = z;
 
-		DELETE(info);
-
-		LOG("ROTATE START COMMAND");
-
-		return rotateStartInfo;
+		return rotateInfo;
 	}
 
 	commandInfo* rotateCommand::execute(commandInfo* info)
 	{
-		rotateStartCommandInfo* rotateStartInfo = dynamic_cast<rotateStartCommandInfo*>(info);
+		rotateCommandInfo* rotateInfo = dynamic_cast<rotateCommandInfo*>(info);
 
-		if (rotateStartInfo == nullptr)
-			return nullptr;
+		if (rotateInfo == nullptr)
+			return info;
 
 		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 		
@@ -90,17 +85,22 @@ namespace phi
 		float h = info->viewportSize.height;
 		float w = info->viewportSize.width;
 
-		float dx = rotateStartInfo->lastMousePos.x - rotateStartInfo->mousePos.x;
-		float dy = rotateStartInfo->lastMousePos.y - rotateStartInfo->mousePos.y;
+		float dx = rotateInfo->lastMousePos.x - rotateInfo->mousePos.x;
+		float dy = rotateInfo->lastMousePos.y - rotateInfo->mousePos.y;
 		
-		float x = (dx/w) * 4 * PI;
-		float y = (dy/h) * 4 * PI;
-
-		camera->orbit(rotateStartInfo->targetPos, glm::vec3(0.0, 1.0, 0.0), x);
-		camera->orbit(rotateStartInfo->targetPos, camera->getRight(), y);
+		float x = (dx/w) * 3 * PI;
+		float y = (dy/h) * 3 * PI;
+		
+		camera->orbit(rotateInfo->targetPos, glm::vec3(0.0, 1.0, 0.0), x);
+		camera->orbit(rotateInfo->targetPos, camera->getRight(), y);
 	
-		LOG("ROTATE COMMAND");
+		return rotateInfo;
+	}
+	
+	commandInfo* rotateEndCommand::execute(commandInfo* info)
+	{
+		DELETE(info);
 
-		return rotateStartInfo;
+		return nullptr;
 	}
 }

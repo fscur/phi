@@ -1,5 +1,6 @@
 #include "camera.h"
 #include "mathUtils.h"
+#include "globals.h"
 
 namespace phi
 {
@@ -7,12 +8,15 @@ namespace phi
         sceneObject(glm::vec3(0.0f, 0.0f, 1.0f), size<float>(), NULL)
     {
         _focus = focusDistance;
-        _zoomFactor = 0.5f;
+        _zoomFactor = 0.3f;
         _direction = glm::vec3(0.0f, 0.0f, 1.0f);
 
         _frustum = new frustum(glm::vec3(), _direction, _up, zNear, zFar, aspect, fov);
 
         _orthoProjMatrix = glm::ortho<float>(-5.0, 5.0, -5.0, 5.0, 0.0, 50.0);
+		_boundsRadius = 50.0f;
+		_minHeight = 0.1f;
+		_maxHeight = _boundsRadius * 0.98f;
         _changed = true;
     }
 
@@ -72,18 +76,53 @@ namespace phi
         _direction = glm::normalize(_direction);
     }
 
+	void camera::setPositionWithinBoundsRadius(glm::vec3 position)
+	{
+		glm::vec3 p = glm::normalize(position);
+
+		float dot = glm::dot(p, glm::vec3(0.0f, 1.0f, 0.0f));
+		
+		if (dot > 0.97)
+			return;
+		
+		float radius = _boundsRadius;
+		float distToOrigin = glm::length(position);
+		float diff = distToOrigin - radius;
+
+		if (diff > 0)
+		{
+			glm::vec3 dir = glm::normalize(-position);
+			position += dir * diff;
+		}
+		else
+			radius = distToOrigin;
+
+		if (position.y < _minHeight)
+		{
+			position = glm::normalize(glm::vec3(position.x, _minHeight, position.z)) * distToOrigin;
+		}
+
+		_position = position;
+	}
+
     void camera::orbit(glm::vec3 origin, glm::vec3 axis, float angle)
     {  
-		_position = mathUtils::rotateAboutAxis(_position, origin, axis, angle);
-		_target = mathUtils::rotateAboutAxis(_target, origin, axis, angle);
+		glm::vec3 position = mathUtils::rotateAboutAxis(_position, origin, axis, angle);
+
+		if (position.y >= _minHeight)
+			setPositionWithinBoundsRadius(position);
+
+		if (_position == position)
+			_target = mathUtils::rotateAboutAxis(_target, origin, axis, angle);
+
 		_direction = _target - _position;
         _changed = true;
     }
 
-    void camera::dolly(float amount)
+    void camera::moveTo(glm::vec3 position)
     {
-        glm::vec3 offset = _direction * amount;
-        translate(offset);
+		setPositionWithinBoundsRadius(position);
+
         _changed = true;
     }
 
@@ -99,10 +138,20 @@ namespace phi
 
         dist *= factor;
 
+		if (dist < _frustum->getZNear() + 0.25f)
+			return;
+
         glm::vec3 offset = direction * dist;
-        _focus -= dist;
-        translate(offset);
-        _changed = true;
+
+		_focus = glm::max(_focus - dist, _frustum->getZNear());
+
+        glm::vec3 position = _position + offset;
+
+		setPositionWithinBoundsRadius(position);
+
+		//_direction = _target - _position;
+
+		_changed = true;
     }
 
     void camera::zoomOut(glm::vec3 targetPos)
@@ -114,7 +163,13 @@ namespace phi
 
         glm::vec3 offset = direction * dist;
         _focus -= dist;
-        translate(offset);
+
+		glm::vec3 position = _position + offset;
+		
+		setPositionWithinBoundsRadius(position);
+		
+		//_direction = _target - _position;
+
         _changed = true;
     }
 
@@ -171,10 +226,10 @@ namespace phi
         //glPopMatrix();
     }
 
-    ray camera::castRay(glm::vec2 screenCoords, size<float> screenSize)
+    ray camera::castRay(glm::vec2 screenCoords, size<unsigned int> screenSize)
     {
-        float w = screenSize.width;
-        float h = screenSize.height;
+        float w = (float)screenSize.width;
+        float h = (float)screenSize.height;
         float x = (2 * screenCoords.x)/w - 1.0f; 
         float y = 1.0f - (2 * screenCoords.y)/h;
 

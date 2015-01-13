@@ -18,7 +18,7 @@ namespace phi
         RENDERING_API glm::vec3 getOrigin() const { return _origin; }
         RENDERING_API glm::vec3 getDirection() const { return _direction; }
 
-        RENDERING_API bool intersects(aabb aabb);
+        RENDERING_API bool intersects(aabb* aabb);
     };
 }
 #endif

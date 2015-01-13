@@ -1,5 +1,6 @@
 #include "commandsManager.h"
 
+#include "selectCommand.h"
 #include "panCommand.h"
 #include "rotateCommand.h"
 #include "zoomCommand.h"
@@ -14,11 +15,17 @@ namespace phi
 		_isAltPressed = false;
 
 		_actionsSum = 0;
+
 		_commandInfo = new commandInfo();
+		_commands[L_MOUSE_UP] = new selectCommand();
 		_commands[M_MOUSE_DOWN] = new panStartCommand();
+		_commands[M_MOUSE_DOWN + MOUSE_MOVE] = new panStartCommand();
 		_commands[M_MOUSE_PRESSED + MOUSE_MOVE] = new panCommand();
+		_commands[M_MOUSE_UP] = new panEndCommand();
+		_commands[R_MOUSE_DOWN + MOUSE_MOVE] = new rotateStartCommand();
 		_commands[R_MOUSE_DOWN] = new rotateStartCommand();
 		_commands[R_MOUSE_PRESSED + MOUSE_MOVE] = new rotateCommand();
+		_commands[R_MOUSE_UP] = new rotateEndCommand();
 		_commands[MOUSE_WHEEL] = new zoomCommand();
 	}
 
@@ -71,13 +78,13 @@ namespace phi
 			return false;
 
 		if (e.leftButtonPressed)
-			_actionsSum |= L_MOUSE_DOWN;
+			_actionsSum = L_MOUSE_DOWN;
 			
 		if (e.middleButtonPressed)
-			_actionsSum |= M_MOUSE_DOWN;
+			_actionsSum = M_MOUSE_DOWN;
 
 		if (e.rightButtonPressed)
-			_actionsSum |= R_MOUSE_DOWN;
+			_actionsSum = R_MOUSE_DOWN;
 
 		_isMouseDown = true;
 		_mouseDownEventArgs = e;
@@ -89,10 +96,11 @@ namespace phi
 
 	bool commandsManager::onMouseMove(mouseEventArgs e)
 	{
-		_actionsSum |= MOUSE_MOVE;
-
 		_commandInfo->lastMousePos = _commandInfo->mousePos;
 		_commandInfo->mousePos = glm::vec2(e.x, e.y);
+		
+		_actionsSum |= MOUSE_MOVE;
+
 		return true;
 	}
 
@@ -101,7 +109,14 @@ namespace phi
 		if (!_isMouseDown)
 			return false;
 
-		_actionsSum |= MOUSE_UP;
+		if (e.leftButtonPressed)
+			_actionsSum = L_MOUSE_UP;
+			
+		if (e.middleButtonPressed)
+			_actionsSum = M_MOUSE_UP;
+
+		if (e.rightButtonPressed)
+			_actionsSum = R_MOUSE_UP;
 
 		_commandInfo->mousePos = glm::vec2(e.x, e.y);
 

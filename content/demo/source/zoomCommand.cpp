@@ -20,6 +20,9 @@ namespace phi
 
 		glReadPixels(mousePos.x, info->viewportSize.height - mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
 
+		if (zBufferValue == 1.0f)
+			return info;
+
 		float z = -proj[3].z / (zBufferValue * -2.0 + 1.0 - proj[2].z);
 
 		phi::frustum* frustum = camera->getFrustum();
@@ -60,8 +63,6 @@ namespace phi
 			camera->zoomIn(targetPos);
 		else
 			camera->zoomOut(targetPos);
-
-		LOG("ZOOM COMMAND");
 
 		DELETE(info);
 
