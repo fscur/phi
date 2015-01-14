@@ -23,6 +23,7 @@ find_package(SDL REQUIRED)
 find_package(SDL_TTF REQUIRED)
 find_package(SDL_IMAGE REQUIRED)
 find_package(OPENGL REQUIRED)
+find_package(FREETYPE REQUIRED)
 #find_package(ASSIMP REQUIRED)
 
 if(NOT SDL_FOUND)
@@ -45,18 +46,24 @@ endif(NOT OPENGL_FOUND)
     #message(ASSIMP not found!)
 #endif(NOT ASSIMP_FOUND)
 
+#if(NOT FREETYPE_FOUND)
+    #message(FREETYPE not found!)
+#endif(NOT FREETYPE_FOUND)
+
 #include_directories(${ASSIMP_INCLUDE_DIRS})
 
 include_directories(${SDL_INCLUDE_DIR})
 include_directories(${SDL_TTF_INCLUDE_DIRS})
 include_directories(${SDL_IMAGE_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
+include_directories(${FREETYPE_INCLUDE_DIRS})
 
 #link_directories(${ASSIMP_LIBRARIES})
 link_directories(${SDL_LIBRARY})
 link_directories(${SDL_TTF_LIBRARIES})
 link_directories(${SDL_IMAGE_LIBRARIES})
 link_directories(${OPENGL_LIBRARIES})
+link_directories(${FREETYPE_LIBRARIES})
 
 #GLEW (WIN32)
 
@@ -83,6 +90,7 @@ target_link_libraries(rendering ${SDL_LIBRARY})
 target_link_libraries(rendering ${SDL_TTF_LIBRARY})
 target_link_libraries(rendering ${SDL_IMAGE_LIBRARY})
 target_link_libraries(rendering ${OPENGL_LIBRARY})
+target_link_libraries(rendering ${FREETYPE_LIBRARY})
 
 if (WIN32)
     target_link_libraries(rendering ${GLEW_LIBRARY})

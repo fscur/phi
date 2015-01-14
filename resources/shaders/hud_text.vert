@@ -10,6 +10,5 @@ out vec2 fragTexCoord;
 void main(void)
 {
      gl_Position = mvp * vec4(inPosition, 1.0);
-	 
 	 fragTexCoord = inTexCoord;
 }

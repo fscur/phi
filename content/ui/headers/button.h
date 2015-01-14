@@ -34,11 +34,13 @@ namespace phi
         UI_API std::string getText() { return _text; }
         UI_API color getBackgroundColor() { return _backgroundColor; }
         UI_API color getForegroundColor() { return _foregroundColor; }
+        UI_API font* getFont() { return _font; }
         UI_API mouseEventHandler* getClick() { return _click; }
 
         UI_API void setText(std::string value);
         UI_API void setBackgroundColor(color value);
         UI_API void setForegroundColor(color value) { _foregroundColor = value; }
+        UI_API void setFont(font* value) { _font = value; }
 
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;

@@ -14,7 +14,7 @@ namespace phi
     class textRenderer2D
     {
     private:
-        quad _quad;
+        mesh* _mesh;
         shader* _shader;
 		size<GLuint> _viewportSize;
 		glm::mat4 _viewMatrix;
@@ -28,7 +28,7 @@ namespace phi
         RENDERING_API ~textRenderer2D();
         RENDERING_API void update();
 		RENDERING_API void setViewportSize(size<GLuint> viewportSize) { _viewportSize = viewportSize; }
-        RENDERING_API void render(std::string text, font* font, color foreColor, color backColor, glm::vec2 location);
+        RENDERING_API void render(std::string text, font* font, color foreColor, color backColor, glm::vec2 location, float zIndex);
         RENDERING_API size<int> measureSize(std::string text, font* font);
     };
 }

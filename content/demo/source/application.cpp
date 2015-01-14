@@ -10,12 +10,12 @@ application::application()
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
         LOG("SDL could not initialize! SDL_Error: " << SDL_GetError());
 
-    TTF_Init();
+    //TTF_Init();
 }
 
 application::~application(void)
 {
-    TTF_Quit();
+    //TTF_Quit();
     SDL_Quit();
 }
 

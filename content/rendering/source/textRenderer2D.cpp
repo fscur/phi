@@ -17,18 +17,37 @@ namespace phi
         return round(pow(2,ceil(logbase2)));
     }
 
-	textRenderer2D::textRenderer2D(size<GLuint> viewportSize)
+    textRenderer2D::textRenderer2D(size<GLuint> viewportSize)
     {
         _viewportSize = viewportSize;
 
         updateViewMatrix();
         updateProjMatrix();
+        _modelMatrix = glm::mat4(1.0f);
 
         _shader = shaderManager::get()->getShader("HUD_TEXT");
+
+		std::vector<vertex> vertices;
+		vertices.push_back(vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 1.0f)));
+		vertices.push_back(vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 1.0f)));
+		vertices.push_back(vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 0.0f)));
+		vertices.push_back(vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f)));
+
+		std::vector<GLuint> indices;
+		indices.push_back(0);
+		indices.push_back(1);
+		indices.push_back(2);
+		indices.push_back(2);
+		indices.push_back(3);
+		indices.push_back(0);
+
+        _mesh = mesh::create("", vertices, indices);
     }
 
     textRenderer2D::~textRenderer2D()
-    {}
+    {
+        DELETE(_mesh);
+    }
 
     void textRenderer2D::update()
     {
@@ -43,82 +62,62 @@ namespace phi
 
     void textRenderer2D::updateProjMatrix()
     {
-		_projectionMatrix = glm::ortho<float>(0.0f, (float)_viewportSize.width, 0.0f, (float)_viewportSize.height, -50.0f, 50.0f);
+        _projectionMatrix = glm::ortho<float>(0.0f, (float)_viewportSize.width, 0.0f, (float)_viewportSize.height, -50.0f, 50.0f);
     }
 
-    //TODO:Cache generated text
-    void textRenderer2D::render(std::string text, font* font, color foreColor, color backColor, glm::vec2 location)
+    void textRenderer2D::render(std::string text, font* font, color foreColor, color backColor, glm::vec2 location, float zIndex)
     {
-        if (text.empty())
-            return;
-
-        SDL_Surface *initial;
-        SDL_Surface *intermediary;
-        int w,h;
-
-        SDL_Color sdlForeColor = { 
-            static_cast<Uint8>(foreColor.r * 255),
-            static_cast<Uint8>(foreColor.g * 255),
-            static_cast<Uint8>(foreColor.b * 255),
-            static_cast<Uint8>(foreColor.a * 255)
-        };
-
-        if (backColor != color::transparent)
-        {
-            SDL_Color sdlBackColor = { 
-                static_cast<Uint8>(backColor.r * 255),
-                static_cast<Uint8>(backColor.g * 255),
-                static_cast<Uint8>(backColor.b * 255),
-                static_cast<Uint8>(backColor.a * 255)
-            };
-
-            initial = TTF_RenderText_Shaded(font->getTtfFont(), text.c_str(), sdlForeColor, sdlBackColor);
-        }
-        else
-            initial = TTF_RenderText_Blended(font->getTtfFont(), text.c_str(), sdlForeColor);
-
-        w = nextPowerOfTwo(initial->w);
-        h = nextPowerOfTwo(initial->h);
-
-        intermediary = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-		
-        SDL_BlitSurface(initial, 0, intermediary, 0);
-		
-		SDL_InvertSurface(intermediary);
-
-        /*glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_BGRA, GL_UNSIGNED_BYTE, intermediary->pixels);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); */
-
-		texture* textTexture = texture::create(size<GLuint>(w, h), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, intermediary->pixels);
-		textTexture->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		textTexture->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		textTexture->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		textTexture->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-        //glEnable(GL_BLEND);
-        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        _modelMatrix = glm::mat4(
-            w, 0.0f, 0.0f, 0.0f,
-            0.0f, h, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-			location.x + w * 0.5f, _viewportSize.height - location.y - h * 0.5f, 0.1f, 1.0f);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         _shader->bind();
-		_shader->setUniform("mvp", _projectionMatrix * _viewMatrix * _modelMatrix);
-		_shader->setUniform("textTexture", textTexture);
-        meshRenderer::render(&_quad);
+
+        _shader->setUniform("res", glm::vec2(_viewportSize.width, _viewportSize.height));
+        _shader->setUniform("color", foreColor);
+        _shader->setUniform("texture", font->getTexture());
+        _shader->setUniform("texSize", glm::vec2(font->getTexWidth(), font->getTexHeight()));
+
+        meshRenderer mr = meshRenderer();
+
+        float currentX = location.x, currentY = location.y;
+        for(char& p : text)
+        {
+            if (p == '\n')
+            {
+                currentX = location.x;
+                currentY += font->getLineHeight();
+                continue;
+            }
+
+            float x = currentX + font->c[p].bl;
+            float y = currentY + font->getAscender() - font->c[p].bt;// - (font->c[p].bh - font->c[p].bt - font->getBaseLine()) * sy;
+            float w = font->c[p].bw;
+            float h = font->c[p].bh;
+
+            currentX += font->c[p].ax;
+            currentY += font->c[p].ay;
+
+            float tl = font->c[p].tx;
+            float tr = font->c[p].tx + font->c[p].bw / font->getTexWidth();
+            float tt = font->c[p].ty;
+            float tb = font->c[p].ty + font->c[p].bh / font->getTexHeight();
+
+            _modelMatrix = glm::mat4(
+                w, 0.0f, 0.0f, 0.0f,
+                0.0f, h, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                x + w * 0.5f, _viewportSize.height - (y + h * 0.5f), zIndex, 1.0f);
+
+            _shader->setUniform("mvp", _projectionMatrix * _viewMatrix * _modelMatrix);
+            _shader->setUniform("texCoordOrigin", glm::vec2(tl, tt));
+            _shader->setUniform("texCoordQuadSize", glm::vec2(font->c[p].bw / font->getTexWidth(), font->c[p].bh / font->getTexHeight()));
+
+            mr.render(_mesh);
+        }
+
         _shader->unbind();
 
-        SDL_FreeSurface(initial);
-        SDL_FreeSurface(intermediary);
-		textTexture->release();
-		DELETE(textTexture);
-        //glDisable(GL_BLEND);
+        glDisable(GL_BLEND);
     }
 
     size<int> textRenderer2D::measureSize(std::string text, font* font)
@@ -126,23 +125,27 @@ namespace phi
         if (text.empty())
             return size<int>(0, 0);
 
-        SDL_Surface *initial;
-        int w,h;
+        float maxWidth = 0.0f;
+        float currentWidth = 0.0f, currentHeight = font->getLineHeight();
+        for(char& p : text)
+        {
+            if (p == '\n')
+            {
+                currentWidth = 0.0f;
+                currentHeight += font->getLineHeight();
+                continue;
+            }
 
-        SDL_Color color = { 
-            static_cast<Uint8>(255),
-            static_cast<Uint8>(255),
-            static_cast<Uint8>(255),
-            static_cast<Uint8>(255)
-        };
+            /*float x = currentWidth + font->c[p].bl;
+            float y = currentHeight - (font->c[p].bh - font->c[p].bt - font->getBaseLine());
+            float w = font->c[p].bw;
+            float h = font->c[p].bh;*/
 
-        initial = TTF_RenderText_Solid(font->getTtfFont(), text.c_str(), color);
-
-        w = nextPowerOfTwo(initial->w);
-        h = nextPowerOfTwo(initial->h);
-
-		SDL_FreeSurface(initial);
-
-        return size<int>(initial->w, initial->h);
+            currentWidth += font->c[p].ax;
+            currentHeight += font->c[p].ay;
+            maxWidth = glm::max(currentWidth, maxWidth);
+        }
+        
+        return size<int>(maxWidth, currentHeight);
     }
 }

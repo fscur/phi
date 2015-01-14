@@ -4,9 +4,10 @@
 
 namespace phi
 {
-	quadRenderer2D::quadRenderer2D(glm::vec2 location, size<GLuint> quadSize, size<GLuint> viewportSize)
+	quadRenderer2D::quadRenderer2D(glm::vec2 location, float zIndex, size<GLuint> quadSize, size<GLuint> viewportSize)
 	{
 		_location = location;
+        _zIndex = zIndex;
 		_size = quadSize;
 		_viewportSize = viewportSize;
 		_shader = shaderManager::get()->getShader("HUD_QUAD");
@@ -48,7 +49,7 @@ namespace phi
 			w, 0.0f, 0.0f, 0.0f,
 			0.0f, h, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
-			_location.x + w * 0.5f, _viewportSize.height - _location.y - h * 0.5f, 0.0f, 1.0f));
+            _location.x + w * 0.5f, _viewportSize.height - _location.y - h * 0.5f, _zIndex, 1.0f));
 	}
 
 	void quadRenderer2D::render(texture* image, color backColor)

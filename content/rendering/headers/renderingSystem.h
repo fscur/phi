@@ -10,6 +10,8 @@
 #else
     #include <OpenGL/gl3.h>
 #endif
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 namespace phi
 {
@@ -34,6 +36,7 @@ namespace phi
         RENDERING_API static renderingSystemInfo info;
         RENDERING_API static defaultRenderTarget* mainRenderTarget;
         RENDERING_API static resourcesRepository* repository;
+        RENDERING_API static FT_Library freeTypeLibrary;
         RENDERING_API static bool initialized;
 
     public:

@@ -7,10 +7,11 @@ namespace phi
     {
         _x = 0;
         _y = 0;
+        _zIndex = 0;
         _size = size<GLuint>();
         _text = "";
         _texture = uiSystem::repository->getResource<texture>("button");
-        _textureRenderer = new quadRenderer2D(glm::vec2(0, 0), size<GLuint>(0, 0, 0), viewportSize);
+        _textureRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
         _font = uiSystem::repository->getResource<font>("Consola_18");
         _textX = 0;
@@ -36,6 +37,7 @@ namespace phi
     {
         _x = value;
         _textureRenderer->setLocation(glm::vec2(_x, _y));
+        _textureRenderer->setZIndex(_zIndex);
         _textureRenderer->update();
         updateTextLocation();
     }
@@ -82,7 +84,7 @@ namespace phi
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _textureRenderer->render(_texture, _currentColor);
-        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX, _textY));
+        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX, _textY), _zIndex + 0.001f);
         glDisable(GL_BLEND);
     }
 

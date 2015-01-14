@@ -2,11 +2,17 @@
 
 in vec2 fragTexCoord;
 
-uniform sampler2D textTexture;
+uniform sampler2D texture;
+uniform vec2 res;
+uniform vec4 color;
+uniform vec2 texCoordOrigin;
+uniform vec2 texCoordQuadSize;
+uniform vec2 texSize;
 
 out vec4 fragColor;
 
 void main(void)
 {
-	fragColor = texture(textTexture, fragTexCoord);
+	vec2 uv = texCoordOrigin + fragTexCoord * texCoordQuadSize;
+	fragColor = vec4(1.0, 1.0, 1.0, texture2D(texture, uv).r) * color;
 }

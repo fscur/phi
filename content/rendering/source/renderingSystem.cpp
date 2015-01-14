@@ -10,22 +10,25 @@ namespace phi
     renderingSystemInfo renderingSystem::info;
     defaultRenderTarget* renderingSystem::mainRenderTarget = nullptr;
     resourcesRepository* renderingSystem::repository = nullptr;
+    FT_Library renderingSystem::freeTypeLibrary = nullptr;
     bool renderingSystem::initialized = false;
 
     void renderingSystem::init(renderingSystemInfo info)
     {
+        if (FT_Init_FreeType(&renderingSystem::freeTypeLibrary))
+            LOG("Could not init freetype library");
+
         renderingSystem::info = info;
         mainRenderTarget = new defaultRenderTarget(info.size, color::black);
         mainRenderTarget->init();
         mainRenderTarget->setViewport(0, 0, info.size);
         mainRenderTarget->bind();
 
-        repository = new resourcesRepository();
-
         shaderManagerInfo shaderInfo;
         shaderInfo.path = info.applicationPath;
         shaderManager::get()->init(shaderInfo);
 
+        repository = new resourcesRepository();
         initTextures();
         initMaterials();
         initMeshes();
