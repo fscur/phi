@@ -97,6 +97,8 @@ namespace phi
 
     void plane::debugRender()
     {
+		sceneObject::debugRender();
+
 #ifdef WIN32
         if (_points.size() == 0)
             return;

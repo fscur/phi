@@ -12,10 +12,17 @@ namespace phi
 
 	void fsSceneRenderer::onRender()
 	{
+		//phi::renderingSystem::mainRenderTarget->setViewport(0, 0, phi::size<GLuint>(_viewportSize.width / 2, _viewportSize.height));
 		fsAmbientLightPass();
 		fsDirLightPasses();
 		fsPointLightPasses();
 		fsSpotLightPasses();
+
+		auto directionalLights = _scene->getDirectionalLights();
+		auto directionalLightsCount = directionalLights->size();
+
+		if (directionalLightsCount == 0)
+			return;
 	}
 
 	void fsSceneRenderer::fsAmbientLightPass()

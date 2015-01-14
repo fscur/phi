@@ -1,5 +1,5 @@
-#ifndef _PHI_PAN_COMMAND_H_
-#define _PHI_PAN_COMMAND_H_
+#ifndef _PHI_SELECT_COMMAND_H_
+#define _PHI_SELECT_COMMAND_H_
 
 #if WIN32
     #include <GL/glew.h>
@@ -12,17 +12,17 @@
 
 namespace phi
 {
-	class panCommandInfo : 
+	class selectCommandInfo : 
 		public commandInfo
 	{
 	public:
-		panCommandInfo(commandInfo info)
+		selectCommandInfo(commandInfo info)
 		{
 			this->mousePos = info.mousePos;
 			this->viewportSize = info.viewportSize;
 		}
 
-		~panCommandInfo(){}
+		~selectCommandInfo(){}
 		glm::vec3 cameraPos;
 		glm::vec3 cameraRight;
 		glm::vec3 cameraUp;
@@ -30,21 +30,7 @@ namespace phi
 		float eyeZ;
 	};
 
-	class panStartCommand :
-		public command
-	{
-	public:
-		commandInfo* execute(commandInfo* info) override;
-	};
-
-	class panCommand :
-		public command
-	{
-	public:
-		commandInfo* execute(commandInfo* info) override;
-	};
-
-	class panEndCommand :
+	class selectCommand :
 		public command
 	{
 	public:

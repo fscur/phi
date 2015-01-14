@@ -1,46 +1,37 @@
 #include "panCommand.h"
 #include "scenesManager.h"
 
-#if WIN32
-    #include <GL/glew.h>
-#else
-    #include <OpenGL/gl3.h>
-#endif
 
 namespace phi
 {
 	commandInfo* panStartCommand::execute(commandInfo* info)
 	{
-		panStartCommandInfo* panStartInfo = new panStartCommandInfo(*info);
-
 		GLfloat zBufferValue;
+		glReadPixels(info->mousePos.x, info->viewportSize.height - info->mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+
+		if (zBufferValue == 1.0f)
+			return nullptr;
+		
+		panCommandInfo* panInfo = new panCommandInfo(*info);
 	
 		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 		glm::mat4 proj = camera->getPerspProjMatrix();
 	
-		glm::vec2 mousePos = info->mousePos;	
+		panInfo->eyeZ = -proj[3].z / (zBufferValue * -2.0 + 1.0 - proj[2].z);
+		panInfo->cameraPos = camera->getPosition();
+		panInfo->cameraRight = camera->getRight();
+		panInfo->cameraUp = camera->getUp();
+		panInfo->startPos = info->mousePos;
 
-		glReadPixels(mousePos.x, info->viewportSize.height - mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
-
-		panStartInfo->eyeZ = -proj[3].z / (zBufferValue * -2.0 + 1.0 - proj[2].z);
-		panStartInfo->cameraPos = camera->getPosition();
-		panStartInfo->cameraRight = camera->getRight();
-		panStartInfo->cameraUp = camera->getUp();
-		panStartInfo->startPos = mousePos;
-
-		DELETE(info);
-
-		LOG("PAN START COMMAND");
-
-		return panStartInfo;
+		return panInfo;
 	}
 
 	commandInfo* panCommand::execute(commandInfo* info)
 	{
-		panStartCommandInfo* panStartInfo = dynamic_cast<panStartCommandInfo*>(info);
-		
-		if (panStartInfo == nullptr)
-			return nullptr;
+		panCommandInfo* panInfo = dynamic_cast<panCommandInfo*>(info);
+
+		if (panInfo == nullptr)
+			return info;
 
 		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 		phi::frustum* frustum = camera->getFrustum();
@@ -59,11 +50,11 @@ namespace phi
 		float hh = h * 0.5f;
 		float hw = w * 0.5f;
 
-		float ys0 = panStartInfo->startPos.y - hh;
+		float ys0 = panInfo->startPos.y - hh;
 		float yp0 = ys0/hh;
 		float ym0 = -(yp0 * tg);
 
-		float xs0 = panStartInfo->startPos.x - hw;
+		float xs0 = panInfo->startPos.x - hw;
 		float xp0 = xs0/hw;
 		float xm0 = xp0 * tg * aspect;
 
@@ -75,7 +66,7 @@ namespace phi
 		float xp1 = xs1/hw;
 		float xm1 = xp1 * tg * aspect;
 
-		float eyeZ = panStartInfo->eyeZ;
+		float eyeZ = panInfo->eyeZ;
 
 		float xDiff = xm1 - xm0;
 		float yDiff = ym1 - ym0;
@@ -83,12 +74,17 @@ namespace phi
 		float x = xDiff * eyeZ/zNear;
 		float y = yDiff * eyeZ/zNear;
 
-		glm::vec3 pos = panStartInfo->cameraPos - (glm::vec3(panStartInfo->cameraRight * x) + glm::vec3(panStartInfo->cameraUp * y)); 
+		glm::vec3 pos = panInfo->cameraPos - (glm::vec3(panInfo->cameraRight * x) + glm::vec3(panInfo->cameraUp * y)); 
 
-		camera->setPosition(pos);
+		camera->moveTo(pos);
 
-		LOG("PAN COMMAND");
+		return panInfo;
+	}
 
-		return panStartInfo;
+	commandInfo* panEndCommand::execute(commandInfo* info)
+	{
+		DELETE(info);
+
+		return nullptr;
 	}
 }

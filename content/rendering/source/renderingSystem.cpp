@@ -78,6 +78,18 @@ namespace phi
             0.0f, // specular reflectance coeff
             0.0f)); // shininess
 
+		repository->addResource(new material("blue", "",
+            nullptr, //diffuse texture
+            nullptr, //normal texture
+            nullptr, //specular texture,
+            color::blue, // ambient color
+            color::blue, //diffuse color
+            color::blue, //specular color
+            0.2f, // ambient reflectance coeff
+            1.0f, // diffuse reflectance coeff
+            0.0f, // specular reflectance coeff
+            0.0f)); // shininess
+
         repository->addResource(new material("white", "",
             nullptr, //diffuse texture
             nullptr, //normal texture
@@ -85,10 +97,10 @@ namespace phi
             color::white, // ambient color
             color::white, //diffuse color
             color::white, //specular color
-            0.1f, // ambient reflectance coeff
-            0.8f, // diffuse reflectance coeff
-            0.3f, // specular reflectance coeff
-            64.0f)); // shininess
+            0.2f, // ambient reflectance coeff
+            0.9f, // diffuse reflectance coeff
+            0.0f, // specular reflectance coeff
+            0.0f)); // shininess
 
         repository->addResource(new material("bubble", "",
             repository->getResource<texture>("BubbleGrip-ColorMap"), //diffuse texture

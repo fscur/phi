@@ -20,11 +20,13 @@ namespace phi
 		static const unsigned long M_MOUSE_PRESSED = 16;
 		static const unsigned long R_MOUSE_PRESSED = 32;
 		static const unsigned long MOUSE_MOVE = 64;
-		static const unsigned long MOUSE_UP = 128;
-		static const unsigned long MOUSE_WHEEL = 256;
-		static const unsigned long CTRL_PRESSED = 512;
-		static const unsigned long SHIFT_PRESSED = 1024;
-		static const unsigned long ALT_PRESSED = 2048;
+		static const unsigned long L_MOUSE_UP = 128;
+		static const unsigned long M_MOUSE_UP = 256;
+		static const unsigned long R_MOUSE_UP = 512;
+		static const unsigned long MOUSE_WHEEL = 1024;
+		static const unsigned long CTRL_PRESSED = 2048;
+		static const unsigned long SHIFT_PRESSED = 4096;
+		static const unsigned long ALT_PRESSED = 8192;
 
 		bool _isMouseDown;
 		bool _isCtrlPressed;

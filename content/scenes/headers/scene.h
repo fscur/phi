@@ -43,11 +43,7 @@ namespace phi
 		std::vector<pointLight*>* _pointLights;
 		std::vector<spotLight*>* _spotLights;
 
-        std::vector<camera*> _cameras;
-
-
-    private:
-        void debugRender();
+        std::vector<camera*>* _cameras;
 
     public:
         SCENES_API scene();
@@ -81,9 +77,12 @@ namespace phi
         SCENES_API void add(camera* camera);
 
 		SCENES_API sceneObject* getSceneObject(GLuint index) const { return (*_allObjects)[index]; }
+		
 		SCENES_API directionalLight* getDirectionalLight(GLuint index) const { return (*_directionalLights)[index]; }
 		SCENES_API pointLight* getPointLight(GLuint index) const { return (*_pointLights)[index]; }
 		SCENES_API spotLight* getSpotLight(GLuint index) const { return (*_spotLights)[index]; }
+		
+		SCENES_API camera* getCamera(GLuint index) const { return (*_cameras)[index]; }
 
         SCENES_API void remove(sceneObject* sceneObject);
     };

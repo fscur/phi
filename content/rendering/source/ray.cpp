@@ -10,14 +10,14 @@ namespace phi
 
     ray::~ray(){}
 
-    bool ray::intersects(aabb aabb)
+    bool ray::intersects(aabb* aabb)
     {
-        float minX = aabb.getMin().x;
-        float minY = aabb.getMin().y;
-        float minZ = aabb.getMin().z;
-        float maxX = aabb.getMax().x;
-        float maxY = aabb.getMax().y;
-        float maxZ = aabb.getMax().z;
+        float minX = aabb->getMin().x;
+        float minY = aabb->getMin().y;
+        float minZ = aabb->getMin().z;
+        float maxX = aabb->getMax().x;
+        float maxY = aabb->getMax().y;
+        float maxZ = aabb->getMax().z;
         float x0 = _origin.x;
         float y0 = _origin.y;
         float z0 = _origin.z;
