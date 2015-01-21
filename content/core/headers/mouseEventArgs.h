@@ -10,6 +10,7 @@ namespace phi
     public:
         int x;
         int y;
+        unsigned int clicks;
         bool leftButtonPressed;
         bool rightButtonPressed;
         bool middleButtonPressed;

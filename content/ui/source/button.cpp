@@ -3,17 +3,13 @@
 
 namespace phi
 {
-    button::button(size<GLuint> viewportSize) : control()
+    button::button(size<GLuint> viewportSize) : control(viewportSize)
     {
-        _x = 0;
-        _y = 0;
-        _zIndex = 0;
-        _size = size<GLuint>();
         _text = "";
-        _texture = uiSystem::repository->getResource<texture>("button");
+        _texture = uiRepository::repository->getResource<texture>("button");
         _textureRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
-        _font = uiSystem::repository->getResource<font>("Consola_18");
+        _font = uiRepository::repository->getResource<font>("Consola_18");
         _textX = 0;
         _textY = 0;
         _clickedOver = false;
@@ -28,8 +24,12 @@ namespace phi
 
     void button::updateTextLocation()
     {
-        size<int> textSize = _textRenderer->measureSize(_text, _font);
-        _textX = (int)(_x + _size.width * 0.5f - textSize.width * 0.5f);
+        size<unsigned int> textSize = _textRenderer->measureSize(_text, _font);
+        if (textSize.width > _size.width)
+            _textX = _x;
+        else
+            _textX = (int)(_x + _size.width * 0.5f - textSize.width * 0.5f);
+
         _textY = (int)(_y + _size.height * 0.5f - textSize.height * 0.5f);
     }
 
@@ -81,11 +81,14 @@ namespace phi
 
     void button::render()
     {
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _textureRenderer->render(_texture, _currentColor);
         _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX, _textY), _zIndex + 0.001f);
         glDisable(GL_BLEND);
+        glDisable(GL_SCISSOR_TEST);
     }
 
     void button::onMouseDown(mouseEventArgs e)

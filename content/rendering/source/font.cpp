@@ -22,7 +22,7 @@ namespace phi
         memset(c, 0, sizeof c);
 
         // Find minimum size for a texture holding all visible ASCII characters
-        for (int i = 32; i < 128; i++)
+        for (int i = 32; i < 256; i++)
         {
             if (FT_Load_Char(face, i, FT_LOAD_RENDER))
             {
@@ -99,6 +99,7 @@ namespace phi
         _ascender = glm::abs(face->size->metrics.ascender / 64.0f);
         _lineHeight = face->size->metrics.height / 64.0f;
 
+        LOG("size = " << _size << " lineHeight = " << _lineHeight);
         //fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", _texWidth, _texHeight, _texWidth * _texHeight / 1024);
     }
 

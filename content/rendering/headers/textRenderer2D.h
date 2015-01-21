@@ -29,7 +29,8 @@ namespace phi
         RENDERING_API void update();
 		RENDERING_API void setViewportSize(size<GLuint> viewportSize) { _viewportSize = viewportSize; }
         RENDERING_API void render(std::string text, font* font, color foreColor, color backColor, glm::vec2 location, float zIndex);
-        RENDERING_API size<int> measureSize(std::string text, font* font);
+        RENDERING_API size<unsigned int> measureSize(std::string text, font* font);
+        RENDERING_API unsigned int measureString(std::string text, font* font, size<unsigned int> size);
     };
 }
 

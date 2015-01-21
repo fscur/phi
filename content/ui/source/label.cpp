@@ -2,15 +2,12 @@
 
 namespace phi
 {
-    label::label(size<GLuint> viewportSize) : control()
+    label::label(size<GLuint> viewportSize) : control(viewportSize)
     {
-        _x = 0;
-        _y = 0;
-        _size = 0;
         _text = "";
-        _texture = uiSystem::repository->getResource<texture>("button");
+        _texture = uiRepository::repository->getResource<texture>("button");
         _textRenderer = new textRenderer2D(viewportSize);
-        _font = uiSystem::repository->getResource<font>("Consola_14");
+        _font = uiRepository::repository->getResource<font>("Consola_14");
         _textX = 0;
         _textY = 0;
     }
@@ -22,7 +19,7 @@ namespace phi
 
     void label::updateTextLocation()
     {
-        size<int> textSize = _textRenderer->measureSize(_text, _font);
+        size<unsigned int> textSize = _textRenderer->measureSize(_text, _font);
         _textX = _x;
 		_textY = _y;
     }

@@ -1,20 +1,13 @@
 #ifndef _PHI_UI_SYSTEM_H_
 #define _PHI_UI_SYSTEM_H_
 
-#include "ui.h"
-#include "resourcesRepository.h"
+#include "control.h"
 #include "size.h"
-#if WIN32
-#include <GL/glew.h>
-#else
-#include <OpenGL/gl3.h>
-#endif
+#include "cursor.h"
+#include "quadRenderer2D.h"
 
 namespace phi
 {
-    static const std::string UI_TEXTURES_PATH = "./resources/textures/";
-    static const std::string UI_FONTS_PATH = "./resources/fonts/";
-
     struct uiSystemInfo
     {
     public:
@@ -24,11 +17,35 @@ namespace phi
 
     class uiSystem
     {
-    public:
-        UI_API static resourcesRepository* repository;
+    private:
+        static uiSystem* _instance;
+        std::vector<control*> _controls;
+        uiSystemInfo _info;
+        eventHandler<controlEventArgs>* _controlGotFocus;
+        eventHandler<controlEventArgs>* _controlLostFocus;
+        cursor* _cursor;
+        quadRenderer2D* _cursorRenderer;
+
+    private:
+        uiSystem();
+        void notifyControlGotFocus(controlEventArgs e);
+        void notifyControlLostFocus(controlEventArgs e);
+        void controlGotFocus(controlEventArgs e);
+        void controlMouseLeave(mouseEventArgs e);
+        void inputMouseMove(mouseEventArgs e);
+        void renderCursor();
 
     public:
-        UI_API static void init(uiSystemInfo info);
+        UI_API static uiSystem* get();
+        UI_API void init(uiSystemInfo info);
+        UI_API uiSystemInfo getInfo() { return _info; }
+        UI_API eventHandler<controlEventArgs>* getControlGotFocus() { return _controlGotFocus; }
+        UI_API eventHandler<controlEventArgs>* getControlLostFocus() { return _controlLostFocus; }
+        UI_API void setCursor(cursor* value);
+        UI_API void resize(size<GLuint> value);
+
+        UI_API void addControl(control* control);
+        UI_API void render();
     };
 }
 

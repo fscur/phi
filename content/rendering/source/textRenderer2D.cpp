@@ -27,19 +27,19 @@ namespace phi
 
         _shader = shaderManager::get()->getShader("HUD_TEXT");
 
-		std::vector<vertex> vertices;
-		vertices.push_back(vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 1.0f)));
-		vertices.push_back(vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 1.0f)));
-		vertices.push_back(vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 0.0f)));
-		vertices.push_back(vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f)));
+        std::vector<vertex> vertices;
+        vertices.push_back(vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 1.0f)));
+        vertices.push_back(vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 1.0f)));
+        vertices.push_back(vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 0.0f)));
+        vertices.push_back(vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f)));
 
-		std::vector<GLuint> indices;
-		indices.push_back(0);
-		indices.push_back(1);
-		indices.push_back(2);
-		indices.push_back(2);
-		indices.push_back(3);
-		indices.push_back(0);
+        std::vector<GLuint> indices;
+        indices.push_back(0);
+        indices.push_back(1);
+        indices.push_back(2);
+        indices.push_back(2);
+        indices.push_back(3);
+        indices.push_back(0);
 
         _mesh = mesh::create("", vertices, indices);
     }
@@ -120,10 +120,10 @@ namespace phi
         glDisable(GL_BLEND);
     }
 
-    size<int> textRenderer2D::measureSize(std::string text, font* font)
+    size<unsigned int> textRenderer2D::measureSize(std::string text, font* font)
     {
         if (text.empty())
-            return size<int>(0, 0);
+            return size<unsigned int>(0, 0);
 
         float maxWidth = 0.0f;
         float currentWidth = 0.0f, currentHeight = font->getLineHeight();
@@ -136,16 +136,36 @@ namespace phi
                 continue;
             }
 
-            /*float x = currentWidth + font->c[p].bl;
-            float y = currentHeight - (font->c[p].bh - font->c[p].bt - font->getBaseLine());
-            float w = font->c[p].bw;
-            float h = font->c[p].bh;*/
-
             currentWidth += font->c[p].ax;
             currentHeight += font->c[p].ay;
             maxWidth = glm::max(currentWidth, maxWidth);
         }
-        
-        return size<int>(maxWidth, currentHeight);
+
+        return size<unsigned int>(maxWidth, currentHeight);
+    }
+
+    unsigned int textRenderer2D::measureString(std::string text, font* font, size<unsigned int> sz)
+    {
+        if (text.empty())
+            return 0;
+
+        unsigned int index = 0;
+        float currentWidth = 0.0f;
+        for(char& p : text)
+        {
+            if (p == '\n')
+            {
+                currentWidth = 0.0f;
+                continue;
+            }
+
+            if (currentWidth + font->c[p].ax > sz.width)
+                break;
+
+            currentWidth += font->c[p].ax;
+            index++;
+        }
+
+        return index;
     }
 }
