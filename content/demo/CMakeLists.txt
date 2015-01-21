@@ -23,6 +23,7 @@ link_directories(${LIBS_DIR})
 find_package(SDL REQUIRED)
 find_package(SDL_TTF REQUIRED)
 find_package(OPENGL REQUIRED)
+find_package(FREETYPE REQUIRED)
 
 if(NOT SDL_FOUND)
     message(SDL not found!)
@@ -36,13 +37,19 @@ if(NOT OPENGL_FOUND)
     message(OPENGL not found!)
 endif(NOT OPENGL_FOUND)
 
+#if(NOT FREETYPE_FOUND)
+    #message(FREETYPE not found!)
+#endif(NOT FREETYPE_FOUND)
+
 include_directories(${SDL_INCLUDE_DIR})
 include_directories(${SDL_TTF_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
+include_directories(${FREETYPE_INCLUDE_DIRS})
 
 link_directories(${SDL_LIBRARY})
 link_directories(${SDL_TTF_LIBRARIES})
 link_directories(${OPENGL_LIBRARIES})
+link_directories(${FREETYPE_LIBRARIES})
 
 #GLEW (WIN32)
 
@@ -83,6 +90,7 @@ add_dependencies(demo ui)
 target_link_libraries(demo ${SDL_LIBRARY})
 target_link_libraries(demo ${SDL_TTF_LIBRARY})
 target_link_libraries(demo ${OPENGL_LIBRARY})
+target_link_libraries(demo ${FREETYPE_LIBRARY})
 
 if (WIN32)
     target_link_libraries(demo ${GLEW_LIBRARY})

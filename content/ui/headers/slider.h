@@ -58,6 +58,7 @@ namespace phi
         UI_API void onMouseDown(mouseEventArgs e) override;
         UI_API void onMouseUp(mouseEventArgs e) override;
         UI_API void onMouseMove(mouseEventArgs e) override;
+        UI_API void onKeyDown(keyboardEventArgs e) override;
 
         UI_API void render() override;
     };

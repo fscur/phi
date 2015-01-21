@@ -2,291 +2,289 @@
 
 namespace phi
 {
-	shaderManager* shaderManager::_instance = nullptr;
+    shaderManager* shaderManager::_instance = nullptr;
 
-	shaderManager::shaderManager()
-	{
-		_shaders = new std::map<std::string, shader*>();
-	}
+    shaderManager::shaderManager()
+    {
+        _shaders = new std::map<std::string, shader*>();
+    }
 
-	shaderManager::~shaderManager()
-	{
-	}
+    shaderManager::~shaderManager()
+    {
+    }
 
-	shaderManager* shaderManager::get()
-	{
-		if (!_instance)
-			_instance = new shaderManager();
+    shaderManager* shaderManager::get()
+    {
+        if (!_instance)
+            _instance = new shaderManager();
 
-		return _instance;
-	}
+        return _instance;
+    }
 
-	void shaderManager::init(shaderManagerInfo info)
-	{
-		_info = info;
-		
-		addBasicShader();
+    void shaderManager::init(shaderManagerInfo info)
+    {
+        _info = info;
 
-		addFsAmbientLightShader();
-		addFsDirLightShader();
-		addFsDirLightShadowMapShader();
-		addFsPointLightShader();
-		addFsSpotLightShader();
+        addBasicShader();
 
-		addDsGeomPassShader();
-		addDsStencilShader();
-		addDsDirLightShader();
-		addDsPointLightShader();
-		addDsSpotLightShader();
+        addFsAmbientLightShader();
+        addFsDirLightShader();
+        addFsDirLightShadowMapShader();
+        addFsPointLightShader();
+        addFsSpotLightShader();
 		addDsSelectedObjectsShader();
 
-		addRenderToQuadShader();
-		addHudTextShader();
-		addHudQuadShader();
-		//addSkyDomeShader();
-	}
+        addDsGeomPassShader();
+        addDsStencilShader();
+        addDsDirLightShader();
+        addDsPointLightShader();
+        addDsSpotLightShader();
 
-	void shaderManager::addShader(std::string name, shader* shader)
-	{
-		if (_shaders->find(name) != _shaders->end())
-			return;
+        addRenderToQuadShader();
+        addHudTextShader();
+        addHudQuadShader();
+        //addSkyDomeShader();
+    }
 
-		(*_shaders)[name] = shader;
-	}
+    void shaderManager::addShader(std::string name, shader* shader)
+    {
+        if (_shaders->find(name) != _shaders->end())
+            return;
 
-	shader* shaderManager::loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes)
-	{
-		shader* s = new shader(name, _info.path + SHADERS_PATH + vertFile, _info.path + SHADERS_PATH + fragFile, attributes);
-		s->init();
-		return s;
-	}
+        (*_shaders)[name] = shader;
+    }
 
-	void shaderManager::addBasicShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+    shader* shaderManager::loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes)
+    {
+        shader* s = new shader(name, _info.path + SHADERS_PATH + vertFile, _info.path + SHADERS_PATH + fragFile, attributes);
+        s->init();
+        return s;
+    }
 
-		shader* s = loadShader("BASIC", "basic.vert", "basic.frag", attribs);
+    void shaderManager::addBasicShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		s->addUniform("mvp");
-		s->addUniform("diffuseMap");
-		s->addUniform("diffuseColor");
+        shader* s = loadShader("BASIC", "basic.vert", "basic.frag", attribs);
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("mvp");
+        s->addUniform("diffuseMap");
+        s->addUniform("diffuseColor");
 
-	void shaderManager::addFsAmbientLightShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("FS_AMBIENT_LIGHT", "fs_ambient_light.vert", "fs_ambient_light.frag", attribs);
+    void shaderManager::addFsAmbientLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		s->addUniform("mvp");
-		s->addUniform("ambientLightColor");
-		s->addUniform("diffuseMap");
-		s->addUniform("mat.ambientColor");
-		s->addUniform("mat.ka");
+        shader* s = loadShader("FS_AMBIENT_LIGHT", "fs_ambient_light.vert", "fs_ambient_light.frag", attribs);
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("mvp");
+        s->addUniform("ambientLightColor");
+        s->addUniform("diffuseMap");
+        s->addUniform("mat.ambientColor");
+        s->addUniform("mat.ka");
 
-	void shaderManager::addFsDirLightShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
-		attribs.push_back("inNormal");
-		attribs.push_back("inTangent");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("FS_DIR_LIGHT", "fs_dir_light.vert", "fs_dir_light.frag", attribs);
+    void shaderManager::addFsDirLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+        attribs.push_back("inNormal");
+        attribs.push_back("inTangent");
 
-		s->addUniform("p");
-		s->addUniform("v");
-		s->addUniform("m");
-		s->addUniform("mvp");
-		s->addUniform("itmv");
+        shader* s = loadShader("FS_DIR_LIGHT", "fs_dir_light.vert", "fs_dir_light.frag", attribs);
 
-		s->addUniform("light.position");
-		s->addUniform("light.color");
-		s->addUniform("light.intensity");
-		s->addUniform("light.direction");
+        s->addUniform("p");
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("itmv");
 
-		s->addUniform("mat.ambientColor");
-		s->addUniform("mat.diffuseColor");
-		s->addUniform("mat.specularColor");
-		s->addUniform("mat.ka");
-		s->addUniform("mat.kd");
-		s->addUniform("mat.ks");
-		s->addUniform("mat.shininess");
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.direction");
 
-		s->addUniform("diffuseMap");
-		s->addUniform("normalMap");
-		s->addUniform("specularMap");
+        s->addUniform("mat.ambientColor");
+        s->addUniform("mat.diffuseColor");
+        s->addUniform("mat.specularColor");
+        s->addUniform("mat.ka");
+        s->addUniform("mat.kd");
+        s->addUniform("mat.ks");
+        s->addUniform("mat.shininess");
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("diffuseMap");
+        s->addUniform("normalMap");
+        s->addUniform("specularMap");
 
-	void shaderManager::addFsDirLightShadowMapShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("FS_DIR_LIGHT_SHADOW_MAP", "fs_dir_light_shadow_map.vert", "fs_dir_light_shadow_map.frag", attribs);
+    void shaderManager::addFsDirLightShadowMapShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
 
-		s->addUniform("mvp");
+        shader* s = loadShader("FS_DIR_LIGHT_SHADOW_MAP", "fs_dir_light_shadow_map.vert", "fs_dir_light_shadow_map.frag", attribs);
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("mvp");
 
-	void shaderManager::addFsPointLightShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
-		attribs.push_back("inNormal");
-		attribs.push_back("inTangent");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("FS_POINT_LIGHT", "fs_point_light.vert", "fs_point_light.frag", attribs);
+    void shaderManager::addFsPointLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+        attribs.push_back("inNormal");
+        attribs.push_back("inTangent");
 
-		s->addUniform("p");
-		s->addUniform("v");
-		s->addUniform("m");
-		s->addUniform("mvp");
-		s->addUniform("itmv");
+        shader* s = loadShader("FS_POINT_LIGHT", "fs_point_light.vert", "fs_point_light.frag", attribs);
 
-		s->addUniform("light.position");
-		s->addUniform("light.color");
-		s->addUniform("light.intensity");
-		s->addUniform("light.attenuation.constant");
-		s->addUniform("light.attenuation.linear");
-		s->addUniform("light.attenuation.exponential");
-		s->addUniform("light.range");
+        s->addUniform("p");
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("itmv");
 
-		s->addUniform("mat.diffuseColor");
-		s->addUniform("mat.specularColor");
-		s->addUniform("mat.kd");
-		s->addUniform("mat.ks");
-		s->addUniform("mat.shininess");
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.attenuation.constant");
+        s->addUniform("light.attenuation.linear");
+        s->addUniform("light.attenuation.exponential");
+        s->addUniform("light.range");
 
-		s->addUniform("diffuseMap");
-		s->addUniform("normalMap");
-		s->addUniform("specularMap");
+        s->addUniform("mat.diffuseColor");
+        s->addUniform("mat.specularColor");
+        s->addUniform("mat.kd");
+        s->addUniform("mat.ks");
+        s->addUniform("mat.shininess");
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("diffuseMap");
+        s->addUniform("normalMap");
+        s->addUniform("specularMap");
 
-	void shaderManager::addFsSpotLightShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
-		attribs.push_back("inNormal");
-		attribs.push_back("inTangent");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("FS_SPOT_LIGHT", "fs_spot_light.vert", "fs_spot_light.frag", attribs);
+    void shaderManager::addFsSpotLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+        attribs.push_back("inNormal");
+        attribs.push_back("inTangent");
 
-		s->addUniform("p");
-		s->addUniform("v");
-		s->addUniform("m");
-		s->addUniform("mvp");
-		s->addUniform("itmv");
+        shader* s = loadShader("FS_SPOT_LIGHT", "fs_spot_light.vert", "fs_spot_light.frag", attribs);
 
-		s->addUniform("light.position");
-		s->addUniform("light.color");
-		s->addUniform("light.intensity");
-		s->addUniform("light.attenuation.constant");
-		s->addUniform("light.attenuation.linear");
-		s->addUniform("light.attenuation.exponential");
-		s->addUniform("light.range");
-		s->addUniform("light.direction");
-		s->addUniform("light.cutoff");
+        s->addUniform("p");
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("itmv");
 
-		s->addUniform("mat.diffuseColor");
-		s->addUniform("mat.specularColor");
-		s->addUniform("mat.kd");
-		s->addUniform("mat.ks");
-		s->addUniform("mat.shininess");
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.attenuation.constant");
+        s->addUniform("light.attenuation.linear");
+        s->addUniform("light.attenuation.exponential");
+        s->addUniform("light.range");
+        s->addUniform("light.direction");
+        s->addUniform("light.cutoff");
 
-		s->addUniform("diffuseMap");
-		s->addUniform("normalMap");
-		s->addUniform("specularMap");
+        s->addUniform("mat.diffuseColor");
+        s->addUniform("mat.specularColor");
+        s->addUniform("mat.kd");
+        s->addUniform("mat.ks");
+        s->addUniform("mat.shininess");
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("diffuseMap");
+        s->addUniform("normalMap");
+        s->addUniform("specularMap");
 
-	void shaderManager::addDsGeomPassShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
-		attribs.push_back("inNormal");
-		attribs.push_back("inTangent");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("DS_GEOM_PASS", "ds_geom_pass.vert", "ds_geom_pass.frag", attribs);
+    void shaderManager::addDsGeomPassShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+        attribs.push_back("inNormal");
+        attribs.push_back("inTangent");
 
-		s->addUniform("mv");
-		s->addUniform("mvp");
-		s->addUniform("itmv");
+        shader* s = loadShader("DS_GEOM_PASS", "ds_geom_pass.vert", "ds_geom_pass.frag", attribs);
 
-		s->addUniform("ambientLightColor");
+        s->addUniform("mv");
+        s->addUniform("mvp");
+        s->addUniform("itmv");
 
-		s->addUniform("mat.ambientColor");
-		s->addUniform("mat.diffuseColor");
-		s->addUniform("mat.specularColor");
-		s->addUniform("mat.ka");
-		s->addUniform("mat.kd");
-		s->addUniform("mat.ks");
-		s->addUniform("mat.shininess");
+        s->addUniform("ambientLightColor");
 
-		s->addUniform("diffuseMap");
-		s->addUniform("normalMap");
-		s->addUniform("specularMap");
+        s->addUniform("mat.ambientColor");
+        s->addUniform("mat.diffuseColor");
+        s->addUniform("mat.specularColor");
+        s->addUniform("mat.ka");
+        s->addUniform("mat.kd");
+        s->addUniform("mat.ks");
+        s->addUniform("mat.shininess");
 
 		s->addUniform("isSelected");
 
 		addShader(s->getName(), s);
 	}
 
-	void shaderManager::addDsStencilShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("DS_STENCIL", "ds_stencil.vert", "ds_stencil.frag", attribs);
+    void shaderManager::addDsStencilShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
 
-		s->addUniform("mvp");
+        shader* s = loadShader("DS_STENCIL", "ds_stencil.vert", "ds_stencil.frag", attribs);
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("mvp");
 
-	void shaderManager::addDsDirLightShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("DS_DIR_LIGHT", "ds_dir_light.vert", "ds_dir_light.frag", attribs);
+    void shaderManager::addDsDirLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		s->addUniform("v");
-		s->addUniform("m");
+        shader* s = loadShader("DS_DIR_LIGHT", "ds_dir_light.vert", "ds_dir_light.frag", attribs);
 
-		s->addUniform("light.position");
-		s->addUniform("light.color");
-		s->addUniform("light.intensity");
-		s->addUniform("light.direction");
+        s->addUniform("v");
+        s->addUniform("m");
 
-		s->addUniform("positionMap");
-		s->addUniform("normalMap");
-		s->addUniform("diffuseMap");
-		s->addUniform("specularMap");
-		s->addUniform("shininessMap");
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.direction");
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
+        s->addUniform("diffuseMap");
+        s->addUniform("specularMap");
+        s->addUniform("shininessMap");
 
+        addShader(s->getName(), s);
+    }
 	void shaderManager::addDsSelectedObjectsShader()
 	{
 		std::vector<std::string> attribs;
@@ -307,153 +305,163 @@ namespace phi
 		std::vector<std::string> attribs;
 		attribs.push_back("inPosition");
 
-		shader* s = loadShader("DS_POINT_LIGHT", "ds_point_light.vert", "ds_point_light.frag", attribs);
+    void shaderManager::addDsPointLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
 
-		s->addUniform("v");
-		s->addUniform("m");
-		s->addUniform("mvp");
-		s->addUniform("res");
+        shader* s = loadShader("DS_POINT_LIGHT", "ds_point_light.vert", "ds_point_light.frag", attribs);
 
-		s->addUniform("light.position");
-		s->addUniform("light.color");
-		s->addUniform("light.intensity");
-		s->addUniform("light.attenuation.constant");
-		s->addUniform("light.attenuation.linear");
-		s->addUniform("light.attenuation.exponential");
-		s->addUniform("light.range");
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("res");
 
-		s->addUniform("positionMap");
-		s->addUniform("normalMap");
-		s->addUniform("diffuseMap");
-		s->addUniform("specularMap");
-		s->addUniform("shininessMap");
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.attenuation.constant");
+        s->addUniform("light.attenuation.linear");
+        s->addUniform("light.attenuation.exponential");
+        s->addUniform("light.range");
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
+        s->addUniform("diffuseMap");
+        s->addUniform("specularMap");
+        s->addUniform("shininessMap");
 
-	void shaderManager::addDsSpotLightShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("DS_SPOT_LIGHT", "ds_spot_light.vert", "ds_spot_light.frag", attribs);
+    void shaderManager::addDsSpotLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
 
-		s->addUniform("v");
-		s->addUniform("m");
-		s->addUniform("mvp");
-		s->addUniform("res");
+        shader* s = loadShader("DS_SPOT_LIGHT", "ds_spot_light.vert", "ds_spot_light.frag", attribs);
 
-		s->addUniform("light.position");
-		s->addUniform("light.color");
-		s->addUniform("light.intensity");
-		s->addUniform("light.attenuation.constant");
-		s->addUniform("light.attenuation.linear");
-		s->addUniform("light.attenuation.exponential");
-		s->addUniform("light.range");
-		s->addUniform("light.direction");
-		s->addUniform("light.cutoff");
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("res");
 
-		s->addUniform("positionMap");
-		s->addUniform("normalMap");
-		s->addUniform("diffuseMap");
-		s->addUniform("specularMap");
-		s->addUniform("shininessMap");
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.attenuation.constant");
+        s->addUniform("light.attenuation.linear");
+        s->addUniform("light.attenuation.exponential");
+        s->addUniform("light.range");
+        s->addUniform("light.direction");
+        s->addUniform("light.cutoff");
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
+        s->addUniform("diffuseMap");
+        s->addUniform("specularMap");
+        s->addUniform("shininessMap");
 
-	void shaderManager::addRenderToQuadShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("RENDER_TO_QUAD", "render_to_quad.vert", "render_to_quad.frag", attribs);
+    void shaderManager::addRenderToQuadShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		s->addUniform("quadTexture");
+        shader* s = loadShader("RENDER_TO_QUAD", "render_to_quad.vert", "render_to_quad.frag", attribs);
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("quadTexture");
 
-	void shaderManager::addHudQuadShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("HUD_QUAD", "hud_quad.vert", "hud_quad.frag", attribs);
+    void shaderManager::addHudQuadShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		s->addUniform("mvp");
-		s->addUniform("quadTexture");
-		s->addUniform("backColor");
+        shader* s = loadShader("HUD_QUAD", "hud_quad.vert", "hud_quad.frag", attribs);
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("mvp");
+        s->addUniform("quadTexture");
+        s->addUniform("backColor");
 
-	void shaderManager::addHudTextShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("HUD_TEXT", "hud_text.vert", "hud_text.frag", attribs);
+    void shaderManager::addHudTextShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		s->addUniform("mvp");
-		s->addUniform("textTexture");
+        shader* s = loadShader("HUD_TEXT", "hud_text.vert", "hud_text.frag", attribs);
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("mvp");
+        s->addUniform("res");
+        s->addUniform("texture");
+        s->addUniform("color");
+        s->addUniform("texCoordOrigin");
+        s->addUniform("texCoordQuadSize");
+        s->addUniform("texSize");
 
-	void shaderManager::addSkyDomeShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
-		attribs.push_back("inNormal");
-		attribs.push_back("inTangent");
+        addShader(s->getName(), s);
+    }
 
-		shader* s = loadShader("SKY_DOME", "sky_dome.vert", "sky_dome.frag", attribs);
+    void shaderManager::addSkyDomeShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+        attribs.push_back("inNormal");
+        attribs.push_back("inTangent");
 
-		s->addUniform("p");
-		s->addUniform("v");
-		s->addUniform("m");
-		s->addUniform("mvp");
-		s->addUniform("itmv");
-		s->addUniform("time");
-		s->addUniform("radius");
+        shader* s = loadShader("SKY_DOME", "sky_dome.vert", "sky_dome.frag", attribs);
 
-		s->addUniform("normalMap");
+        s->addUniform("p");
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("itmv");
+        s->addUniform("time");
+        s->addUniform("radius");
 
-		addShader(s->getName(), s);
-	}
+        s->addUniform("normalMap");
 
-	shader* shaderManager::getShader(std::string name)
-	{
-		if (_shaders->find(name) == _shaders->end())
-			return NULL;
-		else
-			return (*_shaders)[name];
-	}
+        addShader(s->getName(), s);
+    }
 
-	void shaderManager::release()
-	{
-		if (_shaders)
-		{
-			for(std::map<std::string, shader*>::iterator i = _shaders->begin(); i != _shaders->end(); i++) 
-			{
-				(i->second)->release();
-				delete (i->second);
-				(i->second) = NULL;
-			}
+    shader* shaderManager::getShader(std::string name)
+    {
+        if (_shaders->find(name) == _shaders->end())
+            return NULL;
+        else
+            return (*_shaders)[name];
+    }
 
-			delete _shaders;
-			_shaders = NULL;
-		}
+    void shaderManager::release()
+    {
+        if (_shaders)
+        {
+            for(std::map<std::string, shader*>::iterator i = _shaders->begin(); i != _shaders->end(); i++) 
+            {
+                (i->second)->release();
+                delete (i->second);
+                (i->second) = NULL;
+            }
 
-		if (_instance)
-		{
-			delete _instance;
-			_instance = NULL;
-		}
-	}
+            delete _shaders;
+            _shaders = NULL;
+        }
+
+        if (_instance)
+        {
+            delete _instance;
+            _instance = NULL;
+        }
+    }
 }

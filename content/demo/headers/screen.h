@@ -4,10 +4,10 @@
 #include <SDL/SDL.h>
 #include "scenesManager.h"
 #include "Form.h"
-#include "hud.h"
 #include "button.h"
 #include "label.h"
 #include "slider.h"
+#include "textBox.h"
 #include "ray.h"
 #include "size.h"
 #include "commandsManager.h"
@@ -28,7 +28,6 @@ private:
 
     float _temp;
 
-    phi::hud* _hud;
     phi::label* _labelFps;
     phi::label* _labelObjects;
     phi::label* _labelDt;
@@ -36,6 +35,8 @@ private:
     phi::label* _labelUpdateCost;
     phi::label* _labelRenderCost;
     phi::slider* _slider1;
+    phi::textBox* _textBox1;
+    phi::textBox* _textBox2;
 
 	phi::commandsManager _commandsManager;
 private:
@@ -62,6 +63,11 @@ public:
     void closeButtonClick(phi::mouseEventArgs e);
     void expandButtonClick(phi::mouseEventArgs e);
     void sliderValueChanged(phi::eventArgs e);
+    void textBox1TextChanged(phi::eventArgs e);
+    void textBox2TextChanged(phi::eventArgs e);
+    void hudControlGotFocus(phi::controlEventArgs e);
+    void hudControlLostFocus(phi::controlEventArgs e);
+    
 
     void update() override;
     void render() override;

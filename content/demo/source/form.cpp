@@ -1,17 +1,20 @@
 #if WIN32
-    #include <GL/glew.h>
+#include <GL/glew.h>
 #else
-    #include <OpenGL/gl3.h>
+#include <OpenGL/gl3.h>
 #endif
 #include "input.h"
 #include "form.h"
 #include "globals.h"
+#include <string>
+#include <locale>
+#include <codecvt>
 
 form::form()
 {
     _title = "Form";
     _size = phi::size<unsigned int>(800, 600);
-	_window = nullptr;
+    _window = nullptr;
     _glContext = nullptr;
     _isClosed = false;
 
@@ -22,14 +25,15 @@ form::form()
     _inputCost = 0;
     _updateCost = 0;
     _renderCost = 0;
+    _isFullScreen = false;
 
-	initWindow();
+    initWindow();
 }
 
 form::~form()
 {
     SDL_GL_DeleteContext(_glContext);
-	_glContext = nullptr;
+    _glContext = nullptr;
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
@@ -73,7 +77,7 @@ void form::setIsFullScreen(bool value)
 
 void form::initWindow()
 {
-	//createGLWindow
+    //createGLWindow
     _window = SDL_CreateWindow(
         _title.c_str(),
         SDL_WINDOWPOS_CENTERED,
@@ -94,6 +98,8 @@ void form::initWindow()
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    SDL_ShowCursor(0);
 
     _glContext = SDL_GL_CreateContext(_window);
 
@@ -117,14 +123,13 @@ void form::initWindow()
 
 void form::input()
 {
-	onBeginInput();
-
+    onBeginInput();
     SDL_Event e;
-	
+
     while (SDL_PollEvent(&e) != 0)
     {
-		phi::mouseEventArgs me;
-		phi::keyboardEventArgs ke;
+        phi::mouseEventArgs me;
+        phi::keyboardEventArgs ke;
 
         const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
@@ -145,11 +150,12 @@ void form::input()
             me.middleButtonPressed = e.button.button == SDL_BUTTON_MIDDLE;
             me.x = e.motion.x;
             me.y = e.motion.y;
+            me.clicks = e.button.clicks;
             onMouseDown(me);
             phi::input::notifyMouseDown(me);
             break;
         case SDL_MOUSEMOTION:
-			_lastMousePos = glm::vec2(e.motion.x, e.motion.y);
+            _lastMousePos = glm::vec2(e.motion.x, e.motion.y);
             me = phi::mouseEventArgs();
             me.x = e.motion.x;
             me.y = e.motion.y;
@@ -163,9 +169,10 @@ void form::input()
             me.middleButtonPressed = e.button.button == SDL_BUTTON_MIDDLE;
             me.x = e.motion.x;
             me.y = e.motion.y;
+            me.clicks = e.button.clicks;
             onMouseUp(me);
             phi::input::notifyMouseUp(me);
-			break;
+            break;
         case SDL_MOUSEWHEEL:
             me = phi::mouseEventArgs();
             me.wheelDelta = (float)e.wheel.y;
@@ -173,31 +180,58 @@ void form::input()
             me.y = _lastMousePos.y;
             onMouseWheel(me);
             phi::input::notifyMouseWheel(me);
-			break;
+            break;
         case SDL_KEYDOWN:
-			ke.key = e.key.keysym.sym;
-			ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
-			ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
-			ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
-            onKeyDown(ke);
-
+            if (!SDL_IsTextInputActive())
+            {
+                ke.key = e.key.keysym.sym;
+                ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
+                ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
+                ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
+                onKeyDown(ke);
+                phi::input::notifyKeyDown(ke);
+            }
+            else
+            {
+                if (e.key.keysym.sym == PHIK_BACKSPACE || 
+                    e.key.keysym.sym == PHIK_DELETE || 
+                    e.key.keysym.sym == PHIK_LEFT ||
+                    e.key.keysym.sym == PHIK_RIGHT ||
+                    e.key.keysym.sym == PHIK_HOME ||
+                    e.key.keysym.sym == PHIK_END)
+                {
+                    ke.key = e.key.keysym.sym;
+                    ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
+                    ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
+                    ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
+                    onKeyDown(ke);
+                    phi::input::notifyKeyDown(ke);
+                }
+            }
             break;
 
         case SDL_KEYUP:
             ke.key = e.key.keysym.sym;
-			ke.isCtrlPressed = (e.key.keysym.sym & (PHIK_RCTRL | PHIK_LCTRL)) > 0;
-			ke.isShiftPressed = (e.key.keysym.sym & (PHIK_RSHIFT | PHIK_LSHIFT)) > 0;
-			ke.isAltPressed = (e.key.keysym.sym & (PHIK_RALT | PHIK_LALT)) > 0;
-			onKeyUp(ke);
+            ke.isCtrlPressed = (e.key.keysym.sym & (PHIK_RCTRL | PHIK_LCTRL)) > 0;
+            ke.isShiftPressed = (e.key.keysym.sym & (PHIK_RSHIFT | PHIK_LSHIFT)) > 0;
+            ke.isAltPressed = (e.key.keysym.sym & (PHIK_RALT | PHIK_LALT)) > 0;
+            onKeyUp(ke);
 
             if (e.key.keysym.sym == SDLK_F11)
                 setIsFullScreen(!getIsFullScreen());
+
+            phi::input::notifyKeyUp(ke);
+            break;
+
+        case SDL_TEXTINPUT:
+            ke.key = e.text.text[0];
+            phi::input::notifyKeyDown(ke);
 
             break;
         }
     }
 
-	onEndInput();
+    onEndInput();
 }
 
 bool form::loop()

@@ -6,6 +6,8 @@
 #else
     #include <OpenGL/gl3.h>
 #endif
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include "rendering.h"
 #include "resourcesRepository.h"
@@ -37,6 +39,7 @@ namespace phi
         RENDERING_API static defaultFrameBuffer* defaultFrameBuffer;
 		RENDERING_API static pickingFrameBuffer* pickingFrameBuffer;
         RENDERING_API static resourcesRepository* repository;
+        RENDERING_API static FT_Library freeTypeLibrary;
         RENDERING_API static bool initialized;
 
     public:
