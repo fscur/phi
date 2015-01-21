@@ -5,6 +5,7 @@ namespace phi
 	sceneRenderer::sceneRenderer(size<GLuint> viewportSize)
 	{
 		_viewportSize = viewportSize;
+		
 	}
 
 	sceneRenderer::~sceneRenderer()
@@ -17,6 +18,8 @@ namespace phi
 		_allObjects = _scene->getAllObjects();
 		_allObjectsCount = _allObjects->size();
 		_camera = _scene->getActiveCamera();
+		
+		renderingSystem::defaultFrameBuffer->clear();
 
 		onRender();
 	}

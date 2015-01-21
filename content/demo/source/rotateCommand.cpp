@@ -7,12 +7,12 @@ namespace phi
 {
 	commandInfo* rotateStartCommand::execute(commandInfo* info)
 	{
-		GLfloat zBufferValue;
-
-		glReadPixels(info->mousePos.x, info->viewportSize.height - info->mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
-
+		GLfloat zBufferValue = renderingSystem::defaultFrameBuffer->getZBufferValue(info->mousePos);
+		
 		if (zBufferValue == 1.0f)
 			return nullptr;
+		
+		LOG("r: " << std::to_string(zBufferValue));
 
 		rotateCommandInfo* rotateInfo = new rotateCommandInfo(*info);
 		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();

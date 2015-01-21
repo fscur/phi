@@ -6,7 +6,7 @@ namespace phi
             r(r), g(g), b(b), a(a)
     {}
 
-    color color::transparent = color::fromRGBA(1.0f, 1.0f, 1.0f, 0.0f);
+    color color::transparent = color::fromRGBA(0.0f, 0.0f, 0.0f, 0.0f);
     //shades of gray
     color color::black = color::fromRGBA(0.0f, 0.0f, 0.0f, 1.0f);
     color color::gray = color::fromRGBA(0.7421875f, 0.7421875f, 0.7421875f, 1.0f);

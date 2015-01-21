@@ -19,12 +19,11 @@ namespace phi
     class shaderManager
     {
     private:
-        static shaderManager*  _instance;
+        static shaderManager* _instance;
         std::map<std::string, shader*>* _shaders;
 		shaderManagerInfo _info;
     private: 
         shaderManager();
-		shader* loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
 		void addBasicShader();
 		void addFsAmbientLightShader();
 		void addFsDirLightShader();
@@ -34,6 +33,7 @@ namespace phi
 		void addDsGeomPassShader();
 		void addDsStencilShader();
 		void addDsDirLightShader();
+		void addDsSelectedObjectsShader();
 		void addDsPointLightShader();
 		void addDsSpotLightShader();
 		void addRenderToQuadShader();
@@ -45,10 +45,13 @@ namespace phi
         RENDERING_API ~shaderManager();
 
         RENDERING_API static shaderManager* get();
+		
 		RENDERING_API void init(shaderManagerInfo info);
+
         RENDERING_API void addShader(std::string name, shader* shader);
         RENDERING_API shader* getShader(std::string name);
-
+		RENDERING_API shader* loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
+		
         RENDERING_API void release();
     };
 }

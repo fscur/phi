@@ -1,13 +1,13 @@
 #ifndef _PHI_GBUFFER_H_
 #define _PHI_GBUFFER_H_
 
-#include "renderTarget.h"
+#include "frameBuffer.h"
 #include "texture.h"
 
 namespace phi
 {
     class gBuffer :
-        public renderTarget
+        public frameBuffer
     {
     private:
         texture* _positionTexture;
@@ -33,7 +33,7 @@ namespace phi
 		RENDERING_API texture* getFinalTexture() const { return _finalTexture; }
 		RENDERING_API texture* getDepthTexture() const { return _depthTexture; }
 
-        RENDERING_API bool init() override;
+        RENDERING_API void init() override;
         RENDERING_API void clear() override;
         RENDERING_API void blit(GLuint buffer, GLuint x, GLuint y, GLsizei width, GLsizei height);
 		

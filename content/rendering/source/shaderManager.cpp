@@ -32,6 +32,7 @@ namespace phi
         addFsDirLightShadowMapShader();
         addFsPointLightShader();
         addFsSpotLightShader();
+		addDsSelectedObjectsShader();
 
         addDsGeomPassShader();
         addDsStencilShader();
@@ -240,12 +241,10 @@ namespace phi
         s->addUniform("mat.ks");
         s->addUniform("mat.shininess");
 
-        s->addUniform("diffuseMap");
-        s->addUniform("normalMap");
-        s->addUniform("specularMap");
+		s->addUniform("isSelected");
 
-        addShader(s->getName(), s);
-    }
+		addShader(s->getName(), s);
+	}
 
     void shaderManager::addDsStencilShader()
     {
@@ -283,6 +282,20 @@ namespace phi
 
         addShader(s->getName(), s);
     }
+	void shaderManager::addDsSelectedObjectsShader()
+	{
+		std::vector<std::string> attribs;
+		attribs.push_back("inPosition");
+		attribs.push_back("inTexCoord");
+
+		shader* s = loadShader("DS_SELECTED_OBJECTS", "ds_selected_objects.vert", "ds_selected_objects.frag", attribs);
+
+		s->addUniform("m");
+		s->addUniform("res");
+		s->addUniform("isSelectedMap");
+
+		addShader(s->getName(), s);
+	}
 
     void shaderManager::addDsPointLightShader()
     {

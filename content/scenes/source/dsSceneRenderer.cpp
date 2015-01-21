@@ -16,11 +16,17 @@ namespace phi
 
 	void dsSceneRenderer::onRender()
 	{
+		_hasSelectedObjects = false;
+
 		dsGeomPass();
-		dsAmbientLightBlit();
-		dsPointLightPass();
-		dsSpotLightPass();
-		dsDirectionalLightPass();
+		//dsAmbientLightBlit();
+		//dsPointLightPass();
+		//dsSpotLightPass();
+		//dsDirectionalLightPass();
+		
+		//if (_hasSelectedObjects)
+			//dsSelectedObjectsPass();
+		
 		dsFinalBlit();
 	}
 
@@ -28,7 +34,7 @@ namespace phi
 	{
 		_gBuffer->bindForLightPass();
 		_gBuffer->bindForReading();
-		_gBuffer->blit(2, 0, 0, _viewportSize.width, _viewportSize.height);
+		_gBuffer->blit(1, 0, 0, _viewportSize.width, _viewportSize.height);
 	}
 
 	void dsSceneRenderer::dsGeomPass()
@@ -48,6 +54,9 @@ namespace phi
 		{
 			sceneObject* sceneObj = (*_allObjects)[i];
 
+			if(!_hasSelectedObjects)
+				_hasSelectedObjects = sceneObj->getSelected();
+
 			sh->setUniform("mv", sceneObj->getTransform()->getMv());
 			sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
 			sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
@@ -62,10 +71,12 @@ namespace phi
 			sh->setUniform("mat.kd", mat->getKd());
 			sh->setUniform("mat.ks", mat->getKs());
 			sh->setUniform("mat.shininess", mat->getShininess());
-
+			
 			sh->setUniform("diffuseMap", mat->getDiffuseTexture());
 			sh->setUniform("normalMap", mat->getNormalTexture());
 			sh->setUniform("specularMap", mat->getSpecularTexture());
+
+			sh->setUniform("isSelected", sceneObj->getSelected());
 
 			sceneObj->render();
 		}
@@ -329,10 +340,42 @@ namespace phi
 		glDisable(GL_STENCIL_TEST);
 	}
 
+	void dsSceneRenderer::dsSelectedObjectsPass()
+	{
+		_gBuffer->bindForLightPass();
+
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+
+		shader* sh = shaderManager::get()->getShader("DS_SELECTED_OBJECTS");
+
+		sh->bind();
+
+		glm::mat4 modelMatrix = glm::mat4(
+			2.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 2.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f);
+
+		texture* shininessMap = _gBuffer->getShininessTexture();
+
+		sh->setUniform("m", modelMatrix);
+		sh->setUniform("isSelectedMap", shininessMap);
+		sh->setUniform("res", resolution);
+		meshRenderer::render(&_quad);
+
+		sh->unbind();
+
+		glDisable(GL_BLEND);
+	}
+
 	void dsSceneRenderer::dsFinalBlit()
 	{
-		renderingSystem::mainRenderTarget->bindForWriting();
+		renderingSystem::defaultFrameBuffer->bindForDrawing();
 		_gBuffer->bindForReading();
-		_gBuffer->blit(6, 0, 0, _viewportSize.width, _viewportSize.height);
+		_gBuffer->blit(1, 0, 0, _viewportSize.width, _viewportSize.height);
 	}
 }

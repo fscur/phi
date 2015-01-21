@@ -62,6 +62,8 @@ namespace phi
 		RENDERING_API void setUniform(std::string name, glm::vec2 value) { glUniform2f(_uniforms[name], value.x, value.y); }
 		RENDERING_API void setUniform(std::string name, glm::vec3 value) { glUniform3f(_uniforms[name], value.x, value.y, value.z); }
 		RENDERING_API void setUniform(std::string name, glm::vec4 value) { glUniform4f(_uniforms[name], value.x, value.y, value.z, value.w); }
+		RENDERING_API void setUniform(std::string name, bool value) { glUniform1f(_uniforms[name], value ? 1.0f : 0.0f); }
+		RENDERING_API void setUniform(std::string name, int value) { glUniform1i(_uniforms[name], value); }
 		RENDERING_API void setUniform(std::string name, texture* value);
 		
         RENDERING_API void initAttribs();

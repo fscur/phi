@@ -2,6 +2,7 @@
 #define _PHI_BASIC_SCENE_RENDERER_H_
 
 #include "sceneRenderer.h"
+#include "quad.h"
 
 namespace phi
 {
@@ -9,8 +10,18 @@ namespace phi
 		public sceneRenderer
 	{
 	private:
+		quad _quad;
 		texture* _defaultDiffuseMap;
-
+		frameBuffer* _frameBuffer;
+	
+	private:
+		void createDefaultRenderTarget();
+		void createSelectedObjectsRenderTarget();
+		void createDepthBuffer();
+		void createGeomPassShader();
+		void createSelectedObjetcsPassShader();
+		void render();
+		void selectedObjectsPass();
 	public:
 		SCENES_API basicSceneRenderer(size<GLuint> viewportSize);
 		SCENES_API ~basicSceneRenderer();

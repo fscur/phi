@@ -8,8 +8,9 @@
 namespace phi
 {
     renderingSystemInfo renderingSystem::info;
-    defaultRenderTarget* renderingSystem::mainRenderTarget = nullptr;
-    resourcesRepository* renderingSystem::repository = nullptr;
+    defaultFrameBuffer* renderingSystem::defaultFrameBuffer = nullptr;
+    pickingFrameBuffer* renderingSystem::pickingFrameBuffer = nullptr;
+	resourcesRepository* renderingSystem::repository = nullptr;
     FT_Library renderingSystem::freeTypeLibrary = nullptr;
     bool renderingSystem::initialized = false;
 
@@ -19,10 +20,17 @@ namespace phi
             LOG("Could not init freetype library");
 
         renderingSystem::info = info;
-        mainRenderTarget = new defaultRenderTarget(info.size, color::black);
-        mainRenderTarget->init();
-        mainRenderTarget->setViewport(0, 0, info.size);
-        mainRenderTarget->bind();
+        defaultFrameBuffer = new phi::defaultFrameBuffer(info.size, color::black);
+        defaultFrameBuffer->init();
+        defaultFrameBuffer->bind();
+		
+		defaultFrameBuffer->enable(GL_CULL_FACE);
+		defaultFrameBuffer->enable(GL_DEPTH_TEST);
+
+		pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);
+		pickingFrameBuffer->init();
+
+        repository = new resourcesRepository();
 
         shaderManagerInfo shaderInfo;
         shaderInfo.path = info.applicationPath;
@@ -123,7 +131,7 @@ namespace phi
 
     void renderingSystem::release()
     {
-        DELETE(mainRenderTarget);
+        DELETE(defaultFrameBuffer);
         repository->release();
         DELETE(repository);
     }
@@ -131,7 +139,7 @@ namespace phi
     void renderingSystem::resize(size<GLuint> viewportSize)
     {
         info.size = viewportSize;
-        mainRenderTarget->setSize(info.size);
-        mainRenderTarget->setViewport(0, 0, info.size);
+        defaultFrameBuffer->setSize(info.size);
+        defaultFrameBuffer->setViewport(0, 0, info.size);
     }
 }

@@ -7,6 +7,7 @@ namespace phi
 {
     sceneObject::sceneObject(glm::vec3 position, size<float> size, material* material)
     {
+		_sceneId = 0;
         _position = position;
         _size = size;
         _material = material;

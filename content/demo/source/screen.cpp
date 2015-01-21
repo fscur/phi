@@ -39,20 +39,21 @@ void screen::initScenesManager()
 
 void screen::initScene()
 {
-    phi::scene* s = new phi::scene();
-    s->setSize(getSize());
-    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 2.0f, 5.0f));
-    s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-    s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+	phi::scene* s = new phi::scene();
+	s->setSize(getSize());
+	s->getActiveCamera()->setPosition(glm::vec3(0.0f, 1.0f, 5.0f));
+	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-    phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
-    box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-    s->add(box1);
+	phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
+	box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
+	box1->setSelected(true);
+	s->add(box1);
 
-    phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("blue"));
-    sphere->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-    s->add(sphere);
-
+	phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("red"));
+	sphere->setPosition(glm::vec3(2.0f, 0.5f, 0.0f));
+	s->add(sphere);
+	
     phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(17.0f, 0.5f, 17.0f), phi::renderingSystem::repository->getResource<phi::material>("white"));
     s->add(floor);
 
@@ -249,7 +250,6 @@ void screen::update()
 
 void screen::render()
 {
-    phi::renderingSystem::mainRenderTarget->clear();
     phi::scenesManager::get()->render();
     phi::uiSystem::get()->render();
     /*
