@@ -1,11 +1,13 @@
 #include "scene.h"
 #include "plane.h"
 #include "sphere.h"
+#include "renderingSystem.h"
 
 namespace phi
 {
 	scene::scene()
 	{
+		_sceneObjectsIds = 0;
 		_allObjectsCount = 0;
 		_visibleObjectsCount = 0;
 		_size = size<GLuint>(800, 600);
@@ -147,6 +149,8 @@ namespace phi
 	{
 		sceneObject->initialize();
 		_allObjects->push_back(sceneObject);
+
+		sceneObject->setSceneId(_sceneObjectsIds++);
 		_allObjectsCount++;
 	}
 
@@ -168,6 +172,17 @@ namespace phi
 	void scene::add(camera* camera)
 	{
 		_cameras->push_back(camera);
+	}
+
+	sceneObject* scene::getSceneObjectById(unsigned int id)
+	{
+		for (unsigned int i = 0; i < _allObjectsCount; i++)
+		{
+			if ((*_allObjects)[i]->getSceneId() == id)
+				return (*_allObjects)[i];
+		}
+
+		return nullptr;
 	}
 
 	void scene::remove(sceneObject* sceneObj)

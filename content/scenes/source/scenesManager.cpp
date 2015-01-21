@@ -41,8 +41,8 @@ namespace phi
         }
 
         basicRenderer = new basicSceneRenderer(_info.size);
-        fsRenderer = new fsSceneRenderer(_info.size);
-        dsRenderer = new dsSceneRenderer(_info.size);
+        //fsRenderer = new fsSceneRenderer(_info.size);
+        //dsRenderer = new dsSceneRenderer(_info.size);
 
         setSceneRenderer(scenesManager::basicRenderer);
 
@@ -64,7 +64,7 @@ namespace phi
 
     void scenesManager::render()
     {
-        _sceneRenderer->render(_scene);
+		 _sceneRenderer->render(_scene);
     }
 
     void scenesManager::release()

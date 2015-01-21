@@ -1,15 +1,17 @@
 #ifndef _PHI_RENDERING_SYSTEM_H_
 #define _PHI_RENDERING_SYSTEM_H_
 
-#include "rendering.h"
-#include "resourcesRepository.h"
-#include "defaultRenderTarget.h"
-#include "size.h"
 #if WIN32
     #include <GL/glew.h>
 #else
     #include <OpenGL/gl3.h>
 #endif
+
+#include "rendering.h"
+#include "resourcesRepository.h"
+#include "defaultFrameBuffer.h"
+#include "pickingFrameBuffer.h"
+#include "size.h"
 
 namespace phi
 {
@@ -32,7 +34,8 @@ namespace phi
 
     public:
         RENDERING_API static renderingSystemInfo info;
-        RENDERING_API static defaultRenderTarget* mainRenderTarget;
+        RENDERING_API static defaultFrameBuffer* defaultFrameBuffer;
+		RENDERING_API static pickingFrameBuffer* pickingFrameBuffer;
         RENDERING_API static resourcesRepository* repository;
         RENDERING_API static bool initialized;
 

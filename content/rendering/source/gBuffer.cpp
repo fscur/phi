@@ -3,13 +3,14 @@
 namespace phi
 {
 	gBuffer::gBuffer(size<GLuint> size) :
-        renderTarget(size, color::black)
+        frameBuffer("gBuffer", size, color::black)
     {
     }
 
     gBuffer::~gBuffer()
     {
-        renderTarget::~renderTarget();
+        frameBuffer::~frameBuffer();
+
         _positionTexture->release();
 		_normalTexture->release();
 		_ambientTexture->release();
@@ -69,7 +70,7 @@ namespace phi
 		_depthTexture->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		_depthTexture->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		_depthTexture->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
+		
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _positionTexture->getId(), 0);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, _normalTexture->getId(), 0);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, _ambientTexture->getId(), 0);
@@ -80,7 +81,7 @@ namespace phi
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, _depthTexture->getId(), 0);
 	}
 
-    bool gBuffer::init()
+    void gBuffer::init()
     {   
         glBindFramebuffer(GL_FRAMEBUFFER, getId());
 
@@ -95,14 +96,12 @@ namespace phi
         {
             std::string msg = &"FB error, status: 0x%x\n" [Status];
             LOG(msg);
-            return false;
+            return;
         }
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         _isInitialized = true;
-
-        return true;
     }
 
     void gBuffer::clear()
@@ -129,7 +128,7 @@ namespace phi
 
 	void gBuffer::bindForGeomPass()
 	{
-		bindForWriting();
+		bindForDrawing();
 		glDrawBuffer(GL_COLOR_ATTACHMENT6);
 		glClear(GL_COLOR_BUFFER_BIT);
 

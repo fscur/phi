@@ -6,46 +6,36 @@
 #else
 #include <OpenGL/gl3.h>
 #endif
+#include <string>
 #include "rendering.h"
-#include "globals.h"
-#include "color.h"
-#include "size.h"
+#include "texture.h"
 
 namespace phi
 {
 	class renderTarget
 	{
 	protected:
-		bool _isInitialized;
-		GLuint _id;
-		GLuint _x;
-		GLuint _y;
-		size<GLuint> _size;
-		bool _isBound;
-		color _clearColor;
-	protected:
-		renderTarget();
+		std::string _name;
+		texture* _texture;
+		GLenum _target;
+		GLenum _attachment;
+		GLenum _texTarget;
+		GLuint _level;
 	public:
-		RENDERING_API renderTarget(size<GLuint> size, color backColor);
-		RENDERING_API virtual ~renderTarget();
+		RENDERING_API renderTarget(std::string name, texture* texture);
+		RENDERING_API ~renderTarget();
 
-		RENDERING_API GLuint getId() const { return _id; }
-		RENDERING_API size<GLuint> getSize() const { return _size; }   
-		RENDERING_API color getClearColor() const { return _clearColor; }
-		RENDERING_API bool getIsBound() const { return _isBound; }
+		RENDERING_API std::string getName() const { return _name; }
+		RENDERING_API texture* getTexture() const { return _texture; }
+		RENDERING_API GLenum getTarget() const { return _target; }
+		RENDERING_API GLenum getAttachment() const { return _attachment; }
+		RENDERING_API GLenum getTexTarget() const { return _texTarget; }
+		RENDERING_API GLuint getLevel() const { return _level; }
 
-		RENDERING_API void setSize(size<GLuint> value);
-		RENDERING_API void setClearColor(color value);
-
-		RENDERING_API virtual bool init();
-
-		RENDERING_API void bind();
-		RENDERING_API void bindForWriting();
-		RENDERING_API void bindForReading();
-
-		RENDERING_API void setViewport(GLuint x, GLuint y, size<GLuint> size);
-		RENDERING_API virtual void clear();
-		RENDERING_API void unbind();
+		RENDERING_API void setTarget(GLenum value) { _target = value; }
+		RENDERING_API void setAttachment(GLenum value) { _attachment = value; }
+		RENDERING_API void setTexTarget(GLenum value) { _texTarget = value; }
+		RENDERING_API void setLevel(GLuint value) { _level = value; }
 	};
 }
 

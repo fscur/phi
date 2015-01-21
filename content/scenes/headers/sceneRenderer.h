@@ -15,8 +15,9 @@ namespace phi
 		GLuint _allObjectsCount;
 		size<GLuint> _viewportSize;
 		camera* _camera;
+		
+	protected:
 		SCENES_API virtual void onRender() = 0;
-
 	public:
 		SCENES_API sceneRenderer(size<GLuint> viewportSize);
 		SCENES_API ~sceneRenderer();

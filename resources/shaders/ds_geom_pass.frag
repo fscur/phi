@@ -23,6 +23,8 @@ uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
 
+uniform float isSelected;
+
 layout (location = 0) out vec3 worldPosOut;
 layout (location = 1) out vec3 normalOut;
 layout (location = 2) out vec4 ambientOut; 
@@ -32,6 +34,7 @@ layout (location = 5) out vec4 shininessOut;
 
 void main()	
 {	
+	/*
     worldPosOut = fragWorldPos;
 
     //normal map
@@ -58,5 +61,12 @@ void main()
     ambientOut = ambientColor;
     diffuseOut = diffuseColor * mat.kd;
     specularOut = specularColor;
-	shininessOut = vec4(mat.shininess, 0.0, 0.0, 1.0);
+	shininessOut = vec4(mat.shininess, isSelected, 0.0, 1.0);
+*/
+	worldPosOut = vec3(1.0, 1.0, 1.0);
+	normalOut = vec3(1.0, 1.0, 0.0);
+	ambientOut = vec4(1.0, 0.0, 0.0, 1.0);
+    diffuseOut = vec4(0.0, 0.0, 1.0, 1.0);
+    specularOut = vec4(0.0, 1.0, 1.0, 1.0);
+	shininessOut = vec4(1.0, 0.0, 1.0, 1.0);
 }

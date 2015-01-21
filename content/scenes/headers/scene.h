@@ -12,8 +12,6 @@
 #include "camera.h"
 #include "material.h"
 
-#include "defaultRenderTarget.h"
-#include "shadowMapRenderTarget.h"
 #include "gBuffer.h"
 
 #include "meshRenderer.h"
@@ -44,6 +42,8 @@ namespace phi
 		std::vector<spotLight*>* _spotLights;
 
         std::vector<camera*>* _cameras;
+
+		unsigned int _sceneObjectsIds;
 
     public:
         SCENES_API scene();
@@ -77,7 +77,9 @@ namespace phi
         SCENES_API void add(camera* camera);
 
 		SCENES_API sceneObject* getSceneObject(GLuint index) const { return (*_allObjects)[index]; }
-		
+		SCENES_API sceneObject* getSceneObject(glm::vec2 mousePos);
+		SCENES_API sceneObject* getSceneObjectById(unsigned int id);
+
 		SCENES_API directionalLight* getDirectionalLight(GLuint index) const { return (*_directionalLights)[index]; }
 		SCENES_API pointLight* getPointLight(GLuint index) const { return (*_pointLights)[index]; }
 		SCENES_API spotLight* getSpotLight(GLuint index) const { return (*_spotLights)[index]; }

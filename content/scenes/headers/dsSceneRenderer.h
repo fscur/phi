@@ -12,13 +12,14 @@ namespace phi
 	private:
 		gBuffer* _gBuffer;
 		quad _quad;
-
+		bool _hasSelectedObjects;
 	private:
 		void dsGeomPass();
 		void dsAmbientLightBlit();
 		void dsDirectionalLightPass();
 		void dsPointLightPass();
 		void dsSpotLightPass();
+		void dsSelectedObjectsPass();
 		void dsFinalBlit();
 
 	public:
