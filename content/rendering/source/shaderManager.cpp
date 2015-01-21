@@ -246,9 +246,6 @@ namespace phi
 		addShader(s->getName(), s);
 	}
 
-        addShader(s->getName(), s);
-    }
-
     void shaderManager::addDsStencilShader()
     {
         std::vector<std::string> attribs;
@@ -299,11 +296,6 @@ namespace phi
 
 		addShader(s->getName(), s);
 	}
-
-	void shaderManager::addDsPointLightShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
 
     void shaderManager::addDsPointLightShader()
     {
