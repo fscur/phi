@@ -10,17 +10,31 @@ namespace phi
 		public sceneRenderer
 	{
 	private:
-		gBuffer* _gBuffer;
+		frameBuffer* _frameBuffer;
 		quad _quad;
 		bool _hasSelectedObjects;
 	private:
-		void dsGeomPass();
-		void dsAmbientLightBlit();
-		void dsDirectionalLightPass();
-		void dsPointLightPass();
-		void dsSpotLightPass();
-		void dsSelectedObjectsPass();
-		void dsFinalBlit();
+		void createDefaultRenderTarget();
+		void createPositionRenderTarget();
+		void createNormalRenderTarget();
+		void createDiffuseRenderTarget();
+		void createSpecularRenderTarget();
+		void createShininessRenderTarget();
+		void createSelectedObjectsRenderTarget();
+		void createDepthBuffer();
+
+		void createGeomPassShader();
+		void createStencilShader();
+		void createDirLightShader();
+		void createPointLightShader();
+		void createSpotLightShader();
+
+		void geomPass();
+		void directionalLightPass();
+		void pointLightPass();
+		void spotLightPass();
+		void selectedObjectsPass();
+		void render();
 
 	public:
 		SCENES_API dsSceneRenderer(size<GLuint> viewportSize);

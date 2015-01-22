@@ -19,7 +19,6 @@ namespace phi
 		void createSelectedObjectsRenderTarget();
 		void createDepthBuffer();
 		void createGeomPassShader();
-		void createSelectedObjetcsPassShader();
 		void render();
 		void selectedObjectsPass();
 	public:

@@ -5,47 +5,309 @@ namespace phi
 {
 	dsSceneRenderer::dsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
 	{
-		_gBuffer = new gBuffer(viewportSize);
-		_gBuffer->init();
+		_frameBuffer = new frameBuffer("dsSceneRenderer", viewportSize, color::transparent);
+		_frameBuffer->init();
+
+		createDefaultRenderTarget();
+		createPositionRenderTarget();
+		createNormalRenderTarget();
+		createDiffuseRenderTarget();
+		createSpecularRenderTarget();
+		createShininessRenderTarget();
+		createSelectedObjectsRenderTarget();
+		createDepthBuffer();
+
+		_frameBuffer->bind();
+		_frameBuffer->enable(GL_CULL_FACE);
+		_frameBuffer->enable(GL_DEPTH_TEST);
+		_frameBuffer->unbind();
+
+		createGeomPassShader();
+		createStencilShader();
+		createDirLightShader();
+		createPointLightShader();
+		createSpotLightShader();
 	}
 
 	dsSceneRenderer::~dsSceneRenderer()
 	{
-		DELETE(_gBuffer);
+		DELETE(_frameBuffer);
 	}
 
-	void dsSceneRenderer::onRender()
+	void dsSceneRenderer::createDefaultRenderTarget()
+	{
+		texture* t = texture::create(_viewportSize, GL_RGBA);
+		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		renderTarget* r = _frameBuffer->newRenderTarget("default", t);
+
+		_frameBuffer->addRenderTarget(r);
+	}
+
+	void dsSceneRenderer::createPositionRenderTarget()
+	{
+		texture* t = texture::create(_viewportSize);
+		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		renderTarget* r = _frameBuffer->newRenderTarget("position", t);
+
+		_frameBuffer->addRenderTarget(r);
+	}
+
+	void dsSceneRenderer::createNormalRenderTarget()
+	{
+		texture* t = texture::create(_viewportSize);
+		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		renderTarget* r = _frameBuffer->newRenderTarget("normal", t);
+
+		_frameBuffer->addRenderTarget(r);
+	}
+
+	void dsSceneRenderer::createDiffuseRenderTarget()
+	{
+		texture* t = texture::create(_viewportSize);
+		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		renderTarget* r = _frameBuffer->newRenderTarget("diffuse", t);
+
+		_frameBuffer->addRenderTarget(r);
+	}
+
+	void dsSceneRenderer::createSpecularRenderTarget()
+	{
+		texture* t = texture::create(_viewportSize);
+		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		renderTarget* r = _frameBuffer->newRenderTarget("specular", t);
+
+		_frameBuffer->addRenderTarget(r);
+	}
+
+	void dsSceneRenderer::createShininessRenderTarget()
+	{
+		texture* t = texture::create(_viewportSize);
+		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		renderTarget* r = _frameBuffer->newRenderTarget("shininess", t);
+
+		_frameBuffer->addRenderTarget(r);
+	}
+
+	void dsSceneRenderer::createSelectedObjectsRenderTarget()
+	{
+		texture* t = renderingSystem::pickingFrameBuffer->getPickingTexture();
+
+		renderTarget* r = _frameBuffer->newRenderTarget("selected", t);
+
+		_frameBuffer->addRenderTarget(r);
+	}
+
+	void dsSceneRenderer::createDepthBuffer()
+	{
+		texture* t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
+		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		renderTarget* d = _frameBuffer->newRenderTarget(
+			"depth", 
+			t, 
+			GL_DRAW_FRAMEBUFFER,
+			GL_DEPTH_STENCIL_ATTACHMENT);
+
+		_frameBuffer->addRenderTarget(d);
+	}
+
+	void dsSceneRenderer::createGeomPassShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+        attribs.push_back("inNormal");
+        attribs.push_back("inTangent");
+
+        shader* s = shaderManager::get()->loadShader("DS_GEOM_PASS", "ds_geom_pass.vert", "ds_geom_pass.frag", attribs);
+
+        s->addUniform("mv");
+        s->addUniform("mvp");
+        s->addUniform("itmv");
+
+        s->addUniform("ambientLightColor");
+
+        s->addUniform("mat.ambientColor");
+        s->addUniform("mat.diffuseColor");
+        s->addUniform("mat.specularColor");
+        s->addUniform("mat.ka");
+        s->addUniform("mat.kd");
+        s->addUniform("mat.ks");
+        s->addUniform("mat.shininess");
+
+		s->addUniform("diffuseMap");
+		s->addUniform("normalMap");
+		s->addUniform("specularMap");
+
+		s->addUniform("isSelected");
+		s->addUniform("id");
+
+		shaderManager::get()->addShader(s->getName(), s);
+	}
+
+    void dsSceneRenderer::createStencilShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+
+        shader* s = shaderManager::get()->loadShader("DS_STENCIL", "ds_stencil.vert", "ds_stencil.frag", attribs);
+
+        s->addUniform("mvp");
+
+        shaderManager::get()->addShader(s->getName(), s);
+    }
+
+    void dsSceneRenderer::createDirLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+
+        shader* s = shaderManager::get()->loadShader("DS_DIR_LIGHT", "ds_dir_light.vert", "ds_dir_light.frag", attribs);
+
+        s->addUniform("v");
+        s->addUniform("m");
+
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.direction");
+
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
+        s->addUniform("diffuseMap");
+        s->addUniform("specularMap");
+        s->addUniform("shininessMap");
+
+        shaderManager::get()->addShader(s->getName(), s);
+    }
+
+    void dsSceneRenderer::createPointLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+
+        shader* s = shaderManager::get()->loadShader("DS_POINT_LIGHT", "ds_point_light.vert", "ds_point_light.frag", attribs);
+
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("res");
+
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.attenuation.constant");
+        s->addUniform("light.attenuation.linear");
+        s->addUniform("light.attenuation.exponential");
+        s->addUniform("light.range");
+
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
+        s->addUniform("diffuseMap");
+        s->addUniform("specularMap");
+        s->addUniform("shininessMap");
+
+        shaderManager::get()->addShader(s->getName(), s);
+    }
+
+    void dsSceneRenderer::createSpotLightShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+
+        shader* s = shaderManager::get()->loadShader("DS_SPOT_LIGHT", "ds_spot_light.vert", "ds_spot_light.frag", attribs);
+
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("res");
+
+        s->addUniform("light.position");
+        s->addUniform("light.color");
+        s->addUniform("light.intensity");
+        s->addUniform("light.attenuation.constant");
+        s->addUniform("light.attenuation.linear");
+        s->addUniform("light.attenuation.exponential");
+        s->addUniform("light.range");
+        s->addUniform("light.direction");
+        s->addUniform("light.cutoff");
+
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
+        s->addUniform("diffuseMap");
+        s->addUniform("specularMap");
+        s->addUniform("shininessMap");
+
+        shaderManager::get()->addShader(s->getName(), s);
+    }
+
+	void dsSceneRenderer::render()
 	{
 		_hasSelectedObjects = false;
 
-		dsGeomPass();
-		//dsAmbientLightBlit();
-		//dsPointLightPass();
-		//dsSpotLightPass();
-		//dsDirectionalLightPass();
+		geomPass();
+		pointLightPass();
+		spotLightPass();
+		directionalLightPass();
 		
-		//if (_hasSelectedObjects)
-			//dsSelectedObjectsPass();
-		
-		dsFinalBlit();
+		glDepthMask(GL_FALSE);
+
+		renderingSystem::defaultFrameBuffer->bindForDrawing();
+		_frameBuffer->bindForReading();
+		_frameBuffer->blit(0, 0, _viewportSize.width, _viewportSize.height);
+
+		if (_hasSelectedObjects)
+			selectedObjectsPass();
 	}
 
-	void dsSceneRenderer::dsAmbientLightBlit()
+	void dsSceneRenderer::geomPass()
 	{
-		_gBuffer->bindForLightPass();
-		_gBuffer->bindForReading();
-		_gBuffer->blit(1, 0, 0, _viewportSize.width, _viewportSize.height);
-	}
+		_frameBuffer->bindForDrawing();
 
-	void dsSceneRenderer::dsGeomPass()
-	{
-		_gBuffer->bindForGeomPass();
+		GLenum drawBuffers[] = 
+		{ 
+			GL_COLOR_ATTACHMENT0, 
+			GL_COLOR_ATTACHMENT1, 
+			GL_COLOR_ATTACHMENT2, 
+			GL_COLOR_ATTACHMENT3,
+			GL_COLOR_ATTACHMENT4,
+			GL_COLOR_ATTACHMENT5,
+			GL_COLOR_ATTACHMENT6,
+		};
+
+		glDrawBuffers(7, drawBuffers);
 
 		glDepthMask(GL_TRUE);
-		_gBuffer->clear();
-
 		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shader* sh = shaderManager::get()->getShader("DS_GEOM_PASS");
 		sh->bind();
@@ -77,7 +339,7 @@ namespace phi
 			sh->setUniform("specularMap", mat->getSpecularTexture());
 
 			sh->setUniform("isSelected", sceneObj->getSelected());
-
+			sh->setUniform("id", sceneObj->getSceneId());
 			sceneObj->render();
 		}
 
@@ -87,15 +349,15 @@ namespace phi
 		glDisable(GL_DEPTH_TEST);
 	}
 
-	void dsSceneRenderer::dsDirectionalLightPass()
+	void dsSceneRenderer::directionalLightPass()
 	{
 		auto directionalLights = _scene->getDirectionalLights();
 		auto directionalLightsCount = directionalLights->size();
 
 		if (directionalLightsCount == 0)
 			return;
-
-		_gBuffer->bindForLightPass();
+		
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
@@ -113,11 +375,11 @@ namespace phi
 
 		glm::mat4 viewMatrix = _camera->getViewMatrix();
 
-		texture* positionMap = _gBuffer->getPositionTexture();
-		texture* normalMap = _gBuffer->getNormalTexture();
-		texture* diffuseMap = _gBuffer->getDiffuseTexture();
-		texture* specularMap = _gBuffer->getSpecularTexture();
-		texture* shininessMap = _gBuffer->getShininessTexture();
+		texture* positionMap = _frameBuffer->getRenderTarget("position")->getTexture();
+		texture* normalMap = _frameBuffer->getRenderTarget("normal")->getTexture();
+		texture* diffuseMap = _frameBuffer->getRenderTarget("diffuse")->getTexture();
+		texture* specularMap = _frameBuffer->getRenderTarget("specular")->getTexture();
+		texture* shininessMap = _frameBuffer->getRenderTarget("shininess")->getTexture();
 
 		for (GLuint i = 0; i < directionalLightsCount; i++)
 		{
@@ -145,7 +407,7 @@ namespace phi
 		glDisable(GL_BLEND);
 	}
 
-	void dsSceneRenderer::dsPointLightPass()
+	void dsSceneRenderer::pointLightPass()
 	{	
 		auto pointLights = _scene->getPointLights();
 		auto pointLightsCount = pointLights->size();
@@ -155,11 +417,12 @@ namespace phi
 
 		glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
 		glm::mat4 viewMatrix = _camera->getViewMatrix();
-		texture* positionMap = _gBuffer->getPositionTexture();
-		texture* normalMap = _gBuffer->getNormalTexture();
-		texture* diffuseMap = _gBuffer->getDiffuseTexture();
-		texture* specularMap = _gBuffer->getSpecularTexture();
-		texture* shininessMap = _gBuffer->getShininessTexture();
+		
+		texture* positionMap = _frameBuffer->getRenderTarget("position")->getTexture();
+		texture* normalMap = _frameBuffer->getRenderTarget("normal")->getTexture();
+		texture* diffuseMap = _frameBuffer->getRenderTarget("diffuse")->getTexture();
+		texture* specularMap = _frameBuffer->getRenderTarget("specular")->getTexture();
+		texture* shininessMap = _frameBuffer->getRenderTarget("shininess")->getTexture();
 
 		glm::vec2 resolution(_viewportSize.width, _viewportSize.height);
 
@@ -176,7 +439,8 @@ namespace phi
 			glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
 
 			// Disable color/depth write and enable stencil
-			_gBuffer->bindForStencilPass();
+			
+			glDrawBuffer(GL_NONE);
 
 			glEnable(GL_DEPTH_TEST);
 
@@ -196,7 +460,7 @@ namespace phi
 			boundingVolume->render(); 
 			ss->unbind();
 
-			_gBuffer->bindForLightPass();
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 			glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
@@ -241,7 +505,7 @@ namespace phi
 		glDisable(GL_STENCIL_TEST);
 	}
 
-	void dsSceneRenderer::dsSpotLightPass()
+	void dsSceneRenderer::spotLightPass()
 	{	
 		auto spotLights = _scene->getSpotLights();
 		auto spotLightsCount = spotLights->size();
@@ -251,11 +515,12 @@ namespace phi
 
 		glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
 		glm::mat4 viewMatrix = _camera->getViewMatrix();
-		texture* positionMap = _gBuffer->getPositionTexture();
-		texture* normalMap = _gBuffer->getNormalTexture();
-		texture* diffuseMap = _gBuffer->getDiffuseTexture();
-		texture* specularMap = _gBuffer->getSpecularTexture();
-		texture* shininessMap = _gBuffer->getShininessTexture();
+		
+		texture* positionMap = _frameBuffer->getRenderTarget("position")->getTexture();
+		texture* normalMap = _frameBuffer->getRenderTarget("normal")->getTexture();
+		texture* diffuseMap = _frameBuffer->getRenderTarget("diffuse")->getTexture();
+		texture* specularMap = _frameBuffer->getRenderTarget("specular")->getTexture();
+		texture* shininessMap = _frameBuffer->getRenderTarget("shininess")->getTexture();
 
 		shader* ss = shaderManager::get()->getShader("DS_STENCIL");
 		shader* sls = shaderManager::get()->getShader("DS_SPOT_LIGHT");
@@ -271,7 +536,7 @@ namespace phi
 			glm::mat4 modelMatrix = boundingVolume->getTransform()->getModelMatrix();
 			glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
 
-			_gBuffer->bindForStencilPass();
+			glDrawBuffer(GL_NONE);
 
 			glEnable(GL_DEPTH_TEST);
 
@@ -291,7 +556,7 @@ namespace phi
 			boundingVolume->render(); 
 			ss->unbind();
 
-			_gBuffer->bindForLightPass();
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 			glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
@@ -340,17 +605,15 @@ namespace phi
 		glDisable(GL_STENCIL_TEST);
 	}
 
-	void dsSceneRenderer::dsSelectedObjectsPass()
+	void dsSceneRenderer::selectedObjectsPass()
 	{
-		_gBuffer->bindForLightPass();
-
 		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_ONE, GL_ONE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
 
-		shader* sh = shaderManager::get()->getShader("DS_SELECTED_OBJECTS");
+		renderTarget* selectedRenderTarget = _frameBuffer->getRenderTarget("selected");
+		shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
 
 		sh->bind();
 
@@ -360,11 +623,10 @@ namespace phi
 			0.0f, 0.0f, 1.0f, 0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f);
 
-		texture* shininessMap = _gBuffer->getShininessTexture();
-
 		sh->setUniform("m", modelMatrix);
-		sh->setUniform("isSelectedMap", shininessMap);
 		sh->setUniform("res", resolution);
+		sh->setUniform("selectionMap", selectedRenderTarget->getTexture());
+
 		meshRenderer::render(&_quad);
 
 		sh->unbind();
@@ -372,10 +634,8 @@ namespace phi
 		glDisable(GL_BLEND);
 	}
 
-	void dsSceneRenderer::dsFinalBlit()
+	void dsSceneRenderer::onRender()
 	{
-		renderingSystem::defaultFrameBuffer->bindForDrawing();
-		_gBuffer->bindForReading();
-		_gBuffer->blit(1, 0, 0, _viewportSize.width, _viewportSize.height);
+		render();
 	}
 }

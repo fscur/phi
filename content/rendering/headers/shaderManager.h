@@ -24,22 +24,13 @@ namespace phi
 		shaderManagerInfo _info;
     private: 
         shaderManager();
-		void addBasicShader();
-		void addFsAmbientLightShader();
-		void addFsDirLightShader();
-		void addFsDirLightShadowMapShader();
-		void addFsPointLightShader();
-		void addFsSpotLightShader();
-		void addDsGeomPassShader();
-		void addDsStencilShader();
-		void addDsDirLightShader();
-		void addDsSelectedObjectsShader();
-		void addDsPointLightShader();
-		void addDsSpotLightShader();
+		
 		void addRenderToQuadShader();
 		void addHudTextShader();
 		void addHudQuadShader();
 		void addSkyDomeShader();
+		
+		void addPostSelectedObjectsShader();
 
     public:
         RENDERING_API ~shaderManager();

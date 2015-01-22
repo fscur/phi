@@ -12,8 +12,6 @@
 #include "camera.h"
 #include "material.h"
 
-#include "gBuffer.h"
-
 #include "meshRenderer.h"
 
 #include "directionalLight.h"

@@ -6,7 +6,7 @@ namespace phi
 	basicSceneRenderer::basicSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize),
 		_defaultDiffuseMap(renderingSystem::repository->getResource<texture>("default_diffuseMap"))
 	{
-		_frameBuffer = new frameBuffer("basicSceneRenderer", viewportSize, color::black);
+		_frameBuffer = new frameBuffer("basicSceneRenderer", viewportSize, color::transparent);
 		_frameBuffer->init();
 
 		createDefaultRenderTarget();
@@ -14,13 +14,11 @@ namespace phi
 		createDepthBuffer();
 
 		_frameBuffer->bind();
-		_frameBuffer->setViewport(0, 0, viewportSize);
 		_frameBuffer->enable(GL_CULL_FACE);
 		_frameBuffer->enable(GL_DEPTH_TEST);
 		_frameBuffer->unbind();
 
 		createGeomPassShader();
-		createSelectedObjetcsPassShader();
 	}
 	
 	basicSceneRenderer::~basicSceneRenderer()
@@ -29,7 +27,7 @@ namespace phi
 
 	void basicSceneRenderer::createDefaultRenderTarget()
 	{
-		texture* t = texture::create(_viewportSize);
+		texture* t = texture::create(_viewportSize, GL_RGB);
 		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -83,43 +81,8 @@ namespace phi
 		shaderManager::get()->addShader(s->getName(), s);
 	}
 
-	void basicSceneRenderer::createSelectedObjetcsPassShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
-		
-		shader* s = shaderManager::get()->loadShader("BASIC_SELECTED_OBJECTS", "basic_selected_objects.vert", "basic_selected_objects.frag", attribs);
-
-		s->addUniform("m");
-		s->addUniform("res");
-		s->addUniform("selectionMap");
-		
-		shaderManager::get()->addShader(s->getName(), s);
-	}
-
 	void basicSceneRenderer::render()
 	{
-		_frameBuffer->bindForDrawing();
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		GLenum drawBuffers[] = 
-		{ 
-			GL_COLOR_ATTACHMENT0,
-			GL_COLOR_ATTACHMENT1
-		};
-
-		glDrawBuffers(2, drawBuffers);
-
-		glDepthMask(GL_TRUE);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-
-		//glClear(GL_COLOR_BUFFER_BIT);
-
 		shader* sh = shaderManager::get()->getShader("BASIC_GEOM_PASS");
 		sh->bind();
 
@@ -146,22 +109,17 @@ namespace phi
 		}
 
 		sh->unbind();
-		
-		glDepthMask(GL_FALSE);
-		glDisable(GL_DEPTH_TEST);
 	}
 
 	void basicSceneRenderer::selectedObjectsPass()
 	{
 		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_ONE, GL_ONE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
 
 		renderTarget* selectedRenderTarget = _frameBuffer->getRenderTarget("selected");
-		shader* sh = shaderManager::get()->getShader("BASIC_SELECTED_OBJECTS");
+		shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
 
 		sh->bind();
 
@@ -184,10 +142,23 @@ namespace phi
 
 	void basicSceneRenderer::onRender()
 	{
-		_frameBuffer->bind();
+		_frameBuffer->bindForDrawing();
+
+		GLenum drawBuffers[] = 
+		{ 
+			GL_COLOR_ATTACHMENT0,
+			GL_COLOR_ATTACHMENT1
+		};
+
+		glDrawBuffers(2, drawBuffers);
+
+		glDepthMask(GL_TRUE);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		render();
-
+		
+		glDepthMask(GL_FALSE);
+		
 		renderingSystem::defaultFrameBuffer->bindForDrawing();
 		_frameBuffer->bindForReading();
 		_frameBuffer->blit(0, 0, _viewportSize.width, _viewportSize.height);
