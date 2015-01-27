@@ -82,7 +82,7 @@ namespace phi
             color::red, //diffuse color
             color::red, //specular color
             0.2f, // ambient reflectance coeff
-            1.0f, // diffuse reflectance coeff
+            0.8f, // diffuse reflectance coeff
             0.0f, // specular reflectance coeff
             0.0f)); // shininess
 
@@ -94,9 +94,9 @@ namespace phi
             color::blue, //diffuse color
             color::blue, //specular color
             0.2f, // ambient reflectance coeff
-            1.0f, // diffuse reflectance coeff
-            0.0f, // specular reflectance coeff
-            0.0f)); // shininess
+            0.8f, // diffuse reflectance coeff
+            4.0f, // specular reflectance coeff
+            64.0f)); // shininess
 
         repository->addResource(new material("white", "",
             nullptr, //diffuse texture
@@ -106,7 +106,7 @@ namespace phi
             color::white, //diffuse color
             color::white, //specular color
             0.2f, // ambient reflectance coeff
-            0.9f, // diffuse reflectance coeff
+            0.8f, // diffuse reflectance coeff
             0.0f, // specular reflectance coeff
             0.0f)); // shininess
 

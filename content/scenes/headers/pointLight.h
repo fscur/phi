@@ -26,8 +26,9 @@ namespace phi
         SCENES_API ~pointLight();
     
         SCENES_API attenuation getAttenuation();
-        SCENES_API void setAttenuation(attenuation attenuation);
-		SCENES_API void setPosition(glm::vec3 position) override;
+        SCENES_API void setAttenuation(attenuation value);
+		SCENES_API void setPosition(glm::vec3 value) override;
+		SCENES_API void setIntensity(float value) override;
 
 		SCENES_API sphere* getBoundingVolume() const { return _boundingVolume; }
 		SCENES_API float getRange() const { return _range; }

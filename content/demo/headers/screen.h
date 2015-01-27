@@ -37,6 +37,7 @@ private:
     phi::slider* _slider1;
     phi::textBox* _textBox1;
     phi::textBox* _textBox2;
+	phi::pointLight* _blueLight;
 
 	phi::commandsManager _commandsManager;
 private:

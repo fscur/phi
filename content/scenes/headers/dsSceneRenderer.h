@@ -14,14 +14,11 @@ namespace phi
 		quad _quad;
 		bool _hasSelectedObjects;
 	private:
-		void createDefaultRenderTarget();
-		void createPositionRenderTarget();
-		void createNormalRenderTarget();
-		void createDiffuseRenderTarget();
-		void createSpecularRenderTarget();
-		void createShininessRenderTarget();
-		void createSelectedObjectsRenderTarget();
-		void createDepthBuffer();
+		void createRT0();
+		void createRT1();
+		void createRT2();
+		void createRT3();
+		void createRT4();
 
 		void createGeomPassShader();
 		void createStencilShader();

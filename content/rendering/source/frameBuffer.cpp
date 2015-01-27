@@ -105,11 +105,6 @@ namespace phi
 		glEnable(value);
 	}
 
-	void frameBuffer::blit(GLuint x, GLuint y, GLsizei width, GLsizei height)
-	{
-		blit("default", x, y, width, height);
-	}
-
 	void frameBuffer::blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height)
 	{
 		renderTarget* renderTarget = (*_renderTargets)[renderTargetName];

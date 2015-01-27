@@ -86,14 +86,16 @@ void main(void)
 		{
 			vec4 materialSpecularColor = mat.specularColor * texture(specularMap, fragTexCoord);
 			specularColor = light.color * materialSpecularColor * mat.ks * pow(specularFactor, mat.shininess);
+			//fragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
-						
+			
 		float attenuation = light.attenuation.constant + 
 				light.attenuation.linear * distanceToPoint +
 				light.attenuation.exponential * distanceToPoint * distanceToPoint + 
 				0.0001;
 
 		fragColor = (diffuseColor + specularColor) / attenuation;
+			
 	}
 
 	//fragColor = vec4(fragNormal, 1.0);

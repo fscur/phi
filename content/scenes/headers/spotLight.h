@@ -32,9 +32,10 @@ namespace phi
 		SCENES_API float getRange() const { return _range; }
 		SCENES_API cone* getBoundingVolume() const { return _boundingVolume; }
 
-		SCENES_API void setAttenuation(attenuation attenuation);
-		SCENES_API void setDirection(glm::vec3 direction);
-		SCENES_API void setCutoff(float cutoff);
+		SCENES_API void setAttenuation(attenuation value);
+		SCENES_API void setDirection(glm::vec3 value);
+		SCENES_API void setCutoff(float value);
+		SCENES_API void setIntensity(float value) override;
 
 		SCENES_API void update() override;
     };
