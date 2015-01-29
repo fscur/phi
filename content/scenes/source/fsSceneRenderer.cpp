@@ -141,10 +141,8 @@ namespace phi
         s->addUniform("light.position");
         s->addUniform("light.color");
         s->addUniform("light.intensity");
-        s->addUniform("light.attenuation.constant");
-        s->addUniform("light.attenuation.linear");
-        s->addUniform("light.attenuation.exponential");
         s->addUniform("light.range");
+        s->addUniform("light.oneOverRangeSqr");
 
         s->addUniform("mat.diffuseColor");
         s->addUniform("mat.specularColor");
@@ -178,10 +176,8 @@ namespace phi
         s->addUniform("light.position");
         s->addUniform("light.color");
         s->addUniform("light.intensity");
-        s->addUniform("light.attenuation.constant");
-        s->addUniform("light.attenuation.linear");
-        s->addUniform("light.attenuation.exponential");
         s->addUniform("light.range");
+        s->addUniform("light.oneOverRangeSqr");
         s->addUniform("light.direction");
         s->addUniform("light.cutoff");
 
@@ -320,10 +316,8 @@ namespace phi
 				sh->setUniform("light.position", light->getPosition());
 				sh->setUniform("light.color", light->getColor());
 				sh->setUniform("light.intensity", light->getIntensity());
-				sh->setUniform("light.attenuation.constant", light->getAttenuation().constant);
-				sh->setUniform("light.attenuation.linear", light->getAttenuation().linear);
-				sh->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
 				sh->setUniform("light.range", light->getRange());
+                sh->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
 
 				phi::material* mat = sceneObj->getMaterial();
 				sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
@@ -383,10 +377,8 @@ namespace phi
 				sh->setUniform("light.position", light->getPosition());
 				sh->setUniform("light.color", light->getColor());
 				sh->setUniform("light.intensity", light->getIntensity());
-				sh->setUniform("light.attenuation.constant", light->getAttenuation().constant);
-				sh->setUniform("light.attenuation.linear", light->getAttenuation().linear);
-				sh->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
 				sh->setUniform("light.range", light->getRange());
+                sh->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
 				sh->setUniform("light.direction", light->getDirection());
 				sh->setUniform("light.cutoff", light->getCutoff());
 

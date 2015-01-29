@@ -4,36 +4,35 @@
 
 namespace phi
 {
-	pointLight::pointLight(glm::vec3 position, color color, float intensity, attenuation attenuation) :
+	pointLight::pointLight(glm::vec3 position, color color, float intensity, float range) :
 		light(position, color, intensity)
 	{
-		_attenuation = attenuation;
-		_range = light::calcRange(attenuation, color);
-		_boundingVolume = new sphere(position, _range, 6, 6, nullptr);
+        _boundingVolumeSides = 5;
+		_range = range;
+        _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
+		_boundingVolume = new sphere(position, calcRange(_range, _boundingVolumeSides), _boundingVolumeSides, _boundingVolumeSides, nullptr);
 	}
 
 	pointLight::~pointLight()
 	{   
 	}
 
-	attenuation pointLight::getAttenuation()
-	{
-		return _attenuation;
-	}
-
-	void pointLight::setAttenuation(attenuation attenuation)
-	{
-		_attenuation = attenuation;
-		_range = light::calcRange(attenuation, _color);
-		_boundingVolume->setRadius(_range);
-	}
+    float pointLight::calcRange(float radius, unsigned int sides)
+    {
+        return (radius / glm::cos(PI/(float)sides)) * 1.1f;
+    }
 
 	void pointLight::setIntensity(float value)
 	{
 		_intensity = value;
-		_range = light::calcRange(_attenuation, _color);
-		_boundingVolume->setRadius(_range);
 	}
+
+    void pointLight::setRange(float value)
+    {
+        _range = value;
+        _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
+		_boundingVolume->setRadius(calcRange(value, _boundingVolumeSides));
+    }
 
 	void pointLight::setPosition(glm::vec3 position)
 	{

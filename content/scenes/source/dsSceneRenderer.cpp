@@ -183,10 +183,8 @@ namespace phi
         s->addUniform("light.position");
         s->addUniform("light.color");
         s->addUniform("light.intensity");
-        s->addUniform("light.attenuation.constant");
-        s->addUniform("light.attenuation.linear");
-        s->addUniform("light.attenuation.exponential");
         s->addUniform("light.range");
+        s->addUniform("light.oneOverRangeSqr");
 
         s->addUniform("rt0");
         s->addUniform("rt1");
@@ -438,11 +436,8 @@ namespace phi
 			ps->setUniform("light.position", light->getPosition());
 			ps->setUniform("light.color", light->getColor());
 			ps->setUniform("light.intensity", light->getIntensity());
-			ps->setUniform("light.attenuation.constant", light->getAttenuation().constant);
-			ps->setUniform("light.attenuation.linear", light->getAttenuation().linear);
-			ps->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
 			ps->setUniform("light.range", light->getRange());
-
+            ps->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
 			ps->setUniform("rt0", rt0Texture);
 			ps->setUniform("rt1", rt1Texture);
 			ps->setUniform("rt2", rt2Texture);
@@ -532,10 +527,8 @@ namespace phi
 			sls->setUniform("light.position", light->getPosition());
 			sls->setUniform("light.color", light->getColor());
 			sls->setUniform("light.intensity", light->getIntensity());
-			sls->setUniform("light.attenuation.constant", light->getAttenuation().constant);
-			sls->setUniform("light.attenuation.linear", light->getAttenuation().linear);
-			sls->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
 			sls->setUniform("light.range", light->getRange());
+            sls->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
 			sls->setUniform("light.direction", light->getDirection());
 			sls->setUniform("light.cutoff", light->getCutoff());
 

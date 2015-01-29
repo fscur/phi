@@ -9,20 +9,13 @@ struct material
 	float shininess;
 };
 
-struct attenuation
-{
-	float constant;
-	float linear;
-	float exponential;
-};
-
 struct pointLight
 {
 	vec3 position;
 	vec4 color;
 	float intensity;
-	attenuation attenuation;
 	float range;
+	float oneOverRangeSqr;
 };
 
 in vec3 fragPosition;
@@ -60,7 +53,6 @@ void main(void)
 	
 	if (light.range < distanceToPoint)
 	{
-
 		fragColor = vec4(0.0);
 		return;
 	}
@@ -86,17 +78,10 @@ void main(void)
 		{
 			vec4 materialSpecularColor = mat.specularColor * texture(specularMap, fragTexCoord);
 			specularColor = light.color * materialSpecularColor * mat.ks * pow(specularFactor, mat.shininess);
-			//fragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
 			
-		float attenuation = light.attenuation.constant + 
-				light.attenuation.linear * distanceToPoint +
-				light.attenuation.exponential * distanceToPoint * distanceToPoint + 
-				0.0001;
+		float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
 
-		fragColor = (diffuseColor + specularColor) / attenuation;
-			
+		fragColor = (diffuseColor + specularColor) * attenuation;
 	}
-
-	//fragColor = vec4(fragNormal, 1.0);
 }

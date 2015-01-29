@@ -12,26 +12,25 @@ namespace phi
     {
     private:
 		sphere* _boundingVolume;
-        attenuation _attenuation;
         float _range;
-
-	private:
-		float calcRange();
-
+        float _oneOverRangeSqr;
+        unsigned int _boundingVolumeSides;
+    private:
+        float calcRange(float radius, unsigned int sides);
 	protected:
 		pointLight(){};
     public:
 		
-        SCENES_API pointLight(glm::vec3 position, color color, float intensity, attenuation attenuation);
+        SCENES_API pointLight(glm::vec3 position, color color, float intensity, float range);
         SCENES_API ~pointLight();
     
-        SCENES_API attenuation getAttenuation();
-        SCENES_API void setAttenuation(attenuation value);
+        SCENES_API sphere* getBoundingVolume() const { return _boundingVolume; }
+		SCENES_API float getRange() const { return _range; }
+		SCENES_API float getOneOverRangerSqr() const { return _oneOverRangeSqr; }
+
 		SCENES_API void setPosition(glm::vec3 value) override;
 		SCENES_API void setIntensity(float value) override;
-
-		SCENES_API sphere* getBoundingVolume() const { return _boundingVolume; }
-		SCENES_API float getRange() const { return _range; }
+        SCENES_API void setRange(float value);
 
 		SCENES_API void update() override;
     };

@@ -12,8 +12,8 @@ struct spotLight
 	vec3 position;
 	vec4 color;
 	float intensity;
-	attenuation attenuation;
 	float range;
+	float oneOverRangeSqr;
 	vec3 direction;
 	float cutoff;
 };
@@ -99,19 +99,14 @@ void main(void)
 
 		fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
 
-		float attenuation = light.attenuation.constant + 
-				light.attenuation.linear * distanceToPoint + 
-				light.attenuation.exponential * distanceToPoint * distanceToPoint + 
-				0.0001;
+		float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
 
-		fragColor = fragColor / attenuation;
+		fragColor *= attenuation;
 
 		float fadeEdgeFactor = 1.0 - ((1.0 - spotFactor)/(1.0 - light.cutoff + 0.0001));
+
 		fragColor *= fadeEdgeFactor;
-		//fragColor += vec4(0.0, 0.0, 0.2, 1.0);
 	}
 
-	//fragColor += vec4(0.1, 0.1, 0.1, 1.0);
-	//fragColor = vec4(0.2);
-	//fragColor = diffuseColor;
+	//fragColor += vec4(0.0, 0.0, 0.2, 1.0);
 }

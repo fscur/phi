@@ -9,20 +9,13 @@ struct material
 	float shininess;
 };
 
-struct attenuation
-{
-	float constant;
-	float linear;
-	float exponential;
-};
-
 struct spotLight
 {
 	vec3 position;
 	vec4 color;
 	float intensity;
-	attenuation attenuation;
 	float range;
+	float oneOverRangeSqr;
 	vec3 direction;
 	float cutoff;
 };
@@ -70,6 +63,7 @@ void main()
 	
 		if (light.range < distanceToPoint)
 		{
+			//fragColor = vec4(1.0, 0.0, 0.0, 1.0);
 			return;
 		}
 
@@ -79,6 +73,8 @@ void main()
 
 		vec4 diffuseColor =  vec4(0.0);
 		vec4 specularColor = vec4(0.0);
+
+		//fragColor = vec4(1.0, 0.0, 0.0, 1.0);
 
 		if (diffuseFactor > 0)
 		{
@@ -96,15 +92,14 @@ void main()
 				specularColor = light.color * materialSpecularColor * mat.ks * pow(specularFactor, mat.shininess);
 			}
 
-			float attenuation = light.attenuation.constant + 
-					light.attenuation.linear * distanceToPoint +
-					light.attenuation.exponential * distanceToPoint * distanceToPoint + 
-					0.0001;
+			float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
 
 			float fadeEdgeFactor = 1.0 - ((1.0 - spotFactor)/(1.0 - light.cutoff + 0.0001));
 
-			fragColor = (diffuseColor + specularColor) / attenuation;
+			fragColor = (diffuseColor + specularColor) * attenuation;
 			fragColor *= fadeEdgeFactor;
 		}
 	}
+
+	//fragColor = vec4(1.0);
 }

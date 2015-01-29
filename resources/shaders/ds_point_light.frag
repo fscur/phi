@@ -1,22 +1,13 @@
 #version 330
 
-struct attenuation
-{
-	float constant;
-	float linear;
-	float exponential;
-};
-
 struct pointLight
 {
 	vec3 position;
 	vec4 color;
 	float intensity;
-	attenuation attenuation;
 	float range;
+	float oneOverRangeSqr;
 };
-
-
 
 in vec3 fragPosition;
 in vec3 fragNormal;
@@ -88,14 +79,10 @@ void main()
 	float diffuse = light.intensity * max(0.0, dot(normal, s));
 	float spec = pow(max(0.0, dot(normal,h)), shininess);
 
-	fragColor = light.color * diffuseColor * diffuse + light.color *specularColor * spec;
-
-	float attenuation = light.attenuation.constant + 
-			light.attenuation.linear * distanceToPoint +
-			light.attenuation.exponential * distanceToPoint * distanceToPoint + 
-			0.0001;
-
-	fragColor = fragColor / attenuation;// + vec4(0.1, 0.1, 0.1, 0.5);
+	float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
+	
+	fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
+	fragColor = fragColor * attenuation;// + vec4(0.2, 0.0, 0.0, 0.5);
 
 	//fragColor = vec4(fragPosition, 1.0);
 	//fragColor = vec4(gl_FragCoord.xy, 1.0, 1.0);
