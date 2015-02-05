@@ -3,14 +3,23 @@
 
 #include "command.h"
 #include "globals.h"
+#include "renderingCommunicationBuffer.h"
 
 namespace phi
 {
-	class zoomCommand :
-		public command
-	{
-	public:
-		commandInfo* execute(commandInfo* info) override;
-	};
+    class zoomCommand :
+        public command
+    {
+    private:
+        bufferRequest* _request;
+        bool _in;
+        GLfloat _zBufferValue;
+    public:
+        zoomCommand(bool in);
+        ~zoomCommand();
+        void init() override;
+        bool canExecute() override;
+        void update() override;
+    };
 }
 #endif

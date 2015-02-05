@@ -1,106 +1,120 @@
 #include "rotateCommand.h"
 #include "scenesManager.h"
-
-
 #include "box.h"
+
 namespace phi
 {
-	commandInfo* rotateStartCommand::execute(commandInfo* info)
-	{
-		GLfloat zBufferValue = renderingSystem::defaultFrameBuffer->getZBufferValue(info->mousePos);
-		
-		if (zBufferValue == 1.0f)
-			return nullptr;
-		
-		LOG("r: " << std::to_string(zBufferValue));
+    rotateCommand::rotateCommand()
+    {
+        _request = nullptr;
+    }
 
-		rotateCommandInfo* rotateInfo = new rotateCommandInfo(*info);
-		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
-		glm::mat4 proj = camera->getPerspProjMatrix();
-	
-		glm::vec2 mousePos = info->mousePos;	
-		rotateInfo->lastMousePos = mousePos;
+    rotateCommand::~rotateCommand()
+    {
+        DELETE(_request);
+    }
 
-		float z = -proj[3].z / (zBufferValue * -2.0 + 1.0 - proj[2].z);
+    void rotateCommand::init()
+    {
+        _request = new bufferRequest((unsigned int)info->mousePos.x, (unsigned int)info->mousePos.y, (unsigned int)1, (unsigned int)1, dynamic_cast<frameBuffer*>(renderingSystem::defaultFrameBuffer));
+        renderingCommunicationBuffer::request(_request);
+    }
 
-		phi::frustum* frustum = camera->getFrustum();
-		
-		float zNear = frustum->getZNear();
-		float iez = 1.0f / zNear;
-		float zFar = frustum->getZFar();
-		float aspect = frustum->getAspect();
-		float fov = frustum->getFov();
+    bool rotateCommand::canExecute()
+    {
+        if (!_request->mutex.try_lock())
+            return false;
 
-		float tg = glm::tan(fov * 0.5f) * zNear;
+        if (!_request->completed)
+        {
+            _request->mutex.unlock();
+            return false;
+        }
 
-		float h = info->viewportSize.height;
-		float w = info->viewportSize.width;
+        renderingCommunicationBuffer::removeRequest(_request);
+        _zBufferValue = _request->result;
+        _request->mutex.unlock();
+        DELETE(_request);
+        _request = nullptr;
 
-		float hh = h * 0.5f;
-		float hw = w * 0.5f;
+        if (_zBufferValue == 1.0f)
+            return true;
 
-		float ys0 = mousePos.y - hh;
-		float yp0 = ys0/hh;
-		float ym0 = -(yp0 * tg);
+        phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+        glm::mat4 proj = camera->getPerspProjMatrix();
 
-		float xs0 = mousePos.x - hw;
-		float xp0 = xs0/hw;
-		float xm0 = xp0 * tg * aspect;
+        glm::vec2 mousePos = info->mousePos;
+        info->lastMousePos = mousePos;
 
-		float x = (xm0/zNear) * (z);
-		float y = (ym0/zNear) * (z);
+        float z = -proj[3].z / (_zBufferValue * -2.0 + 1.0 - proj[2].z);
 
-		glm::vec3 camPos = camera->getPosition();
-		glm::vec3 camDir = camera->getDirection();
-		glm::vec3 camRight = camera->getRight();
-		glm::vec3 camUp = camera->getUp();
+        phi::frustum* frustum = camera->getFrustum();
 
-		glm::vec3 targetPos = camPos + camDir * z + camRight * x + camUp * y;
+        float zNear = frustum->getZNear();
+        float iez = 1.0f / zNear;
+        float zFar = frustum->getZFar();
+        float aspect = frustum->getAspect();
+        float fov = frustum->getFov();
 
-		rotateInfo->targetPos = targetPos;
-		rotateInfo->zEye = z;
+        float tg = glm::tan(fov * 0.5f) * zNear;
 
-		return rotateInfo;
-	}
+        float h = info->viewportSize.height;
+        float w = info->viewportSize.width;
 
-	commandInfo* rotateCommand::execute(commandInfo* info)
-	{
-		rotateCommandInfo* rotateInfo = dynamic_cast<rotateCommandInfo*>(info);
+        float hh = h * 0.5f;
+        float hw = w * 0.5f;
 
-		if (rotateInfo == nullptr)
-			return info;
+        float ys0 = mousePos.y - hh;
+        float yp0 = ys0/hh;
+        float ym0 = -(yp0 * tg);
 
-		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
-		
-		phi::frustum* frustum = camera->getFrustum();
+        float xs0 = mousePos.x - hw;
+        float xp0 = xs0/hw;
+        float xm0 = xp0 * tg * aspect;
 
-		float zNear = frustum->getZNear();
-		float iez = 1.0f / zNear;
-		float zFar = frustum->getZFar();
-		float aspect = frustum->getAspect();
-		float fov = frustum->getFov();
+        float x = (xm0/zNear) * (z);
+        float y = (ym0/zNear) * (z);
 
-		float tg = glm::tan(fov * 0.5f) * zNear;
+        glm::vec3 camPos = camera->getPosition();
+        glm::vec3 camDir = camera->getDirection();
+        glm::vec3 camRight = camera->getRight();
+        glm::vec3 camUp = camera->getUp();
 
-		float h = info->viewportSize.height;
-		float w = info->viewportSize.width;
+        glm::vec3 targetPos = camPos + camDir * z + camRight * x + camUp * y;
 
-		float dx = rotateInfo->lastMousePos.x - rotateInfo->mousePos.x;
-		float dy = rotateInfo->lastMousePos.y - rotateInfo->mousePos.y;
-		
-		float x = (dx/w) * 3 * PI;
-		float y = (dy/h) * 3 * PI;
-		
-		camera->orbit(rotateInfo->targetPos, glm::vec3(0.0, 1.0, 0.0), x);
-		camera->orbit(rotateInfo->targetPos, camera->getRight(), y);
-	
-		return rotateInfo;
-	}
-	
-	commandInfo* rotateEndCommand::execute(commandInfo* info)
-	{
-		DELETE(info);
+        _targetPos = targetPos;
+        _zEye = z;
+        return true;
+    }
 
-		return nullptr;
-	}
+    void rotateCommand::update()
+    {
+        if (_zBufferValue == 1.0f)
+            return;
+
+        phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+        phi::frustum* frustum = camera->getFrustum();
+
+        float zNear = frustum->getZNear();
+        float iez = 1.0f / zNear;
+        float zFar = frustum->getZFar();
+        float aspect = frustum->getAspect();
+        float fov = frustum->getFov();
+
+        float tg = glm::tan(fov * 0.5f) * zNear;
+
+        float h = info->viewportSize.height;
+        float w = info->viewportSize.width;
+
+        float dx = info->lastMousePos.x - info->mousePos.x;
+        float dy = info->lastMousePos.y - info->mousePos.y;
+
+        float x = (dx/w) * 3 * PI;
+        float y = (dy/h) * 3 * PI;
+
+        camera->orbit(_targetPos, glm::vec3(0.0, 1.0, 0.0), x);
+        camera->orbit(_targetPos, camera->getRight(), y);
+
+        info->lastMousePos = info->mousePos;
+    }
 }

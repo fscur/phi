@@ -47,7 +47,7 @@ public:
     screen();
     ~screen(void);
 
-    void initialize(std::string applicationPath) override;
+    void onInitialize() override;
     void onResize(SDL_Event e) override;
     void onClosing() override;
 
@@ -67,7 +67,6 @@ public:
     void textBox2TextChanged(phi::eventArgs e);
     void hudControlGotFocus(phi::controlEventArgs e);
     void hudControlLostFocus(phi::controlEventArgs e);
-    
 
     void update() override;
     void render() override;

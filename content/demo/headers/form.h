@@ -18,6 +18,7 @@ private:
     bool _isFullScreen;
     SDL_Window* _window;
     SDL_GLContext _glContext;
+    SDL_Thread* _renderThread;
 
     double _dt;
     Uint32 _lastTime;
@@ -27,20 +28,22 @@ private:
     Uint32 _inputCost0;
     Uint32 _updateCost0;
     Uint32 _renderCost0;
-	Uint32 _inputCost;
+    Uint32 _inputCost;
     Uint32 _updateCost;
     Uint32 _renderCost;
     unsigned int _fps;
 
-	std::string _applicationPath;
-	glm::vec2 _lastMousePos;
+    std::string _applicationPath;
+    glm::vec2 _lastMousePos;
 
 private:
-	void initWindow();
+    void initWindow();
     void input();
+    static int renderLoopWrapper(void *data);
+    int renderLoop();
 protected:
-	virtual void onBeginInput() = 0;
-	virtual void onEndInput() = 0;
+    virtual void onBeginInput() = 0;
+    virtual void onEndInput() = 0;
     virtual void update() = 0;
     virtual void render() = 0;
 
@@ -53,26 +56,29 @@ public:
     bool getIsFullScreen() const { return _isFullScreen; }
     unsigned int getFps() const { return _fps; }
     double getDt() const { return _dt; }
-    double getInputCost() const { return _inputCost * 10e-3; }
-    double getUpdateCost() const { return _updateCost * 10e-3; }
-    double getRenderCost() const { return _renderCost * 10e-3; }
-	std::string getApplicationPath() const { return _applicationPath; }
-	void setTitle(std::string value);
+    double getInputCost() const { return _inputCost; }
+    double getUpdateCost() const { return _updateCost; }
+    double getRenderCost() const { return _renderCost; }
+    std::string getApplicationPath() const { return _applicationPath; }
+    SDL_Window* getWindow() const { return _window; }
+    SDL_GLContext getGlContext() const { return _glContext; }
+    void setTitle(std::string value);
     void setSize(phi::size<unsigned int> value);
-	void setIsFullScreen(bool value);
+    void setIsFullScreen(bool value);
+    void show();
 
     virtual void onResize(SDL_Event e){}
-	virtual void onClosing(){}
-    
+    virtual void onClosing(){}
+
+    virtual void onInitialize(){}
     virtual void onMouseDown(phi::mouseEventArgs e){}
     virtual void onMouseMove(phi::mouseEventArgs e){}
     virtual void onMouseUp(phi::mouseEventArgs e){}
     virtual void onMouseWheel(phi::mouseEventArgs e){}
     virtual void onKeyDown(phi::keyboardEventArgs e){}
     virtual void onKeyUp(phi::keyboardEventArgs e){}
-    
-	virtual void initialize(std::string applicationPath) { _applicationPath = applicationPath; }
 
+    void initialize(std::string applicationPath);
     bool loop();
     void centerScreen();
     void close();

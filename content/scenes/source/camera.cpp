@@ -14,9 +14,9 @@ namespace phi
         _frustum = new frustum(glm::vec3(), _direction, _up, zNear, zFar, aspect, fov);
 
         _orthoProjMatrix = glm::ortho<float>(-5.0, 5.0, -5.0, 5.0, 0.0, 50.0);
-		_boundsRadius = 50.0f;
-		_minHeight = 0.1f;
-		_maxHeight = _boundsRadius * 0.98f;
+        _boundsRadius = 50.0f;
+        _minHeight = 0.1f;
+        _maxHeight = _boundsRadius * 0.98f;
         _changed = true;
     }
 
@@ -24,13 +24,13 @@ namespace phi
     {
     }
 
-	void camera::setFrustum(frustum* frustum)
+    void camera::setFrustum(frustum* frustum)
     {
         _frustum = frustum;
         _changed = true;
     }
 
-	void camera::setTarget(glm::vec3 target)
+    void camera::setTarget(glm::vec3 target)
     {
         _target = target;
         _direction = _target - _position;
@@ -39,7 +39,7 @@ namespace phi
         _changed = true;
     }
 
-	void camera::setFocus(float focus)
+    void camera::setFocus(float focus)
     {
         _focus = focus;
         _target = _direction * focus;
@@ -76,52 +76,52 @@ namespace phi
         _direction = glm::normalize(_direction);
     }
 
-	void camera::setPositionWithinBoundsRadius(glm::vec3 position)
-	{
-		glm::vec3 p = glm::normalize(position);
+    void camera::setPositionWithinBoundsRadius(glm::vec3 position)
+    {
+        glm::vec3 p = glm::normalize(position);
 
-		float dot = glm::dot(p, glm::vec3(0.0f, 1.0f, 0.0f));
-		
-		if (dot > 0.97)
-			return;
-		
-		float radius = _boundsRadius;
-		float distToOrigin = glm::length(position);
-		float diff = distToOrigin - radius;
+        float dot = glm::dot(p, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		if (diff > 0)
-		{
-			glm::vec3 dir = glm::normalize(-position);
-			position += dir * diff;
-		}
-		else
-			radius = distToOrigin;
+        if (dot > 0.97)
+            return;
 
-		if (position.y < _minHeight)
-		{
-			position = glm::normalize(glm::vec3(position.x, _minHeight, position.z)) * distToOrigin;
-		}
+        float radius = _boundsRadius;
+        float distToOrigin = glm::length(position);
+        float diff = distToOrigin - radius;
 
-		_position = position;
-	}
+        if (diff > 0)
+        {
+            glm::vec3 dir = glm::normalize(-position);
+            position += dir * diff;
+        }
+        else
+            radius = distToOrigin;
+
+        if (position.y < _minHeight)
+        {
+            position = glm::normalize(glm::vec3(position.x, _minHeight, position.z)) * distToOrigin;
+        }
+
+        _position = position;
+    }
 
     void camera::orbit(glm::vec3 origin, glm::vec3 axis, float angle)
     {  
-		glm::vec3 position = mathUtils::rotateAboutAxis(_position, origin, axis, angle);
+        glm::vec3 position = mathUtils::rotateAboutAxis(_position, origin, axis, angle);
 
-		if (position.y >= _minHeight)
-			setPositionWithinBoundsRadius(position);
+        if (position.y >= _minHeight)
+            setPositionWithinBoundsRadius(position);
 
-		if (_position == position)
-			_target = mathUtils::rotateAboutAxis(_target, origin, axis, angle);
+        if (_position == position)
+            _target = mathUtils::rotateAboutAxis(_target, origin, axis, angle);
 
-		_direction = _target - _position;
+        _direction = _target - _position;
         _changed = true;
     }
 
     void camera::moveTo(glm::vec3 position)
     {
-		setPositionWithinBoundsRadius(position);
+        setPositionWithinBoundsRadius(position);
 
         _changed = true;
     }
@@ -129,7 +129,7 @@ namespace phi
     void camera::zoomIn(glm::vec3 targetPos)
     {
         float dist = mathUtils::distance(targetPos, _position);
-		glm::vec3 direction = glm::normalize(targetPos - _position);
+        glm::vec3 direction = glm::normalize(targetPos - _position);
 
         float factor = _zoomFactor;
 
@@ -138,37 +138,37 @@ namespace phi
 
         dist *= factor;
 
-		if (dist < _frustum->getZNear() + 0.25f)
-			return;
+        if (dist < _frustum->getZNear() + 0.25f)
+            return;
 
         glm::vec3 offset = direction * dist;
 
-		_focus = glm::max(_focus - dist, _frustum->getZNear());
+        _focus = glm::max(_focus - dist, _frustum->getZNear());
 
         glm::vec3 position = _position + offset;
 
-		setPositionWithinBoundsRadius(position);
+        setPositionWithinBoundsRadius(position);
 
-		//_direction = _target - _position;
+        //_direction = _target - _position;
 
-		_changed = true;
+        _changed = true;
     }
 
     void camera::zoomOut(glm::vec3 targetPos)
     {
         float dist = mathUtils::distance(targetPos, _position);
-		glm::vec3 direction = glm::normalize(targetPos - _position);
+        glm::vec3 direction = glm::normalize(targetPos - _position);
 
         dist *= -_zoomFactor / (1 -_zoomFactor);
 
         glm::vec3 offset = direction * dist;
         _focus -= dist;
 
-		glm::vec3 position = _position + offset;
-		
-		setPositionWithinBoundsRadius(position);
-		
-		//_direction = _target - _position;
+        glm::vec3 position = _position + offset;
+
+        setPositionWithinBoundsRadius(position);
+
+        //_direction = _target - _position;
 
         _changed = true;
     }

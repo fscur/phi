@@ -10,16 +10,24 @@ namespace phi
     private:
         color* _colorFrom;
         color _colorTo;
+        int _milliseconds;
+        int _elapsed;
 
     public:
-        colorAnimation(color* from, color to)
+        colorAnimation(color* from, color to, int milliseconds)
         {
             _colorFrom = from;
             _colorTo = to;
+            _milliseconds = milliseconds;
+            _elapsed = 0;
         }
 
         color* getColorFrom() { return _colorFrom; }
         color getColorTo() { return _colorTo; }
+        int getMilliseconds() { return _milliseconds; }
+        int getElapsed() { return _elapsed; }
+
+        void setElapsed(int value) { _elapsed = value; }
     };
 }
 

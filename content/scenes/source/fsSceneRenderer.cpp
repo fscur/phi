@@ -2,71 +2,71 @@
 
 namespace phi
 {
-	fsSceneRenderer::fsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
-	{
-		_frameBuffer = new frameBuffer("fsSceneRenderer", viewportSize, color::transparent);
-		_frameBuffer->init();
+    fsSceneRenderer::fsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
+    {
+        _frameBuffer = new frameBuffer("fsSceneRenderer", viewportSize, color::transparent);
+        _frameBuffer->init();
 
-		createDefaultRenderTarget();
-		createSelectedObjectsRenderTarget();
-		createDepthBuffer();
+        createDefaultRenderTarget();
+        createSelectedObjectsRenderTarget();
+        createDepthBuffer();
 
-		_frameBuffer->bind();
-		_frameBuffer->enable(GL_CULL_FACE);
-		_frameBuffer->enable(GL_DEPTH_TEST);
-		_frameBuffer->unbind();
+        _frameBuffer->bind();
+        _frameBuffer->enable(GL_CULL_FACE);
+        _frameBuffer->enable(GL_DEPTH_TEST);
+        _frameBuffer->unbind();
 
-		createAmbientLightShader();
-		createDirLightShader();
-		createPointLightShader();
-		createSpotLightShader();
-	}
+        createAmbientLightShader();
+        createDirLightShader();
+        createPointLightShader();
+        createSpotLightShader();
+    }
 
-	fsSceneRenderer::~fsSceneRenderer()
-	{
-	}
+    fsSceneRenderer::~fsSceneRenderer()
+    {
+    }
 
-	void fsSceneRenderer::createDefaultRenderTarget()
-	{
-		texture* t = texture::create(_viewportSize, GL_RGBA);
+    void fsSceneRenderer::createDefaultRenderTarget()
+    {
+        texture* t = texture::create(_viewportSize, GL_RGBA);
 
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* r = _frameBuffer->newRenderTarget("default", t);
+        renderTarget* r = _frameBuffer->newRenderTarget("default", t);
 
-		_frameBuffer->addRenderTarget(r);
-	}
+        _frameBuffer->addRenderTarget(r);
+    }
 
-	void fsSceneRenderer::createSelectedObjectsRenderTarget()
-	{
-		texture* t = renderingSystem::pickingFrameBuffer->getPickingTexture();
+    void fsSceneRenderer::createSelectedObjectsRenderTarget()
+    {
+        texture* t = renderingSystem::pickingFrameBuffer->getPickingTexture();
 
-		renderTarget* r = _frameBuffer->newRenderTarget("selected", t);
+        renderTarget* r = _frameBuffer->newRenderTarget("selected", t);
 
-		_frameBuffer->addRenderTarget(r);
-	}
+        _frameBuffer->addRenderTarget(r);
+    }
 
-	void fsSceneRenderer::createDepthBuffer()
-	{
-		texture* t = texture::create(_viewportSize, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    void fsSceneRenderer::createDepthBuffer()
+    {
+        texture* t = texture::create(_viewportSize, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* d = _frameBuffer->newRenderTarget(
-			"depth", 
-			t, 
-			GL_DRAW_FRAMEBUFFER,
-			GL_DEPTH_ATTACHMENT);
+        renderTarget* d = _frameBuffer->newRenderTarget(
+            "depth", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT);
 
-		_frameBuffer->addRenderTarget(d);
-	}
+        _frameBuffer->addRenderTarget(d);
+    }
 
-	void fsSceneRenderer::createAmbientLightShader()
+    void fsSceneRenderer::createAmbientLightShader()
     {
         std::vector<std::string> attribs;
         attribs.push_back("inPosition");
@@ -80,9 +80,9 @@ namespace phi
         s->addUniform("mat.ambientColor");
         s->addUniform("mat.ka");
 
-		s->addUniform("id");
-		s->addUniform("isSelected");
-		
+        s->addUniform("id");
+        s->addUniform("isSelected");
+
         shaderManager::get()->addShader(s->getName(), s);
     }
 
@@ -198,281 +198,281 @@ namespace phi
         shaderManager::get()->addShader(s->getName(), s);
     }
 
-	void fsSceneRenderer::ambientLightPass()
-	{
-		shader* sh = shaderManager::get()->getShader("FS_AMBIENT_LIGHT");
-		sh->bind();
+    void fsSceneRenderer::ambientLightPass()
+    {
+        shader* sh = shaderManager::get()->getShader("FS_AMBIENT_LIGHT");
+        sh->bind();
 
-		for (GLuint i = 0; i < _allObjectsCount; i++)
-		{
-			sceneObject* sceneObj = (*_allObjects)[i];
+        for (GLuint i = 0; i < _allObjectsCount; i++)
+        {
+            sceneObject* sceneObj = (*_allObjects)[i];
 
-			if (sceneObj->getMaterial() == nullptr)
-				continue;
+            if (sceneObj->getMaterial() == nullptr)
+                continue;
 
-			sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
-			sh->setUniform("ambientLightColor", _scene->getAmbientColor());
-			sh->setUniform("diffuseMap", sceneObj->getMaterial()->getDiffuseTexture());
-			sh->setUniform("mat.ambientColor", sceneObj->getMaterial()->getAmbientColor());
-			sh->setUniform("mat.ka", sceneObj->getMaterial()->getKa());
-			sh->setUniform("id", sceneObj->getSceneId());
-			sh->setUniform("isSelected", sceneObj->getSelected());
-			sceneObj->render();
-		}
-
-		sh->unbind();
-	}
-
-	void fsSceneRenderer::dirLightPasses()
-	{
-		auto directionalLights = _scene->getDirectionalLights();
-		auto directionalLightsCount = directionalLights->size();
-
-		if (directionalLightsCount == 0)
-			return;
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
-
-		for (GLuint l = 0; l< directionalLightsCount; l++)
-		{
-			directionalLight* light = (*directionalLights)[l];
-
-			shader* sh = shaderManager::get()->getShader("FS_DIR_LIGHT");
-
-			sh->bind();
-
-			glDepthMask(false);
-			glDepthFunc(GL_EQUAL);
-
-			for (GLuint i = 0; i < _allObjectsCount; i++)
-			{
-				sceneObject* sceneObj = (*_allObjects)[i];
-
-				sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
-				sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
-				sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
-				sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
-				sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
-
-				sh->setUniform("light.position", light->getPosition());
-				sh->setUniform("light.color", light->getColor());
-				sh->setUniform("light.intensity", light->getIntensity());
-				sh->setUniform("light.direction", light->getDirection());
-
-				phi::material* mat = sceneObj->getMaterial();
-				sh->setUniform("mat.ambientColor", mat->getAmbientColor());
-				sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
-				sh->setUniform("mat.specularColor", mat->getSpecularColor());
-				sh->setUniform("mat.ka", mat->getKa());
-				sh->setUniform("mat.kd", mat->getKd());
-				sh->setUniform("mat.ks", mat->getKs());
-				sh->setUniform("mat.shininess", mat->getShininess());
+            sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
+            sh->setUniform("ambientLightColor", _scene->getAmbientColor());
+            sh->setUniform("diffuseMap", sceneObj->getMaterial()->getDiffuseTexture());
+            sh->setUniform("mat.ambientColor", sceneObj->getMaterial()->getAmbientColor());
+            sh->setUniform("mat.ka", sceneObj->getMaterial()->getKa());
+            sh->setUniform("id", sceneObj->getSceneId());
+            sh->setUniform("isSelected", sceneObj->getSelected());
+            sceneObj->render();
+        }
+
+        sh->unbind();
+    }
+
+    void fsSceneRenderer::dirLightPasses()
+    {
+        auto directionalLights = _scene->getDirectionalLights();
+        auto directionalLightsCount = directionalLights->size();
+
+        if (directionalLightsCount == 0)
+            return;
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+
+        for (GLuint l = 0; l< directionalLightsCount; l++)
+        {
+            directionalLight* light = (*directionalLights)[l];
+
+            shader* sh = shaderManager::get()->getShader("FS_DIR_LIGHT");
+
+            sh->bind();
+
+            glDepthMask(false);
+            glDepthFunc(GL_EQUAL);
+
+            for (GLuint i = 0; i < _allObjectsCount; i++)
+            {
+                sceneObject* sceneObj = (*_allObjects)[i];
+
+                sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
+                sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
+                sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
+                sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
+                sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
+
+                sh->setUniform("light.position", light->getPosition());
+                sh->setUniform("light.color", light->getColor());
+                sh->setUniform("light.intensity", light->getIntensity());
+                sh->setUniform("light.direction", light->getDirection());
+
+                phi::material* mat = sceneObj->getMaterial();
+                sh->setUniform("mat.ambientColor", mat->getAmbientColor());
+                sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
+                sh->setUniform("mat.specularColor", mat->getSpecularColor());
+                sh->setUniform("mat.ka", mat->getKa());
+                sh->setUniform("mat.kd", mat->getKd());
+                sh->setUniform("mat.ks", mat->getKs());
+                sh->setUniform("mat.shininess", mat->getShininess());
 
-				sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-				sh->setUniform("normalMap", mat->getNormalTexture());
-				sh->setUniform("specularMap", mat->getSpecularTexture());
+                sh->setUniform("diffuseMap", mat->getDiffuseTexture());
+                sh->setUniform("normalMap", mat->getNormalTexture());
+                sh->setUniform("specularMap", mat->getSpecularTexture());
 
-				sceneObj->render();
-			}
+                sceneObj->render();
+            }
 
-			sh->unbind();
+            sh->unbind();
 
-			glDepthFunc(GL_LESS);
-			glDepthMask(true);
-		}
+            glDepthFunc(GL_LESS);
+            glDepthMask(true);
+        }
 
-		glDisable(GL_BLEND);
-	}
-
-	void fsSceneRenderer::pointLightPasses()
-	{
-		auto pointLights = _scene->getPointLights();
-		auto pointLightsCount = pointLights->size();
-
-		if (pointLightsCount == 0)
-			return;
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
-
-		for (GLuint l = 0; l< pointLightsCount; l++)
-		{
-			pointLight* light = (*pointLights)[l];
-
-			shader* sh = shaderManager::get()->getShader("FS_POINT_LIGHT");
-
-			sh->bind();
-
-			glDepthMask(false);
-			glDepthFunc(GL_EQUAL);
+        glDisable(GL_BLEND);
+    }
+
+    void fsSceneRenderer::pointLightPasses()
+    {
+        auto pointLights = _scene->getPointLights();
+        auto pointLightsCount = pointLights->size();
+
+        if (pointLightsCount == 0)
+            return;
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+
+        for (GLuint l = 0; l< pointLightsCount; l++)
+        {
+            pointLight* light = (*pointLights)[l];
+
+            shader* sh = shaderManager::get()->getShader("FS_POINT_LIGHT");
+
+            sh->bind();
+
+            glDepthMask(false);
+            glDepthFunc(GL_EQUAL);
 
-			for (GLuint i = 0; i < _allObjectsCount; i++)
-			{
-				sceneObject* sceneObj = (*_allObjects)[i];
+            for (GLuint i = 0; i < _allObjectsCount; i++)
+            {
+                sceneObject* sceneObj = (*_allObjects)[i];
 
-				sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
-				sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
-				sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
-				sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
-				sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
-
-				sh->setUniform("light.position", light->getPosition());
-				sh->setUniform("light.color", light->getColor());
-				sh->setUniform("light.intensity", light->getIntensity());
-				sh->setUniform("light.attenuation.constant", light->getAttenuation().constant);
-				sh->setUniform("light.attenuation.linear", light->getAttenuation().linear);
-				sh->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
-				sh->setUniform("light.range", light->getRange());
-
-				phi::material* mat = sceneObj->getMaterial();
-				sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
-				sh->setUniform("mat.specularColor", mat->getSpecularColor());
-				sh->setUniform("mat.kd", mat->getKd());
-				sh->setUniform("mat.ks", mat->getKs());
-				sh->setUniform("mat.shininess", mat->getShininess());
-
-				sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-				sh->setUniform("normalMap", mat->getNormalTexture());
-				sh->setUniform("specularMap", mat->getSpecularTexture());
-
-				sceneObj->render();
-			}
-
-			sh->unbind();
-
-			glDepthFunc(GL_LESS);
-			glDepthMask(true);
-		}
-
-		glDisable(GL_BLEND);
-	}
-
-	void fsSceneRenderer::spotLightPasses()
-	{
-		auto spotLights = _scene->getSpotLights();
-		auto spotLightsCount = spotLights->size();
-
-		if (spotLightsCount == 0)
-			return;
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
-
-		for (GLuint l = 0; l< spotLightsCount; l++)
-		{
-			spotLight* light = (*spotLights)[l];
+                sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
+                sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
+                sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
+                sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
+                sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
+
+                sh->setUniform("light.position", light->getPosition());
+                sh->setUniform("light.color", light->getColor());
+                sh->setUniform("light.intensity", light->getIntensity());
+                sh->setUniform("light.attenuation.constant", light->getAttenuation().constant);
+                sh->setUniform("light.attenuation.linear", light->getAttenuation().linear);
+                sh->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
+                sh->setUniform("light.range", light->getRange());
+
+                phi::material* mat = sceneObj->getMaterial();
+                sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
+                sh->setUniform("mat.specularColor", mat->getSpecularColor());
+                sh->setUniform("mat.kd", mat->getKd());
+                sh->setUniform("mat.ks", mat->getKs());
+                sh->setUniform("mat.shininess", mat->getShininess());
+
+                sh->setUniform("diffuseMap", mat->getDiffuseTexture());
+                sh->setUniform("normalMap", mat->getNormalTexture());
+                sh->setUniform("specularMap", mat->getSpecularTexture());
+
+                sceneObj->render();
+            }
+
+            sh->unbind();
+
+            glDepthFunc(GL_LESS);
+            glDepthMask(true);
+        }
+
+        glDisable(GL_BLEND);
+    }
 
-			shader* sh = shaderManager::get()->getShader("FS_SPOT_LIGHT");
-
-			sh->bind();
+    void fsSceneRenderer::spotLightPasses()
+    {
+        auto spotLights = _scene->getSpotLights();
+        auto spotLightsCount = spotLights->size();
 
-			glDepthMask(false);
-			glDepthFunc(GL_EQUAL);
+        if (spotLightsCount == 0)
+            return;
 
-			for (GLuint i = 0; i < _allObjectsCount; i++)
-			{
-				sceneObject* sceneObj = (*_allObjects)[i];
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
 
-				sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
-				sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
-				sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
-				sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
-				sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
+        for (GLuint l = 0; l< spotLightsCount; l++)
+        {
+            spotLight* light = (*spotLights)[l];
 
-				sh->setUniform("light.position", light->getPosition());
-				sh->setUniform("light.color", light->getColor());
-				sh->setUniform("light.intensity", light->getIntensity());
-				sh->setUniform("light.attenuation.constant", light->getAttenuation().constant);
-				sh->setUniform("light.attenuation.linear", light->getAttenuation().linear);
-				sh->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
-				sh->setUniform("light.range", light->getRange());
-				sh->setUniform("light.direction", light->getDirection());
-				sh->setUniform("light.cutoff", light->getCutoff());
+            shader* sh = shaderManager::get()->getShader("FS_SPOT_LIGHT");
 
-				phi::material* mat = sceneObj->getMaterial();
-				sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
-				sh->setUniform("mat.specularColor", mat->getSpecularColor());
-				sh->setUniform("mat.kd", mat->getKd());
-				sh->setUniform("mat.ks", mat->getKs());
-				sh->setUniform("mat.shininess", mat->getShininess());
+            sh->bind();
 
-				sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-				sh->setUniform("normalMap", mat->getNormalTexture());
-				sh->setUniform("specularMap", mat->getSpecularTexture());
+            glDepthMask(false);
+            glDepthFunc(GL_EQUAL);
 
-				sceneObj->render();
-			}
+            for (GLuint i = 0; i < _allObjectsCount; i++)
+            {
+                sceneObject* sceneObj = (*_allObjects)[i];
 
-			sh->unbind();
+                sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
+                sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
+                sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
+                sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
+                sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
 
-			glDepthFunc(GL_LESS);
-			glDepthMask(true);
-		}
+                sh->setUniform("light.position", light->getPosition());
+                sh->setUniform("light.color", light->getColor());
+                sh->setUniform("light.intensity", light->getIntensity());
+                sh->setUniform("light.attenuation.constant", light->getAttenuation().constant);
+                sh->setUniform("light.attenuation.linear", light->getAttenuation().linear);
+                sh->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
+                sh->setUniform("light.range", light->getRange());
+                sh->setUniform("light.direction", light->getDirection());
+                sh->setUniform("light.cutoff", light->getCutoff());
 
-		glDisable(GL_BLEND);
-	}
+                phi::material* mat = sceneObj->getMaterial();
+                sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
+                sh->setUniform("mat.specularColor", mat->getSpecularColor());
+                sh->setUniform("mat.kd", mat->getKd());
+                sh->setUniform("mat.ks", mat->getKs());
+                sh->setUniform("mat.shininess", mat->getShininess());
 
-	void fsSceneRenderer::render()
-	{
-		ambientLightPass();
-		dirLightPasses();
-		pointLightPasses();
-		spotLightPasses();
-	}
-	
-	void fsSceneRenderer::selectedObjectsPass()
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                sh->setUniform("diffuseMap", mat->getDiffuseTexture());
+                sh->setUniform("normalMap", mat->getNormalTexture());
+                sh->setUniform("specularMap", mat->getSpecularTexture());
 
-		glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+                sceneObj->render();
+            }
 
-		renderTarget* selectedRenderTarget = _frameBuffer->getRenderTarget("selected");
-		shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
+            sh->unbind();
 
-		sh->bind();
+            glDepthFunc(GL_LESS);
+            glDepthMask(true);
+        }
 
-		glm::mat4 modelMatrix = glm::mat4(
-			2.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 2.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f);
+        glDisable(GL_BLEND);
+    }
 
-		sh->setUniform("m", modelMatrix);
-		sh->setUniform("res", resolution);
-		sh->setUniform("selectionMap", selectedRenderTarget->getTexture());
+    void fsSceneRenderer::render()
+    {
+        ambientLightPass();
+        dirLightPasses();
+        pointLightPasses();
+        spotLightPasses();
+    }
 
-		meshRenderer::render(&_quad);
+    void fsSceneRenderer::selectedObjectsPass()
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		sh->unbind();
+        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
 
-		glDisable(GL_BLEND);
-	}
+        renderTarget* selectedRenderTarget = _frameBuffer->getRenderTarget("selected");
+        shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
 
-	void fsSceneRenderer::onRender()
-	{
-		_frameBuffer->bindForDrawing();
+        sh->bind();
 
-		GLenum drawBuffers[] = 
-		{ 
-			GL_COLOR_ATTACHMENT0,
-			GL_COLOR_ATTACHMENT1
-		};
+        glm::mat4 modelMatrix = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
-		glDrawBuffers(2, drawBuffers);
+        sh->setUniform("m", modelMatrix);
+        sh->setUniform("res", resolution);
+        sh->setUniform("selectionMap", selectedRenderTarget->getTexture());
 
-		glDepthMask(GL_TRUE);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        meshRenderer::render(&_quad);
 
-		render();
+        sh->unbind();
 
-		glDepthMask(GL_FALSE);
+        glDisable(GL_BLEND);
+    }
 
-		renderingSystem::defaultFrameBuffer->bindForDrawing();
-		_frameBuffer->bindForReading();
-		_frameBuffer->blit(0, 0, _viewportSize.width, _viewportSize.height);
+    void fsSceneRenderer::onRender()
+    {
+        _frameBuffer->bindForDrawing();
 
-		selectedObjectsPass();
-	}
+        GLenum drawBuffers[] = 
+        { 
+            GL_COLOR_ATTACHMENT0,
+            GL_COLOR_ATTACHMENT1
+        };
+
+        glDrawBuffers(2, drawBuffers);
+
+        glDepthMask(GL_TRUE);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        render();
+
+        glDepthMask(GL_FALSE);
+
+        renderingSystem::defaultFrameBuffer->bindForDrawing();
+        _frameBuffer->bindForReading();
+        _frameBuffer->blit(0, 0, _viewportSize.width, _viewportSize.height);
+
+        selectedObjectsPass();
+    }
 }

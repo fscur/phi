@@ -6,23 +6,29 @@
 
 namespace phi
 {
-	class commandInfo
-	{
-	public:
-		glm::vec2 mouseDownPos;
-		glm::vec2 mousePos;
-		glm::vec2 lastMousePos;
-		float wheelDelta;
-		phi::size<unsigned int> viewportSize;
-	public:
-		commandInfo(){}
-		virtual ~commandInfo(){}
-	};
+    class commandInfo
+    {
+    public:
+        glm::vec2 mouseDownPos;
+        glm::vec2 mousePos;
+        glm::vec2 lastMousePos;
+        float wheelDelta;
+        phi::size<unsigned int> viewportSize;
+        unsigned long actionsSum;
+    public:
+        virtual ~commandInfo(){}
+    };
 
-	class command
-	{
-	public:
-		virtual commandInfo* execute(commandInfo* info) = 0;
-	};
+    class command
+    {
+    public:
+        commandInfo* info;
+
+    public:
+        command(){}
+        virtual void init() {}
+        virtual bool canExecute() { return true; }
+        virtual void update() = 0;
+    };
 }
 #endif

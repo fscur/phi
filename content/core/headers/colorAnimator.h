@@ -14,10 +14,11 @@ namespace phi
     {
     private:
         static std::unordered_map<color*, colorAnimation> _animations;
+        static int _lastUpdateMilliseconds;
 
     public:
 
-        CORE_API static void animateColor(color* colorFrom, color colorTo);
+        CORE_API static void animateColor(color* colorFrom, color colorTo, int milliseconds);
         CORE_API static void animateColor(colorAnimation animation);
         CORE_API static void update();
     };

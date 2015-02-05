@@ -10,7 +10,7 @@ namespace phi
     renderingSystemInfo renderingSystem::info;
     defaultFrameBuffer* renderingSystem::defaultFrameBuffer = nullptr;
     pickingFrameBuffer* renderingSystem::pickingFrameBuffer = nullptr;
-	resourcesRepository* renderingSystem::repository = nullptr;
+    resourcesRepository* renderingSystem::repository = nullptr;
     FT_Library renderingSystem::freeTypeLibrary = nullptr;
     bool renderingSystem::initialized = false;
 
@@ -23,12 +23,12 @@ namespace phi
         defaultFrameBuffer = new phi::defaultFrameBuffer(info.size, color::black);
         defaultFrameBuffer->init();
         defaultFrameBuffer->bind();
-		
-		defaultFrameBuffer->enable(GL_CULL_FACE);
-		defaultFrameBuffer->enable(GL_DEPTH_TEST);
 
-		pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);
-		pickingFrameBuffer->init();
+        defaultFrameBuffer->enable(GL_CULL_FACE);
+        defaultFrameBuffer->enable(GL_DEPTH_TEST);
+
+        pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);
+        pickingFrameBuffer->init();
 
         repository = new resourcesRepository();
 
@@ -86,7 +86,7 @@ namespace phi
             0.0f, // specular reflectance coeff
             0.0f)); // shininess
 
-		repository->addResource(new material("blue", "",
+        repository->addResource(new material("blue", "",
             nullptr, //diffuse texture
             nullptr, //normal texture
             nullptr, //specular texture,
