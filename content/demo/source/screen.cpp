@@ -42,14 +42,21 @@ void screen::initScene()
 {
     phi::scene* s = new phi::scene();
     s->setSize(getSize());
-    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 1.0f, 5.0f));
+    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 0.5f, 5.0f));
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-    phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("bricks"));
-    box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-    box1->setSelected(true);
+    phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("blue"));
+    box1->setPosition(glm::vec3(5.0f, 0.5f, 0.0f));
     s->add(box1);
+
+    //phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("white"));
+    //sphere->setPosition(glm::vec3(2.0f, 0.5f, 0.0f));
+    //s->add(sphere);
+    //
+    //phi::sphere* sphere2 = new phi::sphere(glm::vec3(), 2.0f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("red"));
+    //sphere->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+    //s->add(sphere2);
 
     //phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("red"));
     //sphere->setPosition(glm::vec3(2.0f, 0.5f, 0.0f));
@@ -58,13 +65,22 @@ void screen::initScene()
     phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(17.0f, 0.5f, 17.0f), phi::renderingSystem::repository->getResource<phi::material>("white"));
     s->add(floor);
 
-    phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(0.0f, 2.0f, 2.0f), phi::color::white, 1.0f, glm::vec3(1.0f, -1.0f, -1.0f));
+    phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(), phi::color::white, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
     s->add(dirLight);
 
-    //phi::pointLight* pLight = new phi::pointLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::blue, 10.0f, phi::attenuation());
-    //s->add(pLight);
+    /*for (int x = 0; x < 10; x++)
+    {
+    for (int z = 0; z < 10; z++)
+    {
+    phi::pointLight* p = new phi::pointLight(glm::vec3(x * 10, 2.5f, z * 10), phi::color::fromRGBA(1.0, 1.0, 1.0, 1.0), 1.0, 5.0f);
+    s->add(p);
+    }
+    }*/
 
-    //phi::spotLight* sLight = new phi::spotLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::orange, 100.0f, phi::attenuation(), glm::vec3(0.0f, -1.0f, 0.0f), 0.8f);
+    phi::pointLight* pLight = new phi::pointLight(glm::vec3(0.0f, 4.0f, 0.0f), phi::color::blue, 2.0f, 5.0f);
+    s->add(pLight);
+
+    //phi::spotLight* sLight = new phi::spotLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::orange, 1.0f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.8f);
     //s->add(sLight);
 
     phi::scenesManager::get()->addScene(s);
@@ -183,9 +199,9 @@ void screen::initUI()
     _slider1->setSize(phi::size<GLuint>(500, 30));
     _slider1->setSliderColor(phi::color::gray);
     _slider1->setTrackColor(phi::color::white);
-    _slider1->setMinValue(0);
-    _slider1->setMaxValue(200);
-    _slider1->setStepValue(1.0f);
+    _slider1->setMinValue(0.0f);
+    _slider1->setMaxValue(10.0f);
+    _slider1->setStepValue(0.1f);
     _slider1->getValueChanged()->bind<screen, &screen::sliderValueChanged>(this);
     phi::uiSystem::get()->addControl(_slider1);
 
@@ -210,7 +226,7 @@ float angle;
 
 void screen::update()
 {
-    a+= 0.00001;
+    a+= 0.01;
     if (a > 2 * phi::PI)
         a -=2 * phi::PI;
 
@@ -235,19 +251,22 @@ void screen::update()
     auto dir = s->getDirection();
     s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));*/
 
-    /*phi::box* b0 = dynamic_cast<phi::box*>(phi::scenesManager::get()->getScene()->getSceneObject(0));
-    glm::vec3 pos0 = phi::mathUtils::rotateAboutAxis(b0->getPosition(), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.001);
+    /*  phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
+    glm::vec3 pos = p->getPosition();
+    glm::vec3 t = glm::vec3(-glm::cos(a), 0.0f, glm::sin(a));
+    p->setPosition(pos + t);*/
+
+
+    /*phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(3);
+    glm::vec3 pos = p->getPosition();
+
+    phi::box* b0 = dynamic_cast<phi::box*>(phi::scenesManager::get()->getScene()->getSceneObject(0));
+    glm::vec3 pos0 = glm::vec3(glm::cos(a) * 5.0f, 0.5f, glm::sin(a) * 5.0f);
     b0->setPosition(pos0);
 
-    phi::box* b1 = dynamic_cast<phi::box*>(phi::scenesManager::get()->getScene()->getSceneObject(1));
-    glm::vec3 pos1 = phi::mathUtils::rotateAboutAxis(b1->getPosition(), glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.001);
-    b1->setPosition(pos1);*/
-
-    phi::scene* scene = phi::scenesManager::get()->getScene();
-    phi::camera* activeCamera = scene->getCamera(0);
-    phi::camera* camera = scene->getCamera(1);
-    glm::vec3 camPos = activeCamera->getPosition();
-    camera->setPosition(glm::vec3(50.0f, 0.0f, camPos.z));
+    phi::sphere* b1 = dynamic_cast<phi::sphere*>(phi::scenesManager::get()->getScene()->getSceneObject(1));
+    pos0 = glm::vec3(-glm::cos(a) * 2.0f, 0.5f, glm::sin(a) * 2.0f);
+    b1->setPosition(pos0);*/
 
     //float dist = 3.0f;
     //activeCamera->setPosition(glm::vec3(glm::cos(a) * dist, 2.0f, glm::sin(a) * dist));
@@ -374,7 +393,11 @@ void screen::expandButtonClick(phi::mouseEventArgs e)
 
 void screen::sliderValueChanged(phi::eventArgs e)
 {
-    _labelFps->setY(_slider1->getValue());
+    //phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
+    //p->setIntensity(_slider1->getValue());
+
+    //phi::spotLight* p1 = phi::scenesManager::get()->getScene()->getSpotLight(0);
+    //p1->setIntensity(_slider1->getValue());
 }
 
 void screen::closeButtonClick(phi::mouseEventArgs e)

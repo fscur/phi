@@ -57,7 +57,6 @@ namespace phi
 		RENDERING_API void setViewport(GLuint x, GLuint y, size<GLuint> size);
 		RENDERING_API virtual void clear();
 
-		RENDERING_API void frameBuffer::blit(GLuint x, GLuint y, GLsizei width, GLsizei height);
 		RENDERING_API void blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height);
 
 		RENDERING_API bool addRenderTarget(renderTarget* renderTarget);

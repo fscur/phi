@@ -1,19 +1,12 @@
 #version 330
 
-struct attenuation
-{
-	float constant;
-	float linear;
-	float exponential;
-};
-
 struct pointLight
 {
 	vec3 position;
 	vec4 color;
 	float intensity;
-	attenuation attenuation;
 	float range;
+	float oneOverRangeSqr;
 };
 
 in vec3 fragPosition;
@@ -22,30 +15,59 @@ in vec3 fragLight;
 in vec3 fragEye;
 in vec3 fragTangent;
 
-uniform mat4 m;
 uniform mat4 v;
+uniform mat4 ip;
 uniform vec2 res;
 
 uniform pointLight light;
 
-uniform sampler2D positionMap;
-uniform sampler2D normalMap;
-uniform sampler2D diffuseMap;
-uniform sampler2D specularMap;
-uniform sampler2D shininessMap;
+uniform sampler2D rt0;
+uniform sampler2D rt1;
+uniform sampler2D rt2;
+uniform sampler2D rt3;
 
 out vec4 fragColor;
 
+vec3 decodePosition(vec2 texCoord)
+{
+	vec4 clipSpaceLocation;
+	clipSpaceLocation.xy = texCoord * 2.0 - 1.0;
+	clipSpaceLocation.z = texture(rt3, texCoord).r * 2.0 - 1.0;
+	clipSpaceLocation.w = 1.0;
+
+	vec4 homogenousLocation = ip *  clipSpaceLocation;
+	return homogenousLocation.xyz / homogenousLocation.w;
+}
+
+vec3 decodeNormal (vec2 enc)
+{
+    float scale = 1.7777;
+    vec3 nn =
+        vec3(enc.xy, 0.0) * vec3(2*scale,2*scale,0) +
+        vec3(-scale,-scale,1);
+    float g = 2.0 / dot(nn.xyz,nn.xyz);
+    vec3 n;
+    n.xy = g*nn.xy;
+    n.z = g-1;
+    return n;
+}
+
 void main()
 {
-	fragColor = vec4(1.0);
-
 	vec2 texCoord = gl_FragCoord.xy / res;
-	vec3 fragPosition = texture(positionMap, texCoord).xyz;
-   	vec3 normal = texture(normalMap, texCoord).xyz;
-   	vec4 diffuseColor = texture(diffuseMap, texCoord);
-   	vec4 specularColor = texture(specularMap, texCoord);
-   	float shininess = texture(shininessMap, texCoord).x;
+
+	vec4 c0 = texture(rt0, texCoord);
+   	vec4 c1 = texture(rt1, texCoord);
+   	vec4 c2 = texture(rt2, texCoord);
+
+	vec3 fragPosition = decodePosition(texCoord);
+   	float shininess = c0.w * 512;
+
+   	vec3 normal = decodeNormal(vec2(c1.w, c2.w));
+
+   	vec4 diffuseColor = vec4(c1.xyz, 1.0);
+   	vec4 specularColor = vec4(c2.xyz, 1.0);
+
 	vec3 lightDir = fragPosition - (v * vec4(light.position, 1.0)).xyz;
 	float distanceToPoint = length(lightDir);
 
@@ -57,16 +79,12 @@ void main()
 	float diffuse = light.intensity * max(0.0, dot(normal, s));
 	float spec = pow(max(0.0, dot(normal,h)), shininess);
 
-	fragColor = light.color * diffuseColor * diffuse + light.color *specularColor * spec;
+	float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
+	
+	fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
+	fragColor = fragColor * attenuation;// + vec4(0.2, 0.0, 0.0, 0.5);
 
-	float attenuation = light.attenuation.constant + 
-			light.attenuation.linear * distanceToPoint +
-			light.attenuation.exponential * distanceToPoint * distanceToPoint + 
-			0.0001;
-
-	fragColor = fragColor / attenuation;// + vec4(0.5, 0.0, 0.0, 1.0);
-
-	//fragColor = vec4(1.0);
 	//fragColor = vec4(fragPosition, 1.0);
 	//fragColor = vec4(gl_FragCoord.xy, 1.0, 1.0);
 }
+

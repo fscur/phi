@@ -161,7 +161,7 @@ namespace phi
 		
 		renderingSystem::defaultFrameBuffer->bindForDrawing();
 		_frameBuffer->bindForReading();
-		_frameBuffer->blit(0, 0, _viewportSize.width, _viewportSize.height);
+		_frameBuffer->blit("default", 0, 0, _viewportSize.width, _viewportSize.height);
 
 		selectedObjectsPass();
 	}

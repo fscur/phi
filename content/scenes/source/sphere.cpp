@@ -6,7 +6,7 @@ namespace phi
         : sceneObject(position, size<float>(radius, radius, radius), material)
     {   
 		_radius = radius;
-        _mesh = create(rings, sectors);
+        _mesh = create(rings + 1, sectors + 1);
     }
 
 	sphere::~sphere()

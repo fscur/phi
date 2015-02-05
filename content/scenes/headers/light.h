@@ -16,6 +16,7 @@ namespace phi
     {
     private:
         texture* _shadowMap;
+
     protected:
 		color _color;
         float _intensity;
@@ -35,7 +36,7 @@ namespace phi
 
         SCENES_API virtual void setPosition(glm::vec3 position);
         SCENES_API void setColor(color color);
-        SCENES_API void setIntensity(float intensity);
+        SCENES_API virtual void setIntensity(float intensity);
         SCENES_API void setLightShader(shader* lightShader);
         SCENES_API void setShadowMapShader(shader* shadowMapShader);
         SCENES_API void setShadowMap(texture* shadowMap);

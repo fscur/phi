@@ -25,13 +25,10 @@ uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
 
-layout (location = 0) out vec4 fragColor; 
-layout (location = 1) out vec4 worldPosOut;
-layout (location = 2) out vec4 normalOut; 
-layout (location = 3) out vec4 diffuseOut; 
-layout (location = 4) out vec4 specularOut;
-layout (location = 5) out vec4 shininessOut;
-layout (location = 6) out vec4 selectionMap;
+layout (location = 0) out vec4 rt0; 
+layout (location = 1) out vec4 rt1;
+layout (location = 2) out vec4 rt2; 
+layout (location = 3) out vec4 rt3; 
 
 vec3 getIdColor(int id)
 {
@@ -44,34 +41,38 @@ vec3 getIdColor(int id)
     return vec3(r/255.0, g/255.0, b/255.0);
 }
 
+//http://aras-p.info/texts/CompactNormalStorage.html
+//method 7 - stereographic projection
+
+vec2 encodeNormal (vec3 n)
+{
+    float scale = 1.7777;
+    vec2 enc = n.xy / (n.z+1);
+    enc /= scale;
+    enc = enc*0.5+0.5;
+    return vec2(enc);
+}
+
 void main()	
 {	
-    worldPosOut = vec4(fragWorldPos, 1.0);
-
     //normal map
-	vec3 normal = normalize(fragNormal);
-	vec3 tangent = normalize(fragTangent); 
-	vec3 bitangent = cross(normal, tangent);
+	vec3 n = normalize(fragNormal);
+	vec3 t = normalize(fragTangent); 
+	vec3 b = cross(n, t);
 
-	mat3 tbn = mat3(tangent, bitangent, normal);
+	mat3 tbn = mat3(t, b, n);
+	n = tbn * (texture(normalMap, fragTexCoord) * 2.0 - 1.0).xyz;
 
-	normal = tbn * (texture(normalMap, fragTexCoord) * 2.0 - 1.0).xyz;
+	vec2 normal = encodeNormal(n);
 
-    normalOut = vec4(normal, 1.0);//normalize(normal);	
-
-    //vec4 diffuseColor = ambientLightColor * material.AmbientColor * material.Ka * texture(diffuseMap, fragTexCoord) * material.Kd;
-	
-	//vec4 diffuseColor = //// * material.Kd;
-	
     vec4 diffuseColor = texture(diffuseMap, fragTexCoord) * mat.diffuseColor;
     vec4 ambientColor = diffuseColor * ambientLightColor * mat.ambientColor * mat.ka;
-	//vec4 specularColor = vec4(material.Ks);
-
 	vec4 specularColor = mat.specularColor * texture(specularMap, fragTexCoord) * mat.ks;
 
-	fragColor = ambientColor;
-    diffuseOut = diffuseColor * mat.kd;
-    specularOut = specularColor;
-	shininessOut = vec4(mat.shininess, 0.0, 0.0, 0.0);
-    selectionMap = vec4 (getIdColor(id), isSelected);
+    vec3 c = diffuseColor.rgb * mat.kd + specularColor.rgb;
+
+	rt0 = vec4(ambientColor.rgb, mat.shininess/512.0); //RGBA
+    rt1 = vec4(diffuseColor.rgb * mat.kd, normal.x); //RGBA16F
+    rt2 = vec4(specularColor.rgb, normal.y); //RGBA16F
+    rt3 = vec4(getIdColor(id), isSelected); //RGBA
 }

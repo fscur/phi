@@ -3,142 +3,100 @@
 
 namespace phi
 {
-	dsSceneRenderer::dsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
-	{
-		_frameBuffer = new frameBuffer("dsSceneRenderer", viewportSize, color::transparent);
-		_frameBuffer->init();
+    dsSceneRenderer::dsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
+    {
+        _frameBuffer = new frameBuffer("dsSceneRenderer", viewportSize, color::transparent);
+        _frameBuffer->init();
 
-		createDefaultRenderTarget();
-		createPositionRenderTarget();
-		createNormalRenderTarget();
-		createDiffuseRenderTarget();
-		createSpecularRenderTarget();
-		createShininessRenderTarget();
-		createSelectedObjectsRenderTarget();
-		createDepthBuffer();
+        createRT0();
+        createRT1();
+        createRT2();
+        createRT3();
+        createRT4();
 
-		_frameBuffer->bind();
-		_frameBuffer->enable(GL_CULL_FACE);
-		_frameBuffer->enable(GL_DEPTH_TEST);
-		_frameBuffer->unbind();
+        _frameBuffer->bind();
+        _frameBuffer->enable(GL_CULL_FACE);
+        _frameBuffer->enable(GL_DEPTH_TEST);
+        _frameBuffer->unbind();
 
-		createGeomPassShader();
-		createStencilShader();
-		createDirLightShader();
-		createPointLightShader();
-		createSpotLightShader();
-	}
+        createGeomPassShader();
+        createStencilShader();
+        createDirLightShader();
+        createPointLightShader();
+        createSpotLightShader();
+    }
 
-	dsSceneRenderer::~dsSceneRenderer()
-	{
-		DELETE(_frameBuffer);
-	}
+    dsSceneRenderer::~dsSceneRenderer()
+    {
+        DELETE(_frameBuffer);
+    }
 
-	void dsSceneRenderer::createDefaultRenderTarget()
-	{
-		texture* t = texture::create(_viewportSize, GL_RGBA);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    void dsSceneRenderer::createRT0()
+    {
+        texture* t = texture::create(_viewportSize, GL_RGBA);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* r = _frameBuffer->newRenderTarget("default", t);
+        renderTarget* r = _frameBuffer->newRenderTarget("rt0", t);
 
-		_frameBuffer->addRenderTarget(r);
-	}
+        _frameBuffer->addRenderTarget(r);
+    }
 
-	void dsSceneRenderer::createPositionRenderTarget()
-	{
-		texture* t = texture::create(_viewportSize);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    void dsSceneRenderer::createRT1()
+    {
+        texture* t = texture::create(_viewportSize, GL_RGBA16F);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* r = _frameBuffer->newRenderTarget("position", t);
+        renderTarget* r = _frameBuffer->newRenderTarget("rt1", t);
 
-		_frameBuffer->addRenderTarget(r);
-	}
+        _frameBuffer->addRenderTarget(r);
+    }
 
-	void dsSceneRenderer::createNormalRenderTarget()
-	{
-		texture* t = texture::create(_viewportSize);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    void dsSceneRenderer::createRT2()
+    {
+        texture* t = texture::create(_viewportSize, GL_RGBA16F);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* r = _frameBuffer->newRenderTarget("normal", t);
+        renderTarget* r = _frameBuffer->newRenderTarget("rt2", t);
 
-		_frameBuffer->addRenderTarget(r);
-	}
+        _frameBuffer->addRenderTarget(r);
+    }
 
-	void dsSceneRenderer::createDiffuseRenderTarget()
-	{
-		texture* t = texture::create(_viewportSize);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    void dsSceneRenderer::createRT3()
+    {
+        texture* t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* r = _frameBuffer->newRenderTarget("diffuse", t);
+        renderTarget* d = _frameBuffer->newRenderTarget(
+            "rt3", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_DEPTH_STENCIL_ATTACHMENT);
 
-		_frameBuffer->addRenderTarget(r);
-	}
+        _frameBuffer->addRenderTarget(d);
+    }
 
-	void dsSceneRenderer::createSpecularRenderTarget()
-	{
-		texture* t = texture::create(_viewportSize);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    void dsSceneRenderer::createRT4()
+    {
+        texture* t = renderingSystem::pickingFrameBuffer->getPickingTexture();
 
-		renderTarget* r = _frameBuffer->newRenderTarget("specular", t);
+        renderTarget* r = _frameBuffer->newRenderTarget("rt4", t);
 
-		_frameBuffer->addRenderTarget(r);
-	}
+        _frameBuffer->addRenderTarget(r);
+    }
 
-	void dsSceneRenderer::createShininessRenderTarget()
-	{
-		texture* t = texture::create(_viewportSize);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-		renderTarget* r = _frameBuffer->newRenderTarget("shininess", t);
-
-		_frameBuffer->addRenderTarget(r);
-	}
-
-	void dsSceneRenderer::createSelectedObjectsRenderTarget()
-	{
-		texture* t = renderingSystem::pickingFrameBuffer->getPickingTexture();
-
-		renderTarget* r = _frameBuffer->newRenderTarget("selected", t);
-
-		_frameBuffer->addRenderTarget(r);
-	}
-
-	void dsSceneRenderer::createDepthBuffer()
-	{
-		texture* t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-		renderTarget* d = _frameBuffer->newRenderTarget(
-			"depth", 
-			t, 
-			GL_DRAW_FRAMEBUFFER,
-			GL_DEPTH_STENCIL_ATTACHMENT);
-
-		_frameBuffer->addRenderTarget(d);
-	}
-
-	void dsSceneRenderer::createGeomPassShader()
+    void dsSceneRenderer::createGeomPassShader()
     {
         std::vector<std::string> attribs;
         attribs.push_back("inPosition");
@@ -162,15 +120,15 @@ namespace phi
         s->addUniform("mat.ks");
         s->addUniform("mat.shininess");
 
-		s->addUniform("diffuseMap");
-		s->addUniform("normalMap");
-		s->addUniform("specularMap");
+        s->addUniform("diffuseMap");
+        s->addUniform("normalMap");
+        s->addUniform("specularMap");
 
-		s->addUniform("isSelected");
-		s->addUniform("id");
+        s->addUniform("isSelected");
+        s->addUniform("id");
 
-		shaderManager::get()->addShader(s->getName(), s);
-	}
+        shaderManager::get()->addShader(s->getName(), s);
+    }
 
     void dsSceneRenderer::createStencilShader()
     {
@@ -194,17 +152,17 @@ namespace phi
 
         s->addUniform("v");
         s->addUniform("m");
+        s->addUniform("ip");
 
         s->addUniform("light.position");
         s->addUniform("light.color");
         s->addUniform("light.intensity");
         s->addUniform("light.direction");
 
-        s->addUniform("positionMap");
-        s->addUniform("normalMap");
-        s->addUniform("diffuseMap");
-        s->addUniform("specularMap");
-        s->addUniform("shininessMap");
+        s->addUniform("rt0");
+        s->addUniform("rt1");
+        s->addUniform("rt2");
+        s->addUniform("rt3");
 
         shaderManager::get()->addShader(s->getName(), s);
     }
@@ -218,22 +176,20 @@ namespace phi
 
         s->addUniform("v");
         s->addUniform("m");
+        s->addUniform("ip");
         s->addUniform("mvp");
         s->addUniform("res");
 
         s->addUniform("light.position");
         s->addUniform("light.color");
         s->addUniform("light.intensity");
-        s->addUniform("light.attenuation.constant");
-        s->addUniform("light.attenuation.linear");
-        s->addUniform("light.attenuation.exponential");
         s->addUniform("light.range");
+        s->addUniform("light.oneOverRangeSqr");
 
-        s->addUniform("positionMap");
-        s->addUniform("normalMap");
-        s->addUniform("diffuseMap");
-        s->addUniform("specularMap");
-        s->addUniform("shininessMap");
+        s->addUniform("rt0");
+        s->addUniform("rt1");
+        s->addUniform("rt2");
+        s->addUniform("rt3");
 
         shaderManager::get()->addShader(s->getName(), s);
     }
@@ -247,6 +203,7 @@ namespace phi
 
         s->addUniform("v");
         s->addUniform("m");
+        s->addUniform("ip");
         s->addUniform("mvp");
         s->addUniform("res");
 
@@ -260,382 +217,371 @@ namespace phi
         s->addUniform("light.direction");
         s->addUniform("light.cutoff");
 
-        s->addUniform("positionMap");
-        s->addUniform("normalMap");
-        s->addUniform("diffuseMap");
-        s->addUniform("specularMap");
-        s->addUniform("shininessMap");
+        s->addUniform("rt0");
+        s->addUniform("rt1");
+        s->addUniform("rt2");
+        s->addUniform("rt3");
 
         shaderManager::get()->addShader(s->getName(), s);
     }
 
-	void dsSceneRenderer::render()
-	{
-		_hasSelectedObjects = false;
-
-		geomPass();
-		pointLightPass();
-		spotLightPass();
-		directionalLightPass();
-		
-		glDepthMask(GL_FALSE);
-
-		renderingSystem::defaultFrameBuffer->bindForDrawing();
-		_frameBuffer->bindForReading();
-		_frameBuffer->blit(0, 0, _viewportSize.width, _viewportSize.height);
-
-		if (_hasSelectedObjects)
-			selectedObjectsPass();
-	}
-
-	void dsSceneRenderer::geomPass()
-	{
-		_frameBuffer->bindForDrawing();
-
-		GLenum drawBuffers[] = 
-		{ 
-			GL_COLOR_ATTACHMENT0, 
-			GL_COLOR_ATTACHMENT1, 
-			GL_COLOR_ATTACHMENT2, 
-			GL_COLOR_ATTACHMENT3,
-			GL_COLOR_ATTACHMENT4,
-			GL_COLOR_ATTACHMENT5,
-			GL_COLOR_ATTACHMENT6,
-		};
-
-		glDrawBuffers(7, drawBuffers);
-
-		glDepthMask(GL_TRUE);
-		glEnable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		shader* sh = shaderManager::get()->getShader("DS_GEOM_PASS");
-		sh->bind();
-
-		for (GLuint i = 0; i < _allObjectsCount; i++)
-		{
-			sceneObject* sceneObj = (*_allObjects)[i];
-
-			if(!_hasSelectedObjects)
-				_hasSelectedObjects = sceneObj->getSelected();
-
-			sh->setUniform("mv", sceneObj->getTransform()->getMv());
-			sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
-			sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
-
-			sh->setUniform("ambientLightColor", _scene->getAmbientColor());
-
-			phi::material* mat = sceneObj->getMaterial();
-			sh->setUniform("mat.ambientColor", mat->getAmbientColor());
-			sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
-			sh->setUniform("mat.specularColor", mat->getSpecularColor());
-			sh->setUniform("mat.ka", mat->getKa());
-			sh->setUniform("mat.kd", mat->getKd());
-			sh->setUniform("mat.ks", mat->getKs());
-			sh->setUniform("mat.shininess", mat->getShininess());
-			
-			sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-			sh->setUniform("normalMap", mat->getNormalTexture());
-			sh->setUniform("specularMap", mat->getSpecularTexture());
-
-			sh->setUniform("isSelected", sceneObj->getSelected());
-			sh->setUniform("id", sceneObj->getSceneId());
-			sceneObj->render();
-		}
-
-		sh->unbind();
-
-		glDepthMask(GL_FALSE);
-		glDisable(GL_DEPTH_TEST);
-	}
-
-	void dsSceneRenderer::directionalLightPass()
-	{
-		auto directionalLights = _scene->getDirectionalLights();
-		auto directionalLightsCount = directionalLights->size();
-
-		if (directionalLightsCount == 0)
-			return;
-		
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_ONE, GL_ONE);
-
-		shader* sh = shaderManager::get()->getShader("DS_DIR_LIGHT");
-
-		sh->bind();
-
-		glm::mat4 modelMatrix = glm::mat4(
-			2.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 2.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f);
+    void dsSceneRenderer::render()
+    {
+        _hasSelectedObjects = false;
 
-		glm::mat4 viewMatrix = _camera->getViewMatrix();
+        geomPass();
 
-		texture* positionMap = _frameBuffer->getRenderTarget("position")->getTexture();
-		texture* normalMap = _frameBuffer->getRenderTarget("normal")->getTexture();
-		texture* diffuseMap = _frameBuffer->getRenderTarget("diffuse")->getTexture();
-		texture* specularMap = _frameBuffer->getRenderTarget("specular")->getTexture();
-		texture* shininessMap = _frameBuffer->getRenderTarget("shininess")->getTexture();
+        pointLightPass();
+        spotLightPass();
 
-		for (GLuint i = 0; i < directionalLightsCount; i++)
-		{
-			directionalLight* light = (*directionalLights)[i];
+        directionalLightPass();
 
-			sh->setUniform("v", viewMatrix);
-			sh->setUniform("m", modelMatrix);
+        glDepthMask(GL_FALSE);
 
-			sh->setUniform("light.position", light->getPosition());
-			sh->setUniform("light.color", light->getColor());
-			sh->setUniform("light.intensity", light->getIntensity());
-			sh->setUniform("light.direction", light->getDirection());
+        renderingSystem::defaultFrameBuffer->bindForDrawing();
+        _frameBuffer->bindForReading();
+        _frameBuffer->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
 
-			sh->setUniform("positionMap", positionMap);
-			sh->setUniform("normalMap", normalMap);
-			sh->setUniform("diffuseMap", diffuseMap);
-			sh->setUniform("specularMap", specularMap);
-			sh->setUniform("shininessMap", shininessMap);
+        if (_hasSelectedObjects)
+            selectedObjectsPass();
+    }
 
-			meshRenderer::render(&_quad);
-		}
+    void dsSceneRenderer::geomPass()
+    {
+        _frameBuffer->bindForDrawing();
 
-		sh->unbind();
+        GLenum drawBuffers[] = 
+        { 
+            GL_COLOR_ATTACHMENT0, 
+            GL_COLOR_ATTACHMENT1, 
+            GL_COLOR_ATTACHMENT2, 
+            GL_COLOR_ATTACHMENT3,
+        };
 
-		glDisable(GL_BLEND);
-	}
+        glDrawBuffers(4, drawBuffers);
 
-	void dsSceneRenderer::pointLightPass()
-	{	
-		auto pointLights = _scene->getPointLights();
-		auto pointLightsCount = pointLights->size();
+        glDepthMask(GL_TRUE);
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (pointLightsCount == 0)
-			return;
+        shader* sh = shaderManager::get()->getShader("DS_GEOM_PASS");
+        sh->bind();
 
-		glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
-		glm::mat4 viewMatrix = _camera->getViewMatrix();
-		
-		texture* positionMap = _frameBuffer->getRenderTarget("position")->getTexture();
-		texture* normalMap = _frameBuffer->getRenderTarget("normal")->getTexture();
-		texture* diffuseMap = _frameBuffer->getRenderTarget("diffuse")->getTexture();
-		texture* specularMap = _frameBuffer->getRenderTarget("specular")->getTexture();
-		texture* shininessMap = _frameBuffer->getRenderTarget("shininess")->getTexture();
+        for (GLuint i = 0; i < _allObjectsCount; i++)
+        {
+            sceneObject* sceneObj = (*_allObjects)[i];
 
-		glm::vec2 resolution(_viewportSize.width, _viewportSize.height);
+            if(!_hasSelectedObjects)
+                _hasSelectedObjects = sceneObj->getSelected();
 
-		shader* ss = shaderManager::get()->getShader("DS_STENCIL");
-		shader* ps = shaderManager::get()->getShader("DS_POINT_LIGHT");
+            sh->setUniform("mv", sceneObj->getTransform()->getMv());
+            sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
+            sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
 
-		glEnable(GL_STENCIL_TEST);
+            sh->setUniform("ambientLightColor", _scene->getAmbientColor());
 
-		for (GLuint i = 0; i < pointLightsCount; i++)
-		{
-			pointLight* light = (*pointLights)[i];
-			sphere* boundingVolume = light->getBoundingVolume();
-			glm::mat4 modelMatrix = boundingVolume->getTransform()->getModelMatrix();
-			glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
+            phi::material* mat = sceneObj->getMaterial();
+            sh->setUniform("mat.ambientColor", mat->getAmbientColor());
+            sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
+            sh->setUniform("mat.specularColor", mat->getSpecularColor());
+            sh->setUniform("mat.ka", mat->getKa());
+            sh->setUniform("mat.kd", mat->getKd());
+            sh->setUniform("mat.ks", mat->getKs());
+            sh->setUniform("mat.shininess", mat->getShininess());
 
-			// Disable color/depth write and enable stencil
-			
-			glDrawBuffer(GL_NONE);
+            sh->setUniform("diffuseMap", mat->getDiffuseTexture());
+            sh->setUniform("normalMap", mat->getNormalTexture());
+            sh->setUniform("specularMap", mat->getSpecularTexture());
 
-			glEnable(GL_DEPTH_TEST);
+            sh->setUniform("isSelected", sceneObj->getSelected());
+            sh->setUniform("id", sceneObj->getSceneId());
+            sceneObj->render();
+        }
 
-			glDisable(GL_CULL_FACE);
+        sh->unbind();
 
-			glClear(GL_STENCIL_BUFFER_BIT);
+        glDepthMask(GL_FALSE);
+        glDisable(GL_DEPTH_TEST);
+    }
 
-			// We need the stencil test to be enabled but we want it
-			// to succeed always. Only the depth test matters.
-			glStencilFunc(GL_ALWAYS, 0, 0);
+    void dsSceneRenderer::directionalLightPass()
+    {
+        auto directionalLights = _scene->getDirectionalLights();
+        auto directionalLightsCount = directionalLights->size();
 
-			glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-			glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+        if (directionalLightsCount == 0)
+            return;
 
-			ss->bind();
-			ss->setUniform("mvp", mvp);
-			boundingVolume->render(); 
-			ss->unbind();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_ONE, GL_ONE);
 
-			glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+        shader* sh = shaderManager::get()->getShader("DS_DIR_LIGHT");
 
-			glDisable(GL_DEPTH_TEST);
-			glEnable(GL_BLEND);
-			glBlendEquation(GL_FUNC_ADD);
-			glBlendFunc(GL_ONE, GL_ONE);
+        sh->bind();
 
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
+        glm::mat4 modelMatrix = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
-			ps->bind();
+        glm::mat4 viewMatrix = _camera->getViewMatrix();
+        glm::mat4 inverseProjectionMatrix = glm::inverse(_camera->getPerspProjMatrix());
 
-			ps->setUniform("v", viewMatrix);
-			ps->setUniform("m", modelMatrix);
-			ps->setUniform("mvp", mvp);
-			ps->setUniform("res", resolution);
+        texture* rt0Texture = _frameBuffer->getRenderTarget("rt0")->getTexture();
+        texture* rt1Texture = _frameBuffer->getRenderTarget("rt1")->getTexture();
+        texture* rt2Texture = _frameBuffer->getRenderTarget("rt2")->getTexture();
+        texture* rt3Texture = _frameBuffer->getRenderTarget("rt3")->getTexture();
 
-			ps->setUniform("light.position", light->getPosition());
-			ps->setUniform("light.color", light->getColor());
-			ps->setUniform("light.intensity", light->getIntensity());
-			ps->setUniform("light.attenuation.constant", light->getAttenuation().constant);
-			ps->setUniform("light.attenuation.linear", light->getAttenuation().linear);
-			ps->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
-			ps->setUniform("light.range", light->getRange());
+        for (GLuint i = 0; i < directionalLightsCount; i++)
+        {
+            directionalLight* light = (*directionalLights)[i];
+            sh->setUniform("v", viewMatrix);
+            sh->setUniform("m", modelMatrix);
+            sh->setUniform("ip", inverseProjectionMatrix);
+            sh->setUniform("light.position", light->getPosition());
+            sh->setUniform("light.color", light->getColor());
+            sh->setUniform("light.intensity", light->getIntensity());
+            sh->setUniform("light.direction", light->getDirection());
 
-			ps->setUniform("positionMap", positionMap);
-			ps->setUniform("normalMap", normalMap);
-			ps->setUniform("diffuseMap", diffuseMap);
-			ps->setUniform("specularMap", specularMap);
-			ps->setUniform("shininessMap", shininessMap);
+            sh->setUniform("rt0", rt0Texture);
+            sh->setUniform("rt1", rt1Texture);
+            sh->setUniform("rt2", rt2Texture);
+            sh->setUniform("rt3", rt3Texture);
 
-			boundingVolume->render();
+            meshRenderer::render(&_quad);
+        }
 
-			ps->unbind();
+        sh->unbind();
 
-			glCullFace(GL_BACK);
+        glDisable(GL_BLEND);
+    }
 
-			glDisable(GL_BLEND);
-		}
+    void dsSceneRenderer::pointLightPass()
+    {	
+        auto pointLights = _scene->getPointLights();
+        auto pointLightsCount = pointLights->size();
 
-		glDisable(GL_STENCIL_TEST);
-	}
+        if (pointLightsCount == 0)
+            return;
 
-	void dsSceneRenderer::spotLightPass()
-	{	
-		auto spotLights = _scene->getSpotLights();
-		auto spotLightsCount = spotLights->size();
+        glm::mat4 viewMatrix = _camera->getViewMatrix();
+        glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
+        glm::mat4 inverseProjectionMatrix = glm::inverse(_camera->getPerspProjMatrix());
 
-		if (spotLightsCount == 0)
-			return;
+        texture* rt0Texture = _frameBuffer->getRenderTarget("rt0")->getTexture();
+        texture* rt1Texture = _frameBuffer->getRenderTarget("rt1")->getTexture();
+        texture* rt2Texture = _frameBuffer->getRenderTarget("rt2")->getTexture();
+        texture* rt3Texture = _frameBuffer->getRenderTarget("rt3")->getTexture();
 
-		glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
-		glm::mat4 viewMatrix = _camera->getViewMatrix();
-		
-		texture* positionMap = _frameBuffer->getRenderTarget("position")->getTexture();
-		texture* normalMap = _frameBuffer->getRenderTarget("normal")->getTexture();
-		texture* diffuseMap = _frameBuffer->getRenderTarget("diffuse")->getTexture();
-		texture* specularMap = _frameBuffer->getRenderTarget("specular")->getTexture();
-		texture* shininessMap = _frameBuffer->getRenderTarget("shininess")->getTexture();
+        glm::vec2 resolution(_viewportSize.width, _viewportSize.height);
 
-		shader* ss = shaderManager::get()->getShader("DS_STENCIL");
-		shader* sls = shaderManager::get()->getShader("DS_SPOT_LIGHT");
+        shader* ss = shaderManager::get()->getShader("DS_STENCIL");
+        shader* ps = shaderManager::get()->getShader("DS_POINT_LIGHT");
 
-		glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+        glEnable(GL_STENCIL_TEST);
 
-		ss->bind();
+        for (GLuint i = 0; i < pointLightsCount; i++)
+        {
+            pointLight* light = (*pointLights)[i];
+            sphere* boundingVolume = light->getBoundingVolume();
+            glm::mat4 modelMatrix = boundingVolume->getTransform()->getModelMatrix();
+            glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
 
-		for (GLuint i = 0; i < spotLightsCount; i++)
-		{
-			spotLight* light = (*spotLights)[i];
-			cone* boundingVolume = light->getBoundingVolume();
-			glm::mat4 modelMatrix = boundingVolume->getTransform()->getModelMatrix();
-			glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
+            // Disable color/depth write and enable stencil
 
-			glDrawBuffer(GL_NONE);
+            glDrawBuffer(GL_NONE);
 
-			glEnable(GL_DEPTH_TEST);
+            glEnable(GL_DEPTH_TEST);
 
-			glDisable(GL_CULL_FACE);
+            glDisable(GL_CULL_FACE);
 
-			glClear(GL_STENCIL_BUFFER_BIT);
+            glClear(GL_STENCIL_BUFFER_BIT);
 
-			// We need the stencil test to be enabled but we want it
-			// to succeed always. Only the depth test matters.
-			glStencilFunc(GL_ALWAYS, 0, 0);
+            // We need the stencil test to be enabled but we want it
+            // to succeed always. Only the depth test matters.
+            glStencilFunc(GL_ALWAYS, 0, 0);
 
-			glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-			glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+            glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+            glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
-			ss->bind();
-			ss->setUniform("mvp", mvp);
-			boundingVolume->render(); 
-			ss->unbind();
+            ss->bind();
+            ss->setUniform("mvp", mvp);
+            boundingVolume->render(); 
+            ss->unbind();
 
-			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-			glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+            glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
-			glDisable(GL_DEPTH_TEST);
-			glEnable(GL_BLEND);
-			glBlendEquation(GL_FUNC_ADD);
-			glBlendFunc(GL_ONE, GL_ONE);
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE, GL_ONE);
 
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
 
-			sls->bind();
+            ps->bind();
 
-			sls->setUniform("v", viewMatrix);
-			sls->setUniform("m", modelMatrix);
-			sls->setUniform("mvp", mvp);
-			sls->setUniform("res", resolution);
+            ps->setUniform("v", viewMatrix);
+            ps->setUniform("m", modelMatrix);
+            ps->setUniform("ip", inverseProjectionMatrix);
+            ps->setUniform("mvp", mvp);
+            ps->setUniform("res", resolution);
 
-			sls->setUniform("light.position", light->getPosition());
-			sls->setUniform("light.color", light->getColor());
-			sls->setUniform("light.intensity", light->getIntensity());
-			sls->setUniform("light.attenuation.constant", light->getAttenuation().constant);
-			sls->setUniform("light.attenuation.linear", light->getAttenuation().linear);
-			sls->setUniform("light.attenuation.exponential", light->getAttenuation().exponential);
-			sls->setUniform("light.range", light->getRange());
-			sls->setUniform("light.direction", light->getDirection());
-			sls->setUniform("light.cutoff", light->getCutoff());
+            ps->setUniform("light.position", light->getPosition());
+            ps->setUniform("light.color", light->getColor());
+            ps->setUniform("light.intensity", light->getIntensity());
+            ps->setUniform("light.range", light->getRange());
+            ps->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
+            ps->setUniform("rt0", rt0Texture);
+            ps->setUniform("rt1", rt1Texture);
+            ps->setUniform("rt2", rt2Texture);
+            ps->setUniform("rt3", rt3Texture);
 
-			sls->setUniform("positionMap", positionMap);
-			sls->setUniform("normalMap", normalMap);
-			sls->setUniform("diffuseMap", diffuseMap);
-			sls->setUniform("specularMap", specularMap);
-			sls->setUniform("shininessMap", shininessMap);
+            boundingVolume->render();
 
-			//TODO: Cull lights
+            ps->unbind();
 
-			boundingVolume->render(); 
+            glCullFace(GL_BACK);
 
-			sls->unbind();
+            glDisable(GL_BLEND);
+        }
 
-			glCullFace(GL_BACK);
+        glDisable(GL_STENCIL_TEST);
+    }
 
-			glDisable(GL_BLEND);
-		}
+    void dsSceneRenderer::spotLightPass()
+    {	
+        auto spotLights = _scene->getSpotLights();
+        auto spotLightsCount = spotLights->size();
 
-		glDisable(GL_STENCIL_TEST);
-	}
+        if (spotLightsCount == 0)
+            return;
 
-	void dsSceneRenderer::selectedObjectsPass()
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
+        glm::mat4 inverseProjectionMatrix = glm::inverse(_camera->getPerspProjMatrix());
+        glm::mat4 viewMatrix = _camera->getViewMatrix();
 
-		glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+        texture* rt0Texture = _frameBuffer->getRenderTarget("rt0")->getTexture();
+        texture* rt1Texture = _frameBuffer->getRenderTarget("rt1")->getTexture();
+        texture* rt2Texture = _frameBuffer->getRenderTarget("rt2")->getTexture();
+        texture* rt3Texture = _frameBuffer->getRenderTarget("rt3")->getTexture();
 
-		renderTarget* selectedRenderTarget = _frameBuffer->getRenderTarget("selected");
-		shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
+        shader* ss = shaderManager::get()->getShader("DS_STENCIL");
+        shader* sls = shaderManager::get()->getShader("DS_SPOT_LIGHT");
 
-		sh->bind();
+        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
 
-		glm::mat4 modelMatrix = glm::mat4(
-			2.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 2.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f);
+        ss->bind();
 
-		sh->setUniform("m", modelMatrix);
-		sh->setUniform("res", resolution);
-		sh->setUniform("selectionMap", selectedRenderTarget->getTexture());
+        for (GLuint i = 0; i < spotLightsCount; i++)
+        {
+            spotLight* light = (*spotLights)[i];
+            cone* boundingVolume = light->getBoundingVolume();
+            glm::mat4 modelMatrix = boundingVolume->getTransform()->getModelMatrix();
+            glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
 
-		meshRenderer::render(&_quad);
+            glDrawBuffer(GL_NONE);
 
-		sh->unbind();
+            glEnable(GL_DEPTH_TEST);
 
-		glDisable(GL_BLEND);
-	}
+            glDisable(GL_CULL_FACE);
 
-	void dsSceneRenderer::onRender()
-	{
-		render();
-	}
+            glClear(GL_STENCIL_BUFFER_BIT);
+
+            glStencilFunc(GL_ALWAYS, 0, 0);
+
+            glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+            glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+
+            ss->bind();
+            ss->setUniform("mvp", mvp);
+            boundingVolume->render(); 
+            ss->unbind();
+
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+            glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE, GL_ONE);
+
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+
+            sls->bind();
+
+            sls->setUniform("v", viewMatrix);
+            sls->setUniform("m", modelMatrix);
+            sls->setUniform("ip", inverseProjectionMatrix);
+            sls->setUniform("mvp", mvp);
+            sls->setUniform("res", resolution);
+
+            sls->setUniform("light.position", light->getPosition());
+            sls->setUniform("light.color", light->getColor());
+            sls->setUniform("light.intensity", light->getIntensity());
+            sls->setUniform("light.range", light->getRange());
+            sls->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
+            sls->setUniform("light.direction", light->getDirection());
+            sls->setUniform("light.cutoff", light->getCutoff());
+
+            sls->setUniform("rt0", rt0Texture);
+            sls->setUniform("rt1", rt1Texture);
+            sls->setUniform("rt2", rt2Texture);
+            sls->setUniform("rt3", rt3Texture);
+
+            //TODO: Cull lights
+
+            boundingVolume->render(); 
+
+            sls->unbind();
+
+            glCullFace(GL_BACK);
+
+            glDisable(GL_BLEND);
+        }
+
+        glDisable(GL_STENCIL_TEST);
+    }
+
+    void dsSceneRenderer::selectedObjectsPass()
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+
+        renderTarget* selectedRenderTarget = _frameBuffer->getRenderTarget("rt4");
+        shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
+
+        sh->bind();
+
+        glm::mat4 modelMatrix = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        sh->setUniform("m", modelMatrix);
+        sh->setUniform("res", resolution);
+        sh->setUniform("selectionMap", selectedRenderTarget->getTexture());
+
+        meshRenderer::render(&_quad);
+
+        sh->unbind();
+
+        glDisable(GL_BLEND);
+    }
+
+    void dsSceneRenderer::onRender()
+    {
+        render();
+    }
 }

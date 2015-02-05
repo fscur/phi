@@ -14,7 +14,8 @@ namespace phi
         _frustum = new frustum(glm::vec3(), _direction, _up, zNear, zFar, aspect, fov);
 
         _orthoProjMatrix = glm::ortho<float>(-5.0, 5.0, -5.0, 5.0, 0.0, 50.0);
-        _boundsRadius = 50.0f;
+
+		_boundsRadius = 2000.0f;
         _minHeight = 0.1f;
         _maxHeight = _boundsRadius * 0.98f;
         _changed = true;
