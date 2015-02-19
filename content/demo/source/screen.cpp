@@ -10,6 +10,7 @@
 #include "uiRepository.h"
 #include "uiSystem.h"
 #include "renderingSystem.h"
+#include "renderingCommunicationBuffer.h"
 
 float a;
 
@@ -39,78 +40,49 @@ void screen::initScenesManager()
 
 void screen::initScene()
 {
-	phi::scene* s = new phi::scene();
-	s->setSize(getSize());
-	s->getActiveCamera()->setPosition(glm::vec3(0.0f, 0.5f, 5.0f));
-	s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-	s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
-    
-	//phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("blue"));
-	//box1->setPosition(glm::vec3(5.0f, 0.5f, 0.0f));
-	////box1->setSelected(true);
-	//s->add(box1);
+    phi::scene* s = new phi::scene();
+    s->setSize(getSize());
+    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 0.5f, 5.0f));
+    s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+    s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-	//phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("white"));
-	//sphere->setPosition(glm::vec3(2.0f, 0.5f, 0.0f));
-	//s->add(sphere);
-	//
+    phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("blue"));
+    box1->setPosition(glm::vec3(5.0f, 0.5f, 0.0f));
+    s->add(box1);
+
+    //phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("white"));
+    //sphere->setPosition(glm::vec3(2.0f, 0.5f, 0.0f));
+    //s->add(sphere);
+    //
     //phi::sphere* sphere2 = new phi::sphere(glm::vec3(), 2.0f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("red"));
-	//sphere->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
-	//s->add(sphere2);
+    //sphere->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+    //s->add(sphere2);
 
-    /*for (int x = 0; x < 10; x++)
-    {
-        for (int z = 0; z < 10; z++)
-        {
-            phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("white"));
-	        sphere->setPosition(glm::vec3(x * 10, 0.5f, z * 10));
-	        s->add(sphere);
-        }
-    }*/
+    //phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("red"));
+    //sphere->setPosition(glm::vec3(2.0f, 0.5f, 0.0f));
+    //s->add(sphere);
 
-    phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(1000.0f, 0.5f, 1000.0f), phi::renderingSystem::repository->getResource<phi::material>("white"));
+    phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(17.0f, 0.5f, 17.0f), phi::renderingSystem::repository->getResource<phi::material>("white"));
     s->add(floor);
 
-    /*phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(), phi::color::white, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
-    s->add(dirLight);*/
-    
+    phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(), phi::color::white, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
+    s->add(dirLight);
+
     /*for (int x = 0; x < 10; x++)
     {
-        for (int z = 0; z < 10; z++)
-        {
-            phi::pointLight* p = new phi::pointLight(glm::vec3(x * 10, 2.5f, z * 10), phi::color::fromRGBA(1.0, 1.0, 1.0, 1.0), 1.0, 5.0f);
-            s->add(p);
-        }
+    for (int z = 0; z < 10; z++)
+    {
+    phi::pointLight* p = new phi::pointLight(glm::vec3(x * 10, 2.5f, z * 10), phi::color::fromRGBA(1.0, 1.0, 1.0, 1.0), 1.0, 5.0f);
+    s->add(p);
+    }
     }*/
 
-	//phi::pointLight* pLight0 = new phi::pointLight(glm::vec3(0.0f, 3.0f, 0.0f), phi::color::blue, 10.0f, 10.0f);
-    //s->add(pLight0);
+    phi::pointLight* pLight = new phi::pointLight(glm::vec3(0.0f, 4.0f, 0.0f), phi::color::blue, 2.0f, 5.0f);
+    s->add(pLight);
 
-    /*
-	phi::pointLight* pLight1 = new phi::pointLight(glm::vec3(-50.0f, 5.0f, -50.0f), phi::color::red, 10.0f, phi::attenuation());
-    s->add(pLight1);
-	
-	phi::pointLight* pLight2 = new phi::pointLight(glm::vec3(-50.0f, 5.0f, 50.0f), phi::color::green, 100.0f, phi::attenuation());
-    s->add(pLight2);
-    
-	phi::pointLight* pLight3 = new phi::pointLight(glm::vec3(50.0f, 5.0f, 50.0f), phi::color::orange, 1000.0f, phi::attenuation());
-    s->add(pLight3);
-	
-	phi::pointLight* pLight4 = new phi::pointLight(glm::vec3(-30.0f, 2.0f, -30.0f), phi::color::red, 1.0f, phi::attenuation());
-    s->add(pLight4);
+    //phi::spotLight* sLight = new phi::spotLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::orange, 1.0f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.8f);
+    //s->add(sLight);
 
-	phi::pointLight* pLight5 = new phi::pointLight(glm::vec3(30.0f, 10.0f, -30.0f), phi::color::green, 10.0f, phi::attenuation());
-    s->add(pLight5);
-
-	phi::pointLight* pLight6 = new phi::pointLight(glm::vec3(30.0f, 10.0f, 30.0f), phi::color::blue, 100.0f, phi::attenuation());
-    s->add(pLight6);
-
-	phi::pointLight* pLight7 = new phi::pointLight(glm::vec3(-30.0f, 20.0, 30.0f), phi::color::fromRGBA(0.98f, 0.47f, 0.05f, 1.0f), 1000.0f, phi::attenuation());
-    s->add(pLight7);*/
-    
-    phi::spotLight* sLight = new phi::spotLight(glm::vec3(10.0f, 10.0f, 10.0f), phi::color::white, 1.0, 50.0f, glm::vec3(-1.0f, -1.0f, -1.0f), 0.95f);
-    s->add(sLight);
-    
     phi::scenesManager::get()->addScene(s);
     phi::scenesManager::get()->loadScene(0);
 
@@ -155,7 +127,7 @@ void screen::initUI()
     _textBox1->setBackgroundColor(phi::color::white);
     _textBox1->setForegroundColor(phi::color::black);
     _textBox1->setSize(phi::size<GLuint>(200, 30));
-    _textBox1->setX(400);
+    _textBox1->setX(600);
     _textBox1->setY(80);
     _textBox1->setFont(phi::uiRepository::repository->getResource<phi::font>("Consola_14"));
     _textBox1->getTextChanged()->bind<screen, &screen::textBox1TextChanged>(this);
@@ -166,7 +138,7 @@ void screen::initUI()
     _textBox2->setBackgroundColor(phi::color::white);
     _textBox2->setForegroundColor(phi::color::black);
     _textBox2->setSize(phi::size<GLuint>(200, 30));
-    _textBox2->setX(400);
+    _textBox2->setX(600);
     _textBox2->setY(120);
     _textBox2->setFont(phi::uiRepository::repository->getResource<phi::font>("Consola_14"));
     _textBox2->getTextChanged()->bind<screen, &screen::textBox2TextChanged>(this);
@@ -239,10 +211,8 @@ void screen::initUI()
     phi::uiSystem::get()->getControlLostFocus()->bind<screen, &screen::hudControlLostFocus>(this);
 }
 
-void screen::initialize(std::string applicationPath)
+void screen::onInitialize()
 {
-    form::initialize(applicationPath);
-
     setTitle("Teste");
     setSize(phi::size<unsigned int>(1024, 768));
     centerScreen();
@@ -252,6 +222,8 @@ void screen::initialize(std::string applicationPath)
     initUI();
 }
 
+float angle;
+
 void screen::update()
 {
     a+= 0.01;
@@ -260,12 +232,13 @@ void screen::update()
 
     phi::scenesManager::get()->update();
     phi::colorAnimator::update();
+    _commandsManager.update();
 
     _labelFps->setText("FPS: " + std::to_string(getFps()));
-    /*_labelDt->setText("TotalTime/Frame (s): " + std::to_string(getDt()));
-    _labelInputCost->setText("InputCost (s): " + std::to_string(getInputCost()));
-    _labelUpdateCost->setText("UpdateCost (s): " + std::to_string(getUpdateCost()));
-    _labelRenderCost->setText("RenderCost (s): " + std::to_string(getRenderCost()));*/
+    //_labelDt->setText("TotalTime/Frame: " + std::to_string(getDt()));
+    //_labelInputCost->setText("InputCost: " + std::to_string(getInputCost()));
+    //_labelUpdateCost->setText("UpdateCost: " + std::to_string(getUpdateCost()));
+    //_labelRenderCost->setText("RenderCost: " + std::to_string(getRenderCost()));
 
     //int visibleObjects = scenesManager::Get()->GetScene()->GetVisibleObjectsCount();
     //int allObjects = scenesManager::Get()->GetScene()->GetAllObjectsCount();
@@ -278,11 +251,11 @@ void screen::update()
     auto dir = s->getDirection();
     s->setDirection(glm::vec3(glm::cos(a) * 3.5f, -abs(glm::sin(a) * 3.5f), dir.z));*/
 
-  /*  phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
+    /*  phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
     glm::vec3 pos = p->getPosition();
     glm::vec3 t = glm::vec3(-glm::cos(a), 0.0f, glm::sin(a));
     p->setPosition(pos + t);*/
-    
+
 
     /*phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(3);
     glm::vec3 pos = p->getPosition();
@@ -290,16 +263,22 @@ void screen::update()
     phi::box* b0 = dynamic_cast<phi::box*>(phi::scenesManager::get()->getScene()->getSceneObject(0));
     glm::vec3 pos0 = glm::vec3(glm::cos(a) * 5.0f, 0.5f, glm::sin(a) * 5.0f);
     b0->setPosition(pos0);
-	
+
     phi::sphere* b1 = dynamic_cast<phi::sphere*>(phi::scenesManager::get()->getScene()->getSceneObject(1));
     pos0 = glm::vec3(-glm::cos(a) * 2.0f, 0.5f, glm::sin(a) * 2.0f);
     b1->setPosition(pos0);*/
+
+    //float dist = 3.0f;
+    //activeCamera->setPosition(glm::vec3(glm::cos(a) * dist, 2.0f, glm::sin(a) * dist));
+    //activeCamera->setTarget(glm::normalize(-glm::vec3(glm::cos(a) * dist, 1.0f, glm::sin(a) * dist)));
+    //activeCamera->update();
 }
 
 void screen::render()
 {
     phi::scenesManager::get()->render();
     phi::uiSystem::get()->render();
+    phi::renderingCommunicationBuffer::update();
     /*
     phi::renderingSystem::mainRenderTarget->bind();
     GLuint w = getSize().width / 2;
@@ -414,11 +393,11 @@ void screen::expandButtonClick(phi::mouseEventArgs e)
 
 void screen::sliderValueChanged(phi::eventArgs e)
 {
-    phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
-    p->setIntensity(_slider1->getValue());
+    //phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
+    //p->setIntensity(_slider1->getValue());
 
-    phi::spotLight* p1 = phi::scenesManager::get()->getScene()->getSpotLight(0);
-    p1->setIntensity(_slider1->getValue());
+    //phi::spotLight* p1 = phi::scenesManager::get()->getScene()->getSpotLight(0);
+    //p1->setIntensity(_slider1->getValue());
 }
 
 void screen::closeButtonClick(phi::mouseEventArgs e)

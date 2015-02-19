@@ -21,5 +21,6 @@ application::~application(void)
 
 void application::run(form* form)
 {
+    form->show();
     while (form->loop());
 }

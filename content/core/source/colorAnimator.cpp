@@ -1,12 +1,14 @@
 #include "colorAnimator.h"
+#include "clock.h"
 
 namespace phi
 {
     std::unordered_map<color*, colorAnimation> colorAnimator::_animations;
+    int colorAnimator::_lastUpdateMilliseconds = 0;
 
-    void colorAnimator::animateColor(color* colorFrom, color colorTo)
+    void colorAnimator::animateColor(color* colorFrom, color colorTo, int milliseconds)
     {
-        animateColor(colorAnimation(colorFrom, colorTo));
+        animateColor(colorAnimation(colorFrom, colorTo, milliseconds));
     }
 
     void colorAnimator::animateColor(colorAnimation animation)
@@ -20,6 +22,8 @@ namespace phi
 
     void colorAnimator::update()
     {
+        int currentMilliseconds = clock::millisecondsElapsed;
+
         std::unordered_map<color*, colorAnimation>::iterator i = _animations.begin();
         while (i != _animations.end())
         {
@@ -32,15 +36,18 @@ namespace phi
             float bDiff = colorTo.b - colorFrom->b;
             float aDiff = colorTo.a - colorFrom->a;
 
-            float r = glm::sign(rDiff) * 0.05f; // TODO: use time interval instead of fixed value per frame
-            float g = glm::sign(gDiff) * 0.05f;
-            float b = glm::sign(bDiff) * 0.05f;
-            float a = glm::sign(aDiff) * 0.05f;
+            float percent = (float)(currentMilliseconds - _lastUpdateMilliseconds) / (float)animation.getMilliseconds();
+            float r = glm::sign(rDiff) * percent;
+            float g = glm::sign(gDiff) * percent;
+            float b = glm::sign(bDiff) * percent;
+            float a = glm::sign(aDiff) * percent;
 
-            colorFrom->r += r < 0 ? glm::max(r, rDiff) : glm::min(r, rDiff);
-            colorFrom->g += g < 0 ? glm::max(g, gDiff) : glm::min(g, gDiff);
-            colorFrom->b += b < 0 ? glm::max(b, bDiff) : glm::min(b, bDiff);
-            colorFrom->a += a < 0 ? glm::max(a, aDiff) : glm::min(a, aDiff);
+            colorFrom->r += rDiff < 0 ? glm::max(r, rDiff) : glm::min(r, rDiff);
+            colorFrom->g += gDiff < 0 ? glm::max(g, gDiff) : glm::min(g, gDiff);
+            colorFrom->b += bDiff < 0 ? glm::max(b, bDiff) : glm::min(b, bDiff);
+            colorFrom->a += aDiff < 0 ? glm::max(a, aDiff) : glm::min(a, aDiff);
+
+            animation.setElapsed(animation.getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
 
             if (colorFrom->r == colorTo.r && 
                 colorFrom->g == colorTo.g &&
@@ -50,5 +57,7 @@ namespace phi
             else
                 i++;
         }
+
+        _lastUpdateMilliseconds = currentMilliseconds;
     }
 }

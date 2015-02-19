@@ -3,86 +3,98 @@
 
 namespace phi
 {
-	commandInfo* panStartCommand::execute(commandInfo* info)
-	{
-		GLfloat zBufferValue = renderingSystem::defaultFrameBuffer->getZBufferValue(info->mousePos);
-		
-		if (zBufferValue == 1.0f)
-			return nullptr;
-		
-		panCommandInfo* panInfo = new panCommandInfo(*info);
-	
-		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
-		glm::mat4 proj = camera->getPerspProjMatrix();
-	
-		panInfo->eyeZ = -proj[3].z / (zBufferValue * -2.0 + 1.0 - proj[2].z);
-		panInfo->cameraPos = camera->getPosition();
-		panInfo->cameraRight = camera->getRight();
-		panInfo->cameraUp = camera->getUp();
-		panInfo->startPos = info->mousePos;
+    panCommand::panCommand()
+    {
+        _request = nullptr;
+    }
 
-		return panInfo;
-	}
+    panCommand::~panCommand()
+    {
+        DELETE(_request);
+    }
 
-	commandInfo* panCommand::execute(commandInfo* info)
-	{
-		panCommandInfo* panInfo = dynamic_cast<panCommandInfo*>(info);
+    void panCommand::init()
+    {
+        _request = new bufferRequest((unsigned int)info->mousePos.x, (unsigned int)info->mousePos.y, (unsigned int)1, (unsigned int)1, dynamic_cast<frameBuffer*>(renderingSystem::defaultFrameBuffer));
+        renderingCommunicationBuffer::request(_request);
+    }
 
-		if (panInfo == nullptr)
-			return info;
+    bool panCommand::canExecute()
+    {
+        if (!_request->mutex.try_lock())
+            return false;
 
-		phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
-		phi::frustum* frustum = camera->getFrustum();
-		
-		float zNear = frustum->getZNear();
-		float iez = 1.0f / zNear;
-		float zFar = frustum->getZFar();
-		float aspect = frustum->getAspect();
-		float fov = frustum->getFov();
+        if (!_request->completed)
+        {
+            _request->mutex.unlock();
+            return false;
+        }
 
-		float tg = glm::tan(fov * 0.5f) * zNear;
+        renderingCommunicationBuffer::removeRequest(_request);
+        _zBufferValue = _request->result;
+        _request->mutex.unlock();
+        DELETE(_request);
+        _request = nullptr;
 
-		float h = info->viewportSize.height;
-		float w = info->viewportSize.width;
+        phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+        glm::mat4 proj = camera->getPerspProjMatrix();
 
-		float hh = h * 0.5f;
-		float hw = w * 0.5f;
+        _eyeZ = -proj[3].z / (_zBufferValue * -2.0 + 1.0 - proj[2].z);
+        _cameraPos = camera->getPosition();
+        _cameraRight = camera->getRight();
+        _cameraUp = camera->getUp();
+        _startPos = info->mousePos;
+        return true;
+    }
 
-		float ys0 = panInfo->startPos.y - hh;
-		float yp0 = ys0/hh;
-		float ym0 = -(yp0 * tg);
+    void panCommand::update()
+    {
+        if (_zBufferValue == 1.0f)
+            return;
 
-		float xs0 = panInfo->startPos.x - hw;
-		float xp0 = xs0/hw;
-		float xm0 = xp0 * tg * aspect;
+        phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+        phi::frustum* frustum = camera->getFrustum();
 
-		float ys1 = info->mousePos.y - hh;
-		float yp1 = ys1/hh;
-		float ym1 = -(yp1 * tg);
+        float zNear = frustum->getZNear();
+        float iez = 1.0f / zNear;
+        float zFar = frustum->getZFar();
+        float aspect = frustum->getAspect();
+        float fov = frustum->getFov();
 
-		float xs1 = info->mousePos.x - hw;
-		float xp1 = xs1/hw;
-		float xm1 = xp1 * tg * aspect;
+        float tg = glm::tan(fov * 0.5f) * zNear;
 
-		float eyeZ = panInfo->eyeZ;
+        float h = info->viewportSize.height;
+        float w = info->viewportSize.width;
 
-		float xDiff = xm1 - xm0;
-		float yDiff = ym1 - ym0;
+        float hh = h * 0.5f;
+        float hw = w * 0.5f;
 
-		float x = xDiff * eyeZ/zNear;
-		float y = yDiff * eyeZ/zNear;
+        float ys0 = _startPos.y - hh;
+        float yp0 = ys0/hh;
+        float ym0 = -(yp0 * tg);
 
-		glm::vec3 pos = panInfo->cameraPos - (glm::vec3(panInfo->cameraRight * x) + glm::vec3(panInfo->cameraUp * y)); 
+        float xs0 = _startPos.x - hw;
+        float xp0 = xs0/hw;
+        float xm0 = xp0 * tg * aspect;
 
-		camera->moveTo(pos);
+        float ys1 = info->mousePos.y - hh;
+        float yp1 = ys1/hh;
+        float ym1 = -(yp1 * tg);
 
-		return panInfo;
-	}
+        float xs1 = info->mousePos.x - hw;
+        float xp1 = xs1/hw;
+        float xm1 = xp1 * tg * aspect;
 
-	commandInfo* panEndCommand::execute(commandInfo* info)
-	{
-		DELETE(info);
+        float eyeZ = _eyeZ;
 
-		return nullptr;
-	}
+        float xDiff = xm1 - xm0;
+        float yDiff = ym1 - ym0;
+
+        float x = xDiff * eyeZ/zNear;
+        float y = yDiff * eyeZ/zNear;
+
+        glm::vec3 pos = _cameraPos - (glm::vec3(_cameraRight * x) + glm::vec3(_cameraUp * y)); 
+
+        camera->moveTo(pos);
+    }
 }

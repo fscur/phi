@@ -2,51 +2,31 @@
 #define _PHI_ROTATE_COMMAND_H_
 
 #if WIN32
-    #include <GL/glew.h>
+#include <GL/glew.h>
 #else
-    #include <OpenGL/gl3.h>
+#include <OpenGL/gl3.h>
 #endif
 
 #include "command.h"
 #include "globals.h"
+#include "renderingCommunicationBuffer.h"
 
 namespace phi
 {
-	class rotateCommandInfo : 
-		public commandInfo
-	{
-	public:
-		rotateCommandInfo(commandInfo info)
-		{
-			this->mouseDownPos = info.mouseDownPos;
-			this->mousePos = info.mousePos;
-			this->viewportSize = info.viewportSize;
-		}
-
-		~rotateCommandInfo(){}
-		glm::vec3 targetPos;
-		float zEye;
-	};
-
-	class rotateStartCommand :
-		public command
-	{
-	public:
-		commandInfo* execute(commandInfo* info) override;
-	};
-
-	class rotateCommand :
-		public command
-	{
-	public:
-		commandInfo* execute(commandInfo* info) override;
-	};
-
-	class rotateEndCommand :
-		public command
-	{
-	public:
-		commandInfo* execute(commandInfo* info) override;
-	};
+    class rotateCommand :
+        public command
+    {
+    private:
+        bufferRequest* _request;
+        GLfloat _zBufferValue;
+        glm::vec3 _targetPos;
+        float _zEye;
+    public:
+        rotateCommand();
+        ~rotateCommand();
+        virtual void init() override;
+        virtual bool canExecute() override;
+        void update() override;
+    };
 }
 #endif

@@ -1,5 +1,4 @@
 #include "commandsManager.h"
-
 #include "selectCommand.h"
 #include "panCommand.h"
 #include "rotateCommand.h"
@@ -7,172 +6,205 @@
 
 namespace phi
 {
-	commandsManager::commandsManager()
-	{
-		_isMouseDown = false;
-		_isCtrlPressed = false;
-		_isShiftPressed = false;
-		_isAltPressed = false;
+    commandsManager::commandsManager()
+    {
+        _isMouseDown = false;
+        _isCtrlPressed = false;
+        _isShiftPressed = false;
+        _isAltPressed = false;
 
-		_actionsSum = 0;
+        _commandInfo = new commandInfo();
+        _commands[inputKey(PHI_MOUSE_LEFT, NONE)] = [] () -> command* { return new selectCommand(); };
+        _commands[inputKey(PHI_MOUSE_MIDDLE, NONE)] = [] () -> command* { return new panCommand(); };
+        _commands[inputKey(PHI_MOUSE_RIGHT, NONE)] = [] () -> command* { return new rotateCommand(); };
+        _commands[inputKey(PHI_MOUSE_WHEEL_UP, NONE)] = [] () -> command* { return new zoomCommand(true); };
+        _commands[inputKey(PHI_MOUSE_WHEEL_DOWN, NONE)] = [] () -> command* { return new zoomCommand(false); };
+        std::fill_n(_states, TOTAL_KEYS, NONE);
+        _modifiers = NONE;
+    }
 
-		_commandInfo = new commandInfo();
-		_commands[L_MOUSE_UP] = new selectCommand();
-		_commands[M_MOUSE_DOWN] = new panStartCommand();
-		_commands[M_MOUSE_DOWN + MOUSE_MOVE] = new panStartCommand();
-		_commands[M_MOUSE_PRESSED + MOUSE_MOVE] = new panCommand();
-		_commands[M_MOUSE_UP] = new panEndCommand();
-		_commands[R_MOUSE_DOWN + MOUSE_MOVE] = new rotateStartCommand();
-		_commands[R_MOUSE_DOWN] = new rotateStartCommand();
-		_commands[R_MOUSE_PRESSED + MOUSE_MOVE] = new rotateCommand();
-		_commands[R_MOUSE_UP] = new rotateEndCommand();
-		_commands[MOUSE_WHEEL] = new zoomCommand();
-	}
+    commandsManager::~commandsManager()
+    {
+        delete(_commandInfo);
 
-	commandsManager::~commandsManager()
-	{
-		delete(_commandInfo);
+        while(_pendingCommands.size() > 0)
+        {
+            command* c = _pendingCommands[0];
+            _pendingCommands.erase(_pendingCommands.begin());
+            DELETE(c);
+        }
+    }
 
-		std::map<unsigned long, command*>::iterator i;
+    void commandsManager::onBeginInput(phi::size<unsigned int> viewportSize)
+    {
+        std::fill_n(_states, TOTAL_KEYS, NONE);
+        _modifiers = NONE;
 
-		for(i = _commands.begin(); i != _commands.end(); i++)
-		{
-			DELETE(i->second);
-		}
-	}
+        if (_commandInfo == nullptr)
+            _commandInfo = new commandInfo();
 
-	void commandsManager::onBeginInput(phi::size<unsigned int> viewportSize)
-	{
-		if (_commandInfo == nullptr)
-			_commandInfo = new commandInfo();
+        if (_isMouseDown)
+        {
+            if (_mouseDownEventArgs.leftButtonPressed)
+                _states[PHI_MOUSE_LEFT] |= PRESSED;
 
-		_actionsSum = 0;
+            if (_mouseDownEventArgs.middleButtonPressed)
+                _states[PHI_MOUSE_MIDDLE] |= PRESSED;
 
-		if (_isMouseDown)
-		{
-			if (_mouseDownEventArgs.leftButtonPressed)
-				_actionsSum |= L_MOUSE_PRESSED;
-			
-			if (_mouseDownEventArgs.middleButtonPressed)
-				_actionsSum |= M_MOUSE_PRESSED;
+            if (_mouseDownEventArgs.rightButtonPressed)
+                _states[PHI_MOUSE_RIGHT] |= PRESSED;
+        }
 
-			if (_mouseDownEventArgs.rightButtonPressed)
-				_actionsSum |= R_MOUSE_PRESSED;
-		}
+        if (_isCtrlPressed)
+            _modifiers |= CTRL_PRESSED;
 
-		if (_isCtrlPressed)
-			_actionsSum |= CTRL_PRESSED;
-		
-		if (_isShiftPressed)
-			_actionsSum |= SHIFT_PRESSED;
-		
-		if (_isAltPressed)
-			_actionsSum |= ALT_PRESSED;
+        if (_isShiftPressed)
+            _modifiers |= SHIFT_PRESSED;
 
-		_commandInfo->viewportSize = viewportSize;
-	}
+        if (_isAltPressed)
+            _modifiers |= ALT_PRESSED;
 
-	bool commandsManager::onMouseDown(mouseEventArgs e)
-	{
-		if (_isMouseDown)
-			return false;
+        _commandInfo->viewportSize = viewportSize;
+    }
 
-		if (e.leftButtonPressed)
-			_actionsSum = L_MOUSE_DOWN;
-			
-		if (e.middleButtonPressed)
-			_actionsSum = M_MOUSE_DOWN;
+    bool commandsManager::onMouseDown(mouseEventArgs e)
+    {
+        if (e.leftButtonPressed)
+            _states[PHI_MOUSE_LEFT] |= DOWN;
 
-		if (e.rightButtonPressed)
-			_actionsSum = R_MOUSE_DOWN;
+        if (e.middleButtonPressed)
+            _states[PHI_MOUSE_MIDDLE] |= DOWN;
 
-		_isMouseDown = true;
-		_mouseDownEventArgs = e;
-		_commandInfo->mouseDownPos = glm::vec2(e.x, e.y);
-		_commandInfo->mousePos = glm::vec2(e.x, e.y);
-		
-		return true;
-	}
+        if (e.rightButtonPressed)
+            _states[PHI_MOUSE_RIGHT] |= DOWN;
 
-	bool commandsManager::onMouseMove(mouseEventArgs e)
-	{
-		_commandInfo->lastMousePos = _commandInfo->mousePos;
-		_commandInfo->mousePos = glm::vec2(e.x, e.y);
-		
-		_actionsSum |= MOUSE_MOVE;
+        _isMouseDown = true;
+        _mouseDownEventArgs = e;
+        _commandInfo->mouseDownPos = glm::vec2(e.x, e.y);
+        _commandInfo->mousePos = glm::vec2(e.x, e.y);
 
-		return true;
-	}
+        return true;
+    }
 
-	bool commandsManager::onMouseUp(mouseEventArgs e)
-	{
-		if (!_isMouseDown)
-			return false;
+    bool commandsManager::onMouseMove(mouseEventArgs e)
+    {
+        _commandInfo->lastMousePos = _commandInfo->mousePos;
+        _commandInfo->mousePos = glm::vec2(e.x, e.y);
 
-		if (e.leftButtonPressed)
-			_actionsSum = L_MOUSE_UP;
-			
-		if (e.middleButtonPressed)
-			_actionsSum = M_MOUSE_UP;
+        return true;
+    }
 
-		if (e.rightButtonPressed)
-			_actionsSum = R_MOUSE_UP;
+    bool commandsManager::onMouseUp(mouseEventArgs e)
+    {
+        if (!_isMouseDown)
+            return false;
 
-		_commandInfo->mousePos = glm::vec2(e.x, e.y);
+        int key;
+        if (e.leftButtonPressed)
+            _states[PHI_MOUSE_LEFT] |= UP;
 
-		_isMouseDown = false;
+        if (e.middleButtonPressed)
+            _states[PHI_MOUSE_MIDDLE] |= UP;
 
-		_mouseDownEventArgs.leftButtonPressed = false;
-		_mouseDownEventArgs.middleButtonPressed = false;
-		_mouseDownEventArgs.rightButtonPressed = false;
+        if (e.rightButtonPressed)
+            _states[PHI_MOUSE_RIGHT] |= UP;
 
-		return true;
-	}
+        _commandInfo->mousePos = glm::vec2(e.x, e.y);
 
-	bool commandsManager::onMouseWheel(mouseEventArgs e)
-	{
-		_actionsSum |= MOUSE_WHEEL;
+        _isMouseDown = false;
 
-		_commandInfo->wheelDelta = e.wheelDelta;
-		_commandInfo->mousePos = glm::vec2(e.x, e.y);
+        _mouseDownEventArgs.leftButtonPressed = false;
+        _mouseDownEventArgs.middleButtonPressed = false;
+        _mouseDownEventArgs.rightButtonPressed = false;
 
-		return true;
-	}
+        return true;
+    }
 
-	bool commandsManager::onKeyDown(keyboardEventArgs e)
-	{
-		_isCtrlPressed = e.isCtrlPressed;
-		_isShiftPressed = e.isShiftPressed;
-		_isAltPressed = e.isAltPressed;
+    bool commandsManager::onMouseWheel(mouseEventArgs e)
+    {
+        int key;
+        if (e.wheelDelta > 0)
+            key = PHI_MOUSE_WHEEL_UP;
+        else
+            key = PHI_MOUSE_WHEEL_DOWN;
 
-		if (_isCtrlPressed)
-			_actionsSum |= CTRL_PRESSED;
+        _commandInfo->wheelDelta = e.wheelDelta;
+        _commandInfo->mousePos = glm::vec2(e.x, e.y);
 
-		if (_isShiftPressed)
-			_actionsSum |= SHIFT_PRESSED;
+        _states[key] |= DOWN;
 
-		if(_isAltPressed)
-			_actionsSum |= ALT_PRESSED;
+        return true;
+    }
 
-		return true;
-	}
+    bool commandsManager::onKeyDown(keyboardEventArgs e)
+    {
+        _isCtrlPressed = e.isCtrlPressed;
+        _isShiftPressed = e.isShiftPressed;
+        _isAltPressed = e.isAltPressed;
 
-	bool commandsManager::onKeyUp(keyboardEventArgs e)
-	{
-		_isCtrlPressed = false;
-		_isShiftPressed = false;
-		_isAltPressed = false;
+        if (_isCtrlPressed)
+            _modifiers |= CTRL_PRESSED;
 
-		return true;
-	}
+        if (_isShiftPressed)
+            _modifiers |= SHIFT_PRESSED;
 
-	void commandsManager::onEndInput()
-	{
-		command* command = _commands[_actionsSum];
+        if(_isAltPressed)
+            _modifiers |= ALT_PRESSED;
 
-		if (command != nullptr)
-		{
-			_commandInfo = command->execute(_commandInfo);
-		}
-	}
+        return true;
+    }
+
+    bool commandsManager::onKeyUp(keyboardEventArgs e)
+    {
+        _isCtrlPressed = false;
+        _isShiftPressed = false;
+        _isAltPressed = false;
+
+        return true;
+    }
+
+    void commandsManager::onEndInput()
+    {
+        for (auto i : _commands)
+        {
+            if ((_states[i.first.key] & DOWN) == DOWN && _modifiers == i.first.modifiers)
+            {
+                auto f = i.second;
+                if (f != nullptr)
+                {
+                    command* command = f();
+                    command->info = _commandInfo;
+                    _pendingCommands[i.first.key] = command;
+                    command->init();
+                    break;
+                }
+            }
+
+            if ((_states[i.first.key] & DOWN) == NONE && (_states[i.first.key] & PRESSED) == NONE)
+                _executingCommands.erase(i.first.key);
+        }
+    }
+
+    void commandsManager::update()
+    {
+        std::unordered_map<int, command*>::iterator it = _pendingCommands.begin();
+        while(it != _pendingCommands.end())
+        {
+            command* c = it->second;
+            if (c->canExecute())
+            {
+                _executingCommands[it->first] = c;
+                it = _pendingCommands.erase(it);
+            }
+            else
+                it++;
+        }
+
+        for (auto i : _executingCommands)
+        {
+            command* c = i.second;
+            c->info = _commandInfo;
+            c->update();
+        }
+    }
 }

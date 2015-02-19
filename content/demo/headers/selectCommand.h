@@ -6,35 +6,31 @@
 #else
     #include <OpenGL/gl3.h>
 #endif
-
 #include "command.h"
 #include "globals.h"
+#include "renderingCommunicationBuffer.h"
 
 namespace phi
 {
-	class selectCommandInfo : 
-		public commandInfo
-	{
-	public:
-		selectCommandInfo(commandInfo info)
-		{
-			this->mousePos = info.mousePos;
-			this->viewportSize = info.viewportSize;
-		}
-
-		~selectCommandInfo(){}
-		glm::vec3 cameraPos;
-		glm::vec3 cameraRight;
-		glm::vec3 cameraUp;
-		glm::vec2 startPos;
-		float eyeZ;
-	};
-
-	class selectCommand :
-		public command
-	{
-	public:
-		commandInfo* execute(commandInfo* info) override;
-	};
+    class selectCommand :
+        public command
+    {
+    private:
+        bufferRequest* _bufferRequest;
+        pickRequest* _pickRequest;
+        glm::vec3 _cameraPos;
+        glm::vec3 _cameraRight;
+        glm::vec3 _cameraUp;
+        glm::vec2 _startPos;
+        float _eyeZ;
+        GLfloat _zBufferValue;
+        GLuint _id;
+    public:
+        selectCommand();
+        ~selectCommand();
+        void init() override;
+        bool canExecute() override;
+        void update() override;
+    };
 }
 #endif

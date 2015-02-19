@@ -9,6 +9,7 @@
 #include <string>
 #include <locale>
 #include <codecvt>
+#include "clock.h"
 
 form::form()
 {
@@ -75,6 +76,12 @@ void form::setIsFullScreen(bool value)
     }
 }
 
+void form::initialize(std::string applicationPath)
+{
+    _applicationPath = applicationPath;
+    onInitialize();
+}
+
 void form::initWindow()
 {
     //createGLWindow
@@ -99,7 +106,7 @@ void form::initWindow()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    //SDL_ShowCursor(0);
+    SDL_ShowCursor(0);
 
     _glContext = SDL_GL_CreateContext(_window);
 
@@ -121,6 +128,13 @@ void form::initWindow()
     glEnable(GL_DEPTH_TEST);
 }
 
+void form::show()
+{
+    //Comment both lines to run with a single thread:
+    SDL_GL_MakeCurrent(_window, nullptr);
+    _renderThread = SDL_CreateThread(renderLoopWrapper, "renderThread", this);
+}
+
 void form::input()
 {
     onBeginInput();
@@ -136,8 +150,7 @@ void form::input()
         switch (e.type)
         {
         case SDL_QUIT:
-            onClosing();
-            _isClosed = true;
+            close();
             break;
         case SDL_WINDOWEVENT:
             if (e.window.event == SDL_WINDOWEVENT_RESIZED)
@@ -237,8 +250,7 @@ void form::input()
 bool form::loop()
 {
     _now = SDL_GetTicks();
-    _dt = ((double)(_now - _lastTime)) * 1e-3;
-    _lastTime = _now;
+    phi::clock::millisecondsElapsed = _now;
 
     _inputCost0 = SDL_GetTicks();
     input();
@@ -248,22 +260,49 @@ bool form::loop()
     update();
     _updateCost = SDL_GetTicks() - _updateCost0;
 
-    _renderCost0 = SDL_GetTicks(); 
-    render();
-    SDL_GL_SwapWindow(_window);
-    _renderCost = SDL_GetTicks() - _renderCost0;
-
-    _frames++;
-    _processedTime += _dt;
-
-    if (_processedTime > 1.0)
-    {
-        _fps = _frames;
-        _frames = 0;
-        _processedTime -= 1.0;
-    }
+    //Uncomment both lines to run with a single thread:
+    //render();
+    //SDL_GL_SwapWindow(_window);
 
     return !_isClosed;
+}
+
+int form::renderLoopWrapper(void *data)
+{
+    form* self = static_cast<form*>(data);
+    return self->renderLoop();
+}
+
+int form::renderLoop()
+{
+    int s = SDL_GL_MakeCurrent(_window, _glContext);
+    if (s != 0)
+        LOG(SDL_GetError());
+
+    while (!_isClosed)
+    {
+        Uint32 now = SDL_GetTicks();
+        _dt = ((double)(now - _lastTime)) * 1e-3;
+
+        _renderCost0 = SDL_GetTicks();
+        render();
+        _renderCost = SDL_GetTicks() - _renderCost0;
+        SDL_GL_SwapWindow(_window);
+
+        _frames++;
+        _processedTime += _dt;
+
+        if (_processedTime > 1.0)
+        {
+            _fps = _frames;
+            _frames = 0;
+            _processedTime -= 1.0;
+        }
+
+        _lastTime = now;
+    }
+
+    return 0;
 }
 
 void form::centerScreen()
@@ -276,4 +315,5 @@ void form::close()
     onClosing();
 
     _isClosed = true;
+    SDL_WaitThread(_renderThread, nullptr);
 }
