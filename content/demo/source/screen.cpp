@@ -47,7 +47,7 @@ void screen::initScene()
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
     phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("blue"));
-    box1->setPosition(glm::vec3(5.0f, 0.5f, 0.0f));
+    box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
     s->add(box1);
 
     //phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("white"));
@@ -235,6 +235,7 @@ void screen::update()
     _commandsManager.update();
 
     _labelFps->setText("FPS: " + std::to_string(getFps()));
+
     //_labelDt->setText("TotalTime/Frame: " + std::to_string(getDt()));
     //_labelInputCost->setText("InputCost: " + std::to_string(getInputCost()));
     //_labelUpdateCost->setText("UpdateCost: " + std::to_string(getUpdateCost()));
@@ -279,6 +280,7 @@ void screen::render()
     phi::scenesManager::get()->render();
     phi::uiSystem::get()->render();
     phi::renderingCommunicationBuffer::update();
+
     /*
     phi::renderingSystem::mainRenderTarget->bind();
     GLuint w = getSize().width / 2;

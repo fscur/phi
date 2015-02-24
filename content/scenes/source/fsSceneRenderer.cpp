@@ -8,12 +8,12 @@ namespace phi
         _frameBuffer->init();
 
         createDefaultRenderTarget();
-        createSelectedObjectsRenderTarget();
         createDepthBuffer();
+        createSelectedObjectsRenderTarget();
 
         _frameBuffer->bind();
         _frameBuffer->enable(GL_CULL_FACE);
-        _frameBuffer->enable(GL_DEPTH_TEST);
+		_frameBuffer->enable(GL_DEPTH_TEST);
         _frameBuffer->unbind();
 
         createAmbientLightShader();
@@ -35,7 +35,11 @@ namespace phi
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-        renderTarget* r = _frameBuffer->newRenderTarget("default", t);
+        renderTarget* r = _frameBuffer->newRenderTarget(
+            "default",
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0);
 
         _frameBuffer->addRenderTarget(r);
     }
@@ -44,7 +48,11 @@ namespace phi
     {
         texture* t = renderingSystem::pickingFrameBuffer->getPickingTexture();
 
-        renderTarget* r = _frameBuffer->newRenderTarget("selected", t);
+        renderTarget* r = _frameBuffer->newRenderTarget(
+            "selected", 
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT1);
 
         _frameBuffer->addRenderTarget(r);
     }
@@ -79,9 +87,9 @@ namespace phi
         s->addUniform("diffuseMap");
         s->addUniform("mat.ambientColor");
         s->addUniform("mat.ka");
-
-        s->addUniform("id");
+        
         s->addUniform("isSelected");
+        s->addUniform("id");
 
         shaderManager::get()->addShader(s->getName(), s);
     }
@@ -194,6 +202,28 @@ namespace phi
         shaderManager::get()->addShader(s->getName(), s);
     }
 
+    void fsSceneRenderer::render()
+    {
+        _viewMatrix = _scene->getActiveCamera()->getViewMatrix();
+        _projMatrix = _scene->getActiveCamera()->getPerspProjMatrix();
+
+        for (GLuint i = 0; i < _allObjectsCount; i++)
+        {
+            sceneObject* sceneObj = (*_allObjects)[i];
+            
+            glm::mat4 modelMatrix = sceneObj->getTransform()->getModelMatrix();
+
+            _modelMatrices[sceneObj->getSceneId()] = modelMatrix;
+            _mvpMatrices[sceneObj->getSceneId()] = _projMatrix * _viewMatrix * modelMatrix;
+            _itmvMatrices[sceneObj->getSceneId()] = glm::inverse(glm::transpose(_viewMatrix * modelMatrix));
+        }
+
+        ambientLightPass();
+        dirLightPasses();
+        pointLightPasses();
+        spotLightPasses();
+    }
+
     void fsSceneRenderer::ambientLightPass()
     {
         shader* sh = shaderManager::get()->getShader("FS_AMBIENT_LIGHT");
@@ -205,8 +235,11 @@ namespace phi
 
             if (sceneObj->getMaterial() == nullptr)
                 continue;
+            
+            glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
+            glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
 
-            sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
+            sh->setUniform("mvp", mvp);
             sh->setUniform("ambientLightColor", _scene->getAmbientColor());
             sh->setUniform("diffuseMap", sceneObj->getMaterial()->getDiffuseTexture());
             sh->setUniform("mat.ambientColor", sceneObj->getMaterial()->getAmbientColor());
@@ -228,7 +261,7 @@ namespace phi
             return;
 
         glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
+		glBlendFunc(GL_ONE, GL_ONE);
 
         for (GLuint l = 0; l< directionalLightsCount; l++)
         {
@@ -237,7 +270,7 @@ namespace phi
             shader* sh = shaderManager::get()->getShader("FS_DIR_LIGHT");
 
             sh->bind();
-
+            
             glDepthMask(false);
             glDepthFunc(GL_EQUAL);
 
@@ -245,11 +278,15 @@ namespace phi
             {
                 sceneObject* sceneObj = (*_allObjects)[i];
 
-                sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
-                sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
-                sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
-                sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
-                sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
+                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
+                glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
+                glm::mat4 itmv = _itmvMatrices[sceneObj->getSceneId()];
+
+                sh->setUniform("p", _projMatrix);
+                sh->setUniform("v", _viewMatrix);
+                sh->setUniform("m", modelMatrix);
+                sh->setUniform("mvp", mvp);
+                sh->setUniform("itmv", itmv);
 
                 sh->setUniform("light.position", light->getPosition());
                 sh->setUniform("light.color", light->getColor());
@@ -273,7 +310,7 @@ namespace phi
             }
 
             sh->unbind();
-
+            
             glDepthFunc(GL_LESS);
             glDepthMask(true);
         }
@@ -307,11 +344,15 @@ namespace phi
             {
                 sceneObject* sceneObj = (*_allObjects)[i];
 
-                sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
-                sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
-                sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
-                sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
-                sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
+                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
+                glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
+                glm::mat4 itmv = _itmvMatrices[sceneObj->getSceneId()];
+
+                sh->setUniform("p", _projMatrix);
+                sh->setUniform("v", _viewMatrix);
+                sh->setUniform("m", modelMatrix);
+                sh->setUniform("mvp", mvp);
+                sh->setUniform("itmv", itmv);
 
                 sh->setUniform("light.position", light->getPosition());
                 sh->setUniform("light.color", light->getColor());
@@ -368,11 +409,15 @@ namespace phi
             {
                 sceneObject* sceneObj = (*_allObjects)[i];
 
-                sh->setUniform("p", sceneObj->getTransform()->getProjectionMatrix());
-                sh->setUniform("v", sceneObj->getTransform()->getViewMatrix());
-                sh->setUniform("m", sceneObj->getTransform()->getModelMatrix());
-                sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
-                sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
+                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
+                glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
+                glm::mat4 itmv = _itmvMatrices[sceneObj->getSceneId()];
+
+                sh->setUniform("p", _projMatrix);
+                sh->setUniform("v", _viewMatrix);
+                sh->setUniform("m", modelMatrix);
+                sh->setUniform("mvp", mvp);
+                sh->setUniform("itmv", itmv);
 
                 sh->setUniform("light.position", light->getPosition());
                 sh->setUniform("light.color", light->getColor());
@@ -403,14 +448,6 @@ namespace phi
         }
 
         glDisable(GL_BLEND);
-    }
-
-    void fsSceneRenderer::render()
-    {
-        ambientLightPass();
-        dirLightPasses();
-        pointLightPasses();
-        spotLightPasses();
     }
 
     void fsSceneRenderer::selectedObjectsPass()
@@ -447,18 +484,18 @@ namespace phi
         _frameBuffer->bindForDrawing();
 
         GLenum drawBuffers[] = 
-        { 
+        {
             GL_COLOR_ATTACHMENT0,
             GL_COLOR_ATTACHMENT1
         };
 
         glDrawBuffers(2, drawBuffers);
-
+       
         glDepthMask(GL_TRUE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        
         render();
-
+        
         glDepthMask(GL_FALSE);
 
         renderingSystem::defaultFrameBuffer->bindForDrawing();

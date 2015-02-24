@@ -162,11 +162,6 @@ namespace phi
     {
         renderTarget* r = new renderTarget(name, texture);
 
-        if (attachment != GL_DEPTH_ATTACHMENT &&
-            attachment != GL_STENCIL_ATTACHMENT &&
-            attachment != GL_DEPTH_STENCIL_ATTACHMENT)
-            attachment += _renderTargets->size();
-
         r->setTarget(target);
         r->setAttachment(attachment);
         r->setTexTarget(texTarget);
