@@ -11,6 +11,9 @@
 #include <codecvt>
 #include "clock.h"
 
+
+#define THREADS_ON
+
 form::form()
 {
     _title = "Form";
@@ -122,17 +125,15 @@ void form::initWindow()
         LOG("Error: " << glewGetErrorString(glewInitStatus));
 #endif
 
-    // initGL
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
 }
 
 void form::show()
 {
     //Comment both lines to run with a single thread:
+#ifdef THREADS_ON
     SDL_GL_MakeCurrent(_window, nullptr);
     _renderThread = SDL_CreateThread(renderLoopWrapper, "renderThread", this);
+#endif
 }
 
 void form::input()
@@ -261,9 +262,10 @@ bool form::loop()
     _updateCost = SDL_GetTicks() - _updateCost0;
 
     //Uncomment both lines to run with a single thread:
-    //render();
-    //SDL_GL_SwapWindow(_window);
-
+#ifndef THREADS_ON
+    render();
+    SDL_GL_SwapWindow(_window);
+#endif
     return !_isClosed;
 }
 
@@ -276,6 +278,7 @@ int form::renderLoopWrapper(void *data)
 int form::renderLoop()
 {
     int s = SDL_GL_MakeCurrent(_window, _glContext);
+
     if (s != 0)
         LOG(SDL_GetError());
 
@@ -315,5 +318,7 @@ void form::close()
     onClosing();
 
     _isClosed = true;
+    #ifdef THREADS_ON
     SDL_WaitThread(_renderThread, nullptr);
+    #endif
 }

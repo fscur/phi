@@ -63,8 +63,8 @@ namespace phi
 		RENDERING_API renderTarget* getRenderTarget(std::string name);
 
 		RENDERING_API renderTarget* newRenderTarget(
-			std::string name, 
-			texture* texture, 
+			std::string name,
+			texture* texture,
 			GLenum _target = GL_DRAW_FRAMEBUFFER,
 			GLenum _attachment = GL_COLOR_ATTACHMENT0,
 			GLenum _texTarget = GL_TEXTURE_2D,

@@ -64,9 +64,8 @@ namespace phi
     private:
         static std::vector<bufferRequest*> bufferRequests;
         static std::vector<pickRequest*> pickRequests;
-        
-        static bool bufferLocked;
-        static bool pickLocked;
+        static std::mutex bufferRequestsMutex;
+        static std::mutex pickRequestsMutex;
 
     public:
         RENDERING_API static void request(bufferRequest* request);

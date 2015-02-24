@@ -34,7 +34,6 @@ namespace phi
         _zBufferValue = _request->result;
         _request->mutex.unlock();
         DELETE(_request);
-        _request = nullptr;
 
         phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
         glm::mat4 proj = camera->getPerspProjMatrix();

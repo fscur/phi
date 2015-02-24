@@ -33,7 +33,11 @@ namespace phi
 		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* r = _frameBuffer->newRenderTarget("default", t);
+		renderTarget* r = _frameBuffer->newRenderTarget(
+            "default", 
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0);
 
 		_frameBuffer->addRenderTarget(r);
 	}
@@ -42,7 +46,11 @@ namespace phi
 	{
 		texture* t = renderingSystem::pickingFrameBuffer->getPickingTexture();
 
-		renderTarget* r = _frameBuffer->newRenderTarget("selected", t);
+		renderTarget* r = _frameBuffer->newRenderTarget(
+            "selected", 
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT1);
 
 		_frameBuffer->addRenderTarget(r);
 	}

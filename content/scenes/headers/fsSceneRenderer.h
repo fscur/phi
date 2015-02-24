@@ -12,6 +12,11 @@ namespace phi
 	private:
 		quad _quad;
 		frameBuffer* _frameBuffer;
+        glm::mat4 _projMatrix;
+        glm::mat4 _viewMatrix;
+        std::map<unsigned int, glm::mat4> _modelMatrices;
+        std::map<unsigned int, glm::mat4> _mvpMatrices;
+        std::map<unsigned int, glm::mat4> _itmvMatrices;
 
 	private:
 		void createDefaultRenderTarget();

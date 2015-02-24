@@ -1,33 +1,29 @@
 #include "renderingCommunicationBuffer.h"
 
-
 namespace phi
 {
     std::vector<bufferRequest*> renderingCommunicationBuffer::bufferRequests;
     std::vector<pickRequest*> renderingCommunicationBuffer::pickRequests;
-    bool renderingCommunicationBuffer::bufferLocked = false;
-    bool renderingCommunicationBuffer::pickLocked = false;
+    std::mutex renderingCommunicationBuffer::bufferRequestsMutex;
+    std::mutex renderingCommunicationBuffer::pickRequestsMutex;
 
     void renderingCommunicationBuffer::request(bufferRequest* request)
     {
-        while(!bufferLocked);
-        bufferLocked = true;
+        bufferRequestsMutex.lock();
         bufferRequests.push_back(request);
-        bufferLocked = false;
+        bufferRequestsMutex.unlock();
     }
 
     void renderingCommunicationBuffer::request(pickRequest* request)
     {
-        while(!pickLocked);
-        pickLocked = true;
+        pickRequestsMutex.lock();
         pickRequests.push_back(request);
-        pickLocked = false;
+        pickRequestsMutex.unlock();
     }
 
     void renderingCommunicationBuffer::removeRequest(bufferRequest* request)
     {
-        while(!bufferLocked);
-        bufferLocked = true;
+        bufferRequestsMutex.lock();
 
         unsigned int i;
         for (i = 0; i < bufferRequests.size(); i++)
@@ -38,16 +34,14 @@ namespace phi
 
         bufferRequests.erase(bufferRequests.begin() + i);
 
-        bufferLocked = false;
+        bufferRequestsMutex.unlock();
     }
 
     void renderingCommunicationBuffer::removeRequest(pickRequest* request)
     {
-        while(!pickLocked);
-        pickLocked = true;
+        pickRequestsMutex.lock();
 
         unsigned int i;
-
         for (i = 0; i < pickRequests.size(); i++)
         {
             if (pickRequests[i] == request)
@@ -55,16 +49,14 @@ namespace phi
         }
 
         pickRequests.erase(pickRequests.begin() + i);
-        
-        pickLocked = false;
+
+        pickRequestsMutex.unlock();
     }
 
     void renderingCommunicationBuffer::update()
     {
-        if (!bufferLocked)
+        if (bufferRequestsMutex.try_lock())
         {
-            bufferLocked = true;
-
             for (unsigned int i = 0; i < bufferRequests.size(); i++)
             {
                 bufferRequest* current = bufferRequests[i];
@@ -82,14 +74,11 @@ namespace phi
                 current->completed = true;
                 current->mutex.unlock();
             }
-
-            bufferLocked = false;
+            bufferRequestsMutex.unlock();
         }
-        
-        if (!pickLocked)
-        {
-            pickLocked = true;
 
+        if (pickRequestsMutex.try_lock())
+        {
             for (unsigned int i = 0; i < pickRequests.size(); i++)
             {
                 pickRequest* current = pickRequests[i];
@@ -107,8 +96,7 @@ namespace phi
                 current->completed = true;
                 current->mutex.unlock();
             }
-
-            pickLocked = false;
+            pickRequestsMutex.unlock();
         }
     }
 }
