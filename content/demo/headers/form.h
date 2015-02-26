@@ -71,10 +71,10 @@ public:
     virtual void onClosing(){}
 
     virtual void onInitialize(){}
-    virtual void onMouseDown(phi::mouseEventArgs e){}
-    virtual void onMouseMove(phi::mouseEventArgs e){}
-    virtual void onMouseUp(phi::mouseEventArgs e){}
-    virtual void onMouseWheel(phi::mouseEventArgs e){}
+    virtual void onMouseDown(phi::mouseEventArgs* e){}
+    virtual void onMouseMove(phi::mouseEventArgs* e){}
+    virtual void onMouseUp(phi::mouseEventArgs* e){}
+    virtual void onMouseWheel(phi::mouseEventArgs* e){}
     virtual void onKeyDown(phi::keyboardEventArgs e){}
     virtual void onKeyUp(phi::keyboardEventArgs e){}
 

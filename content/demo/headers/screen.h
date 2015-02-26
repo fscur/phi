@@ -53,16 +53,16 @@ public:
     void onClosing() override;
 
 	void onBeginInput() override;
-    void onMouseDown(phi::mouseEventArgs e) override;
-    void onMouseMove(phi::mouseEventArgs e) override;
-    void onMouseUp(phi::mouseEventArgs e) override;
-    void onMouseWheel(phi::mouseEventArgs e) override;
+    void onMouseDown(phi::mouseEventArgs* e) override;
+    void onMouseMove(phi::mouseEventArgs* e) override;
+    void onMouseUp(phi::mouseEventArgs* e) override;
+    void onMouseWheel(phi::mouseEventArgs* e) override;
     void onKeyDown(phi::keyboardEventArgs e) override;
     void onKeyUp(phi::keyboardEventArgs e) override;
 	void onEndInput() override;
 
-    void closeButtonClick(phi::mouseEventArgs e);
-    void expandButtonClick(phi::mouseEventArgs e);
+    void closeButtonClick(phi::mouseEventArgs* e);
+    void expandButtonClick(phi::mouseEventArgs* e);
     void sliderValueChanged(phi::eventArgs e);
     void textBox1TextChanged(phi::eventArgs e);
     void textBox2TextChanged(phi::eventArgs e);

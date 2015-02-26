@@ -13,7 +13,7 @@ namespace phi
 
         _frameBuffer->bind();
         _frameBuffer->enable(GL_CULL_FACE);
-		_frameBuffer->enable(GL_DEPTH_TEST);
+        _frameBuffer->enable(GL_DEPTH_TEST);
         _frameBuffer->unbind();
 
         createAmbientLightShader();
@@ -87,7 +87,7 @@ namespace phi
         s->addUniform("diffuseMap");
         s->addUniform("mat.ambientColor");
         s->addUniform("mat.ka");
-        
+
         s->addUniform("isSelected");
         s->addUniform("id");
 
@@ -210,7 +210,7 @@ namespace phi
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             sceneObject* sceneObj = (*_allObjects)[i];
-            
+
             glm::mat4 modelMatrix = sceneObj->getTransform()->getModelMatrix();
 
             _modelMatrices[sceneObj->getSceneId()] = modelMatrix;
@@ -235,7 +235,7 @@ namespace phi
 
             if (sceneObj->getMaterial() == nullptr)
                 continue;
-            
+
             glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
             glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
 
@@ -261,7 +261,7 @@ namespace phi
             return;
 
         glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
+        glBlendFunc(GL_ONE, GL_ONE);
 
         for (GLuint l = 0; l< directionalLightsCount; l++)
         {
@@ -270,7 +270,7 @@ namespace phi
             shader* sh = shaderManager::get()->getShader("FS_DIR_LIGHT");
 
             sh->bind();
-            
+
             glDepthMask(false);
             glDepthFunc(GL_EQUAL);
 
@@ -310,7 +310,7 @@ namespace phi
             }
 
             sh->unbind();
-            
+
             glDepthFunc(GL_LESS);
             glDepthMask(true);
         }
@@ -490,7 +490,7 @@ namespace phi
         };
 
         glDrawBuffers(2, drawBuffers);
-       
+
         glDepthMask(GL_TRUE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
@@ -500,7 +500,7 @@ namespace phi
 
         renderingSystem::defaultFrameBuffer->bindForDrawing();
         _frameBuffer->bindForReading();
-		_frameBuffer->blit("default", 0, 0, _viewportSize.width, _viewportSize.height);
+        _frameBuffer->blit("default", 0, 0, _viewportSize.width, _viewportSize.height);
 
         selectedObjectsPass();
     }

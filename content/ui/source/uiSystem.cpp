@@ -1,5 +1,6 @@
 #include "uiSystem.h"
 #include "renderingSystem.h"
+#include <algorithm>
 
 namespace phi
 {
@@ -11,6 +12,13 @@ namespace phi
         _controlLostFocus = new eventHandler<controlEventArgs>();
         _cursor = nullptr;
         _cursorRenderer = new quadRenderer2D(glm::vec2(0.0f, 0.0f), 1.0f, size<GLuint>(0.0f, 0.0f), size<GLuint>(0.0f, 0.0f));
+
+        input::mouseDown->bind<uiSystem, &uiSystem::inputMouseDown>(this);
+        input::mouseUp->bind<uiSystem, &uiSystem::inputMouseUp>(this);
+        input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
+        input::mouseWheel->bind<uiSystem, &uiSystem::inputMouseWheel>(this);
+        input::keyDown->bind<uiSystem, &uiSystem::inputKeyDown>(this);
+        input::keyDown->bind<uiSystem, &uiSystem::inputKeyUp>(this);
     }
 
     uiSystem* uiSystem::get()
@@ -56,16 +64,86 @@ namespace phi
         size<GLuint> size = _cursor->getTexture()->getSize();
         glm::vec2 hotPoint = _cursor->getHotPoint();
         _cursorRenderer->setLocation(glm::vec2(mousePos.x - size.width * hotPoint.x, mousePos.y - size.height * hotPoint.y));
+        _cursorRenderer->setZIndex(50.0f);
         _cursorRenderer->setSize(_cursor->getTexture()->getSize());
         _cursorRenderer->update();
     }
 
-    void uiSystem::inputMouseMove(mouseEventArgs e)
+    void uiSystem::inputMouseDown(mouseEventArgs* e)
+    {
+        for(control* control : _controls)
+        {
+            if (control->getIsMouseOver())
+                control->setIsFocused(true);
+
+            control->notifyMouseDown(e);
+        }
+    }
+
+    void uiSystem::inputMouseUp(mouseEventArgs* e)
+    {
+        for(control* control : _controls)
+        {
+            control->notifyMouseUp(e);
+        }
+    }
+
+    void uiSystem::inputMouseMove(mouseEventArgs* e)
     {
         size<GLuint> size = _cursor->getTexture()->getSize();
         glm::vec2 hotPoint = _cursor->getHotPoint();
-        _cursorRenderer->setLocation(glm::vec2(e.x - size.width * hotPoint.x, e.y - size.height * hotPoint.y));
+        _cursorRenderer->setLocation(glm::vec2(e->x - size.width * hotPoint.x, e->y - size.height * hotPoint.y));
         _cursorRenderer->update();
+
+        control* higher = nullptr;
+        for(control* control : _controls)
+        {
+            control->notifyMouseMove(e);
+
+            auto x = control->getX();
+            auto y = control->getY();
+            auto size = control->getSize();
+
+            if (!higher && e->x >= x && e->x <= x + (int)size.width && e->y >= y && e->y <= y + (int)size.height)
+                higher = control;
+            else
+            {
+                if (control->getIsMouseOver())
+                    control->notifyMouseLeave(e);
+            }
+
+            if (e->handled)
+                break;
+        }
+
+        if (higher && !higher->getIsMouseOver())
+            higher->notifyMouseEnter(e);
+    }
+
+    void uiSystem::inputMouseWheel(mouseEventArgs* e)
+    {
+        for(control* control : _controls)
+        {
+            control->notifyMouseWheel(e);
+        }
+    }
+
+    void uiSystem::inputKeyDown(keyboardEventArgs e)
+    {
+        for(control* control : _controls)
+        {
+            if (control->getIsFocused())
+                control->notifyKeyDown(e);
+        }
+    }
+
+    void uiSystem::inputKeyUp(keyboardEventArgs e)
+    {
+        for(control* control : _controls)
+        {
+            if (control->getIsFocused())
+                control->notifyKeyUp(e);
+        }
     }
 
     void uiSystem::notifyControlGotFocus(controlEventArgs e)
@@ -80,12 +158,17 @@ namespace phi
             _controlLostFocus->invoke(e);
     }
 
-    void uiSystem::addControl(control* control)
+    void uiSystem::addControl(control* cntrl)
     {
-        _controls.push_back(control);
-        control->setZIndex((_controls.size() - 1) * 0.1f);
-        control->getGotFocus()->bind<uiSystem, &uiSystem::controlGotFocus>(this);
-        control->getMouseLeave()->bind<uiSystem, &uiSystem::controlMouseLeave>(this);
+        auto index = std::upper_bound(_controls.begin(), _controls.end(), cntrl, [](control* lhs, control* rhs)
+        {
+            return lhs->getZIndex() > rhs->getZIndex();
+        });
+
+        _controls.insert(index, cntrl);
+        //_controls.push_back(cntrl);
+        cntrl->getGotFocus()->bind<uiSystem, &uiSystem::controlGotFocus>(this);
+        cntrl->getMouseLeave()->bind<uiSystem, &uiSystem::controlMouseLeave>(this);
     }
 
     void uiSystem::controlGotFocus(controlEventArgs e)
@@ -105,7 +188,7 @@ namespace phi
         notifyControlGotFocus(controlEventArgs(e.sender));
     }
 
-    void uiSystem::controlMouseLeave(mouseEventArgs e)
+    void uiSystem::controlMouseLeave(mouseEventArgs* e)
     {
         setCursor(phi::uiRepository::repository->getResource<cursor>("DefaultCursor"));
     }
@@ -125,6 +208,7 @@ namespace phi
 
     void uiSystem::render()
     {
+        glDepthMask(GL_TRUE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

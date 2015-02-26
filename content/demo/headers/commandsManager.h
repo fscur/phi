@@ -83,10 +83,10 @@ namespace phi
         ~commandsManager();
 
         void onBeginInput(phi::size<unsigned int> viewportSize);
-        bool onMouseDown(mouseEventArgs e);
-        bool onMouseMove(mouseEventArgs e);
-        bool onMouseUp(mouseEventArgs e);
-        bool onMouseWheel(mouseEventArgs e);
+        bool onMouseDown(mouseEventArgs* e);
+        bool onMouseMove(mouseEventArgs* e);
+        bool onMouseUp(mouseEventArgs* e);
+        bool onMouseWheel(mouseEventArgs* e);
         bool onKeyDown(keyboardEventArgs e);
         bool onKeyUp(keyboardEventArgs e);
         void onEndInput();

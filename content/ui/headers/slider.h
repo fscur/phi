@@ -45,7 +45,7 @@ namespace phi
         UI_API float getStepValue() { return _stepValue; }
 
         UI_API void setTrackColor(color value) { _trackColor = value; }
-        UI_API void setSliderColor(color value) { _sliderColor = value; _currentSliderColor = _sliderColor;}
+        UI_API void setSliderColor(color value);
         UI_API void setValue(float value);
         UI_API void setMinValue(float value);
         UI_API void setMaxValue(float value);
@@ -57,12 +57,12 @@ namespace phi
 		UI_API void setViewportSize(size<GLuint> value) override;
 		UI_API void setZIndex(float value) override;
 
-        UI_API void onMouseDown(mouseEventArgs e) override;
-        UI_API void onMouseUp(mouseEventArgs e) override;
-        UI_API void onMouseMove(mouseEventArgs e) override;
+        UI_API void onMouseDown(mouseEventArgs* e) override;
+        UI_API void onMouseUp(mouseEventArgs* e) override;
+        UI_API void onMouseMove(mouseEventArgs* e) override;
         UI_API void onKeyDown(keyboardEventArgs e) override;
-        UI_API void onMouseEnter(mouseEventArgs e) override;
-        UI_API void onMouseLeave(mouseEventArgs e) override;
+        UI_API void onMouseEnter(mouseEventArgs* e) override;
+        UI_API void onMouseLeave(mouseEventArgs* e) override;
 
         UI_API void render() override;
     };

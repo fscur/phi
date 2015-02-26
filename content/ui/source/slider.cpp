@@ -61,7 +61,9 @@ namespace phi
     {
         _zIndex = value;
         _trackQuad->setZIndex(_zIndex);
+        _trackQuad->update();
         _sliderQuad->setZIndex(_zIndex + 0.01f);
+        _sliderQuad->update();
     }
 
     void slider::setValue(float value)
@@ -117,6 +119,12 @@ namespace phi
         updateSlider();
     }
 
+    void slider::setSliderColor(color value)
+    {
+        _sliderColor = value;
+        _currentSliderColor = _sliderColor;
+    }
+
     void slider::updateSlider()
     {
         float percent = (_value - _minValue) / (_maxValue - _minValue);
@@ -149,25 +157,29 @@ namespace phi
         glDisable(GL_BLEND);
     }
 
-    void slider::onMouseDown(mouseEventArgs e)
+    void slider::onMouseDown(mouseEventArgs* e)
     {
-        if (getIsMouseOver() && e.leftButtonPressed && !_isDragginTrack)
+        if (getIsMouseOver() && e->leftButtonPressed && !_isDragginTrack)
         {
             _isDragginTrack = true;
-            changeValue(glm::vec2(e.x, e.y));
+            changeValue(glm::vec2(e->x, e->y));
+            e->handled = true;
         }
     }
 
-    void slider::onMouseUp(mouseEventArgs e)
+    void slider::onMouseUp(mouseEventArgs* e)
     {
-        if (e.leftButtonPressed && _isDragginTrack)
+        if (e->leftButtonPressed && _isDragginTrack)
+        {
             _isDragginTrack = false;
+            e->handled = true;
+        }
     }
 
-    void slider::onMouseMove(mouseEventArgs e)
+    void slider::onMouseMove(mouseEventArgs* e)
     {
         if (_isDragginTrack)
-            changeValue(glm::vec2(e.x, e.y));
+            changeValue(glm::vec2(e->x, e->y));
     }
 
     void slider::onKeyDown(keyboardEventArgs e)
@@ -183,12 +195,12 @@ namespace phi
         }
     }
 
-    void slider::onMouseEnter(mouseEventArgs e)
+    void slider::onMouseEnter(mouseEventArgs* e)
     {
         colorAnimator::animateColor(&_currentSliderColor, color(glm::min(1.0f, _sliderColor.r + 0.3f), glm::min(1.0f, _sliderColor.g + 0.3f), glm::min(1.0f, _sliderColor.b + 0.3f), 1), 500);
     }
 
-    void slider::onMouseLeave(mouseEventArgs e)
+    void slider::onMouseLeave(mouseEventArgs* e)
     {
         colorAnimator::animateColor(&_currentSliderColor, _sliderColor, 500);
     }

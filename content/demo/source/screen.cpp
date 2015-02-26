@@ -112,98 +112,39 @@ void screen::initUI()
     closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
     phi::uiSystem::get()->addControl(closeButton);
 
-    phi::button* expandButton = new phi::button(getSize());
-    expandButton->setText("Texto\nBonito");
-    expandButton->setBackgroundColor(phi::color::blue);
-    expandButton->setForegroundColor(phi::color::white);
-    expandButton->setSize(phi::size<GLuint>(48, 48));
-    expandButton->setX(10);
-    expandButton->setY(10);
-    expandButton->getClick()->bind<screen, &screen::expandButtonClick>(this);
-    phi::uiSystem::get()->addControl(expandButton);
+    //phi::button* buttonA = new phi::button(getSize());
+    //buttonA->setText("A");
+    //buttonA->setBackgroundColor(phi::color::red);
+    //buttonA->setForegroundColor(phi::color::white);
+    //buttonA->setSize(phi::size<GLuint>(64, 64));
+    //buttonA->setZIndex(20.0f);
+    //buttonA->setX(100);
+    //buttonA->setY(100);
 
-    _textBox1 = new phi::textBox(getSize());
-    _textBox1->setText("0123456789A0123456789B0123456789C0123456789D0123456789");
-    _textBox1->setBackgroundColor(phi::color::white);
-    _textBox1->setForegroundColor(phi::color::black);
-    _textBox1->setSize(phi::size<GLuint>(200, 30));
-    _textBox1->setX(600);
-    _textBox1->setY(80);
-    _textBox1->setFont(phi::uiRepository::repository->getResource<phi::font>("Consola_14"));
-    _textBox1->getTextChanged()->bind<screen, &screen::textBox1TextChanged>(this);
-    phi::uiSystem::get()->addControl(_textBox1);
+    //phi::slider* sliderA = new phi::slider(getSize());
+    //sliderA->setTrackColor(phi::color::white);
+    //sliderA->setSliderColor(phi::color::blue);
+    //sliderA->setSize(phi::size<GLuint>(128, 32));
+    //sliderA->setZIndex(30.0f);
+    //sliderA->setX(100);
+    //sliderA->setY(148);
+    //sliderA->setMinValue(0.0f);
+    //sliderA->setMaxValue(1.0f);
+    //sliderA->setValue(0.5f);
+    //sliderA->setStepValue(0.01f);
 
-    _textBox2 = new phi::textBox(getSize());
-    _textBox2->setText("0123456789A0123456789B0123456789C0123456789D0123456789");
-    _textBox2->setBackgroundColor(phi::color::white);
-    _textBox2->setForegroundColor(phi::color::black);
-    _textBox2->setSize(phi::size<GLuint>(200, 30));
-    _textBox2->setX(600);
-    _textBox2->setY(120);
-    _textBox2->setFont(phi::uiRepository::repository->getResource<phi::font>("Consola_14"));
-    _textBox2->getTextChanged()->bind<screen, &screen::textBox2TextChanged>(this);
-    phi::uiSystem::get()->addControl(_textBox2);
+    //phi::textBox* textBoxA = new phi::textBox(getSize());
+    //textBoxA->setText("Text");
+    //textBoxA->setBackgroundColor(phi::color::gray);
+    //textBoxA->setForegroundColor(phi::color::black);
+    //textBoxA->setSize(phi::size<GLuint>(128, 32));
+    //textBoxA->setZIndex(40.0f);
+    //textBoxA->setX(132);
+    //textBoxA->setY(180-48);
 
-    _labelFps = new phi::label(getSize());
-    _labelFps->setX(68);
-    _labelFps->setY(10);
-    _labelFps->setSize(phi::size<GLuint>(150, 20));
-    _labelFps->setForegroundColor(labelForeground);
-    _labelFps->setBackgroundColor(labelBackground);
-    _labelFps->setFont(phi::uiRepository::repository->getResource<phi::font>("Consola_24"));
-    phi::uiSystem::get()->addControl(_labelFps);
-
-    _labelObjects= new phi::label(getSize());
-    _labelObjects->setX(68);
-    _labelObjects->setY(28);
-    _labelObjects->setSize(phi::size<GLuint>(150, 20));
-    _labelObjects->setForegroundColor(labelForeground);
-    _labelObjects->setBackgroundColor(labelBackground);
-    phi::uiSystem::get()->addControl(_labelObjects);
-
-    _labelDt = new phi::label(getSize());
-    _labelDt->setX(220);
-    _labelDt->setY(10);
-    _labelDt->setSize(phi::size<GLuint>(300, 20));
-    _labelDt->setForegroundColor(labelBackground);
-    _labelDt->setBackgroundColor(labelBackground);
-    phi::uiSystem::get()->addControl(_labelDt);
-
-    _labelInputCost = new phi::label(getSize());
-    _labelInputCost->setX(220);
-    _labelInputCost->setY(28);
-    _labelInputCost->setSize(phi::size<GLuint>(300, 20));
-    _labelInputCost->setForegroundColor(labelForeground);
-    _labelInputCost->setBackgroundColor(labelBackground);
-    phi::uiSystem::get()->addControl(_labelInputCost);
-
-    _labelUpdateCost = new phi::label(getSize());
-    _labelUpdateCost->setX(220);
-    _labelUpdateCost->setY(46);
-    _labelUpdateCost->setSize(phi::size<GLuint>(300, 20));
-    _labelUpdateCost->setForegroundColor(labelForeground);
-    _labelUpdateCost->setBackgroundColor(labelBackground);
-    phi::uiSystem::get()->addControl(_labelUpdateCost);
-
-    _labelRenderCost = new phi::label(getSize());
-    _labelRenderCost->setX(220);
-    _labelRenderCost->setY(64);
-    _labelRenderCost->setSize(phi::size<GLuint>(300, 20));
-    _labelRenderCost->setForegroundColor(labelForeground);
-    _labelRenderCost->setBackgroundColor(labelBackground);
-    phi::uiSystem::get()->addControl(_labelRenderCost);
-
-    _slider1 = new phi::slider(getSize());
-    _slider1->setX(20);
-    _slider1->setY(200);
-    _slider1->setSize(phi::size<GLuint>(500, 30));
-    _slider1->setSliderColor(phi::color::gray);
-    _slider1->setTrackColor(phi::color::white);
-    _slider1->setMinValue(0.0f);
-    _slider1->setMaxValue(10.0f);
-    _slider1->setStepValue(0.1f);
-    _slider1->getValueChanged()->bind<screen, &screen::sliderValueChanged>(this);
-    phi::uiSystem::get()->addControl(_slider1);
+    //phi::uiSystem::get()->addControl(buttonA);
+    //phi::uiSystem::get()->addControl(sliderA);
+    //phi::uiSystem::get()->addControl(textBoxA);
 
     phi::uiSystem::get()->resize(getSize());
 
@@ -222,8 +163,6 @@ void screen::onInitialize()
     initUI();
 }
 
-float angle;
-
 void screen::update()
 {
     a+= 0.01;
@@ -234,7 +173,7 @@ void screen::update()
     phi::colorAnimator::update();
     _commandsManager.update();
 
-    _labelFps->setText("FPS: " + std::to_string(getFps()));
+    //_labelFps->setText("FPS: " + std::to_string(getFps()));
 
     //_labelDt->setText("TotalTime/Frame: " + std::to_string(getDt()));
     //_labelInputCost->setText("InputCost: " + std::to_string(getInputCost()));
@@ -338,25 +277,25 @@ void screen::onBeginInput()
     _commandsManager.onBeginInput(getSize());
 }
 
-void screen::onMouseDown(phi::mouseEventArgs e)
-{	
+void screen::onMouseDown(phi::mouseEventArgs* e)
+{
     if (_commandsManager.onMouseDown(e))
         return;
 }
 
-void screen::onMouseMove(phi::mouseEventArgs e) 
+void screen::onMouseMove(phi::mouseEventArgs* e) 
 {
     if (_commandsManager.onMouseMove(e))
         return;
 }
 
-void screen::onMouseUp(phi::mouseEventArgs e)
+void screen::onMouseUp(phi::mouseEventArgs* e)
 {
     if (_commandsManager.onMouseUp(e))
         return;
 }
 
-void screen::onMouseWheel(phi::mouseEventArgs e)
+void screen::onMouseWheel(phi::mouseEventArgs* e)
 {
     if (_commandsManager.onMouseWheel(e))
         return;
@@ -387,7 +326,7 @@ void screen::onClosing()
     //TODO: MessageBox asking if the user really wants to close the window
 }
 
-void screen::expandButtonClick(phi::mouseEventArgs e)
+void screen::expandButtonClick(phi::mouseEventArgs* e)
 {
     _textBox1->setText("0123456789A0123456789B0123456789C0123456789D0123456789");
     _textBox2->setText("0123456789A0123456789B0123456789C0123456789D0123456789");
@@ -402,7 +341,7 @@ void screen::sliderValueChanged(phi::eventArgs e)
     //p1->setIntensity(_slider1->getValue());
 }
 
-void screen::closeButtonClick(phi::mouseEventArgs e)
+void screen::closeButtonClick(phi::mouseEventArgs* e)
 {
     close();
 }
