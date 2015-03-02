@@ -9,25 +9,25 @@ namespace phi
     keyboardEventHandler* input::keyDown = new keyboardEventHandler();
     keyboardEventHandler* input::keyUp = new keyboardEventHandler();
 
-    void input::notifyMouseMove(mouseEventArgs e)
+    void input::notifyMouseMove(mouseEventArgs* e)
     {
         if (mouseMove->isBound())
             mouseMove->invoke(e);
     }
 
-    void input::notifyMouseDown(mouseEventArgs e)
+    void input::notifyMouseDown(mouseEventArgs* e)
     {
         if (mouseDown->isBound())
             mouseDown->invoke(e);
     }
 
-    void input::notifyMouseUp(mouseEventArgs e)
+    void input::notifyMouseUp(mouseEventArgs* e)
     {
         if (mouseUp->isBound())
             mouseUp->invoke(e);
     }
 
-    void input::notifyMouseWheel(mouseEventArgs e)
+    void input::notifyMouseWheel(mouseEventArgs* e)
     {
         if (mouseWheel->isBound())
             mouseWheel->invoke(e);

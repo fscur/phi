@@ -67,49 +67,49 @@ namespace phi
         _commandInfo->viewportSize = viewportSize;
     }
 
-    bool commandsManager::onMouseDown(mouseEventArgs e)
+    bool commandsManager::onMouseDown(mouseEventArgs* e)
     {
-        if (e.leftButtonPressed)
+        if (e->leftButtonPressed)
             _states[PHI_MOUSE_LEFT] |= DOWN;
 
-        if (e.middleButtonPressed)
+        if (e->middleButtonPressed)
             _states[PHI_MOUSE_MIDDLE] |= DOWN;
 
-        if (e.rightButtonPressed)
+        if (e->rightButtonPressed)
             _states[PHI_MOUSE_RIGHT] |= DOWN;
 
         _isMouseDown = true;
-        _mouseDownEventArgs = e;
-        _commandInfo->mouseDownPos = glm::vec2(e.x, e.y);
-        _commandInfo->mousePos = glm::vec2(e.x, e.y);
+        _mouseDownEventArgs = *e;
+        _commandInfo->mouseDownPos = glm::vec2(e->x, e->y);
+        _commandInfo->mousePos = glm::vec2(e->x, e->y);
 
         return true;
     }
 
-    bool commandsManager::onMouseMove(mouseEventArgs e)
+    bool commandsManager::onMouseMove(mouseEventArgs* e)
     {
         _commandInfo->lastMousePos = _commandInfo->mousePos;
-        _commandInfo->mousePos = glm::vec2(e.x, e.y);
+        _commandInfo->mousePos = glm::vec2(e->x, e->y);
 
         return true;
     }
 
-    bool commandsManager::onMouseUp(mouseEventArgs e)
+    bool commandsManager::onMouseUp(mouseEventArgs* e)
     {
         if (!_isMouseDown)
             return false;
 
         int key;
-        if (e.leftButtonPressed)
+        if (e->leftButtonPressed)
             _states[PHI_MOUSE_LEFT] |= UP;
 
-        if (e.middleButtonPressed)
+        if (e->middleButtonPressed)
             _states[PHI_MOUSE_MIDDLE] |= UP;
 
-        if (e.rightButtonPressed)
+        if (e->rightButtonPressed)
             _states[PHI_MOUSE_RIGHT] |= UP;
 
-        _commandInfo->mousePos = glm::vec2(e.x, e.y);
+        _commandInfo->mousePos = glm::vec2(e->x, e->y);
 
         _isMouseDown = false;
 
@@ -120,16 +120,16 @@ namespace phi
         return true;
     }
 
-    bool commandsManager::onMouseWheel(mouseEventArgs e)
+    bool commandsManager::onMouseWheel(mouseEventArgs* e)
     {
         int key;
-        if (e.wheelDelta > 0)
+        if (e->wheelDelta > 0)
             key = PHI_MOUSE_WHEEL_UP;
         else
             key = PHI_MOUSE_WHEEL_DOWN;
 
-        _commandInfo->wheelDelta = e.wheelDelta;
-        _commandInfo->mousePos = glm::vec2(e.x, e.y);
+        _commandInfo->wheelDelta = e->wheelDelta;
+        _commandInfo->mousePos = glm::vec2(e->x, e->y);
 
         _states[key] |= DOWN;
 

@@ -28,11 +28,17 @@ namespace phi
 
     private:
         uiSystem();
+
         void notifyControlGotFocus(controlEventArgs e);
         void notifyControlLostFocus(controlEventArgs e);
         void controlGotFocus(controlEventArgs e);
-        void controlMouseLeave(mouseEventArgs e);
-        void inputMouseMove(mouseEventArgs e);
+        void controlMouseLeave(mouseEventArgs* e);
+        void inputMouseDown(mouseEventArgs* e);
+        void inputMouseUp(mouseEventArgs* e);
+        void inputMouseMove(mouseEventArgs* e);
+        void inputMouseWheel(mouseEventArgs* e);
+        void inputKeyDown(keyboardEventArgs e);
+        void inputKeyUp(keyboardEventArgs e);
         void renderCursor();
 
     public:

@@ -79,6 +79,8 @@ namespace phi
 
         meshRenderer mr = meshRenderer();
 
+        glm::mat4 vp = _projectionMatrix * _viewMatrix;
+
         float currentX = location.x, currentY = location.y;
         for(char& p : text)
         {
@@ -108,7 +110,7 @@ namespace phi
                 0.0f, 0.0f, 1.0f, 0.0f,
                 x + w * 0.5f, _viewportSize.height - (y + h * 0.5f), zIndex, 1.0f);
 
-            _shader->setUniform("mvp", _projectionMatrix * _viewMatrix * _modelMatrix);
+            _shader->setUniform("mvp", vp * _modelMatrix);
             _shader->setUniform("texCoordOrigin", glm::vec2(tl, tt));
             _shader->setUniform("texCoordQuadSize", glm::vec2(font->c[p].bw / font->getTexWidth(), font->c[p].bh / font->getTexHeight()));
 

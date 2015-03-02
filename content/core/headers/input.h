@@ -10,10 +10,10 @@ namespace phi
     class input
     {
     public:
-        CORE_API static void notifyMouseMove(mouseEventArgs e);
-        CORE_API static void notifyMouseDown(mouseEventArgs e);
-        CORE_API static void notifyMouseUp(mouseEventArgs e);
-        CORE_API static void notifyMouseWheel(mouseEventArgs e);
+        CORE_API static void notifyMouseMove(mouseEventArgs* e);
+        CORE_API static void notifyMouseDown(mouseEventArgs* e);
+        CORE_API static void notifyMouseUp(mouseEventArgs* e);
+        CORE_API static void notifyMouseWheel(mouseEventArgs* e);
         CORE_API static void notifyKeyDown(keyboardEventArgs e);
         CORE_API static void notifyKeyUp(keyboardEventArgs e);
 

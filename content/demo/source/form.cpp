@@ -165,16 +165,18 @@ void form::input()
             me.x = e.motion.x;
             me.y = e.motion.y;
             me.clicks = e.button.clicks;
-            onMouseDown(me);
-            phi::input::notifyMouseDown(me);
+            phi::input::notifyMouseDown(&me);
+            if (!me.handled)
+                onMouseDown(&me);
             break;
         case SDL_MOUSEMOTION:
             _lastMousePos = glm::vec2(e.motion.x, e.motion.y);
             me = phi::mouseEventArgs();
             me.x = e.motion.x;
             me.y = e.motion.y;
-            onMouseMove(me);
-            phi::input::notifyMouseMove(me);
+            phi::input::notifyMouseMove(&me);
+            if (!me.handled)
+                onMouseMove(&me);
             break;
         case SDL_MOUSEBUTTONUP:
             me = phi::mouseEventArgs();
@@ -184,16 +186,18 @@ void form::input()
             me.x = e.motion.x;
             me.y = e.motion.y;
             me.clicks = e.button.clicks;
-            onMouseUp(me);
-            phi::input::notifyMouseUp(me);
+            phi::input::notifyMouseUp(&me);
+            if (!me.handled)
+                onMouseUp(&me);
             break;
         case SDL_MOUSEWHEEL:
             me = phi::mouseEventArgs();
             me.wheelDelta = (float)e.wheel.y;
             me.x = _lastMousePos.x;
             me.y = _lastMousePos.y;
-            onMouseWheel(me);
-            phi::input::notifyMouseWheel(me);
+            phi::input::notifyMouseWheel(&me);
+            if (!me.handled)
+                onMouseWheel(&me);
             break;
         case SDL_KEYDOWN:
             if (!SDL_IsTextInputActive())
@@ -318,7 +322,7 @@ void form::close()
     onClosing();
 
     _isClosed = true;
-    #ifdef THREADS_ON
+#ifdef THREADS_ON
     SDL_WaitThread(_renderThread, nullptr);
-    #endif
+#endif
 }

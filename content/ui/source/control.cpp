@@ -16,13 +16,6 @@ namespace phi
         _mouseLeave = new mouseEventHandler();
         _gotFocus = new eventHandler<controlEventArgs>();
         _lostFocus = new eventHandler<controlEventArgs>();
-
-        input::mouseDown->bind<control, &control::inputMouseDown>(this);
-        input::mouseUp->bind<control, &control::inputMouseUp>(this);
-        input::mouseMove->bind<control, &control::inputMouseMove>(this);
-        input::mouseWheel->bind<control, &control::inputMouseWheel>(this);
-        input::keyDown->bind<control, &control::inputKeyDown>(this);
-        input::keyDown->bind<control, &control::inputKeyUp>(this);
     }
 
     control::~control()
@@ -42,16 +35,58 @@ namespace phi
             notifyLostFocus(controlEventArgs(this));
     }
 
-    void control::notifyMouseEnter(mouseEventArgs e)
+    void control::notifyMouseDown(mouseEventArgs* e)
     {
-        if (_mouseEnter->isBound())
-            _mouseEnter->invoke(e);
+        onMouseDown(e);
     }
 
-    void control::notifyMouseLeave(mouseEventArgs e)
+    void control::notifyMouseUp(mouseEventArgs* e)
     {
-        if (_mouseLeave->isBound())
-            _mouseLeave->invoke(e);
+        onMouseUp(e);
+    }
+
+    void control::notifyMouseMove(mouseEventArgs* e)
+    {
+        onMouseMove(e);
+    }
+
+    void control::notifyMouseWheel(mouseEventArgs* e)
+    {
+        onMouseWheel(e);
+    }
+
+    void control::notifyKeyDown(keyboardEventArgs e)
+    {
+        onKeyDown(e);
+    }
+
+    void control::notifyKeyUp(keyboardEventArgs e)
+    {
+        onKeyUp(e);
+    }
+
+    void control::notifyMouseEnter(mouseEventArgs* e)
+    {
+        if (!_isMouseOver)
+        {
+            _isMouseOver = true;
+
+            onMouseEnter(e);
+            if (_mouseEnter->isBound())
+                _mouseEnter->invoke(e);
+        }
+    }
+
+    void control::notifyMouseLeave(mouseEventArgs* e)
+    {
+        if (_isMouseOver)
+        {
+            _isMouseOver = false;
+
+            onMouseLeave(e);
+            if (_mouseLeave->isBound())
+                _mouseLeave->invoke(e);
+        }
     }
 
     void control::notifyGotFocus(controlEventArgs e)
@@ -64,61 +99,5 @@ namespace phi
     {
         if (_lostFocus->isBound())
             _lostFocus->invoke(e);
-    }
-
-    void control::inputMouseDown(mouseEventArgs e)
-    {
-        if (_isMouseOver)
-            setIsFocused(true);
-
-        onMouseDown(e);
-    }
-
-    void control::inputMouseUp(mouseEventArgs e)
-    {
-        onMouseUp(e);
-    }
-
-    void control::inputMouseMove(mouseEventArgs e)
-    {
-        if (e.x >= _x && e.x <= _x + (int)_size.width && e.y >= _y && e.y <= _y + (int)_size.height)
-        {
-            if (!_isMouseOver)
-            {
-                _isMouseOver = true;
-
-                onMouseEnter(e);
-                notifyMouseEnter(e);
-            }
-        }
-        else
-        {
-            if (_isMouseOver)
-            {
-                _isMouseOver = false;
-
-                onMouseLeave(e);
-                notifyMouseLeave(e);
-            }
-        }
-
-        onMouseMove(e);
-    }
-
-    void control::inputMouseWheel(mouseEventArgs e)
-    {
-        onMouseWheel(e);
-    }
-
-    void control::inputKeyDown(keyboardEventArgs e)
-    {
-        if (getIsFocused())
-            onKeyDown(e);
-    }
-
-    void control::inputKeyUp(keyboardEventArgs e)
-    {
-        if (getIsFocused())
-            onKeyUp(e);
     }
 }

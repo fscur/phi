@@ -172,86 +172,91 @@ namespace phi
         _textRenderer->update();
     }
 
-    void textBox::onMouseDown(mouseEventArgs e)
+    void textBox::onMouseDown(mouseEventArgs* e)
     {
-        if (getIsMouseOver())
+        if (!getIsMouseOver())
+            return;
+
+        if (!e->leftButtonPressed)
+            return;
+
+        e->handled = true;
+
+        if (e->clicks < 2)
         {
-            if (e.leftButtonPressed && e.clicks < 2)
+            _isClickingOver = true;
+            _cursorIndex = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e->x - _x - _textOffsetX, 0), _size.height));
+            updateCursorLocation();
+            _selectionStartIndex = _cursorIndex;
+            _selectionEndIndex = _cursorIndex;
+            updateSelectionRenderer();
+        }
+        else
+        {
+            unsigned int index = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e->x - _x - _textOffsetX, 0), _size.height));
+            std::vector<char> v(_text.begin(), _text.end());
+            v.push_back('\0');
+            char* str = &v[0];
+
+            if (str == nullptr)
+                return;
+
+            bool inSpaces = true;
+            unsigned int start = 0;
+            unsigned int i = 0;
+            bool findEnd = false;
+
+            while (*str != '\0')
             {
-                _isClickingOver = true;
-                _cursorIndex = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e.x - _x - _textOffsetX, 0), _size.height));
-                updateCursorLocation();
-                _selectionStartIndex = _cursorIndex;
-                _selectionEndIndex = _cursorIndex;
-                updateSelectionRenderer();
-            }
-            else
-            {
-                unsigned int index = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e.x - _x - _textOffsetX, 0), _size.height));
-                std::vector<char> v(_text.begin(), _text.end());
-                v.push_back('\0');
-                char* str = &v[0];
-
-                if (str == nullptr)
-                    return;
-
-                bool inSpaces = true;
-                unsigned int start = 0;
-                unsigned int i = 0;
-                bool findEnd = false;
-
-                while (*str != '\0')
+                if (std::isspace(*str) && !inSpaces)
                 {
-                    if (std::isspace(*str) && !inSpaces)
-                    {
-                        inSpaces = true;
-                        if (findEnd)
-                            break;
-                        else
-                            start = i;
-                    }
-                    else if (!std::isspace(*str) && inSpaces)
-                    {
-                        inSpaces = false;
-                        if (findEnd)
-                            break;
-                        else
-                            start = i;
-                    }
-
-                    if (i >= index)
-                        findEnd = true;
-
-                    str++;
-                    i++;
+                    inSpaces = true;
+                    if (findEnd)
+                        break;
+                    else
+                        start = i;
+                }
+                else if (!std::isspace(*str) && inSpaces)
+                {
+                    inSpaces = false;
+                    if (findEnd)
+                        break;
+                    else
+                        start = i;
                 }
 
-                _selectionStartIndex = start;
-                _selectionEndIndex = _cursorIndex = i;
+                if (i >= index)
+                    findEnd = true;
 
-                updateCursorLocation();
-                updateSelectionRenderer();
+                str++;
+                i++;
             }
-        }
-    }
 
-    void textBox::onMouseUp(mouseEventArgs e)
-    {
-        if (_isClickingOver && e.leftButtonPressed)
-            _isClickingOver = false;
-    }
+            _selectionStartIndex = start;
+            _selectionEndIndex = _cursorIndex = i;
 
-    void textBox::onMouseMove(mouseEventArgs e)
-    {
-        if (_isClickingOver)
-        {
-            _selectionEndIndex = _cursorIndex = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e.x - _x - _textOffsetX, 0), _size.height));
             updateCursorLocation();
             updateSelectionRenderer();
         }
     }
 
-    void textBox::onMouseEnter(mouseEventArgs e)
+    void textBox::onMouseUp(mouseEventArgs* e)
+    {
+        if (_isClickingOver && e->leftButtonPressed)
+            _isClickingOver = false;
+    }
+
+    void textBox::onMouseMove(mouseEventArgs* e)
+    {
+        if (_isClickingOver)
+        {
+            _selectionEndIndex = _cursorIndex = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e->x - _x - _textOffsetX, 0), _size.height));
+            updateCursorLocation();
+            updateSelectionRenderer();
+        }
+    }
+
+    void textBox::onMouseEnter(mouseEventArgs* e)
     {
         uiSystem::get()->setCursor(uiRepository::repository->getResource<cursor>("TextCursor"));
     }

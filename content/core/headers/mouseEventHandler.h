@@ -7,7 +7,7 @@
 namespace phi
 {
     class mouseEventHandler :
-        public eventHandler<mouseEventArgs>
+        public eventHandler<mouseEventArgs*>
     {
     };
 }
