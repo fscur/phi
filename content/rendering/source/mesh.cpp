@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "globals.h"
+#include "path.h"
 
 #include <fstream>
 #include <iostream>
@@ -186,75 +187,162 @@ namespace phi
 		return token;
 	}
 
-	void mesh::saveToMb(std::string fileName)
-	{
-		LOG("SaveToMb: Loading " << fileName);
+    void mesh::setMaterial(material* value)
+    { 
+        _material = value; 
 
-		GLuint vSize = sizeof (vertex) * _vertices.size();
-		GLuint iSize = sizeof (GLuint) * _indices.size();
+        if (_material != nullptr)
+            _materialName = value->getName(); 
+    }
+
+	void mesh::saveToModel(std::string fileName)
+	{
+		LOG("saveToModel: " << fileName);
 
 		std::ofstream oFile;
-		oFile.open(fileName.c_str(), std::ios::out | std::ios::binary);
-		oFile.seekp(0);
-		oFile.write((char*)&vSize, sizeof(unsigned int));
-		oFile.write((char*)&iSize, sizeof(unsigned int));
+	    oFile.open(fileName.c_str(), std::ios::out | std::ios::binary);
 
-		for (auto v : _vertices)
-			oFile.write((char*)&v, sizeof(vertex));
+        if (!oFile.is_open())
+            return;
 
-		for (auto i : _indices)
-			oFile.write((char*)&i, sizeof(unsigned int));
+	    oFile.seekp(0);
+        oFile.write((char*)&_pSize, sizeof(GLuint));
+        oFile.write(reinterpret_cast<const char*>(_positionsBuffer), _pSize);
 
-		oFile.close();
+        oFile.write((char*)&_tSize, sizeof(GLuint));
+        oFile.write(reinterpret_cast<const char*>(_texCoordsBuffer), std::streamsize(_tSize));
+
+        oFile.write((char*)&_nSize, sizeof(GLuint));
+        oFile.write(reinterpret_cast<const char*>(_normalsBuffer), std::streamsize(_nSize));
+
+        oFile.write((char*)&_iSize, sizeof(GLuint));
+        oFile.write(reinterpret_cast<const char*>(_indicesBuffer), std::streamsize(_iSize));
+
+        oFile.write((char*)_material->getName().c_str(), 256);
+
+        oFile.close();
 	}
 
-	mesh* mesh::fromMb(std::string name, std::string fileName)
+	mesh* mesh::fromMesh(std::string fileName)
 	{
-		LOG("FromMb: Loading " << fileName);
+		LOG("fromMesh: " << fileName);
 
-		std::string line = std::string();
-
-		if (!globals::contains(fileName, ".mb"))
+		if (!globals::contains(fileName, ".mesh"))
 		{
-			LOG("Read OBJ: Invalid file format.");
+			LOG("fromMesh: Invalid file format.");
 			return nullptr;
 		}
 
-		std::vector<vertex> vertices; 
-		std::vector<GLuint> indices;
+		mesh* m = new mesh(path::getFileNameWithoutExtension(fileName), fileName);
 
-		GLuint vSize;
-		GLuint iSize;
+        GLuint pSize = -1;
+        char* materialName = new char[256];
 
-		std::ifstream iFile;
-		iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
-		iFile.seekg(0);
-		iFile.read ((char*)&vSize, sizeof(GLuint));
-		iFile.read ((char*)&iSize, sizeof(GLuint));
+	    std::ifstream iFile;
+	    iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
 
-		GLuint vCount = vSize / (sizeof(vertex));
-		GLuint iCount = iSize / (sizeof(GLuint));
+        if (!iFile.is_open())
+        {
+            LOG("fromMesh: Could not load the file.");
+            return nullptr;
+        }
 
-		for(GLuint i = 0; i < vCount; i++)
+	    iFile.seekg(0);
+    
+        iFile.read ((char*)&m->_pSize, sizeof(GLuint));
+        m->_positionsBuffer = new GLfloat[m->_pSize / sizeof(GLfloat)];
+        iFile.read(reinterpret_cast<char*>(m->_positionsBuffer), std::streamsize(m->_pSize));
+
+        iFile.read ((char*)&m->_tSize, sizeof(GLuint));
+        m->_texCoordsBuffer = new GLfloat[m->_tSize / sizeof(GLfloat)];
+        iFile.read(reinterpret_cast<char*>(m->_texCoordsBuffer), std::streamsize(m->_tSize));
+
+        iFile.read ((char*)&m->_nSize, sizeof(GLuint));
+        m->_normalsBuffer = new GLfloat[m->_nSize / sizeof(GLfloat)];
+        iFile.read(reinterpret_cast<char*>(m->_normalsBuffer), std::streamsize(m->_nSize));
+
+        iFile.read ((char*)&m->_iSize, sizeof(GLuint));
+        m->_indicesBuffer = new GLuint[m->_iSize / sizeof(GLuint)];
+        iFile.read(reinterpret_cast<char*>(m->_indicesBuffer), std::streamsize(m->_iSize));
+
+        iFile.read(materialName, 256);
+        m->_materialName = materialName;
+        
+        m->_indicesCount = m->_iSize / sizeof(GLuint);
+
+        for (int i = 0; i < m->_indicesCount; i++)
+            m->_indices.push_back(m->_indicesBuffer[i]);
+
+        GLuint verticesCount = m->_pSize / sizeof(GLfloat) / 3;
+
+        for (int i = 0; i < verticesCount; i++)
+        {
+            float x = m->_positionsBuffer[i * 3 + 0];
+            float y = m->_positionsBuffer[i * 3 + 1];
+            float z = m->_positionsBuffer[i * 3 + 2];
+
+            glm::vec3 position = glm::vec3(x, y, z);
+
+            float u = m->_texCoordsBuffer[i * 2 + 0];
+            float v = m->_texCoordsBuffer[i * 2 + 1];
+            
+            glm::vec2 texCoord = glm::vec2(u, v);
+
+            float r = m->_normalsBuffer[i * 3 + 0];
+            float s = m->_normalsBuffer[i * 3 + 1];
+            float t = m->_normalsBuffer[i * 3 + 2];
+
+            glm::vec3 normal = glm::vec3(r, s, t);
+
+            vertex vert = vertex(position, texCoord, normal);
+
+            m->_vertices.push_back(vert);
+        }
+
+        m->calcTangents(m->_vertices, m->_indices);
+
+		unsigned int tgIndex = 0;
+		m->_tangentsBuffer = new GLfloat[verticesCount * 3];
+
+		for (int i = 0; i < verticesCount; i++)
 		{
-			vertex v;
-			iFile.read((char*)&v, sizeof (vertex));    
-			vertices.push_back(v);
+			vertex vertex = m->_vertices[i];
+
+			GLfloat r1 = vertex.getTangent().x;
+			GLfloat s1 = vertex.getTangent().y;
+			GLfloat t1 = vertex.getTangent().z;
+
+			m->_tangentsBuffer[tgIndex++] = r1;
+			m->_tangentsBuffer[tgIndex++] = s1;
+			m->_tangentsBuffer[tgIndex++] = t1;
 		}
 
-		for(GLuint j = 0; j < iCount; j++)
-		{
-			GLuint i;
-			iFile.read ((char*)&i, sizeof (GLuint));
-			indices.push_back(i);
-		}
+        m->_tgSize = m->_nSize;
 
-		iFile.close();
+        glGenVertexArrays(1, &m->_vao);
+        glBindVertexArray(m->_vao);
 
-		mesh* _mesh = new mesh(name, fileName);
-		_mesh->addVertices(vertices, indices);
+        glGenBuffers(1, &m->_verticesVbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m->_verticesVbo);
+        glBufferData(GL_ARRAY_BUFFER, m->_pSize, m->_positionsBuffer, GL_STATIC_DRAW);
 
-		return _mesh;
+        glGenBuffers(1, &m->_texCoordsVbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m->_texCoordsVbo);
+        glBufferData(GL_ARRAY_BUFFER, m->_tSize, m->_texCoordsBuffer, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &m->_normalsVbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m->_normalsVbo);
+        glBufferData(GL_ARRAY_BUFFER, m->_nSize, m->_normalsBuffer, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &m->_tangentsVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, m->_tangentsVbo);
+		glBufferData(GL_ARRAY_BUFFER, m->_tgSize, m->_tangentsBuffer, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &m->_indicesVbo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->_indicesVbo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->_iSize, m->_indicesBuffer, GL_STATIC_DRAW);
+
+	    return m;
 	}
 
 	mesh* mesh::fromObj(std::string name, const std::string fileName, bool shouldCalcNormals)

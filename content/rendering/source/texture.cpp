@@ -61,7 +61,7 @@ namespace phi
 
 		SDL_FreeSurface(surface);
 
-		return new texture(id, size<GLuint>(width, height), path::getFileNameWithoutExtension(fileName), fileName);
+		return new texture(id, size<GLuint>(width, height), path::getFileName(fileName), fileName);
 	}
 
 	texture* texture::create(size<GLuint> size, GLint internalFormat, GLint format, GLint type, GLuint level, GLvoid* data)

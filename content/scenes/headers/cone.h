@@ -16,7 +16,7 @@ namespace phi
 		cone(){};
 		mesh* create(unsigned int sectors);
     public:
-        SCENES_API cone(glm::vec3 position, float height, float radius, unsigned int sectors, material* material);
+        SCENES_API cone(float height, float radius, unsigned int sectors, material* material);
         SCENES_API ~cone(void);
 		
 		SCENES_API float getRadius() const { return _radius; }

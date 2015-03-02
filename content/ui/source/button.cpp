@@ -6,7 +6,7 @@ namespace phi
     button::button(size<GLuint> viewportSize) : control(viewportSize)
     {
         _text = "";
-        _texture = uiRepository::repository->getResource<texture>("button");
+        _texture = uiRepository::repository->getResource<texture>("button.png");
         _textureRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
         _font = uiRepository::repository->getResource<font>("Consola_18");

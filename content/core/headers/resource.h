@@ -8,7 +8,7 @@ namespace phi
 {
     class resource
     {
-    private:
+    protected:
         std::string _name;
         std::string _path;
 
@@ -18,8 +18,10 @@ namespace phi
             _name = name;
             _path = path;
         }
-        CORE_API std::string getName() { return _name; }
-        CORE_API std::string getPath() { return _path; }
+        CORE_API std::string getName() const { return _name; }
+        CORE_API std::string getPath() const { return _path; }
+        
+        CORE_API void setName(std::string value) { _name = value; }
     };
 }
 

@@ -33,5 +33,7 @@ void main(void)
 	//fragColor = ambientLightColor;
 	fragColor = mat.ambientColor * mat.ka * ambientLightColor * texture(diffuseMap, fragTexCoord.xy);
 	
+	//fragColor = vec4(fragColor.rgb, 1.0);
+	
     selectionMap = vec4 (getIdColor(id), isSelected);
 }

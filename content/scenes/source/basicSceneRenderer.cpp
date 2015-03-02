@@ -97,23 +97,33 @@ namespace phi
 		for (GLuint i = 0; i < _allObjectsCount; i++)
 		{
 			sceneObject* sceneObj = (*_allObjects)[i];
-
+            
 			sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
 			sh->setUniform("id", sceneObj->getSceneId());
 			sh->setUniform("isSelected", sceneObj->getSelected());
 
-			if (sceneObj->getMaterial() == nullptr)
-			{
-				sh->setUniform("diffuseMap", _defaultDiffuseMap);
-				sh->setUniform("diffuseColor", color::white);
-			}
-			else
-			{
-				sh->setUniform("diffuseMap", sceneObj->getMaterial()->getDiffuseTexture());
-				sh->setUniform("diffuseColor", sceneObj->getMaterial()->getDiffuseColor());
-			}
+            std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+            auto meshesCount = meshes.size();
 
-			sceneObj->render();
+            for (GLuint j = 0; j < meshesCount; j++)
+		    {
+                mesh* m = meshes[j];
+
+                material* mat = m->getMaterial();
+
+			    if (mat == nullptr)
+			    {
+				    sh->setUniform("diffuseMap", _defaultDiffuseMap);
+				    sh->setUniform("diffuseColor", color::white);
+			    }
+			    else
+			    {
+				    sh->setUniform("diffuseMap", mat->getDiffuseTexture());
+				    sh->setUniform("diffuseColor", mat->getDiffuseColor());
+			    }
+
+			    meshRenderer::render(m);
+            }
 		}
 
 		sh->unbind();

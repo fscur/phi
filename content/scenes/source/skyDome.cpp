@@ -4,10 +4,17 @@
 namespace phi
 {
     skyDome::skyDome(float radius, int rings, int sectors, material* material)
-        : sceneObject(glm::vec3(0.0f), size<float>(radius, radius, radius), material)
+        : sceneObject()
     {   
 		_radius = radius;
-        _mesh = create(rings, sectors);
+
+        auto d = 2.0f * radius;
+        _size = size<float>(d, radius, d);
+
+        _model = new model("skyDome");
+        auto m = create(rings, sectors);
+        m->setMaterial(material);
+        _model->addMesh(m);
     }
 
 	skyDome::~skyDome()

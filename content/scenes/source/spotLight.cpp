@@ -15,8 +15,9 @@ namespace phi
 		_range = range;
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
 		_radius = calcRadius(cutoff, _range);
-		_boundingVolume = new cone(position, _range, _radius * 1.15, 5, NULL);
+		_boundingVolume = new cone(_range, _radius * 1.15, 5, nullptr);
 		_boundingVolume->setDirection(direction);
+        _boundingVolume->setPosition(position);
 	}
 
 	spotLight::~spotLight()

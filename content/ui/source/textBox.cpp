@@ -10,7 +10,7 @@ namespace phi
     textBox::textBox(size<GLuint> viewportSize) : control(viewportSize)
     {
         _text = "";
-        _texture = uiRepository::repository->getResource<texture>("button");
+        _texture = uiRepository::repository->getResource<texture>("button.png");
         _font = uiRepository::repository->getResource<font>("Consola_18");
         _backgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
         _cursorRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.03f, size<GLuint>(CURSOR_WIDTH, _font->getLineHeight(), 0), viewportSize);

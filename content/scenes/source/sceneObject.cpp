@@ -5,21 +5,23 @@
 
 namespace phi
 {
-    sceneObject::sceneObject(glm::vec3 position, size<float> size, material* material)
+    sceneObject::sceneObject()
     {
 		_sceneId = 0;
-        _position = position;
-        _size = size;
-        _material = material;
         
         _yaw = 0;
         _roll = 0;
         _pitch = 0;
-
+        
+        _position = glm::vec3(0.0f, 0.0f, 0.0f);
         _right = glm::vec3(1.0f, 0.0f, 0.0f);
         _up = glm::vec3(0.0f, 1.0f, 0.0f);
         _direction = glm::vec3(0.0f, 0.0f, 1.0f);
+        
+        _size = size<float>(1.0f, 1.0f, 1.0f);
+
         _transform = new transform();
+        
         _childrenCount = 0;
         _isSelected = false;
         _isActive = true;
@@ -47,18 +49,18 @@ namespace phi
 
     void sceneObject::initialize()
     {
-        initPoints();
-        _aabb = new aabb(_points);
+        /*initPoints();
+        _aabb = new aabb(_points);*/
     }
 
     void sceneObject::initPoints()
     {
-        std::vector<vertex> vertices = _mesh->getVertices();
+        /*std::vector<vertex> vertices = _mesh->getVertices();
         unsigned int count = vertices.size();
         _points.resize(count);
 
         for (unsigned int i = 0; i < count; i++)
-            _points[i] = vertices[i].getPosition();
+            _points[i] = vertices[i].getPosition();*/
     }
 
 	void sceneObject::addChild(sceneObject* child)
@@ -133,7 +135,7 @@ namespace phi
 
     void sceneObject::render()
     {
-        meshRenderer::render(_mesh);
+        //meshRenderer::render(_meshes[i]);
 
         for (unsigned int i = 0; i < _childrenCount; i++)
             _children[i]->render();
@@ -168,7 +170,7 @@ namespace phi
         glEnd();*/
 
         //bounding box
-
+        /*
         glm::vec3 min = _aabb->getMin();
         glm::vec3 max = _aabb->getMax();
         glm::vec3 center = _aabb->getCenter();
@@ -242,9 +244,10 @@ namespace phi
             glVertex3f(p0.x, p0.y, p0.z); glVertex3f(p1.x, p1.y, p1.z);
         }*/
 
-        glPopMatrix();
+        //glPopMatrix();
 
-        glEnd();
+        //glEnd();
+        
 #endif
     }
 
@@ -297,5 +300,12 @@ namespace phi
         _right = glm::normalize(_right);
         _direction = glm::normalize(_direction);
         _changed = true;
+    }
+
+    sceneObject* sceneObject::create(model* model)
+    {
+        sceneObject* sceneObj = new sceneObject();
+        sceneObj->_model = model;
+        return sceneObj;
     }
 }

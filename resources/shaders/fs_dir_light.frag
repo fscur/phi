@@ -56,7 +56,7 @@ void main()
 
 	fragColor = light.color * texture(diffuseMap, fragTexCoord) * mat.diffuseColor * diffuse + mat.specularColor * spec;
 	
-	//fragColor = vec4(fragNormal, 1.0);
-	//fragColor = vec4(1.0, 1.0, 1.0, 1.0);
+	//fragColor = vec4(fragColor.rgb, 1.0);
+	//fragColor = vec4(0.0, 0.0, 1.0, 1.0);
 }
 

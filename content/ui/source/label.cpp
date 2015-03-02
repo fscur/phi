@@ -5,7 +5,7 @@ namespace phi
     label::label(size<GLuint> viewportSize) : control(viewportSize)
     {
         _text = "";
-        _texture = uiRepository::repository->getResource<texture>("button");
+        _texture = uiRepository::repository->getResource<texture>("button.png");
         _textRenderer = new textRenderer2D(viewportSize);
         _font = uiRepository::repository->getResource<font>("Consola_14");
         _textX = 0;

@@ -3,7 +3,7 @@
 
 #include "scenes.h"
 #include "material.h"
-#include "mesh.h"
+#include "model.h"
 #include "transform.h"
 #include "size.h"
 #include "aabb.h"
@@ -15,8 +15,6 @@ namespace phi
     class sceneObject
     {
     private:
-        size<float> _size;
-        material* _material;
 
         float _roll;
         float _pitch;
@@ -35,11 +33,12 @@ namespace phi
 		unsigned int _sceneId;
 
     protected:
+        model* _model;
+        size<float> _size;
         glm::vec3 _position;
         glm::vec3 _right;
         glm::vec3 _up;
         glm::vec3 _direction;
-        mesh *_mesh;
         transform* _transform; 
         bool _changed;
 
@@ -47,10 +46,8 @@ namespace phi
         void initPoints();
         void updateAabb();
         void update(glm::mat4 transform);
-    protected:
-        sceneObject(){}
     public:
-        SCENES_API sceneObject(glm::vec3 position, size<float> size, material* material);
+        SCENES_API sceneObject();
         SCENES_API virtual ~sceneObject(void);
 
         SCENES_API glm::vec3 getPosition() const { return _position; }
@@ -58,17 +55,15 @@ namespace phi
         SCENES_API glm::vec3 getDirection() const { return _direction; }
         SCENES_API glm::vec3 getRight() const { return _right; }
         SCENES_API glm::vec3 getUp() const { return _up; }
-        SCENES_API material* getMaterial() const { return _material; }
         SCENES_API std::vector<sceneObject*> getChildren() const { return _children; }
         SCENES_API transform* getTransform() const { return _transform; }
-        SCENES_API mesh* getMesh() const { return _mesh; }
+        SCENES_API model* getModel() const { return _model; }
         SCENES_API aabb* getAabb() const { return _aabb; }
 		SCENES_API virtual bool getChanged() const { return _changed; }
 		SCENES_API bool getSelected() const { return _isSelected; }
         SCENES_API unsigned int getSceneId() const { return _sceneId; }
         
         SCENES_API void setSelected(bool value) { _isSelected = value; }
-		SCENES_API void setMaterial(material* value) { _material = value; _changed = true; }
 		SCENES_API void setPosition(glm::vec3 value) { _position = value; _changed = true; }
 		SCENES_API void setSize(size<float> value) { _size = value; _changed = true; }
 		SCENES_API void setDirection(glm::vec3 direction);
@@ -86,6 +81,8 @@ namespace phi
         SCENES_API void roll(float angle);
         SCENES_API void pitch(float angle);
         SCENES_API void yaw(float angle);
+
+        SCENES_API static sceneObject* create(model* model);
     };
 }
 #endif

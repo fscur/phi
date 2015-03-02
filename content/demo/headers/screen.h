@@ -11,6 +11,7 @@
 #include "ray.h"
 #include "size.h"
 #include "commandsManager.h"
+#include "resourcesLoader.h"
 
 class screen :
     public form
@@ -40,6 +41,9 @@ private:
 	phi::pointLight* _blueLight;
 
 	phi::commandsManager _commandsManager;
+    phi::resourcesLoader _resourcesLoader;
+    phi::resourcesRepository* _resourcesRepo;
+
 private:
 	void initScenesManager();
     void initScene();

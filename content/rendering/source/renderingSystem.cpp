@@ -47,86 +47,79 @@ namespace phi
     void renderingSystem::initTextures()
     {
         std::string texturesPath = info.applicationPath + RENDERING_TEXTURES_PATH;
-        repository->addResource(texture::fromFile(texturesPath + "default_diffuseMap.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "default_normalMap.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "default_specularMap.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "alpha.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "close.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "test.tga"));
-        repository->addResource(texture::fromFile(texturesPath + "diffuse.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "normal.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "specular.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "BubbleGrip-ColorMap.bmp"));
-        repository->addResource(texture::fromFile(texturesPath + "BubbleGrip-NormalMap.bmp"));
     }
 
     void renderingSystem::initMaterials()
     {
-        repository->addResource(new material("bricks", "",
-            repository->getResource<texture>("diffuse"), //diffuse texture
-            repository->getResource<texture>("normal"), //normal texture
-            repository->getResource<texture>("specular"), //specular texture,
-            color::white, // ambient color
-            color::white, //diffuse color
-            color::gray, //specular color
-            0.2f, // ambient reflectance coeff
-            0.8f, // diffuse reflectance coeff
-            0.1f, // specular reflectance coeff
-            6.5f)); // shininess
+        //material* defaultMat = new material("default", "",
+        //    "diffuse", //diffuse texture
+        //    "normal", //normal texture
+        //    "specular", //specular texture,
+        //    color::white, // ambient color
+        //    color::white, //diffuse color
+        //    color::gray, //specular color
+        //    0.2f, // ambient reflectance coeff
+        //    0.8f, // diffuse reflectance coeff
+        //    0.1f, // specular reflectance coeff
+        //    6.5f);
 
-        repository->addResource(new material("red", "",
-            nullptr, //diffuse texture
-            nullptr, //normal texture
-            nullptr, //specular texture,
-            color::red, // ambient color
-            color::red, //diffuse color
-            color::red, //specular color
-            0.2f, // ambient reflectance coeff
-            0.8f, // diffuse reflectance coeff
-            0.0f, // specular reflectance coeff
-            0.0f)); // shininess
+        //repository->getResource<texture>(
 
-        repository->addResource(new material("blue", "",
-            nullptr, //diffuse texture
-            nullptr, //normal texture
-            nullptr, //specular texture,
-            color::blue, // ambient color
-            color::blue, //diffuse color
-            color::blue, //specular color
-            0.2f, // ambient reflectance coeff
-            0.8f, // diffuse reflectance coeff
-            4.0f, // specular reflectance coeff
-            64.0f)); // shininess
+        //repository->addResource(); // shininess
 
-        repository->addResource(new material("white", "",
-            nullptr, //diffuse texture
-            nullptr, //normal texture
-            nullptr, //specular texture,
-            color::white, // ambient color
-            color::white, //diffuse color
-            color::white, //specular color
-            0.2f, // ambient reflectance coeff
-            0.8f, // diffuse reflectance coeff
-            0.0f, // specular reflectance coeff
-            0.0f)); // shininess
+        //repository->addResource(new material("red", "",
+        //    nullptr, //diffuse texture
+        //    nullptr, //normal texture
+        //    nullptr, //specular texture,
+        //    color::red, // ambient color
+        //    color::red, //diffuse color
+        //    color::red, //specular color
+        //    0.2f, // ambient reflectance coeff
+        //    0.8f, // diffuse reflectance coeff
+        //    0.0f, // specular reflectance coeff
+        //    0.0f)); // shininess
 
-        repository->addResource(new material("bubble", "",
-            repository->getResource<texture>("BubbleGrip-ColorMap"), //diffuse texture
-            repository->getResource<texture>("BubbleGrip-NormalMap"), //normal texture
-            nullptr, //specular texture,
-            color::red, // ambient color
-            color::orange, //diffuse color
-            color::orange, //specular color
-            0.2f, // ambient reflectance coeff
-            0.3f, // diffuse reflectance coeff
-            4.8f, // specular reflectance coeff
-            8.0f)); // shininess
+        //repository->addResource(new material("blue", "",
+        //    nullptr, //diffuse texture
+        //    nullptr, //normal texture
+        //    nullptr, //specular texture,
+        //    color::blue, // ambient color
+        //    color::blue, //diffuse color
+        //    color::blue, //specular color
+        //    0.2f, // ambient reflectance coeff
+        //    0.8f, // diffuse reflectance coeff
+        //    4.0f, // specular reflectance coeff
+        //    64.0f)); // shininess
+
+        //repository->addResource(new material("white", "",
+        //    nullptr, //diffuse texture
+        //    nullptr, //normal texture
+        //    nullptr, //specular texture,
+        //    color::white, // ambient color
+        //    color::white, //diffuse color
+        //    color::white, //specular color
+        //    0.2f, // ambient reflectance coeff
+        //    0.8f, // diffuse reflectance coeff
+        //    0.0f, // specular reflectance coeff
+        //    0.0f)); // shininess
+
+        //repository->addResource(new material("bubble", "",
+        //    repository->getResource<texture>("BubbleGrip-ColorMap"), //diffuse texture
+        //    repository->getResource<texture>("BubbleGrip-NormalMap"), //normal texture
+        //    nullptr, //specular texture,
+        //    color::red, // ambient color
+        //    color::orange, //diffuse color
+        //    color::orange, //specular color
+        //    0.2f, // ambient reflectance coeff
+        //    0.3f, // diffuse reflectance coeff
+        //    4.8f, // specular reflectance coeff
+        //    8.0f)); // shininess
     }
 
     void renderingSystem::initMeshes()
     {
-        std::string meshesPath = info.applicationPath + RENDERING_MESHES_PATH;
-        repository->addResource(mesh::fromObj("box", meshesPath + "cube.model"));
+    /*    std::string meshesPath = info.applicationPath + RENDERING_MESHES_PATH;
+        repository->addResource(mesh::fromObj("box", meshesPath + "cube.model"));*/
     }
 
     void renderingSystem::release()

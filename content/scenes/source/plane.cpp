@@ -10,11 +10,31 @@ namespace phi
     {
     }
 
-    plane::plane(glm::vec3 normal, glm::vec3 position, size<float> size, material* material)
-        : sceneObject(position, size, material)
+    plane::plane(glm::vec3 normal, float width, float depth, material* material)
+        : sceneObject()
     {
-        float halfWidth = size.width / 2.0f;
-        float halfDepth = size.depth / 2.0f;
+        _size = size<float>(width, 0.01f, depth);
+
+        auto m = create(width, depth);
+        m->setMaterial(material);
+        _model = new model("plane");
+        _model->addMesh(m);
+
+        _normal = glm::normalize(normal);
+
+        _up = _normal;
+
+        _right = glm::cross(_up, _direction);
+        _direction = glm::cross(_right, _up);
+
+        _right = glm::normalize(_right);
+        _direction = glm::normalize(_direction);
+    }
+
+    mesh* plane::create(float width, float depth)
+    {
+        float halfWidth = width / 2.0f;
+        float halfDepth = depth / 2.0f;
 
         glm::vec3 p0 = glm::vec3(-0.5f, 0.0f, -0.5f);
         glm::vec2 t0 = glm::vec2(0.0f, 0.0f);
@@ -52,17 +72,7 @@ namespace phi
         indices.push_back(3);
         indices.push_back(0);
 
-		_mesh = mesh::create("plane", vertices, indices);
-
-        _normal = glm::normalize(normal);
-
-        _up = _normal;
-
-        _right = glm::cross(_up, _direction);
-        _direction = glm::cross(_right, _up);
-
-        _right = glm::normalize(_right);
-        _direction = glm::normalize(_direction);
+		return mesh::create("mesh0", vertices, indices);
     }
 
     void plane::setNormal(glm::vec3 normal)
@@ -100,48 +110,48 @@ namespace phi
 		sceneObject::debugRender();
 
 #ifdef WIN32
-        if (_points.size() == 0)
-            return;
+        //if (_points.size() == 0)
+        //    return;
 
-        glPushMatrix();
-        //glDisable(GL_CULL_FACE);
+        //glPushMatrix();
+        ////glDisable(GL_CULL_FACE);
 
-        glBegin(GL_LINE_STRIP);
-        glColor3f(getMaterial()->getDiffuseColor().r, getMaterial()->getDiffuseColor().g, getMaterial()->getDiffuseColor().b);
+        //glBegin(GL_LINE_STRIP);
+        //glColor3f(getMaterial()->getDiffuseColor().r, getMaterial()->getDiffuseColor().g, getMaterial()->getDiffuseColor().b);
 
-        float width = getSize().width;
-        float depth = getSize().depth;
+        //float width = getSize().width;
+        //float depth = getSize().depth;
 
-        /*glm::vec3 botLeft = _position -_right * depth - _direction * width;
-        glm::vec3 botRight = _position -_right * depth + _direction * width;
-        glm::vec3 topLeft = _position + _right * depth - _direction * width;
-        glm::vec3 topRight = _position + _right * depth + _direction * width;*/
+        ///*glm::vec3 botLeft = _position -_right * depth - _direction * width;
+        //glm::vec3 botRight = _position -_right * depth + _direction * width;
+        //glm::vec3 topLeft = _position + _right * depth - _direction * width;
+        //glm::vec3 topRight = _position + _right * depth + _direction * width;*/
 
-        glm::vec3 botLeft = _points[0];
-        glm::vec3 botRight = _points[1];
-        glm::vec3 topRight = _points[2];
-        glm::vec3 topLeft = _points[3];
+        //glm::vec3 botLeft = _points[0];
+        //glm::vec3 botRight = _points[1];
+        //glm::vec3 topRight = _points[2];
+        //glm::vec3 topLeft = _points[3];
 
-        glVertex3f(botLeft.x, botLeft.y, botLeft.z); 
-        glVertex3f(botRight.x, botRight.y, botRight.z);
-        glVertex3f(topRight.x, topRight.y, topRight.z);
-        glVertex3f(topLeft.x, topLeft.y, topLeft.z);
-        glVertex3f(botLeft.x, botLeft.y, botLeft.z);
-        glEnd();
-        
-        //glEnable(GL_CULL_FACE);
+        //glVertex3f(botLeft.x, botLeft.y, botLeft.z); 
+        //glVertex3f(botRight.x, botRight.y, botRight.z);
+        //glVertex3f(topRight.x, topRight.y, topRight.z);
+        //glVertex3f(topLeft.x, topLeft.y, topLeft.z);
+        //glVertex3f(botLeft.x, botLeft.y, botLeft.z);
+        //glEnd();
+        //
+        ////glEnable(GL_CULL_FACE);
 
-        glBegin(GL_LINES);
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(_position.x + 0.01f, _position.y + 0.01f, _position.z + 0.01f); glVertex3f(_position.x  + 0.01f+ _right.x, _position.y  + 0.01f + _right.y, _position.z  + 0.01f + _right.z);
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(_position.x + 0.01f, _position.y + 0.01f, _position.z + 0.01f); glVertex3f(_position.x  + 0.01f+ _up.x, _position.y  + 0.01f + _up.y, _position.z  + 0.01f + _up.z);
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(_position.x + 0.01f, _position.y + 0.01f, _position.z + 0.01f); glVertex3f(_position.x  + 0.01f+ _direction.x, _position.y  + 0.01f + _direction.y, _position.z  + 0.01f + _direction.z);
-        
-        glEnd();
+        //glBegin(GL_LINES);
+        //glColor3f(1.0f, 0.0f, 0.0f);
+        //glVertex3f(_position.x + 0.01f, _position.y + 0.01f, _position.z + 0.01f); glVertex3f(_position.x  + 0.01f+ _right.x, _position.y  + 0.01f + _right.y, _position.z  + 0.01f + _right.z);
+        //glColor3f(0.0f, 1.0f, 0.0f);
+        //glVertex3f(_position.x + 0.01f, _position.y + 0.01f, _position.z + 0.01f); glVertex3f(_position.x  + 0.01f+ _up.x, _position.y  + 0.01f + _up.y, _position.z  + 0.01f + _up.z);
+        //glColor3f(0.0f, 0.0f, 1.0f);
+        //glVertex3f(_position.x + 0.01f, _position.y + 0.01f, _position.z + 0.01f); glVertex3f(_position.x  + 0.01f+ _direction.x, _position.y  + 0.01f + _direction.y, _position.z  + 0.01f + _direction.z);
+        //
+        //glEnd();
 
-        glPopMatrix();
+        //glPopMatrix();
 #endif
     }
 }

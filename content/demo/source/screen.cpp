@@ -3,6 +3,7 @@
 #include "plane.h"
 #include "sphere.h"
 #include "cone.h"
+#include "bunny.h"
 #include "colorAnimator.h"
 #include "fsSceneRenderer.h"
 #include "dsSceneRenderer.h"
@@ -13,6 +14,7 @@
 #include "renderingCommunicationBuffer.h"
 
 float a;
+float angle;
 
 screen::screen() : form()
 {
@@ -42,54 +44,21 @@ void screen::initScene()
 {
     phi::scene* s = new phi::scene();
     s->setSize(getSize());
-    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 0.5f, 5.0f));
+    s->getActiveCamera()->setPosition(glm::vec3(-5.0f, 2.0f, 5.0f));
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-    phi::box* box1 = new phi::box(glm::vec3(), phi::size<float>(1.0f, 1.0f, 1.0f), phi::renderingSystem::repository->getResource<phi::material>("blue"));
-    box1->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-    s->add(box1);
+    phi::sceneObject* obj = phi::sceneObject::create(_resourcesRepo->getResource<phi::model>("cube"));
+    s->add(obj);
 
-    //phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("white"));
-    //sphere->setPosition(glm::vec3(2.0f, 0.5f, 0.0f));
-    //s->add(sphere);
-    //
-    //phi::sphere* sphere2 = new phi::sphere(glm::vec3(), 2.0f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("red"));
-    //sphere->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
-    //s->add(sphere2);
+    /*phi::box* b = new phi::box(phi::size<float>(1.0f, 1.0f, 1.0f), _resourcesRepo->getResource<phi::material>("default"));
+    s->add(b);*/
 
-    //phi::sphere* sphere = new phi::sphere(glm::vec3(), 0.5f, 16, 32, phi::renderingSystem::repository->getResource<phi::material>("red"));
-    //sphere->setPosition(glm::vec3(2.0f, 0.5f, 0.0f));
-    //s->add(sphere);
-
-    phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), phi::size<float>(17.0f, 0.5f, 17.0f), phi::renderingSystem::repository->getResource<phi::material>("white"));
-    s->add(floor);
-
-    phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(), phi::color::white, 0.5f, glm::vec3(-1.0f, -1.0f, 0.0f));
+    phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(), phi::color::white, 1.0f, glm::vec3(-0.3f, -0.4f, -0.5f));
     s->add(dirLight);
-
-    /*for (int x = 0; x < 10; x++)
-    {
-    for (int z = 0; z < 10; z++)
-    {
-    phi::pointLight* p = new phi::pointLight(glm::vec3(x * 10, 2.5f, z * 10), phi::color::fromRGBA(1.0, 1.0, 1.0, 1.0), 1.0, 5.0f);
-    s->add(p);
-    }
-    }*/
-
-    phi::pointLight* pLight = new phi::pointLight(glm::vec3(0.0f, 4.0f, 0.0f), phi::color::blue, 2.0f, 5.0f);
-    s->add(pLight);
-
-    //phi::spotLight* sLight = new phi::spotLight(glm::vec3(0.0f, 5.0f, 0.0f), phi::color::orange, 1.0f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.8f);
-    //s->add(sLight);
 
     phi::scenesManager::get()->addScene(s);
     phi::scenesManager::get()->loadScene(0);
-
-    phi::camera* debugCamera = new phi::camera(0.1f, 1000.0f, 800.0f / 600.0f, phi::PI_OVER_4);
-    debugCamera->setPosition(glm::vec3(50.0f, 0.0f, 0.0f));
-    debugCamera->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-    s->add(debugCamera);
 }
 
 void screen::initUI()
@@ -217,12 +186,12 @@ void screen::onInitialize()
     setSize(phi::size<unsigned int>(1024, 768));
     centerScreen();
 
+    _resourcesRepo = _resourcesLoader.load();
+
     initScenesManager();
     initScene();
     initUI();
 }
-
-float angle;
 
 void screen::update()
 {

@@ -2,11 +2,17 @@
 
 namespace phi
 {
-    sphere::sphere(glm::vec3 position, float radius, int rings, int sectors, material* material)
-        : sceneObject(position, size<float>(radius, radius, radius), material)
-    {   
+    sphere::sphere(float radius, int rings, int sectors, material* material)
+        : sceneObject()
+    {
 		_radius = radius;
-        _mesh = create(rings + 1, sectors + 1);
+        auto d = 2.0f * radius;
+        _size = size<float>(d, d, d);
+
+        _model = new model("sphere");
+        auto m = create(rings + 1, sectors + 1);
+        m->setMaterial(material);
+        _model->addMesh(m);
     }
 
 	sphere::~sphere()

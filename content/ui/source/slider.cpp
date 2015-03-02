@@ -4,7 +4,7 @@ namespace phi
 {
 	slider::slider(size<GLuint> viewportSize) : control(viewportSize)
 	{
-		_texture = uiRepository::repository->getResource<texture>("button");
+		_texture = uiRepository::repository->getResource<texture>("button.png");
 		_trackQuad = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
 		_sliderQuad = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.01f, size<GLuint>(0, SLIDER_HEIGHT, 0), viewportSize);
 		_valueChanged = new eventHandler<eventArgs>();

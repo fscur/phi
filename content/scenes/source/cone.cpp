@@ -2,16 +2,23 @@
 
 namespace phi
 {
-    cone::cone(glm::vec3 position, float height, float radius, unsigned int sectors, material* material)
-        : sceneObject(position, size<float>(radius, radius, height), material)
+    cone::cone(float height, float radius, unsigned int sectors, material* material)
+        : sceneObject()
     {   
 		_radius = radius;
-		
+		auto d =  2.0f * radius;
+        _size = size<float>(d, height, d);
+
 		_up = glm::vec3(0.0f, 0.0f, 1.0f);
         _right = glm::vec3(1.0f, 0.0f, 0.0f);
         _direction = glm::vec3(0.0f, -1.0f, 0.0f);
 
-        _mesh = create(sectors);
+        _model = new model("cone");
+        auto m = create(sectors);
+        m->setMaterial(material);
+        _model->addMesh(m);
+
+        _model->addMesh(m);
     }
 
 	cone::~cone()
@@ -157,7 +164,7 @@ namespace phi
 	void cone::debugRender()
 	{
 	#ifdef WIN32
-
+        /*
 		std::vector<vertex> vertices = _mesh->getVertices();
 
         glPushMatrix();
@@ -216,9 +223,9 @@ namespace phi
 			glVertex3f(a.x, a.y, a.z);
 		}*/
 
-        glEnd();
+        //glEnd();
 
-        glPopMatrix();
+        //glPopMatrix();
 #endif
 	
 	}

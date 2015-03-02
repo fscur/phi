@@ -13,8 +13,9 @@ namespace phi
             std::vector<glm::vec3> _points;
         private:
             plane();
+            mesh* create(float width, float depth);
         public:
-            SCENES_API plane(glm::vec3 normal, glm::vec3 position, size<float> size, material* material);
+            SCENES_API plane(glm::vec3 normal, float width, float depth, material* material);
             SCENES_API ~plane(void);
 
             SCENES_API glm::vec3 getNormal() const { return _up; }

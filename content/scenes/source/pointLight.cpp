@@ -10,8 +10,9 @@ namespace phi
         _boundingVolumeSides = 5;
 		_range = range;
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
-		_boundingVolume = new sphere(position, calcRange(_range, _boundingVolumeSides), _boundingVolumeSides, _boundingVolumeSides, nullptr);
-	}
+		_boundingVolume = new sphere(calcRange(_range, _boundingVolumeSides), _boundingVolumeSides, _boundingVolumeSides, nullptr);
+	    _boundingVolume->setPosition(position);
+    }
 
 	pointLight::~pointLight()
 	{   

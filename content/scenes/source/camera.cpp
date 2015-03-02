@@ -5,7 +5,7 @@
 namespace phi
 {
     camera::camera(float zNear, float zFar, float aspect, float fov, float focusDistance)  : 
-        sceneObject(glm::vec3(0.0f, 0.0f, 1.0f), size<float>(), NULL)
+        sceneObject()
     {
         _focus = focusDistance;
         _zoomFactor = 0.3f;

@@ -19,10 +19,13 @@ namespace phi
     {
     private:
         GLuint _id;
+
 	protected:
 		size<GLuint> _size;
+
     private:
 		texture(GLuint id, size<GLuint> size, std::string name, std::string path);
+
     public:
         RENDERING_API ~texture();
 

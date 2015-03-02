@@ -3,10 +3,15 @@
 
 namespace phi
 {
-    box::box(glm::vec3 position, phi::size<float> size, phi::material* material)
-        : sceneObject(position, size, material)
+    box::box(phi::size<float> size, phi::material* material)
+        : sceneObject()
     {   
-        _mesh = create();
+        _size = size;
+        _model = new model("box");
+        auto m = create();
+        
+        m->setMaterial(material);
+        _model->addMesh(m);
     }
 
     box::~box(void)

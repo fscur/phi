@@ -13,7 +13,7 @@ namespace phi
         mesh* create();
 
 	public:
-		SCENES_API box(glm::vec3 position, phi::size<float> size, phi::material* material);
+		SCENES_API box(phi::size<float> size, phi::material* material);
 		SCENES_API ~box(void);
 	};
 }

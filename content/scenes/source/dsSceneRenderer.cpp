@@ -290,28 +290,39 @@ namespace phi
             if(!_hasSelectedObjects)
                 _hasSelectedObjects = sceneObj->getSelected();
 
+
             sh->setUniform("mv", sceneObj->getTransform()->getMv());
             sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
             sh->setUniform("itmv", sceneObj->getTransform()->getItmv());
 
             sh->setUniform("ambientLightColor", _scene->getAmbientColor());
 
-            phi::material* mat = sceneObj->getMaterial();
-            sh->setUniform("mat.ambientColor", mat->getAmbientColor());
-            sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
-            sh->setUniform("mat.specularColor", mat->getSpecularColor());
-            sh->setUniform("mat.ka", mat->getKa());
-            sh->setUniform("mat.kd", mat->getKd());
-            sh->setUniform("mat.ks", mat->getKs());
-            sh->setUniform("mat.shininess", mat->getShininess());
-
-            sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-            sh->setUniform("normalMap", mat->getNormalTexture());
-            sh->setUniform("specularMap", mat->getSpecularTexture());
-
             sh->setUniform("isSelected", sceneObj->getSelected());
             sh->setUniform("id", sceneObj->getSceneId());
-            sceneObj->render();
+            
+            std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+            auto meshesCount = meshes.size();
+
+            for (GLuint j = 0; j < meshesCount; j++)
+		    {
+                mesh* m = meshes[j];
+
+                material* mat = m->getMaterial();
+
+                sh->setUniform("mat.ambientColor", mat->getAmbientColor());
+                sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
+                sh->setUniform("mat.specularColor", mat->getSpecularColor());
+                sh->setUniform("mat.ka", mat->getKa());
+                sh->setUniform("mat.kd", mat->getKd());
+                sh->setUniform("mat.ks", mat->getKs());
+                sh->setUniform("mat.shininess", mat->getShininess());
+
+                sh->setUniform("diffuseMap", mat->getDiffuseTexture());
+                sh->setUniform("normalMap", mat->getNormalTexture());
+                sh->setUniform("specularMap", mat->getSpecularTexture());
+
+                meshRenderer::render(m);
+            }
         }
 
         sh->unbind();
