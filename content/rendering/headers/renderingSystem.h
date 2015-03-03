@@ -29,16 +29,11 @@ namespace phi
 
     class renderingSystem
     {
-    private:
-        static void initTextures();
-        static void initMaterials();
-        static void initMeshes();
 
     public:
         RENDERING_API static renderingSystemInfo info;
         RENDERING_API static defaultFrameBuffer* defaultFrameBuffer;
 		RENDERING_API static pickingFrameBuffer* pickingFrameBuffer;
-        RENDERING_API static resourcesRepository* repository;
         RENDERING_API static FT_Library freeTypeLibrary;
         RENDERING_API static bool initialized;
 

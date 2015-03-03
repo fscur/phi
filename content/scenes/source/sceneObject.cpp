@@ -7,7 +7,7 @@ namespace phi
 {
     sceneObject::sceneObject()
     {
-		_sceneId = 0;
+		_id = 0;
         
         _yaw = 0;
         _roll = 0;
@@ -307,5 +307,21 @@ namespace phi
         sceneObject* sceneObj = new sceneObject();
         sceneObj->_model = model;
         return sceneObj;
+    }
+    
+    void sceneObject::selectMesh(GLuint meshId)
+    {
+        auto meshes = _model->getMeshes();
+        auto meshesCount = meshes.size();
+
+        for (unsigned int i = 0; i < meshesCount; i++)
+        {
+            auto m = meshes[i];
+
+            if (m->getId() == meshId && !m->getSelected())
+                m->setSelected(true);
+            else
+                m->setSelected(false);
+        }
     }
 }

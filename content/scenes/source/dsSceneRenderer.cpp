@@ -299,7 +299,7 @@ namespace phi
             sh->setUniform("ambientLightColor", _scene->getAmbientColor());
 
             sh->setUniform("isSelected", sceneObj->getSelected());
-            sh->setUniform("id", sceneObj->getSceneId());
+            sh->setUniform("id", sceneObj->getId());
             
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
             auto meshesCount = meshes.size();

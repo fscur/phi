@@ -30,7 +30,7 @@ namespace phi
         std::vector<glm::vec3> _points;
         glm::mat4 _modelMatrix;
 
-		unsigned int _sceneId;
+		unsigned int _id;
 
     protected:
         model* _model;
@@ -61,13 +61,13 @@ namespace phi
         SCENES_API aabb* getAabb() const { return _aabb; }
 		SCENES_API virtual bool getChanged() const { return _changed; }
 		SCENES_API bool getSelected() const { return _isSelected; }
-        SCENES_API unsigned int getSceneId() const { return _sceneId; }
+        SCENES_API unsigned int getId() const { return _id; }
         
         SCENES_API void setSelected(bool value) { _isSelected = value; }
 		SCENES_API void setPosition(glm::vec3 value) { _position = value; _changed = true; }
 		SCENES_API void setSize(size<float> value) { _size = value; _changed = true; }
 		SCENES_API void setDirection(glm::vec3 direction);
-		SCENES_API void setSceneId(unsigned int value) { _sceneId = value; }
+		SCENES_API void setId(unsigned int value) { _id = value; }
         
         SCENES_API void initialize();
 
@@ -83,6 +83,8 @@ namespace phi
         SCENES_API void yaw(float angle);
 
         SCENES_API static sceneObject* create(model* model);
+
+        SCENES_API void selectMesh(GLuint meshId);
     };
 }
 #endif

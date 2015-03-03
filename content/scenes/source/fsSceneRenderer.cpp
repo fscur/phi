@@ -214,9 +214,9 @@ namespace phi
 
             glm::mat4 modelMatrix = sceneObj->getTransform()->getModelMatrix();
 
-            _modelMatrices[sceneObj->getSceneId()] = modelMatrix;
-            _mvpMatrices[sceneObj->getSceneId()] = _projMatrix * _viewMatrix * modelMatrix;
-            _itmvMatrices[sceneObj->getSceneId()] = glm::inverse(glm::transpose(_viewMatrix * modelMatrix));
+            _modelMatrices[sceneObj->getId()] = modelMatrix;
+            _mvpMatrices[sceneObj->getId()] = _projMatrix * _viewMatrix * modelMatrix;
+            _itmvMatrices[sceneObj->getId()] = glm::inverse(glm::transpose(_viewMatrix * modelMatrix));
         }
 
         ambientLightPass();
@@ -234,12 +234,12 @@ namespace phi
         {
             sceneObject* sceneObj = (*_allObjects)[i];
             
-            glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
-            glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
+            glm::mat4 modelMatrix = _modelMatrices[sceneObj->getId()];
+            glm::mat4 mvp = _mvpMatrices[sceneObj->getId()];
             
             sh->setUniform("mvp", mvp);
             sh->setUniform("ambientLightColor", _scene->getAmbientColor());
-            sh->setUniform("id", sceneObj->getSceneId());
+            sh->setUniform("id", sceneObj->getId());
             sh->setUniform("isSelected", sceneObj->getSelected());
 
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
@@ -288,9 +288,9 @@ namespace phi
             {
                 sceneObject* sceneObj = (*_allObjects)[i];
 
-                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
-                glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
-                glm::mat4 itmv = _itmvMatrices[sceneObj->getSceneId()];
+                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getId()];
+                glm::mat4 mvp = _mvpMatrices[sceneObj->getId()];
+                glm::mat4 itmv = _itmvMatrices[sceneObj->getId()];
 
                 sh->setUniform("p", _projMatrix);
                 sh->setUniform("v", _viewMatrix);
@@ -362,9 +362,9 @@ namespace phi
             {
                 sceneObject* sceneObj = (*_allObjects)[i];
 
-                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
-                glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
-                glm::mat4 itmv = _itmvMatrices[sceneObj->getSceneId()];
+                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getId()];
+                glm::mat4 mvp = _mvpMatrices[sceneObj->getId()];
+                glm::mat4 itmv = _itmvMatrices[sceneObj->getId()];
 
                 sh->setUniform("p", _projMatrix);
                 sh->setUniform("v", _viewMatrix);
@@ -435,9 +435,9 @@ namespace phi
             {
                 sceneObject* sceneObj = (*_allObjects)[i];
 
-                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getSceneId()];
-                glm::mat4 mvp = _mvpMatrices[sceneObj->getSceneId()];
-                glm::mat4 itmv = _itmvMatrices[sceneObj->getSceneId()];
+                glm::mat4 modelMatrix = _modelMatrices[sceneObj->getId()];
+                glm::mat4 mvp = _mvpMatrices[sceneObj->getId()];
+                glm::mat4 itmv = _itmvMatrices[sceneObj->getId()];
 
                 sh->setUniform("p", _projMatrix);
                 sh->setUniform("v", _viewMatrix);

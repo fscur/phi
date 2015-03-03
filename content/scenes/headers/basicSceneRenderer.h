@@ -11,7 +11,6 @@ namespace phi
 	{
 	private:
 		quad _quad;
-		texture* _defaultDiffuseMap;
 		frameBuffer* _frameBuffer;
 	
 	private:

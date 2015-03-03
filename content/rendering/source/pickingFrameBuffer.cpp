@@ -49,6 +49,9 @@ namespace phi
 
         GLuint id = r | g | b;
 
+
+
+
         return id;
     }
 }

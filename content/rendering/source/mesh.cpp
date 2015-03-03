@@ -21,6 +21,7 @@ namespace phi
 		_indicesCount = 0;
 
 		_isBound = false;
+        _isSelected = false;
 	}
 
 	mesh::~mesh()

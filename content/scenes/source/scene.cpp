@@ -150,7 +150,7 @@ namespace phi
 		sceneObject->initialize();
 		_allObjects->push_back(sceneObject);
 
-		sceneObject->setSceneId(_sceneObjectsIds++);
+		sceneObject->setId(_sceneObjectsIds++);
 		_allObjectsCount++;
 	}
 
@@ -178,7 +178,7 @@ namespace phi
 	{
 		for (unsigned int i = 0; i < _allObjectsCount; i++)
 		{
-			if ((*_allObjects)[i]->getSceneId() == id)
+			if ((*_allObjects)[i]->getId() == id)
 				return (*_allObjects)[i];
 		}
 

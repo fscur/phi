@@ -46,6 +46,8 @@ namespace phi
 
         std::string _materialName;
         material* _material;
+        GLuint _id;
+        bool _isSelected;
 
 	private:
 
@@ -66,14 +68,18 @@ namespace phi
 
 		RENDERING_API static mesh* create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint> &indices);
 		RENDERING_API static std::string getToken(std::string line);
-
+        
+        RENDERING_API unsigned int getId() const { return _id; }
 		RENDERING_API bool getIsBound() const { return _isBound; }
         RENDERING_API std::vector<vertex> getVertices() const { return _vertices; }
 		RENDERING_API std::vector<GLuint> getIndices() const { return _indices; }
         RENDERING_API material* getMaterial() const { return _material; }
         RENDERING_API std::string getMaterialName() const { return _materialName; }
-
+        RENDERING_API bool getSelected() const { return _isSelected; }
+        
+        RENDERING_API void setId(GLuint value) { _id = value; }
         RENDERING_API void setMaterial(material* value);
+        RENDERING_API void setSelected(bool value) { _isSelected = value; }
 
 		RENDERING_API static void calcNormals(std::vector<vertex> &vertices, std::vector<GLuint> indices);
 		RENDERING_API static void calcTangents(std::vector<vertex> &vertices, std::vector<GLuint> indices);

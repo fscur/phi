@@ -86,8 +86,9 @@ namespace phi
             std::vector<mesh*> meshes;
 
             auto files = path::getFiles(dirs[i].path);
+            auto filesCount = files.size();
 
-            for (int i = 0; i < files.size(); i++)
+            for (unsigned int i = 0; i < filesCount; i++)
             {
                 auto m = mesh::fromMesh(files[i].path);
 
@@ -100,6 +101,7 @@ namespace phi
                     mat = _defaultMaterial;
 
                 m->setMaterial(mat);
+                m->setId(i);
 
                 meshes.push_back(m);
             }
