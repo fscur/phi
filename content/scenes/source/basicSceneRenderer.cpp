@@ -8,6 +8,7 @@ namespace phi
 	{
 		_frameBuffer = new frameBuffer("basicSceneRenderer", viewportSize, color::transparent);
 		_frameBuffer->init();
+        _frameBuffer->bind();
 
 		createDefaultRenderTarget();
 		createSelectedObjectsRenderTarget();

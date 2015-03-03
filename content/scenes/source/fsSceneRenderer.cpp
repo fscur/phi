@@ -6,6 +6,7 @@ namespace phi
     {
         _frameBuffer = new frameBuffer("fsSceneRenderer", viewportSize, color::transparent);
         _frameBuffer->init();
+        _frameBuffer->bind();
 
         createDefaultRenderTarget();
         createDepthBuffer();

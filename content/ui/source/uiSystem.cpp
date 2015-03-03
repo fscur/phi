@@ -11,8 +11,7 @@ namespace phi
         _controlGotFocus = new eventHandler<controlEventArgs>();
         _controlLostFocus = new eventHandler<controlEventArgs>();
         _cursor = nullptr;
-        _cursorRenderer = new quadRenderer2D(glm::vec2(0.0f, 0.0f), 1.0f, size<GLuint>(0.0f, 0.0f), size<GLuint>(0.0f, 0.0f));
-
+        
         input::mouseDown->bind<uiSystem, &uiSystem::inputMouseDown>(this);
         input::mouseUp->bind<uiSystem, &uiSystem::inputMouseUp>(this);
         input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
@@ -31,14 +30,6 @@ namespace phi
 
     void uiSystem::init(uiSystemInfo info)
     {
-        if (!uiRepository::initialized)
-        {
-            phi::uiRepositoryInfo repositoryInfo = phi::uiRepositoryInfo();
-            repositoryInfo.applicationPath = info.applicationPath;
-            repositoryInfo.size = info.size;
-            phi::uiRepository::init(repositoryInfo);
-        }
-
         if (!renderingSystem::initialized)
         {
             renderingSystemInfo renderingInfo = renderingSystemInfo();
@@ -47,7 +38,16 @@ namespace phi
             renderingSystem::init(renderingInfo);
         }
 
+        if (!uiRepository::initialized)
+        {
+            phi::uiRepositoryInfo repositoryInfo = phi::uiRepositoryInfo();
+            repositoryInfo.applicationPath = info.applicationPath;
+            repositoryInfo.size = info.size;
+            phi::uiRepository::init(repositoryInfo);
+        }
+
         input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
+        _cursorRenderer = new quadRenderer2D(glm::vec2(0.0f, 0.0f), 1.0f, size<GLuint>(0.0f, 0.0f), size<GLuint>(0.0f, 0.0f));
         setCursor(phi::uiRepository::repository->getResource<cursor>("DefaultCursor"));
         _cursorRenderer->setViewportSize(_info.size);
     }

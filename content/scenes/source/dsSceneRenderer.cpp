@@ -7,6 +7,7 @@ namespace phi
     {
         _frameBuffer = new frameBuffer("dsSceneRenderer", viewportSize, color::transparent);
         _frameBuffer->init();
+        _frameBuffer->bind();
 
         createRT0();
         createRT1();

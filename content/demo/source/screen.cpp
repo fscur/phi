@@ -187,6 +187,9 @@ void screen::update()
 
 void screen::render()
 {
+    phi::renderingSystem::defaultFrameBuffer->bind();
+    phi::renderingSystem::defaultFrameBuffer->clear();
+
     phi::scenesManager::get()->render();
     phi::uiSystem::get()->render();
     phi::renderingCommunicationBuffer::update();

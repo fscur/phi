@@ -37,6 +37,8 @@ namespace phi
 
         glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
         glViewport(_x, _y, _size.width, _size.height);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     bool frameBuffer::isComplete()

@@ -22,10 +22,6 @@ namespace phi
         renderingSystem::info = info;
         defaultFrameBuffer = new phi::defaultFrameBuffer(info.size, color::black);
         defaultFrameBuffer->init();
-        defaultFrameBuffer->bind();
-
-        defaultFrameBuffer->enable(GL_CULL_FACE);
-        defaultFrameBuffer->enable(GL_DEPTH_TEST);
 
         pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);
         pickingFrameBuffer->init();
