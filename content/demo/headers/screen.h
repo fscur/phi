@@ -8,6 +8,8 @@
 #include "label.h"
 #include "slider.h"
 #include "textBox.h"
+#include "carouselList.h"
+#include "carouselItem.h"
 #include "ray.h"
 #include "size.h"
 #include "commandsManager.h"

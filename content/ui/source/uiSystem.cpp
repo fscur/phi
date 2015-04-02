@@ -1,5 +1,6 @@
 #include "uiSystem.h"
 #include "renderingSystem.h"
+#include "floatAnimator.h"
 #include <algorithm>
 
 namespace phi
@@ -204,6 +205,11 @@ namespace phi
         }
 
         _cursorRenderer->setViewportSize(_info.size);
+    }
+
+    void uiSystem::update()
+    {
+        floatAnimator::update();
     }
 
     void uiSystem::render()
