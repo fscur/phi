@@ -4,9 +4,11 @@ struct material
 {
 	vec4 diffuseColor;
 	vec4 specularColor;
+	vec4 emissiveColor;
 	float kd;
 	float ks;
 	float shininess;
+	float isEmissive;
 };
 
 struct pointLight
@@ -34,6 +36,7 @@ uniform material mat;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
+uniform sampler2D emissiveMap;
 
 out vec4 fragColor;
 
@@ -82,6 +85,8 @@ void main(void)
 			
 		float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
 
+		vec4 emissiveColorMap = texture(emissiveMap, fragTexCoord.xy);
 		fragColor = (diffuseColor + specularColor) * attenuation;
+		fragColor = vec4(fragColor.rgb, mat.isEmissive * emissiveColorMap.r);
 	}
 }

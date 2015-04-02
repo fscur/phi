@@ -4,9 +4,11 @@ struct material
 {
 	vec4 diffuseColor;
 	vec4 specularColor;
+	vec4 emissiveColor;
 	float kd;
 	float ks;
 	float shininess;
+	float isEmissive;
 };
 
 struct spotLight

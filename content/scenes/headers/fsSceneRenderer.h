@@ -12,6 +12,7 @@ namespace phi
 	private:
 		quad _quad;
 		frameBuffer* _frameBuffer;
+		frameBuffer* _postFrameBuffer;
         glm::mat4 _projMatrix;
         glm::mat4 _viewMatrix;
         std::map<unsigned int, glm::mat4> _modelMatrices;
@@ -22,11 +23,14 @@ namespace phi
 		void createDefaultRenderTarget();
 		void createSelectedObjectsRenderTarget();
 		void createDepthBuffer();
+        
+		void createPostRenderTarget();
 
 		void createAmbientLightShader();
 		void createDirLightShader();
 		void createPointLightShader();
 		void createSpotLightShader();
+        void createEmissiveBloomShaders();
 
 		void ambientLightPass();
 		void dirLightPasses();
@@ -34,6 +38,7 @@ namespace phi
 		void spotLightPasses();
 
 		void render();
+        void emissiveBloomPass();
 		void selectedObjectsPass();
 
 	public:

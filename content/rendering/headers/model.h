@@ -11,10 +11,10 @@ namespace phi
     private:
         std::vector<mesh*> _meshes;
     public:
-        RENDERING_API model(std::string name);
-        RENDERING_API model(std::string name, std::string path, std::vector<mesh*> meshes);
+        RENDERING_API model(std::string name, std::string path);
         RENDERING_API std::vector<mesh*> getMeshes() const { return _meshes; }
         RENDERING_API void addMesh(mesh* mesh);
+        RENDERING_API static model* fromFile(std::string fileName);
     };
 }
 #endif

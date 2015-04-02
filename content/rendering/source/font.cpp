@@ -6,6 +6,7 @@ namespace phi
     font::font(std::string name, std::string path, int size, FT_Library library) :
         resource(name, path)
     {
+        _fullName = name;
         _size = size;
         FT_Face face;
         if (FT_New_Face(library, path.c_str(), 0, &face))

@@ -6,6 +6,7 @@ namespace phi
     cursor::cursor(std::string name, std::string path, glm::vec2 hotPoint) :
         resource(name, path)
     {
+        _fullName = name;
         _texture = texture::fromFile(path);
         _hotPoint = hotPoint;
     }

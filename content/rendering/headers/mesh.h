@@ -15,12 +15,11 @@
 
 namespace phi
 {
-	class mesh :
-        public resource
+	class mesh
 	{
 	private:
 		GLuint _vao;
-		GLuint _verticesVbo;
+		GLuint _positionsVbo;
 		GLuint _texCoordsVbo;
 		GLuint _normalsVbo;
 		GLuint _tangentsVbo;		
@@ -51,6 +50,8 @@ namespace phi
 
 	private:
 
+        void storeBuffers();
+
 		static void createBuffers(
 			std::vector<vertex> vertices, 
 			GLfloat* &vertexBuffer, 
@@ -59,14 +60,23 @@ namespace phi
 			GLfloat* &tangentBuffer);
 
 	protected:
+        mesh();
 
 	public:
 		
 		RENDERING_API void addVertices(std::vector<vertex> vertices, std::vector<GLuint> indices);
-		RENDERING_API mesh(std::string name, std::string path);
 		RENDERING_API ~mesh();
 
 		RENDERING_API static mesh* create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint> &indices);
+        RENDERING_API static mesh* create(
+            GLuint verticesCount, 
+            GLfloat* positionsBuffer, 
+            GLfloat* texCoordsBuffer, 
+            GLfloat* normalsBuffer, 
+            GLuint indicesCount, 
+            GLuint* indicesBuffer, 
+            std::string materialName);
+	
 		RENDERING_API static std::string getToken(std::string line);
         
         RENDERING_API unsigned int getId() const { return _id; }

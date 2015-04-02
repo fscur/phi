@@ -7,7 +7,7 @@ namespace phi
         : sceneObject()
     {   
         _size = size;
-        _model = new model("box");
+        _model = new model("box", "");
         auto m = create();
         
         m->setMaterial(material);

@@ -39,7 +39,7 @@ namespace phi
         do 
         {
             const std::string file_name = file_data.cFileName;
-            const std::string full_file_name = directory + "/" + file_name;
+            const std::string full_file_name = directory + "\\" + file_name;
             const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
             fileInfo info;
@@ -99,7 +99,7 @@ namespace phi
         {
             
             const std::string file_name = file_data.cFileName;
-            const std::string full_file_name = directory + "/" + file_name;
+            const std::string full_file_name = directory + "\\" + file_name;
             const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
             directoryInfo info;
@@ -144,5 +144,10 @@ namespace phi
         }
         closedir(dir);
     #endif
+    }
+
+    std::string path::combine(const std::string path0, const std::string path1)
+    {
+        return path0 + "/" + path1; 
     }
 }

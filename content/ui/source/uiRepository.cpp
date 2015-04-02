@@ -15,7 +15,9 @@ namespace phi
         repository = new resourcesRepository();
 
         std::string texturesPath = info.applicationPath + UI_TEXTURES_PATH;
-        repository->addResource(texture::fromFile(texturesPath + "button.png"));
+        auto texture = texture::fromFile(texturesPath + "button.png");
+        texture->setFullName("button.png");
+        repository->addResource(texture);
 
         std::string fontsPath = info.applicationPath + UI_FONTS_PATH;
         repository->addResource(new font("Consola_14", fontsPath + "Consola.ttf", 14, renderingSystem::freeTypeLibrary));

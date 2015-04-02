@@ -8,12 +8,11 @@
 
 namespace phi
 {
-	mesh::mesh(std::string name, std::string path) :
-        resource(name, path)
+	mesh::mesh()
 	{
 		_vao = 0;
 
-		_verticesVbo = 0;
+		_positionsVbo = 0;
 		_texCoordsVbo = 0;
 		_normalsVbo = 0;
 		_tangentsVbo = 0;
@@ -25,8 +24,13 @@ namespace phi
 	}
 
 	mesh::~mesh()
-	{   
-		glDeleteBuffers(1, &_verticesVbo);
+
+	{   delete[] _positionsBuffer;
+		delete[] _texCoordsBuffer;
+		delete[] _normalsBuffer;
+		delete[] _tangentsBuffer;
+
+		glDeleteBuffers(1, &_positionsVbo);
 		glDeleteBuffers(1, &_texCoordsVbo);
 		glDeleteBuffers(1, &_normalsVbo);
 		glDeleteBuffers(1, &_tangentsVbo);
@@ -36,10 +40,88 @@ namespace phi
 
 	mesh* mesh::create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint> &indices)
 	{
-		mesh* m = new mesh(name, "");
+		mesh* m = new mesh();
 		m->addVertices(vertices, indices);
 		return m;
 	}
+
+    mesh* mesh::create(
+            GLuint verticesCount, 
+            GLfloat* positionsBuffer, 
+            GLfloat* texCoordsBuffer, 
+            GLfloat* normalsBuffer, 
+            GLuint indicesCount, 
+            GLuint* indicesBuffer, 
+            std::string materialName)
+    {
+        std::vector<GLuint> indices;
+
+        for (auto i = 0; i < indicesCount; i++)
+            indices.push_back(indicesBuffer[i]);
+
+        std::vector<vertex> vertices;
+
+        for (auto i = 0; i < verticesCount; i++)
+        {
+            float x = positionsBuffer[i * 3 + 0];
+            float y = positionsBuffer[i * 3 + 1];
+            float z = positionsBuffer[i * 3 + 2];
+
+            glm::vec3 position = glm::vec3(x, y, z);
+
+            float u = texCoordsBuffer[i * 2 + 0];
+            float v = texCoordsBuffer[i * 2 + 1];
+            
+            glm::vec2 texCoord = glm::vec2(u, v);
+
+            float r = normalsBuffer[i * 3 + 0];
+            float s = normalsBuffer[i * 3 + 1];
+            float t = normalsBuffer[i * 3 + 2];
+
+            glm::vec3 normal = glm::vec3(r, s, t);
+
+            vertex vert = vertex(position, texCoord, normal);
+
+            vertices.push_back(vert);
+        }
+
+        mesh::calcTangents(vertices, indices);
+
+        unsigned int tgIndex = 0;
+		GLfloat* tangentsBuffer = new GLfloat[verticesCount * 3];
+
+		for (int i = 0; i < verticesCount; i++)
+		{
+			vertex vertex = vertices[i];
+
+			GLfloat r1 = vertex.getTangent().x;
+			GLfloat s1 = vertex.getTangent().y;
+			GLfloat t1 = vertex.getTangent().z;
+
+			tangentsBuffer[tgIndex++] = r1;
+			tangentsBuffer[tgIndex++] = s1;
+			tangentsBuffer[tgIndex++] = t1;
+		}
+
+        mesh* m = new mesh();
+        auto floatSize = sizeof(GLfloat);
+        m->_indices = indices;
+        m->_vertices = vertices;
+        m->_indicesCount = indicesCount;
+        m->_positionsBuffer = positionsBuffer;
+        m->_texCoordsBuffer = texCoordsBuffer;
+        m->_normalsBuffer = normalsBuffer;
+        m->_tangentsBuffer = tangentsBuffer;
+        m->_pSize = verticesCount * 3 * floatSize;
+        m->_tSize = verticesCount * 2 * floatSize;
+        m->_nSize = verticesCount * 3 * floatSize;
+        m->_tgSize = verticesCount * 3 * floatSize;
+        m->_materialName = materialName;
+
+        m->storeBuffers();
+
+        return m;
+    }
 
 	void mesh::addVertices(std::vector<vertex> vertices, std::vector<GLuint> indices)
 	{
@@ -47,47 +129,48 @@ namespace phi
 		_indices = indices;
 		_indicesCount = indices.size();
 
-		GLuint verticesSize = vertices.size() * 3 * sizeof(GLfloat);
-		GLuint texCoordsSize = vertices.size() * 2 * sizeof(GLfloat);
-		GLuint normalsSize = vertices.size() * 3 * sizeof(GLfloat);
-		GLuint tangentsSize = vertices.size() * 3 * sizeof(GLfloat);
-		GLuint indicesSize = _indicesCount * sizeof(GLuint);
+		_pSize = vertices.size() * 3 * sizeof(GLfloat);
+		_tSize = vertices.size() * 2 * sizeof(GLfloat);
+		_nSize = vertices.size() * 3 * sizeof(GLfloat);
+		_tgSize = vertices.size() * 3 * sizeof(GLfloat);
 
-		GLfloat* vertexBuffer = new GLfloat[vertices.size() * 3];
-		GLfloat* texCoordBuffer = new GLfloat[vertices.size() * 2];
-		GLfloat* normalBuffer = new GLfloat[vertices.size() * 3];
-		GLfloat* tangentBuffer = new GLfloat[vertices.size() * 3];
+		_positionsBuffer = new GLfloat[vertices.size() * 3];
+		_texCoordsBuffer = new GLfloat[vertices.size() * 2];
+		_normalsBuffer = new GLfloat[vertices.size() * 3];
+		_tangentsBuffer = new GLfloat[vertices.size() * 3];
 
-		createBuffers(vertices, vertexBuffer, texCoordBuffer, normalBuffer, tangentBuffer);
+		createBuffers(vertices, _positionsBuffer, _texCoordsBuffer, _normalsBuffer, _tangentsBuffer);
 
-		glGenVertexArrays(1, &_vao);
+		storeBuffers();
+	}
+
+    void mesh::storeBuffers()
+    {
+        auto indicesSize = _indicesCount * sizeof(GLuint);
+
+        glGenVertexArrays(1, &_vao);
 		glBindVertexArray(_vao);
 
-		glGenBuffers(1, &_verticesVbo);
-		glBindBuffer(GL_ARRAY_BUFFER, _verticesVbo);
-		glBufferData(GL_ARRAY_BUFFER, verticesSize, vertexBuffer, GL_STATIC_DRAW);
+		glGenBuffers(1, &_positionsVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, _positionsVbo);
+		glBufferData(GL_ARRAY_BUFFER, _pSize, _positionsBuffer, GL_STATIC_DRAW);
 
 		glGenBuffers(1, &_texCoordsVbo);
 		glBindBuffer(GL_ARRAY_BUFFER, _texCoordsVbo);
-		glBufferData(GL_ARRAY_BUFFER, texCoordsSize, texCoordBuffer, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, _tSize, _texCoordsBuffer, GL_STATIC_DRAW);
 
 		glGenBuffers(1, &_normalsVbo);
 		glBindBuffer(GL_ARRAY_BUFFER, _normalsVbo);
-		glBufferData(GL_ARRAY_BUFFER, normalsSize, normalBuffer, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, _nSize, _normalsBuffer, GL_STATIC_DRAW);
 
 		glGenBuffers(1, &_tangentsVbo);
 		glBindBuffer(GL_ARRAY_BUFFER, _tangentsVbo);
-		glBufferData(GL_ARRAY_BUFFER, tangentsSize, tangentBuffer, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, _tgSize, _tangentsBuffer, GL_STATIC_DRAW);
 
 		glGenBuffers(1, &_indicesVbo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesVbo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &indices[0], GL_STATIC_DRAW);
-
-		delete[] vertexBuffer;
-		delete[] texCoordBuffer;
-		delete[] normalBuffer;
-		delete[] tangentBuffer;
-	}
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &_indices[0], GL_STATIC_DRAW);
+    }
 
 	void mesh::createBuffers(std::vector<vertex> vertices, GLfloat* &vertexBuffer, GLfloat* &texCoordBuffer, GLfloat* &normalBuffer, GLfloat* &tangentBuffer)
 	{
@@ -136,7 +219,7 @@ namespace phi
 	void mesh::bind()
 	{
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, _verticesVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, _positionsVbo);
 		glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 		glEnableVertexAttribArray(1);
@@ -157,7 +240,6 @@ namespace phi
 
 	void mesh::render()
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesVbo);
 		glDrawElements(GL_TRIANGLES, _indicesCount, GL_UNSIGNED_INT, 0);
 	}
 
@@ -234,7 +316,7 @@ namespace phi
 			return nullptr;
 		}
 
-		mesh* m = new mesh(path::getFileNameWithoutExtension(fileName), fileName);
+		mesh* m = new mesh();
 
         GLuint pSize = -1;
         char* materialName = new char[256];
@@ -323,8 +405,8 @@ namespace phi
         glGenVertexArrays(1, &m->_vao);
         glBindVertexArray(m->_vao);
 
-        glGenBuffers(1, &m->_verticesVbo);
-        glBindBuffer(GL_ARRAY_BUFFER, m->_verticesVbo);
+        glGenBuffers(1, &m->_positionsVbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m->_positionsVbo);
         glBufferData(GL_ARRAY_BUFFER, m->_pSize, m->_positionsBuffer, GL_STATIC_DRAW);
 
         glGenBuffers(1, &m->_texCoordsVbo);

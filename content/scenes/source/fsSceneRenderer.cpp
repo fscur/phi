@@ -17,10 +17,18 @@ namespace phi
         _frameBuffer->enable(GL_DEPTH_TEST);
         _frameBuffer->unbind();
 
+        _postFrameBuffer = new frameBuffer("fsPostSceneRenderer", viewportSize, color::transparent);
+        _postFrameBuffer->init();
+        _postFrameBuffer->bind();
+
+        createPostRenderTarget();
+
         createAmbientLightShader();
         createDirLightShader();
         createPointLightShader();
         createSpotLightShader();
+
+        createEmissiveBloomShaders();
     }
 
     fsSceneRenderer::~fsSceneRenderer()
@@ -75,6 +83,28 @@ namespace phi
         _frameBuffer->addRenderTarget(d);
     }
 
+    void fsSceneRenderer::createPostRenderTarget()
+    {
+        //GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, GLvoid* data = 0
+        texture* t = texture::create(_viewportSize, GL_RGBA);
+
+        //t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        //t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        renderTarget* r = _postFrameBuffer->newRenderTarget(
+            "post",
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0);
+
+        _postFrameBuffer->addRenderTarget(r);
+    }
+
     void fsSceneRenderer::createAmbientLightShader()
     {
         std::vector<std::string> attribs;
@@ -86,8 +116,11 @@ namespace phi
         s->addUniform("mvp");
         s->addUniform("ambientLightColor");
         s->addUniform("diffuseMap");
+        s->addUniform("emissiveMap");
         s->addUniform("mat.ambientColor");
+        s->addUniform("mat.emissiveColor");
         s->addUniform("mat.ka");
+        s->addUniform("mat.isEmissive");
 
         s->addUniform("isSelected");
         s->addUniform("id");
@@ -116,17 +149,18 @@ namespace phi
         s->addUniform("light.intensity");
         s->addUniform("light.direction");
 
-        s->addUniform("mat.ambientColor");
         s->addUniform("mat.diffuseColor");
         s->addUniform("mat.specularColor");
-        s->addUniform("mat.ka");
+        s->addUniform("mat.emissiveColor");
         s->addUniform("mat.kd");
         s->addUniform("mat.ks");
         s->addUniform("mat.shininess");
+        s->addUniform("mat.isEmissive");
 
         s->addUniform("diffuseMap");
         s->addUniform("normalMap");
         s->addUniform("specularMap");
+        s->addUniform("emissiveMap");
 
         shaderManager::get()->addShader(s->getName(), s);
     }
@@ -155,13 +189,16 @@ namespace phi
 
         s->addUniform("mat.diffuseColor");
         s->addUniform("mat.specularColor");
+        s->addUniform("mat.emissiveColor");
         s->addUniform("mat.kd");
         s->addUniform("mat.ks");
         s->addUniform("mat.shininess");
+        s->addUniform("mat.isEmissive");
 
         s->addUniform("diffuseMap");
         s->addUniform("normalMap");
         s->addUniform("specularMap");
+        s->addUniform("emissiveMap");
 
         shaderManager::get()->addShader(s->getName(), s);
     }
@@ -192,15 +229,50 @@ namespace phi
 
         s->addUniform("mat.diffuseColor");
         s->addUniform("mat.specularColor");
+        s->addUniform("mat.emissiveColor");
         s->addUniform("mat.kd");
         s->addUniform("mat.ks");
         s->addUniform("mat.shininess");
+        s->addUniform("mat.isEmissive");
 
         s->addUniform("diffuseMap");
         s->addUniform("normalMap");
         s->addUniform("specularMap");
 
         shaderManager::get()->addShader(s->getName(), s);
+    }
+
+    void fsSceneRenderer::createEmissiveBloomShaders()
+    {
+        std::vector<std::string> attribs;
+		attribs.push_back("inPosition");
+		attribs.push_back("inTexCoord");
+
+		shader* s = shaderManager::get()->loadShader("POST_EMISSIVE_BLOOM", "post_emissive_bloom.vert", "post_emissive_bloom.frag", attribs);
+
+		s->addUniform("m");
+		s->addUniform("res");
+		s->addUniform("tex1");
+
+		shaderManager::get()->addShader(s->getName(), s);
+
+		s = shaderManager::get()->loadShader("POST_GAUSSIAN_BLUR", "post_gaussian_blur.vert", "post_gaussian_blur.frag", attribs);
+
+		s->addUniform("m");
+		s->addUniform("res");
+		s->addUniform("tex1");
+		s->addUniform("tex2");
+
+		shaderManager::get()->addShader(s->getName(), s);
+        
+        s = shaderManager::get()->loadShader("POST_COMBINE", "post_combine.vert", "post_combine.frag", attribs);
+
+		s->addUniform("m");
+		s->addUniform("res");
+		s->addUniform("tex1");
+		s->addUniform("tex2");
+
+		shaderManager::get()->addShader(s->getName(), s);
     }
 
     void fsSceneRenderer::render()
@@ -222,7 +294,7 @@ namespace phi
         ambientLightPass();
         dirLightPasses();
         pointLightPasses();
-        spotLightPasses();
+        //spotLightPasses();
     }
 
     void fsSceneRenderer::ambientLightPass()
@@ -252,9 +324,12 @@ namespace phi
                 material* mat = m->getMaterial();
 
                 sh->setUniform("diffuseMap", mat->getDiffuseTexture());
+                sh->setUniform("emissiveMap", mat->getEmissiveTexture());
                 sh->setUniform("mat.ambientColor", mat->getAmbientColor());
+                sh->setUniform("mat.emissiveColor", mat->getEmissiveColor());
                 sh->setUniform("mat.ka", mat->getKa());
-               
+                sh->setUniform("mat.isEmissive", mat->getIsEmissive());
+
                 meshRenderer::render(m);
             }
         }
@@ -311,17 +386,18 @@ namespace phi
                     mesh* m = meshes[j];
                     material* mat = m->getMaterial();
 
-                    sh->setUniform("mat.ambientColor", mat->getAmbientColor());
                     sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
                     sh->setUniform("mat.specularColor", mat->getSpecularColor());
-                    sh->setUniform("mat.ka", mat->getKa());
+                    sh->setUniform("mat.emissiveColor", mat->getEmissiveColor());
                     sh->setUniform("mat.kd", mat->getKd());
                     sh->setUniform("mat.ks", mat->getKs());
                     sh->setUniform("mat.shininess", mat->getShininess());
+                    sh->setUniform("mat.isEmissive", mat->getIsEmissive());
 
                     sh->setUniform("diffuseMap", mat->getDiffuseTexture());
                     sh->setUniform("normalMap", mat->getNormalTexture());
                     sh->setUniform("specularMap", mat->getSpecularTexture());
+                    sh->setUniform("emissiveMap", mat->getEmissiveTexture());
 
                     meshRenderer::render(m);
                 }
@@ -388,13 +464,16 @@ namespace phi
 
                     sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
                     sh->setUniform("mat.specularColor", mat->getSpecularColor());
+                    sh->setUniform("mat.emissiveColor", mat->getEmissiveColor());
                     sh->setUniform("mat.kd", mat->getKd());
                     sh->setUniform("mat.ks", mat->getKs());
                     sh->setUniform("mat.shininess", mat->getShininess());
+                    sh->setUniform("mat.isEmissive", mat->getIsEmissive());
 
                     sh->setUniform("diffuseMap", mat->getDiffuseTexture());
                     sh->setUniform("normalMap", mat->getNormalTexture());
                     sh->setUniform("specularMap", mat->getSpecularTexture());
+                    sh->setUniform("emissiveMap", mat->getEmissiveTexture());
 
                     meshRenderer::render(m);
                 }
@@ -463,9 +542,11 @@ namespace phi
 
                     sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
                     sh->setUniform("mat.specularColor", mat->getSpecularColor());
+                    sh->setUniform("mat.emissiveColor", mat->getEmissiveColor());
                     sh->setUniform("mat.kd", mat->getKd());
                     sh->setUniform("mat.ks", mat->getKs());
                     sh->setUniform("mat.shininess", mat->getShininess());
+                    sh->setUniform("mat.isEmissive", mat->getIsEmissive());
 
                     sh->setUniform("diffuseMap", mat->getDiffuseTexture());
                     sh->setUniform("normalMap", mat->getNormalTexture());
@@ -482,6 +563,55 @@ namespace phi
         }
 
         glDisable(GL_BLEND);
+    }
+
+    void fsSceneRenderer::emissiveBloomPass()
+    {
+        //intensity filter
+
+        _postFrameBuffer->bindForDrawing();
+        
+        //_frameBuffer->bindForDrawing();
+
+        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+
+        renderTarget* curRenderTarget = _frameBuffer->getRenderTarget("default");
+        shader* sh = shaderManager::get()->getShader("POST_EMISSIVE_BLOOM");
+
+        sh->bind();
+
+        glm::mat4 modelMatrix = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        sh->setUniform("m", modelMatrix);
+        sh->setUniform("res", resolution);
+        sh->setUniform("tex1", curRenderTarget->getTexture());
+
+        meshRenderer::render(&_quad);
+
+        sh->unbind();
+        
+        //gaussian-blur filter
+        _frameBuffer->bindForDrawing();
+        texture* tex1 = _postFrameBuffer->getRenderTarget("post")->getTexture();
+        texture* tex2 = _frameBuffer->getRenderTarget("default")->getTexture();
+
+        sh = shaderManager::get()->getShader("POST_GAUSSIAN_BLUR");
+
+        sh->bind();
+
+        sh->setUniform("m", modelMatrix);
+        sh->setUniform("res", resolution);
+
+        sh->setUniform("tex1", tex1);
+        sh->setUniform("tex2", tex2);
+
+        meshRenderer::render(&_quad);
+        
+        sh->unbind();
     }
 
     void fsSceneRenderer::selectedObjectsPass()
@@ -532,10 +662,11 @@ namespace phi
         
         glDepthMask(GL_FALSE);
 
+        //emissiveBloomPass();
+
         renderingSystem::defaultFrameBuffer->bindForDrawing();
         _frameBuffer->bindForReading();
         _frameBuffer->blit("default", 0, 0, _viewportSize.width, _viewportSize.height);
-
-        selectedObjectsPass();
+        
     }
 }

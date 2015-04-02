@@ -17,7 +17,7 @@ namespace phi
 
         auto m = create(width, depth);
         m->setMaterial(material);
-        _model = new model("plane");
+        _model = new model("plane", "");
         _model->addMesh(m);
 
         _normal = glm::normalize(normal);

@@ -22,7 +22,7 @@ namespace phi
         {
             for (unsigned int i = 0; i < _resources.size(); i++)
             {
-                if (_resources[i]->getName() == name)
+                if (_resources[i]->getFullName() == name)
                     return (T*)_resources[i];
             }
 

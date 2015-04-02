@@ -44,18 +44,42 @@ void screen::initScene()
 {
     phi::scene* s = new phi::scene();
     s->setSize(getSize());
-    s->getActiveCamera()->setPosition(glm::vec3(-5.0f, 2.0f, 5.0f));
+    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 2.0f, 5.0f));
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-    phi::sceneObject* obj = phi::sceneObject::create(_resourcesRepo->getResource<phi::model>("cube"));
-    s->add(obj);
+    /*phi::sceneObject* chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_leather.obj"));
+    chair0->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
+    s->add(chair0);
 
-    /*phi::box* b = new phi::box(phi::size<float>(1.0f, 1.0f, 1.0f), _resourcesRepo->getResource<phi::material>("default"));
-    s->add(b);*/
+    phi::sceneObject* chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_leather.obj"));
+    chair1->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
+    s->add(chair1);
+    */
+    phi::sceneObject* lamp = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("lamp.model"));
+    s->add(lamp);
 
-    phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(), phi::color::white, 1.0f, glm::vec3(-0.3f, -0.4f, -0.5f));
-    s->add(dirLight);
+    //phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
+    //s->add(cube);
+
+    phi::plane* plane0 = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 10.0f, 10.0f, _resourcesLoader.getDefaultMaterial());
+    s->add(plane0);
+
+    //phi::plane* plane1 = new phi::plane(glm::vec3(1.0f, 0.0f, 0.0f), 10.0f, 10.0f, _resourcesLoader.getDefaultMaterial());
+    //s->add(plane1);
+
+    phi::plane* plane2 = new phi::plane(glm::vec3(0.0f, 0.0f, 1.0f), 10.0f, 10.0f, _resourcesLoader.getDefaultMaterial());
+    s->add(plane2);
+
+    //phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(), phi::color::white, 1.0f, glm::vec3(-0.2f, -0.4f, -0.5f));
+    //s->add(dirLight);
+
+    phi::pointLight* pointLight0 = new phi::pointLight(glm::vec3(0.0f, 1.7f, 0.0f), phi::color::red, 0.5f, 3.0f);
+    s->add(pointLight0);
+
+    /*
+    phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(0.0f, 1.7f, 0.0f), phi::color::orange, 2.0f, 3.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.6);
+    s->add(spotLight0);*/
 
     phi::scenesManager::get()->addScene(s);
     phi::scenesManager::get()->loadScene(0);
@@ -127,7 +151,8 @@ void screen::onInitialize()
     setSize(phi::size<unsigned int>(1024, 768));
     centerScreen();
 
-    _resourcesRepo = _resourcesLoader.load();
+    _resourcesLoader.load();
+    _modelsRepository = _resourcesLoader.getModels();
 
     initScenesManager();
     initScene();

@@ -48,7 +48,27 @@ namespace phi
 	    // "Bind" the newly created texture : all future texture functions will modify this texture
 	    glBindTexture(GL_TEXTURE_2D, id);
 
-		GLuint format = surface->format->BitsPerPixel == 24 ? GL_BGR : GL_BGRA;
+		GLuint format = 0;
+        switch (surface->format->BitsPerPixel)
+        {
+        case 24:
+            if (surface->format->Rmask == 255)
+                format = GL_RGB;
+            else 
+                format = GL_BGR;
+            break;
+        case 32:
+            if (surface->format->Rmask == 255)
+                format = GL_RGBA;
+            else
+                format = GL_BGRA;
+            break;
+        default:
+            break;
+        }
+
+	// Give the image to OpenGL
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, surface->pixels);
 
 	    // Give the image to OpenGL
 	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, surface->pixels);

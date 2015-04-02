@@ -7,119 +7,205 @@
 
 namespace phi
 {
-    void resourcesLoader::loadTextures(resourcesRepository* repo)
+    resourcesLoader::resourcesLoader()
     {
-        auto files = path::getFiles("resources/textures");
+        _texturesRepository = nullptr;
+        _materialsRepository = nullptr;
+        _modelsRepository = nullptr;
+
+        _texturesPath = "resources\\textures";
+        _materialsPath = "resources\\materials";
+        _modelsPath = "resources\\models";
+
+        createDefaultTextures();
+        createDefaultMaterial();
+    }
+
+    void resourcesLoader::createDefaultTextures()
+    {
+        char* data = new char[4];
+        data[0] = 255;
+        data[1] = 255;
+        data[2] = 255;
+        data[3] = 255;
+
+        _defaultDiffuseTexture = 
+            texture::create(size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+
+        _defaultSpecularTexture = 
+            texture::create(size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+
+        _defaultEmissiveTexture = 
+            texture::create(size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+
+        data[0] = 255;
+        data[1] = 128;
+        data[2] = 128;
+        data[3] = 255;
+
+        _defaultNormalTexture = 
+            texture::create(size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+    }
+
+    void resourcesLoader::createDefaultMaterial()
+    {
+        _defaultMaterial = new material(
+            "default",
+            "",
+            _defaultDiffuseTexture,
+            _defaultNormalTexture,
+            _defaultSpecularTexture,
+            _defaultEmissiveTexture,
+            color::white,
+            color::white,
+            color::white,
+            color::white,
+            0.2f,
+            0.8f,
+            0.0f,
+            0.0f,
+            false);
+    }
+
+    std::string resourcesLoader::getFullName(std::string relativePath, std::string fileName)
+    {
+        return fileName.substr(relativePath.size() + 1, fileName.size() - 1);
+    }
+
+    void resourcesLoader::loadTextures()
+    {
+        _texturesRepository = new resourcesRepository();
+
+        loadTextures(_texturesPath);
+    }
+
+    void resourcesLoader::loadTextures(std::string directory)
+    {
+        auto subDirs = path::getDirectories(directory);
+        auto subDirsCount = subDirs.size();
+
+        for (auto i = 0; i < subDirsCount; i++)
+            loadTextures(subDirs[i].path);
+
+        auto files = path::getFiles(directory);
 
         auto filesCount = files.size();
 
-        for (int i = 0; i < filesCount; i++)
+        for (auto i = 0; i < filesCount; i++)
         {
-            auto tex = texture::fromFile(files[i].path);
-            repo->addResource(tex);
+            auto fileName = files[i].path;
+            auto tex = texture::fromFile(fileName);
+            tex->setFullName(getFullName(_texturesPath, fileName));
+            _texturesRepository->addResource(tex);
         }
-
-        _defaultDiffuseTexture = repo->getResource<texture>("defaultDiffuseTexture.bmp");
-
-        if (_defaultDiffuseTexture == nullptr)
-            LOG("defaultDiffuseTexture.bmp texture not found.");
-
-        _defaultNormalTexture = repo->getResource<texture>("defaultNormalTexture.bmp");
-        
-        if (_defaultNormalTexture == nullptr)
-            LOG("defaultNormalTexture.bmp texture not found.");
-
-        _defaultSpecularTexture = repo->getResource<texture>("defaultSpecularTexture.bmp");
-
-        if (_defaultSpecularTexture == nullptr)
-            LOG("defaultSpecularTexture.bmp texture not found.");
     }
 
-    void resourcesLoader::loadMaterials(resourcesRepository* repo)
+    void resourcesLoader::loadMaterials()
     {
-        auto files = path::getFiles("resources/materials");
+        _materialsRepository = new resourcesRepository();
+
+        loadMaterials(_materialsPath);
+    }
+
+    void resourcesLoader::loadMaterials(std::string directory)
+    {
+        auto subDirs = path::getDirectories(directory);
+        auto subDirsCount = subDirs.size();
+
+        for (auto i = 0; i < subDirsCount; i++)
+            loadMaterials(subDirs[i].path);
+
+        auto files = path::getFiles(directory);
 
         auto filesCount = files.size();
 
-        for (int i = 0; i < filesCount; i++)
-        {
-            auto mat = material::fromFile(files[i].path);
-
-            auto diffuseTexture = repo->getResource<texture>(mat->getDiffuseTextureName());
-
-            if (diffuseTexture == nullptr)
-                diffuseTexture = _defaultDiffuseTexture;
-
-            mat->setDiffuseTexture(diffuseTexture);
-
-            auto normalTexture = repo->getResource<texture>(mat->getNormalTextureName());
-
-            if (normalTexture == nullptr)
-                normalTexture = _defaultNormalTexture;
-
-            mat->setNormalTexture(normalTexture);
-
-            auto specularTexture = repo->getResource<texture>(mat->getDiffuseTextureName());
-
-            if (specularTexture == nullptr)
-                specularTexture = _defaultSpecularTexture;
-
-            mat->setSpecularTexture(specularTexture);
-
-            repo->addResource(mat);
-        }
-
-        _defaultMaterial = repo->getResource<material>("default");
-        
-        if (_defaultMaterial == nullptr)
-            LOG("default.material not found.");
+        for (auto i = 0; i < filesCount; i++)
+            loadMaterial(files[i].path);
     }
 
-    void resourcesLoader::loadModels(resourcesRepository* repo)
+    void resourcesLoader::loadMaterial(std::string fileName)
     {
-        auto dirs = path::getDirectories("resources/models");
+        auto mat = material::fromFile(fileName);
 
-        auto dirsCount = dirs.size();
+        auto diffuseTexture = _texturesRepository->getResource<texture>(mat->getDiffuseTextureName());
 
-        for (int i = 0; i < dirsCount; i++)
-        {
-            std::vector<mesh*> meshes;
+        if (diffuseTexture == nullptr)
+            diffuseTexture = _defaultDiffuseTexture;
 
-            auto files = path::getFiles(dirs[i].path);
-            auto filesCount = files.size();
+        mat->setDiffuseTexture(diffuseTexture);
 
-            for (unsigned int i = 0; i < filesCount; i++)
-            {
-                auto m = mesh::fromMesh(files[i].path);
+        auto normalTexture = _texturesRepository->getResource<texture>(mat->getNormalTextureName());
 
-                if (m == nullptr)
-                    continue;
+        if (normalTexture == nullptr)
+            normalTexture = _defaultNormalTexture;
 
-                auto mat = repo->getResource<material>(m->getMaterialName());
+        mat->setNormalTexture(normalTexture);
 
-                if (mat == nullptr)
-                    mat = _defaultMaterial;
+        auto specularTexture = _texturesRepository->getResource<texture>(mat->getSpecularTextureName());
 
-                m->setMaterial(mat);
-                m->setId(i);
+        if (specularTexture == nullptr)
+            specularTexture = _defaultSpecularTexture;
 
-                meshes.push_back(m);
-            }
+        mat->setSpecularTexture(specularTexture);
+        
+        auto emissiveTexture = _texturesRepository->getResource<texture>(mat->getEmissiveTextureName());
 
-            auto m = new model(dirs[i].name, dirs[i].path, meshes);
+        if (emissiveTexture == nullptr)
+            emissiveTexture = _defaultEmissiveTexture;
 
-            repo->addResource(m);
-        }
+        mat->setEmissiveTexture(emissiveTexture);
+
+        mat->setFullName(getFullName(_materialsPath, fileName));
+
+        _materialsRepository->addResource(mat);
     }
 
-    resourcesRepository* resourcesLoader::load()
+    void resourcesLoader::loadModels()
     {
-        resourcesRepository* repo = new resourcesRepository();
-        
-        loadTextures(repo);
-        loadMaterials(repo);
-        loadModels(repo);
+        _modelsRepository = new resourcesRepository();
 
-        return repo;
+        loadModels(_modelsPath);
+    }
+
+    void resourcesLoader::loadModels(std::string directory)
+    {
+        auto subDirs = path::getDirectories(directory);
+        auto subDirsCount = subDirs.size();
+
+        for (auto i = 0; i < subDirsCount; i++)
+            loadModels(subDirs[i].path);
+
+        auto files = path::getFiles(directory);
+
+        auto filesCount = files.size();
+
+        for (auto i = 0; i < filesCount; i++)
+            loadModel(files[i].path);
+    }
+
+    void resourcesLoader::loadModel(std::string fileName)
+    {
+        auto model = model::fromFile(fileName);
+        
+        for (auto mesh : model->getMeshes())
+        {
+            auto mat = _materialsRepository->getResource<material>(mesh->getMaterialName());
+
+            if (mat == nullptr)
+                mat = _defaultMaterial;
+
+            mesh->setMaterial(mat);
+        }
+
+        model->setFullName(getFullName(_modelsPath, fileName));
+
+        _modelsRepository->addResource(model);
+    }
+
+    void resourcesLoader::load()
+    {
+        loadTextures();
+        loadMaterials();
+        loadModels();
     }
 }

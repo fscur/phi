@@ -42,12 +42,13 @@ private:
 
 	phi::commandsManager _commandsManager;
     phi::resourcesLoader _resourcesLoader;
-    phi::resourcesRepository* _resourcesRepo;
+    phi::resourcesRepository* _modelsRepository;
 
 private:
 	void initScenesManager();
     void initScene();
     void initUI();
+
 public:
     screen();
     ~screen(void);

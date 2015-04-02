@@ -19,7 +19,7 @@ namespace phi
             LOG("Could not init freetype library");
 
         renderingSystem::info = info;
-        defaultFrameBuffer = new phi::defaultFrameBuffer(info.size, color::black);
+        defaultFrameBuffer = new phi::defaultFrameBuffer(info.size, color::white);
         defaultFrameBuffer->init();
 
         pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);

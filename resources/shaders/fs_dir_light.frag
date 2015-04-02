@@ -2,13 +2,13 @@
 
 struct material
 {
-	vec4 ambientColor;
 	vec4 diffuseColor;
 	vec4 specularColor;
-	float ka;
+	vec4 emissiveColor;
 	float kd;
 	float ks;
 	float shininess;
+	float isEmissive;
 };
 
 struct directionalLight
@@ -35,6 +35,7 @@ uniform directionalLight light;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
+uniform sampler2D emissiveMap;
 
 out vec4 fragColor;
 
@@ -51,11 +52,20 @@ void main()
 	vec3 fp = normalize(-fragPosition);
 	vec3 n = normal;
 	vec3 h = normalize(fp+s);
-	float diffuse = mat.kd * light.intensity * max(0.0, dot(n, s));
-	float spec =  mat.ks * pow(max(0.0, dot(n,h)), mat.shininess);
+	float diffuseFactor = mat.kd * light.intensity * max(0.0, dot(n, s));
+	float specFactor =  mat.ks * pow(max(0.0, dot(n,h)), mat.shininess);
 
-	fragColor = light.color * texture(diffuseMap, fragTexCoord) * mat.diffuseColor * diffuse + mat.specularColor * spec;
+	vec4 diffuseColorMap = texture(diffuseMap, fragTexCoord);
+	vec4 specularColorMap = texture(specularMap, fragTexCoord);
+	vec4 emissiveColorMap = texture(emissiveMap, fragTexCoord.xy);
 	
+	//vec4 emissiveComponent = emissiveColorMap * mat.emissiveColor * mat.isEmissive;
+	vec4 diffuseComponent = light.color * diffuseColorMap * mat.diffuseColor * diffuseFactor;
+	vec4 specularComponent = specularColorMap * mat.specularColor * specFactor;
+	
+	vec4 color = diffuseComponent + specularComponent;
+	fragColor = vec4(color.rgb, mat.isEmissive * emissiveColorMap.r);
+
 	//fragColor = vec4(fragColor.rgb, 1.0);
 	//fragColor = vec4(0.0, 0.0, 1.0, 1.0);
 }

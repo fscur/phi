@@ -13,9 +13,10 @@ namespace phi
     {
     public:
         IO_API static std::string getFileName(std::string path);
-        IO_API static std::string getFileNameWithoutExtension(const std::string path);
+        IO_API static std::string getFileNameWithoutExtension(std::string path);
         IO_API static std::vector<fileInfo> getFiles(const std::string directory);
         IO_API static std::vector<directoryInfo> getDirectories(const std::string directory);
+        IO_API static std::string combine(const std::string path0, const std::string path1);
     };
 }
 

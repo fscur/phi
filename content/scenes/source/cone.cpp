@@ -13,7 +13,7 @@ namespace phi
         _right = glm::vec3(1.0f, 0.0f, 0.0f);
         _direction = glm::vec3(0.0f, -1.0f, 0.0f);
 
-        _model = new model("cone");
+        _model = new model("cone", "");
         auto m = create(sectors);
         m->setMaterial(material);
         _model->addMesh(m);

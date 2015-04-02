@@ -9,7 +9,7 @@ namespace phi
         auto d = 2.0f * radius;
         _size = size<float>(d, d, d);
 
-        _model = new model("sphere");
+        _model = new model("sphere", "");
         auto m = create(rings + 1, sectors + 1);
         m->setMaterial(material);
         _model->addMesh(m);
