@@ -51,6 +51,7 @@ namespace phi
         UI_API void resize(size<GLuint> value);
 
         UI_API void addControl(control* control);
+        UI_API void update();
         UI_API void render();
     };
 }

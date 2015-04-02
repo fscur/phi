@@ -48,9 +48,6 @@ void screen::initScene()
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-    /*phi::sceneObject* chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_leather.obj"));
-    chair0->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
-    s->add(chair0);
 
     phi::sceneObject* chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_leather.obj"));
     chair1->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
@@ -100,19 +97,19 @@ void screen::initUI()
     closeButton->setBackgroundColor(phi::color::red);
     closeButton->setForegroundColor(phi::color::white);
     closeButton->setSize(phi::size<GLuint>(24, 24));
-    closeButton->setX(1024 - 28);
-    closeButton->setY(4);
+    closeButton->setX(1024 - 24);
+    closeButton->setY(0);
     closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
     phi::uiSystem::get()->addControl(closeButton);
 
-    //phi::button* buttonA = new phi::button(getSize());
-    //buttonA->setText("A");
-    //buttonA->setBackgroundColor(phi::color::red);
-    //buttonA->setForegroundColor(phi::color::white);
-    //buttonA->setSize(phi::size<GLuint>(64, 64));
-    //buttonA->setZIndex(20.0f);
-    //buttonA->setX(100);
-    //buttonA->setY(100);
+    phi::button* buttonA = new phi::button(getSize());
+    buttonA->setText("A");
+    buttonA->setBackgroundColor(phi::color::red);
+    buttonA->setForegroundColor(phi::color::white);
+    buttonA->setSize(phi::size<GLuint>(64, 64));
+    buttonA->setZIndex(20.0f);
+    buttonA->setX(0);
+    buttonA->setY(0);
 
     //phi::slider* sliderA = new phi::slider(getSize());
     //sliderA->setTrackColor(phi::color::white);
@@ -135,9 +132,51 @@ void screen::initUI()
     //textBoxA->setX(132);
     //textBoxA->setY(180-48);
 
-    //phi::uiSystem::get()->addControl(buttonA);
-    //phi::uiSystem::get()->addControl(sliderA);
-    //phi::uiSystem::get()->addControl(textBoxA);
+    phi::carouselList* carouselListA = new phi::carouselList(getSize());
+    carouselListA->setBackgroundColor(phi::color::fromRGBA(0.3f, 0.3, 0.3f, 0.3f));
+    carouselListA->setSize(phi::size<unsigned int>(getSize().width - 10, 150));
+    carouselListA->setX(5);
+    carouselListA->setY(getSize().height - 155);
+    carouselListA->setZIndex(0);
+
+    phi::carouselItem* carouselItemA = new phi::carouselItem(getSize());
+    carouselItemA->setTexture(_resourcesRepo->getResource<phi::texture>("diffuse.bmp"));
+    phi::carouselItem* carouselItemB = new phi::carouselItem(getSize());
+    carouselItemB->setTexture(_resourcesRepo->getResource<phi::texture>("normal.bmp"));
+    phi::carouselItem* carouselItemC = new phi::carouselItem(getSize());
+    carouselItemC->setTexture(_resourcesRepo->getResource<phi::texture>("specular.bmp"));
+    phi::carouselItem* carouselItemD = new phi::carouselItem(getSize());
+    carouselItemD->setTexture(_resourcesRepo->getResource<phi::texture>("test.bmp"));
+    phi::carouselItem* carouselItemE = new phi::carouselItem(getSize());
+    carouselItemE->setTexture(_resourcesRepo->getResource<phi::texture>("close.bmp"));
+    phi::carouselItem* carouselItemF = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemG = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemH = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemI = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemJ = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemK = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemL = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemM = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemN = new phi::carouselItem(getSize());
+    phi::carouselItem* carouselItemO = new phi::carouselItem(getSize());
+    carouselListA->addCarouselItem(carouselItemA);
+    carouselListA->addCarouselItem(carouselItemB);
+    carouselListA->addCarouselItem(carouselItemC);
+    carouselListA->addCarouselItem(carouselItemD);
+    carouselListA->addCarouselItem(carouselItemE);
+    carouselListA->addCarouselItem(carouselItemF);
+    carouselListA->addCarouselItem(carouselItemG);
+    carouselListA->addCarouselItem(carouselItemH);
+    carouselListA->addCarouselItem(carouselItemI);
+    carouselListA->addCarouselItem(carouselItemJ);
+    carouselListA->addCarouselItem(carouselItemK);
+    carouselListA->addCarouselItem(carouselItemL);
+    carouselListA->addCarouselItem(carouselItemM);
+    carouselListA->addCarouselItem(carouselItemN);
+    carouselListA->addCarouselItem(carouselItemO);
+
+    phi::uiSystem::get()->addControl(buttonA);
+    phi::uiSystem::get()->addControl(carouselListA);
 
     phi::uiSystem::get()->resize(getSize());
 
@@ -167,6 +206,7 @@ void screen::update()
 
     phi::scenesManager::get()->update();
     phi::colorAnimator::update();
+    phi::uiSystem::get()->update();
     _commandsManager.update();
 
     //_labelFps->setText("FPS: " + std::to_string(getFps()));
