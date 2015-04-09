@@ -42,5 +42,8 @@ namespace phi
         info.size = viewportSize;
         defaultFrameBuffer->setSize(info.size);
         defaultFrameBuffer->setViewport(0, 0, info.size);
+
+        pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);
+        pickingFrameBuffer->init();
     }
 }

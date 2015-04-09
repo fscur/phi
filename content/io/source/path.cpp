@@ -26,6 +26,16 @@ namespace phi
         return path.substr(slashIndex + 1, dotIndex - slashIndex - 1);
     }
 
+    std::string path::getExtension(std::string path)
+    {
+        int dotIndex = path.find_last_of('.');
+
+        if (dotIndex < 0)
+            return "";
+
+        return path.substr(dotIndex, path.length() - dotIndex);
+    }
+
     std::vector<fileInfo> path::getFiles(const std::string directory)
     {
     #ifdef WIN32

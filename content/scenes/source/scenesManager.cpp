@@ -80,6 +80,9 @@ namespace phi
     {
         _scene->setSize(size);
         renderingSystem::resize(size);
+        basicRenderer->resize(size);
+        fsRenderer->resize(size);
+        dsRenderer->resize(size);
     }
 
     scenesManager* scenesManager::get()

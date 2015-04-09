@@ -49,15 +49,15 @@ void screen::initScene()
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
 
-    phi::sceneObject* chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_leather.obj"));
-    chair1->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
-    s->add(chair1);
-    */
-    phi::sceneObject* lamp = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("lamp.model"));
-    s->add(lamp);
+    //phi::sceneObject* chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_leather.obj"));
+    //chair1->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
+    //s->add(chair1);
 
-    //phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
-    //s->add(cube);
+    //phi::sceneObject* lamp = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("lamp.model"));
+    //s->add(lamp);
+
+    phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
+    s->add(cube);
 
     phi::plane* plane0 = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 10.0f, 10.0f, _resourcesLoader.getDefaultMaterial());
     s->add(plane0);
@@ -97,19 +97,20 @@ void screen::initUI()
     closeButton->setBackgroundColor(phi::color::red);
     closeButton->setForegroundColor(phi::color::white);
     closeButton->setSize(phi::size<GLuint>(24, 24));
-    closeButton->setX(1024 - 24);
+    closeButton->setX(getSize().width - 24);
     closeButton->setY(0);
     closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
     phi::uiSystem::get()->addControl(closeButton);
 
     phi::button* buttonA = new phi::button(getSize());
-    buttonA->setText("A");
+    buttonA->setText("Change Resolution");
     buttonA->setBackgroundColor(phi::color::red);
     buttonA->setForegroundColor(phi::color::white);
-    buttonA->setSize(phi::size<GLuint>(64, 64));
+    buttonA->setSize(phi::size<GLuint>(196, 64));
     buttonA->setZIndex(20.0f);
     buttonA->setX(0);
     buttonA->setY(0);
+    buttonA->getClick()->bind<screen, &screen::expandButtonClick>(this);
 
     //phi::slider* sliderA = new phi::slider(getSize());
     //sliderA->setTrackColor(phi::color::white);
@@ -140,15 +141,15 @@ void screen::initUI()
     carouselListA->setZIndex(0);
 
     phi::carouselItem* carouselItemA = new phi::carouselItem(getSize());
-    carouselItemA->setTexture(_resourcesRepo->getResource<phi::texture>("diffuse.bmp"));
+    carouselItemA->setTexture(_resourcesLoader.getTextures()->getResource<phi::texture>("button.png"));
     phi::carouselItem* carouselItemB = new phi::carouselItem(getSize());
-    carouselItemB->setTexture(_resourcesRepo->getResource<phi::texture>("normal.bmp"));
+    carouselItemB->setTexture(_resourcesLoader.getTextures()->getResource<phi::texture>("DefaultDiffuse.bmp"));
     phi::carouselItem* carouselItemC = new phi::carouselItem(getSize());
-    carouselItemC->setTexture(_resourcesRepo->getResource<phi::texture>("specular.bmp"));
+    carouselItemC->setTexture(_resourcesLoader.getTextures()->getResource<phi::texture>("DefaultNormal.bmp"));
     phi::carouselItem* carouselItemD = new phi::carouselItem(getSize());
-    carouselItemD->setTexture(_resourcesRepo->getResource<phi::texture>("test.bmp"));
+    carouselItemD->setTexture(_resourcesLoader.getTextures()->getResource<phi::texture>("DefaultSpecular.bmp"));
     phi::carouselItem* carouselItemE = new phi::carouselItem(getSize());
-    carouselItemE->setTexture(_resourcesRepo->getResource<phi::texture>("close.bmp"));
+    //carouselItemE->setTexture(_modelsRepository->getResource<phi::texture>("close.bmp"));
     phi::carouselItem* carouselItemF = new phi::carouselItem(getSize());
     phi::carouselItem* carouselItemG = new phi::carouselItem(getSize());
     phi::carouselItem* carouselItemH = new phi::carouselItem(getSize());
@@ -187,7 +188,6 @@ void screen::initUI()
 void screen::onInitialize()
 {
     setTitle("Teste");
-    setSize(phi::size<unsigned int>(1024, 768));
     centerScreen();
 
     _resourcesLoader.load();
@@ -305,10 +305,9 @@ void screen::render()
 
 void screen::onResize(SDL_Event e)
 {
-    phi::size<GLuint> sz = phi::size<GLuint>(e.window.data1, e.window.data2);
-    setSize(sz);
-    phi::scenesManager::get()->resize(sz);
-    phi::uiSystem::get()->resize(sz);
+    form::onResize(e);
+    phi::scenesManager::get()->resize(getSize());
+    phi::uiSystem::get()->resize(getSize());
 }
 
 void screen::onBeginInput()
@@ -367,8 +366,13 @@ void screen::onClosing()
 
 void screen::expandButtonClick(phi::mouseEventArgs* e)
 {
-    _textBox1->setText("0123456789A0123456789B0123456789C0123456789D0123456789");
-    _textBox2->setText("0123456789A0123456789B0123456789C0123456789D0123456789");
+    phi::size<GLuint> sz;
+    if (getSize().width == 1280 && getSize().height == 720)
+        sz = phi::size<GLuint>(1600, 900);
+    else
+        sz = phi::size<GLuint>(1280, 720);
+
+    resize(sz);
 }
 
 void screen::sliderValueChanged(phi::eventArgs e)

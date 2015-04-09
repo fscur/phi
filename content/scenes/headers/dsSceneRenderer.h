@@ -14,6 +14,8 @@ namespace phi
 		quad _quad;
 		bool _hasSelectedObjects;
 	private:
+        void initBuffers();
+
 		void createRT0();
 		void createRT1();
 		void createRT2();
@@ -36,6 +38,7 @@ namespace phi
 	public:
 		SCENES_API dsSceneRenderer(size<GLuint> viewportSize);
 		SCENES_API ~dsSceneRenderer();
+        SCENES_API void resize(size<GLuint> size);
 		SCENES_API void onRender() override;
 	};
 }

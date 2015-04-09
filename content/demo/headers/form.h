@@ -66,8 +66,9 @@ public:
     void setSize(phi::size<unsigned int> value);
     void setIsFullScreen(bool value);
     void show();
+    void resize(phi::size<unsigned int> size);
 
-    virtual void onResize(SDL_Event e){}
+    virtual void onResize(SDL_Event e);
     virtual void onClosing(){}
 
     virtual void onInitialize(){}

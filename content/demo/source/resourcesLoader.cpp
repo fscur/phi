@@ -180,7 +180,8 @@ namespace phi
         auto filesCount = files.size();
 
         for (auto i = 0; i < filesCount; i++)
-            loadModel(files[i].path);
+            if (path::getExtension(files[i].path) == ".model")
+                loadModel(files[i].path);
     }
 
     void resourcesLoader::loadModel(std::string fileName)
