@@ -4,7 +4,23 @@ namespace phi
 {
     fsSceneRenderer::fsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
     {
-        _frameBuffer = new frameBuffer("fsSceneRenderer", viewportSize, color::transparent);
+        initBuffers();
+
+        createAmbientLightShader();
+        createDirLightShader();
+        createPointLightShader();
+        createSpotLightShader();
+
+        createEmissiveBloomShaders();
+    }
+
+    fsSceneRenderer::~fsSceneRenderer()
+    {
+    }
+
+    void fsSceneRenderer::initBuffers()
+    {
+        _frameBuffer = new frameBuffer("fsSceneRenderer", _viewportSize, color::transparent);
         _frameBuffer->init();
         _frameBuffer->bind();
 
@@ -17,22 +33,11 @@ namespace phi
         _frameBuffer->enable(GL_DEPTH_TEST);
         _frameBuffer->unbind();
 
-        _postFrameBuffer = new frameBuffer("fsPostSceneRenderer", viewportSize, color::transparent);
+        _postFrameBuffer = new frameBuffer("fsPostSceneRenderer", _viewportSize, color::transparent);
         _postFrameBuffer->init();
         _postFrameBuffer->bind();
 
         createPostRenderTarget();
-
-        createAmbientLightShader();
-        createDirLightShader();
-        createPointLightShader();
-        createSpotLightShader();
-
-        createEmissiveBloomShaders();
-    }
-
-    fsSceneRenderer::~fsSceneRenderer()
-    {
     }
 
     void fsSceneRenderer::createDefaultRenderTarget()
@@ -642,6 +647,12 @@ namespace phi
         sh->unbind();
 
         glDisable(GL_BLEND);
+    }
+
+    void fsSceneRenderer::resize(size<GLuint> size)
+    {
+        _viewportSize = size;
+        initBuffers();
     }
 
     void fsSceneRenderer::onRender()

@@ -205,6 +205,7 @@ namespace phi
         }
 
         _cursorRenderer->setViewportSize(_info.size);
+        _cursorRenderer->update();
     }
 
     void uiSystem::update()

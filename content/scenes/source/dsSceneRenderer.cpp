@@ -5,7 +5,23 @@ namespace phi
 {
     dsSceneRenderer::dsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
     {
-        _frameBuffer = new frameBuffer("dsSceneRenderer", viewportSize, color::transparent);
+        initBuffers();
+
+        createGeomPassShader();
+        createStencilShader();
+        createDirLightShader();
+        createPointLightShader();
+        createSpotLightShader();
+    }
+
+    dsSceneRenderer::~dsSceneRenderer()
+    {
+        DELETE(_frameBuffer);
+    }
+
+    void dsSceneRenderer::initBuffers()
+    {
+        _frameBuffer = new frameBuffer("dsSceneRenderer", _viewportSize, color::transparent);
         _frameBuffer->init();
         _frameBuffer->bind();
 
@@ -19,17 +35,6 @@ namespace phi
         _frameBuffer->enable(GL_CULL_FACE);
         _frameBuffer->enable(GL_DEPTH_TEST);
         _frameBuffer->unbind();
-
-        createGeomPassShader();
-        createStencilShader();
-        createDirLightShader();
-        createPointLightShader();
-        createSpotLightShader();
-    }
-
-    dsSceneRenderer::~dsSceneRenderer()
-    {
-        DELETE(_frameBuffer);
     }
 
     void dsSceneRenderer::createRT0()
@@ -300,12 +305,12 @@ namespace phi
 
             sh->setUniform("isSelected", sceneObj->getSelected());
             sh->setUniform("id", sceneObj->getId());
-            
+
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
             auto meshesCount = meshes.size();
 
             for (GLuint j = 0; j < meshesCount; j++)
-		    {
+            {
                 mesh* m = meshes[j];
 
                 material* mat = m->getMaterial();
@@ -607,6 +612,12 @@ namespace phi
         sh->unbind();
 
         glDisable(GL_BLEND);
+    }
+
+    void dsSceneRenderer::resize(size<GLuint> size)
+    {
+        _viewportSize = size;
+        initBuffers();
     }
 
     void dsSceneRenderer::onRender()

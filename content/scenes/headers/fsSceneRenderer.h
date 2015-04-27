@@ -6,46 +6,49 @@
 
 namespace phi
 {
-	class fsSceneRenderer : 
-		public sceneRenderer
-	{
-	private:
-		quad _quad;
-		frameBuffer* _frameBuffer;
-		frameBuffer* _postFrameBuffer;
+    class fsSceneRenderer : 
+        public sceneRenderer
+    {
+    private:
+        quad _quad;
+        frameBuffer* _frameBuffer;
+        frameBuffer* _postFrameBuffer;
         glm::mat4 _projMatrix;
         glm::mat4 _viewMatrix;
         std::map<unsigned int, glm::mat4> _modelMatrices;
         std::map<unsigned int, glm::mat4> _mvpMatrices;
         std::map<unsigned int, glm::mat4> _itmvMatrices;
 
-	private:
-		void createDefaultRenderTarget();
-		void createSelectedObjectsRenderTarget();
-		void createDepthBuffer();
-        
-		void createPostRenderTarget();
+    private:
+        void initBuffers();
 
-		void createAmbientLightShader();
-		void createDirLightShader();
-		void createPointLightShader();
-		void createSpotLightShader();
+        void createDefaultRenderTarget();
+        void createSelectedObjectsRenderTarget();
+        void createDepthBuffer();
+
+        void createPostRenderTarget();
+
+        void createAmbientLightShader();
+        void createDirLightShader();
+        void createPointLightShader();
+        void createSpotLightShader();
         void createEmissiveBloomShaders();
 
-		void ambientLightPass();
-		void dirLightPasses();
-		void pointLightPasses();
-		void spotLightPasses();
+        void ambientLightPass();
+        void dirLightPasses();
+        void pointLightPasses();
+        void spotLightPasses();
 
-		void render();
+        void render();
         void emissiveBloomPass();
-		void selectedObjectsPass();
+        void selectedObjectsPass();
 
-	public:
-		SCENES_API fsSceneRenderer(size<GLuint> viewportSize);
-		SCENES_API ~fsSceneRenderer();
-		SCENES_API void onRender() override;
-	};
+    public:
+        SCENES_API fsSceneRenderer(size<GLuint> viewportSize);
+        SCENES_API ~fsSceneRenderer();
+        SCENES_API void resize(size<GLuint> size);
+        SCENES_API void onRender() override;
+    };
 }
 
 #endif

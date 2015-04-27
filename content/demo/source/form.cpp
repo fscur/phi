@@ -11,13 +11,11 @@
 #include <codecvt>
 #include "clock.h"
 
-
 #define THREADS_OFF
 
 form::form()
 {
     _title = "Form";
-    _size = phi::size<unsigned int>(800, 600);
     _window = nullptr;
     _glContext = nullptr;
     _isClosed = false;
@@ -29,7 +27,7 @@ form::form()
     _inputCost = 0;
     _updateCost = 0;
     _renderCost = 0;
-    _isFullScreen = false;
+    _isFullScreen = true;
 
     initWindow();
 }
@@ -56,11 +54,6 @@ void form::setTitle(std::string value)
 void form::setSize(phi::size<unsigned int> value)
 {
     _size = value;
-
-    if (_window == NULL)
-        return;
-
-    SDL_SetWindowSize(_window, (int)_size.width, (int)_size.height);
 }
 
 void form::setIsFullScreen(bool value)
@@ -87,17 +80,28 @@ void form::initialize(std::string applicationPath)
 
 void form::initWindow()
 {
+    SDL_Rect r;
+    if (SDL_GetDisplayBounds(0, &r) != 0)
+        SDL_Log("SDL_GetDisplayBounds failed: %s", SDL_GetError());
+
     //createGLWindow
     _window = SDL_CreateWindow(
         _title.c_str(),
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        _size.width,
-        _size.height,
-        SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+        r.w,
+        r.h,
+        //1280,
+        //720,
+        SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
 
     if (_window == NULL)
         LOG("Window could not be created! SDL_Error: " << SDL_GetError());
+
+    int width = 0;
+    int height = 0;
+    SDL_GetWindowSize(_window, &width, &height);
+    _size = phi::size<unsigned int>(width, height, 0);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -124,7 +128,6 @@ void form::initWindow()
     if(glewInitStatus != GLEW_OK)
         LOG("Error: " << glewGetErrorString(glewInitStatus));
 #endif
-
 }
 
 void form::show()
@@ -288,12 +291,12 @@ int form::renderLoop()
 
     while (!_isClosed)
     {
-        Uint32 now = SDL_GetTicks();
-        _dt = ((double)(now - _lastTime)) * 1e-3;
+        //Uint32 now = SDL_GetTicks();
+        //_dt = ((double)(now - _lastTime)) * 1e-3;
 
-        _renderCost0 = SDL_GetTicks();
+        //_renderCost0 = SDL_GetTicks();
         render();
-        _renderCost = SDL_GetTicks() - _renderCost0;
+        //_renderCost = SDL_GetTicks() - _renderCost0;
         SDL_GL_SwapWindow(_window);
 
         _frames++;
@@ -306,7 +309,7 @@ int form::renderLoop()
             _processedTime -= 1.0;
         }
 
-        _lastTime = now;
+        //_lastTime = now;
     }
 
     return 0;
@@ -325,4 +328,29 @@ void form::close()
 #ifdef THREADS_ON
     SDL_WaitThread(_renderThread, nullptr);
 #endif
+}
+
+void form::onResize(SDL_Event e)
+{
+    phi::size<GLuint> sz = phi::size<GLuint>(e.window.data1, e.window.data2);
+    setSize(sz);
+}
+
+void form::resize(phi::size<unsigned int> size)
+{
+    setSize(size);
+
+    if (_isFullScreen)
+        SDL_SetWindowFullscreen(_window, 0);
+
+    SDL_SetWindowSize(_window, (int)size.width, (int)size.height);
+
+    if (_isFullScreen)
+        SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
+
+    auto a = SDL_Event();
+    a.window.data1 = size.width;
+    a.window.data2 = size.height;
+        
+    onResize(a);
 }
