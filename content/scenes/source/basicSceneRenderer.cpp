@@ -92,23 +92,6 @@ namespace phi
         shaderManager::get()->addShader(s->getName(), s);
     }
 
-    color getSelectionColor(int objectId, int meshId, bool selected)
-    {
-        //objectId max = 4095
-        //meshId max = 1048575
-
-        unsigned int id = objectId << 20;
-        id += meshId;
-
-        unsigned int r = id & 255;
-        id = id >> 8;
-        unsigned int g = id & 255;
-        id = id >> 8;
-        unsigned int b = id & 255;
-
-        return color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, selected ? 1.0f : 0.0f);
-    }
-
     void basicSceneRenderer::render()
     {
         shader* sh = shaderManager::get()->getShader("BASIC_GEOM_PASS");
@@ -132,9 +115,8 @@ namespace phi
                 bool selected = sceneObj->getSelected() || m->getSelected();
 
                 sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
-
-			    sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
-				sh->setUniform("diffuseColor", mat->getDiffuseColor());
+                sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
+                sh->setUniform("diffuseColor", mat->getDiffuseColor());
 
                 meshRenderer::render(m);
             }
@@ -161,9 +143,9 @@ namespace phi
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f);
 
-		sh->setUniform("m", modelMatrix);
-		sh->setUniform("res", resolution);
-		sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
+        sh->setUniform("m", modelMatrix);
+        sh->setUniform("res", resolution);
+        sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
 
         meshRenderer::render(&_quad);
 
@@ -192,6 +174,9 @@ namespace phi
 
         glDepthMask(GL_TRUE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        auto color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearBufferfv(GL_COLOR, 1, &color.r); // Clears the selection render target
 
         render();
 

@@ -146,8 +146,7 @@ namespace phi
         s->addUniform("normalMap");
         s->addUniform("specularMap");
 
-        s->addUniform("isSelected");
-        s->addUniform("id");
+        s->addUniform("selectionColor");
 
         shaderManager::get()->addShader(s->getName(), s);
     }
@@ -286,6 +285,9 @@ namespace phi
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        auto color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearBufferfv(GL_COLOR, 3, &color.r); // Clears the selection render target
+
         shader* sh = shaderManager::get()->getShader("DS_GEOM_PASS");
         sh->bind();
 
@@ -295,7 +297,6 @@ namespace phi
 
             if(!_hasSelectedObjects)
                 _hasSelectedObjects = sceneObj->getSelected();
-
 
             sh->setUniform("mv", sceneObj->getTransform()->getMv());
             sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
@@ -314,6 +315,10 @@ namespace phi
                 mesh* m = meshes[j];
 
                 material* mat = m->getMaterial();
+
+                bool selected = sceneObj->getSelected() || m->getSelected();
+
+                sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
 
                 sh->setUniform("mat.ambientColor", mat->getAmbientColor());
                 sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());

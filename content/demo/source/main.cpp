@@ -115,9 +115,9 @@ int main(int argc, char* args[])
     processCommandLine(argc, args);
     executeCommands();
 
-    phi::testSceneRenderer* renderer = new phi::testSceneRenderer(mainScreen->getSize());
-    phi::scenesManager::get()->setSceneRenderer(renderer);
-    mainScreen->setSceneRenderer(renderer);
+    //phi::testSceneRenderer* renderer = new phi::testSceneRenderer(mainScreen->getSize());
+    //phi::scenesManager::get()->setSceneRenderer(renderer);
+    //mainScreen->setSceneRenderer(renderer);
 
     app->run(mainScreen);
 

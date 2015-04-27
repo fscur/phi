@@ -17,6 +17,7 @@ namespace phi
 
         auto m = create(width, depth);
         m->setMaterial(material);
+        m->setId(0);
         _model = new model("plane", "");
         _model->addMesh(m);
 

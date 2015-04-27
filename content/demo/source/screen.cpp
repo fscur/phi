@@ -130,6 +130,7 @@ void screen::initScene()
     phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
     cube->setPosition(glm::vec3(0.0, 0.5, 0.0));
     s->add(cube);
+
     /*
     
     phi::plane* ceiling = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 1.0f, 1.0f, _resourcesLoader.getDefaultMaterial());
@@ -313,10 +314,10 @@ void screen::initUI()
     carouselListA->addCarouselItem(carouselItemO);*/
     
     phi::uiSystem::get()->addControl(buttonA);
-    phi::uiSystem::get()->addControl(_slider1);
-    phi::uiSystem::get()->addControl(_slider2);
-    phi::uiSystem::get()->addControl(_slider3);
-    phi::uiSystem::get()->addControl(_slider4);
+    //phi::uiSystem::get()->addControl(_slider1);
+    //phi::uiSystem::get()->addControl(_slider2);
+    //phi::uiSystem::get()->addControl(_slider3);
+    //phi::uiSystem::get()->addControl(_slider4);
     //phi::uiSystem::get()->addControl(carouselListA);
 
     phi::uiSystem::get()->resize(getSize());
@@ -328,7 +329,7 @@ void screen::initUI()
 void screen::onInitialize()
 {
     setTitle("Teste");
-    setSize(phi::size<unsigned int>(1800, 1000));
+    //setSize(phi::size<unsigned int>(1800, 1000));
     //setSize(phi::size<unsigned int>(1024, 768));
     centerScreen();
     _resourcesLoader.load();
@@ -382,9 +383,9 @@ void screen::update()
     //glm::vec3 t = glm::vec3(-glm::cos(a) * 3.0f, pos.y, glm::sin(a) * 3.0f);
     //pointLight->setPosition(t);
 
-    phi::testSceneRenderer* renderer = dynamic_cast<phi::testSceneRenderer*>(phi::scenesManager::get()->getSceneRenderer());
-    renderer->setDayTime(7);
-    renderer->setSunOrientation(45);
+    //phi::testSceneRenderer* renderer = dynamic_cast<phi::testSceneRenderer*>(phi::scenesManager::get()->getSceneRenderer());
+    //renderer->setDayTime(7);
+    //renderer->setSunOrientation(45);
 }
 
 void screen::render()
