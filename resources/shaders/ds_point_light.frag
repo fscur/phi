@@ -82,8 +82,8 @@ void main()
 	float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
 	
 	fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
-	fragColor = fragColor * attenuation;// + vec4(0.2, 0.0, 0.0, 0.5);
-
+	fragColor = fragColor * attenuation;// + vec4(0.2, 0.0, 0.0, 1.0);
+	//fragColor = vec4(1.0);
 	//fragColor = vec4(fragPosition, 1.0);
 	//fragColor = vec4(gl_FragCoord.xy, 1.0, 1.0);
 }

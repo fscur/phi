@@ -93,7 +93,7 @@ void main()
 {
    vec2 uv = fragTexCoord;
     
-    vec4 Color = texture(tex2, uv);
+    vec4 Color = texture(tex1, uv);
     
     vec4 Highlight = clamp(BlurColor(uv, tex2, BlurSize)-Threshold,0.0,1.0)*1.0/(1.0-Threshold);
         
