@@ -43,7 +43,7 @@ namespace phi
     
 		SCENES_API scene* getScene() const { return _scene; }
 		SCENES_API scenesManagerInfo getInfo() const { return _info; }
-
+        SCENES_API sceneRenderer* getSceneRenderer() const { return _sceneRenderer; }
         SCENES_API void setSceneRenderer(sceneRenderer* value) { _sceneRenderer = value; }
 
         SCENES_API bool init(scenesManagerInfo info);

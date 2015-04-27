@@ -294,7 +294,7 @@ namespace phi
         ambientLightPass();
         dirLightPasses();
         pointLightPasses();
-        //spotLightPasses();
+        spotLightPasses();
     }
 
     void fsSceneRenderer::ambientLightPass()
@@ -323,8 +323,9 @@ namespace phi
 
                 material* mat = m->getMaterial();
 
-                sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-                sh->setUniform("emissiveMap", mat->getEmissiveTexture());
+                sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
+                sh->setUniform("emissiveMap", mat->getEmissiveTexture(), 1);
+
                 sh->setUniform("mat.ambientColor", mat->getAmbientColor());
                 sh->setUniform("mat.emissiveColor", mat->getEmissiveColor());
                 sh->setUniform("mat.ka", mat->getKa());
@@ -394,10 +395,10 @@ namespace phi
                     sh->setUniform("mat.shininess", mat->getShininess());
                     sh->setUniform("mat.isEmissive", mat->getIsEmissive());
 
-                    sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-                    sh->setUniform("normalMap", mat->getNormalTexture());
-                    sh->setUniform("specularMap", mat->getSpecularTexture());
-                    sh->setUniform("emissiveMap", mat->getEmissiveTexture());
+                    sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
+                    sh->setUniform("normalMap", mat->getNormalTexture(), 1);
+                    sh->setUniform("specularMap", mat->getSpecularTexture(), 2);
+                    sh->setUniform("emissiveMap", mat->getEmissiveTexture(), 3);
 
                     meshRenderer::render(m);
                 }
@@ -470,10 +471,10 @@ namespace phi
                     sh->setUniform("mat.shininess", mat->getShininess());
                     sh->setUniform("mat.isEmissive", mat->getIsEmissive());
 
-                    sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-                    sh->setUniform("normalMap", mat->getNormalTexture());
-                    sh->setUniform("specularMap", mat->getSpecularTexture());
-                    sh->setUniform("emissiveMap", mat->getEmissiveTexture());
+                    sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
+                    sh->setUniform("normalMap", mat->getNormalTexture(), 1);
+                    sh->setUniform("specularMap", mat->getSpecularTexture(), 2);
+                    sh->setUniform("emissiveMap", mat->getEmissiveTexture(), 3);
 
                     meshRenderer::render(m);
                 }
@@ -548,9 +549,9 @@ namespace phi
                     sh->setUniform("mat.shininess", mat->getShininess());
                     sh->setUniform("mat.isEmissive", mat->getIsEmissive());
 
-                    sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-                    sh->setUniform("normalMap", mat->getNormalTexture());
-                    sh->setUniform("specularMap", mat->getSpecularTexture());
+                    sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
+                    sh->setUniform("normalMap", mat->getNormalTexture(), 1);
+                    sh->setUniform("specularMap", mat->getSpecularTexture(), 2);
 
                     meshRenderer::render(m);
                 }
@@ -588,7 +589,7 @@ namespace phi
 
         sh->setUniform("m", modelMatrix);
         sh->setUniform("res", resolution);
-        sh->setUniform("tex1", curRenderTarget->getTexture());
+        sh->setUniform("tex1", curRenderTarget->getTexture(), 0);
 
         meshRenderer::render(&_quad);
 
@@ -606,8 +607,8 @@ namespace phi
         sh->setUniform("m", modelMatrix);
         sh->setUniform("res", resolution);
 
-        sh->setUniform("tex1", tex1);
-        sh->setUniform("tex2", tex2);
+        sh->setUniform("tex1", tex1, 0);
+        sh->setUniform("tex2", tex2, 1);
 
         meshRenderer::render(&_quad);
         
@@ -634,7 +635,7 @@ namespace phi
 
         sh->setUniform("m", modelMatrix);
         sh->setUniform("res", resolution);
-        sh->setUniform("selectionMap", selectedRenderTarget->getTexture());
+        sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
 
         meshRenderer::render(&_quad);
 
@@ -667,6 +668,8 @@ namespace phi
         renderingSystem::defaultFrameBuffer->bindForDrawing();
         _frameBuffer->bindForReading();
         _frameBuffer->blit("default", 0, 0, _viewportSize.width, _viewportSize.height);
+
+        //selectedObjectsPass();
         
     }
 }

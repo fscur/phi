@@ -8,6 +8,7 @@
 #endif
 #include "rendering.h"
 #include <string>
+#include <vector>
 #include "size.h"
 #include "SDL_Extensions.h"
 #include "resource.h"
@@ -19,6 +20,7 @@ namespace phi
     {
     private:
         GLuint _id;
+        GLuint _textureType;
 
 	protected:
 		size<GLuint> _size;
@@ -31,6 +33,7 @@ namespace phi
 
 		RENDERING_API GLuint getId() const { return _id; }
 		RENDERING_API size<GLuint> getSize() const { return _size; }
+        RENDERING_API GLuint getTextureType() const { return _textureType; }
 
 		RENDERING_API void bind(GLuint level = 0);
 		RENDERING_API void setParam(GLenum name, GLint value);
@@ -38,6 +41,7 @@ namespace phi
 
 		RENDERING_API static texture* fromFile(std::string fileName);
 		RENDERING_API static texture* create(size<GLuint> size, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, GLvoid* data = 0);
+        RENDERING_API static texture* createCubeMap(size<GLuint> size, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, const std::vector<GLvoid*> data = std::vector<GLvoid*>());
     };
 }
 #endif

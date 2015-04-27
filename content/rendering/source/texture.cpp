@@ -20,12 +20,12 @@ namespace phi
 	void texture::bind(GLuint level)
 	{
         glActiveTexture(GL_TEXTURE0 + level);
-		glBindTexture(GL_TEXTURE_2D, _id);
+		glBindTexture(_textureType, _id);
 	}
 
 	void texture::setParam(GLenum name, GLint value)
 	{
-		glTexParameteri(GL_TEXTURE_2D, name, value);		
+		glTexParameteri(_textureType, name, value);		
 	}
 
     void texture::release()
@@ -81,7 +81,10 @@ namespace phi
 
 		SDL_FreeSurface(surface);
 
-		return new texture(id, size<GLuint>(width, height), path::getFileName(fileName), fileName);
+		auto t =  new texture(id, size<GLuint>(width, height), path::getFileName(fileName), fileName);
+        t->_textureType = GL_TEXTURE_2D;
+
+        return t;
 	}
 
 	texture* texture::create(size<GLuint> size, GLint internalFormat, GLint format, GLint type, GLuint level, GLvoid* data)
@@ -90,6 +93,26 @@ namespace phi
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
 		glTexImage2D(GL_TEXTURE_2D, level, internalFormat, size.width, size.height, 0, format, type, data);
-		return new texture(id, size, "", "");
+		auto t = new texture(id, size, "", "");
+
+        t->_textureType = GL_TEXTURE_2D;
+
+        return t;
 	}
+
+    texture* texture::createCubeMap(size<GLuint> size, GLint internalFormat, GLint format, GLint type, GLuint level, const std::vector<GLvoid*> data)
+    {
+        GLuint id = 0;
+		glGenTextures(1, &id);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+
+		bool hasData = data.size() > 0;
+        
+        for (unsigned int i = 0 ; i < 6 ; i++) 
+		    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, internalFormat, size.width, size.height, 0, format, type, hasData ? data[i] : 0);
+
+        auto t = new texture(id, size, "", "");
+        t->_textureType = GL_TEXTURE_CUBE_MAP;
+        return t;
+    }
 }

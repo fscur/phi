@@ -12,7 +12,7 @@
 #include "clock.h"
 
 
-#define THREADS_ON
+#define THREADS_OFF
 
 form::form()
 {
@@ -109,7 +109,7 @@ void form::initWindow()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    SDL_ShowCursor(0);
+    //SDL_ShowCursor(0);
 
     _glContext = SDL_GL_CreateContext(_window);
 

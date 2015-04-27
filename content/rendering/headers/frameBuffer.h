@@ -49,6 +49,8 @@ namespace phi
 
 		RENDERING_API void bind();
 		RENDERING_API void bindForDrawing();
+        RENDERING_API void bindForDrawing(renderTarget* renderTarget);
+        RENDERING_API void bindForDrawing(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace);
 		RENDERING_API void bindForReading();
 		RENDERING_API void unbind();
 

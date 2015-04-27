@@ -34,9 +34,9 @@ namespace phi
 		{
 			for(s = 0; s < sectors; s++) 
 			{
-                float const y = glm::sin(-piOver2 + PI * r * R);
-                float const x = glm::cos(2.0f * PI * s * S) * glm::sin(PI * r * R);
-                float const z = glm::sin(2.0f * PI * s * S) * glm::sin(PI * r * R);
+                float const y = glm::sin(-piOver2 + PI * r * R) * 0.5f;
+                float const x = glm::cos(2.0f * PI * s * S) * glm::sin(PI * r * R) * 0.5f;
+                float const z = glm::sin(2.0f * PI * s * S) * glm::sin(PI * r * R) * 0.5f;
 
 				glm::vec3 position = glm::vec3(x, y, z);
 				glm::vec3 normal = glm::vec3(x,y,z);
@@ -71,6 +71,6 @@ namespace phi
 	void sphere::setRadius(float radius)
 	{ 
 		_radius = radius;
-		setSize(size<float>(radius, radius, radius));
+		setSize(size<float>(radius * 2.0, radius * 2.0, radius * 2.0));
 	}
 }

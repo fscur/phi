@@ -74,7 +74,7 @@ namespace phi
 
         _shader->setUniform("res", glm::vec2(_viewportSize.width, _viewportSize.height));
         _shader->setUniform("color", foreColor);
-        _shader->setUniform("texture", font->getTexture());
+        _shader->setUniform("texture", font->getTexture(), 0);
         _shader->setUniform("texSize", glm::vec2(font->getTexWidth(), font->getTexHeight()));
 
         meshRenderer mr = meshRenderer();
@@ -143,7 +143,7 @@ namespace phi
             maxWidth = glm::max(currentWidth, maxWidth);
         }
 
-        return size<unsigned int>(maxWidth, currentHeight);
+        return size<unsigned int>((GLint)maxWidth, (GLint)currentHeight);
     }
 
     unsigned int textRenderer2D::measureString(std::string text, font* font, size<unsigned int> sz)

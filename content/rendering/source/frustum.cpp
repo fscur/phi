@@ -213,8 +213,8 @@ namespace phi
 
     void frustum::update()
     {
-        if (!_changed)
-            return;
+        //if (!_changed)
+            //return;
 
         float tanHalfFov = tan(_fov * 0.5f);
         float zNearWidth = tanHalfFov * _zNear;

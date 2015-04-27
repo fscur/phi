@@ -28,7 +28,6 @@ namespace phi
 		void addRenderToQuadShader();
 		void addHudTextShader();
 		void addHudQuadShader();
-		void addSkyDomeShader();
 		
 		void addPostSelectedObjectsShader();
 

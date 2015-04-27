@@ -65,6 +65,19 @@ namespace phi
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
     }
 
+    void frameBuffer::bindForDrawing(renderTarget* renderTarget)
+    {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
+        glDrawBuffer(renderTarget->getAttachment());
+    }
+
+    void frameBuffer::bindForDrawing(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace)
+    {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->getId(), 0);
+        glDrawBuffer(cubeMapRenderTarget->getAttachment());
+    }
+
     void frameBuffer::bindForReading()
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
@@ -133,12 +146,15 @@ namespace phi
 
         (*_renderTargets)[renderTarget->getName()] = renderTarget;
 
-        glFramebufferTexture2D(
-            renderTarget->getTarget(), 
-            renderTarget->getAttachment(), 
-            renderTarget->getTexTarget(),
-            renderTarget->getTexture()->getId(),
-            renderTarget->getLevel());
+        if (renderTarget->getTexture()->getTextureType() == GL_TEXTURE_2D)
+        {
+            glFramebufferTexture2D(
+                renderTarget->getTarget(), 
+                renderTarget->getAttachment(), 
+                renderTarget->getTexTarget(),
+                renderTarget->getTexture()->getId(),
+                renderTarget->getLevel());
+        }
 
         if (!isComplete())
             return false;
@@ -175,7 +191,7 @@ namespace phi
     GLfloat frameBuffer::getZBufferValue(glm::vec2 mousePos)
     {
         GLfloat zBufferValue;
-        glReadPixels(mousePos.x, _size.height - mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+        glReadPixels((GLint)mousePos.x, (GLint)(_size.height - mousePos.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
 
         return zBufferValue;
     }

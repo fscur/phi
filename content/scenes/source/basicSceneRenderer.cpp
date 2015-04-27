@@ -129,7 +129,7 @@ namespace phi
 
                 sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
 
-			    sh->setUniform("diffuseMap", mat->getDiffuseTexture());
+			    sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
 				sh->setUniform("diffuseColor", mat->getDiffuseColor());
 
 			    meshRenderer::render(m);
@@ -159,7 +159,7 @@ namespace phi
 
 		sh->setUniform("m", modelMatrix);
 		sh->setUniform("res", resolution);
-		sh->setUniform("selectionMap", selectedRenderTarget->getTexture());
+		sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
 
 		meshRenderer::render(&_quad);
 

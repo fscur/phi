@@ -51,8 +51,8 @@ namespace phi
     {
         _frustum->update();
 
-        if (getChanged())
-        {
+        //if (getChanged())
+        //{
             updateCoordinateSystem();
             _target = _position + (_direction * _focus);
             _viewMatrix = glm::lookAt(_position, _target, _up);
@@ -62,7 +62,7 @@ namespace phi
             _frustum->setUp(_up);
 
             _changed = false;
-        }
+        //}
     }
 
     void camera::updateCoordinateSystem()
@@ -79,7 +79,7 @@ namespace phi
 
     void camera::setPositionWithinBoundsRadius(glm::vec3 position)
     {
-        glm::vec3 p = glm::normalize(position);
+        /*glm::vec3 p = glm::normalize(position);
 
         float dot = glm::dot(p, glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -101,7 +101,7 @@ namespace phi
         if (position.y < _minHeight)
         {
             position = glm::normalize(glm::vec3(position.x, _minHeight, position.z)) * distToOrigin;
-        }
+        }*/
 
         _position = position;
     }
@@ -110,7 +110,7 @@ namespace phi
     {  
         glm::vec3 position = mathUtils::rotateAboutAxis(_position, origin, axis, angle);
 
-        if (position.y >= _minHeight)
+        //if (position.y >= _minHeight)
             setPositionWithinBoundsRadius(position);
 
         if (_position == position)

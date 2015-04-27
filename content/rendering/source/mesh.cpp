@@ -56,12 +56,12 @@ namespace phi
     {
         std::vector<GLuint> indices;
 
-        for (auto i = 0; i < indicesCount; i++)
+        for (GLuint i = 0; i < indicesCount; i++)
             indices.push_back(indicesBuffer[i]);
 
         std::vector<vertex> vertices;
 
-        for (auto i = 0; i < verticesCount; i++)
+        for (GLuint i = 0; i < verticesCount; i++)
         {
             float x = positionsBuffer[i * 3 + 0];
             float y = positionsBuffer[i * 3 + 1];
@@ -90,7 +90,7 @@ namespace phi
         unsigned int tgIndex = 0;
 		GLfloat* tangentsBuffer = new GLfloat[verticesCount * 3];
 
-		for (int i = 0; i < verticesCount; i++)
+		for (GLuint i = 0; i < verticesCount; i++)
 		{
 			vertex vertex = vertices[i];
 
@@ -353,12 +353,12 @@ namespace phi
         
         m->_indicesCount = m->_iSize / sizeof(GLuint);
 
-        for (int i = 0; i < m->_indicesCount; i++)
+        for (GLuint i = 0; i < m->_indicesCount; i++)
             m->_indices.push_back(m->_indicesBuffer[i]);
 
         GLuint verticesCount = m->_pSize / sizeof(GLfloat) / 3;
 
-        for (int i = 0; i < verticesCount; i++)
+        for (GLuint i = 0; i < verticesCount; i++)
         {
             float x = m->_positionsBuffer[i * 3 + 0];
             float y = m->_positionsBuffer[i * 3 + 1];
@@ -387,7 +387,7 @@ namespace phi
 		unsigned int tgIndex = 0;
 		m->_tangentsBuffer = new GLfloat[verticesCount * 3];
 
-		for (int i = 0; i < verticesCount; i++)
+		for (GLuint i = 0; i < verticesCount; i++)
 		{
 			vertex vertex = m->_vertices[i];
 

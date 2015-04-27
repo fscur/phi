@@ -14,6 +14,7 @@
 #include "size.h"
 #include "commandsManager.h"
 #include "resourcesLoader.h"
+#include "testSceneRenderer.h"
 
 class screen :
     public form
@@ -38,13 +39,21 @@ private:
     phi::label* _labelUpdateCost;
     phi::label* _labelRenderCost;
     phi::slider* _slider1;
+    phi::slider* _slider2;
+    phi::slider* _slider3;
+    phi::slider* _slider4;
     phi::textBox* _textBox1;
     phi::textBox* _textBox2;
 	phi::pointLight* _blueLight;
 
+    phi::testSceneRenderer* _sceneRenderer;
+
 	phi::commandsManager _commandsManager;
     phi::resourcesLoader _resourcesLoader;
     phi::resourcesRepository* _modelsRepository;
+    phi::resourcesRepository* _texturesRepository;
+
+    bool _ssao;
 
 private:
 	void initScenesManager();
@@ -70,7 +79,10 @@ public:
 
     void closeButtonClick(phi::mouseEventArgs* e);
     void expandButtonClick(phi::mouseEventArgs* e);
-    void sliderValueChanged(phi::eventArgs e);
+    void slider1ValueChanged(phi::eventArgs e);
+    void slider2ValueChanged(phi::eventArgs e);
+    void slider3ValueChanged(phi::eventArgs e);
+    void slider4ValueChanged(phi::eventArgs e);
     void textBox1TextChanged(phi::eventArgs e);
     void textBox2TextChanged(phi::eventArgs e);
     void hudControlGotFocus(phi::controlEventArgs e);
@@ -78,6 +90,8 @@ public:
 
     void update() override;
     void render() override;
+
+    void setSceneRenderer(phi::testSceneRenderer* value) { _sceneRenderer = value; }
 };
 
 #endif

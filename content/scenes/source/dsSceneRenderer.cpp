@@ -318,9 +318,9 @@ namespace phi
                 sh->setUniform("mat.ks", mat->getKs());
                 sh->setUniform("mat.shininess", mat->getShininess());
 
-                sh->setUniform("diffuseMap", mat->getDiffuseTexture());
-                sh->setUniform("normalMap", mat->getNormalTexture());
-                sh->setUniform("specularMap", mat->getSpecularTexture());
+                sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
+                sh->setUniform("normalMap", mat->getNormalTexture(), 1);
+                sh->setUniform("specularMap", mat->getSpecularTexture(), 2);
 
                 meshRenderer::render(m);
             }
@@ -375,10 +375,10 @@ namespace phi
             sh->setUniform("light.intensity", light->getIntensity());
             sh->setUniform("light.direction", light->getDirection());
 
-            sh->setUniform("rt0", rt0Texture);
-            sh->setUniform("rt1", rt1Texture);
-            sh->setUniform("rt2", rt2Texture);
-            sh->setUniform("rt3", rt3Texture);
+            sh->setUniform("rt0", rt0Texture, 0);
+            sh->setUniform("rt1", rt1Texture, 1);
+            sh->setUniform("rt2", rt2Texture, 2);
+            sh->setUniform("rt3", rt3Texture, 3);
 
             meshRenderer::render(&_quad);
         }
@@ -412,13 +412,15 @@ namespace phi
 
         glEnable(GL_STENCIL_TEST);
 
+        mesh* _mesh;
+
         for (GLuint i = 0; i < pointLightsCount; i++)
         {
             pointLight* light = (*pointLights)[i];
             sphere* boundingVolume = light->getBoundingVolume();
             glm::mat4 modelMatrix = boundingVolume->getTransform()->getModelMatrix();
             glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
-
+            _mesh = boundingVolume->getModel()->getMeshes()[0];
             // Disable color/depth write and enable stencil
 
             glDrawBuffer(GL_NONE);
@@ -429,8 +431,6 @@ namespace phi
 
             glClear(GL_STENCIL_BUFFER_BIT);
 
-            // We need the stencil test to be enabled but we want it
-            // to succeed always. Only the depth test matters.
             glStencilFunc(GL_ALWAYS, 0, 0);
 
             glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
@@ -438,7 +438,7 @@ namespace phi
 
             ss->bind();
             ss->setUniform("mvp", mvp);
-            boundingVolume->render(); 
+            meshRenderer::render(_mesh); 
             ss->unbind();
 
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -466,12 +466,12 @@ namespace phi
             ps->setUniform("light.intensity", light->getIntensity());
             ps->setUniform("light.range", light->getRange());
             ps->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
-            ps->setUniform("rt0", rt0Texture);
-            ps->setUniform("rt1", rt1Texture);
-            ps->setUniform("rt2", rt2Texture);
-            ps->setUniform("rt3", rt3Texture);
-
-            boundingVolume->render();
+            ps->setUniform("rt0", rt0Texture, 0);
+            ps->setUniform("rt1", rt1Texture, 1);
+            ps->setUniform("rt2", rt2Texture, 2);
+            ps->setUniform("rt3", rt3Texture, 3);
+            
+            meshRenderer::render(_mesh); 
 
             ps->unbind();
 
@@ -506,13 +506,14 @@ namespace phi
         glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
 
         ss->bind();
-
+        mesh* _mesh;
         for (GLuint i = 0; i < spotLightsCount; i++)
         {
             spotLight* light = (*spotLights)[i];
             cone* boundingVolume = light->getBoundingVolume();
             glm::mat4 modelMatrix = boundingVolume->getTransform()->getModelMatrix();
             glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
+            _mesh = boundingVolume->getModel()->getMeshes()[0];
 
             glDrawBuffer(GL_NONE);
 
@@ -529,7 +530,7 @@ namespace phi
 
             ss->bind();
             ss->setUniform("mvp", mvp);
-            boundingVolume->render(); 
+            meshRenderer::render(_mesh); 
             ss->unbind();
 
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -560,14 +561,14 @@ namespace phi
             sls->setUniform("light.direction", light->getDirection());
             sls->setUniform("light.cutoff", light->getCutoff());
 
-            sls->setUniform("rt0", rt0Texture);
-            sls->setUniform("rt1", rt1Texture);
-            sls->setUniform("rt2", rt2Texture);
-            sls->setUniform("rt3", rt3Texture);
+            sls->setUniform("rt0", rt0Texture, 0);
+            sls->setUniform("rt1", rt1Texture, 1);
+            sls->setUniform("rt2", rt2Texture, 2);
+            sls->setUniform("rt3", rt3Texture, 3);
 
             //TODO: Cull lights
-
-            boundingVolume->render(); 
+            
+            meshRenderer::render(_mesh);
 
             sls->unbind();
 
@@ -599,7 +600,7 @@ namespace phi
 
         sh->setUniform("m", modelMatrix);
         sh->setUniform("res", resolution);
-        sh->setUniform("selectionMap", selectedRenderTarget->getTexture());
+        sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
 
         meshRenderer::render(&_quad);
 

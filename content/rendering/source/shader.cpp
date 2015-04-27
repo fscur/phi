@@ -149,11 +149,11 @@ namespace phi
         _uniforms[name] = glGetUniformLocation(_id, name.c_str());
     }
 
-    void shader::setUniform(std::string name, texture* value)
+    void shader::setUniform(std::string name, texture* value, GLuint index)
     {
-        glActiveTexture(GL_TEXTURE0 + _textureCount);
-        glBindTexture(GL_TEXTURE_2D, value->getId());
-        glUniform1i(_uniforms[name], _textureCount++);
+        glActiveTexture(GL_TEXTURE0 + index);
+        glBindTexture(value->getTextureType(), value->getId());
+        glUniform1i(_uniforms[name], index);
     }
 
     void shader::bind()

@@ -28,8 +28,6 @@ namespace phi
         addRenderToQuadShader();
         addHudTextShader();
         addHudQuadShader();
-        
-		//addSkyDomeShader();
 		
 		addPostSelectedObjectsShader();
 	}
@@ -92,29 +90,6 @@ namespace phi
         s->addUniform("texCoordOrigin");
         s->addUniform("texCoordQuadSize");
         s->addUniform("texSize");
-
-        addShader(s->getName(), s);
-    }
-
-    void shaderManager::addSkyDomeShader()
-    {
-        std::vector<std::string> attribs;
-        attribs.push_back("inPosition");
-        attribs.push_back("inTexCoord");
-        attribs.push_back("inNormal");
-        attribs.push_back("inTangent");
-
-        shader* s = loadShader("SKY_DOME", "sky_dome.vert", "sky_dome.frag", attribs);
-
-        s->addUniform("p");
-        s->addUniform("v");
-        s->addUniform("m");
-        s->addUniform("mvp");
-        s->addUniform("itmv");
-        s->addUniform("time");
-        s->addUniform("radius");
-
-        s->addUniform("normalMap");
 
         addShader(s->getName(), s);
     }

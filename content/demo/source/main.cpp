@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "screen.h"
 
+#include "testSceneRenderer.h"
 
 struct commandLineCommand
 {
@@ -34,6 +35,7 @@ void rCommandFunction(std::vector<std::string> args)
         phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::fsRenderer);
     else if (r == "2")
         phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::dsRenderer);
+
 }
 
 void initCommandLineCommands()
@@ -112,6 +114,10 @@ int main(int argc, char* args[])
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
+
+    phi::testSceneRenderer* renderer = new phi::testSceneRenderer(mainScreen->getSize());
+    phi::scenesManager::get()->setSceneRenderer(renderer);
+    mainScreen->setSceneRenderer(renderer);
 
     app->run(mainScreen);
 

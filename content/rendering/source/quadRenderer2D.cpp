@@ -56,7 +56,7 @@ namespace phi
 	{
 		_shader->bind();
 		_shader->setUniform("mvp", _transform->getMvp());
-		_shader->setUniform("quadTexture", image);
+		_shader->setUniform("quadTexture", image, 0);
 		_shader->setUniform("backColor", backColor);
 		meshRenderer::render(&_quad);
 		_shader->unbind();
