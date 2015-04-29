@@ -97,11 +97,15 @@ namespace phi
         shader* sh = shaderManager::get()->getShader("BASIC_GEOM_PASS");
         sh->bind();
 
+        glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
+        glm::mat4 viewMatrix = _camera->getViewMatrix();
+
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             sceneObject* sceneObj = (*_allObjects)[i];
 
-            sh->setUniform("mvp", sceneObj->getTransform()->getMvp());
+            glm::mat4 mvp = projectionMatrix * viewMatrix * sceneObj->getModelMatrix();
+            sh->setUniform("mvp", mvp);
 
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
             auto meshesCount = meshes.size();

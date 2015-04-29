@@ -1177,7 +1177,7 @@ namespace phi
         {
             sceneObject* sceneObj = (*_allObjects)[i];
 
-            glm::mat4 modelMatrix = sceneObj->getTransform()->getModelMatrix();
+            glm::mat4 modelMatrix = sceneObj->getModelMatrix();
 
             _modelMatrices[sceneObj->getId()] = modelMatrix;
             _mvpMatrices[sceneObj->getId()] = _projMatrix * _viewMatrix * modelMatrix;

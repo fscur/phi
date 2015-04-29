@@ -64,7 +64,7 @@ namespace phi
         vertices.push_back(v2);
         vertices.push_back(v3);
 
-		std::vector<GLuint> indices;
+        std::vector<GLuint> indices;
         indices.push_back(0);
         indices.push_back(1);
         indices.push_back(2);
@@ -73,7 +73,7 @@ namespace phi
         indices.push_back(3);
         indices.push_back(0);
 
-		return mesh::create("mesh0", vertices, indices);
+        return mesh::create("mesh0", vertices, indices);
     }
 
     void plane::setNormal(glm::vec3 normal)
@@ -97,18 +97,18 @@ namespace phi
     void plane::update()
     {
         sceneObject::update();
-        
+
         for (GLuint i = 0; i < _points.size(); i++)
         {
             glm::vec4 a = glm::vec4(_points[i].x, _points[i].y, _points[i].z, 0);
-            glm::vec4 b = _transform->getModelMatrix() * a;
+            glm::vec4 b = getModelMatrix() * a;
             _points[i] = glm::vec3(b.x, b.y, b.z);
         }
     }
 
     void plane::debugRender()
     {
-		sceneObject::debugRender();
+        sceneObject::debugRender();
 
 #ifdef WIN32
         //if (_points.size() == 0)

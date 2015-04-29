@@ -48,7 +48,7 @@ void screen::initScene()
     s->getActiveCamera()->setPosition(glm::vec3(0.0f, 2.0f, 5.0f));
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
-    
+
     //phi::sceneObject* tank = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("tank.model"));
     //s->add(tank);
     /*
@@ -56,7 +56,7 @@ void screen::initScene()
     auto lampSize = lamp->getSize();
     lamp->setPosition(glm::vec3(-0.3, 0.01, -0.5));
     s->add(lamp);
-    
+
     phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("lamp.model"));
     lampSize = lamp1->getSize();
     lamp1->setPosition(glm::vec3(3.6, 0.01, -2.5));
@@ -69,12 +69,12 @@ void screen::initScene()
     carpet->setPosition(glm::vec3(0.0, 0.03, 0.0));
     carpet->setSize(phi::size<float>(2.0, 1.0, 2.0));
     s->add(carpet);
-    
+
     phi::sceneObject* brown_leather = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("test3.model"));
     brown_leather->setPosition(glm::vec3(-1.0, 0.0, 0.0));
     brown_leather->yaw(0.3);
     s->add(brown_leather);
-    
+
     phi::sceneObject* brown_leather0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("test3.model"));
     brown_leather0->setPosition(glm::vec3(1.0, 0.0, 0.0));
     brown_leather0->yaw(-0.3);
@@ -84,19 +84,19 @@ void screen::initScene()
     /*
     for (int i = -2; i < 2; i++)
     {
-        for (int j = -2; j < 2; j++)
-        {
-            auto w = 2.5;
-            auto hw = 1.25;
+    for (int j = -2; j < 2; j++)
+    {
+    auto w = 2.5;
+    auto hw = 1.25;
 
-            phi::sceneObject* floor = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("floor.model"));
-            glm::vec3 pos(i * w + hw, 0.00, j *w+ hw);
-            floor->setPosition(pos);
-            floor->setSize(phi::size<float>(w, 0.01, w));
-            s->add(floor);
-        }
+    phi::sceneObject* floor = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("floor.model"));
+    glm::vec3 pos(i * w + hw, 0.00, j *w+ hw);
+    floor->setPosition(pos);
+    floor->setSize(phi::size<float>(w, 0.01, w));
+    s->add(floor);
     }
-    
+    }
+
     /*
     phi::plane* ceiling = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 10.0f, 10.0f, _resourcesLoader.getDefaultMaterial());
     ceiling->pitch(phi::PI);
@@ -122,36 +122,36 @@ void screen::initScene()
     rightWall->roll(phi::PI_OVER_2);
     rightWall->setPosition(glm::vec3(5.0, 2.5, 0.0));
     s->add(rightWall);*/
-    
-    
+
+
     phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 1000.0f, 1000.0f, _resourcesLoader.getDefaultMaterial());
     s->add(floor);
-    
+
     phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
     cube->setPosition(glm::vec3(0.0, 0.5, 0.0));
     s->add(cube);
 
     /*
-    
+
     phi::plane* ceiling = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 1.0f, 1.0f, _resourcesLoader.getDefaultMaterial());
     ceiling->pitch(phi::PI);
     ceiling->setPosition(glm::vec3(-2.0, 0.5, -0.5));
     //s->add(ceiling);
 
-  
 
-    
+
+
     phi::sceneObject* cube1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
     //cube1->setSize(phi::size<float>(2.0f, 2.0f, 0.0f));
     cube1->setPosition(glm::vec3(0.0, 0.5, 0.0));
     s->add(cube1);
 
-    
+
     phi::sphere* sphere = new phi::sphere(0.5, 32, 32, _resourcesLoader.getDefaultMaterial());
     sphere->setPosition(glm::vec3(2.0, 0.5, 0.0));
     s->add(sphere);
     */
-    
+
     glm::vec3 dirLightPos = glm::vec3(-3.0f, 3.0f, 3.0f);
     phi::directionalLight* dirLight = new phi::directionalLight(glm::vec3(), phi::color::fromRGBA(1.0, 0.9, 0.6, 1.0), 0.8f, -dirLightPos);
     dirLight->setPosition(dirLightPos);
@@ -171,8 +171,6 @@ void screen::initScene()
 
     //phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(-3.0f, 3.0f, -3.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 2.0f, 10.0f, glm::vec3(1.0f, -1.0f, 1.0f), 0.8);
     ///s->add(spotLight0);
-
-    
 
     phi::scenesManager::get()->addScene(s);
     phi::scenesManager::get()->loadScene(0);
@@ -268,7 +266,7 @@ void screen::initUI()
     //textBoxA->setZIndex(40.0f);
     //textBoxA->setX(132);
     //textBoxA->setY(180-48);
-    
+
     /*phi::carouselList* carouselListA = new phi::carouselList(getSize());
     carouselListA->setBackgroundColor(phi::color::fromRGBA(0.3f, 0.3, 0.3f, 0.3f));
     carouselListA->setSize(phi::size<unsigned int>(getSize().width - 10, 150));
@@ -276,7 +274,7 @@ void screen::initUI()
     carouselListA->setY(getSize().height - 155);
     carouselListA->setZIndex(0);
 
-    
+
     phi::carouselItem* carouselItemA = new phi::carouselItem(getSize());
     carouselItemA->setTexture(_texturesRepository->getResource<phi::texture>("diffuse.bmp"));
     phi::carouselItem* carouselItemB = new phi::carouselItem(getSize());
@@ -312,7 +310,7 @@ void screen::initUI()
     carouselListA->addCarouselItem(carouselItemM);
     carouselListA->addCarouselItem(carouselItemN);
     carouselListA->addCarouselItem(carouselItemO);*/
-    
+
     phi::uiSystem::get()->addControl(buttonA);
     //phi::uiSystem::get()->addControl(_slider1);
     //phi::uiSystem::get()->addControl(_slider2);
@@ -342,7 +340,6 @@ void screen::onInitialize()
 
 float t = 0.0f;
 
-
 void screen::update()
 {
     a+= 0.01;
@@ -369,10 +366,10 @@ void screen::update()
     //int visibleObjects = scenesManager::Get()->GetScene()->GetVisibleObjectsCount();
     //int allObjects = scenesManager::Get()->GetScene()->GetAllObjectsCount();
     //_labelObjects->setText(to_string(visibleObjects) + "/" + to_string(allObjects));
-    
+
     //phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
     //p->setPosition(glm::vec3(glm::cos(a) * 3.5f, 1.5f, glm::sin(a) * 3.5f));
-    
+
     /*phi::spotLight* spotLight = phi::scenesManager::get()->getScene()->getSpotLight(0);
     auto dir = spotLight->getDirection();
     glm::vec3 spotLightPos = glm::vec3(glm::cos(a) * 4.0f, glm::abs(glm::sin(a) * 4.0f), dir.z);

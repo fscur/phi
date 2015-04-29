@@ -15,7 +15,7 @@ namespace phi
 
         _orthoProjMatrix = glm::ortho<float>(-5.0, 5.0, -5.0, 5.0, 0.0, 50.0);
 
-		_boundsRadius = 2000.0f;
+        _boundsRadius = 2000.0f;
         _minHeight = 0.1f;
         _maxHeight = _boundsRadius * 0.98f;
         _changed = true;
@@ -53,15 +53,15 @@ namespace phi
 
         //if (getChanged())
         //{
-            updateCoordinateSystem();
-            _target = _position + (_direction * _focus);
-            _viewMatrix = glm::lookAt(_position, _target, _up);
+        updateCoordinateSystem();
+        _target = _position + (_direction * _focus);
+        _viewMatrix = glm::lookAt(_position, _target, _up);
 
-            _frustum->setPosition(_position);
-            _frustum->setDirection(_direction);
-            _frustum->setUp(_up);
+        _frustum->setPosition(_position);
+        _frustum->setDirection(_direction);
+        _frustum->setUp(_up);
 
-            _changed = false;
+        _changed = false;
         //}
     }
 
@@ -84,7 +84,7 @@ namespace phi
         float dot = glm::dot(p, glm::vec3(0.0f, 1.0f, 0.0f));
 
         if (dot > 0.97)
-            return;
+        return;
 
         float radius = _boundsRadius;
         float distToOrigin = glm::length(position);
@@ -92,15 +92,15 @@ namespace phi
 
         if (diff > 0)
         {
-            glm::vec3 dir = glm::normalize(-position);
-            position += dir * diff;
+        glm::vec3 dir = glm::normalize(-position);
+        position += dir * diff;
         }
         else
-            radius = distToOrigin;
+        radius = distToOrigin;
 
         if (position.y < _minHeight)
         {
-            position = glm::normalize(glm::vec3(position.x, _minHeight, position.z)) * distToOrigin;
+        position = glm::normalize(glm::vec3(position.x, _minHeight, position.z)) * distToOrigin;
         }*/
 
         _position = position;
@@ -111,7 +111,7 @@ namespace phi
         glm::vec3 position = mathUtils::rotateAboutAxis(_position, origin, axis, angle);
 
         //if (position.y >= _minHeight)
-            setPositionWithinBoundsRadius(position);
+        setPositionWithinBoundsRadius(position);
 
         if (_position == position)
             _target = mathUtils::rotateAboutAxis(_target, origin, axis, angle);
