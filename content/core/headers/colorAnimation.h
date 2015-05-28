@@ -8,7 +8,8 @@ namespace phi
     class colorAnimation
     {
     private:
-        color* _colorFrom;
+        color* _colorFromVar;
+        color _colorFrom;
         color _colorTo;
         int _milliseconds;
         int _elapsed;
@@ -16,13 +17,15 @@ namespace phi
     public:
         colorAnimation(color* from, color to, int milliseconds)
         {
-            _colorFrom = from;
+            _colorFromVar = from;
+            _colorFrom = *from;
             _colorTo = to;
             _milliseconds = milliseconds;
             _elapsed = 0;
         }
 
-        color* getColorFrom() { return _colorFrom; }
+        color* getColorFromVar() { return _colorFromVar; }
+        color getColorFrom() { return _colorFrom; }
         color getColorTo() { return _colorTo; }
         int getMilliseconds() { return _milliseconds; }
         int getElapsed() { return _elapsed; }

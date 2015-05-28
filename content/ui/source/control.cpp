@@ -35,6 +35,11 @@ namespace phi
             notifyLostFocus(controlEventArgs(this));
     }
 
+    bool control::isPointInside(int x, int y)
+    {
+        return x >= _x && x <= _x + (int)_size.width && y >= _y && y <= _y + (int)_size.height;
+    }
+
     void control::notifyMouseDown(mouseEventArgs* e)
     {
         onMouseDown(e);

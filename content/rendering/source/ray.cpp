@@ -110,4 +110,103 @@ namespace phi
 
         return true;
     }
+
+    bool ray::intersects(aabb* aabb, glm::vec3* normal)
+    {
+        if (intersects(aabb))
+        {
+            auto min = aabb->getMin();
+            auto max = aabb->getMax();
+            auto lbb = glm::vec3(min.x, min.y, min.z);
+            auto lbf = glm::vec3(min.x, min.y, max.z);
+            auto ltf = glm::vec3(min.x, max.y, max.z);
+            auto ltb = glm::vec3(min.x, max.y, min.z);
+            auto rbb = glm::vec3(max.x, min.y, min.z);
+            auto rbf = glm::vec3(max.x, min.y, max.z);
+            auto rtf = glm::vec3(max.x, max.y, max.z);
+            auto rtb = glm::vec3(max.x, max.y, min.z);
+
+            auto minT = std::numeric_limits<float>::max();
+            auto minNormal = glm::vec3();
+            float t;
+            if (intersects(lbb, lbf, ltf, ltb, &t))
+            {
+                if (t < minT)
+                {
+                    minT = t;
+                    minNormal = glm::vec3(-1.0f, 0.0f, 0.0f);
+                }
+            }
+            if (intersects(rbb, rtb, rtf, rbf, &t))
+            {
+                if (t < minT)
+                {
+                    minT = t;
+                    minNormal = glm::vec3(1.0f, 0.0f, 0.0f);
+                }
+            }
+            if (intersects(lbf, ltf, rtf, rbf, &t))
+            {
+                if (t < minT)
+                {
+                    minT = t;
+                    minNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+                }
+            }
+            if (intersects(lbb, ltb, rtb, rbb, &t))
+            {
+                if (t < minT)
+                {
+                    minT = t;
+                    minNormal = glm::vec3(0.0f, 0.0f, -1.0f);
+                }
+            }
+            if (intersects(ltf, rtf, rtb, ltb, &t))
+            {
+                if (t < minT)
+                {
+                    minT = t;
+                    minNormal += glm::vec3(0.0f, 1.0f, 0.0f);
+                }
+            }
+            if (intersects(lbf, lbb, rbb, rbf, &t))
+            {
+                if (t < minT)
+                {
+                    minT = t;
+                    minNormal = glm::vec3(0.0f, -1.0f, 0.0f);
+                }
+            }
+
+            *normal = minNormal;
+            return true;
+        }
+    }
+
+    // Under construction
+    bool ray::intersects(glm::vec3 bl, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, float* t)
+    {
+        auto planeNormal = glm::normalize(glm::cross(tl - bl, br - bl));
+        auto a = planeNormal.x;
+        auto b = planeNormal.y;
+        auto c = planeNormal.z;
+        auto x0 = bl.x;
+        auto y0 = bl.y;
+        auto z0 = bl.z;
+        auto rx = _origin.x;
+        auto ry = _origin.y;
+        auto rz = _origin.z;
+        auto vx = _direction.x;
+        auto vy = _direction.y;
+        auto vz = _direction.z;
+
+        *t = (a * (x0 - rx) + b * (y0 - ry) + c * (x0 - rz)) / (a * vx + b * vy + c * vz);
+
+        auto point = _origin + *t * _direction;
+        return
+            glm::dot(bl, tl-bl) <= glm::dot(point, tl-bl) &&
+            glm::dot(point, tl-bl) <= glm::dot(tl, tl-bl) &&
+            glm::dot(bl, br-bl) <= glm::dot(point, br-bl) &&
+            glm::dot(point, br-bl) <= glm::dot(br, br-bl);
+    }
 }

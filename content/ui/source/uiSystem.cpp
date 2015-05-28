@@ -101,11 +101,7 @@ namespace phi
         {
             control->notifyMouseMove(e);
 
-            auto x = control->getX();
-            auto y = control->getY();
-            auto size = control->getSize();
-
-            if (!higher && e->x >= x && e->x <= x + (int)size.width && e->y >= y && e->y <= y + (int)size.height)
+            if (!higher && control->isPointInside(e->x, e->y))
                 higher = control;
             else
             {

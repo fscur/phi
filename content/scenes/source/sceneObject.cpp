@@ -16,6 +16,7 @@ namespace phi
         _changed = true;
         _isInitialized = false;
         _aabb = nullptr;
+        _isSelectedChanged = new eventHandler<sceneObjectEventArgs>();
     }
 
     sceneObject::~sceneObject(void)
@@ -40,6 +41,14 @@ namespace phi
 
         for (unsigned int i = 0; i < count; i++)
         _points[i] = vertices[i].getPosition();*/
+    }
+
+    void sceneObject::setSelected(bool value)
+    {
+        _isSelected = value;
+
+        if (_isSelectedChanged->isBound())
+            _isSelectedChanged->invoke(sceneObjectEventArgs(this));
     }
 
     void sceneObject::addChild(sceneObject* child)

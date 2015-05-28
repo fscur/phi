@@ -328,7 +328,7 @@ namespace phi
 
                 material* mat = m->getMaterial();
 
-                bool selected = sceneObj->getSelected() || m->getSelected();
+                bool selected = sceneObj->getSelected() && m->getSelected();
 
                 sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
 

@@ -6,6 +6,7 @@
 #include "mathUtils.h"
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <vector>
 
 namespace phi
 {
@@ -35,6 +36,9 @@ namespace phi
         CORE_API size<float> getSize() const { return _size ; }
         CORE_API glm::quat getQuaternion() const { return _quaternion; }
         CORE_API glm::mat4 getModelMatrix() const { return _modelMatrix; }
+        CORE_API glm::mat4 getRotationMatrix();
+        CORE_API glm::mat4 getTranslationMatrix();
+        CORE_API glm::mat4 getScaleMatrix();
 
         CORE_API void setPosition(glm::vec3 value) { _position = value; _changed = true; }
         CORE_API void setSize(size<float> value) { _size = value; _changed = true; }

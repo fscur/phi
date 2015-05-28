@@ -43,25 +43,38 @@ namespace phi
         return _up;
     }
 
-    void object3D::update(glm::mat4 parentModelMatrix)
+    glm::mat4 object3D::getRotationMatrix()
     {
-        glm::mat4 rotation = glm::toMat4(_quaternion);
-        
-        _direction = _quaternion * glm::vec3(1.0f, 0.0f, 0.0f);
-        _right = _quaternion * glm::vec3(0.0f, 0.0f, 1.0f);
-        _up = _quaternion * glm::vec3(0.0f, 1.0f, 0.0f);
+        return glm::toMat4(_quaternion);
+    }
 
-        glm::mat4 scale = glm::mat4(
-            _size.width, 0.0f, 0.0f, 0.0f,
-            0.0f, _size.height, 0.0f, 0.0f,
-            0.0f, 0.0f, _size.depth, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f);
-
-        glm::mat4 translation = glm::mat4(
+    glm::mat4 object3D::getTranslationMatrix()
+    {
+        return glm::mat4(
             1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f,
             _position.x, _position.y, _position.z, 1.0f);
+    }
+
+    glm::mat4 object3D::getScaleMatrix()
+    {
+        return glm::mat4(
+            _size.width, 0.0f, 0.0f, 0.0f,
+            0.0f, _size.height, 0.0f, 0.0f,
+            0.0f, 0.0f, _size.depth, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+    }
+
+    void object3D::update(glm::mat4 parentModelMatrix)
+    {
+        _direction = _quaternion * glm::vec3(1.0f, 0.0f, 0.0f);
+        _right = _quaternion * glm::vec3(0.0f, 0.0f, 1.0f);
+        _up = _quaternion * glm::vec3(0.0f, 1.0f, 0.0f);
+
+        glm::mat4 rotation = getRotationMatrix();
+        glm::mat4 scale = getScaleMatrix();
+        glm::mat4 translation = getTranslationMatrix();
 
         _modelMatrix = parentModelMatrix * translation  * rotation * scale;
 

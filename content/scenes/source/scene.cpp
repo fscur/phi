@@ -17,6 +17,7 @@ namespace phi
         _pointLights = new std::vector<pointLight*>();
         _spotLights = new std::vector<spotLight*>();
         _cameras = new std::vector<camera*>();
+        _selectedSceneObjectChanged = new eventHandler<sceneObjectEventArgs>();
 
         _activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, phi::PI_OVER_4);
         _cameras->push_back(_activeCamera);
@@ -140,6 +141,8 @@ namespace phi
 
         sceneObject->setId(_sceneObjectsIds++);
         _allObjectsCount++;
+
+        sceneObject->getIsSelectedChanged()->bind<scene, &scene::sceneObjectIsSelectedChanged>(this);
     }
 
     void scene::add(directionalLight* directionalLight)
@@ -160,6 +163,12 @@ namespace phi
     void scene::add(camera* camera)
     {
         _cameras->push_back(camera);
+    }
+
+    void scene::sceneObjectIsSelectedChanged(phi::sceneObjectEventArgs e)
+    {
+        if (_selectedSceneObjectChanged->isBound())
+            _selectedSceneObjectChanged->invoke(e);
     }
 
     sceneObject* scene::getSceneObjectById(unsigned int id)

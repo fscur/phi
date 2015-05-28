@@ -45,9 +45,10 @@ void screen::initScene()
 {
     phi::scene* s = new phi::scene();
     s->setSize(getSize());
-    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 2.0f, 5.0f));
+    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 2.0f, 2.0f));
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+    s->getSelectedSceneObjectChanged()->bind<screen, &screen::selectedSceneObjectChanged>(this);
 
     //phi::sceneObject* tank = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("tank.model"));
     //s->add(tank);
@@ -128,7 +129,7 @@ void screen::initScene()
     s->add(floor);
 
     phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
-    cube->setPosition(glm::vec3(0.0, 0.5, 0.0));
+    cube->setPosition(glm::vec3(0.0, 2.0, 0.0f));
     s->add(cube);
 
     /*
@@ -145,11 +146,6 @@ void screen::initScene()
     //cube1->setSize(phi::size<float>(2.0f, 2.0f, 0.0f));
     cube1->setPosition(glm::vec3(0.0, 0.5, 0.0));
     s->add(cube1);
-
-
-    phi::sphere* sphere = new phi::sphere(0.5, 32, 32, _resourcesLoader.getDefaultMaterial());
-    sphere->setPosition(glm::vec3(2.0, 0.5, 0.0));
-    s->add(sphere);
     */
 
     glm::vec3 dirLightPos = glm::vec3(-3.0f, 3.0f, 3.0f);
@@ -175,6 +171,8 @@ void screen::initScene()
     phi::scenesManager::get()->addScene(s);
     phi::scenesManager::get()->loadScene(0);
 }
+
+phi::translationControl* tc;
 
 void screen::initUI()
 {
@@ -311,6 +309,12 @@ void screen::initUI()
     carouselListA->addCarouselItem(carouselItemN);
     carouselListA->addCarouselItem(carouselItemO);*/
 
+    auto camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+
+    tc = new phi::translationControl(getSize());
+    tc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    phi::uiSystem::get()->addControl(tc);
+
     phi::uiSystem::get()->addControl(buttonA);
     //phi::uiSystem::get()->addControl(_slider1);
     //phi::uiSystem::get()->addControl(_slider2);
@@ -355,6 +359,7 @@ void screen::update()
     phi::colorAnimator::update();
     phi::uiSystem::get()->update();
     _commandsManager.update();
+
 
     /*_labelFps->setText("FPS: " + std::to_string(getFps()));
 
@@ -553,4 +558,12 @@ void screen::hudControlGotFocus(phi::controlEventArgs e)
 void screen::hudControlLostFocus(phi::controlEventArgs e)
 {
     SDL_StopTextInput();
+}
+
+void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
+{
+    if (e.sender->getSelected())
+        tc->attachTo(e.sender);
+    else
+        tc->attachTo(nullptr);
 }

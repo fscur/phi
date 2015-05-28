@@ -61,6 +61,7 @@ namespace phi
         void notifyMouseEnter(mouseEventArgs* e);
         void notifyMouseLeave(mouseEventArgs* e);
 
+        UI_API virtual bool isPointInside(int x, int y);
         UI_API virtual void render() = 0;
 
         UI_API void virtual onMouseDown(mouseEventArgs* e) {}

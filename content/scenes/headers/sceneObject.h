@@ -7,6 +7,9 @@
 #include "size.h"
 #include "aabb.h"
 #include "object3D.h"
+#include "eventHandler.h"
+#include "eventArgs.h"
+#include "sceneObjectEventArgs.h"
 #include <list>
 
 namespace phi
@@ -22,6 +25,7 @@ namespace phi
         bool _isSelected;
         bool _isInitialized;
         aabb* _aabb;
+        eventHandler<sceneObjectEventArgs>* _isSelectedChanged;
 
         std::vector<glm::vec3> _points;
 
@@ -45,8 +49,9 @@ namespace phi
         SCENES_API virtual bool getChanged() const { return _changed; }
         SCENES_API bool getSelected() const { return _isSelected; }
         SCENES_API unsigned int getId() const { return _id; }
+        SCENES_API eventHandler<sceneObjectEventArgs>* getIsSelectedChanged() { return _isSelectedChanged; }
 
-        SCENES_API void setSelected(bool value) { _isSelected = value; }
+        SCENES_API void setSelected(bool value);
         SCENES_API void setId(unsigned int value) { _id = value; }
 
         SCENES_API void initialize();
