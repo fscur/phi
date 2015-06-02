@@ -89,10 +89,10 @@ void form::initWindow()
         _title.c_str(),
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        //r.w,
-        //r.h,
-        500,
-        500,
+        r.w,
+        r.h,
+        //500,
+        //500,
         //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN );
         SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 

@@ -11,6 +11,7 @@
 #include "carouselList.h"
 #include "carouselItem.h"
 #include "translationControl.h"
+#include "rotationControl.h"
 #include "ray.h"
 #include "size.h"
 #include "commandsManager.h"

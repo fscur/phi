@@ -78,6 +78,9 @@ namespace phi
                 control->setIsFocused(true);
 
             control->notifyMouseDown(e);
+
+            if (e->handled)
+                return;
         }
     }
 

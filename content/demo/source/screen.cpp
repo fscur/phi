@@ -173,6 +173,7 @@ void screen::initScene()
 }
 
 phi::translationControl* tc;
+phi::rotationControl* rc;
 
 void screen::initUI()
 {
@@ -314,6 +315,10 @@ void screen::initUI()
     tc = new phi::translationControl(getSize());
     tc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
     phi::uiSystem::get()->addControl(tc);
+
+    rc = new phi::rotationControl(getSize());
+    rc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    phi::uiSystem::get()->addControl(rc);
 
     phi::uiSystem::get()->addControl(buttonA);
     //phi::uiSystem::get()->addControl(_slider1);
@@ -566,4 +571,8 @@ void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
         tc->attachTo(e.sender);
     else
         tc->attachTo(nullptr);
+    if (e.sender->getSelected())
+        rc->attachTo(e.sender);
+    else
+        rc->attachTo(nullptr);
 }

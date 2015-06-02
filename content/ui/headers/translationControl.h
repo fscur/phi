@@ -24,9 +24,12 @@ namespace phi
         aabb* _xAabb;
         aabb* _yAabb;
         aabb* _zAabb;
-        bool _xMouseOver;
-        bool _yMouseOver;
-        bool _zMouseOver;
+        bool _mouseOverX;
+        bool _mouseOverY;
+        bool _mouseOverZ;
+        bool _clickedOverX;
+        bool _clickedOverY;
+        bool _clickedOverZ;
         color _xColor;
         color _yColor;
         color _zColor;
@@ -34,9 +37,6 @@ namespace phi
         shader* _shader;
         glm::vec3 _startPos;
         glm::vec2 _mouseStartPos;
-        bool _clickedOverX;
-        bool _clickedOverY;
-        bool _clickedOverZ;
         camera* _camera;
         glm::mat4 _modelMatrix;
 
@@ -46,7 +46,7 @@ namespace phi
         void updateModelMatrix();
         void renderArrow(mesh* mesh, color color, glm::mat4 modelMatrix);
         ray castRay(glm::vec2 screenCoords, size<unsigned int> screenSize);
-        
+
         glm::vec3 screenToViewZNear(glm::vec2 mousePos);
         glm::vec2 worldToScreen(glm::vec3 worldPos);
         int lineLineIntersect(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, glm::vec3 *pa, glm::vec3 *pb, float *mua, float *mub);

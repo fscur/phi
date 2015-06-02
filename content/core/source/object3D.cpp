@@ -99,6 +99,12 @@ namespace phi
         _changed = true;
     }
 
+    void object3D::rotate(float angle, glm::vec3 axis)
+    {
+        _quaternion = glm::angleAxis(angle, axis) * _quaternion;
+        _changed = true;
+    }
+
     void object3D::pitch(float angle)
     {
         _pitch += angle;

@@ -22,7 +22,7 @@ namespace phi
         GLuint _positionsVbo;
         GLuint _texCoordsVbo;
         GLuint _normalsVbo;
-        GLuint _tangentsVbo;		
+        GLuint _tangentsVbo;
         GLuint _indicesVbo;
 
         GLuint _indicesCount;
@@ -61,10 +61,10 @@ namespace phi
 
     protected:
         mesh();
+        void addVertices(std::vector<vertex> vertices, std::vector<GLuint> indices);
 
     public:
 
-        RENDERING_API void addVertices(std::vector<vertex> vertices, std::vector<GLuint> indices);
         RENDERING_API ~mesh();
 
         RENDERING_API static mesh* create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint> &indices);

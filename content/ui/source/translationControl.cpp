@@ -125,7 +125,7 @@ namespace phi
         viewModelFixed[3][2] = -1.0f;
         auto pos = glm::inverse(_camera->getViewMatrix()) * viewModelFixed * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-        auto translationMatrix = glm::translate(glm::vec3(pos.x, pos.y, pos.z)) * glm::scale(glm::vec3(0.15f, 0.15f, 0.15f));
+        auto translationMatrix = glm::translate(glm::vec3(pos.x, pos.y, pos.z)) * _object->getRotationMatrix() * glm::scale(glm::vec3(0.15f, 0.15f, 0.15f));
 
         _modelMatrix = translationMatrix;
     }
@@ -186,7 +186,28 @@ namespace phi
         //    LOG(std::to_string(rekt));
         //}
 
-        return ray.intersects(_xAabb) || ray.intersects(_yAabb) || ray.intersects(_zAabb);
+        auto xMouseOverOld = _mouseOverX;
+        _mouseOverX = ray.intersects(_xAabb);
+        if (!xMouseOverOld && _mouseOverX)
+            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f), 300);
+        if (xMouseOverOld && !_mouseOverX)
+            colorAnimator::animateColor(&_xColor, color(0.7f, 0.0f, 0.0f), 300);
+
+        auto yMouseOverOld = _mouseOverY;
+        _mouseOverY = ray.intersects(_yAabb) && !_mouseOverX;
+        if (!yMouseOverOld && _mouseOverY)
+            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f), 300);
+        if (yMouseOverOld && !_mouseOverY)
+            colorAnimator::animateColor(&_yColor, color(0.0f, 0.7f, 0.0f), 300);
+
+        auto zMouseOverOld = _mouseOverZ;
+        _mouseOverZ = ray.intersects(_zAabb) && !_mouseOverX && !_mouseOverY;
+        if (!zMouseOverOld && _mouseOverZ)
+            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f), 300);
+        if (zMouseOverOld && !_mouseOverZ)
+            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 0.7f), 300);
+
+        return _mouseOverX || _mouseOverY || _mouseOverZ;
     }
 
     glm::vec3 translationControl::screenToViewZNear(glm::vec2 mousePos)
@@ -277,11 +298,11 @@ namespace phi
         if (!_object)
             return;
 
-        if (e->leftButtonPressed && (_xMouseOver || _yMouseOver || _zMouseOver))
+        if (e->leftButtonPressed && (_mouseOverX || _mouseOverY || _mouseOverZ))
         {
-            _clickedOverX = _xMouseOver;
-            _clickedOverY = _yMouseOver;
-            _clickedOverZ = _zMouseOver;
+            _clickedOverX = _mouseOverX;
+            _clickedOverY = _mouseOverY;
+            _clickedOverZ = _mouseOverZ;
             _startPos = _object->getPosition();
             _mouseStartPos = glm::vec2(e->x, e->y);
             e->handled = true;
@@ -301,34 +322,6 @@ namespace phi
     {
         if (!_object)
             return;
-
-        if (getIsMouseOver())
-        {
-            auto ray = castRay(glm::vec2(e->x, e->y), _viewportSize);
-
-            auto xMouseOverOld = _xMouseOver;
-            _xMouseOver = ray.intersects(_xAabb);
-            if (!xMouseOverOld && _xMouseOver)
-                colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f), 300);
-            if (xMouseOverOld && !_xMouseOver)
-                colorAnimator::animateColor(&_xColor, color(0.7f, 0.0f, 0.0f), 300);
-
-            auto yMouseOverOld = _yMouseOver;
-            _yMouseOver = ray.intersects(_yAabb) && !_xMouseOver;
-            if (!yMouseOverOld && _yMouseOver)
-                colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f), 300);
-            if (yMouseOverOld && !_yMouseOver)
-                colorAnimator::animateColor(&_yColor, color(0.0f, 0.7f, 0.0f), 300);
-
-            auto zMouseOverOld = _zMouseOver;
-            _zMouseOver = ray.intersects(_zAabb) && !_xMouseOver && !_yMouseOver;
-            if (!zMouseOverOld && _zMouseOver)
-                colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f), 300);
-            if (zMouseOverOld && !_zMouseOver)
-                colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 0.7f), 300);
-        }
-        else
-            _xMouseOver = _yMouseOver = _zMouseOver = false;
 
         auto multMat3 = [] (const glm::vec3 vec, const glm::mat4 mat)
         {
