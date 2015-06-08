@@ -190,20 +190,30 @@ void screen::initUI()
     closeButton->setBackgroundColor(phi::color::red);
     closeButton->setForegroundColor(phi::color::white);
     closeButton->setSize(phi::size<GLuint>(24, 24));
-    closeButton->setX(1024 - 24);
+    closeButton->setX(getSize().width - 24);
     closeButton->setY(0);
     closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
     phi::uiSystem::get()->addControl(closeButton);
 
     phi::button* buttonA = new phi::button(getSize());
-    buttonA->setText("A");
+    buttonA->setText("Hide selected");
     buttonA->setBackgroundColor(phi::color::red);
     buttonA->setForegroundColor(phi::color::white);
-    buttonA->setSize(phi::size<GLuint>(64, 64));
+    buttonA->setSize(phi::size<GLuint>(200, 30));
     buttonA->setZIndex(20.0f);
-    buttonA->setX(0);
-    buttonA->setY(0);
-    buttonA->getClick()->bind<screen, &screen::expandButtonClick>(this);
+    buttonA->setX(10);
+    buttonA->setY(10);
+    buttonA->getClick()->bind<screen, &screen::hideSelectedButtonClick>(this);
+
+    phi::button* buttonB = new phi::button(getSize());
+    buttonB->setText("Show all");
+    buttonB->setBackgroundColor(phi::color::red);
+    buttonB->setForegroundColor(phi::color::white);
+    buttonB->setSize(phi::size<GLuint>(200, 30));
+    buttonB->setZIndex(20.0f);
+    buttonB->setX(10);
+    buttonB->setY(50);
+    buttonB->getClick()->bind<screen, &screen::showAllButtonClick>(this);
 
     _slider1 = new phi::slider(getSize());
     _slider1->setTrackColor(phi::color::gray);
@@ -321,6 +331,7 @@ void screen::initUI()
     phi::uiSystem::get()->addControl(rc);
 
     phi::uiSystem::get()->addControl(buttonA);
+    phi::uiSystem::get()->addControl(buttonB);
     //phi::uiSystem::get()->addControl(_slider1);
     //phi::uiSystem::get()->addControl(_slider2);
     //phi::uiSystem::get()->addControl(_slider3);
@@ -510,10 +521,23 @@ void screen::onClosing()
     //TODO: MessageBox asking if the user really wants to close the window
 }
 
-void screen::expandButtonClick(phi::mouseEventArgs* e)
+void screen::hideSelectedButtonClick(phi::mouseEventArgs* e)
 {
-    _sceneRenderer->setSSAOActive(_ssao);
-    _ssao = !_ssao;
+    auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
+    for (auto i = 0; i < allObjects->size();i++)
+    {
+        if  (allObjects->at(i)->getSelected())
+            allObjects->at(i)->setActive(false);
+    }
+}
+
+void screen::showAllButtonClick(phi::mouseEventArgs* e)
+{
+    auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
+    for (auto i = 0; i < allObjects->size();i++)
+    {
+        allObjects->at(i)->setActive(true);
+    }
 }
 
 void screen::slider1ValueChanged(phi::eventArgs e)

@@ -80,7 +80,8 @@ public:
 	void onEndInput() override;
 
     void closeButtonClick(phi::mouseEventArgs* e);
-    void expandButtonClick(phi::mouseEventArgs* e);
+    void hideSelectedButtonClick(phi::mouseEventArgs* e);
+    void showAllButtonClick(phi::mouseEventArgs* e);
     void slider1ValueChanged(phi::eventArgs e);
     void slider2ValueChanged(phi::eventArgs e);
     void slider3ValueChanged(phi::eventArgs e);

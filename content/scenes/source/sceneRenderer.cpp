@@ -14,7 +14,17 @@ namespace phi
     void sceneRenderer::render(scene* scene)
     {
         _scene = scene;
-        _allObjects = _scene->getAllObjects();
+
+        _allObjects = new std::vector<sceneObject*>();
+
+        auto allObjects = scene->getAllObjects();
+        for (auto i = 0; i < allObjects->size();i++)
+        {
+            if (allObjects->at(i)->getActive())
+                _allObjects->push_back(allObjects->at(i));
+        }
+
+        //_allObjects = _scene->getAllObjects();
         _allObjectsCount = _allObjects->size();
         _camera = _scene->getActiveCamera();
 

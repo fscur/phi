@@ -48,10 +48,12 @@ namespace phi
         SCENES_API aabb* getAabb() const { return _aabb; }
         SCENES_API virtual bool getChanged() const { return _changed; }
         SCENES_API bool getSelected() const { return _isSelected; }
+        SCENES_API bool getActive() const { return _isActive; }
         SCENES_API unsigned int getId() const { return _id; }
         SCENES_API eventHandler<sceneObjectEventArgs>* getIsSelectedChanged() { return _isSelectedChanged; }
 
         SCENES_API void setSelected(bool value);
+        SCENES_API void setActive(bool value);
         SCENES_API void setId(unsigned int value) { _id = value; }
 
         SCENES_API void initialize();

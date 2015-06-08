@@ -13,7 +13,10 @@ namespace phi
         _xModelMatrix = glm::rotate(glm::pi<float>() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
         _zModelMatrix = glm::mat4();
-        _clickedOverX = _clickedOverY = _clickedOverZ = false;
+        _clickedOverX = _clickedOverY = _clickedOverZ = _mouseOverX = _mouseOverY = _mouseOverZ = false;
+        _xColor = color(1.0f, 0.0f, 0.0f, 0.5f);
+        _yColor = color(0.0f, 1.0f, 0.0f, 0.5f);
+        _zColor = color(0.0f, 0.0f, 1.0f, 0.5f);
         createCircleMesh();
     }
 
@@ -159,9 +162,9 @@ namespace phi
         }
 
         if (!mouseOverXOld && _mouseOverX)
-            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f), 300);
-        if (mouseOverXOld && !_mouseOverX)
-            colorAnimator::animateColor(&_xColor, color(0.7f, 0.0f, 0.0f), 300);
+            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 1.0f), 300);
+        if (mouseOverXOld && !_mouseOverX && !_clickedOverX)
+            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
 
         if (!_mouseOverX)
         {
@@ -180,9 +183,9 @@ namespace phi
         }
 
         if (!mouseOverYOld && _mouseOverY)
-            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f), 300);
-        if (mouseOverYOld && !_mouseOverY)
-            colorAnimator::animateColor(&_yColor, color(0.0f, 0.7f, 0.0f), 300);
+            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 1.0f), 300);
+        if (mouseOverYOld && !_mouseOverY && !_clickedOverY)
+            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
 
         if (!_mouseOverX && !_mouseOverY)
         {
@@ -201,9 +204,9 @@ namespace phi
         }
 
         if (!mouseOverZOld && _mouseOverZ)
-            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f), 300);
-        if (mouseOverZOld && !_mouseOverZ)
-            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 0.7f), 300);
+            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 1.0f), 300);
+        if (mouseOverZOld && !_mouseOverZ && !_clickedOverZ)
+            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
 
         return false;
     }
@@ -230,7 +233,12 @@ namespace phi
             return;
 
         if (e->leftButtonPressed)
+        {
             _clickedOverX = _clickedOverY = _clickedOverZ = false;
+            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
+            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
+            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
+        }
     }
 
     glm::vec3 _a;
@@ -250,27 +258,27 @@ namespace phi
 
         auto screenToViewZNear = [&] (const glm::vec2 vec)
         {
-        float zNear = _camera->getFrustum()->getZNear();
-        float aspect = _camera->getFrustum()->getAspect();
-        float fov = _camera->getFrustum()->getFov();
+            float zNear = _camera->getFrustum()->getZNear();
+            float aspect = _camera->getFrustum()->getAspect();
+            float fov = _camera->getFrustum()->getFov();
 
-        float tg = glm::tan(fov * 0.5f) * zNear;
+            float tg = glm::tan(fov * 0.5f) * zNear;
 
-        float h = _viewportSize.height;
-        float w = _viewportSize.width;
+            float h = _viewportSize.height;
+            float w = _viewportSize.width;
 
-        float hh = h * 0.5f;
-        float hw = w * 0.5f;
+            float hh = h * 0.5f;
+            float hw = w * 0.5f;
 
-        float ys = vec.y - hh;
-        float yp = ys/hh;
-        float y = -(yp * tg);
+            float ys = vec.y - hh;
+            float yp = ys/hh;
+            float y = -(yp * tg);
 
-        float xs = vec.x - hw;
-        float xp = xs/hw;
-        float x = xp * tg * aspect;
+            float xs = vec.x - hw;
+            float xp = xs/hw;
+            float x = xp * tg * aspect;
 
-        return glm::vec3(x, y, -zNear);
+            return glm::vec3(x, y, -zNear);
         };
 
         auto worldToScreen = [&] (const glm::vec3 worldPos)
@@ -313,14 +321,14 @@ namespace phi
 
             glm::vec3 intersection, intersectionStart;
             auto b = intersect3D_SegmentPlane(rayStart, rayEnd, planePoint, planeNormal, &intersection);
+            //LOG("rayStart[" + std::to_string(rayStart.x) + ";" + std::to_string(rayStart.y) + ";" + std::to_string(rayStart.z) + "]" + 
+            //    "rayEnd[" + std::to_string(rayEnd.x) + ";" + std::to_string(rayEnd.y) + ";" + std::to_string(rayEnd.z) + "]" + 
+            //    "planePoint[" + std::to_string(planePoint.x) + ";" + std::to_string(planePoint.y) + ";" + std::to_string(planePoint.z) + "]" + 
+            //    "planePoint[" + std::to_string(planeNormal.x) + ";" + std::to_string(planeNormal.y) + ";" + std::to_string(planeNormal.z) + "]");
+
             auto c = intersect3D_SegmentPlane(rayStart, rayEndStart, planePoint, planeNormal, &intersectionStart);
             if (b > 0 && c > 0)
             {
-                //LOG(std::to_string(intersection.x) + ";" + std::to_string(intersection.y) + ";" + std::to_string(intersection.z));
-                //LOG(std::to_string(intersectionStart.x) + ";" + std::to_string(intersectionStart.y) + ";" + std::to_string(intersectionStart.z));
-                //LOG(std::to_string(e->x) + ";" + std::to_string(e->y));
-                //LOG(std::to_string(_mouseStartPos.x) + ";" + std::to_string(_mouseStartPos.y));
-
                 _a = intersection;
                 _b = intersectionStart;
 
@@ -331,15 +339,11 @@ namespace phi
                 auto sign = glm::sign(glm::dot(-dir, glm::cross(intersection, intersectionStart)));
                 // angle in [-179,180]
                 angle = angle * sign;
-                //auto a = glm::vec3(0.0f, 1.0f, 0.0f);
-                //auto d = glm::vec3(1.0f, 0.0f, 0.0f);
-                //auto angle = glm::acos(glm::dot(a, d) / (glm::length(a) * glm::length(d)));
+                
                 _object->rotate(angle - _currentAngle, dir);
-                LOG(angle - _currentAngle);
                 _currentAngle = angle;
+                //LOG(glm::degrees(_currentAngle));
             }
-
-            //LOG(std::to_string(e->x) + ";" + std::to_string(e->y) + " -> " + std::to_string(oi.x) + ";" + std::to_string(oi.y));
         }
     }
 
@@ -348,9 +352,9 @@ namespace phi
         if (!_object)
             return;
 
-        colorAnimator::animateColor(&_xColor, color(0.7f, 0.0f, 0.0f), 300);
-        colorAnimator::animateColor(&_yColor, color(0.0f, 0.7f, 0.0f), 300);
-        colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 0.7f), 300);
+        //colorAnimator::animateColor(&_xColor, color(0.7f, 0.0f, 0.0f), 300);
+        //colorAnimator::animateColor(&_yColor, color(0.0f, 0.7f, 0.0f), 300);
+        //colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 0.7f), 300);
     }
 
     void rotationControl::attachTo(object3D* object)
@@ -363,6 +367,8 @@ namespace phi
         if (!_object)
             return;
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glLineWidth((GLfloat)2.5f);
 
         updateModelMatrix();

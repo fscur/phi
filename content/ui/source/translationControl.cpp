@@ -15,9 +15,9 @@ namespace phi
         _xAabb = new aabb(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
         _yAabb = new aabb(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
         _zAabb = new aabb(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        _xColor = color::fromRGBA(0.7f, 0.0f, 0.0f, 1.0f);
-        _yColor = color::fromRGBA(0.0f, 0.7f, 0.0f, 1.0f);
-        _zColor = color::fromRGBA(0.0f, 0.0f, 0.7f, 1.0f);
+        _xColor = color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f);
+        _yColor = color::fromRGBA(0.0f, 1.0f, 0.0f, 0.5f);
+        _zColor = color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f);
         _xModelMatrix = glm::rotate(glm::pi<float>() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
         _zModelMatrix = glm::mat4();
@@ -189,23 +189,23 @@ namespace phi
         auto xMouseOverOld = _mouseOverX;
         _mouseOverX = ray.intersects(_xAabb);
         if (!xMouseOverOld && _mouseOverX)
-            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f), 300);
-        if (xMouseOverOld && !_mouseOverX)
-            colorAnimator::animateColor(&_xColor, color(0.7f, 0.0f, 0.0f), 300);
+            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 1.0f), 300);
+        if (xMouseOverOld && !_mouseOverX && !_clickedOverX)
+            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
 
         auto yMouseOverOld = _mouseOverY;
         _mouseOverY = ray.intersects(_yAabb) && !_mouseOverX;
         if (!yMouseOverOld && _mouseOverY)
-            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f), 300);
-        if (yMouseOverOld && !_mouseOverY)
-            colorAnimator::animateColor(&_yColor, color(0.0f, 0.7f, 0.0f), 300);
+            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 1.0f), 300);
+        if (yMouseOverOld && !_mouseOverY && !_clickedOverY)
+            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
 
         auto zMouseOverOld = _mouseOverZ;
         _mouseOverZ = ray.intersects(_zAabb) && !_mouseOverX && !_mouseOverY;
         if (!zMouseOverOld && _mouseOverZ)
-            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f), 300);
-        if (zMouseOverOld && !_mouseOverZ)
-            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 0.7f), 300);
+            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 1.0f), 300);
+        if (zMouseOverOld && !_mouseOverZ && !_clickedOverZ)
+            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
 
         return _mouseOverX || _mouseOverY || _mouseOverZ;
     }
@@ -315,7 +315,12 @@ namespace phi
             return;
 
         if (e->leftButtonPressed)
+        {
             _clickedOverX = _clickedOverY = _clickedOverZ = false;
+            colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
+            colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
+            colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
+        }
     }
 
     void translationControl::onMouseMove(mouseEventArgs* e)
@@ -373,9 +378,9 @@ namespace phi
         if (!_object)
             return;
 
-        colorAnimator::animateColor(&_xColor, color(0.7f, 0.0f, 0.0f), 300);
-        colorAnimator::animateColor(&_yColor, color(0.0f, 0.7f, 0.0f), 300);
-        colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 0.7f), 300);
+        //colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
+        //colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
+        //colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
     }
 
     void translationControl::attachTo(object3D* object)
@@ -401,6 +406,9 @@ namespace phi
     {
         if (!_object)
             return;
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         updateModelMatrix();
         updateAabbs();

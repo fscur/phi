@@ -51,6 +51,14 @@ namespace phi
             _isSelectedChanged->invoke(sceneObjectEventArgs(this));
     }
 
+    void sceneObject::setActive(bool value)
+    {
+        auto oldValue = _isActive;
+        _isActive = value;
+        if (oldValue && !value)
+            setSelected(false);
+    }
+
     void sceneObject::addChild(sceneObject* child)
     {
         _children.push_back(child);
