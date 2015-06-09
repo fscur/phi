@@ -10,6 +10,8 @@
 #include "textBox.h"
 #include "carouselList.h"
 #include "carouselItem.h"
+#include "translationControl.h"
+#include "rotationControl.h"
 #include "ray.h"
 #include "size.h"
 #include "commandsManager.h"
@@ -78,7 +80,8 @@ public:
 	void onEndInput() override;
 
     void closeButtonClick(phi::mouseEventArgs* e);
-    void expandButtonClick(phi::mouseEventArgs* e);
+    void hideSelectedButtonClick(phi::mouseEventArgs* e);
+    void showAllButtonClick(phi::mouseEventArgs* e);
     void slider1ValueChanged(phi::eventArgs e);
     void slider2ValueChanged(phi::eventArgs e);
     void slider3ValueChanged(phi::eventArgs e);
@@ -87,6 +90,7 @@ public:
     void textBox2TextChanged(phi::eventArgs e);
     void hudControlGotFocus(phi::controlEventArgs e);
     void hudControlLostFocus(phi::controlEventArgs e);
+    void selectedSceneObjectChanged(phi::sceneObjectEventArgs e);
 
     void update() override;
     void render() override;

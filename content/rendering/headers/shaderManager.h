@@ -8,40 +8,41 @@
 
 namespace phi
 {
-	static const std::string SHADERS_PATH = "./resources/shaders/";
+    static const std::string SHADERS_PATH = "./resources/shaders/";
 
-	struct shaderManagerInfo
-	{
-	public:
-		std::string path;
-	};
+    struct shaderManagerInfo
+    {
+    public:
+        std::string path;
+    };
 
     class shaderManager
     {
     private:
         static shaderManager* _instance;
         std::map<std::string, shader*>* _shaders;
-		shaderManagerInfo _info;
+        shaderManagerInfo _info;
     private: 
         shaderManager();
-		
-		void addRenderToQuadShader();
-		void addHudTextShader();
-		void addHudQuadShader();
-		
-		void addPostSelectedObjectsShader();
+
+        void addRenderToQuadShader();
+        void addHudTextShader();
+        void addHudQuadShader();
+        void addUIMeshShader();
+
+        void addPostSelectedObjectsShader();
 
     public:
         RENDERING_API ~shaderManager();
 
         RENDERING_API static shaderManager* get();
-		
-		RENDERING_API void init(shaderManagerInfo info);
+
+        RENDERING_API void init(shaderManagerInfo info);
 
         RENDERING_API void addShader(std::string name, shader* shader);
         RENDERING_API shader* getShader(std::string name);
-		RENDERING_API shader* loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
-		
+        RENDERING_API shader* loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
+
         RENDERING_API void release();
     };
 }

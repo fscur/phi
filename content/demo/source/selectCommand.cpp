@@ -68,20 +68,25 @@ namespace phi
         for (unsigned int i = 0; i < sceneObjects->size(); i++)
         {
             phi::sceneObject* sceneObject = (*sceneObjects)[i];
-            
             sceneObject->setSelected(false);
+
+            auto meshes = sceneObject->getModel()->getMeshes();
+            for (unsigned int j = 0; j < meshes.size(); j++)
+                meshes[j]->setSelected(false);
         }
 
         if (_zBufferValue == 1.0f)
             return;
 
         unsigned int meshId = _id & 1048575;
-        _id = _id >> 20;
-        unsigned int objectId = _id;
-
+        unsigned int objectId = _id >> 20;
         sceneObject* selectedObject = scenesManager::get()->getScene()->getSceneObjectById(objectId);
 
         if (selectedObject != nullptr)
+        {
             selectedObject->setSelected(true);
+            auto meshes = selectedObject->getModel()->getMeshes();
+            meshes[meshId]->setSelected(true);
+        }
     }
 }

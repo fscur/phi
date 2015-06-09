@@ -16,8 +16,7 @@ in vec3 fragTangent;
 in vec2 fragTexCoord; 
 in vec3 fragWorldPos;  
 
-uniform int id;
-uniform float isSelected;
+uniform vec4 selectionColor;
 uniform vec4 ambientLightColor;
 uniform material mat;
 
@@ -29,17 +28,6 @@ layout (location = 0) out vec4 rt0;
 layout (location = 1) out vec4 rt1;
 layout (location = 2) out vec4 rt2; 
 layout (location = 3) out vec4 rt3; 
-
-vec3 getIdColor(int id)
-{
-	int r = id & 255;
-    id = id >> 8;
-    int g = id & 255;
-    id = id >> 8;
-    int b = id & 255;
-
-    return vec3(r/255.0, g/255.0, b/255.0);
-}
 
 //http://aras-p.info/texts/CompactNormalStorage.html
 //method 7 - stereographic projection
@@ -74,5 +62,5 @@ void main()
 	rt0 = vec4(ambientColor.rgb, mat.shininess/512.0); //RGBA
     rt1 = vec4(diffuseColor.rgb * mat.kd, normal.x); //RGBA16F
     rt2 = vec4(specularColor.rgb, normal.y); //RGBA16F
-    rt3 = vec4(getIdColor(id), isSelected); //RGBA
+    rt3 = selectionColor; //RGBA
 }

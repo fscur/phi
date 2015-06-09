@@ -6,6 +6,8 @@ namespace phi
     {
         _min = min;
         _max = max;
+        _center = (_min + _max) / 2.0f;
+        _radius = glm::length(_min - _center);
     }
 
     aabb::aabb(glm::vec3 position, size<float> size)

@@ -304,35 +304,6 @@ namespace phi
 
     void frustum::debugRender()
     {
-#ifdef WIN32
-        glColor3f(0.0f, 1.0f, 1.0f);
-        glBegin(GL_LINES);
-        glPushMatrix();
-
-        glVertex3f(_botLeftNear.x, _botLeftNear.y, _botLeftNear.z); glVertex3f(_botRightNear.x, _botRightNear.y, _botRightNear.z);
-        glVertex3f(_botRightNear.x, _botRightNear.y, _botRightNear.z); glVertex3f(_topRightNear.x, _topRightNear.y, _topRightNear.z);
-        glVertex3f(_topRightNear.x, _topRightNear.y, _topRightNear.z); glVertex3f(_topLeftNear.x, _topLeftNear.y, _topLeftNear.z);
-        glVertex3f(_topLeftNear.x, _topLeftNear.y, _topLeftNear.z); glVertex3f(_botLeftNear.x, _botLeftNear.y, _botLeftNear.z);
-        
-        glVertex3f(_botLeftFar.x, _botLeftFar.y, _botLeftFar.z); glVertex3f(_botRightFar.x, _botRightFar.y, _botRightFar.z);
-        glVertex3f(_botRightFar.x, _botRightFar.y, _botRightFar.z); glVertex3f(_topRightFar.x, _topRightFar.y, _topRightFar.z);
-        glVertex3f(_topRightFar.x, _topRightFar.y, _topRightFar.z); glVertex3f(_topLeftFar.x, _topLeftFar.y, _topLeftFar.z);
-        glVertex3f(_topLeftFar.x, _topLeftFar.y, _topLeftFar.z); glVertex3f(_botLeftFar.x, _botLeftFar.y, _botLeftFar.z);
-
-        //connect lines
-        glVertex3f(_botLeftNear.x, _botLeftNear.y, _botLeftNear.z); glVertex3f(_botLeftFar.x, _botLeftFar.y, _botLeftFar.z);
-        glVertex3f(_botRightNear.x, _botRightNear.y, _botRightNear.z); glVertex3f(_botRightFar.x, _botRightFar.y, _botRightFar.z);
-        glVertex3f(_topRightNear.x, _topRightNear.y, _topRightNear.z); glVertex3f(_topRightFar.x, _topRightFar.y, _topRightFar.z);
-        glVertex3f(_topLeftNear.x, _topLeftNear.y, _topLeftNear.z); glVertex3f(_topLeftFar.x, _topLeftFar.y, _topLeftFar.z);
-        
-        glVertex3f(_position.x, _position.y, _position.z); 
-        glVertex3f(_position.x  + _up.x, _position.y + _up.y, _position.z + _up.z);
-        glVertex3f(_position.x, _position.y, _position.z); 
-        glVertex3f(_position.x  + _right.x, _position.y + _right.y, _position.z + _right.z);
-
-        glEnd();
-        glPopMatrix();
-#endif
     }
 
     bool frustum::isInside(glm::vec3 center, float radius)

@@ -18,6 +18,7 @@ namespace phi
         std::map<unsigned int, glm::mat4> _modelMatrices;
         std::map<unsigned int, glm::mat4> _mvpMatrices;
         std::map<unsigned int, glm::mat4> _itmvMatrices;
+        bool _hasSelectedObjects;
 
     private:
         void initBuffers();

@@ -95,7 +95,7 @@ namespace phi
 
         //t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         //t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        
+
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -127,8 +127,7 @@ namespace phi
         s->addUniform("mat.ka");
         s->addUniform("mat.isEmissive");
 
-        s->addUniform("isSelected");
-        s->addUniform("id");
+        s->addUniform("selectionColor");
 
         shaderManager::get()->addShader(s->getName(), s);
     }
@@ -250,34 +249,34 @@ namespace phi
     void fsSceneRenderer::createEmissiveBloomShaders()
     {
         std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		shader* s = shaderManager::get()->loadShader("POST_EMISSIVE_BLOOM", "post_emissive_bloom.vert", "post_emissive_bloom.frag", attribs);
+        shader* s = shaderManager::get()->loadShader("POST_EMISSIVE_BLOOM", "post_emissive_bloom.vert", "post_emissive_bloom.frag", attribs);
 
-		s->addUniform("m");
-		s->addUniform("res");
-		s->addUniform("tex1");
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("tex1");
 
-		shaderManager::get()->addShader(s->getName(), s);
+        shaderManager::get()->addShader(s->getName(), s);
 
-		s = shaderManager::get()->loadShader("POST_GAUSSIAN_BLUR", "post_gaussian_blur.vert", "post_gaussian_blur.frag", attribs);
+        s = shaderManager::get()->loadShader("POST_GAUSSIAN_BLUR", "post_gaussian_blur.vert", "post_gaussian_blur.frag", attribs);
 
-		s->addUniform("m");
-		s->addUniform("res");
-		s->addUniform("tex1");
-		s->addUniform("tex2");
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("tex1");
+        s->addUniform("tex2");
 
-		shaderManager::get()->addShader(s->getName(), s);
-        
+        shaderManager::get()->addShader(s->getName(), s);
+
         s = shaderManager::get()->loadShader("POST_COMBINE", "post_combine.vert", "post_combine.frag", attribs);
 
-		s->addUniform("m");
-		s->addUniform("res");
-		s->addUniform("tex1");
-		s->addUniform("tex2");
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("tex1");
+        s->addUniform("tex2");
 
-		shaderManager::get()->addShader(s->getName(), s);
+        shaderManager::get()->addShader(s->getName(), s);
     }
 
     void fsSceneRenderer::render()
@@ -289,7 +288,7 @@ namespace phi
         {
             sceneObject* sceneObj = (*_allObjects)[i];
 
-            glm::mat4 modelMatrix = sceneObj->getTransform()->getModelMatrix();
+            glm::mat4 modelMatrix = sceneObj->getModelMatrix();
 
             _modelMatrices[sceneObj->getId()] = modelMatrix;
             _mvpMatrices[sceneObj->getId()] = _projMatrix * _viewMatrix * modelMatrix;
@@ -310,23 +309,28 @@ namespace phi
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             sceneObject* sceneObj = (*_allObjects)[i];
-            
+
+            if(!_hasSelectedObjects)
+                _hasSelectedObjects = sceneObj->getSelected();
+
             glm::mat4 modelMatrix = _modelMatrices[sceneObj->getId()];
             glm::mat4 mvp = _mvpMatrices[sceneObj->getId()];
-            
+
             sh->setUniform("mvp", mvp);
             sh->setUniform("ambientLightColor", _scene->getAmbientColor());
-            sh->setUniform("id", sceneObj->getId());
-            sh->setUniform("isSelected", sceneObj->getSelected());
 
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
             auto meshesCount = meshes.size();
-            
+
             for (GLuint j = 0; j < meshesCount; j++)
-		    {
+            {
                 mesh* m = meshes[j];
 
                 material* mat = m->getMaterial();
+
+                bool selected = sceneObj->getSelected() && m->getSelected();
+
+                sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
 
                 sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
                 sh->setUniform("emissiveMap", mat->getEmissiveTexture(), 1);
@@ -386,9 +390,9 @@ namespace phi
 
                 std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
                 auto meshesCount = meshes.size();
-            
+
                 for (GLuint j = 0; j < meshesCount; j++)
-		        {
+                {
                     mesh* m = meshes[j];
                     material* mat = m->getMaterial();
 
@@ -462,9 +466,9 @@ namespace phi
 
                 std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
                 auto meshesCount = meshes.size();
-            
+
                 for (GLuint j = 0; j < meshesCount; j++)
-		        {
+                {
                     mesh* m = meshes[j];
                     material* mat = m->getMaterial();
 
@@ -540,9 +544,9 @@ namespace phi
 
                 std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
                 auto meshesCount = meshes.size();
-            
+
                 for (GLuint j = 0; j < meshesCount; j++)
-		        {
+                {
                     mesh* m = meshes[j];
                     material* mat = m->getMaterial();
 
@@ -576,7 +580,7 @@ namespace phi
         //intensity filter
 
         _postFrameBuffer->bindForDrawing();
-        
+
         //_frameBuffer->bindForDrawing();
 
         glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
@@ -599,7 +603,7 @@ namespace phi
         meshRenderer::render(&_quad);
 
         sh->unbind();
-        
+
         //gaussian-blur filter
         _frameBuffer->bindForDrawing();
         texture* tex1 = _postFrameBuffer->getRenderTarget("post")->getTexture();
@@ -616,7 +620,7 @@ namespace phi
         sh->setUniform("tex2", tex2, 1);
 
         meshRenderer::render(&_quad);
-        
+
         sh->unbind();
     }
 
@@ -657,6 +661,8 @@ namespace phi
 
     void fsSceneRenderer::onRender()
     {
+        _hasSelectedObjects = false;
+
         _frameBuffer->bindForDrawing();
 
         GLenum drawBuffers[] = 
@@ -669,9 +675,12 @@ namespace phi
 
         glDepthMask(GL_TRUE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
+        auto color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearBufferfv(GL_COLOR, 1, &color.r); // Clears the selection render target
+
         render();
-        
+
         glDepthMask(GL_FALSE);
 
         //emissiveBloomPass();
@@ -680,7 +689,7 @@ namespace phi
         _frameBuffer->bindForReading();
         _frameBuffer->blit("default", 0, 0, _viewportSize.width, _viewportSize.height);
 
-        //selectedObjectsPass();
-        
+        if (_hasSelectedObjects)
+            selectedObjectsPass();
     }
 }

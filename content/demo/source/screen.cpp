@@ -50,7 +50,8 @@ void screen::initScene()
     s->getActiveCamera()->setPosition(glm::vec3(-5.0f, 0.5f, 0.0f));
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
-    
+    s->getSelectedSceneObjectChanged()->bind<screen, &screen::selectedSceneObjectChanged>(this);
+
     //phi::sceneObject* tank = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("tank.model"));
     //s->add(tank);
     /*
@@ -58,7 +59,7 @@ void screen::initScene()
     auto lampSize = lamp->getSize();
     lamp->setPosition(glm::vec3(-0.3, 0.01, -0.5));
     s->add(lamp);
-    
+
     phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("lamp.model"));
     lampSize = lamp1->getSize();
     lamp1->setPosition(glm::vec3(3.6, 0.01, -2.5));
@@ -74,8 +75,8 @@ void screen::initScene()
     carpet->setPosition(glm::vec3(0.0, 0.03, 0.0));
     carpet->setSize(phi::size<float>(2.0, 1.0, 2.0));
     //s->add(carpet);
-    
-    
+
+
     
     phi::sceneObject* brown_leather0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("brown_chair.model"));
     brown_leather0->setPosition(glm::vec3(1.2, 0.0, 0.0));
@@ -84,19 +85,19 @@ void screen::initScene()
     
     for (int i = -2; i < 2; i++)
     {
-        for (int j = -2; j < 2; j++)
-        {
-            auto w = 2.5;
-            auto hw = 1.25;
+    for (int j = -2; j < 2; j++)
+    {
+    auto w = 2.5;
+    auto hw = 1.25;
 
-            phi::sceneObject* floor = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("floor.model"));
-            glm::vec3 pos(i * w + hw, 0.00, j *w+ hw);
-            floor->setPosition(pos);
-            floor->setSize(phi::size<float>(w, 0.01, w));
-            s->add(floor);
-        }
+    phi::sceneObject* floor = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("floor.model"));
+    glm::vec3 pos(i * w + hw, 0.00, j *w+ hw);
+    floor->setPosition(pos);
+    floor->setSize(phi::size<float>(w, 0.01, w));
+    s->add(floor);
     }
-    
+    }
+
     phi::plane* ceiling = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 10.0f, 10.0f, _resourcesLoader.getDefaultMaterial());
     ceiling->pitch(phi::PI);
     ceiling->setPosition(glm::vec3(0.0, 5.0, 0.0));
@@ -158,7 +159,7 @@ void screen::initScene()
     cabinet->setPosition(glm::vec3(0.0, 0.0, 2.0));
     //s->add(cabinet);
     */
-    
+
     /* dining table */
     
     phi::sceneObject* table = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("table2.model"));
@@ -195,17 +196,20 @@ void screen::initScene()
     s->add(table_chair5);
     
     
+
     /*
-    
+
     phi::plane* ceiling = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 1.0f, 1.0f, _resourcesLoader.getDefaultMaterial());
     ceiling->pitch(phi::PI);
     ceiling->setPosition(glm::vec3(-2.0, 0.5, -0.5));
     //s->add(ceiling);
-    
+
+
     phi::sceneObject* cube1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
     //cube1->setSize(phi::size<float>(2.0f, 2.0f, 0.0f));
     cube1->setPosition(glm::vec3(0.0, 0.5, 0.0));
     s->add(cube1);
+    */
 
     */
 
@@ -292,11 +296,12 @@ void screen::initScene()
     //phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(-3.0f, 3.0f, -3.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 2.0f, 10.0f, glm::vec3(1.0f, -1.0f, 1.0f), 0.8);
     ///s->add(spotLight0);
 
-    
-
     phi::scenesManager::get()->addScene(s);
     phi::scenesManager::get()->loadScene(0);
 }
+
+phi::translationControl* tc;
+phi::rotationControl* rc;
 
 void screen::initUI()
 {
@@ -313,20 +318,30 @@ void screen::initUI()
     closeButton->setBackgroundColor(phi::color::red);
     closeButton->setForegroundColor(phi::color::white);
     closeButton->setSize(phi::size<GLuint>(24, 24));
-    closeButton->setX(1024 - 24);
+    closeButton->setX(getSize().width - 24);
     closeButton->setY(0);
     closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
     phi::uiSystem::get()->addControl(closeButton);
 
     phi::button* buttonA = new phi::button(getSize());
-    buttonA->setText("A");
+    buttonA->setText("Hide selected");
     buttonA->setBackgroundColor(phi::color::red);
     buttonA->setForegroundColor(phi::color::white);
-    buttonA->setSize(phi::size<GLuint>(64, 64));
+    buttonA->setSize(phi::size<GLuint>(200, 30));
     buttonA->setZIndex(20.0f);
-    buttonA->setX(0);
-    buttonA->setY(0);
-    buttonA->getClick()->bind<screen, &screen::expandButtonClick>(this);
+    buttonA->setX(10);
+    buttonA->setY(10);
+    buttonA->getClick()->bind<screen, &screen::hideSelectedButtonClick>(this);
+
+    phi::button* buttonB = new phi::button(getSize());
+    buttonB->setText("Show all");
+    buttonB->setBackgroundColor(phi::color::red);
+    buttonB->setForegroundColor(phi::color::white);
+    buttonB->setSize(phi::size<GLuint>(200, 30));
+    buttonB->setZIndex(20.0f);
+    buttonB->setX(10);
+    buttonB->setY(50);
+    buttonB->getClick()->bind<screen, &screen::showAllButtonClick>(this);
 
     _slider1 = new phi::slider(getSize());
     _slider1->setTrackColor(phi::color::gray);
@@ -388,7 +403,7 @@ void screen::initUI()
     //textBoxA->setZIndex(40.0f);
     //textBoxA->setX(132);
     //textBoxA->setY(180-48);
-    
+
     /*phi::carouselList* carouselListA = new phi::carouselList(getSize());
     carouselListA->setBackgroundColor(phi::color::fromRGBA(0.3f, 0.3, 0.3f, 0.3f));
     carouselListA->setSize(phi::size<unsigned int>(getSize().width - 10, 150));
@@ -396,7 +411,7 @@ void screen::initUI()
     carouselListA->setY(getSize().height - 155);
     carouselListA->setZIndex(0);
 
-    
+
     phi::carouselItem* carouselItemA = new phi::carouselItem(getSize());
     carouselItemA->setTexture(_texturesRepository->getResource<phi::texture>("diffuse.bmp"));
     phi::carouselItem* carouselItemB = new phi::carouselItem(getSize());
@@ -432,12 +447,23 @@ void screen::initUI()
     carouselListA->addCarouselItem(carouselItemM);
     carouselListA->addCarouselItem(carouselItemN);
     carouselListA->addCarouselItem(carouselItemO);*/
-    
+
+    auto camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+
+    tc = new phi::translationControl(getSize());
+    tc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    phi::uiSystem::get()->addControl(tc);
+
+    rc = new phi::rotationControl(getSize());
+    rc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    phi::uiSystem::get()->addControl(rc);
+
     phi::uiSystem::get()->addControl(buttonA);
-    phi::uiSystem::get()->addControl(_slider1);
-    phi::uiSystem::get()->addControl(_slider2);
-    phi::uiSystem::get()->addControl(_slider3);
-    phi::uiSystem::get()->addControl(_slider4);
+    phi::uiSystem::get()->addControl(buttonB);
+    //phi::uiSystem::get()->addControl(_slider1);
+    //phi::uiSystem::get()->addControl(_slider2);
+    //phi::uiSystem::get()->addControl(_slider3);
+    //phi::uiSystem::get()->addControl(_slider4);
     //phi::uiSystem::get()->addControl(carouselListA);
 
     phi::uiSystem::get()->resize(getSize());
@@ -460,7 +486,6 @@ void screen::onInitialize()
 
 float t = 0.0f;
 
-
 void screen::update()
 {
     a+= 0.01;
@@ -477,6 +502,7 @@ void screen::update()
     phi::uiSystem::get()->update();
     _commandsManager.update();
 
+
     /*_labelFps->setText("FPS: " + std::to_string(getFps()));
 
     _labelDt->setText("TotalTime/Frame: " + std::to_string(getDt()));
@@ -487,10 +513,10 @@ void screen::update()
     //int visibleObjects = scenesManager::Get()->GetScene()->GetVisibleObjectsCount();
     //int allObjects = scenesManager::Get()->GetScene()->GetAllObjectsCount();
     //_labelObjects->setText(to_string(visibleObjects) + "/" + to_string(allObjects));
-    
+
     //phi::pointLight* p = phi::scenesManager::get()->getScene()->getPointLight(0);
     //p->setPosition(glm::vec3(glm::cos(a) * 3.5f, 1.5f, glm::sin(a) * 3.5f));
-    
+
     /*phi::spotLight* spotLight = phi::scenesManager::get()->getScene()->getSpotLight(0);
     auto dir = spotLight->getDirection();
     glm::vec3 spotLightPos = glm::vec3(glm::cos(a) * 4.0f, glm::abs(glm::sin(a) * 4.0f), dir.z);
@@ -623,10 +649,23 @@ void screen::onClosing()
     //TODO: MessageBox asking if the user really wants to close the window
 }
 
-void screen::expandButtonClick(phi::mouseEventArgs* e)
+void screen::hideSelectedButtonClick(phi::mouseEventArgs* e)
 {
-    _sceneRenderer->setSSAOActive(_ssao);
-    _ssao = !_ssao;
+    auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
+    for (auto i = 0; i < allObjects->size();i++)
+    {
+        if  (allObjects->at(i)->getSelected())
+            allObjects->at(i)->setActive(false);
+    }
+}
+
+void screen::showAllButtonClick(phi::mouseEventArgs* e)
+{
+    auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
+    for (auto i = 0; i < allObjects->size();i++)
+    {
+        allObjects->at(i)->setActive(true);
+    }
 }
 
 void screen::slider1ValueChanged(phi::eventArgs e)
@@ -693,4 +732,16 @@ void screen::hudControlGotFocus(phi::controlEventArgs e)
 void screen::hudControlLostFocus(phi::controlEventArgs e)
 {
     SDL_StopTextInput();
+}
+
+void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
+{
+    if (e.sender->getSelected())
+        tc->attachTo(e.sender);
+    else
+        tc->attachTo(nullptr);
+    if (e.sender->getSelected())
+        rc->attachTo(e.sender);
+    else
+        rc->attachTo(nullptr);
 }

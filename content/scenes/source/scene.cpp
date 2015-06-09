@@ -5,194 +5,191 @@
 
 namespace phi
 {
-	scene::scene()
-	{
-		_sceneObjectsIds = 0;
-		_allObjectsCount = 0;
-		_visibleObjectsCount = 0;
-		_size = size<GLuint>(800, 600);
-		_deltaTime = 0.008f;
-		_allObjects = new std::vector<sceneObject*>();
-		_directionalLights = new std::vector<directionalLight*>();
-		_pointLights = new std::vector<pointLight*>();
-		_spotLights = new std::vector<spotLight*>();
-		_cameras = new std::vector<camera*>();
-		
-		_activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, phi::PI_OVER_4);
-		_cameras->push_back(_activeCamera);
-	}
+    scene::scene()
+    {
+        _sceneObjectsIds = 0;
+        _allObjectsCount = 0;
+        _visibleObjectsCount = 0;
+        _size = size<GLuint>(800, 600);
+        _deltaTime = 0.008f;
+        _allObjects = new std::vector<sceneObject*>();
+        _directionalLights = new std::vector<directionalLight*>();
+        _pointLights = new std::vector<pointLight*>();
+        _spotLights = new std::vector<spotLight*>();
+        _cameras = new std::vector<camera*>();
+        _selectedSceneObjectChanged = new eventHandler<sceneObjectEventArgs>();
 
-	scene::~scene()
-	{
-		for (GLuint i = 0; i < _allObjects->size(); i++)
-			DELETE((*_allObjects)[i]);
+        _activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, phi::PI_OVER_4);
+        _cameras->push_back(_activeCamera);
+    }
 
-		for (GLuint i = 0; i < _directionalLights->size(); i++)
-			DELETE((*_directionalLights)[i]);
+    scene::~scene()
+    {
+        for (GLuint i = 0; i < _allObjects->size(); i++)
+            DELETE((*_allObjects)[i]);
 
-		for (GLuint i = 0; i < _pointLights->size(); i++)
-			DELETE((*_pointLights)[i]);
+        for (GLuint i = 0; i < _directionalLights->size(); i++)
+            DELETE((*_directionalLights)[i]);
 
-		for (GLuint i = 0; i < _spotLights->size(); i++)
-			DELETE((*_spotLights)[i]);
+        for (GLuint i = 0; i < _pointLights->size(); i++)
+            DELETE((*_pointLights)[i]);
 
-		for (GLuint i = 0; i < _cameras->size(); i++)
-			DELETE((*_cameras)[i]);
-	}
+        for (GLuint i = 0; i < _spotLights->size(); i++)
+            DELETE((*_spotLights)[i]);
 
-	void scene::input()
-	{
-		/*
-		if (Keyboard::IsPressed(Keys::N1))
-		_isShadowMapEnabled = !_isShadowMapEnabled;
+        for (GLuint i = 0; i < _cameras->size(); i++)
+            DELETE((*_cameras)[i]);
+    }
 
-		if (Keyboard::IsPressed(Keys::O))
-		{
-		_rotationSpeed += 0.01f;
-		_translationSpeed += 0.0001f;
-		}
-		else if (Keyboard::IsPressed(Keys::P))
-		{
-		_rotationSpeed -= 0.01f;
-		_translationSpeed -= 0.0001f;
-		}
+    void scene::input()
+    {
+        /*
+        if (Keyboard::IsPressed(Keys::N1))
+        _isShadowMapEnabled = !_isShadowMapEnabled;
 
-		SceneObject* obj1 = *(_sceneObjects->begin());
+        if (Keyboard::IsPressed(Keys::O))
+        {
+        _rotationSpeed += 0.01f;
+        _translationSpeed += 0.0001f;
+        }
+        else if (Keyboard::IsPressed(Keys::P))
+        {
+        _rotationSpeed -= 0.01f;
+        _translationSpeed -= 0.0001f;
+        }
 
-		if (Keyboard::IsPressed(Keys::Z))
-		obj1->Translate(glm::vec3(-_translationSpeed, 0.0f, 0.0f));
-		else if (Keyboard::IsPressed(Keys::X))
-		obj1->Translate(glm::vec3(_translationSpeed, 0.0f, 0.0f));
-		else if (Keyboard::IsPressed(Keys::C))
-		obj1->Translate(glm::vec3(0.0f, _translationSpeed, 0.0f));
-		else if (Keyboard::IsPressed(Keys::V))
-		obj1->Translate(glm::vec3(0.0f, -_translationSpeed, 0.0f));
-		else if (Keyboard::IsPressed(Keys::B))
-		obj1->Translate(glm::vec3(0.0f, 0.0f, _translationSpeed));
-		else if (Keyboard::IsPressed(Keys::N))
-		obj1->Translate(glm::vec3(0.0f, 0.0f, -_translationSpeed));
-		else if (Keyboard::IsPressed(Keys::W))
-		obj1->Pitch(_rotationSpeed * _deltaTime);
-		else if (Keyboard::IsPressed(Keys::S))
-		obj1->Pitch(-_rotationSpeed * _deltaTime);
-		else if (Keyboard::IsPressed(Keys::A))
-		obj1->Yaw(_rotationSpeed * _deltaTime);
-		else if (Keyboard::IsPressed(Keys::D))
-		obj1->Yaw(-_rotationSpeed * _deltaTime);*/
-	}
+        SceneObject* obj1 = *(_sceneObjects->begin());
 
-	void scene::update()
-	{
-		//bool cameraChanged = _cameras[1]->GetChanged();
+        if (Keyboard::IsPressed(Keys::Z))
+        obj1->Translate(glm::vec3(-_translationSpeed, 0.0f, 0.0f));
+        else if (Keyboard::IsPressed(Keys::X))
+        obj1->Translate(glm::vec3(_translationSpeed, 0.0f, 0.0f));
+        else if (Keyboard::IsPressed(Keys::C))
+        obj1->Translate(glm::vec3(0.0f, _translationSpeed, 0.0f));
+        else if (Keyboard::IsPressed(Keys::V))
+        obj1->Translate(glm::vec3(0.0f, -_translationSpeed, 0.0f));
+        else if (Keyboard::IsPressed(Keys::B))
+        obj1->Translate(glm::vec3(0.0f, 0.0f, _translationSpeed));
+        else if (Keyboard::IsPressed(Keys::N))
+        obj1->Translate(glm::vec3(0.0f, 0.0f, -_translationSpeed));
+        else if (Keyboard::IsPressed(Keys::W))
+        obj1->Pitch(_rotationSpeed * _deltaTime);
+        else if (Keyboard::IsPressed(Keys::S))
+        obj1->Pitch(-_rotationSpeed * _deltaTime);
+        else if (Keyboard::IsPressed(Keys::A))
+        obj1->Yaw(_rotationSpeed * _deltaTime);
+        else if (Keyboard::IsPressed(Keys::D))
+        obj1->Yaw(-_rotationSpeed * _deltaTime);*/
+    }
 
-		for (GLuint i = 0; i < _cameras->size(); i++)
-			(*_cameras)[i]->update();
+    void scene::update()
+    {
+        //bool cameraChanged = _cameras[1]->GetChanged();
 
-		for (GLuint i = 0; i < _pointLights->size(); i++)
-			(*_pointLights)[i]->update();
+        for (GLuint i = 0; i < _cameras->size(); i++)
+            (*_cameras)[i]->update();
 
-		for (GLuint i = 0; i < _spotLights->size(); i++)
-			(*_spotLights)[i]->update();
+        for (GLuint i = 0; i < _pointLights->size(); i++)
+            (*_pointLights)[i]->update();
 
-		if (_allObjects->size() == 0)
-			return;
+        for (GLuint i = 0; i < _spotLights->size(); i++)
+            (*_spotLights)[i]->update();
 
-		//if (cameraChanged)
-		//{
-		_visibleObjects.clear();
-		_visibleObjectsCount = 0;
+        if (_allObjects->size() == 0)
+            return;
 
-		//frustum* frustum = _cameras[0]->getFrustum();
-		glm::mat4 viewMatrix = _activeCamera->getViewMatrix();
-		glm::mat4 perspMatrix = _activeCamera->getPerspProjMatrix();
-		glm::vec3 cameraPosition = _activeCamera->getPosition();
-		sceneObject* sceneObj = nullptr;
-		transform* transform = nullptr;
-		glm::vec3 center;
-		//float radius;
+        //if (cameraChanged)
+        //{
+        _visibleObjects.clear();
+        _visibleObjectsCount = 0;
 
-		for (GLuint i = 0; i < _allObjectsCount; i++)
-		{
-			sceneObj = (*_allObjects)[i];
-			transform = sceneObj->getTransform();
-			transform->setViewMatrix(viewMatrix);
-			transform->setProjectionMatrix(perspMatrix);
+        //frustum* frustum = _cameras[0]->getFrustum();
+        glm::mat4 viewMatrix = _activeCamera->getViewMatrix();
+        glm::mat4 perspMatrix = _activeCamera->getPerspProjMatrix();
+        glm::vec3 cameraPosition = _activeCamera->getPosition();
+        sceneObject* sceneObj = nullptr;
+        transform* transform = nullptr;
+        glm::vec3 center;
+        //float radius;
 
-			sceneObj->update();
+        for (GLuint i = 0; i < _allObjectsCount; i++)
+        {
+            sceneObj = (*_allObjects)[i];
+            sceneObj->update();
+        }
 
-			/*center = sceneObj->getAabb()->getCenter();
-			radius = sceneObj->getAabb()->getRadius();
+        /*}
+        else
+        {
+        SceneObject** sceneObjects = &_allObjects[0];
 
-			if (frustum->isInside(center, radius))
-			{
-			_visibleObjects.push_back(sceneObj);
-			_visibleObjectsCount++;
-			}*/
-		}
-		/*}
-		else
-		{
-		SceneObject** sceneObjects = &_allObjects[0];
+        for (unsigned int i = 0; i < _allObjectsCount; i++)
+        sceneObjects[i]->Update();
+        }*/
+    }
 
-		for (unsigned int i = 0; i < _allObjectsCount; i++)
-		sceneObjects[i]->Update();
-		}*/
-	}
+    void scene::setSize(size<GLuint> size)
+    {
+        _size = size;
+        _activeCamera->getFrustum()->setAspect((float)_size.width/(float)_size.height);
+    }
 
-	void scene::setSize(size<GLuint> size)
-	{
-		_size = size;
-		_activeCamera->getFrustum()->setAspect((float)_size.width/(float)_size.height);
-	}
+    void scene::add(sceneObject* sceneObject)
+    {
+        sceneObject->initialize();
+        _allObjects->push_back(sceneObject);
 
-	void scene::add(sceneObject* sceneObject)
-	{
-		sceneObject->initialize();
-		_allObjects->push_back(sceneObject);
+        sceneObject->setId(_sceneObjectsIds++);
+        _allObjectsCount++;
 
-		sceneObject->setId(_sceneObjectsIds++);
-		_allObjectsCount++;
-	}
+        sceneObject->getIsSelectedChanged()->bind<scene, &scene::sceneObjectIsSelectedChanged>(this);
+    }
 
-	void scene::add(directionalLight* directionalLight)
-	{
-		_directionalLights->push_back(directionalLight);
-	}
+    void scene::add(directionalLight* directionalLight)
+    {
+        _directionalLights->push_back(directionalLight);
+    }
 
-	void scene::add(pointLight* pointLight)
-	{
-		_pointLights->push_back(pointLight);
-	}
+    void scene::add(pointLight* pointLight)
+    {
+        _pointLights->push_back(pointLight);
+    }
 
-	void scene::add(spotLight* spotLight)
-	{
-		_spotLights->push_back(spotLight);
-	}
+    void scene::add(spotLight* spotLight)
+    {
+        _spotLights->push_back(spotLight);
+    }
 
-	void scene::add(camera* camera)
-	{
-		_cameras->push_back(camera);
-	}
+    void scene::add(camera* camera)
+    {
+        _cameras->push_back(camera);
+    }
 
-	sceneObject* scene::getSceneObjectById(unsigned int id)
-	{
-		for (unsigned int i = 0; i < _allObjectsCount; i++)
-		{
-			if ((*_allObjects)[i]->getId() == id)
-				return (*_allObjects)[i];
-		}
+    void scene::sceneObjectIsSelectedChanged(phi::sceneObjectEventArgs e)
+    {
+        if (_selectedSceneObjectChanged->isBound())
+            _selectedSceneObjectChanged->invoke(e);
+    }
 
-		return nullptr;
-	}
+    sceneObject* scene::getSceneObjectById(unsigned int id)
+    {
+        for (unsigned int i = 0; i < _allObjectsCount; i++)
+        {
+            if ((*_allObjects)[i]->getId() == id)
+                return (*_allObjects)[i];
+        }
 
-	void scene::remove(sceneObject* sceneObj)
-	{
-		//std::vector<sceneObject*>::iterator position = std::find(_allObjects.begin(), _allObjects.end(), sceneObj);
+        return nullptr;
+    }
 
-		//if (position != _allObjects.end()) // == vector.end() means the element was not found
-		//{
-		//	_allObjects.erase(position);
-		//	_allObjectsCount--;
-		//}
-	}
+    void scene::remove(sceneObject* sceneObj)
+    {
+        //std::vector<sceneObject*>::iterator position = std::find(_allObjects.begin(), _allObjects.end(), sceneObj);
+
+        //if (position != _allObjects.end()) // == vector.end() means the element was not found
+        //{
+        //	_allObjects.erase(position);
+        //	_allObjectsCount--;
+        //}
+    }
 }

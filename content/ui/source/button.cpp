@@ -103,7 +103,7 @@ namespace phi
             _textureRenderer->setLocation(glm::vec2(_x + 1, _y + 1));
             _textureRenderer->setSize(size<GLuint>(_size.width - 2, _size.height - 2));
             _textureRenderer->update();
-            colorAnimator::animateColor(&_currentColor, color(glm::min(1.0f, _backgroundColor.r + 0.5f), glm::min(1.0f, _backgroundColor.g + 0.5f), glm::min(1.0f, _backgroundColor.b + 0.5f), 1), 500);
+            colorAnimator::animateColor(&_currentColor, color(glm::min(1.0f, _backgroundColor.r + 0.5f), glm::min(1.0f, _backgroundColor.g + 0.5f), glm::min(1.0f, _backgroundColor.b + 0.5f), 1), 300);
             e->handled = true;
         }
     }
@@ -121,13 +121,13 @@ namespace phi
             _textureRenderer->update();
 
             if (!getIsMouseOver())
-                colorAnimator::animateColor(&_currentColor, _backgroundColor, 500);
+                colorAnimator::animateColor(&_currentColor, _backgroundColor, 300);
         }
     }
 
     void button::onMouseEnter(mouseEventArgs* e)
     {
-        colorAnimator::animateColor(&_currentColor, color(glm::min(1.0f, _backgroundColor.r + 0.5f), glm::min(1.0f, _backgroundColor.g + 0.5f), glm::min(1.0f, _backgroundColor.b + 0.5f), 1), 500);
+        colorAnimator::animateColor(&_currentColor, color(glm::min(1.0f, _backgroundColor.r + 0.5f), glm::min(1.0f, _backgroundColor.g + 0.5f), glm::min(1.0f, _backgroundColor.b + 0.5f), 1), 300);
     }
 
     void button::onMouseLeave(mouseEventArgs* e)

@@ -28,9 +28,10 @@ namespace phi
         addRenderToQuadShader();
         addHudTextShader();
         addHudQuadShader();
-		
-		addPostSelectedObjectsShader();
-	}
+        addUIMeshShader();
+
+        addPostSelectedObjectsShader();
+    }
 
     void shaderManager::addShader(std::string name, shader* shader)
     {
@@ -94,20 +95,33 @@ namespace phi
         addShader(s->getName(), s);
     }
 
-	void shaderManager::addPostSelectedObjectsShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+    void shaderManager::addUIMeshShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
 
-		shader* s = loadShader("POST_SELECTED_OBJECTS", "post_selected_objects.vert", "post_selected_objects.frag", attribs);
+        shader* s = loadShader("UI_MESH", "ui_mesh.vert", "ui_mesh.frag", attribs);
 
-		s->addUniform("m");
-		s->addUniform("res");
-		s->addUniform("selectionMap");
+        s->addUniform("mvp");
+        s->addUniform("color");
 
-		addShader(s->getName(), s);
-	}
+        addShader(s->getName(), s);
+    }
+
+    void shaderManager::addPostSelectedObjectsShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+
+        shader* s = loadShader("POST_SELECTED_OBJECTS", "post_selected_objects.vert", "post_selected_objects.frag", attribs);
+
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("selectionMap");
+
+        addShader(s->getName(), s);
+    }
 
     shader* shaderManager::getShader(std::string name)
     {

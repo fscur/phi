@@ -20,16 +20,16 @@ namespace phi
     {
         /*LOG("fromFile: " << fileName);
 
-		if (!globals::contains(fileName, ".model"))
-		{
-			LOG("fromFile: Invalid file format.");
-			return nullptr;
-		}*/
+        if (!globals::contains(fileName, ".model"))
+        {
+        LOG("fromFile: Invalid file format.");
+        return nullptr;
+        }*/
 
         auto materialName = new char[256];
 
-	    std::ifstream iFile;
-	    iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
+        std::ifstream iFile;
+        iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
 
         if (!iFile.is_open())
         {
@@ -45,23 +45,25 @@ namespace phi
         GLuint meshCount = 0;
 
         model* md = new model(modelName, fileName);
-        
+
+        auto i = 0;
+
         while(iFile.peek() != -1)
         {
             auto meshName = modelName + "_mesh_" + std::to_string(meshCount++);
-            
+
             iFile.read(materialName, 256);
 
             GLuint verticesCount = -1;
             iFile.read(reinterpret_cast<char*>(&verticesCount), uintSize);
-            
+
             GLuint positionsSize = verticesCount * 3 * floatSize;
-		    GLuint texCoordsSize = verticesCount * 2 * floatSize;
-		    GLuint normalsSize = verticesCount * 3 * floatSize;
+            GLuint texCoordsSize = verticesCount * 2 * floatSize;
+            GLuint normalsSize = verticesCount * 3 * floatSize;
 
             GLfloat* positionsBuffer = new GLfloat[verticesCount * 3];
-		    GLfloat* texCoordsBuffer = new GLfloat[verticesCount * 2];
-		    GLfloat* normalsBuffer = new GLfloat[verticesCount * 3];
+            GLfloat* texCoordsBuffer = new GLfloat[verticesCount * 2];
+            GLfloat* normalsBuffer = new GLfloat[verticesCount * 3];
 
             iFile.read(reinterpret_cast<char*>(positionsBuffer), positionsSize);
             iFile.read(reinterpret_cast<char*>(texCoordsBuffer), texCoordsSize);
@@ -74,7 +76,8 @@ namespace phi
             iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * sizeof(unsigned int));
 
             mesh* m = mesh::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer, materialName);
-            
+            m->setId(i++);
+
             md->_meshes.push_back(m);
         }
 

@@ -11,6 +11,7 @@ add_definitions(-DUI_EXPORTS)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../inc/GLM)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../inc/SDL)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../core/headers)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../scenes/headers)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../rendering/headers)
 include_directories(headers)
 
@@ -81,6 +82,7 @@ endif (WIN32)
 
 target_link_libraries(ui core)
 target_link_libraries(ui rendering)
+target_link_libraries(ui scenes)
 
 install(TARGETS ui 
     RUNTIME 

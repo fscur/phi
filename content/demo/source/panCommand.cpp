@@ -39,6 +39,7 @@ namespace phi
         glm::mat4 proj = camera->getPerspProjMatrix();
 
         _eyeZ = -proj[3].z / (_zBufferValue * -2.0 + 1.0 - proj[2].z);
+        LOG(_eyeZ);
         _cameraPos = camera->getPosition();
         _cameraRight = camera->getRight();
         _cameraUp = camera->getUp();
@@ -89,8 +90,8 @@ namespace phi
         float xDiff = xm1 - xm0;
         float yDiff = ym1 - ym0;
 
-        float x = xDiff * eyeZ/zNear;
-        float y = yDiff * eyeZ/zNear;
+        float x = xDiff * (eyeZ/zNear);
+        float y = yDiff * (eyeZ/zNear);
 
         glm::vec3 pos = _cameraPos - (glm::vec3(_cameraRight * x) + glm::vec3(_cameraUp * y)); 
 

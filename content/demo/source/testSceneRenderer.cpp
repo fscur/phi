@@ -52,8 +52,8 @@ namespace phi
         createBlurShader();
         createSkyDomeShader();
 
-        _randomNormalsTexture = texture::fromFile("random_normal.bmp");
-        _noiseTexture = texture::fromFile("noise.bmp");
+        _randomNormalsTexture = texture::fromFile("resources\\textures\\random_normal.bmp");
+        _noiseTexture = texture::fromFile("resources\\textures\\noise.bmp");
 
         _ssaoActive = false;
         _ssaoBias = 0.1f;
@@ -1359,7 +1359,7 @@ namespace phi
         {
             sceneObject* sceneObj = (*_allObjects)[i];
 
-            glm::mat4 modelMatrix = sceneObj->getTransform()->getModelMatrix();
+            glm::mat4 modelMatrix = sceneObj->getModelMatrix();
 
             _modelMatrices[sceneObj->getId()] = modelMatrix;
             _mvpMatrices[sceneObj->getId()] = _projMatrix * _viewMatrix * modelMatrix;
