@@ -91,9 +91,10 @@ void form::initWindow()
         SDL_WINDOWPOS_CENTERED,
         r.w,
         r.h,
-        //1280,
-        //720,
-        SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
+        //1024,
+        //768,
+        SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+        //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
 
     if (_window == NULL)
         LOG("Window could not be created! SDL_Error: " << SDL_GetError());

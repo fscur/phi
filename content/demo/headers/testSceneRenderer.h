@@ -40,6 +40,8 @@ namespace phi
 		void createSpotLightShader();
         void createShadowMapsShaders();
 		void createSSAOShader();
+		void createReflectionsShader();
+        void createRefractionsShader();
         void createBlurShader();
         void createSkyDomeShader();
         void geomPass();
@@ -48,6 +50,8 @@ namespace phi
         void pointLightPasses();
         void spotLightPasses();
         void ssao();
+        void reflections();
+        void refractions();
         void renderSkyDome();
         texture* blur(texture* tex);
 

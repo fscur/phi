@@ -118,6 +118,7 @@ namespace phi
 
         _direction = _target - _position;
         _changed = true;
+        //update();
     }
 
     void camera::moveTo(glm::vec3 position)
@@ -125,6 +126,7 @@ namespace phi
         setPositionWithinBoundsRadius(position);
 
         _changed = true;
+        //update();
     }
 
     void camera::zoomIn(glm::vec3 targetPos)
@@ -152,6 +154,7 @@ namespace phi
 
         //_direction = _target - _position;
 
+        update();
         _changed = true;
     }
 
@@ -170,7 +173,7 @@ namespace phi
         setPositionWithinBoundsRadius(position);
 
         //_direction = _target - _position;
-
+        update();
         _changed = true;
     }
 

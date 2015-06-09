@@ -47,6 +47,8 @@ namespace phi
         createSpotLightShader();
         createShadowMapsShaders();
 		createSSAOShader();
+        createReflectionsShader();
+        createRefractionsShader();
         createBlurShader();
         createSkyDomeShader();
 
@@ -109,6 +111,20 @@ namespace phi
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT2);
+
+		_frameBuffers[0]->addRenderTarget(r);
+
+        t = texture::create(_viewportSize, GL_RGBA16F);
+		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		r = _frameBuffers[0]->newRenderTarget(
+            "rt3",
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT3);
 
 		_frameBuffers[0]->addRenderTarget(r);
 
@@ -213,7 +229,7 @@ namespace phi
         _frameBuffers[2]->bind();
         
         auto s = size<GLuint>(4096, 4096);
-		texture* t = texture::create(s, GL_RG32F);
+		texture* t = texture::create(_viewportSize, GL_RGBA);
 
 		t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -250,11 +266,13 @@ namespace phi
         s->addUniform("diffuseMap");
         s->addUniform("emissiveMap");
         s->addUniform("normalMap");
+        s->addUniform("specularMap");
 
         s->addUniform("mat.ambientColor");
         s->addUniform("mat.emissiveColor");
         s->addUniform("mat.ka");
         s->addUniform("mat.isEmissive");
+        s->addUniform("mat.reflectivity");
 
         shaderManager::get()->addShader(s->getName(), s);
 	}
@@ -435,6 +453,54 @@ namespace phi
 		shaderManager::get()->addShader(s->getName(), s);
 	}
 
+    void testSceneRenderer::createReflectionsShader()
+	{
+		std::vector<std::string> attribs;
+		attribs.push_back("inPosition");
+		attribs.push_back("inTexCoord");
+
+		shader* s = shaderManager::get()->loadShader("SSAO_REFLECTIONS", "ssao_reflections.vert", "ssao_reflections.frag", attribs);
+
+		s->addUniform("p");
+		s->addUniform("m");
+		s->addUniform("res");
+        s->addUniform("colorMap");
+		s->addUniform("positionMap");
+		s->addUniform("normalMap");
+        s->addUniform("depthMap");
+        s->addUniform("reflectivityMap");
+        
+		shaderManager::get()->addShader(s->getName(), s);
+	}
+
+    void testSceneRenderer::createRefractionsShader()
+	{
+		std::vector<std::string> attribs;
+		attribs.push_back("inPosition");
+		attribs.push_back("inTexCoord");
+		attribs.push_back("inNormal");
+		attribs.push_back("inTangent");
+
+		shader* s = shaderManager::get()->loadShader("SSAO_REFRACTIONS", "ssao_refractions.vert", "ssao_refractions.frag", attribs);
+
+        s->addUniform("p");
+        s->addUniform("v");
+        s->addUniform("m");
+        s->addUniform("mvp");
+        s->addUniform("itmv");
+		s->addUniform("res");
+
+        s->addUniform("colorMap");
+		s->addUniform("positionMap");
+		s->addUniform("normalMap");
+        s->addUniform("depthMap");
+        s->addUniform("objectNormalMap");
+        
+        s->addUniform("mat.refractionIndex");
+
+		shaderManager::get()->addShader(s->getName(), s);
+	}
+
     void testSceneRenderer::createBlurShader()
 	{
 		std::vector<std::string> attribs;
@@ -481,10 +547,11 @@ namespace phi
         { 
             GL_COLOR_ATTACHMENT0, 
             GL_COLOR_ATTACHMENT1,
-            GL_COLOR_ATTACHMENT2
+            GL_COLOR_ATTACHMENT2,
+            GL_COLOR_ATTACHMENT3,
         };
 
-        glDrawBuffers(3, drawBuffers);
+        glDrawBuffers(4, drawBuffers);
 
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
@@ -516,14 +583,19 @@ namespace phi
 
                 material* mat = m->getMaterial();
 
+                //if (mat->getReflectivity() > 0.0f)
+                //    continue;
+
                 sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
                 sh->setUniform("normalMap", mat->getNormalTexture(), 1);
                 sh->setUniform("emissiveMap", mat->getEmissiveTexture(), 2);
+                sh->setUniform("specularMap", mat->getSpecularTexture(), 3);
 
                 sh->setUniform("mat.ambientColor", mat->getAmbientColor());
                 sh->setUniform("mat.emissiveColor", mat->getEmissiveColor());
                 sh->setUniform("mat.ka", mat->getKa());
                 sh->setUniform("mat.isEmissive", mat->getIsEmissive());
+                sh->setUniform("mat.reflectivity", mat->getReflectivity());
 
                 meshRenderer::render(m);
             }
@@ -532,8 +604,6 @@ namespace phi
         sh->unbind();
 
         _frameBuffers[0]->unbind();
-        //glDepthMask(GL_FALSE);
-        //glDisable(GL_DEPTH_TEST);
     }
 
     void testSceneRenderer::dirLightPass(directionalLight* light)
@@ -1067,6 +1137,116 @@ namespace phi
 
         _frameBuffers[0]->unbind();
     }
+    
+    void testSceneRenderer::reflections()
+    {   
+        _frameBuffers[2]->bindForDrawing();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+        texture* colorMap = _frameBuffers[0]->getRenderTarget("rt0")->getTexture();
+        texture* positionMap = _frameBuffers[0]->getRenderTarget("rt1")->getTexture();
+        texture* normalMap = _frameBuffers[0]->getRenderTarget("rt2")->getTexture();
+        texture* reflectivityMap = _frameBuffers[0]->getRenderTarget("rt3")->getTexture();
+        texture* depthMap = _frameBuffers[0]->getRenderTarget("depth")->getTexture();
+
+        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+        
+        glm::mat4 modelMatrix = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        shader* s = shaderManager::get()->getShader("SSAO_REFLECTIONS");
+
+        s->bind();
+        
+        s->setUniform("p", _projMatrix);
+        s->setUniform("m", modelMatrix);
+        s->setUniform("res", resolution);
+
+        s->setUniform("colorMap", colorMap, 0);
+        s->setUniform("positionMap", positionMap, 1);
+        s->setUniform("normalMap", normalMap, 2);
+        s->setUniform("depthMap", depthMap, 3);
+        s->setUniform("reflectivityMap", reflectivityMap, 4);
+        
+        meshRenderer::render(&_quad);
+
+        s->unbind();
+        
+        //glDisable(GL_BLEND);
+
+        _frameBuffers[2]->unbind();
+    }
+
+    void testSceneRenderer::refractions()
+    {   
+        _frameBuffers[2]->bindForDrawing();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+        texture* colorMap = _frameBuffers[0]->getRenderTarget("rt0")->getTexture();
+        texture* positionMap = _frameBuffers[0]->getRenderTarget("rt1")->getTexture();
+        texture* normalMap = _frameBuffers[0]->getRenderTarget("rt2")->getTexture();
+        texture* depthMap = _frameBuffers[0]->getRenderTarget("depth")->getTexture();
+
+        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+
+        shader* s = shaderManager::get()->getShader("SSAO_REFRACTIONS");
+
+        s->bind();
+        
+        s->setUniform("res", resolution);
+        
+        s->setUniform("colorMap", colorMap, 0);
+        s->setUniform("positionMap", positionMap, 1);
+        s->setUniform("normalMap", normalMap, 2);
+        s->setUniform("depthMap", depthMap, 3);
+        
+        for (GLuint i = 0; i < _allObjectsCount; i++)
+        {
+            sceneObject* sceneObj = (*_allObjects)[i];
+
+            glm::mat4 modelMatrix = _modelMatrices[sceneObj->getId()];
+            glm::mat4 mvp = _mvpMatrices[sceneObj->getId()];
+            glm::mat4 itmv = _itmvMatrices[sceneObj->getId()];
+            
+            s->setUniform("p", _projMatrix);
+            s->setUniform("v", _viewMatrix);
+            s->setUniform("m", modelMatrix);
+            s->setUniform("mvp", mvp);
+            s->setUniform("itmv", itmv);
+
+            std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+            auto meshesCount = meshes.size();
+
+            for (GLuint j = 0; j < meshesCount; j++)
+		    {
+                mesh* m = meshes[j];
+
+                material* mat = m->getMaterial();
+
+                //if (mat->getReflectivity() == 0.0)
+                    //continue;
+                
+                s->setUniform("objectNormalMap", mat->getNormalTexture(), 4);
+                s->setUniform("mat.refractionIndex", mat->getReflectivity());
+                meshRenderer::render(m);
+            }
+        }
+
+        s->unbind();
+        
+        //glDisable(GL_BLEND);
+
+        _frameBuffers[2]->unbind();
+    }
 
     texture* testSceneRenderer::blur(texture* tex)
     {
@@ -1119,11 +1299,13 @@ namespace phi
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
         glDepthMask(GL_TRUE);
-        //glDepthFunc(GL_EQUAL);
+        glDepthFunc(GL_EQUAL);
         glEnable(GL_DEPTH_TEST);
         
         shader* sh = shaderManager::get()->getShader("SKY_DOME");
         sh->bind();
+
+        _camera->update();
 
         auto camPos = _camera->getPosition();
 
@@ -1140,9 +1322,9 @@ namespace phi
             camPos.x, camPos.y, camPos.z, 1.0f);
 
         glm::mat4 modelMatrix = translation * scale;
+
         //glm::mat4 modelMatrix= scale;
         //glm::mat4 modelMatrix = _skyDome->getTransform()->getModelMatrix();
-
         //glm::mat4 modelMatrix = glm::mat4(1.0);
 
         sh->setUniform("p", _projMatrix);
@@ -1188,7 +1370,7 @@ namespace phi
 
         dirLightPasses();
 
-        dirLightPass(_skyDome->getSun());
+        //dirLightPass(_skyDome->getSun());
 
         pointLightPasses();
         spotLightPasses();
@@ -1196,12 +1378,25 @@ namespace phi
         glDepthMask(GL_FALSE);
         
         if (_ssaoActive)
+        {
             ssao();
+            //refractions();
+            reflections();
 
-        renderSkyDome();
+            //ssao();
 
-        renderingSystem::defaultFrameBuffer->bindForDrawing();
-        _frameBuffers[0]->bindForReading();
-        _frameBuffers[0]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+            renderingSystem::defaultFrameBuffer->bindForDrawing();
+            _frameBuffers[2]->bindForReading();
+            _frameBuffers[2]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+            _frameBuffers[0]->bindForReading();
+        
+        }
+        else
+        {
+        
+            renderingSystem::defaultFrameBuffer->bindForDrawing();
+            _frameBuffers[0]->bindForReading();
+            _frameBuffers[0]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+        }
 	}
 }

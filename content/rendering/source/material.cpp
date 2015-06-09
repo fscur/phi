@@ -20,6 +20,7 @@ namespace phi
         float kd,
         float ks,
         float shininess,
+        float reflectivity,
         bool isEmissive) :
         resource(name, path)
     {
@@ -35,6 +36,7 @@ namespace phi
         _kd = kd;
         _ks = ks;
         _shininess = shininess;
+        _reflectivity = reflectivity;
         _isEmissive = isEmissive;
     }
 
@@ -43,16 +45,17 @@ namespace phi
         std::string path,
         std::string diffuseTextureName,
 		std::string normalTextureName,
-        std::string specularTextureName, 
+        std::string specularTextureName,
         std::string emissiveTextureName, 
         color ambientColor,
-        color diffuseColor, 
-        color specularColor, 
+        color diffuseColor,
+        color specularColor,
         color emissiveColor,
         float ka,
         float kd,
         float ks,
         float shininess,
+        float reflectivity,
         bool isEmissive) :
         resource(name, path)
     {
@@ -68,6 +71,7 @@ namespace phi
         _kd = kd;
         _ks = ks;
         _shininess = shininess;
+        _reflectivity = reflectivity;
         _isEmissive = isEmissive;
     }
 
@@ -93,10 +97,11 @@ namespace phi
         oFile.write(reinterpret_cast<char*>(&_diffuseColor), sizeof(color));
         oFile.write(reinterpret_cast<char*>(&_specularColor), sizeof(color));
         oFile.write(reinterpret_cast<char*>(&_emissiveColor), sizeof(color));
+        oFile.write(reinterpret_cast<char*>(&_shininess), sizeof(float));
+        oFile.write(reinterpret_cast<char*>(&_reflectivity), sizeof(float));        
         oFile.write(reinterpret_cast<char*>(&_ka), sizeof(float));
         oFile.write(reinterpret_cast<char*>(&_kd), sizeof(float));
         oFile.write(reinterpret_cast<char*>(&_ks), sizeof(float));
-        oFile.write(reinterpret_cast<char*>(&_shininess), sizeof(float));
         oFile.write(reinterpret_cast<char*>(&_isEmissive), sizeof(bool));
 
         oFile.close();
@@ -123,6 +128,7 @@ namespace phi
         float kd;
         float ks;
         float shininess;
+        float reflectivity;
         bool isEmissive;
 
         iFile.read(diffuseTextureName, 256);
@@ -134,6 +140,7 @@ namespace phi
         iFile.read(reinterpret_cast<char*>(&specularColor), sizeof(color));
         iFile.read(reinterpret_cast<char*>(&emissiveColor), sizeof(color));
         iFile.read(reinterpret_cast<char*>(&shininess), sizeof(float));
+        iFile.read(reinterpret_cast<char*>(&reflectivity), sizeof(float));
         iFile.read(reinterpret_cast<char*>(&ka), sizeof(float));
         iFile.read(reinterpret_cast<char*>(&kd), sizeof(float));
         iFile.read(reinterpret_cast<char*>(&ks), sizeof(float));
@@ -157,6 +164,7 @@ namespace phi
             kd,
             ks,
             shininess,
+            reflectivity,
             isEmissive); 
     }
 }

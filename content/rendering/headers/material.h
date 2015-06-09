@@ -26,6 +26,7 @@ namespace phi
         float _kd;
         float _ks;
         float _shininess;
+        float _reflectivity;
         bool _isEmissive;
 
     public:
@@ -44,6 +45,7 @@ namespace phi
             float kd = 0.0f,
             float ks = 0.0f,
             float shininess = 0.0f,
+            float reflectivity = 0.0f,
             bool isEmissive = false);
 
         RENDERING_API material(
@@ -61,6 +63,7 @@ namespace phi
             float kd = 0.0f,
             float ks = 0.0f,
             float shininess = 0.0f,
+            float reflectivity = 0.0f,
             bool isEmissive = false);
 
         RENDERING_API ~material();
@@ -80,6 +83,7 @@ namespace phi
         RENDERING_API float getKd() const { return _kd; }
         RENDERING_API float getKs() const { return _ks; }
         RENDERING_API float getShininess() const { return _shininess; }
+        RENDERING_API float getReflectivity() const { return _reflectivity; }
         RENDERING_API bool getIsEmissive() const { return _isEmissive; }
         
         RENDERING_API void setDiffuseTextureName(std::string value) { _diffuseTextureName = value; }
@@ -98,6 +102,7 @@ namespace phi
 		RENDERING_API void setKd(float value) { _kd = value; }
         RENDERING_API void setKs(float value) { _ks = value; }
         RENDERING_API void setShininess(float value) { _shininess = value; }
+        RENDERING_API void setReflectivity(float value) { _reflectivity = value; }
         RENDERING_API void setIsEmissive(bool value) { _isEmissive = value; }
 
         RENDERING_API void save(std::string filename);
