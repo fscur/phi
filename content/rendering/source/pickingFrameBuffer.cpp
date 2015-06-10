@@ -40,7 +40,7 @@ namespace phi
     {
         bindForReading();
 
-        std::vector<unsigned char> pixels( 4 );
+        std::vector<unsigned char> pixels(4);
 
         glReadPixels((GLint)mousePos.x, (GLint)(_size.height - mousePos.y), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
 
@@ -52,9 +52,6 @@ namespace phi
         g = g << 8;
 
         GLuint id = r | g | b;
-
-
-
 
         return id;
     }

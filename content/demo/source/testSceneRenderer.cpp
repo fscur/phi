@@ -4,49 +4,16 @@
 
 namespace phi
 {
-	testSceneRenderer::testSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
-	{
-		_frameBuffers.push_back(new frameBuffer("testSceneRenderer0", viewportSize, color::transparent));
-		_frameBuffers[0]->init();
-        _frameBuffers[0]->bind();
+    testSceneRenderer::testSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
+    {
+        createBuffers();
 
-		createDefaultRenderTargets();
-
-		_frameBuffers[0]->bind();
-		_frameBuffers[0]->enable(GL_CULL_FACE);
-		_frameBuffers[0]->enable(GL_DEPTH_TEST);
-		_frameBuffers[0]->unbind();
-
-        _frameBuffers.push_back(new frameBuffer("testSceneRenderer1", viewportSize, color::transparent));
-		_frameBuffers[1]->init();
-        _frameBuffers[1]->bind();
-
-		createShadowMapsRenderTargets();
-
-		_frameBuffers[1]->bind();
-		_frameBuffers[1]->enable(GL_CULL_FACE);
-		_frameBuffers[1]->enable(GL_DEPTH_TEST);
-		_frameBuffers[1]->unbind();
-        
-        _frameBuffers.push_back(new frameBuffer("testSceneRenderer2", viewportSize, color::transparent));
-		_frameBuffers[2]->init();
-        _frameBuffers[2]->bind();
-
-		createFXRenderTargets();
-
-		_frameBuffers[2]->bind();
-		_frameBuffers[2]->enable(GL_CULL_FACE);
-		_frameBuffers[2]->enable(GL_DEPTH_TEST);
-		_frameBuffers[2]->unbind();
-
-        createPointLightShadowMapRenderTargets();
-
-		createGeomPassShader();
+        createGeomPassShader();
         createDirLightShaders();
         createPointLightShader();
         createSpotLightShader();
         createShadowMapsShaders();
-		createSSAOShader();
+        createSSAOShader();
         createReflectionsShader();
         createRefractionsShader();
         createBlurShader();
@@ -62,88 +29,138 @@ namespace phi
         _ssaoScale = 1.5f;
 
         _skyDome = new skyDome(5.0f, 100, 100, nullptr);
-	}
-	
-	testSceneRenderer::~testSceneRenderer()
-	{
-	}
+    }
 
-	void testSceneRenderer::createDefaultRenderTargets()
-	{
+    testSceneRenderer::~testSceneRenderer()
+    {
+    }
+
+    void testSceneRenderer::createBuffers()
+    {
+        _frameBuffers = std::vector<frameBuffer*>();
+        _frameBuffers.push_back(new frameBuffer("testSceneRenderer0", _viewportSize, color::transparent));
+        _frameBuffers[0]->init();
         _frameBuffers[0]->bind();
 
-		texture* t = texture::create(_viewportSize, GL_RGBA);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        createDefaultRenderTargets();
 
-		renderTarget* r = _frameBuffers[0]->newRenderTarget(
+        _frameBuffers[0]->bind();
+        _frameBuffers[0]->enable(GL_CULL_FACE);
+        _frameBuffers[0]->enable(GL_DEPTH_TEST);
+        _frameBuffers[0]->unbind();
+
+        _frameBuffers.push_back(new frameBuffer("testSceneRenderer1", _viewportSize, color::transparent));
+        _frameBuffers[1]->init();
+        _frameBuffers[1]->bind();
+
+        createShadowMapsRenderTargets();
+
+        _frameBuffers[1]->bind();
+        _frameBuffers[1]->enable(GL_CULL_FACE);
+        _frameBuffers[1]->enable(GL_DEPTH_TEST);
+        _frameBuffers[1]->unbind();
+
+        _frameBuffers.push_back(new frameBuffer("testSceneRenderer2", _viewportSize, color::transparent));
+        _frameBuffers[2]->init();
+        _frameBuffers[2]->bind();
+
+        createFXRenderTargets();
+
+        _frameBuffers[2]->bind();
+        _frameBuffers[2]->enable(GL_CULL_FACE);
+        _frameBuffers[2]->enable(GL_DEPTH_TEST);
+        _frameBuffers[2]->unbind();
+
+        createPointLightShadowMapRenderTargets();
+        createSelectedObjectsRenderTarget();
+    }
+
+    void testSceneRenderer::createDefaultRenderTargets()
+    {
+        _frameBuffers[0]->bind();
+
+        texture* t = texture::create(_viewportSize, GL_RGBA);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        renderTarget* r = _frameBuffers[0]->newRenderTarget(
             "rt0", 
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT0);
 
-		_frameBuffers[0]->addRenderTarget(r);
+        _frameBuffers[0]->addRenderTarget(r);
 
         t = texture::create(_viewportSize, GL_RGBA16F);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		r = _frameBuffers[0]->newRenderTarget(
+        r = _frameBuffers[0]->newRenderTarget(
             "rt1",
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT1);
 
-		_frameBuffers[0]->addRenderTarget(r);
+        _frameBuffers[0]->addRenderTarget(r);
 
         t = texture::create(_viewportSize, GL_RGBA16F);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		r = _frameBuffers[0]->newRenderTarget(
+        r = _frameBuffers[0]->newRenderTarget(
             "rt2",
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT2);
 
-		_frameBuffers[0]->addRenderTarget(r);
+        _frameBuffers[0]->addRenderTarget(r);
 
         t = texture::create(_viewportSize, GL_RGBA16F);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		r = _frameBuffers[0]->newRenderTarget(
+        r = _frameBuffers[0]->newRenderTarget(
             "rt3",
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT3);
 
-		_frameBuffers[0]->addRenderTarget(r);
+        _frameBuffers[0]->addRenderTarget(r);
 
-		t = texture::create(_viewportSize, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t = renderingSystem::pickingFrameBuffer->getPickingTexture();
 
-		r = _frameBuffers[0]->newRenderTarget(
-			"depth", 
-			t, 
-			GL_DRAW_FRAMEBUFFER,
-			GL_DEPTH_ATTACHMENT);
+        r = _frameBuffers[0]->newRenderTarget(
+            "selected", 
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT4);
 
-		_frameBuffers[0]->addRenderTarget(r);
+        _frameBuffers[0]->addRenderTarget(r);
+
+        t = texture::create(_viewportSize, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        r = _frameBuffers[0]->newRenderTarget(
+            "depth", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT);
+
+        _frameBuffers[0]->addRenderTarget(r);
 
         _frameBuffers[0]->unbind();
-	}
+    }
 
     void testSceneRenderer::createShadowMapsRenderTargets()
     {   
@@ -152,32 +169,32 @@ namespace phi
         auto s = size<GLuint>(4096, 4096);
 
         texture* t = texture::create(s, GL_RG32F);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* r = _frameBuffers[1]->newRenderTarget(
-			"rt0", 
-			t, 
-			GL_DRAW_FRAMEBUFFER,
-			GL_COLOR_ATTACHMENT0);
+        renderTarget* r = _frameBuffers[1]->newRenderTarget(
+            "rt0", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0);
 
-		_frameBuffers[1]->addRenderTarget(r);
+        _frameBuffers[1]->addRenderTarget(r);
 
         t = texture::create(s, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		r = _frameBuffers[1]->newRenderTarget(
-			"depth", 
-			t, 
-			GL_DRAW_FRAMEBUFFER,
-			GL_DEPTH_ATTACHMENT);
+        r = _frameBuffers[1]->newRenderTarget(
+            "depth", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT);
 
-		_frameBuffers[1]->addRenderTarget(r);
+        _frameBuffers[1]->addRenderTarget(r);
 
         _frameBuffers[1]->unbind();
     }
@@ -185,71 +202,76 @@ namespace phi
     void testSceneRenderer::createPointLightShadowMapRenderTargets()
     {
         _frameBuffers.push_back(new frameBuffer("testSceneRenderer3", _viewportSize, color::transparent));
-		_frameBuffers[3]->init();
+        _frameBuffers[3]->init();
         _frameBuffers[3]->bind();
 
         auto s = size<GLuint>(512, 512);
 
         texture* t = texture::createCubeMap(s, GL_RG32F);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		t->setParam(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        t->setParam(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-		renderTarget* r = _frameBuffers[1]->newRenderTarget(
-			"rt0", 
-			t, 
-			GL_DRAW_FRAMEBUFFER,
-			GL_COLOR_ATTACHMENT0);
+        renderTarget* r = _frameBuffers[1]->newRenderTarget(
+            "rt0", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0);
 
-		_frameBuffers[3]->addRenderTarget(r);
+        _frameBuffers[3]->addRenderTarget(r);
 
         t = texture::create(s, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		r = _frameBuffers[3]->newRenderTarget(
-			"depth", 
-			t, 
-			GL_DRAW_FRAMEBUFFER,
-			GL_DEPTH_ATTACHMENT);
+        r = _frameBuffers[3]->newRenderTarget(
+            "depth", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT);
 
-		_frameBuffers[3]->addRenderTarget(r);
+        _frameBuffers[3]->addRenderTarget(r);
 
-		_frameBuffers[3]->enable(GL_CULL_FACE);
-		_frameBuffers[3]->enable(GL_DEPTH_TEST);
-		_frameBuffers[3]->unbind();
+        _frameBuffers[3]->enable(GL_CULL_FACE);
+        _frameBuffers[3]->enable(GL_DEPTH_TEST);
+        _frameBuffers[3]->unbind();
+    }
+
+    void testSceneRenderer::createSelectedObjectsRenderTarget()
+    {
+
     }
 
     void testSceneRenderer::createFXRenderTargets()
-	{
+    {
         _frameBuffers[2]->bind();
-        
+
         auto s = size<GLuint>(4096, 4096);
-		texture* t = texture::create(_viewportSize, GL_RGBA);
+        texture* t = texture::create(_viewportSize, GL_RGBA);
 
-		t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-		renderTarget* r = _frameBuffers[0]->newRenderTarget(
+        renderTarget* r = _frameBuffers[0]->newRenderTarget(
             "rt0", 
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT0);
 
-		_frameBuffers[2]->addRenderTarget(r);
+        _frameBuffers[2]->addRenderTarget(r);
 
         _frameBuffers[2]->unbind();
-	}
+    }
 
-	void testSceneRenderer::createGeomPassShader()
-	{
-		std::vector<std::string> attribs;
+    void testSceneRenderer::createGeomPassShader()
+    {
+        std::vector<std::string> attribs;
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
         attribs.push_back("inNormal");
@@ -262,7 +284,8 @@ namespace phi
         s->addUniform("itmv");
 
         s->addUniform("ambientLightColor");
-        
+        s->addUniform("selectionColor");
+
         s->addUniform("diffuseMap");
         s->addUniform("emissiveMap");
         s->addUniform("normalMap");
@@ -275,7 +298,7 @@ namespace phi
         s->addUniform("mat.reflectivity");
 
         shaderManager::get()->addShader(s->getName(), s);
-	}
+    }
 
     void testSceneRenderer::createDirLightShaders()
     {
@@ -322,7 +345,7 @@ namespace phi
 
         s->addUniform("mvp");
         s->addUniform("m");
-        
+
         s->addUniform("nearPlane");
         s->addUniform("farPlane");
         s->addUniform("lightPos");
@@ -417,12 +440,12 @@ namespace phi
     {
         std::vector<std::string> attribs;
         attribs.push_back("inPosition");
-        
+
         shader* s = shaderManager::get()->loadShader("SSAO_SHADOW_MAP_POINT_LIGHT", "ssao_shadow_map_point_light.vert", "ssao_shadow_map_point_light.frag", attribs);
 
         s->addUniform("mvp");
         s->addUniform("m");
-        
+
         s->addUniform("nearPlane");
         s->addUniform("farPlane");
         s->addUniform("lightPos");
@@ -431,17 +454,17 @@ namespace phi
     }
 
     void testSceneRenderer::createSSAOShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		shader* s = shaderManager::get()->loadShader("SSAO_SSAO", "ssao_ssao.vert", "ssao_ssao.frag", attribs);
+        shader* s = shaderManager::get()->loadShader("SSAO_SSAO", "ssao_ssao.vert", "ssao_ssao.frag", attribs);
 
-		s->addUniform("m");
-		s->addUniform("res");
-		s->addUniform("positionMap");
-		s->addUniform("normalMap");
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
         s->addUniform("randomNormalMap");
 
         s->addUniform("randomSize");
@@ -450,72 +473,72 @@ namespace phi
         s->addUniform("scale");
         s->addUniform("bias");
 
-		shaderManager::get()->addShader(s->getName(), s);
-	}
+        shaderManager::get()->addShader(s->getName(), s);
+    }
 
     void testSceneRenderer::createReflectionsShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		shader* s = shaderManager::get()->loadShader("SSAO_REFLECTIONS", "ssao_reflections.vert", "ssao_reflections.frag", attribs);
+        shader* s = shaderManager::get()->loadShader("SSAO_REFLECTIONS", "ssao_reflections.vert", "ssao_reflections.frag", attribs);
 
-		s->addUniform("p");
-		s->addUniform("m");
-		s->addUniform("res");
+        s->addUniform("p");
+        s->addUniform("m");
+        s->addUniform("res");
         s->addUniform("colorMap");
-		s->addUniform("positionMap");
-		s->addUniform("normalMap");
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
         s->addUniform("depthMap");
         s->addUniform("reflectivityMap");
-        
-		shaderManager::get()->addShader(s->getName(), s);
-	}
+
+        shaderManager::get()->addShader(s->getName(), s);
+    }
 
     void testSceneRenderer::createRefractionsShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
-		attribs.push_back("inNormal");
-		attribs.push_back("inTangent");
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+        attribs.push_back("inNormal");
+        attribs.push_back("inTangent");
 
-		shader* s = shaderManager::get()->loadShader("SSAO_REFRACTIONS", "ssao_refractions.vert", "ssao_refractions.frag", attribs);
+        shader* s = shaderManager::get()->loadShader("SSAO_REFRACTIONS", "ssao_refractions.vert", "ssao_refractions.frag", attribs);
 
         s->addUniform("p");
         s->addUniform("v");
         s->addUniform("m");
         s->addUniform("mvp");
         s->addUniform("itmv");
-		s->addUniform("res");
+        s->addUniform("res");
 
         s->addUniform("colorMap");
-		s->addUniform("positionMap");
-		s->addUniform("normalMap");
+        s->addUniform("positionMap");
+        s->addUniform("normalMap");
         s->addUniform("depthMap");
         s->addUniform("objectNormalMap");
-        
+
         s->addUniform("mat.refractionIndex");
 
-		shaderManager::get()->addShader(s->getName(), s);
-	}
+        shaderManager::get()->addShader(s->getName(), s);
+    }
 
     void testSceneRenderer::createBlurShader()
-	{
-		std::vector<std::string> attribs;
-		attribs.push_back("inPosition");
-		attribs.push_back("inTexCoord");
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
 
-		shader* s = shaderManager::get()->loadShader("SSAO_BLUR", "ssao_blur.vert", "ssao_blur.frag", attribs);
+        shader* s = shaderManager::get()->loadShader("SSAO_BLUR", "ssao_blur.vert", "ssao_blur.frag", attribs);
 
-		s->addUniform("m");
-		s->addUniform("res");
-		s->addUniform("tex");
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("tex");
         s->addUniform("blurScale");
 
-		shaderManager::get()->addShader(s->getName(), s);
-	}
+        shaderManager::get()->addShader(s->getName(), s);
+    }
 
     void testSceneRenderer::createSkyDomeShader()
     {
@@ -549,19 +572,23 @@ namespace phi
             GL_COLOR_ATTACHMENT1,
             GL_COLOR_ATTACHMENT2,
             GL_COLOR_ATTACHMENT3,
+            GL_COLOR_ATTACHMENT4,
         };
 
-        glDrawBuffers(4, drawBuffers);
+        glDrawBuffers(5, drawBuffers);
 
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        auto color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearBufferfv(GL_COLOR, 4, &color.r); // Clears the selection render target
+
         shader* sh = shaderManager::get()->getShader("SSAO_GEOM_PASS");
         sh->bind();
-        
+
         sh->setUniform("ambientLightColor", _scene->getAmbientColor());
-        
+
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             sceneObject* sceneObj = (*_allObjects)[i];
@@ -577,14 +604,20 @@ namespace phi
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
             auto meshesCount = meshes.size();
 
+            if(!_hasSelectedObjects)
+                _hasSelectedObjects = sceneObj->getSelected();
+
             for (GLuint j = 0; j < meshesCount; j++)
-		    {
+            {
                 mesh* m = meshes[j];
 
                 material* mat = m->getMaterial();
 
                 //if (mat->getReflectivity() > 0.0f)
                 //    continue;
+
+                bool selected = sceneObj->getSelected() && m->getSelected();
+                sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
 
                 sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
                 sh->setUniform("normalMap", mat->getNormalTexture(), 1);
@@ -639,7 +672,7 @@ namespace phi
 
         shader* sm = shaderManager::get()->getShader("SSAO_SHADOW_MAP");
         sm->bind();
-            
+
         glm::mat4 v = _camera->getViewMatrix();
 
         std::map<unsigned int, glm::mat4> lmvps;
@@ -647,7 +680,7 @@ namespace phi
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             sceneObject* sceneObj = (*_allObjects)[i];
-                
+
             unsigned int sceneObjId = sceneObj->getId();
 
             glm::mat4 m = _modelMatrices[sceneObjId];
@@ -661,17 +694,17 @@ namespace phi
 
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
             auto meshesCount = meshes.size();
-            
+
             for (GLuint j = 0; j < meshesCount; j++)
                 meshRenderer::render(meshes[j]);
         }
 
         sm->unbind();
-            
+
         _camera->setPosition(camPos);
         _camera->setDirection(camDir);
         _camera->update();
-        
+
         _frameBuffers[1]->unbind();
 
         //texture* blurredShadowMap = blur(_frameBuffers[1]->getRenderTarget("rt0")->getTexture());
@@ -680,7 +713,7 @@ namespace phi
 
         _frameBuffers[0]->bindForDrawing();
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
-            
+
         glCullFace(GL_BACK);
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
@@ -716,9 +749,9 @@ namespace phi
 
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
             auto meshesCount = meshes.size();
-            
+
             for (GLuint j = 0; j < meshesCount; j++)
-		    {
+            {
                 mesh* m = meshes[j];
                 material* mat = m->getMaterial();
 
@@ -757,7 +790,7 @@ namespace phi
 
         if (directionalLightsCount == 0)
             return;
-        
+
         for (GLuint l = 0; l< directionalLightsCount; l++)
             dirLightPass((*directionalLights)[l]);
     }
@@ -804,10 +837,10 @@ namespace phi
             pointLight* light = (*pointLights)[l];
 
             renderTarget* shadowMapRenderTarget = _frameBuffers[3]->getRenderTarget("rt0");
-            
+
             shader* sm = shaderManager::get()->getShader("SSAO_SHADOW_MAP_POINT_LIGHT");
             sm->bind();
-            
+
             glPushAttrib(GL_VIEWPORT_BIT);
             glViewport(0,0,512,512);
             glEnable(GL_DEPTH_TEST);
@@ -818,10 +851,10 @@ namespace phi
             for (int i = 0; i < 6; i++)
             {
                 _frameBuffers[3]->bindForDrawing(shadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
-            
+
                 glClearColor(10.0, 0.0, 0.0, 0.0);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
+
                 float angle = PI_OVER_2;
                 float nearPlane = 0.1f;
                 float farPlane = light->getRange();
@@ -834,7 +867,7 @@ namespace phi
                 for (GLuint j = 0; j < _allObjectsCount; j++)
                 {
                     sceneObject* sceneObj = (*_allObjects)[j];
-                
+
                     unsigned int sceneObjId = sceneObj->getId();
 
                     glm::mat4 m = _modelMatrices[sceneObjId];
@@ -848,14 +881,14 @@ namespace phi
 
                     std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
                     auto meshesCount = meshes.size();
-            
+
                     for (GLuint k = 0; k < meshesCount; k++)
                         meshRenderer::render(meshes[k]);
                 }
             }
-            
+
             sm->unbind();
-            
+
             _frameBuffers[3]->unbind();
 
             //texture* blurredShadowMap = blur(_frameBuffers[1]->getRenderTarget("rt0")->getTexture());
@@ -899,9 +932,9 @@ namespace phi
 
                 std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
                 auto meshesCount = meshes.size();
-            
+
                 for (GLuint j = 0; j < meshesCount; j++)
-		        {
+                {
                     mesh* m = meshes[j];
                     material* mat = m->getMaterial();
 
@@ -927,7 +960,7 @@ namespace phi
 
             glDepthFunc(GL_LESS);
             glDepthMask(GL_TRUE);
-            
+
             //glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
             _frameBuffers[0]->unbind();
             glDisable(GL_BLEND);
@@ -954,7 +987,7 @@ namespace phi
         for (GLuint l = 0; l< spotLightsCount; l++)
         {
             spotLight* light = (*spotLights)[l];
-            
+
             _frameBuffers[1]->bind();
             glPushAttrib(GL_VIEWPORT_BIT);
             glViewport(0,0,4096,4096);
@@ -969,25 +1002,25 @@ namespace phi
             _camera->setPosition(light->getPosition());
             _camera->setDirection(light->getDirection());
             _camera->update();
-            
+
             //float angle = glm::clamp(PI * light->getCutoff() + 0.2f, 0.0001f, PI - 0.0001f);
             float angle = glm::acos(light->getCutoff()) * 2.0;
             float nearPlane = 0.1f;
             float farPlane = light->getRadius();
             glm::mat4 p = glm::perspective(angle, 1.0f, nearPlane, farPlane);   
-            
+
             //glm::mat4 p = glm::ortho<float>(-15.0, 15.0, -15.0, 15.0, 0.0, 50.0);
             glm::mat4 v = _camera->getViewMatrix();
 
             std::map<unsigned int, glm::mat4> lmvps;
-            
+
             shader* sm = shaderManager::get()->getShader("SSAO_SHADOW_MAP");
             sm->bind();
 
             for (GLuint i = 0; i < _allObjectsCount; i++)
             {
                 sceneObject* sceneObj = (*_allObjects)[i];
-                
+
                 unsigned int sceneObjId = sceneObj->getId();
 
                 glm::mat4 m = _modelMatrices[sceneObjId];
@@ -1001,17 +1034,17 @@ namespace phi
 
                 std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
                 auto meshesCount = meshes.size();
-            
+
                 for (GLuint j = 0; j < meshesCount; j++)
                     meshRenderer::render(meshes[j]);
             }
 
             sm->unbind();
-            
+
             _camera->setPosition(camPos);
             _camera->setDirection(camDir);
             _camera->update();
-        
+
             _frameBuffers[1]->unbind();
 
             //texture* blurredShadowMap = blur(_frameBuffers[1]->getRenderTarget("rt0")->getTexture());
@@ -1020,7 +1053,7 @@ namespace phi
 
             _frameBuffers[0]->bindForDrawing();
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
-            
+
             glCullFace(GL_BACK);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);
@@ -1059,9 +1092,9 @@ namespace phi
 
                 std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
                 auto meshesCount = meshes.size();
-            
+
                 for (GLuint j = 0; j < meshesCount; j++)
-		        {
+                {
                     mesh* m = meshes[j];
                     material* mat = m->getMaterial();
 
@@ -1115,7 +1148,7 @@ namespace phi
         shader* s = shaderManager::get()->getShader("SSAO_SSAO");
 
         s->bind();
-        
+
         s->setUniform("m", modelMatrix);
         s->setUniform("res", resolution);
         s->setUniform("positionMap", positionMap, 0);
@@ -1127,17 +1160,17 @@ namespace phi
         s->setUniform("intensity", _ssaoIntensity);
         s->setUniform("scale", _ssaoScale);
         s->setUniform("bias", _ssaoBias);
-        
+
         meshRenderer::render(&_quad);
 
         s->unbind();
-        
+
         glBlendEquation(GL_FUNC_ADD);
         glDisable(GL_BLEND);
 
         _frameBuffers[0]->unbind();
     }
-    
+
     void testSceneRenderer::reflections()
     {   
         _frameBuffers[2]->bindForDrawing();
@@ -1153,7 +1186,7 @@ namespace phi
         texture* depthMap = _frameBuffers[0]->getRenderTarget("depth")->getTexture();
 
         glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
-        
+
         glm::mat4 modelMatrix = glm::mat4(
             2.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 2.0f, 0.0f, 0.0f,
@@ -1163,7 +1196,7 @@ namespace phi
         shader* s = shaderManager::get()->getShader("SSAO_REFLECTIONS");
 
         s->bind();
-        
+
         s->setUniform("p", _projMatrix);
         s->setUniform("m", modelMatrix);
         s->setUniform("res", resolution);
@@ -1173,11 +1206,11 @@ namespace phi
         s->setUniform("normalMap", normalMap, 2);
         s->setUniform("depthMap", depthMap, 3);
         s->setUniform("reflectivityMap", reflectivityMap, 4);
-        
+
         meshRenderer::render(&_quad);
 
         s->unbind();
-        
+
         //glDisable(GL_BLEND);
 
         _frameBuffers[2]->unbind();
@@ -1201,14 +1234,14 @@ namespace phi
         shader* s = shaderManager::get()->getShader("SSAO_REFRACTIONS");
 
         s->bind();
-        
+
         s->setUniform("res", resolution);
-        
+
         s->setUniform("colorMap", colorMap, 0);
         s->setUniform("positionMap", positionMap, 1);
         s->setUniform("normalMap", normalMap, 2);
         s->setUniform("depthMap", depthMap, 3);
-        
+
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             sceneObject* sceneObj = (*_allObjects)[i];
@@ -1216,7 +1249,7 @@ namespace phi
             glm::mat4 modelMatrix = _modelMatrices[sceneObj->getId()];
             glm::mat4 mvp = _mvpMatrices[sceneObj->getId()];
             glm::mat4 itmv = _itmvMatrices[sceneObj->getId()];
-            
+
             s->setUniform("p", _projMatrix);
             s->setUniform("v", _viewMatrix);
             s->setUniform("m", modelMatrix);
@@ -1227,14 +1260,14 @@ namespace phi
             auto meshesCount = meshes.size();
 
             for (GLuint j = 0; j < meshesCount; j++)
-		    {
+            {
                 mesh* m = meshes[j];
 
                 material* mat = m->getMaterial();
 
                 //if (mat->getReflectivity() == 0.0)
-                    //continue;
-                
+                //continue;
+
                 s->setUniform("objectNormalMap", mat->getNormalTexture(), 4);
                 s->setUniform("mat.refractionIndex", mat->getReflectivity());
                 meshRenderer::render(m);
@@ -1242,7 +1275,7 @@ namespace phi
         }
 
         s->unbind();
-        
+
         //glDisable(GL_BLEND);
 
         _frameBuffers[2]->unbind();
@@ -1264,7 +1297,7 @@ namespace phi
         shader* s = shaderManager::get()->getShader("SSAO_BLUR");
 
         s->bind();
-        
+
         s->setUniform("m", modelMatrix);
         s->setUniform("res", resolution);
         s->setUniform("tex", tex, 0);
@@ -1276,7 +1309,7 @@ namespace phi
         _frameBuffers[1]->bindForDrawing();
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
         tex = _frameBuffers[2]->getRenderTarget("rt0")->getTexture();
 
         s->setUniform("tex", tex, 0);
@@ -1290,6 +1323,35 @@ namespace phi
         return _frameBuffers[1]->getRenderTarget("rt0")->getTexture();
     }
 
+    void testSceneRenderer::selectedObjectsPass()
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+
+        renderTarget* selectedRenderTarget = _frameBuffers[0]->getRenderTarget("selected");
+        shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
+
+        sh->bind();
+
+        glm::mat4 modelMatrix = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        sh->setUniform("m", modelMatrix);
+        sh->setUniform("res", resolution);
+        sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
+
+        meshRenderer::render(&_quad);
+
+        sh->unbind();
+
+        glDisable(GL_BLEND);
+    }
+
     void testSceneRenderer::renderSkyDome()
     {
         _skyDome->setPosition(_camera->getPosition());
@@ -1301,7 +1363,7 @@ namespace phi
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_EQUAL);
         glEnable(GL_DEPTH_TEST);
-        
+
         shader* sh = shaderManager::get()->getShader("SKY_DOME");
         sh->bind();
 
@@ -1336,10 +1398,10 @@ namespace phi
         sh->setUniform("sunOrientation", glm::radians(_skyDome->getSunOrientation()));
         sh->setUniform("horizonColor", _skyDome->getHorizonColor());
         sh->setUniform("radius", _skyDome->getRadius());
-        
-		glCullFace(GL_FRONT);
-		meshRenderer::render(_skyDome->getModel()->getMeshes()[0]);
-		glCullFace(GL_BACK);
+
+        glCullFace(GL_FRONT);
+        meshRenderer::render(_skyDome->getModel()->getMeshes()[0]);
+        glCullFace(GL_BACK);
 
         sh->unbind();
 
@@ -1350,8 +1412,16 @@ namespace phi
         glEnable(GL_DEPTH_TEST);
     }
 
+    void testSceneRenderer::resize(size<GLuint> viewportSize)
+    {
+        _viewportSize = viewportSize;
+        createBuffers();
+    }
+
     void testSceneRenderer::onRender()
-	{
+    {
+        _hasSelectedObjects = false;
+
         _viewMatrix = _scene->getActiveCamera()->getViewMatrix();
         _projMatrix = _scene->getActiveCamera()->getPerspProjMatrix();
 
@@ -1365,18 +1435,18 @@ namespace phi
             _mvpMatrices[sceneObj->getId()] = _projMatrix * _viewMatrix * modelMatrix;
             _itmvMatrices[sceneObj->getId()] = glm::inverse(glm::transpose(_viewMatrix * modelMatrix));
         }
-        
+
         geomPass();
 
-        dirLightPasses();
+        //dirLightPasses();
 
         //dirLightPass(_skyDome->getSun());
 
-        pointLightPasses();
-        spotLightPasses();
+        //pointLightPasses();
+        //spotLightPasses();
 
         glDepthMask(GL_FALSE);
-        
+
         if (_ssaoActive)
         {
             ssao();
@@ -1389,14 +1459,16 @@ namespace phi
             _frameBuffers[2]->bindForReading();
             _frameBuffers[2]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
             _frameBuffers[0]->bindForReading();
-        
+
         }
         else
         {
-        
             renderingSystem::defaultFrameBuffer->bindForDrawing();
             _frameBuffers[0]->bindForReading();
             _frameBuffers[0]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
         }
-	}
+
+        if(_hasSelectedObjects)
+            selectedObjectsPass();
+    }
 }
