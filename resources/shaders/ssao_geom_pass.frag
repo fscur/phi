@@ -6,6 +6,7 @@ struct material
     vec4 emissiveColor;
     float ka;
     float isEmissive;
+    float reflectivity;
 };
 
 in vec3 fragNormal; 
@@ -16,6 +17,7 @@ in vec3 fragWorldPos;
 uniform sampler2D diffuseMap;
 uniform sampler2D emissiveMap;
 uniform sampler2D normalMap;
+uniform sampler2D specularMap;
 
 uniform vec4 ambientLightColor;
 uniform material mat;
@@ -23,6 +25,7 @@ uniform material mat;
 layout (location = 0) out vec4 rt0; 
 layout (location = 1) out vec4 rt1;
 layout (location = 2) out vec4 rt2;
+layout (location = 3) out vec4 rt3;
 
 vec4 applyFog(vec4 rgb, float distance ) // camera to point distance
 {
@@ -42,7 +45,7 @@ void main()
     
     vec4 color = emissiveComponent + diffuseComponent;
 
-    color = applyFog(color, abs(fragWorldPos.z));
+    //color = applyFog(color, abs(fragWorldPos.z));
 
     rt0 = vec4(color.rgb, emissiveColor.r * mat.isEmissive);
 
@@ -56,4 +59,5 @@ void main()
 
     rt1 = vec4(fragWorldPos, 1.0); //RGBA16F
     rt2 = vec4(n, 1.0); //RGBA16F
+    rt3 = vec4(texture(specularMap, fragTexCoord)) * clamp(mat.reflectivity, 0.0, 1.0);
 }

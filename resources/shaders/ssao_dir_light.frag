@@ -110,7 +110,7 @@ void main()
 
 	vec4 color = diffuseComponent + specularComponent;
 
-	color = applyFog(color, abs(fragPosition.z));
+	//color = applyFog(color, abs(fragPosition.z));
 
 	fragColor = vec4(color.rgb * shadowFactor, mat.isEmissive * emissiveColorMap.r);
 }
