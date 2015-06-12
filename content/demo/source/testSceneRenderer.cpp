@@ -1377,8 +1377,8 @@ namespace phi
 
         glDepthMask(GL_FALSE);
         
-        if (_ssaoActive)
-        {
+        /*if (_ssaoActive)
+        {*/
             ssao();
             //refractions();
             reflections();
@@ -1390,13 +1390,13 @@ namespace phi
             _frameBuffers[2]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
             _frameBuffers[0]->bindForReading();
         
-        }
+        /*}
         else
         {
         
             renderingSystem::defaultFrameBuffer->bindForDrawing();
             _frameBuffers[0]->bindForReading();
             _frameBuffers[0]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
-        }
+        }*/
 	}
 }

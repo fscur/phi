@@ -108,21 +108,21 @@ namespace phi
     void object3D::pitch(float angle)
     {
         _pitch += angle;
-        _quaternion = glm::angleAxis(glm::degrees(angle), glm::vec3(1.0f, 0.0f, 0.0f)) * _quaternion;
+        _quaternion = glm::angleAxis(angle, glm::vec3(1.0f, 0.0f, 0.0f)) * _quaternion;
         _changed = true;
     }
 
     void object3D::yaw(float angle)
     {
         _yaw += angle;
-        _quaternion = glm::angleAxis(glm::degrees(angle), glm::vec3(0.0f, 1.0f, 0.0f)) * _quaternion;
+        _quaternion = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * _quaternion;
         _changed = true;
     }
 
     void object3D::roll(float angle)
     {
         _roll += angle;
-        _quaternion = glm::angleAxis(glm::degrees(angle), glm::vec3(0.0f, 0.0f, 1.0f)) * _quaternion;
+        _quaternion = glm::angleAxis(angle, glm::vec3(0.0f, 0.0f, 1.0f)) * _quaternion;
         _changed = true;
     }
 }
