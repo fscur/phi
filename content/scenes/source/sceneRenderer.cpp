@@ -35,17 +35,9 @@ namespace phi
 
     color sceneRenderer::getSelectionColor(int objectId, int meshId, bool selected)
     {
-        //objectId max = 4095
-        //meshId max = 1048575
-
-        unsigned int id = objectId << 20;
-        id += meshId;
-
-        unsigned int r = id & 255;
-        id = id >> 8;
-        unsigned int g = id & 255;
-        id = id >> 8;
-        unsigned int b = id & 255;
+        unsigned int r = objectId & 255;
+        unsigned int g = meshId & 255;
+        unsigned int b = (meshId << 8) & 255;
 
         return color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, selected ? 1.0f : 0.0f);
     }

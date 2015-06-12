@@ -616,7 +616,7 @@ namespace phi
                 //if (mat->getReflectivity() > 0.0f)
                 //    continue;
 
-                bool selected = sceneObj->getSelected() && m->getSelected();
+                bool selected = sceneObj->getSelected();
                 sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
 
                 sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);

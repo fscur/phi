@@ -78,8 +78,8 @@ namespace phi
         if (_zBufferValue == 1.0f)
             return;
 
-        unsigned int meshId = _id & 1048575;
-        unsigned int objectId = _id >> 20;
+        unsigned int meshId = _id >> 8;
+        unsigned int objectId = _id & 255;
         sceneObject* selectedObject = scenesManager::get()->getScene()->getSceneObjectById(objectId);
 
         if (selectedObject != nullptr)

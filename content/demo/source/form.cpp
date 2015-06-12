@@ -89,12 +89,12 @@ void form::initWindow()
         _title.c_str(),
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        //r.w,
-        //r.h,
-        1024,
-        768,
+        r.w,
+        r.h,
+        //1024,
+        //768,
         SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-        //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
+    //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
 
     if (_window == NULL)
         LOG("Window could not be created! SDL_Error: " << SDL_GetError());
@@ -274,6 +274,20 @@ bool form::loop()
     render();
     SDL_GL_SwapWindow(_window);
 #endif
+
+    _frames++;
+    _processedTime += _now - _lastTime;
+
+    if (_processedTime > 1000.0f)
+    {
+        _fps = _frames;
+        _frames = 0;
+        _processedTime -= 1000.0f;
+        LOG(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
+    }
+
+    _lastTime = _now;
+
     return !_isClosed;
 }
 
@@ -352,6 +366,6 @@ void form::resize(phi::size<unsigned int> size)
     auto a = SDL_Event();
     a.window.data1 = size.width;
     a.window.data2 = size.height;
-        
+
     onResize(a);
 }
