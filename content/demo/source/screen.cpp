@@ -80,12 +80,12 @@ void screen::initScene()
     //s->add(carpet);
 
 
-
+    
     phi::sceneObject* brown_leather0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("brown_chair.model"));
     brown_leather0->setPosition(glm::vec3(1.2, 0.0, 0.0));
     brown_leather0->yaw(-0.3);
     //s->add(brown_leather0);
-
+    
     for (int i = -2; i < 2; i++)
     {
     for (int j = -2; j < 2; j++)
@@ -125,27 +125,19 @@ void screen::initScene()
     rightWall->roll(phi::PI_OVER_2);
     rightWall->setPosition(glm::vec3(5.0, 2.5, 0.0));
     s->add(rightWall);
-
+    
     phi::plane* floor = new phi::plane(glm::vec3(0.0f, 1.0f, 0.0f), 10.0f, 10.0f, _resourcesLoader.getDefaultMaterial());
     //s->add(floor);
     */
 
-    //phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
-    //s->add(cube);
+    phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
+    s->add(cube);
+
 
     //phi::sceneObject* cube1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
-    //cube1->setPosition(glm::vec3(0.0f, 0.0f, 1.5f));
-    //s->add(cube1);
-
-    //for (auto i = 0; i < 50; i++)
-    //{
-    //    for (auto j = 0; j < 1; j++)
-    //    {
-    //        phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
-    //        cube->setPosition(glm::vec3(i + i * 0.5f, 0.0f, j + j * 0.5f));
-    //        s->add(cube);
-    //    }
-    //}
+    //cube1->setPosition(glm::vec3(-4.5f, 1.0f, -2.5f));
+    //cube1->setSize(phi::size<float>(0.6f, 2.0f, 0.9f));
+    ////s->add(cube1);
 
     ///* living room */
 
@@ -604,9 +596,6 @@ void screen::onResize(SDL_Event e)
     setSize(sz);
     phi::scenesManager::get()->resize(sz);
     phi::uiSystem::get()->resize(sz);
-
-    phi::testSceneRenderer* renderer = dynamic_cast<phi::testSceneRenderer*>(phi::scenesManager::get()->getSceneRenderer());
-    renderer->resize(sz);
 }
 
 void screen::onBeginInput()
@@ -694,20 +683,20 @@ void screen::slider1ValueChanged(phi::eventArgs e)
     glm::vec3 t = glm::vec3(-glm::cos(value) * 8.0f, pos.y, glm::sin(value) * 4.0f);
     pointLight->setPosition(t);
 
-
+    
     sphere->setPosition(t);
 }
 
 void screen::slider2ValueChanged(phi::eventArgs e)
 {
-
+    
     auto pointLight = phi::scenesManager::get()->getScene()->getPointLight(0);
     glm::vec3 pos = pointLight->getPosition();
     auto value =_slider2->getValue();
     glm::vec3 t = glm::vec3(pos.x, value, pos.z);
     pointLight->setPosition(t);
 
-
+    
     sphere->setPosition(t);
 }
 

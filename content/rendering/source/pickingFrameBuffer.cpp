@@ -48,8 +48,8 @@ namespace phi
         GLuint g = (GLuint)pixels[1];
         GLuint b = (GLuint)pixels[2];
 
-        b = b << 16;
         g = g << 8;
+        b = b << 16;
 
         GLuint id = r | g | b;
 
