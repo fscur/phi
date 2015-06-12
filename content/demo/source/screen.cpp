@@ -20,6 +20,7 @@ phi::translationControl* tc;
 phi::rotationControl* rc;
 float t = 0.0f;
 phi::sceneObject* sphere;
+phi::label* _labelFPS;
 
 screen::screen() : form()
 {
@@ -129,12 +130,22 @@ void screen::initScene()
     //s->add(floor);
     */
 
-    phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
-    s->add(cube);
+    //phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
+    //s->add(cube);
 
-    phi::sceneObject* cube1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
-    cube1->setPosition(glm::vec3(0.0f, 0.0f, 1.5f));
-    s->add(cube1);
+    //phi::sceneObject* cube1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
+    //cube1->setPosition(glm::vec3(0.0f, 0.0f, 1.5f));
+    //s->add(cube1);
+
+    //for (auto i = 0; i < 50; i++)
+    //{
+    //    for (auto j = 0; j < 1; j++)
+    //    {
+    //        phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
+    //        cube->setPosition(glm::vec3(i + i * 0.5f, 0.0f, j + j * 0.5f));
+    //        s->add(cube);
+    //    }
+    //}
 
     ///* living room */
 
@@ -320,7 +331,7 @@ void screen::initUI()
 
     phi::button* buttonA = new phi::button(getSize());
     buttonA->setText("Hide selected");
-    buttonA->setBackgroundColor(phi::color::red);
+    buttonA->setBackgroundColor(phi::color(0.3f, 0.3f, 0.3f, 1.0f));
     buttonA->setForegroundColor(phi::color::white);
     buttonA->setSize(phi::size<GLuint>(200, 30));
     buttonA->setZIndex(20.0f);
@@ -330,7 +341,7 @@ void screen::initUI()
 
     phi::button* buttonB = new phi::button(getSize());
     buttonB->setText("Show all");
-    buttonB->setBackgroundColor(phi::color::red);
+    buttonB->setBackgroundColor(phi::color(0.3f, 0.3f, 0.3f, 1.0f));
     buttonB->setForegroundColor(phi::color::white);
     buttonB->setSize(phi::size<GLuint>(200, 30));
     buttonB->setZIndex(20.0f);
@@ -389,6 +400,11 @@ void screen::initUI()
     _slider4->setValue(0.0f);
     _slider4->setStepValue(0.01f);
     _slider4->getValueChanged()->bind<screen, &screen::slider4ValueChanged>(this);
+
+    _labelFPS = new phi::label(getSize());
+    _labelFPS->setX(10);
+    _labelFPS->setY(90);
+    _labelFPS->setSize(phi::size<GLuint>(100, 30));
 
     //phi::textBox* textBoxA = new phi::textBox(getSize());
     //textBoxA->setText("Text");
@@ -460,6 +476,7 @@ void screen::initUI()
     //phi::uiSystem::get()->addControl(_slider3);
     //phi::uiSystem::get()->addControl(_slider4);
     //phi::uiSystem::get()->addControl(carouselListA);
+    phi::uiSystem::get()->addControl(_labelFPS);
 
     phi::uiSystem::get()->resize(getSize());
 
@@ -494,6 +511,8 @@ void screen::update()
     phi::colorAnimator::update();
     phi::uiSystem::get()->update();
     _commandsManager.update();
+
+    _labelFPS->setText(std::to_string(getFps()));
 
     /*_labelFps->setText("FPS: " + std::to_string(getFps()));
 
