@@ -20,12 +20,14 @@ uniform sampler2D normalMap;
 uniform sampler2D specularMap;
 
 uniform vec4 ambientLightColor;
+uniform vec4 selectionColor;
 uniform material mat;
 
 layout (location = 0) out vec4 rt0; 
 layout (location = 1) out vec4 rt1;
 layout (location = 2) out vec4 rt2;
 layout (location = 3) out vec4 rt3;
+layout (location = 4) out vec4 rt4;
 
 vec4 applyFog(vec4 rgb, float distance ) // camera to point distance
 {
@@ -60,4 +62,5 @@ void main()
     rt1 = vec4(fragWorldPos, 1.0); //RGBA16F
     rt2 = vec4(n, 1.0); //RGBA16F
     rt3 = vec4(texture(specularMap, fragTexCoord)) * clamp(mat.reflectivity, 0.0, 1.0);
+    rt4 = selectionColor;
 }

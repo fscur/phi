@@ -28,7 +28,7 @@ vec3 getNormal(vec2 uv)
 vec2 getRandom(vec2 uv)
 {
 	vec2 p = res * uv / randomSize;
-	return normalize(texture(randomNormalMap, p).xy * 2.0f - 1.0f);
+	return normalize(texture(randomNormalMap, p).xy * 2.0 - 1.0);
 }
 
 float doAmbientOcclusion(vec2 tcoord, vec2 uv, vec3 p, vec3 cnorm)
@@ -56,10 +56,10 @@ void main(void)
 	vec3 n = getNormal(fragTexCoord);
 	vec2 random = getRandom(fragTexCoord);
 
-	float ao = 0.0f;
+	float ao = 0.0;
 	float radius = sampleRadius/p.z;
 
-	fragColor = vec4(1.0f);
+	fragColor = vec4(1.0);
 
 	int iterations = 4;
 

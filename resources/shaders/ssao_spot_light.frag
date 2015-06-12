@@ -128,7 +128,7 @@ float calcExponentShadowFactor(vec3 normal)
     float receiver = length((v * vec4(light.position, 1.0)).xyz - fragPosition.xyz);
     receiver = clamp((receiver - 0.1) / (light.range - 0.1), 0.0, 1.0);
 
-    float overdark = 1.0f;
+    float overdark = 1.0;
     float lit = clamp(exp((overdark * (occluder-receiver))), 0.0, 1.0);
 
     return clamp(lit, 0.5, 1.0);

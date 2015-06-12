@@ -28,11 +28,14 @@ namespace phi
         std::map<unsigned int, glm::mat4> _mvpMatrices;
         std::map<unsigned int, glm::mat4> _itmvMatrices;
         skyDome* _skyDome;
+        bool _hasSelectedObjects;
 
 	private:
+        void createBuffers();
 		void createDefaultRenderTargets();
         void createShadowMapsRenderTargets();
         void createPointLightShadowMapRenderTargets();
+        void createSelectedObjectsRenderTarget();
 		void createFXRenderTargets();
 		void createGeomPassShader();
 		void createDirLightShaders();
@@ -54,11 +57,13 @@ namespace phi
         void refractions();
         void renderSkyDome();
         texture* blur(texture* tex);
+        void selectedObjectsPass();
 
 	public:
 		testSceneRenderer(size<GLuint> viewportSize);
 		~testSceneRenderer();
 		void onRender() override;
+        void resize(size<GLuint> size);
         
         void setSSAOActive(bool value) { _ssaoActive = value; }
         void setSSAOBias(float value) { _ssaoBias = value; }
