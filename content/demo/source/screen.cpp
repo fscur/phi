@@ -49,15 +49,19 @@ void screen::initScene()
 {
     phi::scene* s = new phi::scene();
     s->setSize(getSize());
-    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 1.5f, 5.0f));
+    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 1.5f, 12.0f));
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
     s->getSelectedSceneObjectChanged()->bind<screen, &screen::selectedSceneObjectChanged>(this);
     
     /* decoration */
     
+    phi::sceneObject* flower = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("flower.model"));
+    flower->setPosition(glm::vec3(2.0f, 0.8f, 0.0f));
+    s->add(flower);
+
     phi::sceneObject* portrait = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("portrait.model"));
-    portrait->setSize(phi::size<float>(2.0f, 2.0f, 2.0f));
+    portrait->setSize(phi::size<float>(2.0f, 2.0f, 1.0f));
     portrait->setPosition(glm::vec3(-4.98f, 2.0f, 0.0f));
     portrait->yaw(phi::PI_OVER_2);
     s->add(portrait);
@@ -69,18 +73,28 @@ void screen::initScene()
     phi::pointLight* pointLight_lamp = new phi::pointLight(glm::vec3(-4.7, 1.0, -1.7), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.8f, 10.0f);
     s->add(pointLight_lamp);
 
+    phi::sceneObject* telephone = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("telephone.model"));
+    telephone->setPosition(glm::vec3(4.7f, 0.76f, 0.5f));
+    telephone->yaw(-phi::PI_OVER_2);
+    s->add(telephone);
+
     phi::sceneObject* pair_vase = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("pair_vase.model"));
-    pair_vase->setPosition(glm::vec3(2.0f, 0.8f, 0.05f));
+    pair_vase->setPosition(glm::vec3(4.7f, 0.76f, -0.05f));
     s->add(pair_vase);
 
     phi::sceneObject* flower_vase = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("flower_vase.model"));
-    flower_vase->setPosition(glm::vec3(2.0f, 0.8f, -0.15f));
+    flower_vase->setPosition(glm::vec3(4.7f, 0.76f, -0.20f));
     flower_vase->yaw(-1.5);
     s->add(flower_vase);
 
     phi::sceneObject* rug = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("persian_rug.model"));
     rug->setPosition(glm::vec3(-3.0f, 0.0f, -0.5f));
     s->add(rug);
+
+    phi::sceneObject* rug1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("persian_rug_1.model"));
+    rug1->setSize(phi::size<float>(1.25f, 1.0f, 1.25f));
+    rug1->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
+    s->add(rug1);
 
     phi::sceneObject* casket = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("casket.model"));
     casket->setPosition(glm::vec3(-1.0f, 0.0f, 1.5f));
@@ -110,8 +124,13 @@ void screen::initScene()
     ////s->add(cabinet);
     //*/
 
-    /* dining table */
+    /* dining */
     
+    phi::sceneObject* cabinet = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cabinet.model"));
+    cabinet->setPosition(glm::vec3(4.7f, 0.0f, 0.0f));
+    cabinet->yaw(phi::PI);
+    s->add(cabinet);
+
     phi::sceneObject* table = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("table2.model"));
     table->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
     s->add(table);
@@ -185,9 +204,13 @@ void screen::initScene()
     floor->setPosition(glm::vec3(0.0, 0.0, 0.0));
     s->add(floor);
     
+    phi::sceneObject* ceiling = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling.model"));
+    ceiling->setPosition(glm::vec3(0.0, 3.5, 0.0));
+    s->add(ceiling);
+
     phi::sceneObject* left_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
     left_wall->setPosition(glm::vec3(-5.0, 0.0, 0.0));
-    s->add(left_wall);
+    //s->add(left_wall);
 
     phi::sceneObject* right_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
     right_wall->setPosition(glm::vec3(5.0, 0.0, 0.0));
