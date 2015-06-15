@@ -210,7 +210,7 @@ void screen::initScene()
 
     phi::sceneObject* left_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
     left_wall->setPosition(glm::vec3(-5.0, 0.0, 0.0));
-    //s->add(left_wall);
+    s->add(left_wall);
 
     phi::sceneObject* right_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
     right_wall->setPosition(glm::vec3(5.0, 0.0, 0.0));
