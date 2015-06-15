@@ -517,6 +517,8 @@ void screen::onResize(SDL_Event e)
     setSize(sz);
     phi::scenesManager::get()->resize(sz);
     phi::uiSystem::get()->resize(sz);
+    phi::testSceneRenderer* renderer = dynamic_cast<phi::testSceneRenderer*>(phi::scenesManager::get()->getSceneRenderer());
+    renderer->resize(sz);
 }
 
 void screen::onBeginInput()

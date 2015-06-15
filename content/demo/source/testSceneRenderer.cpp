@@ -1438,12 +1438,12 @@ namespace phi
 
         geomPass();
 
-        //dirLightPasses();
+        dirLightPasses();
 
         //dirLightPass(_skyDome->getSun());
 
-        //pointLightPasses();
-        //spotLightPasses();
+        pointLightPasses();
+        spotLightPasses();
 
         glDepthMask(GL_FALSE);
 
