@@ -35,7 +35,6 @@ void rCommandFunction(std::vector<std::string> args)
         phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::fsRenderer);
     else if (r == "2")
         phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::dsRenderer);
-
 }
 
 void initCommandLineCommands()
