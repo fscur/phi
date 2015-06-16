@@ -30,16 +30,16 @@ namespace phi
         
         std::string getFullName(std::string relativePath, std::string fileName);
 
-        void loadTextures(std::string directory);
+        void loadTextures(std::string directory, std::string sourceDirectory);
         void loadTextures();
 
         void loadMaterials();
-        void loadMaterials(std::string directory);
-        void loadMaterial(std::string fileName);
+        void loadMaterials(std::string directory, std::string sourceDirectory);
+        void loadMaterial(std::string fileName, std::string directory);
 
         void loadModels();
-        void loadModels(std::string directory);
-        void loadModel(std::string fileName);
+        void loadModels(std::string directory, std::string sourceDirectory);
+        void loadModel(std::string fileName, std::string directory);
 
     public:
         resourcesLoader();

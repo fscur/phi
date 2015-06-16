@@ -426,7 +426,6 @@ void screen::update()
     phi::uiSystem::get()->update();
     _commandsManager.update();
 
-
     /*_labelFps->setText("FPS: " + std::to_string(getFps()));
 
     _labelDt->setText("TotalTime/Frame: " + std::to_string(getDt()));

@@ -113,7 +113,6 @@ namespace phi
             for (GLuint j = 0; j < meshesCount; j++)
             {
                 mesh* m = meshes[j];
-
                 material* mat = m->getMaterial();
 
                 bool selected = sceneObj->getSelected() || m->getSelected();

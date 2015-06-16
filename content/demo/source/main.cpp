@@ -116,8 +116,6 @@ int main(int argc, char* args[])
     auto n = glm::normalize(glm::vec3(-1.0, 0.0, 0.0));
     auto a = refract(1.5, i, n); 
 
-    
-
     application *app = new application();
 
     std::string exePath = std::string(args[0]);

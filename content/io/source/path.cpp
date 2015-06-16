@@ -6,6 +6,14 @@
 
 namespace phi
 {
+    std::string path::getDirectoryFullName(std::string path)
+    {
+        std::replace(path.begin(), path.end(), '/', '\\');
+        int slashIndex = path.find_last_of('\\');
+
+        return path.substr(0, path.size() - (path.size() - slashIndex));
+    }
+
     std::string path::getFileName(std::string path)
     {
         std::replace(path.begin(), path.end(), '/', '\\');
@@ -38,7 +46,7 @@ namespace phi
 
     std::vector<fileInfo> path::getFiles(const std::string directory)
     {
-    #ifdef WIN32
+#ifdef WIN32
         std::vector<fileInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
@@ -68,7 +76,7 @@ namespace phi
         FindClose(dir);
 
         return out;
-    #else
+#else
         DIR *dir;
         class dirent *ent;
         class stat st;
@@ -92,12 +100,12 @@ namespace phi
             out.push_back(full_file_name);
         }
         closedir(dir);
-    #endif
+#endif
     }
 
     std::vector<directoryInfo> path::getDirectories(const std::string directory)
     {
-    #ifdef WIN32
+#ifdef WIN32
         std::vector<directoryInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
@@ -107,7 +115,7 @@ namespace phi
 
         do 
         {
-            
+
             const std::string file_name = file_data.cFileName;
             const std::string full_file_name = directory + "\\" + file_name;
             const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -129,7 +137,7 @@ namespace phi
         FindClose(dir);
 
         return out;
-    #else
+#else
         DIR *dir;
         class dirent *ent;
         class stat st;
@@ -153,7 +161,7 @@ namespace phi
             out.push_back(full_file_name);
         }
         closedir(dir);
-    #endif
+#endif
     }
 
     std::string path::combine(const std::string path0, const std::string path1)

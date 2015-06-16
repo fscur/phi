@@ -1,6 +1,8 @@
 #include "testSceneRenderer.h"
 #include "renderingSystem.h"
 #include "skyDome.h"
+#include "path.h"
+#include "application.h"
 
 namespace phi
 {
@@ -19,8 +21,9 @@ namespace phi
         createBlurShader();
         createSkyDomeShader();
 
-        _randomNormalsTexture = texture::fromFile("random_normal.bmp");
-        _noiseTexture = texture::fromFile("noise.bmp");
+        auto dir = phi::path::getDirectoryFullName(application::exePath);
+        _randomNormalsTexture = texture::fromFile(dir + "\\" "random_normal.bmp");
+        _noiseTexture = texture::fromFile(dir + "\\" + "noise.bmp");
 
         _ssaoActive = false;
         _ssaoBias = 0.1f;
