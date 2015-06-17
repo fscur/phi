@@ -12,6 +12,7 @@ namespace phi
     class path
     {
     public:
+        IO_API static std::string getDirectoryFullName(std::string path);
         IO_API static std::string getFileName(std::string path);
         IO_API static std::string getFileNameWithoutExtension(std::string path);
         IO_API static std::string getExtension(std::string path);

@@ -37,7 +37,6 @@ void rCommandFunction(std::vector<std::string> args)
         phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::fsRenderer);
     else if (r == "2")
         phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::dsRenderer);
-
 }
 
 void initCommandLineCommands()
@@ -117,8 +116,6 @@ int main(int argc, char* args[])
     auto i = glm::normalize(glm::vec3(1.0, 1.0, 0.0));
     auto n = glm::normalize(glm::vec3(-1.0, 0.0, 0.0));
     auto a = refract(1.5, i, n); 
-
-    
 
     application *app = new application();
 

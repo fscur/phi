@@ -4,6 +4,7 @@
 #include "fileInfo.h"
 #include "directoryInfo.h"
 #include "renderingSystem.h"
+#include "application.h"
 
 namespace phi
 {
@@ -76,17 +77,17 @@ namespace phi
     void resourcesLoader::loadTextures()
     {
         _texturesRepository = new resourcesRepository();
-
-        loadTextures(_texturesPath);
+        auto sourceDirectory = path::getDirectoryFullName(application::exePath) + "\\" + _texturesPath;
+        loadTextures(sourceDirectory, sourceDirectory);
     }
 
-    void resourcesLoader::loadTextures(std::string directory)
+    void resourcesLoader::loadTextures(std::string directory, std::string sourceDirectory)
     {
         auto subDirs = path::getDirectories(directory);
         auto subDirsCount = subDirs.size();
 
         for (auto i = 0; i < subDirsCount; i++)
-            loadTextures(subDirs[i].path);
+            loadTextures(subDirs[i].path, sourceDirectory);
 
         auto files = path::getFiles(directory);
 
@@ -96,7 +97,7 @@ namespace phi
         {
             auto fileName = files[i].path;
             auto tex = texture::fromFile(fileName);
-            tex->setFullName(getFullName(_texturesPath, fileName));
+            tex->setFullName(getFullName(sourceDirectory, fileName));
             _texturesRepository->addResource(tex);
         }
     }
@@ -104,27 +105,27 @@ namespace phi
     void resourcesLoader::loadMaterials()
     {
         _materialsRepository = new resourcesRepository();
-
-        loadMaterials(_materialsPath);
+        auto sourceDirectory = path::getDirectoryFullName(application::exePath) + "\\" + _materialsPath;
+        loadMaterials(sourceDirectory, sourceDirectory);
     }
 
-    void resourcesLoader::loadMaterials(std::string directory)
+    void resourcesLoader::loadMaterials(std::string directory, std::string sourceDirectory)
     {
         auto subDirs = path::getDirectories(directory);
         auto subDirsCount = subDirs.size();
 
         for (auto i = 0; i < subDirsCount; i++)
-            loadMaterials(subDirs[i].path);
+            loadMaterials(subDirs[i].path, sourceDirectory);
 
         auto files = path::getFiles(directory);
 
         auto filesCount = files.size();
 
         for (auto i = 0; i < filesCount; i++)
-            loadMaterial(files[i].path);
+            loadMaterial(files[i].path, sourceDirectory);
     }
 
-    void resourcesLoader::loadMaterial(std::string fileName)
+    void resourcesLoader::loadMaterial(std::string fileName, std::string directory)
     {
         auto mat = material::fromFile(fileName);
 
@@ -148,7 +149,7 @@ namespace phi
             specularTexture = _defaultSpecularTexture;
 
         mat->setSpecularTexture(specularTexture);
-        
+
         auto emissiveTexture = _texturesRepository->getResource<texture>(mat->getEmissiveTextureName());
 
         if (emissiveTexture == nullptr)
@@ -156,7 +157,7 @@ namespace phi
 
         mat->setEmissiveTexture(emissiveTexture);
 
-        mat->setFullName(getFullName(_materialsPath, fileName));
+        mat->setFullName(getFullName(directory, fileName));
 
         _materialsRepository->addResource(mat);
     }
@@ -164,17 +165,17 @@ namespace phi
     void resourcesLoader::loadModels()
     {
         _modelsRepository = new resourcesRepository();
-
-        loadModels(_modelsPath);
+        auto sourceDirectory = path::getDirectoryFullName(application::exePath) + "\\" + _modelsPath;
+        loadModels(sourceDirectory, sourceDirectory);
     }
 
-    void resourcesLoader::loadModels(std::string directory)
+    void resourcesLoader::loadModels(std::string directory, std::string sourceDirectory)
     {
         auto subDirs = path::getDirectories(directory);
         auto subDirsCount = subDirs.size();
 
         for (auto i = 0; i < subDirsCount; i++)
-            loadModels(subDirs[i].path);
+            loadModels(subDirs[i].path, sourceDirectory);
 
         auto files = path::getFiles(directory);
 
@@ -182,13 +183,13 @@ namespace phi
 
         for (auto i = 0; i < filesCount; i++)
             if (path::getExtension(files[i].path) == ".model")
-                loadModel(files[i].path);
+                loadModel(files[i].path, sourceDirectory);
     }
 
-    void resourcesLoader::loadModel(std::string fileName)
+    void resourcesLoader::loadModel(std::string fileName, std::string sourceDirectory)
     {
         auto model = model::fromFile(fileName);
-        
+
         for (auto mesh : model->getMeshes())
         {
             auto mat = _materialsRepository->getResource<material>(mesh->getMaterialName());
@@ -199,8 +200,7 @@ namespace phi
             mesh->setMaterial(mat);
         }
 
-        model->setFullName(getFullName(_modelsPath, fileName));
-
+        model->setFullName(getFullName(sourceDirectory, fileName));
         _modelsRepository->addResource(model);
     }
 
