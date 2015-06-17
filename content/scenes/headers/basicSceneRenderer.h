@@ -14,7 +14,6 @@ namespace phi
         frameBuffer* _frameBuffer;
 
     private:
-        void initBuffers();
         void createDefaultRenderTarget();
         void createSelectedObjectsRenderTarget();
         void createDepthBuffer();
@@ -24,8 +23,8 @@ namespace phi
     public:
         SCENES_API basicSceneRenderer(size<GLuint> viewportSize);
         SCENES_API ~basicSceneRenderer();
-        SCENES_API void resize(size<GLuint> size);
         SCENES_API void onRender() override;
+        SCENES_API void initBuffers() override;
     };
 }
 

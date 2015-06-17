@@ -49,7 +49,7 @@ void screen::initScene()
 {
     phi::scene* s = new phi::scene();
     s->setSize(getSize());
-    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 1.5f, 12.0f));
+    s->getActiveCamera()->setPosition(glm::vec3(-2.0f, 5.0f, 5.0f));
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
     s->getSelectedSceneObjectChanged()->bind<screen, &screen::selectedSceneObjectChanged>(this);
@@ -71,7 +71,7 @@ void screen::initScene()
     s->add(floor_lamp);
 
     phi::pointLight* pointLight_lamp = new phi::pointLight(glm::vec3(-4.7, 1.0, -1.7), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.8f, 10.0f);
-    s->add(pointLight_lamp);
+    //s->add(pointLight_lamp);
 
     phi::sceneObject* telephone = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("telephone.model"));
     telephone->setPosition(glm::vec3(4.7f, 0.76f, 0.5f));
@@ -102,7 +102,7 @@ void screen::initScene()
     s->add(casket);
 
     /* living room */
-
+    
     phi::sceneObject* sofa = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("sofa.model"));
     sofa->setPosition(glm::vec3(-3.1f, 0.0f, 1.4f));
     sofa->yaw(phi::PI);
@@ -183,47 +183,84 @@ void screen::initScene()
     s->add(lamp0);
 
     phi::pointLight* pointLight0 = new phi::pointLight(glm::vec3(0.0, 1.8, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
-    s->add(pointLight0);
+    //s->add(pointLight0);
 
     phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
     lamp1->setPosition(glm::vec3(2.5, 3.5, 0.0));
     s->add(lamp1);
 
     phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.5, 1.8, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
-    s->add(pointLight1);
+    //s->add(pointLight1);
     
     phi::sceneObject* lamp2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
     lamp2->setPosition(glm::vec3(-2.5, 3.5, 0.0));
     s->add(lamp2);
 
     phi::pointLight* pointLight2 = new phi::pointLight(glm::vec3(-2.5, 1.8, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
-    s->add(pointLight2);
+    //s->add(pointLight2);
 
     /* room */
+    
     phi::sceneObject* floor = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("floor.model"));
     floor->setPosition(glm::vec3(0.0, 0.0, 0.0));
     s->add(floor);
     
     phi::sceneObject* ceiling = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling.model"));
     ceiling->setPosition(glm::vec3(0.0, 3.5, 0.0));
-    s->add(ceiling);
+    //s->add(ceiling);
 
     phi::sceneObject* left_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
     left_wall->setPosition(glm::vec3(-5.0, 0.0, 0.0));
-    s->add(left_wall);
+    //s->add(left_wall);
 
     phi::sceneObject* right_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
     right_wall->setPosition(glm::vec3(5.0, 0.0, 0.0));
     right_wall->yaw(phi::PI);
-    s->add(right_wall);
+    //s->add(right_wall);
 
     phi::sceneObject* back_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("back_wall.model"));
     back_wall->setPosition(glm::vec3(0.0, 0.0, -2.0));
-    s->add(back_wall);
+    //s->add(back_wall);
 
     phi::sceneObject* front_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("front_wall.model"));
     front_wall->setPosition(glm::vec3(0.0, 0.0, 2.0));
     //s->add(front_wall);
+    
+    auto pos = glm::vec3(2.0, 5.0, -3.0);
+    phi::directionalLight* dirLight0 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight0);
+
+    pos = glm::vec3(2.0, 5.0, 3.0);
+    phi::directionalLight* dirLight1 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight1);
+
+    pos = glm::vec3(-2.0, 5.0, 3.0);
+    phi::directionalLight* dirLight2 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight2);
+
+    pos = glm::vec3(-2.0, 5.0, -3.0);
+    phi::directionalLight* dirLight3 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight3);
+
+    pos = glm::vec3(2.0, 2.0, -3.0);
+    phi::directionalLight* dirLight4 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight4);
+
+    pos = glm::vec3(2.0, 2.0, 3.0);
+    phi::directionalLight* dirLight5 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight5);
+
+    pos = glm::vec3(-2.0, 2.0, 3.0);
+    phi::directionalLight* dirLight6 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight6);
+
+    pos = glm::vec3(-2.0, 2.0, -3.0);
+    phi::directionalLight* dirLight7 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight7);
+
+    phi::sceneObject* cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
+    cube->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
+    //s->add(cube);
 
     phi::scenesManager::get()->addScene(s);
     phi::scenesManager::get()->loadScene(0);
@@ -517,7 +554,7 @@ void screen::onResize(SDL_Event e)
     setSize(sz);
     phi::scenesManager::get()->resize(sz);
     phi::uiSystem::get()->resize(sz);
-    phi::testSceneRenderer* renderer = dynamic_cast<phi::testSceneRenderer*>(phi::scenesManager::get()->getSceneRenderer());
+    phi::sceneRenderer* renderer = phi::scenesManager::get()->getSceneRenderer();
     renderer->resize(sz);
 }
 
@@ -625,12 +662,12 @@ void screen::slider2ValueChanged(phi::eventArgs e)
 
 void screen::slider3ValueChanged(phi::eventArgs e)
 {
-    _sceneRenderer->setSSAOIntensity(_slider3->getValue());
+    //_sceneRenderer->setSSAOIntensity(_slider3->getValue());
 }
 
 void screen::slider4ValueChanged(phi::eventArgs e)
 {
-    _sceneRenderer->setSSAOSampleRadius(_slider4->getValue());
+    //_sceneRenderer->setSSAOSampleRadius(_slider4->getValue());
 }
 
 void screen::closeButtonClick(phi::mouseEventArgs* e)

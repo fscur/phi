@@ -31,7 +31,6 @@ namespace phi
         bool _hasSelectedObjects;
 
 	private:
-        void createBuffers();
 		void createDefaultRenderTargets();
         void createShadowMapsRenderTargets();
         void createPointLightShadowMapRenderTargets();
@@ -63,6 +62,7 @@ namespace phi
 		testSceneRenderer(size<GLuint> viewportSize);
 		~testSceneRenderer();
 		void onRender() override;
+        void initBuffers() override;
         void resize(size<GLuint> size);
         
         void setSSAOActive(bool value) { _ssaoActive = value; }

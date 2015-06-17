@@ -5,6 +5,8 @@
 #include "screen.h"
 
 #include "testSceneRenderer.h"
+#include "dsSceneRendererEx.h"
+
 
 struct commandLineCommand
 {
@@ -131,11 +133,17 @@ int main(int argc, char* args[])
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
-
+    
+    /*
     phi::testSceneRenderer* renderer = new phi::testSceneRenderer(mainScreen->getSize());
     phi::scenesManager::get()->setSceneRenderer(renderer);
     mainScreen->setSceneRenderer(renderer);
-
+    */
+    
+    phi::dsSceneRendererEx* renderer = new phi::dsSceneRendererEx(mainScreen->getSize());
+    phi::scenesManager::get()->setSceneRenderer(renderer);
+    mainScreen->setSceneRenderer(renderer);
+    
     app->run(mainScreen);
 
     delete mainScreen;

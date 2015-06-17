@@ -21,7 +21,6 @@ namespace phi
         bool _hasSelectedObjects;
 
     private:
-        void initBuffers();
 
         void createDefaultRenderTarget();
         void createSelectedObjectsRenderTarget();
@@ -47,8 +46,8 @@ namespace phi
     public:
         SCENES_API fsSceneRenderer(size<GLuint> viewportSize);
         SCENES_API ~fsSceneRenderer();
-        SCENES_API void resize(size<GLuint> size);
         SCENES_API void onRender() override;
+        SCENES_API void initBuffers() override;
     };
 }
 

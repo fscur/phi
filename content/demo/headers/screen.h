@@ -48,7 +48,7 @@ private:
     phi::textBox* _textBox2;
 	phi::pointLight* _blueLight;
 
-    phi::testSceneRenderer* _sceneRenderer;
+    phi::sceneRenderer* _sceneRenderer;
 
 	phi::commandsManager _commandsManager;
     phi::resourcesLoader _resourcesLoader;
@@ -95,7 +95,7 @@ public:
     void update() override;
     void render() override;
 
-    void setSceneRenderer(phi::testSceneRenderer* value) { _sceneRenderer = value; }
+    void setSceneRenderer(phi::sceneRenderer* value) { _sceneRenderer = value; }
 };
 
 #endif
