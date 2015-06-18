@@ -24,7 +24,6 @@ namespace phi
         bool _isActive;
         bool _isSelected;
         bool _isInitialized;
-        aabb* _aabb;
         eventHandler<sceneObjectEventArgs>* _isSelectedChanged;
 
         std::vector<glm::vec3> _points;
@@ -45,7 +44,6 @@ namespace phi
 
         SCENES_API std::vector<sceneObject*> getChildren() const { return _children; }
         SCENES_API model* getModel() const { return _model; }
-        SCENES_API aabb* getAabb() const { return _aabb; }
         SCENES_API virtual bool getChanged() const { return _changed; }
         SCENES_API bool getSelected() const { return _isSelected; }
         SCENES_API bool getActive() const { return _isActive; }
