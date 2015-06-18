@@ -283,7 +283,7 @@ bool form::loop()
         _fps = _frames;
         _frames = 0;
         _processedTime -= 1000.0f;
-        LOG(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
+        //LOG(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
     }
 
     _lastTime = _now;

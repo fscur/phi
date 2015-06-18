@@ -2,6 +2,7 @@
 #include "shaderManager.h"
 #include "meshRenderer.h"
 #include "colorAnimator.h"
+#include "lineMesh.h"
 #include <glm/gtx/constants.hpp>
 
 namespace phi
@@ -171,21 +172,10 @@ namespace phi
 
     bool translationControl::isPointInside(int x, int y)
     {
-        auto ray = castRay(glm::vec2(x, y), _viewportSize);
-        //glm::vec3 normal;
-        //auto rekt = ray.intersects(new aabb(
-        //    glm::vec3(-0.5f, 1.5f, -0.5f),
-        //    glm::vec3(0.5f, 2.5f, 0.5f)),
-        //    &normal);
-        //if (rekt)
-        //{
-        //    LOG(std::to_string(rekt) + " - " + std::to_string(normal.x) + ";" + std::to_string(normal.y) + ";" + std::to_string(normal.z));
-        //}
-        //else
-        //{
-        //    LOG(std::to_string(rekt));
-        //}
+        if (!_object)
+            return false;
 
+        auto ray = castRay(glm::vec2(x, y), _viewportSize);
         auto xMouseOverOld = _mouseOverX;
         _mouseOverX = ray.intersects(_xAabb);
         if (!xMouseOverOld && _mouseOverX)
@@ -415,5 +405,64 @@ namespace phi
         renderArrow(_arrowMesh, _xColor, _xModelMatrix);
         renderArrow(_arrowMesh, _yColor, _yModelMatrix);
         renderArrow(_arrowMesh, _zColor, _zModelMatrix);
+
+        //Draw AABB:
+        //auto min = _object->getAabb()->getMin();
+        //auto max = _object->getAabb()->getMax();
+        //auto lbb = glm::vec3(min.x, min.y, min.z);
+        //auto lbf = glm::vec3(min.x, min.y, max.z);
+        //auto ltf = glm::vec3(min.x, max.y, max.z);
+        //auto ltb = glm::vec3(min.x, max.y, min.z);
+        //auto rbb = glm::vec3(max.x, min.y, min.z);
+        //auto rbf = glm::vec3(max.x, min.y, max.z);
+        //auto rtf = glm::vec3(max.x, max.y, max.z);
+        //auto rtb = glm::vec3(max.x, max.y, min.z);
+
+        //auto mvp = _camera->getPerspProjMatrix() * _camera->getViewMatrix();
+        //_shader->bind();
+        //_shader->setUniform("mvp", mvp);
+        //_shader->setUniform("color", color::orange);
+        //auto pos = std::vector<glm::vec3>();
+        //pos.push_back(lbb);
+        //pos.push_back(lbf);
+        //pos.push_back(ltf);
+        //pos.push_back(ltb);
+        //pos.push_back(rbb);
+        //pos.push_back(rbf);
+        //pos.push_back(rtf);
+        //pos.push_back(rtb);
+        //auto ind = std::vector<GLuint>();
+        //ind.push_back(0);
+        //ind.push_back(1);
+        //ind.push_back(1);
+        //ind.push_back(2);
+        //ind.push_back(2);
+        //ind.push_back(3);
+        //ind.push_back(3);
+        //ind.push_back(0);
+        //ind.push_back(4);
+        //ind.push_back(5);
+        //ind.push_back(5);
+        //ind.push_back(6);
+        //ind.push_back(6);
+        //ind.push_back(7);
+        //ind.push_back(7);
+        //ind.push_back(4);
+        //ind.push_back(0);
+        //ind.push_back(4);
+        //ind.push_back(1);
+        //ind.push_back(5);
+        //ind.push_back(2);
+        //ind.push_back(6);
+        //ind.push_back(3);
+        //ind.push_back(7);
+
+        //auto a = lineMesh::create("oi", pos, ind);
+        //a->bind();
+        //a->render();
+        //a->unbind();
+
+        //DELETE(a);
+        //_shader->unbind();
     }
 }

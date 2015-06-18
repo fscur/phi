@@ -15,7 +15,7 @@ namespace phi
         _isActive = true;
         _changed = true;
         _isInitialized = false;
-        _aabb = nullptr;
+        _aabb = new aabb(glm::vec3(), glm::vec3());
         _isSelectedChanged = new eventHandler<sceneObjectEventArgs>();
     }
 
@@ -35,12 +35,16 @@ namespace phi
 
     void sceneObject::initPoints()
     {
-        /*std::vector<vertex> vertices = _mesh->getVertices();
-        unsigned int count = vertices.size();
-        _points.resize(count);
+        _points = std::vector<glm::vec3>();
+        auto meshesCount = _model->getMeshes().size();
+        for (auto i = 0; i < meshesCount; i++)
+        {
+            std::vector<vertex> vertices = _model->getMeshes()[i]->getVertices();
+            auto verticesCount = vertices.size();
 
-        for (unsigned int i = 0; i < count; i++)
-        _points[i] = vertices[i].getPosition();*/
+            for (unsigned int i = 0; i < verticesCount; i++)
+                _points.push_back(vertices[i].getPosition());
+        }
     }
 
     void sceneObject::setSelected(bool value)
@@ -197,6 +201,7 @@ namespace phi
     {
         sceneObject* sceneObj = new sceneObject();
         sceneObj->_model = model;
+        sceneObj->initPoints();
         return sceneObj;
     }
 

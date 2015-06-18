@@ -4,6 +4,7 @@
 #include "core.h"
 #include "size.h"
 #include "mathUtils.h"
+#include "aabb.h"
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <vector>
@@ -22,6 +23,7 @@ namespace phi
         glm::vec3 _position;
         glm::quat _quaternion;
         glm::mat4 _modelMatrix;
+        aabb* _aabb;
         bool _changed;
 
         glm::vec3 _right;
@@ -39,10 +41,12 @@ namespace phi
         CORE_API glm::mat4 getRotationMatrix();
         CORE_API glm::mat4 getTranslationMatrix();
         CORE_API glm::mat4 getScaleMatrix();
+        CORE_API aabb* getAabb() const { return _aabb; }
 
         CORE_API void setPosition(glm::vec3 value) { _position = value; _changed = true; }
         CORE_API void setSize(size<float> value) { _size = value; _changed = true; }
         CORE_API void setDirection(glm::vec3 direction);
+        CORE_API void setAabb(aabb* value) { _aabb = value; };
 
         CORE_API glm::vec3 getDirection();
         CORE_API glm::vec3 getRight();
