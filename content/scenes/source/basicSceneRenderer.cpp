@@ -157,12 +157,6 @@ namespace phi
         glDisable(GL_BLEND);
     }
 
-    void basicSceneRenderer::resize(size<GLuint> size)
-    {
-        _viewportSize = size;
-        initBuffers();
-    }
-
     void basicSceneRenderer::onRender()
     {
         _frameBuffer->bindForDrawing();

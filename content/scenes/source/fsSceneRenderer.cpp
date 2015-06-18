@@ -652,12 +652,6 @@ namespace phi
         glDisable(GL_BLEND);
     }
 
-    void fsSceneRenderer::resize(size<GLuint> size)
-    {
-        _viewportSize = size;
-        initBuffers();
-    }
-
     void fsSceneRenderer::onRender()
     {
         _hasSelectedObjects = false;

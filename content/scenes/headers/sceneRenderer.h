@@ -18,11 +18,13 @@ namespace phi
 
     protected:
         SCENES_API virtual void onRender() = 0;
+        SCENES_API virtual void initBuffers() = 0;
     public:
         SCENES_API sceneRenderer(size<GLuint> viewportSize);
         SCENES_API ~sceneRenderer();
         SCENES_API void render(scene* scene);
         SCENES_API color getSelectionColor(int objectId, int meshId, bool selected);
+        SCENES_API void resize(size<GLuint> size);
     };
 }
 

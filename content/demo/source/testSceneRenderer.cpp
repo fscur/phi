@@ -8,7 +8,7 @@ namespace phi
 {
     testSceneRenderer::testSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
     {
-        createBuffers();
+        initBuffers();
 
         createGeomPassShader();
         createDirLightShaders();
@@ -38,7 +38,7 @@ namespace phi
     {
     }
 
-    void testSceneRenderer::createBuffers()
+    void testSceneRenderer::initBuffers()
     {
         _frameBuffers = std::vector<frameBuffer*>();
         _frameBuffers.push_back(new frameBuffer("testSceneRenderer0", _viewportSize, color::transparent));
@@ -261,7 +261,7 @@ namespace phi
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-        renderTarget* r = _frameBuffers[0]->newRenderTarget(
+        renderTarget* r = _frameBuffers[2]->newRenderTarget(
             "rt0", 
             t,
             GL_DRAW_FRAMEBUFFER,
@@ -1415,12 +1415,6 @@ namespace phi
         glEnable(GL_DEPTH_TEST);
     }
 
-    void testSceneRenderer::resize(size<GLuint> viewportSize)
-    {
-        _viewportSize = viewportSize;
-        createBuffers();
-    }
-
     void testSceneRenderer::onRender()
     {
         _hasSelectedObjects = false;
@@ -1450,26 +1444,25 @@ namespace phi
 
         glDepthMask(GL_FALSE);
 
-        if (_ssaoActive)
-        {
-            ssao();
-            //refractions();
-            reflections();
-
+        //if (_ssaoActive)
+        //{
             //ssao();
+            //refractions();
+            //reflections();
 
             renderingSystem::defaultFrameBuffer->bindForDrawing();
-            _frameBuffers[2]->bindForReading();
-            _frameBuffers[2]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+            _frameBuffers[0]->bindForReading();
+            _frameBuffers[0]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
             _frameBuffers[0]->bindForReading();
 
-        }
+        /*}
         else
         {
             renderingSystem::defaultFrameBuffer->bindForDrawing();
             _frameBuffers[0]->bindForReading();
             _frameBuffers[0]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
         }
+        */
 
         if(_hasSelectedObjects)
             selectedObjectsPass();

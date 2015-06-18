@@ -41,4 +41,10 @@ namespace phi
 
         return color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, selected ? 1.0f : 0.0f);
     }
+
+    void sceneRenderer::resize(size<GLuint> size)
+    {
+        _viewportSize = size;
+        initBuffers();
+    }
 }
