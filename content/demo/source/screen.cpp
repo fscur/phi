@@ -225,6 +225,8 @@ void screen::initScene()
     phi::sceneObject* front_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("front_wall.model"));
     front_wall->setPosition(glm::vec3(0.0, 0.0, 2.0));
     //s->add(front_wall);
+
+
     
     auto pos = glm::vec3(2.0, 5.0, -3.0);
     phi::directionalLight* dirLight0 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);

@@ -12,6 +12,7 @@ namespace phi
         light(position, color, intensity)
     {
         _direction = glm::normalize(direction);
+        updateViewMatrix();
     }
 
     directionalLight::~directionalLight()
