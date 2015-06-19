@@ -2,6 +2,8 @@
 #include "plane.h"
 #include "sphere.h"
 #include "renderingSystem.h"
+#include <fstream>
+#include <iostream>
 
 namespace phi
 {
@@ -191,5 +193,72 @@ namespace phi
         //	_allObjects.erase(position);
         //	_allObjectsCount--;
         //}
+    }
+
+    void scene::save(std::string path)
+    {
+        std::ofstream stream;
+        stream.open(path.c_str(), std::ios::out | std::ios::binary);
+
+        auto objCount = (*_allObjects).size();
+        for (unsigned int i = 0; i < objCount; i ++)
+        {
+            sceneObject* sceneObj = (*_allObjects)[i];
+            auto id = sceneObj->getId();
+            stream.write((char*)&id, sizeof(unsigned int));
+            auto pos = sceneObj->getPosition();
+            stream.write((char*)&pos.x, sizeof(float));
+            stream.write((char*)&pos.y, sizeof(float));
+            stream.write((char*)&pos.z, sizeof(float));
+            auto size = sceneObj->getSize();
+            stream.write((char*)&size.width, sizeof(float));
+            stream.write((char*)&size.height, sizeof(float));
+            stream.write((char*)&size.depth, sizeof(float));
+            auto quat = sceneObj->getQuaternion();
+            stream.write((char*)&quat.x, sizeof(float));
+            stream.write((char*)&quat.y, sizeof(float));
+            stream.write((char*)&quat.z, sizeof(float));
+            stream.write((char*)&quat.w, sizeof(float));
+        }
+
+        char null = '\0';
+        stream.write((char*)&null, 1);
+        stream.close();
+    }
+
+    void scene::load(std::string path)
+    {
+        std::ifstream stream;
+        stream.open(path.c_str(), std::ios::in | std::ios::binary);
+
+        stream.seekg(0, std::ios::end);
+        auto totalBytes = stream.tellg();
+        stream.seekg(0, std::ios::beg);
+
+        auto bytesPerObj = 10 * sizeof(float) + sizeof(unsigned int);
+        for (auto i = 0; i < totalBytes / bytesPerObj; i++)
+        {
+            unsigned int id;
+            stream.read((char*)&id, sizeof(unsigned int));
+            float px, py, pz;
+            stream.read((char*)&px, sizeof(float));
+            stream.read((char*)&py, sizeof(float));
+            stream.read((char*)&pz, sizeof(float));
+            float w, h, d;
+            stream.read((char*)&w, sizeof(float));
+            stream.read((char*)&h, sizeof(float));
+            stream.read((char*)&d, sizeof(float));
+            float qx, qy, qz, qw;
+            stream.read((char*)&qx, sizeof(float));
+            stream.read((char*)&qy, sizeof(float));
+            stream.read((char*)&qz, sizeof(float));
+            stream.read((char*)&qw, sizeof(float));
+            auto obj = getSceneObjectById(id);
+            obj->setPosition(glm::vec3(px, py, pz));
+            obj->setSize(size<float>(w, h, d));
+            obj->setQuaternion(glm::quat(qw, qx, qy, qz));
+        }
+
+        stream.close();
     }
 }

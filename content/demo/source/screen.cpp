@@ -53,9 +53,9 @@ void screen::initScene()
     s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
     s->getSelectedSceneObjectChanged()->bind<screen, &screen::selectedSceneObjectChanged>(this);
-    
+
     /* decoration */
-    
+
     phi::sceneObject* flower = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("flower.model"));
     flower->setPosition(glm::vec3(2.0f, 0.8f, 0.0f));
     s->add(flower);
@@ -102,7 +102,7 @@ void screen::initScene()
     s->add(casket);
 
     /* living room */
-    
+
     phi::sceneObject* sofa = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("sofa.model"));
     sofa->setPosition(glm::vec3(-3.1f, 0.0f, 1.4f));
     sofa->yaw(phi::PI);
@@ -125,7 +125,7 @@ void screen::initScene()
     //*/
 
     /* dining */
-    
+
     phi::sceneObject* cabinet = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cabinet.model"));
     cabinet->setPosition(glm::vec3(4.7f, 0.0f, 0.0f));
     cabinet->yaw(phi::PI);
@@ -143,7 +143,7 @@ void screen::initScene()
     table_chair1->setPosition(glm::vec3(2.5, 0.0, -0.5));
     table_chair1->yaw(-0.2);
     s->add(table_chair1);
-    
+
     phi::sceneObject* table_chair2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("table_chair.model"));
     table_chair2->setPosition(glm::vec3(1.5, 0.0, 0.5));
     table_chair2->yaw(phi::PI-0.3);
@@ -177,7 +177,7 @@ void screen::initScene()
     //s->add(sphere);
 
     /* lights */
-    
+
     phi::sceneObject* lamp0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
     lamp0->setPosition(glm::vec3(0.0, 3.5, 0.0));
     s->add(lamp0);
@@ -191,7 +191,7 @@ void screen::initScene()
 
     phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.5, 1.8, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
     //s->add(pointLight1);
-    
+
     phi::sceneObject* lamp2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
     lamp2->setPosition(glm::vec3(-2.5, 3.5, 0.0));
     s->add(lamp2);
@@ -200,11 +200,11 @@ void screen::initScene()
     //s->add(pointLight2);
 
     /* room */
-    
+
     phi::sceneObject* floor = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("floor.model"));
     floor->setPosition(glm::vec3(0.0, 0.0, 0.0));
     s->add(floor);
-    
+
     phi::sceneObject* ceiling = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling.model"));
     ceiling->setPosition(glm::vec3(0.0, 3.5, 0.0));
     //s->add(ceiling);
@@ -227,7 +227,7 @@ void screen::initScene()
     //s->add(front_wall);
 
 
-    
+
     auto pos = glm::vec3(2.0, 5.0, -3.0);
     phi::directionalLight* dirLight0 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
     s->add(dirLight0);
@@ -266,6 +266,8 @@ void screen::initScene()
 
     phi::scenesManager::get()->addScene(s);
     phi::scenesManager::get()->loadScene(0);
+
+    phi::scenesManager::get()->getScene()->load("default.phi");
 }
 
 void screen::initUI()
@@ -465,6 +467,16 @@ void screen::update()
     phi::uiSystem::get()->update();
     _commandsManager.update();
 
+    auto save = false;
+    auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
+    for (auto i = 0; i < allObjects->size() && !save;i++)
+    {
+        if (allObjects->at(i)->getChanged())
+            save = true;
+    }
+    if (save)
+        phi::scenesManager::get()->getScene()->save("default.phi");
+
     /*_labelFps->setText("FPS: " + std::to_string(getFps()));
 
     _labelDt->setText("TotalTime/Frame: " + std::to_string(getDt()));
@@ -644,20 +656,20 @@ void screen::slider1ValueChanged(phi::eventArgs e)
     glm::vec3 t = glm::vec3(-glm::cos(value) * 8.0f, pos.y, glm::sin(value) * 4.0f);
     pointLight->setPosition(t);
 
-    
+
     sphere->setPosition(t);
 }
 
 void screen::slider2ValueChanged(phi::eventArgs e)
 {
-    
+
     auto pointLight = phi::scenesManager::get()->getScene()->getPointLight(0);
     glm::vec3 pos = pointLight->getPosition();
     auto value =_slider2->getValue();
     glm::vec3 t = glm::vec3(pos.x, value, pos.z);
     pointLight->setPosition(t);
 
-    
+
     sphere->setPosition(t);
 }
 

@@ -42,9 +42,11 @@ namespace phi
         CORE_API glm::mat4 getTranslationMatrix();
         CORE_API glm::mat4 getScaleMatrix();
         CORE_API aabb* getAabb() const { return _aabb; }
+        CORE_API bool getChanged() const { return _changed; }
 
         CORE_API void setPosition(glm::vec3 value) { _position = value; _changed = true; }
         CORE_API void setSize(size<float> value) { _size = value; _changed = true; }
+        CORE_API void setQuaternion(glm::quat value) { _quaternion = value; _changed = true; }
         CORE_API void setDirection(glm::vec3 direction);
         CORE_API void setAabb(aabb* value) { _aabb = value; };
 
