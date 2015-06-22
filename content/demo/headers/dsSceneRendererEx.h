@@ -47,6 +47,9 @@ namespace phi
         void pointLightPass();
         void spotLightPass();
         void selectedObjectsPass();
+
+        texture* dsSceneRendererEx::blur(texture* source);
+
         void render();
 
     public:

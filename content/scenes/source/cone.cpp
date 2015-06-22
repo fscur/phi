@@ -7,7 +7,7 @@ namespace phi
     {   
 		_radius = radius;
 		auto d =  2.0f * radius;
-        _size = size<float>(d, height, d);
+        _size = size<float>(d, d, height);
 
 		_up = glm::vec3(0.0f, 0.0f, 1.0f);
         _right = glm::vec3(1.0f, 0.0f, 0.0f);

@@ -8,16 +8,24 @@ namespace phi
         _right = glm::vec3(1.0f, 0.0f, 0.0f);
         _up = glm::vec3(0.0f, 1.0f, 0.0f);
         _direction = glm::vec3(0.0f, 0.0f, 1.0f);
+        _orientation = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), _direction);
 
         _yaw = 0;
         _roll = 0;
         _pitch = 0;
 
         _size = size<float>(1.0f, 1.0f, 1.0f);
+        _changed = true;
     }
 
     object3D::~object3D()
     {
+    }
+
+    void object3D::setOrientation(glm::vec3 direction)
+    {
+        _orientation = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), direction);
+        _changed = true;
     }
 
     void object3D::setDirection(glm::vec3 direction)
@@ -25,6 +33,7 @@ namespace phi
         _direction = glm::normalize(direction);
         _right = glm::normalize(_right - _direction * glm::dot(_direction, _right));
         _up = glm::cross(_direction, _right);
+        _orientation = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), direction);
         _changed = true;
     }
 
@@ -45,7 +54,7 @@ namespace phi
 
     glm::mat4 object3D::getRotationMatrix()
     {
-        return glm::toMat4(_quaternion);
+        return glm::toMat4(_orientation);
     }
 
     glm::mat4 object3D::getTranslationMatrix()
@@ -68,9 +77,9 @@ namespace phi
 
     void object3D::update(glm::mat4 parentModelMatrix)
     {
-        _direction = _quaternion * glm::vec3(1.0f, 0.0f, 0.0f);
-        _right = _quaternion * glm::vec3(0.0f, 0.0f, 1.0f);
-        _up = _quaternion * glm::vec3(0.0f, 1.0f, 0.0f);
+        _direction = _orientation * glm::vec3(1.0f, 0.0f, 0.0f);
+        _right = _orientation * glm::vec3(0.0f, 0.0f, 1.0f);
+        _up = _orientation * glm::vec3(0.0f, 1.0f, 0.0f);
 
         glm::mat4 rotation = getRotationMatrix();
         glm::mat4 scale = getScaleMatrix();
@@ -101,28 +110,28 @@ namespace phi
 
     void object3D::rotate(float angle, glm::vec3 axis)
     {
-        _quaternion = glm::angleAxis(angle, axis) * _quaternion;
+        _orientation = glm::angleAxis(angle, axis) * _orientation;
         _changed = true;
     }
 
     void object3D::pitch(float angle)
     {
         _pitch += angle;
-        _quaternion = glm::angleAxis(angle, glm::vec3(1.0f, 0.0f, 0.0f)) * _quaternion;
+        _orientation = glm::angleAxis(angle, glm::vec3(1.0f, 0.0f, 0.0f)) * _orientation;
         _changed = true;
     }
 
     void object3D::yaw(float angle)
     {
         _yaw += angle;
-        _quaternion = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * _quaternion;
+        _orientation = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * _orientation;
         _changed = true;
     }
 
     void object3D::roll(float angle)
     {
         _roll += angle;
-        _quaternion = glm::angleAxis(angle, glm::vec3(0.0f, 0.0f, 1.0f)) * _quaternion;
+        _orientation = glm::angleAxis(angle, glm::vec3(0.0f, 0.0f, 1.0f)) * _orientation;
         _changed = true;
     }
 }

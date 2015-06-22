@@ -81,7 +81,7 @@ namespace phi
     {
         object3D::update();
 
-        updateAabb();
+        //updateAabb();
 
         for (unsigned int i = 0; i < _childrenCount; i++)
             _children[i]->update();

@@ -16,8 +16,9 @@ namespace phi
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
 		_radius = calcRadius(cutoff, _range);
 		_boundingVolume = new cone(_range, _radius * 1.15, 5, nullptr);
-		_boundingVolume->setDirection(direction);
+		_boundingVolume->setOrientation(direction);
         _boundingVolume->setPosition(position);
+        _boundingVolume->update();
 	}
 
 	spotLight::~spotLight()
@@ -33,7 +34,7 @@ namespace phi
 	void spotLight::setDirection(glm::vec3 direction)
 	{
 		_direction = direction; 
-		_boundingVolume->setDirection(direction);
+		_boundingVolume->setOrientation(direction);
 	}
 
 	void spotLight::setRange(float value)

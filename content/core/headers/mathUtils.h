@@ -5,6 +5,8 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <list>
 
 namespace phi
@@ -52,6 +54,7 @@ namespace phi
         static CORE_API glm::vec3 rotateAboutAxis(glm::vec3 point, glm::vec3 origin, glm::vec3 axis, float angle);
         static CORE_API glm::vec3 rotateAboutAxis(glm::vec3 point, glm::vec3 axis, float angle);
         static CORE_API glm::mat4 getRotationMatrixAboutAnArbitraryAxis(glm::vec3 origin, glm::vec3 axis, float angle);
+        static CORE_API glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
     };
 }
 #endif

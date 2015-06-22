@@ -3,6 +3,8 @@
 
 namespace phi
 {
+    unsigned int shadowMapSize = 1024;
+
     dsSceneRendererEx::dsSceneRendererEx(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
     {
         initBuffers();
@@ -23,7 +25,6 @@ namespace phi
 
     void dsSceneRendererEx::initBuffers()
     {
-        
         _frameBuffers = std::vector<frameBuffer*>();
         _frameBuffers.push_back(new frameBuffer("dsSceneRendererEx0", _viewportSize, color::transparent));
         _frameBuffers[0]->init();
@@ -59,6 +60,20 @@ namespace phi
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT0);
+
+        _frameBuffers[2]->addRenderTarget(r);
+        
+        t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        r = _frameBuffers[2]->newRenderTarget(
+            "depth", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_DEPTH_STENCIL_ATTACHMENT);
 
         _frameBuffers[2]->addRenderTarget(r);
         
@@ -154,7 +169,7 @@ namespace phi
         _frameBuffers[1]->init();
         _frameBuffers[1]->bind();
 
-        auto s = size<GLuint>(4096, 4096);
+        auto s = size<GLuint>(shadowMapSize, shadowMapSize);
 
         texture* t = texture::create(s, GL_RG32F);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -307,10 +322,7 @@ namespace phi
         s->addUniform("light.position");
         s->addUniform("light.color");
         s->addUniform("light.intensity");
-        s->addUniform("light.attenuation.constant");
-        s->addUniform("light.attenuation.linear");
-        s->addUniform("light.attenuation.exponential");
-        s->addUniform("light.range");
+        s->addUniform("light.oneOverRangeSqr");
         s->addUniform("light.direction");
         s->addUniform("light.cutoff");
 
@@ -372,7 +384,7 @@ namespace phi
         //pointLightPass();
 
         spotLightPass();
-        directionalLightPass();
+        //directionalLightPass();
 
         glDepthMask(GL_FALSE);
 
@@ -381,8 +393,8 @@ namespace phi
         _frameBuffers[2]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
         _frameBuffers[0]->bindForReading();
 
-        //if (_hasSelectedObjects)
-            //selectedObjectsPass();
+        if (_hasSelectedObjects)
+            selectedObjectsPass();
     }
 
     void dsSceneRendererEx::geomPass()
@@ -623,27 +635,30 @@ namespace phi
         texture* rt2Texture = _frameBuffers[0]->getRenderTarget("rt2")->getTexture();
         texture* rt3Texture = _frameBuffers[0]->getRenderTarget("rt3")->getTexture();
 
+        shader* sm = shaderManager::get()->getShader("SSAO_SHADOW_MAP");
+        shader* sh = shaderManager::get()->getShader("DS_DIR_LIGHT_EX");
+        
+        float nearPlane = 0.1;
+        float farPlane = 10.0;
+
+        glm::mat4 biasMatrix = glm::mat4(
+            0.5f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f);
+            
+        glm::mat4 lp = glm::ortho<float>(-7.0, 7.0, -7.0, 7.0, nearPlane, farPlane);
+
         for (GLuint i = 0; i < directionalLightsCount; i++)
         {
             directionalLight* light = (*directionalLights)[i];
-
-            float nearPlane = 0.1;
-            float farPlane = 50.0;
-
-            glm::mat4 biasMatrix = glm::mat4(
-                0.5f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.5f, 0.0f,
-                0.5f, 0.5f, 0.5f, 1.0f);
             
-            glm::mat4 lp = glm::ortho<float>(-15.0, 15.0, -15.0, 15.0, nearPlane, farPlane);
             glm::mat4 lv = light->getTransform()->getViewMatrix();
             glm::mat4 l = biasMatrix * lp * lv;
 
             _frameBuffers[1]->bind();
 
-            glPushAttrib(GL_VIEWPORT_BIT);
-            glViewport(0, 0, 4096, 4096);
+            glViewport(0, 0, shadowMapSize, shadowMapSize);
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
@@ -652,7 +667,6 @@ namespace phi
             glClearColor(0.0, 0.0, 0.0, 0.0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            shader* sm = shaderManager::get()->getShader("SSAO_SHADOW_MAP");
             sm->bind();
 
             for (GLuint i = 0; i < _allObjectsCount; i++)
@@ -678,7 +692,7 @@ namespace phi
 
             //texture* blurredShadowMap = blur(_frameBuffers[1]->getRenderTarget("rt0")->getTexture());
 
-            glPopAttrib();
+            glViewport(0, 0, _viewportSize.width, _viewportSize.height);
             
             _frameBuffers[1]->unbind();
 
@@ -686,10 +700,9 @@ namespace phi
 
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
             glEnable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
             glBlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_ONE, GL_ONE);
-
-            shader* sh = shaderManager::get()->getShader("DS_DIR_LIGHT_EX");
 
             sh->bind();
             
@@ -712,7 +725,8 @@ namespace phi
             meshRenderer::render(&_quad);
             
             sh->unbind();
-
+            
+            glEnable(GL_DEPTH_TEST);
             glDisable(GL_BLEND);
 
             _frameBuffers[2]->unbind();
@@ -822,10 +836,10 @@ namespace phi
         if (spotLightsCount == 0)
             return;
 
-        glm::mat4 viewMatrix = _camera->getViewMatrix();
-        glm::mat4 inverseViewMatrix = glm::inverse(_camera->getViewMatrix());
-        glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
-        glm::mat4 inverseProjectionMatrix = glm::inverse(_camera->getPerspProjMatrix());
+        glm::mat4 v = _camera->getViewMatrix();
+        glm::mat4 iv = glm::inverse(_camera->getViewMatrix());
+        glm::mat4 p = _camera->getPerspProjMatrix();
+        glm::mat4 ip = glm::inverse(_camera->getPerspProjMatrix());
 
         texture* rt0Texture = _frameBuffers[0]->getRenderTarget("rt0")->getTexture();
         texture* rt1Texture = _frameBuffers[0]->getRenderTarget("rt1")->getTexture();
@@ -834,7 +848,8 @@ namespace phi
 
         shader* ss = shaderManager::get()->getShader("DS_STENCIL_EX");
         shader* sls = shaderManager::get()->getShader("DS_SPOT_LIGHT_EX");
-
+        shader* sm = shaderManager::get()->getShader("SSAO_SHADOW_MAP");
+        
         glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
         
         mesh* _mesh;
@@ -851,10 +866,9 @@ namespace phi
         for (GLuint i = 0; i < spotLightsCount; i++)
         {
             spotLight* light = (*spotLights)[i];
-
+            
             _frameBuffers[1]->bind();
-            glPushAttrib(GL_VIEWPORT_BIT);
-            glViewport(0,0,4096,4096);
+            glViewport(0, 0, shadowMapSize, shadowMapSize);
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
@@ -870,11 +884,10 @@ namespace phi
             float angle = glm::acos(light->getCutoff()) * 2.0f;
             float nearPlane = 0.1f;
             float farPlane = light->getRadius();
-            glm::mat4 p = glm::perspective(angle, 1.0f, nearPlane, farPlane);   
-            glm::mat4 v = _camera->getViewMatrix();
-            glm::mat4 l = biasMatrix * p * v;
+            glm::mat4 lp = glm::perspective(angle, 1.0f, nearPlane, farPlane);   
+            glm::mat4 lv = _camera->getViewMatrix();
+            glm::mat4 l = biasMatrix * lp * lv;
 
-            shader* sm = shaderManager::get()->getShader("SSAO_SHADOW_MAP");
             sm->bind();
 
             for (GLuint i = 0; i < _allObjectsCount; i++)
@@ -883,10 +896,9 @@ namespace phi
 
                 unsigned int sceneObjId = sceneObj->getId();
 
-                glm::mat4 m = _modelMatrices[sceneObjId];
-                glm::mat4 mvp = p * v * m;
+                glm::mat4 lmvp = lp * lv * _modelMatrices[sceneObjId];
 
-                sm->setUniform("mvp", mvp);
+                sm->setUniform("mvp", lmvp);
                 sm->setUniform("nearPlane", nearPlane);
                 sm->setUniform("farPlane", farPlane);
 
@@ -903,23 +915,22 @@ namespace phi
             _camera->setDirection(camDir);
             _camera->update();
 
-            _frameBuffers[1]->unbind();
-
+            glViewport(0, 0, _viewportSize.width, _viewportSize.height);
+            
             /*****/
 
             //texture* blurredShadowMap = blur(_frameBuffers[1]->getRenderTarget("rt0")->getTexture());
 
+            _frameBuffers[1]->unbind();
+            
             _frameBuffers[2]->bindForDrawing();
-
-            glPopAttrib();
-
-            ss->bind();
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
             cone* boundingVolume = light->getBoundingVolume();
-            glm::mat4 modelMatrix = boundingVolume->getModelMatrix();
-            glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
+            glm::mat4 m = boundingVolume->getModelMatrix();
+            glm::mat4 mvp = p * v * m;
             _mesh = boundingVolume->getModel()->getMeshes()[0];
-
+            
             glDrawBuffer(GL_NONE);
 
             glEnable(GL_DEPTH_TEST);
@@ -941,7 +952,7 @@ namespace phi
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
             glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
+            
             glDisable(GL_DEPTH_TEST);
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
@@ -949,13 +960,12 @@ namespace phi
 
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
-
+            
             sls->bind();
 
-            sls->setUniform("v", viewMatrix);
-            sls->setUniform("iv", inverseViewMatrix);
-            sls->setUniform("m", modelMatrix);
-            sls->setUniform("ip", inverseProjectionMatrix);
+            sls->setUniform("v", v);
+            sls->setUniform("iv", iv);
+            sls->setUniform("ip", ip);
             sls->setUniform("mvp", mvp);
             sls->setUniform("l", l);
             sls->setUniform("res", resolution);
@@ -963,7 +973,6 @@ namespace phi
             sls->setUniform("light.position", light->getPosition());
             sls->setUniform("light.color", light->getColor());
             sls->setUniform("light.intensity", light->getIntensity());
-            sls->setUniform("light.range", light->getRange());
             sls->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
             sls->setUniform("light.direction", light->getDirection());
             sls->setUniform("light.cutoff", light->getCutoff());
@@ -972,6 +981,7 @@ namespace phi
             sls->setUniform("rt1", rt1Texture, 1);
             sls->setUniform("rt2", rt2Texture, 2);
             sls->setUniform("rt3", rt3Texture, 3);
+            sls->setUniform("shadowMap", _frameBuffers[1]->getRenderTarget("rt0")->getTexture(), 4);
 
             //TODO: Cull lights
             
@@ -1018,5 +1028,45 @@ namespace phi
         glDisable(GL_BLEND);
     }
 
-    
+    texture* dsSceneRendererEx::blur(texture* source)
+    {
+        _frameBuffers[2]->bindForDrawing();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glm::vec2 resolution = glm::vec2(1024, 1024);
+        glm::mat4 modelMatrix = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        shader* s = shaderManager::get()->getShader("SSAO_BLUR");
+
+        s->bind();
+
+        s->setUniform("m", modelMatrix);
+        s->setUniform("res", resolution);
+        s->setUniform("tex", source, 0);
+        s->setUniform("blurScale", glm::vec2(1.0 * (1.0/resolution.x), 0.0));
+        meshRenderer::render(&_quad);
+
+        _frameBuffers[2]->unbind();
+
+        _frameBuffers[1]->bindForDrawing();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        source = _frameBuffers[2]->getRenderTarget("rt0")->getTexture();
+
+        s->setUniform("tex", source, 0);
+        s->setUniform("blurScale", glm::vec2(0.0,  1.0 * (1.0/resolution.y)));
+        meshRenderer::render(&_quad);
+
+        s->unbind();
+
+        _frameBuffers[1]->unbind();
+
+        return _frameBuffers[1]->getRenderTarget("rt0")->getTexture();
+    }
 }
