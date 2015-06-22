@@ -87,6 +87,9 @@ namespace phi
 
         SCENES_API camera* getCamera(GLuint index) const { return (*_cameras)[index]; }
 
+        SCENES_API void save(std::string path);
+        SCENES_API void load(std::string path);
+
         SCENES_API void remove(sceneObject* sceneObject);
     };
 }
