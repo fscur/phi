@@ -12,7 +12,8 @@ in vec2 fragTexCoord;
 
 uniform mat4 ip;
 uniform mat4 v;
-uniform mat4 lightMatrix;
+uniform mat4 iv;
+uniform mat4 l;
 
 uniform directionalLight light;
 
@@ -49,19 +50,44 @@ float calcVarianceShadowFactor()
 	return clamp(min(max(p, pMax), 1.0), 0.2, 1.0);
 }
 */
+
+float linstep(float value, float low, float high)
+{
+	return clamp((value-low)/(high-low), 0.0, 1.0);
+}
+
+float calcVarianceShadowFactor(vec3 fragPosition)
+{	
+	vec4 worldSpacePos = iv * vec4(fragPosition, 1.0);
+	vec4 lightSpacePos = l * worldSpacePos;
+	vec2 uv = lightSpacePos.xy;
+
+	vec2 moments = texture(shadowMap, uv).xy;
+
+	if (lightSpacePos.z <= moments.x)
+		return 1.0;
+
+	float p = step(lightSpacePos.z, moments.x);
+	float variance = max(moments.y - moments.x * moments.x, 0.00002);
+
+	float d = lightSpacePos.z - moments.x;
+	float pMax = linstep(variance / (variance + d * d), 0.8, 1.0);
+
+	return clamp(min(max(p, pMax), 1.0), 0.2, 1.0);
+}
+
 float calcShadowFactor(vec3 fragPosition)
 {
-	vec4 p = inverse(v) * vec4(fragPosition, 1.0);
-	vec4 pos = lightMatrix * p;
-	vec2 uv = pos.xy;
+	vec4 worldSpacePos = iv * vec4(fragPosition, 1.0);
+	vec4 lightSpacePos = l * worldSpacePos;
+	vec2 uv = lightSpacePos.xy;
 	float depth = texture(shadowMap, uv).x;
 
-	if (depth < (pos.z - (1.0/1024)))
+	if (depth < (lightSpacePos.z - (1.0/1024)))
 		return 0.2;
 	else
 		return 1.0;
 }
-
 
 vec3 decodePosition(vec2 texCoord)
 {

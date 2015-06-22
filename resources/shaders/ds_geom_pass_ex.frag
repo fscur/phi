@@ -35,9 +35,9 @@ layout (location = 3) out vec4 rt3;
 vec2 encodeNormal (vec3 n)
 {
     float scale = 1.7777;
-    vec2 enc = n.xy / (n.z+1);
+    vec2 enc = n.xy / (n.z + 1);
     enc /= scale;
-    enc = enc*0.5+0.5;
+    enc = enc * 0.5 + 0.5;
     return vec2(enc);
 }
 
