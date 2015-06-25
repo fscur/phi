@@ -10,8 +10,8 @@ namespace phi
     {
     private:
         glm::vec3 _direction;
-        glm::mat4 _orthoProjectionMatrix;
-        glm::mat4 _viewProjectionMatrix;
+        glm::mat4 _projectionMatrix;
+        glm::mat4 _viewMatrix;
     private:
         void updateViewMatrix();
     public:

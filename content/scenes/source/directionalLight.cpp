@@ -28,8 +28,8 @@ namespace phi
         glm::vec3 J = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 up = glm::normalize(J - _direction * glm::dot(_direction, J));
 
-        _viewProjectionMatrix = glm::lookAt(_position, _position + _direction, up);
-        _transform->setViewMatrix(_viewProjectionMatrix);
+        _viewMatrix = glm::lookAt(_position, _position + _direction, up);
+        _transform->setViewMatrix(_viewMatrix);
     }
 
     void directionalLight::setDirection(glm::vec3 direction)
@@ -50,8 +50,8 @@ namespace phi
         {
             _transform = new transform();
             updateViewMatrix();
-            _orthoProjectionMatrix = glm::ortho<float>(-20, 20, -20, 20, -50, 50.0);
-            _transform->setProjectionMatrix(_orthoProjectionMatrix);
+            _projectionMatrix = glm::ortho<float>(-20, 20, -20, 20, -50, 50.0);
+            _transform->setProjectionMatrix(_projectionMatrix);
         }
 
         return _transform;

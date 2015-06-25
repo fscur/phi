@@ -256,7 +256,7 @@ namespace phi
             auto obj = getSceneObjectById(id);
             obj->setPosition(glm::vec3(px, py, pz));
             obj->setSize(size<float>(w, h, d));
-            obj->setQuaternion(glm::quat(qw, qx, qy, qz));
+            obj->setOrientation(glm::quat(qw, qx, qy, qz));
         }
 
         stream.close();

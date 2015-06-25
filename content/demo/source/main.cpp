@@ -56,7 +56,7 @@ void processCommandLine(int argc, char* args[])
 
         bool foundCommand = false;
 
-        for (int cmdIndex = 0; cmdIndex < commandLineCommands.size(); cmdIndex++)
+        for (unsigned int cmdIndex = 0; cmdIndex < commandLineCommands.size(); cmdIndex++)
         {
             if (arg.compare(commandLineCommands[cmdIndex].name) == 0)
             {
@@ -76,7 +76,7 @@ void processCommandLine(int argc, char* args[])
 
 void executeCommands()
 {
-    for (int i = 0; i < commandLineCommands.size(); i++)
+    for (unsigned int i = 0; i < commandLineCommands.size(); i++)
     {
         if (commandLineCommands[i].shouldExecute)
         {
@@ -84,7 +84,7 @@ void executeCommands()
 
             commandLineCommands[i].func(commandLineCommands[i].args);
 
-            for (int j = 0; j < commandLineCommands[i].args.size(); j++)
+            for (unsigned int j = 0; j < commandLineCommands[i].args.size(); j++)
             {
                 LOG("arg[" << j << "]: " <<commandLineCommands[i].args[j]);
             }
@@ -134,8 +134,7 @@ int main(int argc, char* args[])
     
     /*phi::testSceneRenderer* renderer = new phi::testSceneRenderer(mainScreen->getSize());
     phi::scenesManager::get()->setSceneRenderer(renderer);
-    mainScreen->setSceneRenderer(renderer);
-    */
+    mainScreen->setSceneRenderer(renderer);*/
     
     phi::dsSceneRendererEx* renderer = new phi::dsSceneRendererEx(mainScreen->getSize());
     phi::scenesManager::get()->setSceneRenderer(renderer);

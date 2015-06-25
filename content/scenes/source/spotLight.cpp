@@ -19,6 +19,10 @@ namespace phi
 		_boundingVolume->setOrientation(direction);
         _boundingVolume->setPosition(position);
         _boundingVolume->update();
+
+        _transform = new transform();
+        updateViewMatrix();
+        updateProjectionMatrix();
 	}
 
 	spotLight::~spotLight()
@@ -43,6 +47,7 @@ namespace phi
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
 		_radius = calcRadius(_cutoff, _range);
 		_boundingVolume->setRadius(_range);
+        updateProjectionMatrix();
 	}
 
 	void spotLight::setCutoff(float cutoff)
@@ -50,6 +55,7 @@ namespace phi
 		_cutoff = cutoff;
 		_radius = calcRadius(_cutoff, _range);
 		_boundingVolume->setRadius(_radius);
+        updateProjectionMatrix();
 	}
 
 	void spotLight::setIntensity(float value)
@@ -61,4 +67,34 @@ namespace phi
 	{
 		_boundingVolume->update();
 	}
+
+    void spotLight::updateViewMatrix()
+    {
+        glm::vec3 J = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 up = glm::normalize(J - _direction * glm::dot(_direction, J));
+
+        _viewMatrix = glm::lookAt(_position, _position + _direction, up);
+        _transform->setViewMatrix(_viewMatrix);
+    }
+
+    void spotLight::updateProjectionMatrix()
+    {
+        float angle = glm::acos(_cutoff) * 2.0f;
+        float nearPlane = 0.1f;
+        float farPlane = _radius;
+        _projectionMatrix = glm::perspective(angle, 1.0f, nearPlane, farPlane);
+        _transform->setProjectionMatrix(_projectionMatrix);
+    }
+
+    transform* spotLight::getTransform()
+    {
+        if (!_transform)
+        {
+            _transform = new transform();
+            updateViewMatrix();
+            updateProjectionMatrix();
+        }
+
+        return _transform;
+    }
 }
