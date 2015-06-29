@@ -12,6 +12,8 @@ namespace phi
         _sceneObjectsIds = 0;
         _allObjectsCount = 0;
         _visibleObjectsCount = 0;
+        _staticObjectsCount = 0;
+        _dynamicObjectsCount = 0;
         _size = size<GLuint>(800, 600);
         _deltaTime = 0.008f;
         _allObjects = new std::vector<sceneObject*>();
@@ -20,6 +22,7 @@ namespace phi
         _spotLights = new std::vector<spotLight*>();
         _cameras = new std::vector<camera*>();
         _selectedSceneObjectChanged = new eventHandler<sceneObjectEventArgs>();
+        _staticObjectsChanged = new eventHandler<eventArgs>();
 
         _activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, phi::PI_OVER_4);
         _cameras->push_back(_activeCamera);
@@ -86,7 +89,7 @@ namespace phi
 
     void scene::update()
     {
-        //bool cameraChanged = _cameras[1]->GetChanged();
+        bool cameraChanged = _activeCamera->getChanged();
 
         for (GLuint i = 0; i < _cameras->size(); i++)
             (*_cameras)[i]->update();
@@ -117,6 +120,40 @@ namespace phi
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             sceneObj = (*_allObjects)[i];
+            
+            auto objectId = sceneObj->getId();
+
+            if (sceneObj->getChanged())
+            {
+                auto obj = _staticObjects.find(objectId);
+
+                if (obj != _staticObjects.end())
+                {
+                    _staticObjects.erase(objectId);
+                    _staticObjectsCount--;
+
+                    _dynamicObjects[objectId] = sceneObj;
+                    _dynamicObjectsCount++;
+                
+                    staticObjectsChanged(eventArgs());
+                }
+            }
+            else
+            {
+                auto obj = _dynamicObjects.find(objectId);
+
+                if (obj != _dynamicObjects.end())
+                {
+                    _dynamicObjects.erase(obj);
+                    _dynamicObjectsCount--;
+
+                    _staticObjects[objectId] = sceneObj;
+                    _staticObjectsCount++;
+                    
+                    staticObjectsChanged(eventArgs());
+                }
+            }
+
             sceneObj->update();
         }
 
@@ -140,9 +177,14 @@ namespace phi
     {
         sceneObject->initialize();
         _allObjects->push_back(sceneObject);
+        
+        _staticObjects[_sceneObjectsIds] = sceneObject;
+        _staticObjectsCount++;
 
         sceneObject->setId(_sceneObjectsIds++);
         _allObjectsCount++;
+
+        staticObjectsChanged(eventArgs());
 
         sceneObject->getIsSelectedChanged()->bind<scene, &scene::sceneObjectIsSelectedChanged>(this);
     }
@@ -171,6 +213,12 @@ namespace phi
     {
         if (_selectedSceneObjectChanged->isBound())
             _selectedSceneObjectChanged->invoke(e);
+    }
+
+    void scene::staticObjectsChanged(phi::eventArgs e)
+    {
+        if (_staticObjectsChanged->isBound())
+            _staticObjectsChanged->invoke(e);
     }
 
     sceneObject* scene::getSceneObjectById(unsigned int id)

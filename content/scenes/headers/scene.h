@@ -22,6 +22,9 @@ namespace phi
     private:
         GLuint _allObjectsCount;
         GLuint _visibleObjectsCount;
+        GLuint _staticObjectsCount;
+        GLuint _dynamicObjectsCount;
+
         size<GLuint> _size;
         float _deltaTime;
         color _backColor;
@@ -30,6 +33,8 @@ namespace phi
         camera *_activeCamera;
 
         std::vector<sceneObject*>* _allObjects;
+        std::map<GLuint, sceneObject*> _staticObjects;
+        std::map<GLuint, sceneObject*> _dynamicObjects;
         std::vector<sceneObject*> _visibleObjects;
 
         std::vector<directionalLight*>* _directionalLights;
@@ -39,11 +44,13 @@ namespace phi
         std::vector<camera*>* _cameras;
 
         eventHandler<sceneObjectEventArgs>* _selectedSceneObjectChanged;
+        eventHandler<eventArgs>* _staticObjectsChanged;
 
         unsigned int _sceneObjectsIds;
 
     private:
         void sceneObjectIsSelectedChanged(phi::sceneObjectEventArgs e);
+        void staticObjectsChanged(phi::eventArgs e);
 
     public:
         SCENES_API scene();
@@ -53,6 +60,8 @@ namespace phi
         SCENES_API color getBackColor() const { return _backColor; }
         SCENES_API color getAmbientColor() const { return _ambientColor; }
         SCENES_API std::vector<sceneObject*>* getAllObjects() { return _allObjects; }
+        SCENES_API std::map<GLuint, sceneObject*> getStaticObjects() { return _staticObjects; }
+        SCENES_API std::map<GLuint, sceneObject*> getDynamicObjects() { return _dynamicObjects; }
         SCENES_API std::vector<sceneObject*> getVisibleObjects() const { return _visibleObjects; }
         SCENES_API GLuint getVisibleObjectsCount() const { return _visibleObjectsCount; }
         SCENES_API GLuint getAllObjectsCount() const { return _allObjectsCount; }
@@ -60,7 +69,8 @@ namespace phi
         SCENES_API std::vector<pointLight*>* getPointLights() const { return _pointLights; }
         SCENES_API std::vector<spotLight*>* getSpotLights() const { return _spotLights; }
         SCENES_API eventHandler<sceneObjectEventArgs>* getSelectedSceneObjectChanged() const { return _selectedSceneObjectChanged; }
-
+        SCENES_API eventHandler<eventArgs>* getStaticObjectsChanged() const { return _staticObjectsChanged; }
+        
         SCENES_API void setSize(size<GLuint> size);
         SCENES_API void setActiveCamera(camera* value) { _activeCamera = value; }
         SCENES_API void setBackColor(color value) { _backColor = value; }

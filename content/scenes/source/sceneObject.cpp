@@ -13,7 +13,6 @@ namespace phi
         _childrenCount = 0;
         _isSelected = false;
         _isActive = true;
-        _changed = true;
         _isInitialized = false;
         _aabb = new aabb(glm::vec3(), glm::vec3());
         _isSelectedChanged = new eventHandler<sceneObjectEventArgs>();

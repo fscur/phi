@@ -15,6 +15,7 @@ namespace phi
         GLuint _allObjectsCount;
         size<GLuint> _viewportSize;
         camera* _camera;
+        bool _redrawStaticShadowMaps;
 
     protected:
         SCENES_API virtual void onRender() = 0;
@@ -25,6 +26,7 @@ namespace phi
         SCENES_API void render(scene* scene);
         SCENES_API color getSelectionColor(int objectId, int meshId, bool selected);
         SCENES_API void resize(size<GLuint> size);
+        SCENES_API void redrawStaticShadowMaps() { _redrawStaticShadowMaps = true; };
     };
 }
 

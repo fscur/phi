@@ -32,7 +32,6 @@ namespace phi
 
     protected:
         model* _model;
-        bool _changed;
 
     private:
         void initPoints();

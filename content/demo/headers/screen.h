@@ -91,6 +91,7 @@ public:
     void hudControlGotFocus(phi::controlEventArgs e);
     void hudControlLostFocus(phi::controlEventArgs e);
     void selectedSceneObjectChanged(phi::sceneObjectEventArgs e);
+    void staticObjectsChanged(phi::eventArgs e);
 
     void update() override;
     void render() override;

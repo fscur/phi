@@ -13,10 +13,17 @@ namespace phi
     private:
         
 		std::vector<frameBuffer*> _frameBuffers;
-        std::vector<frameBuffer*> _dirLightShadowMapFrameBuffers;
+
+        std::vector<frameBuffer*> _dirLightShadowMapFrameBuffers0;
+        std::vector<frameBuffer*> _dirLightShadowMapFrameBuffers1;
+        std::vector<frameBuffer*> _spotLightShadowMapFrameBuffers0;
+        std::vector<frameBuffer*> _spotLightShadowMapFrameBuffers1;
 
         unsigned int _shadowMapSize;
         unsigned int _pointLightShadowMapSize;
+
+        float _nearPlane;
+        float _farPlane;
         glm::vec3 _pointLightShadowMapDirs[6];
         glm::vec3 _pointLightShadowMapUps[6];
 
@@ -32,8 +39,6 @@ namespace phi
         std::map<unsigned int, glm::mat4> _mvpMatrices;
         std::map<unsigned int, glm::mat4> _itmvMatrices;
 
-        std::map<directionalLight*, texture*> _dirLightShadowMaps;
-
         texture* _randomNormalsTexture;
         texture* _noiseTexture;
 
@@ -42,6 +47,25 @@ namespace phi
         float _ssaoScale;
         float _ssaoSampleRadius;
         float _ssaoIntensity;
+
+        std::map<GLuint, sceneObject*> _staticObjects;
+        std::map<GLuint, sceneObject*> _dynamicObjects;
+
+        texture* _rt0Texture;
+        texture* _rt1Texture;
+        texture* _rt2Texture;
+        texture* _rt3Texture;
+
+        shader* _shadowMapShader;
+        shader* _pointLightShadowMapShader;
+        shader* _geometryPassShader;
+        shader* _stencilShader;
+        shader* _dirLightShader;
+        shader* _spotLightShader;
+        shader* _pointLightShader;
+        shader* _ssaoShader;
+        shader* _reflectionsShader;
+        shader* _blurShader;
 
     private:
 
@@ -61,6 +85,9 @@ namespace phi
         void createSSAOShader();
 
         void geomPass();
+        void shadowMapPasses();
+        void staticShadowMapPass(frameBuffer* staticFrameBuffer, glm::mat4 l, float n, float f);
+        void dynamicShadowMapPass(frameBuffer* staticFrameBuffer, frameBuffer* dynamicFrameBuffer, glm::mat4 l, float n, float f);
         void directionalLightPass();
         void pointLightPass();
         void spotLightPass();
@@ -72,6 +99,7 @@ namespace phi
         void render();
 
         void createDirLightShadowMapsRenderTargets();
+        void createSpotLightShadowMapsRenderTargets();
 
     public:
         dsSceneRendererEx(size<GLuint> viewportSize);

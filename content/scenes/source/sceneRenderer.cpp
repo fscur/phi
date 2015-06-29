@@ -5,6 +5,7 @@ namespace phi
     sceneRenderer::sceneRenderer(size<GLuint> viewportSize)
     {
         _viewportSize = viewportSize;
+        _redrawStaticShadowMaps = false;
     }
 
     sceneRenderer::~sceneRenderer()
