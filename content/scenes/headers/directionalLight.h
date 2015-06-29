@@ -9,8 +9,8 @@ namespace phi
         public light
     {
     private:
-        glm::mat4 _orthoProjectionMatrix;
-        glm::mat4 _viewProjectionMatrix;
+        glm::mat4 _projectionMatrix;
+        glm::mat4 _viewMatrix;
     private:
         void updateViewMatrix();
 

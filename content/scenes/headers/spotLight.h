@@ -10,6 +10,9 @@ namespace phi
         public light
     {
     private:
+        glm::mat4 _projectionMatrix;
+        glm::mat4 _viewMatrix;
+
         float _range;
         float _oneOverRangeSqr;
         float _cutoff;
@@ -18,7 +21,8 @@ namespace phi
 
     private:
         float calcRadius(float cutoff, float range);
-
+        void updateViewMatrix();
+        void updateProjectionMatrix();
     protected:
         void onDirectionChanged() override;
 
@@ -26,7 +30,7 @@ namespace phi
         SCENES_API spotLight();
         SCENES_API spotLight(glm::vec3 position, color color, float intensity, float range, glm::vec3 direction, float cutoff);
         SCENES_API ~spotLight();
-
+    
         SCENES_API float getCutoff() const { return _cutoff; }
         SCENES_API float getRadius() const { return _radius; }
         SCENES_API float getRange() const { return _range; }
@@ -38,6 +42,8 @@ namespace phi
         SCENES_API void setIntensity(float value) override;
 
         SCENES_API void update() override;
+        
+		SCENES_API transform* getTransform() override;
     };
 }
 #endif

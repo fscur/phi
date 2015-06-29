@@ -13,26 +13,42 @@ namespace phi
     private:
         
 		std::vector<frameBuffer*> _frameBuffers;
+        std::vector<frameBuffer*> _dirLightShadowMapFrameBuffers;
+
+        unsigned int _shadowMapSize;
+        unsigned int _pointLightShadowMapSize;
+        glm::vec3 _pointLightShadowMapDirs[6];
+        glm::vec3 _pointLightShadowMapUps[6];
+
         quad _quad;
         bool _hasSelectedObjects;
+        bool _buffersInitialized;
 
         glm::mat4 _projMatrix;
         glm::mat4 _viewMatrix;
+        glm::mat4 _biasMatrix;
+
         std::map<unsigned int, glm::mat4> _modelMatrices;
         std::map<unsigned int, glm::mat4> _mvpMatrices;
         std::map<unsigned int, glm::mat4> _itmvMatrices;
 
         std::map<directionalLight*, texture*> _dirLightShadowMaps;
 
+        texture* _randomNormalsTexture;
+        texture* _noiseTexture;
+
+	    bool _ssaoActive;
+        float _ssaoBias;
+        float _ssaoScale;
+        float _ssaoSampleRadius;
+        float _ssaoIntensity;
+
     private:
 
-        void createRT0();
-        void createRT1();
-        void createRT2();
-        void createRT3();
-        void createRT4();
-        
+        void createGeometryPassRenderTargets();
         void createShadowMapsRenderTargets();
+        void createPointLightShadowMapRenderTargets();
+        void createFinalImageRenderTargets();
 
         void createGeomPassShader();
         void createStencilShader();
@@ -40,23 +56,28 @@ namespace phi
         void createPointLightShader();
         void createSpotLightShader();
 
-        void createShadowMapShader();
+        void createShadowMapShaders();
+
+        void createSSAOShader();
 
         void geomPass();
         void directionalLightPass();
         void pointLightPass();
         void spotLightPass();
         void selectedObjectsPass();
+        void ssao();
 
-        texture* dsSceneRendererEx::blur(texture* source);
+        texture* blur(texture* source);
 
         void render();
 
+        void createDirLightShadowMapsRenderTargets();
+
     public:
-        SCENES_API dsSceneRendererEx(size<GLuint> viewportSize);
-        SCENES_API ~dsSceneRendererEx();
-        SCENES_API void onRender() override;
-        SCENES_API void initBuffers() override;
+        dsSceneRendererEx(size<GLuint> viewportSize);
+        ~dsSceneRendererEx();
+        void onRender() override;
+        void initBuffers() override;
     };
 }
 
