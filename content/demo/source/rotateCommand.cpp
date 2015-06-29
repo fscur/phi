@@ -80,7 +80,7 @@ namespace phi
         glm::vec3 camRight = camera->getRight();
         glm::vec3 camUp = camera->getUp();
 
-        glm::vec3 targetPos = camPos + camDir * z + camRight * x + camUp * y;
+        glm::vec3 targetPos = camPos + camDir * z + -camRight * x + camUp * y;
 
         _targetPos = targetPos;
         _zEye = z;
@@ -112,8 +112,12 @@ namespace phi
         float x = (dx/w) * 3 * PI;
         float y = (dy/h) * 3 * PI;
 
-        camera->orbit(_targetPos, glm::vec3(0.0, 1.0, 0.0), x);
-        camera->orbit(_targetPos, camera->getRight(), y);
+        //camera->orbit(_targetPos, glm::vec3(0.0, 1.0, 0.0), x);
+        //camera->update();
+        //camera->orbit(_targetPos, -camera->getRight(), y);
+        //camera->orbit2(_targetPos, glm::vec3(0.0, 1.0, 0.0), -camera->getRight(), x, y);
+        camera->orbit2(_targetPos, camera->getUp(), -camera->getRight(), x, y);
+        camera->update();
 
         info->lastMousePos = info->mousePos;
     }

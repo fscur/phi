@@ -15,7 +15,7 @@ namespace phi
         _isActive = true;
         _changed = true;
         _isInitialized = false;
-        _aabb = new aabb(glm::vec3(), glm::vec3());
+        setAabb(new aabb(glm::vec3(), glm::vec3()));
         _isSelectedChanged = new eventHandler<sceneObjectEventArgs>();
     }
 
@@ -23,8 +23,6 @@ namespace phi
     {
         for (unsigned int i = 0; i < _childrenCount; i++)
             DELETE(_children[i]);
-
-        DELETE(_aabb);
     }
 
     void sceneObject::initialize()
@@ -237,6 +235,6 @@ namespace phi
             points[i] = glm::vec3(p.x, p.y, p.z)/p.w;
         }
 
-        _aabb->update(points);
+        getAabb()->update(points);
     }
 }

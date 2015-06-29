@@ -1,4 +1,5 @@
 #include "plane.h"
+#include <glm/gtx/vector_angle.hpp>
 
 namespace phi
 {
@@ -13,7 +14,7 @@ namespace phi
     plane::plane(glm::vec3 normal, float width, float depth, material* material)
         : sceneObject()
     {
-        _size = size<float>(width, 0.01f, depth);
+        setSize(size<float>(width, 0.01f, depth));
 
         auto m = create(width, depth);
         m->setMaterial(material);
@@ -23,13 +24,9 @@ namespace phi
 
         _normal = glm::normalize(normal);
 
-        _up = _normal;
-
-        _right = glm::cross(_up, _direction);
-        _direction = glm::cross(_right, _up);
-
-        _right = glm::normalize(_right);
-        _direction = glm::normalize(_direction);
+        auto angle = glm::angle(getUp(), normal);
+        auto axis = glm::cross(getUp(), normal);
+        rotate(angle, axis);
     }
 
     mesh* plane::create(float width, float depth)
@@ -80,13 +77,9 @@ namespace phi
     {
         _normal = glm::normalize(normal);
 
-        _up = _normal;
-
-        _right = glm::cross(_up, _direction);
-        _direction = glm::cross(_right, _up);
-
-        _right = glm::normalize(_right);
-        _direction = glm::normalize(_direction);
+        auto angle = glm::angle(getUp(), normal);
+        auto axis = glm::cross(getUp(), normal);
+        rotate(angle, axis);
     }
 
     void plane::addPoint(glm::vec3 point)

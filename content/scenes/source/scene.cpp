@@ -214,7 +214,7 @@ namespace phi
             stream.write((char*)&size.width, sizeof(float));
             stream.write((char*)&size.height, sizeof(float));
             stream.write((char*)&size.depth, sizeof(float));
-            auto quat = sceneObj->getQuaternion();
+            auto quat = sceneObj->getOrientation();
             stream.write((char*)&quat.x, sizeof(float));
             stream.write((char*)&quat.y, sizeof(float));
             stream.write((char*)&quat.z, sizeof(float));
@@ -256,7 +256,7 @@ namespace phi
             auto obj = getSceneObjectById(id);
             obj->setPosition(glm::vec3(px, py, pz));
             obj->setSize(size<float>(w, h, d));
-            obj->setQuaternion(glm::quat(qw, qx, qy, qz));
+            obj->setOrientation(glm::quat(qw, qx, qy, qz));
         }
 
         stream.close();
