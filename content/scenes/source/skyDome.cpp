@@ -12,7 +12,7 @@ namespace phi
 		_radius = radius;
 
         auto d = 2.0f * radius;
-        _size = size<float>(d, radius, d);
+        setSize(size<float>(d, radius, d));
 
         _model = new model("skyDome", "");
         auto m = create(rings, sectors);

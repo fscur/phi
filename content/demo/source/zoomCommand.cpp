@@ -89,7 +89,7 @@ namespace phi
         glm::vec3 camRight = camera->getRight();
         glm::vec3 camUp = camera->getUp();
 
-        glm::vec3 targetPos = camPos + camDir * z + camRight * x + camUp * y;
+        glm::vec3 targetPos = camPos + camDir * z + -camRight * x + camUp * y;
 
         if (_in)
             camera->zoomIn(targetPos);

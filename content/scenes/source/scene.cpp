@@ -262,7 +262,7 @@ namespace phi
             stream.write((char*)&size.width, sizeof(float));
             stream.write((char*)&size.height, sizeof(float));
             stream.write((char*)&size.depth, sizeof(float));
-            auto quat = sceneObj->getQuaternion();
+            auto quat = sceneObj->getOrientation();
             stream.write((char*)&quat.x, sizeof(float));
             stream.write((char*)&quat.y, sizeof(float));
             stream.write((char*)&quat.z, sizeof(float));

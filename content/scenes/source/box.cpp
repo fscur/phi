@@ -6,7 +6,7 @@ namespace phi
     box::box(phi::size<float> size, phi::material* material)
         : sceneObject()
     {   
-        _size = size;
+        setSize(size);
         _model = new model("box", "");
         auto m = create();
         

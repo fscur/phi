@@ -145,7 +145,7 @@ namespace phi
                 rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
  
             rotationAxis = glm::normalize(rotationAxis);
-            return glm::angleAxis(180.0f, rotationAxis);
+            return glm::angleAxis(glm::pi<float>(), rotationAxis);
         }
  
         rotationAxis = glm::cross(start, dest);

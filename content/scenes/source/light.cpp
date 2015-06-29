@@ -3,18 +3,19 @@
 
 namespace phi
 {
-    light::light()
+    light::light() :
+        object3D()
     {
-        _position = glm::vec3(0.0f);
         _color = color::black;
         _intensity = 0.0f;
         _shadowMap = nullptr;
         _transform = new transform();
     }
 
-    light::light(glm::vec3 position, color color, float intensity)
+    light::light(glm::vec3 position, color color, float intensity) :
+        object3D()
     {
-        _position = position;
+        setPosition(position);
         _color = color;
         _intensity = intensity;
         _shadowMap = nullptr;
@@ -34,11 +35,6 @@ namespace phi
         return _transform;
     }
 
-    glm::vec3 light::getPosition()
-    {
-        return _position;
-    }
-
     color light::getColor()
     {
         return _color;
@@ -52,11 +48,6 @@ namespace phi
     texture* light::getShadowMap()
     {
         return _shadowMap;
-    }
-
-    void light::setPosition(glm::vec3 position)
-    {
-        _position = position;
     }
 
     void light::setColor(color color)

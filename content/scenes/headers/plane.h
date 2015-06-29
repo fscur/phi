@@ -18,7 +18,7 @@ namespace phi
             SCENES_API plane(glm::vec3 normal, float width, float depth, material* material);
             SCENES_API ~plane(void);
 
-            SCENES_API glm::vec3 getNormal() const { return _up; }
+            SCENES_API glm::vec3 getNormal() const { return _normal; }
             SCENES_API void setNormal(glm::vec3 normal);
 
             SCENES_API void addPoint(glm::vec3 point);

@@ -11,36 +11,32 @@ namespace phi
     directionalLight::directionalLight(glm::vec3 position, color color, float intensity, glm::vec3 direction) :
         light(position, color, intensity)
     {
-        _direction = glm::normalize(direction);
-        updateViewMatrix();
+        setDirection(direction);
     }
 
     directionalLight::~directionalLight()
-    {}
-
-    glm::vec3 directionalLight::getDirection()
     {
-        return _direction;
     }
 
     void directionalLight::updateViewMatrix()
     {
+        auto direction = getDirection();
         glm::vec3 J = glm::vec3(0.0f, 1.0f, 0.0f);
-        glm::vec3 up = glm::normalize(J - _direction * glm::dot(_direction, J));
+        glm::vec3 up = glm::normalize(J - direction * glm::dot(direction, J));
 
-        _viewMatrix = glm::lookAt(_position, _position + _direction, up);
+        _viewMatrix = glm::lookAt(getPosition(), getPosition() + getDirection(), up);
         _transform->setViewMatrix(_viewMatrix);
     }
 
-    void directionalLight::setDirection(glm::vec3 direction)
+
+    void directionalLight::onDirectionChanged()
     {
-        _direction = glm::normalize(direction);
         updateViewMatrix();
     }
 
-    void directionalLight::setPosition(glm::vec3 position)
+
+    void directionalLight::onPositionChanged()
     {
-        _position = position;
         updateViewMatrix();
     }
 

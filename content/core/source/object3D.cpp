@@ -5,7 +5,7 @@ namespace phi
     object3D::object3D()
     {
         _position = glm::vec3(0.0f, 0.0f, 0.0f);
-        _right = glm::vec3(1.0f, 0.0f, 0.0f);
+        _right = glm::vec3(-1.0f, 0.0f, 0.0f);
         _up = glm::vec3(0.0f, 1.0f, 0.0f);
         _direction = glm::vec3(0.0f, 0.0f, 1.0f);
         _orientation = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), _direction);
@@ -16,39 +16,61 @@ namespace phi
 
         _size = size<float>(1.0f, 1.0f, 1.0f);
         _changed = true;
+        _aabb = nullptr;
     }
 
     object3D::~object3D()
     {
+        DELETE(_aabb);
     }
 
-    void object3D::setOrientation(glm::vec3 direction)
+    void object3D::setPosition(glm::vec3 value)
     {
-        _orientation = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), direction);
+        _position = value;
+        _changed = true;
+        onPositionChanged();
+    }
+
+    void object3D::setOrientation(glm::quat value)
+    {
+        _orientation = value;
         _changed = true;
     }
 
     void object3D::setDirection(glm::vec3 direction)
     {
-        _direction = glm::normalize(direction);
-        _right = glm::normalize(_right - _direction * glm::dot(_direction, _right));
-        _up = glm::cross(_direction, _right);
-        _orientation = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), direction);
+        _orientation = mathUtils::rotationBetweenVectors(_direction, direction) * _orientation;
+        _changed = true;
+        onDirectionChanged();
+    }
+
+    void object3D::setSize(size<float> value)
+    {
+        _size = value;
         _changed = true;
     }
 
     glm::vec3 object3D::getDirection()
     {
+        if (_changed)
+            update();
+
         return _direction;
     }
 
     glm::vec3 object3D::getRight()
     {
+        if (_changed)
+            update();
+
         return _right;
     }
 
     glm::vec3 object3D::getUp()
     {
+        if (_changed)
+            update();
+
         return _up;
     }
 
@@ -77,8 +99,8 @@ namespace phi
 
     void object3D::update(glm::mat4 parentModelMatrix)
     {
-        _direction = _orientation * glm::vec3(1.0f, 0.0f, 0.0f);
-        _right = _orientation * glm::vec3(0.0f, 0.0f, 1.0f);
+        _direction = _orientation * glm::vec3(0.0f, 0.0f, 1.0f);
+        _right = _orientation * glm::vec3(1.0f, 0.0f, 0.0f);
         _up = _orientation * glm::vec3(0.0f, 1.0f, 0.0f);
 
         glm::mat4 rotation = getRotationMatrix();

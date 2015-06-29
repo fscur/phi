@@ -7,7 +7,7 @@ namespace phi
     {
         _radius = radius;
         auto d = 2.0f * radius;
-        _size = size<float>(d, d, d);
+        setSize(size<float>(d, d, d));
 
         _model = new model("sphere", "");
         auto m = create(rings + 1, sectors + 1);
