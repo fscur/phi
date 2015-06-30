@@ -10,8 +10,8 @@ namespace phi
     dsSceneRendererEx::dsSceneRendererEx(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
     {
         _nearPlane = 0.1f;
-        _farPlane = 10.0f;
-        _shadowMapSize = 512;
+        _farPlane = 20.0f;
+        _shadowMapSize = 2048;
         _pointLightShadowMapSize = 256;
 
         _pointLightShadowMapDirs[0] = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -709,19 +709,26 @@ namespace phi
         _frameBuffers[2]->bindForReading();
         _frameBuffers[2]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
         
-        _dirLightShadowMapFrameBuffers0[0]->bindForReading();
-        _dirLightShadowMapFrameBuffers0[0]->blit("rt0", 0, 0, _shadowMapSize/2, _shadowMapSize/2);
+        _dirLightShadowMapFrameBuffers1[0]->bindForReading();
+        _dirLightShadowMapFrameBuffers1[0]->blit("rt0", 0, 0, 400, 400);
+        //
+        //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
+        //_dirLightShadowMapFrameBuffers1[0]->blit("rt0", _shadowMapSize/2, 0, _shadowMapSize/2, _shadowMapSize/2);
+        
+        /*_dirLightShadowMapFrameBuffers0[0]->bindForReading();
+        _dirLightShadowMapFrameBuffers0[0]->blit("depth", 0, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
         
         _dirLightShadowMapFrameBuffers1[0]->bindForReading();
-        _dirLightShadowMapFrameBuffers1[0]->blit("rt0", _shadowMapSize/2, 0, _shadowMapSize/2, _shadowMapSize/2);
+        _dirLightShadowMapFrameBuffers1[0]->blit("depth", _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);*/
+        
         _frameBuffers[0]->bindForReading();
 
-        _dirLightShadowMapFrameBuffers0[1]->bindForReading();
+        /*_dirLightShadowMapFrameBuffers0[1]->bindForReading();
         _dirLightShadowMapFrameBuffers0[1]->blit("rt0", 0, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
         
         _dirLightShadowMapFrameBuffers1[1]->bindForReading();
         _dirLightShadowMapFrameBuffers1[1]->blit("rt0", _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
-        _frameBuffers[0]->bindForReading();
+        _frameBuffers[0]->bindForReading();*/
 
         //if (_hasSelectedObjects)
             //selectedObjectsPass();
@@ -828,14 +835,15 @@ namespace phi
         glViewport(0, 0, _shadowMapSize, _shadowMapSize);
 
         _shadowMapShader->bind();
-
+        
         if (_redrawStaticShadowMaps)
         {
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
             glDepthMask(GL_TRUE);
             glCullFace(GL_BACK);
-            glClearColor(1.0, 1.0, 1.0, 1.0);
+            glClearColor(0.0, 0.0, 0.0, 0.0);
+            glClearDepth(1.0);
 
             for (GLuint i = 0; i < directionalLightsCount; i++)
             {
@@ -866,12 +874,8 @@ namespace phi
             glDisable(GL_DEPTH_TEST);
         }
 
-        //if (_dynamicObjects.size() > 0)
-        //{
-        
-            //glEnable(GL_DEPTH_TEST);
-            //glDisable(GL_DEPTH_TEST);
-            
+        if (_dynamicObjects.size() > 0)
+        {
             for (GLuint i = 0; i < directionalLightsCount; i++)
             {
                 auto light = (*directionalLights)[i];
@@ -895,14 +899,12 @@ namespace phi
 
                 light->setShadowMap(_spotLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture());
             }
-        //}   
+        }   
 
         _shadowMapShader->unbind();
         
+        glClearDepth(1.0);
         glViewport(0, 0, _viewportSize.width, _viewportSize.height);
-
-        
-        glDisable(GL_DEPTH_TEST);
     }
 
     void dsSceneRendererEx::staticShadowMapPass(frameBuffer* staticFrameBuffer, glm::mat4 l, float n, float f)
@@ -934,12 +936,12 @@ namespace phi
     void dsSceneRendererEx::dynamicShadowMapPass(frameBuffer* staticFrameBuffer, frameBuffer* dynamicFrameBuffer, glm::mat4 l, float n, float f)
     {
         dynamicFrameBuffer->bindForDrawing();
-        glDrawBuffer(GL_COLOR_ATTACHMENT0);
         staticFrameBuffer->bindForReading();
-        staticFrameBuffer->blit("rt0", 0, 0, _shadowMapSize, _shadowMapSize);
+
+        staticFrameBuffer->blit("rt0", 0, 0, _shadowMapSize, _shadowMapSize, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         
-        glDrawBuffer(GL_DEPTH_ATTACHMENT);
-        staticFrameBuffer->blit("depth", 0, 0, _shadowMapSize, _shadowMapSize);
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
 
         for (std::map<GLuint, sceneObject*>::iterator it = _dynamicObjects.begin(); it != _dynamicObjects.end(); ++it)
         {              
@@ -956,6 +958,8 @@ namespace phi
             for (GLuint j = 0; j < meshesCount; j++)
                 meshRenderer::render(meshes[j]);
         }
+
+        glDisable(GL_DEPTH_TEST);
 
         dynamicFrameBuffer->unbind();
     }

@@ -41,13 +41,13 @@ namespace phi
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    bool frameBuffer::isComplete()
+    bool frameBuffer::isComplete(GLenum target)
     {
-        GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        GLenum status = glCheckFramebufferStatus(target);
 
-        if (Status != GL_FRAMEBUFFER_COMPLETE)
+        if (status != GL_FRAMEBUFFER_COMPLETE)
         {
-            std::string msg = &"FB error, status: 0x%x\n" [Status];
+            std::string msg = &"FB error, status: 0x%x\n" [status];
             LOG(msg);
             return false;
         }
@@ -120,7 +120,7 @@ namespace phi
         glEnable(value);
     }
 
-    void frameBuffer::blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height)
+    void frameBuffer::blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask, GLenum filter)
     {
         renderTarget* renderTarget = (*_renderTargets)[renderTargetName];
 
@@ -135,8 +135,8 @@ namespace phi
             y, 
             x + width, 
             y + height, 
-            GL_COLOR_BUFFER_BIT, 
-            GL_LINEAR);
+            mask, 
+            filter);
     }
 
     bool frameBuffer::addRenderTarget(renderTarget* renderTarget)

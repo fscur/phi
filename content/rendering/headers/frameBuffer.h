@@ -45,7 +45,7 @@ namespace phi
 
 		RENDERING_API virtual void init();
 
-		RENDERING_API bool isComplete();
+		RENDERING_API bool isComplete(GLenum target = GL_FRAMEBUFFER);
 
 		RENDERING_API void bind();
 		RENDERING_API void bindForDrawing();
@@ -59,7 +59,7 @@ namespace phi
 		RENDERING_API void setViewport(GLuint x, GLuint y, size<GLuint> size);
 		RENDERING_API virtual void clear();
 
-		RENDERING_API void blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height);
+		RENDERING_API void blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask = GL_COLOR_BUFFER_BIT, GLenum filter = GL_LINEAR);
 
 		RENDERING_API bool addRenderTarget(renderTarget* renderTarget);
 		RENDERING_API renderTarget* getRenderTarget(std::string name);
