@@ -35,6 +35,7 @@ float calcVarianceShadowFactor(vec3 fragPosition)
 {	
 	vec4 worldSpacePos = iv * vec4(fragPosition, 1.0);
 	vec4 lightSpacePos = l * worldSpacePos;
+	lightSpacePos /= lightSpacePos.w;
 	vec2 uv = lightSpacePos.xy;
 
 	vec2 moments = texture(shadowMap, uv).xy;
@@ -105,7 +106,7 @@ void main(void)
    	vec4 diffuseColor = vec4(c1.xyz, 1.0);
    	vec4 specularColor = vec4(c2.xyz, 1.0);
 
-   	normal = normalize(normal);
+   	//normal = normalize(normal);
 	
 	vec3 lightDir = fragPosition - (v * vec4(light.position, 1.0)).xyz;
 	vec3 lightDirNormalized = normalize(lightDir);
@@ -118,7 +119,7 @@ void main(void)
 	{
 		float distanceToPoint = length(lightDir);
 		
-		vec3 s = normalize(-lightDirNormalized);
+		vec3 s = -lightDirNormalized;
 		vec3 fp = normalize(-fragPosition);
 		vec3 h = normalize(fp+s);
 		float diffuse = light.intensity * max(0.0, dot(normal, s));
@@ -136,14 +137,4 @@ void main(void)
 
 		fragColor *= calcShadowFactor(fragPosition);
 	}
-
-		//vec4 worldSpacePos = iv * vec4(fragPosition, 1.0);
-		//vec4 lightSpacePos = l * worldSpacePos;
-		//vec2 uv = lightSpacePos.xy/lightSpacePos.w;
-		//fragColor = vec4(texture(shadowMap, uv).x);
-	/*
-	//fragColor += vec4(0.0, 0.0, 0.2, 1.0);
-	*/
-
-	//fragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

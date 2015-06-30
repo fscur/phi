@@ -17,6 +17,7 @@ vec2 varianceShadow()
 	float dy = dFdy(depth);
 	float bias = depth * depth + 0.25 * (dx * dx + dy * dy);
     return vec2(depth, bias);
+    //return vec2(depth,depth); 
 }
 
 void main()

@@ -50,14 +50,14 @@ void screen::initScene()
 {
     phi::scene* s = new phi::scene();
     s->setSize(getSize());
-    s->getActiveCamera()->setPosition(glm::vec3(1.0f, 3.0f, 12.0f));
-    s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.5f, 0.0f));
+    s->getActiveCamera()->setPosition(glm::vec3(0.0f, 0.5f, 5.0f));
+    //s->getActiveCamera()->setTarget(glm::vec3(0.0f, 0.5f, 0.0f));
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
     s->getSelectedSceneObjectChanged()->bind<screen, &screen::selectedSceneObjectChanged>(this);
     s->getStaticObjectsChanged()->bind<screen, &screen::staticObjectsChanged>(this);
     
     ///* decoration */
-    //
+    
     //phi::sceneObject* flower = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("flower.model"));
     //flower->setPosition(glm::vec3(2.0f, 0.8f, 0.0f));
     //s->add(flower);
@@ -207,27 +207,32 @@ void screen::initScene()
     floor->setPosition(glm::vec3(0.0, 0.0, 0.0));
     s->add(floor);
     //
-    //phi::sceneObject* ceiling = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling.model"));
-    //ceiling->setPosition(glm::vec3(0.0, 3.5, 0.0));
-    //s->add(ceiling);
+    phi::sceneObject* ceiling = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling.model"));
+    ceiling->setPosition(glm::vec3(0.0, 3.5, 0.0));
+    s->add(ceiling);
 
-    //phi::sceneObject* left_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
-    //left_wall->setPosition(glm::vec3(-5.0, 0.0, 0.0));
-    //s->add(left_wall);
+    phi::sceneObject* left_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
+    left_wall->setPosition(glm::vec3(-5.0, 0.0, 0.0));
+    s->add(left_wall);
 
-    //phi::sceneObject* right_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
-    //right_wall->setPosition(glm::vec3(5.0, 0.0, 0.0));
-    //right_wall->yaw(phi::PI);
-    //s->add(right_wall);
+    phi::sceneObject* right_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
+    right_wall->setPosition(glm::vec3(5.0, 0.0, 0.0));
+    right_wall->yaw(phi::PI);
+    s->add(right_wall);
 
-    //phi::sceneObject* back_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("back_wall.model"));
-    //back_wall->setPosition(glm::vec3(0.0, 0.0, -2.0));
-    //s->add(back_wall);
+    phi::sceneObject* back_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("back_wall.model"));
+    back_wall->setPosition(glm::vec3(0.0, 0.0, -2.0));
+    s->add(back_wall);
 
-    //phi::sceneObject* front_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("front_wall.model"));
-    //front_wall->setPosition(glm::vec3(0.0, 0.0, 2.0));
-    ////s->add(front_wall);
+    phi::sceneObject* front_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("front_wall.model"));
+    front_wall->setPosition(glm::vec3(0.0, 0.0, 2.0));
+    //s->add(front_wall);
 
+    //
+    //phi::sceneObject* casket1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("casket.model"));
+    //casket1->setPosition(glm::vec3(1.0f, 0.0f, 1.5f));
+    //casket1->yaw(phi::PI + phi::PI_OVER_2);
+    //s->add(casket1);
     //
     //auto pos = glm::vec3(2.0, 5.0, -3.0);
     //phi::directionalLight* dirLight0 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
@@ -239,7 +244,7 @@ void screen::initScene()
 
     //pos = glm::vec3(-2.0, 5.0, 3.0);
     //phi::directionalLight* dirLight2 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
-    //s->add(dirLight2);
+    ////s->add(dirLight2);
 
     //pos = glm::vec3(-2.0, 5.0, -3.0);
     //phi::directionalLight* dirLight3 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
@@ -247,23 +252,23 @@ void screen::initScene()
 
     //pos = glm::vec3(2.0, 2.0, -3.0);
     //phi::directionalLight* dirLight4 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
-    //s->add(dirLight4);
+    ////s->add(dirLight4);
 
     //pos = glm::vec3(2.0, 2.0, 3.0);
     //phi::directionalLight* dirLight5 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
-    //s->add(dirLight5);
+    ////s->add(dirLight5);
 
-    //pos = glm::vec3(-2.0, 2.0, 3.0);
-    //phi::directionalLight* dirLight6 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
-    //s->add(dirLight6);
+    auto pos = glm::vec3(-4.0, 4.0, 6.0);
+    phi::directionalLight* dirLight6 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight6);
 
-    //auto pos = glm::vec3(-2.0, 2.0, -3.0);
-    //phi::directionalLight* dirLight7 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.0f, -pos);
-    //s->add(dirLight7);
+    pos = glm::vec3(-4.0, 4.0, -6.0);
+    phi::directionalLight* dirLight7 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, -pos);
+    s->add(dirLight7);
     
-    auto dir = glm::vec3(1.0, -1.0, 0.0);
-    phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(-2.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.0f, 5.0f, dir, 0.9f);
-    s->add(spotLight0);
+    //auto dir = glm::vec3(1.0, -1.0, 0.0);
+    //phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(-2.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.0f, 5.0f, dir, 0.9f);
+    //s->add(spotLight0);
 
     //phi::pointLight* pointLight = new phi::pointLight(glm::vec3(-2.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.0f, 5.0f);
     //s->add(pointLight0);
@@ -274,7 +279,7 @@ void screen::initScene()
 
     cube = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
     cube->setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-    cube->setOrientation(glm::vec3(0.0f, 1.0f, 0.0f));
+    //cube->setOrientation(glm::vec3(0.0f, 1.0f, 0.0f));
     s->add(cube);
 
     phi::scenesManager::get()->addScene(s);
@@ -479,7 +484,7 @@ void screen::update()
     if (oi)
     {
         auto pos = cube->getPosition();
-        cube->setPosition(glm::vec3(pos.x + 0.0001, pos.y, pos.z));
+        cube->setPosition(glm::vec3(pos.x + 0.001, pos.y, pos.z));
     }
 
     phi::scenesManager::get()->update();

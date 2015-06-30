@@ -708,10 +708,23 @@ namespace phi
         renderingSystem::defaultFrameBuffer->bindForDrawing();
         _frameBuffers[2]->bindForReading();
         _frameBuffers[2]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+        
+        _dirLightShadowMapFrameBuffers0[0]->bindForReading();
+        _dirLightShadowMapFrameBuffers0[0]->blit("rt0", 0, 0, _shadowMapSize/2, _shadowMapSize/2);
+        
+        _dirLightShadowMapFrameBuffers1[0]->bindForReading();
+        _dirLightShadowMapFrameBuffers1[0]->blit("rt0", _shadowMapSize/2, 0, _shadowMapSize/2, _shadowMapSize/2);
         _frameBuffers[0]->bindForReading();
 
-        if (_hasSelectedObjects)
-            selectedObjectsPass();
+        _dirLightShadowMapFrameBuffers0[1]->bindForReading();
+        _dirLightShadowMapFrameBuffers0[1]->blit("rt0", 0, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
+        
+        _dirLightShadowMapFrameBuffers1[1]->bindForReading();
+        _dirLightShadowMapFrameBuffers1[1]->blit("rt0", _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
+        _frameBuffers[0]->bindForReading();
+
+        //if (_hasSelectedObjects)
+            //selectedObjectsPass();
     }
 
     void dsSceneRendererEx::geomPass()
@@ -849,11 +862,15 @@ namespace phi
             }
 
             _redrawStaticShadowMaps = false;
+            
+            glDisable(GL_DEPTH_TEST);
         }
 
-        if (_dynamicObjects.size() > 0)
-        {
-            glDisable(GL_DEPTH_TEST);
+        //if (_dynamicObjects.size() > 0)
+        //{
+        
+            //glEnable(GL_DEPTH_TEST);
+            //glDisable(GL_DEPTH_TEST);
             
             for (GLuint i = 0; i < directionalLightsCount; i++)
             {
@@ -878,11 +895,14 @@ namespace phi
 
                 light->setShadowMap(_spotLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture());
             }
-        }   
+        //}   
 
         _shadowMapShader->unbind();
         
         glViewport(0, 0, _viewportSize.width, _viewportSize.height);
+
+        
+        glDisable(GL_DEPTH_TEST);
     }
 
     void dsSceneRendererEx::staticShadowMapPass(frameBuffer* staticFrameBuffer, glm::mat4 l, float n, float f)
@@ -914,8 +934,12 @@ namespace phi
     void dsSceneRendererEx::dynamicShadowMapPass(frameBuffer* staticFrameBuffer, frameBuffer* dynamicFrameBuffer, glm::mat4 l, float n, float f)
     {
         dynamicFrameBuffer->bindForDrawing();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
         staticFrameBuffer->bindForReading();
         staticFrameBuffer->blit("rt0", 0, 0, _shadowMapSize, _shadowMapSize);
+        
+        glDrawBuffer(GL_DEPTH_ATTACHMENT);
+        staticFrameBuffer->blit("depth", 0, 0, _shadowMapSize, _shadowMapSize);
 
         for (std::map<GLuint, sceneObject*>::iterator it = _dynamicObjects.begin(); it != _dynamicObjects.end(); ++it)
         {              

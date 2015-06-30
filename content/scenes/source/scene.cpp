@@ -89,7 +89,7 @@ namespace phi
 
     void scene::update()
     {
-        bool cameraChanged = _activeCamera->getChanged();
+        //bool cameraChanged = _activeCamera->getChanged();
 
         for (GLuint i = 0; i < _cameras->size(); i++)
             (*_cameras)[i]->update();
@@ -103,8 +103,6 @@ namespace phi
         if (_allObjects->size() == 0)
             return;
 
-        //if (cameraChanged)
-        //{
         _visibleObjects.clear();
         _visibleObjectsCount = 0;
 
@@ -156,15 +154,6 @@ namespace phi
 
             sceneObj->update();
         }
-
-        /*}
-        else
-        {
-        SceneObject** sceneObjects = &_allObjects[0];
-
-        for (unsigned int i = 0; i < _allObjectsCount; i++)
-        sceneObjects[i]->Update();
-        }*/
     }
 
     void scene::setSize(size<GLuint> size)
