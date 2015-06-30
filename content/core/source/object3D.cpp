@@ -5,7 +5,7 @@ namespace phi
     object3D::object3D()
     {
         _position = glm::vec3(0.0f, 0.0f, 0.0f);
-        _right = glm::vec3(-1.0f, 0.0f, 0.0f);
+        _right = glm::vec3(1.0f, 0.0f, 0.0f);
         _up = glm::vec3(0.0f, 1.0f, 0.0f);
         _direction = glm::vec3(0.0f, 0.0f, 1.0f);
         _orientation = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), _direction);

@@ -11,6 +11,8 @@ namespace phi
         : object3D()
     {
         _frustum = new frustum(glm::vec3(), getDirection(), getUp(), zNear, zFar, aspect, fov);
+        _focus = 1.0f;
+        _viewMatrix = glm::lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp());
     }
 
     void camera::setTarget(glm::vec3 value)
