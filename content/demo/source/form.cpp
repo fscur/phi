@@ -93,8 +93,8 @@ void form::initWindow()
         r.h,
         //1024,
         //768,
-        SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-    //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
+        //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+    SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
 
     if (_window == NULL)
         LOG("Window could not be created! SDL_Error: " << SDL_GetError());
@@ -283,7 +283,7 @@ bool form::loop()
         _fps = _frames;
         _frames = 0;
         _processedTime -= 1000.0f;
-        LOG(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
+        //LOG(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
     }
 
     _lastTime = _now;

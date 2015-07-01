@@ -18,9 +18,12 @@ namespace phi
         std::vector<frameBuffer*> _dirLightShadowMapFrameBuffers1;
         std::vector<frameBuffer*> _spotLightShadowMapFrameBuffers0;
         std::vector<frameBuffer*> _spotLightShadowMapFrameBuffers1;
+        std::vector<frameBuffer*> _pointLightShadowMapFrameBuffers0;
+        std::vector<frameBuffer*> _pointLightShadowMapFrameBuffers1;
 
         unsigned int _shadowMapSize;
         unsigned int _pointLightShadowMapSize;
+        unsigned int _pointLightIndex;
 
         float _nearPlane;
         float _farPlane;
@@ -70,8 +73,9 @@ namespace phi
     private:
 
         void createGeometryPassRenderTargets();
-        void createShadowMapsRenderTargets();
-        void createPointLightShadowMapRenderTargets();
+        void createDirLightShadowMapsRenderTargets();
+        void createSpotLightShadowMapsRenderTargets();
+        void createPointLightShadowMapsRenderTargets();
         void createFinalImageRenderTargets();
 
         void createGeomPassShader();
@@ -86,6 +90,7 @@ namespace phi
 
         void geomPass();
         void shadowMapPasses();
+        void pointLightShadowMapPasses();
         void staticShadowMapPass(frameBuffer* staticFrameBuffer, glm::mat4 l, float n, float f);
         void dynamicShadowMapPass(frameBuffer* staticFrameBuffer, frameBuffer* dynamicFrameBuffer, glm::mat4 l, float n, float f);
         void directionalLightPass();
@@ -97,9 +102,6 @@ namespace phi
         texture* blur(texture* source);
 
         void render();
-
-        void createDirLightShadowMapsRenderTargets();
-        void createSpotLightShadowMapsRenderTargets();
 
     public:
         dsSceneRendererEx(size<GLuint> viewportSize);

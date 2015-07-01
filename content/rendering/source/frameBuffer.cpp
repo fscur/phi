@@ -75,12 +75,21 @@ namespace phi
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->getId(), 0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFace, cubeMapRenderTarget->getTexture()->getId() +1, 0);
         glDrawBuffer(cubeMapRenderTarget->getAttachment());
     }
 
     void frameBuffer::bindForReading()
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
+    }
+
+    void frameBuffer::bindForReading(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace)
+    {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
+        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->getId(), 0);
+        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFace, cubeMapRenderTarget->getTexture()->getId() +1, 0);
+        glReadBuffer(cubeMapRenderTarget->getAttachment());
     }
 
     void frameBuffer::unbind()
@@ -139,6 +148,21 @@ namespace phi
             filter);
     }
 
+    void frameBuffer::blita(GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask, GLenum filter)
+    {
+        glBlitFramebuffer(
+            0,
+            0,
+            _size.width,
+            _size.height,
+            x, 
+            y, 
+            x + width, 
+            y + height, 
+            mask, 
+            filter);
+    }
+
     bool frameBuffer::addRenderTarget(renderTarget* renderTarget)
     {
         if (_renderTargets->find(renderTarget->getName()) != _renderTargets->end())
@@ -154,6 +178,16 @@ namespace phi
                 renderTarget->getTexTarget(),
                 renderTarget->getTexture()->getId(),
                 renderTarget->getLevel());
+        }
+        else  if (renderTarget->getTexture()->getTextureType() == GL_TEXTURE_CUBE_MAP)
+        {
+            for (GLuint i = 0; i < 6; i++)
+            {
+                //glFramebufferTextureARB(GL_FRAMEBUFFER, renderTarget->getAttachment(), renderTarget->getTexture()->getId(), 0);
+                //glFramebufferTextureARB(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, tColorCubeMap, 0);
+                
+                glFramebufferTexture2D(GL_FRAMEBUFFER, renderTarget->getAttachment(), GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, renderTarget->getTexture()->getId(), renderTarget->getLevel());
+            }
         }
 
         if (!isComplete())

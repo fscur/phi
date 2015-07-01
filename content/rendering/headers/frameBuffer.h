@@ -52,6 +52,7 @@ namespace phi
         RENDERING_API void bindForDrawing(renderTarget* renderTarget);
         RENDERING_API void bindForDrawing(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace);
 		RENDERING_API void bindForReading();
+        RENDERING_API void bindForReading(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace);
 		RENDERING_API void unbind();
 
 		RENDERING_API void enable(GLenum value);
@@ -60,7 +61,7 @@ namespace phi
 		RENDERING_API virtual void clear();
 
 		RENDERING_API void blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask = GL_COLOR_BUFFER_BIT, GLenum filter = GL_LINEAR);
-
+        RENDERING_API void blita(GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask = GL_COLOR_BUFFER_BIT, GLenum filter = GL_LINEAR);
 		RENDERING_API bool addRenderTarget(renderTarget* renderTarget);
 		RENDERING_API renderTarget* getRenderTarget(std::string name);
 
