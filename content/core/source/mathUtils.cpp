@@ -136,7 +136,7 @@ namespace phi
         float cosTheta = glm::dot(start, dest);
         glm::vec3 rotationAxis;
  
-        if (cosTheta < -1 + 0.001f){
+        if (cosTheta < -1 + 0.000001f){
             // special case when vectors in opposite directions:
             // there is no "ideal" rotation axis
             // So guess one; any will do as long as it's perpendicular to start

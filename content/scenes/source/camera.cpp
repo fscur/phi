@@ -1,5 +1,6 @@
 #include "camera.h"
 #include "globals.h"
+#include <glm/gtx/vector_angle.hpp>
 
 namespace phi
 {
@@ -11,6 +12,8 @@ namespace phi
         : object3D()
     {
         _frustum = new frustum(glm::vec3(), getDirection(), getUp(), zNear, zFar, aspect, fov);
+        _focus = 1.0f;
+        _viewMatrix = glm::lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp());
     }
 
     void camera::setTarget(glm::vec3 value)
@@ -74,32 +77,37 @@ namespace phi
 
         _focus -= dist;
         setPosition(position);
-        LOG(std::to_string(position.x));
 
         _changed = true;
     }
 
-    void camera::orbit(glm::vec3 origin, glm::vec3 axis, float angle)
-    {  
-        glm::vec3 position = mathUtils::rotateAboutAxis(getPosition(), origin, axis, angle);
-        glm::vec3 target = mathUtils::rotateAboutAxis(getPosition() + getDirection() * _focus, origin, axis, angle);
-
-        setPosition(position);
-        setDirection(glm::normalize(target - getPosition()));
-
-        _changed = true;
-    }
-
-    void camera::orbit2(glm::vec3 origin, glm::vec3 axisX, glm::vec3 axisY, float angleX, float angleY)
-    {  
-        glm::vec3 position = mathUtils::rotateAboutAxis(getPosition(), origin, axisX, angleX);
+    void camera::orbit(glm::vec3 origin, glm::vec3 axisX, glm::vec3 axisY, float angleX, float angleY)
+    {
+        glm::vec3 position = getPosition();
+        position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
         position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
 
-        glm::vec3 target = mathUtils::rotateAboutAxis(getPosition() + getDirection() * _focus, origin, axisX, angleX);
+        glm::vec3 target = getPosition() + getDirection() * _focus;
+        target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
         target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
 
+        auto dir = glm::normalize(target - position);
+
+        auto upDot = glm::dot(dir, glm::vec3(0.0f, 1.0f, 0.0f));
+        if (upDot > 0.98f || upDot < -0.98f)
+        {
+            orbit(origin, axisX, axisY, angleX, 0.0f); // I hope this line never starts a stack overflow
+            return;
+        }
+
+        auto right = glm::normalize(glm::cross(dir, glm::vec3(0.0f, -1.0f, 0.0f)));
+
+        auto q1 = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), dir);
+        auto angle = glm::orientedAngle(q1 * glm::vec3(1.0f, 0.0f, 0.0f), right, dir);
+        auto q2 = glm::angleAxis(angle, dir);
+
         setPosition(position);
-        setDirection(glm::normalize(target - getPosition()));
+        setOrientation(q2 * q1);
 
         _changed = true;
     }
