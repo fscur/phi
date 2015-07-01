@@ -41,6 +41,8 @@ namespace phi
     {
         _orientation = mathUtils::rotationBetweenVectors(_direction, direction) * _orientation;
         _changed = true;
+       
+
         onDirectionChanged();
     }
 

@@ -34,8 +34,7 @@ namespace phi
         SCENES_API void moveTo(glm::vec3 position);
         SCENES_API void zoomIn(glm::vec3 targetPos);
         SCENES_API void zoomOut(glm::vec3 targetPos);
-        SCENES_API void orbit(glm::vec3 origin, glm::vec3 axis, float angle);
-        SCENES_API void orbit2(glm::vec3 origin, glm::vec3 axisX, glm::vec3 axisY, float angleX, float angleY);
+        SCENES_API void orbit(glm::vec3 origin, glm::vec3 axisX, glm::vec3 axisY, float angleX, float angleY);
     };
 }
 
