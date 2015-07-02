@@ -52,13 +52,13 @@ namespace phi
         initAttribs();
 
         glLinkProgram(_id); // Link the vertex and fragment shaders in the program
-        result = validateProgram(_id); // Validate the shader program
+        //result = validateProgram(_id); // Validate the shader program
 
-        if(!result)
-        {
-            LOG(_name);
-            return false;
-        }
+        //if(!result)
+        //{
+        //    LOG(_name);
+        //    return false;
+        //}
 
         _initialized = true;
         return true;
@@ -125,7 +125,8 @@ namespace phi
         glGetProgramiv(program, GL_VALIDATE_STATUS, &status); // Find out if the shader program validated correctly
         if (status == GL_FALSE) // If there was a problem validating
         {
-            LOG("Error validating shader " << program); // Output which program had the error
+            glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer);
+            LOG("Error validating shader " << program << buffer); // Output which program had the error
             return false;
         }
 

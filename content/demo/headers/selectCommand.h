@@ -2,9 +2,9 @@
 #define _PHI_SELECT_COMMAND_H_
 
 #if WIN32
-    #include <GL/glew.h>
+#include <GL/glew.h>
 #else
-    #include <OpenGL/gl3.h>
+#include <OpenGL/gl3.h>
 #endif
 #include "command.h"
 #include "globals.h"
@@ -25,6 +25,10 @@ namespace phi
         float _eyeZ;
         GLfloat _zBufferValue;
         GLuint _id;
+
+    private:
+        void unselectAllSceneObjects();
+
     public:
         selectCommand();
         ~selectCommand();

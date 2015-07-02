@@ -62,7 +62,7 @@ namespace phi
         return true;
     }
 
-    void selectCommand::update()
+    void selectCommand::unselectAllSceneObjects()
     {
         std::vector<phi::sceneObject*>* sceneObjects = phi::scenesManager::get()->getScene()->getAllObjects();
         for (unsigned int i = 0; i < sceneObjects->size(); i++)
@@ -70,13 +70,19 @@ namespace phi
             phi::sceneObject* sceneObject = (*sceneObjects)[i];
             sceneObject->setSelected(false);
 
-            auto meshes = sceneObject->getModel()->getMeshes();
+            auto meshes = sceneObject->getSceneMeshes();
             for (unsigned int j = 0; j < meshes.size(); j++)
-                meshes[j]->setSelected(false);
+                meshes[j]->setIsSelected(false);
         }
+    }
 
+    void selectCommand::update()
+    {
         if (_zBufferValue == 1.0f)
+        {
+            unselectAllSceneObjects();
             return;
+        }
 
         unsigned int meshId = _id >> 8;
         unsigned int objectId = _id & 255;
@@ -84,9 +90,21 @@ namespace phi
 
         if (selectedObject != nullptr)
         {
-            selectedObject->setSelected(true);
-            auto meshes = selectedObject->getModel()->getMeshes();
-            meshes[meshId]->setSelected(true);
+            if (selectedObject->getSelected())
+            {
+                unselectAllSceneObjects();
+                selectedObject->setSelected(true);
+                auto meshes = selectedObject->getSceneMeshes();
+                meshes[meshId]->setIsSelected(true);
+            }
+            else
+            {
+                unselectAllSceneObjects();
+                selectedObject->setSelected(true);
+                auto meshes = selectedObject->getSceneMeshes();
+                for (unsigned int j = 0; j < meshes.size(); j++)
+                    meshes[j]->setIsSelected(true);
+            }
         }
     }
 }

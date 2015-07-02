@@ -10,6 +10,7 @@
 #include "eventHandler.h"
 #include "eventArgs.h"
 #include "sceneObjectEventArgs.h"
+#include "sceneMesh.h"
 #include <list>
 
 namespace phi
@@ -30,6 +31,8 @@ namespace phi
 
         unsigned int _id;
 
+        std::vector<sceneMesh*> _sceneMeshes;
+
     protected:
         model* _model;
 
@@ -42,12 +45,13 @@ namespace phi
         SCENES_API virtual ~sceneObject(void);
 
         SCENES_API std::vector<sceneObject*> getChildren() const { return _children; }
-        SCENES_API model* getModel() const { return _model; }
         SCENES_API virtual bool getChanged() const { return _changed; }
         SCENES_API bool getSelected() const { return _isSelected; }
         SCENES_API bool getActive() const { return _isActive; }
         SCENES_API unsigned int getId() const { return _id; }
         SCENES_API eventHandler<sceneObjectEventArgs>* getIsSelectedChanged() { return _isSelectedChanged; }
+        SCENES_API std::vector<sceneMesh*> getSceneMeshes() { return _sceneMeshes; }
+        SCENES_API model* getModel() { return _model; }
 
         SCENES_API void setSelected(bool value);
         SCENES_API void setActive(bool value);

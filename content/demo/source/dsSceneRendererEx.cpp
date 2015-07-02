@@ -26,7 +26,7 @@ namespace phi
         _pointLightShadowMapUps[3] = glm::vec3(0.0f, 0.0f, -1.0f);
         _pointLightShadowMapUps[4] = glm::vec3(0.0f, -1.0f, 0.0f);
         _pointLightShadowMapUps[5] = glm::vec3(0.0f, -1.0f, 0.0f);
-    
+
         _biasMatrix = glm::mat4(
             0.5f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.5f, 0.0f, 0.0f,
@@ -178,7 +178,7 @@ namespace phi
 
         if (directionalLightsCount == 0)
             return;
-        
+
         auto s = size<GLuint>(_shadowMapSize, _shadowMapSize);
 
         for (GLuint i = 0; i < directionalLightsCount; i++)
@@ -267,7 +267,7 @@ namespace phi
 
         if (spotLightsCount == 0)
             return;
-        
+
         auto s = size<GLuint>(_shadowMapSize, _shadowMapSize);
 
         for (GLuint i = 0; i < spotLightsCount; i++)
@@ -356,7 +356,7 @@ namespace phi
 
         if (pointLightsCount == 0)
             return;
-        
+
         auto s = size<GLuint>(_pointLightShadowMapSize, _pointLightShadowMapSize);
 
         for (GLuint i = 0; i < pointLightsCount; i++)
@@ -460,7 +460,7 @@ namespace phi
             GL_COLOR_ATTACHMENT0);
 
         _frameBuffers[1]->addRenderTarget(r);
-        
+
         t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -474,7 +474,7 @@ namespace phi
             GL_DEPTH_STENCIL_ATTACHMENT);
 
         _frameBuffers[1]->addRenderTarget(r);
-        
+
         _frameBuffers[1]->enable(GL_CULL_FACE);
         _frameBuffers[1]->enable(GL_DEPTH_TEST);
         _frameBuffers[1]->unbind();
@@ -710,9 +710,6 @@ namespace phi
         {
             sceneObject* sceneObj = (*_allObjects)[i];
 
-            if(!_hasSelectedObjects)
-                _hasSelectedObjects = sceneObj->getSelected();
-
             glm::mat4 modelMatrix = sceneObj->getModelMatrix();
             glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
             glm::mat4 mv = viewMatrix * modelMatrix;
@@ -728,10 +725,14 @@ namespace phi
             for (GLuint j = 0; j < meshesCount; j++)
             {
                 mesh* m = meshes[j];
+                sceneMesh* sm = sceneObj->getSceneMeshes()[j];
 
                 material* mat = m->getMaterial();
 
-                bool selected = sceneObj->getSelected() || m->getSelected();
+                bool selected = sm->getIsSelected();
+
+                if(!_hasSelectedObjects)
+                    _hasSelectedObjects = selected;
 
                 _geometryPassShader->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
 
@@ -755,7 +756,7 @@ namespace phi
 
         glDepthMask(GL_FALSE);
         glDisable(GL_DEPTH_TEST);
-        
+
         _frameBuffers[0]->unbind();
 
         _rt0Texture = _frameBuffers[0]->getRenderTarget("rt0")->getTexture();
@@ -774,14 +775,14 @@ namespace phi
 
         if (directionalLightsCount == 0 && spotLightsCount == 0)
             return;
-            
+
         glm::mat4 lp;
         glm::mat4 lv;
 
         glViewport(0, 0, _shadowMapSize, _shadowMapSize);
 
         _shadowMapShader->bind();
-        
+
         if (_redrawStaticShadowMaps)
         {
             glEnable(GL_DEPTH_TEST);
@@ -801,7 +802,7 @@ namespace phi
 
                 light->setShadowMap(_dirLightShadowMapFrameBuffers0[i]->getRenderTarget("rt0")->getTexture());
             }
-            
+
             for (GLuint i = 0; i < spotLightsCount; i++)
             {
                 auto light = (*spotLights)[i];
@@ -815,7 +816,7 @@ namespace phi
             }
 
             _redrawStaticShadowMaps = false;
-            
+
             glDisable(GL_DEPTH_TEST);
         }
 
@@ -827,7 +828,7 @@ namespace phi
 
                 lp = glm::ortho<float>(-7.0, 7.0, -7.0, 7.0, _nearPlane, _farPlane);
                 lv = light->getTransform()->getViewMatrix();
-                
+
                 dynamicShadowMapPass(_dirLightShadowMapFrameBuffers0[i], _dirLightShadowMapFrameBuffers1[i], lp * lv, _nearPlane, _farPlane);
 
                 light->setShadowMap(_dirLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture());
@@ -839,7 +840,7 @@ namespace phi
 
                 lp = light->getTransform()->getProjectionMatrix();
                 lv = light->getTransform()->getViewMatrix();
-                
+
                 dynamicShadowMapPass(_spotLightShadowMapFrameBuffers0[i], _spotLightShadowMapFrameBuffers1[i], lp * lv, _nearPlane, light->getRadius());
 
                 light->setShadowMap(_spotLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture());
@@ -847,7 +848,7 @@ namespace phi
         }   
 
         _shadowMapShader->unbind();
-        
+
         glViewport(0, 0, _viewportSize.width, _viewportSize.height);
     }
 
@@ -862,7 +863,7 @@ namespace phi
         {              
             unsigned int sceneObjId = it->first;
             sceneObject* sceneObj = it->second;
-            
+
             _shadowMapShader->setUniform("mvp", l * _modelMatrices[sceneObjId]);
             _shadowMapShader->setUniform("nearPlane", n);
             _shadowMapShader->setUniform("farPlane", f);
@@ -883,7 +884,7 @@ namespace phi
         staticFrameBuffer->bindForReading();
 
         staticFrameBuffer->blit("rt0", 0, 0, _shadowMapSize, _shadowMapSize, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        
+
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
 
@@ -891,7 +892,7 @@ namespace phi
         {              
             unsigned int sceneObjId = it->first;
             sceneObject* sceneObj = it->second;
-            
+
             _shadowMapShader->setUniform("mvp", l * _modelMatrices[sceneObjId]);
             _shadowMapShader->setUniform("nearPlane", n);
             _shadowMapShader->setUniform("farPlane", f);
@@ -909,30 +910,30 @@ namespace phi
     }
 
     /*LOG(std::to_string(mvp[0].x) + " | " + std::to_string(mvp[0].y) + " | " + std::to_string(mvp[0].z) + " | " + std::to_string(mvp[0].w));
-                    LOG(std::to_string(mvp[1].x) + " | " + std::to_string(mvp[1].y) + " | " + std::to_string(mvp[1].z) + " | " + std::to_string(mvp[1].w));
-                    LOG(std::to_string(mvp[2].x) + " | " + std::to_string(mvp[2].y) + " | " + std::to_string(mvp[2].z) + " | " + std::to_string(mvp[2].w));
-                    LOG(std::to_string(mvp[3].x) + " | " + std::to_string(mvp[3].y) + " | " + std::to_string(mvp[3].z) + " | " + std::to_string(mvp[3].w));
-                    LOG("---------------------------------------------------------------");
-*/
+    LOG(std::to_string(mvp[1].x) + " | " + std::to_string(mvp[1].y) + " | " + std::to_string(mvp[1].z) + " | " + std::to_string(mvp[1].w));
+    LOG(std::to_string(mvp[2].x) + " | " + std::to_string(mvp[2].y) + " | " + std::to_string(mvp[2].z) + " | " + std::to_string(mvp[2].w));
+    LOG(std::to_string(mvp[3].x) + " | " + std::to_string(mvp[3].y) + " | " + std::to_string(mvp[3].z) + " | " + std::to_string(mvp[3].w));
+    LOG("---------------------------------------------------------------");
+    */
 
     void dsSceneRendererEx::pointLightShadowMapPasses()
     {
         auto pointLights = _scene->getPointLights();
         auto pointLightsCount = pointLights->size();
-        
+
         if (pointLightsCount == 0)
             return;
-            
+
         glm::mat4 lp;
         glm::mat4 lv;
 
         glViewport(0, 0, _pointLightShadowMapSize, _pointLightShadowMapSize);
-        
+
         _pointLightShadowMapShader->bind();
 
         if (_redrawStaticShadowMaps)
         {   
-        
+
             for (GLuint l = 0; l < pointLightsCount; l++)
             {
                 pointLight* light = (*pointLights)[l];
@@ -943,7 +944,7 @@ namespace phi
                 glDepthFunc(GL_LESS);
                 glDepthMask(GL_TRUE);
                 glCullFace(GL_BACK);
-                
+
                 float farPlane = light->getRange();
                 glm::vec3 eye = light->getPosition();
 
@@ -953,7 +954,7 @@ namespace phi
 
                     glClearColor(0.0, 0.0, 0.0, 0.0);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                    
+
                     glm::vec3 center = eye + _pointLightShadowMapDirs[i];
                     glm::vec3 up = _pointLightShadowMapUps[i];
                     glm::mat4 v = glm::lookAt(eye, center, up);
@@ -961,8 +962,8 @@ namespace phi
 
                     /*for (GLuint i = 0; i < _allObjectsCount; i++)
                     {
-                        sceneObject* sceneObj = (*_allObjects)[i];
-                        unsigned int sceneObjId = sceneObj->getId();*/
+                    sceneObject* sceneObj = (*_allObjects)[i];
+                    unsigned int sceneObjId = sceneObj->getId();*/
 
                     for (std::map<GLuint, sceneObject*>::iterator it = _staticObjects.begin(); it != _staticObjects.end(); ++it)
                     { 
@@ -987,7 +988,7 @@ namespace phi
 
                     staticFramebuffer->unbind();
                 }
-                
+
                 glDisable(GL_DEPTH_TEST);
 
                 light->setShadowMap(shadowMapRenderTarget->getTexture());
@@ -1006,11 +1007,11 @@ namespace phi
 
                 renderTarget* staticShadowMapRenderTarget = staticFrameBuffer->getRenderTarget("rt0");
                 renderTarget* dynamicShadowMapRenderTarget = dynamicFrameBuffer->getRenderTarget("rt0");
-                
+
                 float farPlane = 50;
                 glm::vec3 eye = light->getPosition();
                 glm::mat4 p = glm::perspective(PI_OVER_2, 1.0f, _nearPlane, farPlane);
-                
+
                 for (int i = 0; i < 6; i++)
                 {
                     //unsigned int i = 0;
@@ -1018,11 +1019,11 @@ namespace phi
                     glm::vec3 center = eye + _pointLightShadowMapDirs[i];
                     glm::vec3 up = _pointLightShadowMapUps[i];
                     glm::mat4 v = glm::lookAt(eye, center, up);
-                    
+
                     dynamicFrameBuffer->bindForDrawing(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
                     staticFrameBuffer->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
                     staticFrameBuffer->blita(0, 0, _pointLightShadowMapSize, _pointLightShadowMapSize, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-                    
+
                     glEnable(GL_DEPTH_TEST);
                     glDepthFunc(GL_LESS);
                     glDepthMask(GL_TRUE);
@@ -1031,7 +1032,7 @@ namespace phi
                     {              
                         unsigned int sceneObjId = it->first;
                         sceneObject* sceneObj = it->second;
-            
+
                         glm::mat4 m = _modelMatrices[sceneObjId];
                         glm::mat4 mvp = p * v * m;
 
@@ -1049,15 +1050,15 @@ namespace phi
                     }
 
                     glDisable(GL_DEPTH_TEST);
-                    
+
                     dynamicFrameBuffer->unbind();
                 }
-                
+
 
                 light->setShadowMap(dynamicShadowMapRenderTarget->getTexture());
             }
         }
-        
+
         _pointLightShadowMapShader->unbind();
         glViewport(0, 0, _viewportSize.width, _viewportSize.height);
     }
@@ -1096,7 +1097,7 @@ namespace phi
             glBlendFunc(GL_ONE, GL_ONE);
 
             _dirLightShader->bind();
-            
+
             _dirLightShader->setUniform("m", m);
             _dirLightShader->setUniform("v", v);
             _dirLightShader->setUniform("iv", iv);
@@ -1114,9 +1115,9 @@ namespace phi
             _dirLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
 
             meshRenderer::render(&_quad);
-            
+
             _dirLightShader->unbind();
-            
+
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_BLEND);
 
@@ -1131,7 +1132,7 @@ namespace phi
 
         if (spotLightsCount == 0)
             return;
-        
+
         glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
 
         glm::mat4 v = _camera->getViewMatrix();
@@ -1152,14 +1153,14 @@ namespace phi
             glm::mat4 lp = light->getTransform()->getProjectionMatrix();
             glm::mat4 lv = light->getTransform()->getViewMatrix();
             glm::mat4 l = _biasMatrix * lp * lv;
-            
+
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
             cone* boundingVolume = light->getBoundingVolume();
             glm::mat4 m = boundingVolume->getModelMatrix();
             glm::mat4 mvp = p * v * m;
             _mesh = boundingVolume->getModel()->getMeshes()[0];
-            
+
             glDrawBuffer(GL_NONE);
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
@@ -1182,7 +1183,7 @@ namespace phi
             glBlendFunc(GL_ONE, GL_ONE);
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
-            
+
             _spotLightShader->bind();
 
             _spotLightShader->setUniform("v", v);
@@ -1206,7 +1207,7 @@ namespace phi
             _spotLightShader->setUniform("shadowMap", _spotLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture(), 4);
 
             //TODO: Cull lights
-            
+
             meshRenderer::render(_mesh);
 
             _spotLightShader->unbind();
@@ -1214,10 +1215,10 @@ namespace phi
             glCullFace(GL_BACK);
             glDisable(GL_BLEND);
         }
-        
+
         _frameBuffers[1]->unbind();
     }
-    
+
     void dsSceneRendererEx::pointLightPass()
     {	
         auto pointLights = _scene->getPointLights();
@@ -1238,7 +1239,7 @@ namespace phi
         for (GLuint i = 0; i < pointLightsCount; i++)
         {
             pointLight* light = (*pointLights)[i];
-            
+
             /*renderTarget* shadowMapRenderTarget = _frameBuffers[3]->getRenderTarget("rt0");
 
             _pointLightShadowMapShader->bind();
@@ -1250,55 +1251,55 @@ namespace phi
             glCullFace(GL_BACK);
 
             if (pointLightIndex == 6)
-                pointLightIndex = 0;
+            pointLightIndex = 0;
 
             for (int i = 0; i < 6; i++)
             {
-                _frameBuffers[3]->bindForDrawing(shadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+            _frameBuffers[3]->bindForDrawing(shadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
 
-                glClearColor(10.0, 0.0, 0.0, 0.0);
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClearColor(10.0, 0.0, 0.0, 0.0);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                float angle = PI_OVER_2;
-                float nearPlane = 0.1f;
-                float farPlane = light->getRange();
-                glm::vec3 eye = light->getPosition();
-                glm::vec3 center = eye + _pointLightShadowMapDirs[i];
-                glm::vec3 up = _pointLightShadowMapUps[i];
-                glm::mat4 v = glm::lookAt(eye, center, up);
-                glm::mat4 p = glm::perspective(angle, 1.0f, nearPlane, farPlane);
+            float angle = PI_OVER_2;
+            float nearPlane = 0.1f;
+            float farPlane = light->getRange();
+            glm::vec3 eye = light->getPosition();
+            glm::vec3 center = eye + _pointLightShadowMapDirs[i];
+            glm::vec3 up = _pointLightShadowMapUps[i];
+            glm::mat4 v = glm::lookAt(eye, center, up);
+            glm::mat4 p = glm::perspective(angle, 1.0f, nearPlane, farPlane);
 
-                for (GLuint j = 0; j < _allObjectsCount; j++)
-                {
-                    sceneObject* sceneObj = (*_allObjects)[j];
+            for (GLuint j = 0; j < _allObjectsCount; j++)
+            {
+            sceneObject* sceneObj = (*_allObjects)[j];
 
-                    unsigned int sceneObjId = sceneObj->getId();
+            unsigned int sceneObjId = sceneObj->getId();
 
-                    glm::mat4 m = _modelMatrices[sceneObjId];
-                    glm::mat4 mvp = p * v * m;
+            glm::mat4 m = _modelMatrices[sceneObjId];
+            glm::mat4 mvp = p * v * m;
 
-                    _pointLightShadowMapShader->setUniform("m", m);
-                    _pointLightShadowMapShader->setUniform("mvp", mvp);
-                    _pointLightShadowMapShader->setUniform("nearPlane", nearPlane);
-                    _pointLightShadowMapShader->setUniform("farPlane", farPlane);
-                    _pointLightShadowMapShader->setUniform("lightPos", eye);
+            _pointLightShadowMapShader->setUniform("m", m);
+            _pointLightShadowMapShader->setUniform("mvp", mvp);
+            _pointLightShadowMapShader->setUniform("nearPlane", nearPlane);
+            _pointLightShadowMapShader->setUniform("farPlane", farPlane);
+            _pointLightShadowMapShader->setUniform("lightPos", eye);
 
-                    std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
-                    auto meshesCount = meshes.size();
+            std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+            auto meshesCount = meshes.size();
 
-                    for (GLuint k = 0; k < meshesCount; k++)
-                        meshRenderer::render(meshes[k]);
-                }
+            for (GLuint k = 0; k < meshesCount; k++)
+            meshRenderer::render(meshes[k]);
+            }
             }
 
             _pointLightShadowMapShader->unbind();
-            
+
             glViewport(0, 0, _viewportSize.width, _viewportSize.height);
 
             _frameBuffers[3]->unbind();*/
 
             _frameBuffers[1]->bindForDrawing();
-            
+
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
             sphere* boundingVolume = light->getBoundingVolume();
@@ -1412,7 +1413,7 @@ namespace phi
         shader* s = shaderManager::get()->getShader("DS_SSAO");
 
         s->bind();
-        
+
         s->setUniform("ip", ip);
         s->setUniform("m", m);
         s->setUniform("res", res);
@@ -1487,7 +1488,7 @@ namespace phi
         _dynamicObjects = _scene->getDynamicObjects();
 
         geomPass();
- 
+
         shadowMapPasses();
         pointLightShadowMapPasses();
 
@@ -1497,7 +1498,7 @@ namespace phi
         _frameBuffers[1]->bindForDrawing();
         _frameBuffers[0]->bindForReading();
         _frameBuffers[0]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
-        
+
         pointLightPass();
         spotLightPass();
         directionalLightPass();
@@ -1509,17 +1510,17 @@ namespace phi
         renderingSystem::defaultFrameBuffer->bindForDrawing();
         _frameBuffers[1]->bindForReading();
         _frameBuffers[1]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
-        
+
         //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
         //_dirLightShadowMapFrameBuffers1[0]->blit("rt0", 0, 0, 400, 400);
-        
-        
+
+
         /*unsigned int s = 128;
         unsigned int dx = 0;
         unsigned int dy = 0;
         unsigned int l = 0;
 
-        
+
         renderTarget* staticShadowMapRenderTarget = _pointLightShadowMapFrameBuffers0[l]->getRenderTarget("rt0");
         renderTarget* dynamicShadowMapRenderTarget = _pointLightShadowMapFrameBuffers1[l]->getRenderTarget("rt0");
 
@@ -1535,7 +1536,7 @@ namespace phi
         _pointLightShadowMapFrameBuffers0[l]->blita(s * 2 + dx, s * 2 + dy, s, s);
         _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2);
         _pointLightShadowMapFrameBuffers0[l]->blita(s * 2 + dx, 0 + dy, s, s);
-        
+
         dx = 512;*/
         /*
         _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5);
@@ -1551,22 +1552,22 @@ namespace phi
         _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2);
         _pointLightShadowMapFrameBuffers1[l]->blita(s * 2 + dx, 0 + dy, s, s);*/
 
-        
+
         //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
         //_dirLightShadowMapFrameBuffers1[0]->blit("rt0", _shadowMapSize/2, 0, _shadowMapSize/2, _shadowMapSize/2);
-        
+
         //_dirLightShadowMapFrameBuffers0[0]->bindForReading();
         //_dirLightShadowMapFrameBuffers0[0]->blit("depth", 0, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
-        
+
         //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
         //_dirLightShadowMapFrameBuffers1[0]->blit("depth", _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
-        
+
         _frameBuffers[0]->bindForReading();
 
-        //if (_hasSelectedObjects)
-            //selectedObjectsPass();
+        if (_hasSelectedObjects)
+            selectedObjectsPass();
     }
-    
+
     void dsSceneRendererEx::onRender()
     {
         if (!_buffersInitialized)

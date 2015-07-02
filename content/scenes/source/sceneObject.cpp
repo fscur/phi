@@ -197,6 +197,15 @@ namespace phi
     sceneObject* sceneObject::create(model* model)
     {
         sceneObject* sceneObj = new sceneObject();
+
+        std::vector<sceneMesh*> sceneMeshes;
+        auto meshesCount = model->getMeshes().size();
+        for (unsigned int i = 0; i < meshesCount; i++)
+        {
+            auto mesh = model->getMeshes()[i];
+            sceneMeshes.push_back(new sceneMesh(mesh->getId()));
+        }
+        sceneObj->_sceneMeshes = sceneMeshes;
         sceneObj->_model = model;
         sceneObj->initPoints();
         return sceneObj;
@@ -204,17 +213,16 @@ namespace phi
 
     void sceneObject::selectMesh(GLuint meshId)
     {
-        auto meshes = _model->getMeshes();
-        auto meshesCount = meshes.size();
+        auto meshesCount = _sceneMeshes.size();
 
         for (unsigned int i = 0; i < meshesCount; i++)
         {
-            auto m = meshes[i];
+            auto m = _sceneMeshes[i];
 
-            if (m->getId() == meshId && !m->getSelected())
-                m->setSelected(true);
+            if (m->getMeshID() == meshId && !m->getIsSelected())
+                m->setIsSelected(true);
             else
-                m->setSelected(false);
+                m->setIsSelected(false);
         }
     }
 
