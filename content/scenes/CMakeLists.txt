@@ -12,6 +12,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../inc/GLM)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../inc/SDL)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../core/headers)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../rendering/headers)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../io/headers)
 include_directories(headers)
 
 #libs
@@ -81,6 +82,7 @@ endif (WIN32)
 
 target_link_libraries(scenes core)
 target_link_libraries(scenes rendering)
+target_link_libraries(scenes io)
 
 install(TARGETS scenes
     RUNTIME 

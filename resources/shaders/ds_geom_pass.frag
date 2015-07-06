@@ -2,13 +2,12 @@
 
 struct material
 {
-	vec4 ambientColor;
 	vec4 diffuseColor;
 	vec4 specularColor;
-	float ka;
 	float kd;
 	float ks;
 	float shininess;
+	float isEmissive;
 };
 
 in vec3 fragNormal; 
@@ -35,9 +34,9 @@ layout (location = 3) out vec4 rt3;
 vec2 encodeNormal (vec3 n)
 {
     float scale = 1.7777;
-    vec2 enc = n.xy / (n.z+1);
+    vec2 enc = n.xy / (n.z + 1);
     enc /= scale;
-    enc = enc*0.5+0.5;
+    enc = enc * 0.5 + 0.5;
     return vec2(enc);
 }
 
@@ -54,10 +53,8 @@ void main()
 	vec2 normal = encodeNormal(n);
 
     vec4 diffuseColor = texture(diffuseMap, fragTexCoord) * mat.diffuseColor;
-    vec4 ambientColor = diffuseColor * ambientLightColor * mat.ambientColor * mat.ka;
+    vec4 ambientColor = diffuseColor * ambientLightColor * max(mat.isEmissive, 0.2);
 	vec4 specularColor = mat.specularColor * texture(specularMap, fragTexCoord) * mat.ks;
-
-    vec3 c = diffuseColor.rgb * mat.kd + specularColor.rgb;
 
 	rt0 = vec4(ambientColor.rgb, mat.shininess/512.0); //RGBA
     rt1 = vec4(diffuseColor.rgb * mat.kd, normal.x); //RGBA16F

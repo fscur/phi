@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "shaderManager.h"
 #include "renderingSystem.h"
+#include "path.h"
 
 namespace phi
 {
@@ -42,7 +43,9 @@ namespace phi
 
         basicRenderer = new basicSceneRenderer(_info.size);
         fsRenderer = new fsSceneRenderer(_info.size);
-        dsRenderer = new dsSceneRenderer(_info.size);
+
+        auto dir = _info.applicationPath;
+        dsRenderer = new dsSceneRenderer(_info.size, dir);
 
         setSceneRenderer(scenesManager::basicRenderer);
 

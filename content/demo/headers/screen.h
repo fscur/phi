@@ -16,7 +16,6 @@
 #include "size.h"
 #include "commandsManager.h"
 #include "resourcesLoader.h"
-#include "testSceneRenderer.h"
 
 class screen :
     public form

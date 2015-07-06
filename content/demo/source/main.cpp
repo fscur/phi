@@ -4,10 +4,6 @@
 #include "globals.h"
 #include "screen.h"
 
-#include "testSceneRenderer.h"
-#include "dsSceneRendererEx.h"
-
-
 struct commandLineCommand
 {
 public:
@@ -100,23 +96,8 @@ std::string getDirPath(std::string filePath)
     return exePath.substr(0, index);
 }
 
-glm::vec3 refract(float n, glm::vec3 I, glm::vec3 N)
-{
-    auto cosI = glm::dot(N, I);
-    auto sinT2 = n * n * (1.0 - cosI * cosI);
-
-    if (sinT2 > 1.0)
-        return glm::vec3(0.0); // or genDType(0.0)
-    else
-        return n * I - (n * cosI + (float)glm::sqrt(1.0 - sinT2)) * N;
-}
-
 int main(int argc, char* args[])
 {
-    auto i = glm::normalize(glm::vec3(1.0, 1.0, 0.0));
-    auto n = glm::normalize(glm::vec3(-1.0, 0.0, 0.0));
-    auto a = refract(1.5, i, n);
-
     application *app = new application();
 
     std::string exePath = std::string(args[0]);
@@ -130,15 +111,6 @@ int main(int argc, char* args[])
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
-    
-    
-    /*phi::testSceneRenderer* renderer = new phi::testSceneRenderer(mainScreen->getSize());
-    phi::scenesManager::get()->setSceneRenderer(renderer);
-    mainScreen->setSceneRenderer(renderer);*/
-    
-    phi::dsSceneRendererEx* renderer = new phi::dsSceneRendererEx(mainScreen->getSize());
-    phi::scenesManager::get()->setSceneRenderer(renderer);
-    mainScreen->setSceneRenderer(renderer);
     
     app->run(mainScreen);
 

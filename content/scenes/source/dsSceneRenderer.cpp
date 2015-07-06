@@ -1,10 +1,37 @@
 #include "dsSceneRenderer.h"
 #include "quad.h"
+#include "path.h"
 
 namespace phi
 {
-    dsSceneRenderer::dsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
+    dsSceneRenderer::dsSceneRenderer(size<GLuint> viewportSize, std::string exeDir) : sceneRenderer(viewportSize)
     {
+        _nearPlane = 0.1f;
+        _farPlane = 20.0f;
+        _shadowMapSize = 2048;
+        _pointLightShadowMapSize = 2048;
+        _pointLightIndex = 0;
+
+        _pointLightShadowMapDirs[0] = glm::vec3(1.0f, 0.0f, 0.0f);
+        _pointLightShadowMapDirs[1] = glm::vec3(-1.0f, 0.0f, 0.0f);
+        _pointLightShadowMapDirs[2] = glm::vec3(0.0f, 1.0f, 0.0f);
+        _pointLightShadowMapDirs[3] = glm::vec3(0.0f, -1.0f, 0.0f);
+        _pointLightShadowMapDirs[4] = glm::vec3(0.0f, 0.0f, 1.0f);
+        _pointLightShadowMapDirs[5] = glm::vec3(0.0f, 0.0f, -1.0f);
+
+        _pointLightShadowMapUps[0] = glm::vec3(0.0f, -1.0f, 0.0f);
+        _pointLightShadowMapUps[1] = glm::vec3(0.0f, -1.0f, 0.0f);
+        _pointLightShadowMapUps[2] = glm::vec3(0.0f, 0.0f, 1.0f);
+        _pointLightShadowMapUps[3] = glm::vec3(0.0f, 0.0f, -1.0f);
+        _pointLightShadowMapUps[4] = glm::vec3(0.0f, -1.0f, 0.0f);
+        _pointLightShadowMapUps[5] = glm::vec3(0.0f, -1.0f, 0.0f);
+
+        _biasMatrix = glm::mat4(
+            0.5f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f);
+
         initBuffers();
 
         createGeomPassShader();
@@ -12,110 +39,442 @@ namespace phi
         createDirLightShader();
         createPointLightShader();
         createSpotLightShader();
+        createShadowMapShaders();
+
+        _randomNormalsTexture = texture::fromFile(exeDir + "\\" "random_normal.bmp");
+
+        _ssaoActive = false;
+        _ssaoBias = 0.1f;
+        _ssaoIntensity = 1.2f;
+        _ssaoSampleRadius = 0.07f;
+        _ssaoScale = 1.5f;
+        _buffersInitialized = false;
+
+        createSSAOShader();
     }
 
     dsSceneRenderer::~dsSceneRenderer()
     {
-        DELETE(_frameBuffer);
+        for (GLuint i = 0; i < _frameBuffers.size(); i++)
+            DELETE(_frameBuffers[i]);
+
+        for (GLuint i = 0; i < _dirLightShadowMapFrameBuffers0.size(); i++)
+            DELETE(_dirLightShadowMapFrameBuffers0[i]);
+
+        for (GLuint i = 0; i < _dirLightShadowMapFrameBuffers1.size(); i++)
+            DELETE(_dirLightShadowMapFrameBuffers1[i]);
+
+        for (GLuint i = 0; i < _spotLightShadowMapFrameBuffers0.size(); i++)
+            DELETE(_spotLightShadowMapFrameBuffers0[i]);
+
+        for (GLuint i = 0; i < _spotLightShadowMapFrameBuffers1.size(); i++)
+            DELETE(_spotLightShadowMapFrameBuffers1[i]);
+
+        for (GLuint i = 0; i < _pointLightShadowMapFrameBuffers0.size(); i++)
+            DELETE(_pointLightShadowMapFrameBuffers0[i]);
+
+        for (GLuint i = 0; i < _pointLightShadowMapFrameBuffers1.size(); i++)
+            DELETE(_pointLightShadowMapFrameBuffers1[i]);
     }
 
     void dsSceneRenderer::initBuffers()
     {
-        _frameBuffer = new frameBuffer("dsSceneRenderer", _viewportSize, color::transparent);
-        _frameBuffer->init();
-        _frameBuffer->bind();
+        _frameBuffers = std::vector<frameBuffer*>();
+        _dirLightShadowMapFrameBuffers0 = std::vector<frameBuffer*>();
+        _dirLightShadowMapFrameBuffers1 = std::vector<frameBuffer*>();
+        _spotLightShadowMapFrameBuffers0 = std::vector<frameBuffer*>();
+        _spotLightShadowMapFrameBuffers1 = std::vector<frameBuffer*>();
+        _pointLightShadowMapFrameBuffers0 = std::vector<frameBuffer*>();
+        _pointLightShadowMapFrameBuffers1 = std::vector<frameBuffer*>();
 
-        createRT0();
-        createRT1();
-        createRT2();
-        createRT3();
-        createRT4();
-
-        _frameBuffer->bind();
-        _frameBuffer->enable(GL_CULL_FACE);
-        _frameBuffer->enable(GL_DEPTH_TEST);
-        _frameBuffer->unbind();
+        createGeometryPassRenderTargets();
+        createFinalImageRenderTargets();
     }
 
-    void dsSceneRenderer::createRT0()
+    void dsSceneRenderer::createGeometryPassRenderTargets()
     {
+        _frameBuffers.push_back(new frameBuffer("dsSceneRenderer0", _viewportSize, color::transparent));
+        _frameBuffers[0]->init();
+        _frameBuffers[0]->bind();
+
         texture* t = texture::create(_viewportSize, GL_RGBA);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-        renderTarget* r = _frameBuffer->newRenderTarget(
+        renderTarget* r = _frameBuffers[0]->newRenderTarget(
             "rt0",
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT0);
 
-        _frameBuffer->addRenderTarget(r);
-    }
+        _frameBuffers[0]->addRenderTarget(r);
 
-    void dsSceneRenderer::createRT1()
-    {
-        texture* t = texture::create(_viewportSize, GL_RGBA16F);
+        t = texture::create(_viewportSize, GL_RGBA16F);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-        renderTarget* r = _frameBuffer->newRenderTarget(
+        r = _frameBuffers[0]->newRenderTarget(
             "rt1", 
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT1);
 
-        _frameBuffer->addRenderTarget(r);
-    }
+        _frameBuffers[0]->addRenderTarget(r);
 
-    void dsSceneRenderer::createRT2()
-    {
-        texture* t = texture::create(_viewportSize, GL_RGBA16F);
+        t = texture::create(_viewportSize, GL_RGBA16F);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-        renderTarget* r = _frameBuffer->newRenderTarget(
+        r = _frameBuffers[0]->newRenderTarget(
             "rt2", 
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT2);
 
-        _frameBuffer->addRenderTarget(r);
-    }
+        _frameBuffers[0]->addRenderTarget(r);
 
-    void dsSceneRenderer::createRT3()
-    {
-        texture* t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
+        t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-        renderTarget* d = _frameBuffer->newRenderTarget(
+        r = _frameBuffers[0]->newRenderTarget(
             "rt3", 
             t, 
             GL_DRAW_FRAMEBUFFER,
             GL_DEPTH_STENCIL_ATTACHMENT);
 
-        _frameBuffer->addRenderTarget(d);
-    }
+        _frameBuffers[0]->addRenderTarget(r);
 
-    void dsSceneRenderer::createRT4()
-    {
-        texture* t = renderingSystem::pickingFrameBuffer->getPickingTexture();
+        t = renderingSystem::pickingFrameBuffer->getPickingTexture();
 
-        renderTarget* r = _frameBuffer->newRenderTarget(
+        r = _frameBuffers[0]->newRenderTarget(
             "rt4", 
             t,
             GL_DRAW_FRAMEBUFFER,
             GL_COLOR_ATTACHMENT3);
 
-        _frameBuffer->addRenderTarget(r);
+        _frameBuffers[0]->addRenderTarget(r);
+
+        _frameBuffers[0]->enable(GL_CULL_FACE);
+        _frameBuffers[0]->enable(GL_DEPTH_TEST);
+        _frameBuffers[0]->unbind();
+    }
+
+    void dsSceneRenderer::createDirLightShadowMapsRenderTargets()
+    {   
+        auto directionalLights = _scene->getDirectionalLights();
+        auto directionalLightsCount = directionalLights->size();
+
+        if (directionalLightsCount == 0)
+            return;
+
+        auto s = size<GLuint>(_shadowMapSize, _shadowMapSize);
+
+        for (GLuint i = 0; i < directionalLightsCount; i++)
+        {
+            _dirLightShadowMapFrameBuffers0.push_back(new frameBuffer("dsSceneRenderer1", s, color::transparent));
+            _dirLightShadowMapFrameBuffers0[i]->init();
+            _dirLightShadowMapFrameBuffers0[i]->bind();
+
+            texture* t = texture::create(s, GL_RG32F);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+            renderTarget* r = _dirLightShadowMapFrameBuffers0[i]->newRenderTarget(
+                "rt0", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0);
+
+            _dirLightShadowMapFrameBuffers0[i]->addRenderTarget(r);
+
+            t = texture::create(s, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+            r = _dirLightShadowMapFrameBuffers0[i]->newRenderTarget(
+                "depth", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_DEPTH_ATTACHMENT);
+
+            _dirLightShadowMapFrameBuffers0[i]->addRenderTarget(r);
+
+            _dirLightShadowMapFrameBuffers0[i]->enable(GL_CULL_FACE);
+            _dirLightShadowMapFrameBuffers0[i]->enable(GL_DEPTH_TEST);
+            _dirLightShadowMapFrameBuffers0[i]->unbind();
+        }
+
+        for (GLuint i = 0; i < directionalLightsCount; i++)
+        {
+            _dirLightShadowMapFrameBuffers1.push_back(new frameBuffer("dsSceneRenderer1", s, color::transparent));
+            _dirLightShadowMapFrameBuffers1[i]->init();
+            _dirLightShadowMapFrameBuffers1[i]->bind();
+
+            texture* t = texture::create(s, GL_RG32F);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+            renderTarget* r = _dirLightShadowMapFrameBuffers1[i]->newRenderTarget(
+                "rt0", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0);
+
+            _dirLightShadowMapFrameBuffers1[i]->addRenderTarget(r);
+
+            t = texture::create(s, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+            r = _dirLightShadowMapFrameBuffers1[i]->newRenderTarget(
+                "depth", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_DEPTH_ATTACHMENT);
+
+            _dirLightShadowMapFrameBuffers1[i]->addRenderTarget(r);
+
+            _dirLightShadowMapFrameBuffers1[i]->enable(GL_CULL_FACE);
+            _dirLightShadowMapFrameBuffers1[i]->enable(GL_DEPTH_TEST);
+            _dirLightShadowMapFrameBuffers1[i]->unbind();
+        }
+    }
+
+    void dsSceneRenderer::createSpotLightShadowMapsRenderTargets()
+    {   
+        auto spotLights = _scene->getSpotLights();
+        auto spotLightsCount = spotLights->size();
+
+        if (spotLightsCount == 0)
+            return;
+
+        auto s = size<GLuint>(_shadowMapSize, _shadowMapSize);
+
+        for (GLuint i = 0; i < spotLightsCount; i++)
+        {
+            _spotLightShadowMapFrameBuffers0.push_back(new frameBuffer("dsSceneRenderer1", s, color::transparent));
+            _spotLightShadowMapFrameBuffers0[i]->init();
+            _spotLightShadowMapFrameBuffers0[i]->bind();
+
+            texture* t = texture::create(s, GL_RG32F);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+            renderTarget* r = _spotLightShadowMapFrameBuffers0[i]->newRenderTarget(
+                "rt0", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0);
+
+            _spotLightShadowMapFrameBuffers0[i]->addRenderTarget(r);
+
+            t = texture::create(s, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+            r = _spotLightShadowMapFrameBuffers0[i]->newRenderTarget(
+                "depth", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_DEPTH_ATTACHMENT);
+
+            _spotLightShadowMapFrameBuffers0[i]->addRenderTarget(r);
+
+            _spotLightShadowMapFrameBuffers0[i]->enable(GL_CULL_FACE);
+            _spotLightShadowMapFrameBuffers0[i]->enable(GL_DEPTH_TEST);
+            _spotLightShadowMapFrameBuffers0[i]->unbind();
+        }
+
+        for (GLuint i = 0; i < spotLightsCount; i++)
+        {
+            _spotLightShadowMapFrameBuffers1.push_back(new frameBuffer("dsSceneRenderer1", s, color::transparent));
+            _spotLightShadowMapFrameBuffers1[i]->init();
+            _spotLightShadowMapFrameBuffers1[i]->bind();
+
+            texture* t = texture::create(s, GL_RG32F);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+            renderTarget* r = _spotLightShadowMapFrameBuffers1[i]->newRenderTarget(
+                "rt0", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0);
+
+            _spotLightShadowMapFrameBuffers1[i]->addRenderTarget(r);
+
+            t = texture::create(s, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+            r = _spotLightShadowMapFrameBuffers1[i]->newRenderTarget(
+                "depth", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_DEPTH_ATTACHMENT);
+
+            _spotLightShadowMapFrameBuffers1[i]->addRenderTarget(r);
+
+            _spotLightShadowMapFrameBuffers1[i]->enable(GL_CULL_FACE);
+            _spotLightShadowMapFrameBuffers1[i]->enable(GL_DEPTH_TEST);
+            _spotLightShadowMapFrameBuffers1[i]->unbind();
+        }
+    }
+
+    void dsSceneRenderer::createPointLightShadowMapsRenderTargets()
+    {
+        auto pointLights = _scene->getPointLights();
+        auto pointLightsCount = pointLights->size();
+
+        if (pointLightsCount == 0)
+            return;
+
+        auto s = size<GLuint>(_pointLightShadowMapSize, _pointLightShadowMapSize);
+
+        for (GLuint i = 0; i < pointLightsCount; i++)
+        {
+            _pointLightShadowMapFrameBuffers0.push_back(new frameBuffer("dsSceneRenderer1", s, color::transparent));
+            _pointLightShadowMapFrameBuffers0[i]->init();
+            _pointLightShadowMapFrameBuffers0[i]->bind();
+
+            texture* t = texture::createCubeMap(s, GL_RG32F);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            t->setParam(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+            renderTarget* r = _pointLightShadowMapFrameBuffers0[i]->newRenderTarget(
+                "rt0", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0);
+
+            _pointLightShadowMapFrameBuffers0[i]->addRenderTarget(r);
+
+            t = texture::createCubeMap(s, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            t->setParam(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+            r = _pointLightShadowMapFrameBuffers0[i]->newRenderTarget(
+                "depth", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_DEPTH_ATTACHMENT);
+
+            _pointLightShadowMapFrameBuffers0[i]->addRenderTarget(r);
+
+            _pointLightShadowMapFrameBuffers0[i]->enable(GL_CULL_FACE);
+            _pointLightShadowMapFrameBuffers0[i]->enable(GL_DEPTH_TEST);
+            _pointLightShadowMapFrameBuffers0[i]->unbind();
+
+            _pointLightShadowMapFrameBuffers1.push_back(new frameBuffer("dsSceneRenderer1", s, color::transparent));
+            _pointLightShadowMapFrameBuffers1[i]->init();
+            _pointLightShadowMapFrameBuffers1[i]->bind();
+
+            t = texture::createCubeMap(s, GL_RG32F);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            t->setParam(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+            r = _pointLightShadowMapFrameBuffers1[i]->newRenderTarget(
+                "rt0", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0);
+
+            _pointLightShadowMapFrameBuffers1[i]->addRenderTarget(r);
+
+            t = texture::createCubeMap(s, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+            t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            t->setParam(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+            r = _pointLightShadowMapFrameBuffers1[i]->newRenderTarget(
+                "depth", 
+                t, 
+                GL_DRAW_FRAMEBUFFER,
+                GL_DEPTH_ATTACHMENT);
+
+            _pointLightShadowMapFrameBuffers1[i]->addRenderTarget(r);
+
+            _pointLightShadowMapFrameBuffers1[i]->enable(GL_CULL_FACE);
+            _pointLightShadowMapFrameBuffers1[i]->enable(GL_DEPTH_TEST);
+            _pointLightShadowMapFrameBuffers1[i]->unbind();
+        }
+    }
+
+    void dsSceneRenderer::createFinalImageRenderTargets()
+    {
+        _frameBuffers.push_back(new frameBuffer("dsSceneRenderer2", _viewportSize, color::transparent));
+        _frameBuffers[1]->init();
+
+        _frameBuffers[1]->bind();
+
+        texture* t = texture::create(_viewportSize, GL_RGBA);
+
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        renderTarget* r = _frameBuffers[1]->newRenderTarget(
+            "rt0", 
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0);
+
+        _frameBuffers[1]->addRenderTarget(r);
+
+        t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        r = _frameBuffers[1]->newRenderTarget(
+            "depth", 
+            t, 
+            GL_DRAW_FRAMEBUFFER,
+            GL_DEPTH_STENCIL_ATTACHMENT);
+
+        _frameBuffers[1]->addRenderTarget(r);
+
+        _frameBuffers[1]->enable(GL_CULL_FACE);
+        _frameBuffers[1]->enable(GL_DEPTH_TEST);
+        _frameBuffers[1]->unbind();
     }
 
     void dsSceneRenderer::createGeomPassShader()
@@ -134,13 +493,12 @@ namespace phi
 
         s->addUniform("ambientLightColor");
 
-        s->addUniform("mat.ambientColor");
         s->addUniform("mat.diffuseColor");
         s->addUniform("mat.specularColor");
-        s->addUniform("mat.ka");
         s->addUniform("mat.kd");
         s->addUniform("mat.ks");
         s->addUniform("mat.shininess");
+        s->addUniform("mat.isEmissive");
 
         s->addUniform("diffuseMap");
         s->addUniform("normalMap");
@@ -149,6 +507,8 @@ namespace phi
         s->addUniform("selectionColor");
 
         shaderManager::get()->addShader(s->getName(), s);
+
+        _geometryPassShader = s;
     }
 
     void dsSceneRenderer::createStencilShader()
@@ -161,6 +521,8 @@ namespace phi
         s->addUniform("mvp");
 
         shaderManager::get()->addShader(s->getName(), s);
+
+        _stencilShader = s;
     }
 
     void dsSceneRenderer::createDirLightShader()
@@ -172,8 +534,10 @@ namespace phi
         shader* s = shaderManager::get()->loadShader("DS_DIR_LIGHT", "ds_dir_light.vert", "ds_dir_light.frag", attribs);
 
         s->addUniform("v");
+        s->addUniform("iv");
         s->addUniform("m");
         s->addUniform("ip");
+        s->addUniform("l");
 
         s->addUniform("light.position");
         s->addUniform("light.color");
@@ -184,8 +548,11 @@ namespace phi
         s->addUniform("rt1");
         s->addUniform("rt2");
         s->addUniform("rt3");
+        s->addUniform("shadowMap");
 
         shaderManager::get()->addShader(s->getName(), s);
+
+        _dirLightShader = s;
     }
 
     void dsSceneRenderer::createPointLightShader()
@@ -196,7 +563,7 @@ namespace phi
         shader* s = shaderManager::get()->loadShader("DS_POINT_LIGHT", "ds_point_light.vert", "ds_point_light.frag", attribs);
 
         s->addUniform("v");
-        s->addUniform("m");
+        s->addUniform("iv");
         s->addUniform("ip");
         s->addUniform("mvp");
         s->addUniform("res");
@@ -211,8 +578,11 @@ namespace phi
         s->addUniform("rt1");
         s->addUniform("rt2");
         s->addUniform("rt3");
+        s->addUniform("shadowMap");
 
         shaderManager::get()->addShader(s->getName(), s);
+
+        _pointLightShader = s;
     }
 
     void dsSceneRenderer::createSpotLightShader()
@@ -223,18 +593,16 @@ namespace phi
         shader* s = shaderManager::get()->loadShader("DS_SPOT_LIGHT", "ds_spot_light.vert", "ds_spot_light.frag", attribs);
 
         s->addUniform("v");
-        s->addUniform("m");
+        s->addUniform("iv");
         s->addUniform("ip");
         s->addUniform("mvp");
+        s->addUniform("l");
         s->addUniform("res");
 
         s->addUniform("light.position");
         s->addUniform("light.color");
         s->addUniform("light.intensity");
-        s->addUniform("light.attenuation.constant");
-        s->addUniform("light.attenuation.linear");
-        s->addUniform("light.attenuation.exponential");
-        s->addUniform("light.range");
+        s->addUniform("light.oneOverRangeSqr");
         s->addUniform("light.direction");
         s->addUniform("light.cutoff");
 
@@ -242,34 +610,75 @@ namespace phi
         s->addUniform("rt1");
         s->addUniform("rt2");
         s->addUniform("rt3");
+        s->addUniform("shadowMap");
 
         shaderManager::get()->addShader(s->getName(), s);
+
+        _spotLightShader = s;
     }
 
-    void dsSceneRenderer::render()
+    void dsSceneRenderer::createShadowMapShaders()
     {
-        _hasSelectedObjects = false;
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
 
-        geomPass();
+        shader* s = shaderManager::get()->loadShader("DS_SHADOW_MAP", "ds_shadow_map.vert", "ds_shadow_map.frag", attribs);
 
-        pointLightPass();
-        spotLightPass();
+        s->addUniform("mvp");
+        s->addUniform("m");
 
-        directionalLightPass();
+        s->addUniform("nearPlane");
+        s->addUniform("farPlane");
+        s->addUniform("lightPos");
 
-        glDepthMask(GL_FALSE);
+        shaderManager::get()->addShader(s->getName(), s);
 
-        renderingSystem::defaultFrameBuffer->bindForDrawing();
-        _frameBuffer->bindForReading();
-        _frameBuffer->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+        _shadowMapShader = s;   
 
-        if (_hasSelectedObjects)
-            selectedObjectsPass();
+        s = shaderManager::get()->loadShader("DS_POINT_LIGHT_SHADOW_MAP", "ds_point_light_shadow_map.vert", "ds_point_light_shadow_map.frag", attribs);
+
+        s->addUniform("mvp");
+        s->addUniform("m");
+
+        s->addUniform("nearPlane");
+        s->addUniform("farPlane");
+        s->addUniform("lightPos");
+
+        shaderManager::get()->addShader(s->getName(), s); 
+
+        _pointLightShadowMapShader = s;
+    }
+
+    void dsSceneRenderer::createSSAOShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+
+        shader* s = shaderManager::get()->loadShader("DS_SSAO", "ds_ssao.vert", "ds_ssao.frag", attribs);
+
+        s->addUniform("ip");
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("rt1");
+        s->addUniform("rt2");
+        s->addUniform("rt3");
+        s->addUniform("randomNormalMap");
+
+        s->addUniform("randomSize");
+        s->addUniform("sampleRadius");
+        s->addUniform("intensity");
+        s->addUniform("scale");
+        s->addUniform("bias");
+
+        shaderManager::get()->addShader(s->getName(), s);
+
+        _ssaoShader = s;
     }
 
     void dsSceneRenderer::geomPass()
     {
-        _frameBuffer->bindForDrawing();
+        _frameBuffers[0]->bind();
 
         GLenum drawBuffers[] = 
         { 
@@ -286,10 +695,9 @@ namespace phi
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         auto color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-        glClearBufferfv(GL_COLOR, 3, &color.r); // Clears the selection render target
+        glClearBufferfv(GL_COLOR, 3, &color.r);
 
-        shader* sh = shaderManager::get()->getShader("DS_GEOM_PASS");
-        sh->bind();
+        _geometryPassShader->bind();
 
         glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
         glm::mat4 viewMatrix = _camera->getViewMatrix();
@@ -298,21 +706,14 @@ namespace phi
         {
             sceneObject* sceneObj = (*_allObjects)[i];
 
-            if(!_hasSelectedObjects)
-                _hasSelectedObjects = sceneObj->getSelected();
-
             glm::mat4 modelMatrix = sceneObj->getModelMatrix();
             glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
             glm::mat4 mv = viewMatrix * modelMatrix;
 
-            sh->setUniform("mv", mv);
-            sh->setUniform("mvp", mvp);
-            sh->setUniform("itmv", glm::inverse(glm::transpose(viewMatrix * modelMatrix)));
-
-            sh->setUniform("ambientLightColor", _scene->getAmbientColor());
-
-            sh->setUniform("isSelected", sceneObj->getSelected());
-            sh->setUniform("id", sceneObj->getId());
+            _geometryPassShader->setUniform("mv", mv);
+            _geometryPassShader->setUniform("mvp", mvp);
+            _geometryPassShader->setUniform("itmv", glm::inverse(glm::transpose(viewMatrix * modelMatrix)));
+            _geometryPassShader->setUniform("ambientLightColor", _scene->getAmbientColor());
 
             std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
             auto meshesCount = meshes.size();
@@ -320,33 +721,334 @@ namespace phi
             for (GLuint j = 0; j < meshesCount; j++)
             {
                 mesh* m = meshes[j];
+                sceneMesh* sm = sceneObj->getSceneMeshes()[j];
 
                 material* mat = m->getMaterial();
 
-                bool selected = sceneObj->getSelected();
+                bool selected = sm->getIsSelected();
 
-                sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
+                if(!_hasSelectedObjects)
+                    _hasSelectedObjects = selected;
 
-                sh->setUniform("mat.ambientColor", mat->getAmbientColor());
-                sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
-                sh->setUniform("mat.specularColor", mat->getSpecularColor());
-                sh->setUniform("mat.ka", mat->getKa());
-                sh->setUniform("mat.kd", mat->getKd());
-                sh->setUniform("mat.ks", mat->getKs());
-                sh->setUniform("mat.shininess", mat->getShininess());
+                _geometryPassShader->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
 
-                sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
-                sh->setUniform("normalMap", mat->getNormalTexture(), 1);
-                sh->setUniform("specularMap", mat->getSpecularTexture(), 2);
+                _geometryPassShader->setUniform("mat.diffuseColor", mat->getDiffuseColor());
+                _geometryPassShader->setUniform("mat.specularColor", mat->getSpecularColor());
+                _geometryPassShader->setUniform("mat.kd", mat->getKd());
+                _geometryPassShader->setUniform("mat.ks", mat->getKs());
+                _geometryPassShader->setUniform("mat.shininess", mat->getShininess());
+                _geometryPassShader->setUniform("mat.isEmissive", mat->getIsEmissive());
+
+                _geometryPassShader->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
+                _geometryPassShader->setUniform("normalMap", mat->getNormalTexture(), 1);
+                _geometryPassShader->setUniform("specularMap", mat->getSpecularTexture(), 2);
 
                 meshRenderer::render(m);
             }
         }
 
-        sh->unbind();
+        _geometryPassShader->unbind();
 
         glDepthMask(GL_FALSE);
         glDisable(GL_DEPTH_TEST);
+
+        _frameBuffers[0]->unbind();
+
+        _rt0Texture = _frameBuffers[0]->getRenderTarget("rt0")->getTexture();
+        _rt1Texture = _frameBuffers[0]->getRenderTarget("rt1")->getTexture();
+        _rt2Texture = _frameBuffers[0]->getRenderTarget("rt2")->getTexture();
+        _rt3Texture = _frameBuffers[0]->getRenderTarget("rt3")->getTexture();
+    }
+
+    void dsSceneRenderer::shadowMapPasses()
+    {
+        auto directionalLights = _scene->getDirectionalLights();
+        auto directionalLightsCount = directionalLights->size();
+
+        auto spotLights = _scene->getSpotLights();
+        auto spotLightsCount = spotLights->size();
+
+        if (directionalLightsCount == 0 && spotLightsCount == 0)
+            return;
+
+        glm::mat4 lp;
+        glm::mat4 lv;
+
+        glViewport(0, 0, _shadowMapSize, _shadowMapSize);
+
+        _shadowMapShader->bind();
+
+        if (_redrawStaticShadowMaps)
+        {
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
+            glDepthMask(GL_TRUE);
+            glCullFace(GL_BACK);
+            glClearColor(0.0, 0.0, 0.0, 0.0);
+
+            for (GLuint i = 0; i < directionalLightsCount; i++)
+            {
+                auto light = (*directionalLights)[i];
+
+                lp = glm::ortho<float>(-7.0, 7.0, -7.0, 7.0, _nearPlane, _farPlane);
+                lv = light->getTransform()->getViewMatrix();
+
+                staticShadowMapPass(_dirLightShadowMapFrameBuffers0[i], lp * lv, _nearPlane, _farPlane);
+
+                light->setShadowMap(_dirLightShadowMapFrameBuffers0[i]->getRenderTarget("rt0")->getTexture());
+            }
+
+            for (GLuint i = 0; i < spotLightsCount; i++)
+            {
+                auto light = (*spotLights)[i];
+
+                lp = light->getTransform()->getProjectionMatrix();
+                lv = light->getTransform()->getViewMatrix();
+
+                staticShadowMapPass(_spotLightShadowMapFrameBuffers0[i], lp * lv, _nearPlane, light->getRadius());
+
+                light->setShadowMap(_spotLightShadowMapFrameBuffers0[i]->getRenderTarget("rt0")->getTexture());
+            }
+
+            glDisable(GL_DEPTH_TEST);
+        }
+
+        if (_dynamicObjects.size() > 0)
+        {
+            for (GLuint i = 0; i < directionalLightsCount; i++)
+            {
+                auto light = (*directionalLights)[i];
+
+                lp = glm::ortho<float>(-7.0, 7.0, -7.0, 7.0, _nearPlane, _farPlane);
+                lv = light->getTransform()->getViewMatrix();
+
+                dynamicShadowMapPass(_dirLightShadowMapFrameBuffers0[i], _dirLightShadowMapFrameBuffers1[i], lp * lv, _nearPlane, _farPlane);
+
+                light->setShadowMap(_dirLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture());
+            }   
+
+            for (GLuint i = 0; i < spotLightsCount; i++)
+            {
+                auto light = (*spotLights)[i];
+
+                lp = light->getTransform()->getProjectionMatrix();
+                lv = light->getTransform()->getViewMatrix();
+
+                dynamicShadowMapPass(_spotLightShadowMapFrameBuffers0[i], _spotLightShadowMapFrameBuffers1[i], lp * lv, _nearPlane, light->getRadius());
+
+                light->setShadowMap(_spotLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture());
+            }
+        }   
+
+        _shadowMapShader->unbind();
+
+        glViewport(0, 0, _viewportSize.width, _viewportSize.height);
+    }
+
+    void dsSceneRenderer::staticShadowMapPass(frameBuffer* staticFrameBuffer, glm::mat4 l, float n, float f)
+    {
+        staticFrameBuffer->bindForDrawing();
+
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        for (std::map<GLuint, sceneObject*>::iterator it = _staticObjects.begin(); it != _staticObjects.end(); ++it)
+        {              
+            unsigned int sceneObjId = it->first;
+            sceneObject* sceneObj = it->second;
+
+            _shadowMapShader->setUniform("mvp", l * _modelMatrices[sceneObjId]);
+            _shadowMapShader->setUniform("nearPlane", n);
+            _shadowMapShader->setUniform("farPlane", f);
+
+            std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+            auto meshesCount = meshes.size();
+
+            for (GLuint j = 0; j < meshesCount; j++)
+                meshRenderer::render(meshes[j]);
+        }
+
+        staticFrameBuffer->unbind();
+    }
+
+    void dsSceneRenderer::dynamicShadowMapPass(frameBuffer* staticFrameBuffer, frameBuffer* dynamicFrameBuffer, glm::mat4 l, float n, float f)
+    {
+        dynamicFrameBuffer->bindForDrawing();
+        staticFrameBuffer->bindForReading();
+
+        staticFrameBuffer->blit("rt0", 0, 0, _shadowMapSize, _shadowMapSize, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+
+        for (std::map<GLuint, sceneObject*>::iterator it = _dynamicObjects.begin(); it != _dynamicObjects.end(); ++it)
+        {              
+            unsigned int sceneObjId = it->first;
+            sceneObject* sceneObj = it->second;
+
+            _shadowMapShader->setUniform("mvp", l * _modelMatrices[sceneObjId]);
+            _shadowMapShader->setUniform("nearPlane", n);
+            _shadowMapShader->setUniform("farPlane", f);
+
+            std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+            auto meshesCount = meshes.size();
+
+            for (GLuint j = 0; j < meshesCount; j++)
+                meshRenderer::render(meshes[j]);
+        }
+
+        glDisable(GL_DEPTH_TEST);
+
+        dynamicFrameBuffer->unbind();
+    }
+
+    void dsSceneRenderer::pointLightShadowMapPasses()
+    {
+        auto pointLights = _scene->getPointLights();
+        auto pointLightsCount = pointLights->size();
+
+        if (pointLightsCount == 0)
+            return;
+
+        glm::mat4 lp;
+        glm::mat4 lv;
+
+        glViewport(0, 0, _pointLightShadowMapSize, _pointLightShadowMapSize);
+
+        _pointLightShadowMapShader->bind();
+
+        if (_redrawStaticShadowMaps)
+        {   
+
+            for (GLuint l = 0; l < pointLightsCount; l++)
+            {
+                pointLight* light = (*pointLights)[l];
+                frameBuffer* staticFramebuffer = _pointLightShadowMapFrameBuffers0[l];
+                renderTarget* shadowMapRenderTarget = staticFramebuffer->getRenderTarget("rt0");
+
+                glEnable(GL_DEPTH_TEST);
+                glDepthFunc(GL_LESS);
+                glDepthMask(GL_TRUE);
+                //glCullFace(GL_FRONT);
+
+                float farPlane = light->getRange();
+                glm::vec3 eye = light->getPosition();
+
+                for (int i = 0; i < 6; i++)
+                {
+                    staticFramebuffer->bindForDrawing(shadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+
+                    glClearColor(0.0, 0.0, 0.0, 0.0);
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                    glm::vec3 center = eye + _pointLightShadowMapDirs[i];
+                    glm::vec3 up = _pointLightShadowMapUps[i];
+                    glm::mat4 v = glm::lookAt(eye, center, up);
+                    glm::mat4 p = glm::perspective(PI_OVER_2, 1.0f, _nearPlane, farPlane);
+
+                    /*for (GLuint i = 0; i < _allObjectsCount; i++)
+                    {
+                    sceneObject* sceneObj = (*_allObjects)[i];
+                    unsigned int sceneObjId = sceneObj->getId();*/
+
+                    for (std::map<GLuint, sceneObject*>::iterator it = _staticObjects.begin(); it != _staticObjects.end(); ++it)
+                    { 
+                        unsigned int sceneObjId = it->first;
+                        sceneObject* sceneObj = it->second;
+
+                        glm::mat4 m = _modelMatrices[sceneObjId];
+                        glm::mat4 mvp = p * v * m;
+
+                        _pointLightShadowMapShader->setUniform("m", m);
+                        _pointLightShadowMapShader->setUniform("mvp", mvp);
+                        _pointLightShadowMapShader->setUniform("nearPlane", _nearPlane);
+                        _pointLightShadowMapShader->setUniform("farPlane", farPlane);
+                        _pointLightShadowMapShader->setUniform("lightPos", eye);
+
+                        std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+                        auto meshesCount = meshes.size();
+
+                        for (GLuint k = 0; k < meshesCount; k++)
+                            meshRenderer::render(meshes[k]);
+                    }
+
+                    staticFramebuffer->unbind();
+                }
+
+                glDisable(GL_DEPTH_TEST);
+                //glCullFace(GL_BACK);
+
+                light->setShadowMap(shadowMapRenderTarget->getTexture());
+            }
+        }
+
+        if (_dynamicObjects.size() > 0)
+        {
+            for (GLuint l = 0; l < pointLightsCount; l++)
+            {
+                //GLuint l = 0;
+
+                pointLight* light = (*pointLights)[l];
+                frameBuffer* staticFrameBuffer = _pointLightShadowMapFrameBuffers0[l];
+                frameBuffer* dynamicFrameBuffer = _pointLightShadowMapFrameBuffers1[l];
+
+                renderTarget* staticShadowMapRenderTarget = staticFrameBuffer->getRenderTarget("rt0");
+                renderTarget* dynamicShadowMapRenderTarget = dynamicFrameBuffer->getRenderTarget("rt0");
+
+                float farPlane = 50;
+                glm::vec3 eye = light->getPosition();
+                glm::mat4 p = glm::perspective(PI_OVER_2, 1.0f, _nearPlane, farPlane);
+
+                for (int i = 0; i < 6; i++)
+                {
+                    //unsigned int i = 0;
+
+                    glm::vec3 center = eye + _pointLightShadowMapDirs[i];
+                    glm::vec3 up = _pointLightShadowMapUps[i];
+                    glm::mat4 v = glm::lookAt(eye, center, up);
+
+                    dynamicFrameBuffer->bindForDrawing(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+                    staticFrameBuffer->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+                    staticFrameBuffer->blita(0, 0, _pointLightShadowMapSize, _pointLightShadowMapSize, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(GL_LESS);
+                    glDepthMask(GL_TRUE);
+                    //glCullFace(GL_FRONT);
+
+                    for (std::map<GLuint, sceneObject*>::iterator it = _dynamicObjects.begin(); it != _dynamicObjects.end(); ++it)
+                    {              
+                        unsigned int sceneObjId = it->first;
+                        sceneObject* sceneObj = it->second;
+
+                        glm::mat4 m = _modelMatrices[sceneObjId];
+                        glm::mat4 mvp = p * v * m;
+
+                        _pointLightShadowMapShader->setUniform("m", m);
+                        _pointLightShadowMapShader->setUniform("mvp", mvp);
+                        _pointLightShadowMapShader->setUniform("nearPlane", _nearPlane);
+                        _pointLightShadowMapShader->setUniform("farPlane", farPlane);
+                        _pointLightShadowMapShader->setUniform("lightPos", eye);
+
+                        std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+                        auto meshesCount = meshes.size();
+
+                        for (GLuint k = 0; k < meshesCount; k++)
+                            meshRenderer::render(meshes[k]);
+                    }
+
+                    glDisable(GL_DEPTH_TEST);                    
+                    //glCullFace(GL_BACK);
+                    dynamicFrameBuffer->unbind();
+                }
+
+
+                light->setShadowMap(dynamicShadowMapRenderTarget->getTexture());
+            }
+        }
+
+        _pointLightShadowMapShader->unbind();
+        glViewport(0, 0, _viewportSize.width, _viewportSize.height);
     }
 
     void dsSceneRenderer::directionalLightPass()
@@ -357,52 +1059,152 @@ namespace phi
         if (directionalLightsCount == 0)
             return;
 
-        glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-        glEnable(GL_BLEND);
-        glBlendEquation(GL_FUNC_ADD);
-        glBlendFunc(GL_ONE, GL_ONE);
-
-        shader* sh = shaderManager::get()->getShader("DS_DIR_LIGHT");
-
-        sh->bind();
-
-        glm::mat4 modelMatrix = glm::mat4(
+        glm::mat4 m = glm::mat4(
             2.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 2.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f);
 
-        glm::mat4 viewMatrix = _camera->getViewMatrix();
-        glm::mat4 inverseProjectionMatrix = glm::inverse(_camera->getPerspProjMatrix());
-
-        texture* rt0Texture = _frameBuffer->getRenderTarget("rt0")->getTexture();
-        texture* rt1Texture = _frameBuffer->getRenderTarget("rt1")->getTexture();
-        texture* rt2Texture = _frameBuffer->getRenderTarget("rt2")->getTexture();
-        texture* rt3Texture = _frameBuffer->getRenderTarget("rt3")->getTexture();
+        glm::mat4 v = _camera->getViewMatrix();
+        glm::mat4 iv = glm::inverse(v);
+        glm::mat4 ip = glm::inverse(_camera->getPerspProjMatrix());
 
         for (GLuint i = 0; i < directionalLightsCount; i++)
         {
             directionalLight* light = (*directionalLights)[i];
-            sh->setUniform("v", viewMatrix);
-            sh->setUniform("m", modelMatrix);
-            sh->setUniform("ip", inverseProjectionMatrix);
-            sh->setUniform("light.position", light->getPosition());
-            sh->setUniform("light.color", light->getColor());
-            sh->setUniform("light.intensity", light->getIntensity());
-            sh->setUniform("light.direction", light->getDirection());
+            glm::mat4 lp = glm::ortho<float>(-7.0, 7.0, -7.0, 7.0, _nearPlane, _farPlane);
+            glm::mat4 lv = light->getTransform()->getViewMatrix();
+            glm::mat4 l = _biasMatrix * lp * lv;
 
-            sh->setUniform("rt0", rt0Texture, 0);
-            sh->setUniform("rt1", rt1Texture, 1);
-            sh->setUniform("rt2", rt2Texture, 2);
-            sh->setUniform("rt3", rt3Texture, 3);
+            _frameBuffers[1]->bindForDrawing();
+
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glEnable(GL_BLEND);
+            glDisable(GL_DEPTH_TEST);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE, GL_ONE);
+
+            _dirLightShader->bind();
+
+            _dirLightShader->setUniform("m", m);
+            _dirLightShader->setUniform("v", v);
+            _dirLightShader->setUniform("iv", iv);
+            _dirLightShader->setUniform("ip", ip);
+            _dirLightShader->setUniform("l", l);
+            _dirLightShader->setUniform("light.position", light->getPosition());
+            _dirLightShader->setUniform("light.color", light->getColor());
+            _dirLightShader->setUniform("light.intensity", light->getIntensity());
+            _dirLightShader->setUniform("light.direction", light->getDirection());
+
+            _dirLightShader->setUniform("rt0", _rt0Texture, 0);
+            _dirLightShader->setUniform("rt1", _rt1Texture, 1);
+            _dirLightShader->setUniform("rt2", _rt2Texture, 2);
+            _dirLightShader->setUniform("rt3", _rt3Texture, 3);
+            _dirLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
 
             meshRenderer::render(&_quad);
+
+            _dirLightShader->unbind();
+
+            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_BLEND);
+
+            _frameBuffers[1]->unbind();
+        }
+    }
+
+    void dsSceneRenderer::spotLightPass()
+    {	
+        auto spotLights = _scene->getSpotLights();
+        auto spotLightsCount = spotLights->size();
+
+        if (spotLightsCount == 0)
+            return;
+
+        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
+
+        glm::mat4 v = _camera->getViewMatrix();
+        glm::mat4 iv = glm::inverse(v);
+        glm::mat4 p = _camera->getPerspProjMatrix();
+        glm::mat4 ip = glm::inverse(p);
+
+        mesh* _mesh;
+
+        float nearPlane = 0.1f;
+
+        _frameBuffers[1]->bindForDrawing();
+
+        for (GLuint i = 0; i < spotLightsCount; i++)
+        {
+            spotLight* light = (*spotLights)[i];
+
+            glm::mat4 lp = light->getTransform()->getProjectionMatrix();
+            glm::mat4 lv = light->getTransform()->getViewMatrix();
+            glm::mat4 l = _biasMatrix * lp * lv;
+
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+            cone* boundingVolume = light->getBoundingVolume();
+            glm::mat4 m = boundingVolume->getModelMatrix();
+            glm::mat4 mvp = p * v * m;
+            _mesh = boundingVolume->getModel()->getMeshes()[0];
+
+            glDrawBuffer(GL_NONE);
+            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+            glClear(GL_STENCIL_BUFFER_BIT);
+            glStencilFunc(GL_ALWAYS, 0, 0);
+            glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+            glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+
+            _stencilShader->bind();
+            _stencilShader->setUniform("mvp", mvp);
+            meshRenderer::render(_mesh); 
+            _stencilShader->unbind();
+
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+            glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE, GL_ONE);
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+
+            _spotLightShader->bind();
+
+            _spotLightShader->setUniform("v", v);
+            _spotLightShader->setUniform("iv", iv);
+            _spotLightShader->setUniform("ip", ip);
+            _spotLightShader->setUniform("mvp", mvp);
+            _spotLightShader->setUniform("l", l);
+            _spotLightShader->setUniform("res", resolution);
+
+            _spotLightShader->setUniform("light.position", light->getPosition());
+            _spotLightShader->setUniform("light.color", light->getColor());
+            _spotLightShader->setUniform("light.intensity", light->getIntensity());
+            _spotLightShader->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
+            _spotLightShader->setUniform("light.direction", light->getDirection());
+            _spotLightShader->setUniform("light.cutoff", light->getCutoff());
+
+            _spotLightShader->setUniform("rt0", _rt0Texture, 0);
+            _spotLightShader->setUniform("rt1", _rt1Texture, 1);
+            _spotLightShader->setUniform("rt2", _rt2Texture, 2);
+            _spotLightShader->setUniform("rt3", _rt3Texture, 3);
+            _spotLightShader->setUniform("shadowMap", _spotLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture(), 4);
+
+            //TODO: Cull lights
+
+            meshRenderer::render(_mesh);
+
+            _spotLightShader->unbind();
+
+            glCullFace(GL_BACK);
+            glDisable(GL_BLEND);
         }
 
-        sh->unbind();
-
-        glDisable(GL_BLEND);
+        _frameBuffers[1]->unbind();
     }
 
     void dsSceneRenderer::pointLightPass()
@@ -414,187 +1216,137 @@ namespace phi
             return;
 
         glm::mat4 viewMatrix = _camera->getViewMatrix();
+        glm::mat4 inverseViewMatrix = glm::inverse(viewMatrix);
         glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
-        glm::mat4 inverseProjectionMatrix = glm::inverse(_camera->getPerspProjMatrix());
-
-        texture* rt0Texture = _frameBuffer->getRenderTarget("rt0")->getTexture();
-        texture* rt1Texture = _frameBuffer->getRenderTarget("rt1")->getTexture();
-        texture* rt2Texture = _frameBuffer->getRenderTarget("rt2")->getTexture();
-        texture* rt3Texture = _frameBuffer->getRenderTarget("rt3")->getTexture();
+        glm::mat4 inverseProjectionMatrix = glm::inverse(projectionMatrix);
 
         glm::vec2 resolution(_viewportSize.width, _viewportSize.height);
-
-        shader* ss = shaderManager::get()->getShader("DS_STENCIL");
-        shader* ps = shaderManager::get()->getShader("DS_POINT_LIGHT");
-
-        glEnable(GL_STENCIL_TEST);
 
         mesh* _mesh;
 
         for (GLuint i = 0; i < pointLightsCount; i++)
         {
             pointLight* light = (*pointLights)[i];
+
+            /*renderTarget* shadowMapRenderTarget = _frameBuffers[3]->getRenderTarget("rt0");
+
+            _pointLightShadowMapShader->bind();
+
+            glViewport(0, 0, _pointLightShadowMapSize, _pointLightShadowMapSize);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
+            glDepthMask(GL_TRUE);
+            glCullFace(GL_BACK);
+
+            if (pointLightIndex == 6)
+            pointLightIndex = 0;
+
+            for (int i = 0; i < 6; i++)
+            {
+            _frameBuffers[3]->bindForDrawing(shadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+
+            glClearColor(10.0, 0.0, 0.0, 0.0);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            float angle = PI_OVER_2;
+            float nearPlane = 0.1f;
+            float farPlane = light->getRange();
+            glm::vec3 eye = light->getPosition();
+            glm::vec3 center = eye + _pointLightShadowMapDirs[i];
+            glm::vec3 up = _pointLightShadowMapUps[i];
+            glm::mat4 v = glm::lookAt(eye, center, up);
+            glm::mat4 p = glm::perspective(angle, 1.0f, nearPlane, farPlane);
+
+            for (GLuint j = 0; j < _allObjectsCount; j++)
+            {
+            sceneObject* sceneObj = (*_allObjects)[j];
+
+            unsigned int sceneObjId = sceneObj->getId();
+
+            glm::mat4 m = _modelMatrices[sceneObjId];
+            glm::mat4 mvp = p * v * m;
+
+            _pointLightShadowMapShader->setUniform("m", m);
+            _pointLightShadowMapShader->setUniform("mvp", mvp);
+            _pointLightShadowMapShader->setUniform("nearPlane", nearPlane);
+            _pointLightShadowMapShader->setUniform("farPlane", farPlane);
+            _pointLightShadowMapShader->setUniform("lightPos", eye);
+
+            std::vector<mesh*> meshes = sceneObj->getModel()->getMeshes();
+            auto meshesCount = meshes.size();
+
+            for (GLuint k = 0; k < meshesCount; k++)
+            meshRenderer::render(meshes[k]);
+            }
+            }
+
+            _pointLightShadowMapShader->unbind();
+
+            glViewport(0, 0, _viewportSize.width, _viewportSize.height);
+
+            _frameBuffers[3]->unbind();*/
+
+            _frameBuffers[1]->bindForDrawing();
+
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
             sphere* boundingVolume = light->getBoundingVolume();
             glm::mat4 modelMatrix = boundingVolume->getModelMatrix();
             glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
             _mesh = boundingVolume->getModel()->getMeshes()[0];
-            // Disable color/depth write and enable stencil
 
             glDrawBuffer(GL_NONE);
-
             glEnable(GL_DEPTH_TEST);
-
             glDisable(GL_CULL_FACE);
-
             glClear(GL_STENCIL_BUFFER_BIT);
-
             glStencilFunc(GL_ALWAYS, 0, 0);
-
             glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
             glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
-            ss->bind();
-            ss->setUniform("mvp", mvp);
+            _stencilShader->bind();
+            _stencilShader->setUniform("mvp", mvp);
             meshRenderer::render(_mesh); 
-            ss->unbind();
+            _stencilShader->unbind();
 
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
             glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
             glDisable(GL_DEPTH_TEST);
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_ONE, GL_ONE);
-
             glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT);
 
-            ps->bind();
+            _pointLightShader->bind();
 
-            ps->setUniform("v", viewMatrix);
-            ps->setUniform("m", modelMatrix);
-            ps->setUniform("ip", inverseProjectionMatrix);
-            ps->setUniform("mvp", mvp);
-            ps->setUniform("res", resolution);
+            _pointLightShader->setUniform("v", viewMatrix);
+            _pointLightShader->setUniform("iv", inverseViewMatrix);
+            _pointLightShader->setUniform("m", modelMatrix);
+            _pointLightShader->setUniform("ip", inverseProjectionMatrix);
+            _pointLightShader->setUniform("mvp", mvp);
+            _pointLightShader->setUniform("res", resolution);
 
-            ps->setUniform("light.position", light->getPosition());
-            ps->setUniform("light.color", light->getColor());
-            ps->setUniform("light.intensity", light->getIntensity());
-            ps->setUniform("light.range", light->getRange());
-            ps->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
-            ps->setUniform("rt0", rt0Texture, 0);
-            ps->setUniform("rt1", rt1Texture, 1);
-            ps->setUniform("rt2", rt2Texture, 2);
-            ps->setUniform("rt3", rt3Texture, 3);
-            
+            _pointLightShader->setUniform("light.position", light->getPosition());
+            _pointLightShader->setUniform("light.color", light->getColor());
+            _pointLightShader->setUniform("light.intensity", light->getIntensity());
+            _pointLightShader->setUniform("light.range", light->getRange());
+            _pointLightShader->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
+            _pointLightShader->setUniform("rt0", _rt0Texture, 0);
+            _pointLightShader->setUniform("rt1", _rt1Texture, 1);
+            _pointLightShader->setUniform("rt2", _rt2Texture, 2);
+            _pointLightShader->setUniform("rt3", _rt3Texture, 3);
+            _pointLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
+            //_pointLightShader->setUniform("shadowMap", _pointLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture(), 4);
             meshRenderer::render(_mesh); 
 
-            ps->unbind();
+            _pointLightShader->unbind();
 
             glCullFace(GL_BACK);
-
             glDisable(GL_BLEND);
+
+            _frameBuffers[1]->unbind();
         }
-
-        glDisable(GL_STENCIL_TEST);
-    }
-
-    void dsSceneRenderer::spotLightPass()
-    {	
-        auto spotLights = _scene->getSpotLights();
-        auto spotLightsCount = spotLights->size();
-
-        if (spotLightsCount == 0)
-            return;
-
-        glm::mat4 projectionMatrix = _camera->getPerspProjMatrix();
-        glm::mat4 inverseProjectionMatrix = glm::inverse(_camera->getPerspProjMatrix());
-        glm::mat4 viewMatrix = _camera->getViewMatrix();
-
-        texture* rt0Texture = _frameBuffer->getRenderTarget("rt0")->getTexture();
-        texture* rt1Texture = _frameBuffer->getRenderTarget("rt1")->getTexture();
-        texture* rt2Texture = _frameBuffer->getRenderTarget("rt2")->getTexture();
-        texture* rt3Texture = _frameBuffer->getRenderTarget("rt3")->getTexture();
-
-        shader* ss = shaderManager::get()->getShader("DS_STENCIL");
-        shader* sls = shaderManager::get()->getShader("DS_SPOT_LIGHT");
-
-        glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
-
-        ss->bind();
-        mesh* _mesh;
-        for (GLuint i = 0; i < spotLightsCount; i++)
-        {
-            spotLight* light = (*spotLights)[i];
-            cone* boundingVolume = light->getBoundingVolume();
-            glm::mat4 modelMatrix = boundingVolume->getModelMatrix();
-            glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
-            _mesh = boundingVolume->getModel()->getMeshes()[0];
-
-            glDrawBuffer(GL_NONE);
-
-            glEnable(GL_DEPTH_TEST);
-
-            glDisable(GL_CULL_FACE);
-
-            glClear(GL_STENCIL_BUFFER_BIT);
-
-            glStencilFunc(GL_ALWAYS, 0, 0);
-
-            glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-            glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-
-            ss->bind();
-            ss->setUniform("mvp", mvp);
-            meshRenderer::render(_mesh); 
-            ss->unbind();
-
-            glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-            glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendEquation(GL_FUNC_ADD);
-            glBlendFunc(GL_ONE, GL_ONE);
-
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT);
-
-            sls->bind();
-
-            sls->setUniform("v", viewMatrix);
-            sls->setUniform("m", modelMatrix);
-            sls->setUniform("ip", inverseProjectionMatrix);
-            sls->setUniform("mvp", mvp);
-            sls->setUniform("res", resolution);
-
-            sls->setUniform("light.position", light->getPosition());
-            sls->setUniform("light.color", light->getColor());
-            sls->setUniform("light.intensity", light->getIntensity());
-            sls->setUniform("light.range", light->getRange());
-            sls->setUniform("light.oneOverRangeSqr", light->getOneOverRangerSqr());
-            sls->setUniform("light.direction", light->getDirection());
-            sls->setUniform("light.cutoff", light->getCutoff());
-
-            sls->setUniform("rt0", rt0Texture, 0);
-            sls->setUniform("rt1", rt1Texture, 1);
-            sls->setUniform("rt2", rt2Texture, 2);
-            sls->setUniform("rt3", rt3Texture, 3);
-
-            //TODO: Cull lights
-            
-            meshRenderer::render(_mesh);
-
-            sls->unbind();
-
-            glCullFace(GL_BACK);
-
-            glDisable(GL_BLEND);
-        }
-
-        glDisable(GL_STENCIL_TEST);
     }
 
     void dsSceneRenderer::selectedObjectsPass()
@@ -604,7 +1356,7 @@ namespace phi
 
         glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
 
-        renderTarget* selectedRenderTarget = _frameBuffer->getRenderTarget("rt4");
+        renderTarget* selectedRenderTarget = _frameBuffers[0]->getRenderTarget("rt4");
         shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
 
         sh->bind();
@@ -626,14 +1378,208 @@ namespace phi
         glDisable(GL_BLEND);
     }
 
-    void dsSceneRenderer::resize(size<GLuint> size)
+    void dsSceneRenderer::ssao()
+    {   
+        _frameBuffers[1]->bindForDrawing();
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_COLOR, GL_ONE);
+        glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+
+        texture* rt1Texture = _frameBuffers[0]->getRenderTarget("rt1")->getTexture();
+        texture* rt2Texture = _frameBuffers[0]->getRenderTarget("rt2")->getTexture();
+        texture* rt3Texture = _frameBuffers[0]->getRenderTarget("rt3")->getTexture();
+
+        glm::mat4 ip = glm::inverse(_camera->getPerspProjMatrix());
+        glm::vec2 res = glm::vec2(_viewportSize.width, _viewportSize.height);
+        glm::mat4 m = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        shader* s = shaderManager::get()->getShader("DS_SSAO");
+
+        s->bind();
+
+        s->setUniform("ip", ip);
+        s->setUniform("m", m);
+        s->setUniform("res", res);
+        s->setUniform("rt1", rt1Texture, 0);
+        s->setUniform("rt2", rt2Texture, 1);
+        s->setUniform("rt3", rt3Texture, 2);
+        s->setUniform("randomNormalMap", _randomNormalsTexture, 3);
+
+        s->setUniform("randomSize", 64.0f);
+        s->setUniform("sampleRadius", _ssaoSampleRadius);
+        s->setUniform("intensity", _ssaoIntensity);
+        s->setUniform("scale", _ssaoScale);
+        s->setUniform("bias", _ssaoBias);
+
+        meshRenderer::render(&_quad);
+
+        s->unbind();
+
+        glBlendEquation(GL_FUNC_ADD);
+        glDisable(GL_BLEND);
+
+        _frameBuffers[1]->unbind();
+    }
+
+    texture* dsSceneRenderer::blur(texture* source)
     {
-        _viewportSize = size;
-        initBuffers();
+        _frameBuffers[1]->bindForDrawing();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glm::vec2 resolution = glm::vec2(1024, 1024);
+        glm::mat4 modelMatrix = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        shader* s = shaderManager::get()->getShader("SSAO_BLUR");
+
+        s->bind();
+
+        s->setUniform("m", modelMatrix);
+        s->setUniform("res", resolution);
+        s->setUniform("tex", source, 0);
+        s->setUniform("blurScale", glm::vec2(1.0 * (1.0/resolution.x), 0.0));
+        meshRenderer::render(&_quad);
+
+        _frameBuffers[1]->unbind();
+
+        _frameBuffers[1]->bindForDrawing();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        source = _frameBuffers[1]->getRenderTarget("rt0")->getTexture();
+
+        s->setUniform("tex", source, 0);
+        s->setUniform("blurScale", glm::vec2(0.0,  1.0 * (1.0/resolution.y)));
+        meshRenderer::render(&_quad);
+
+        s->unbind();
+
+        _frameBuffers[1]->unbind();
+
+        return _frameBuffers[1]->getRenderTarget("rt0")->getTexture();
+    }
+
+    void dsSceneRenderer::render()
+    {
+        _hasSelectedObjects = false;
+
+        _staticObjects = _scene->getStaticObjects();
+        _dynamicObjects = _scene->getDynamicObjects();
+
+        geomPass();
+
+        shadowMapPasses();
+        pointLightShadowMapPasses();
+
+        if (_redrawStaticShadowMaps)
+            _redrawStaticShadowMaps = false;
+
+        _frameBuffers[1]->bindForDrawing();
+        _frameBuffers[0]->bindForReading();
+        _frameBuffers[0]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+
+        pointLightPass();
+        spotLightPass();
+        directionalLightPass();
+
+        glDepthMask(GL_FALSE);
+
+        ssao();
+
+        renderingSystem::defaultFrameBuffer->bindForDrawing();
+        _frameBuffers[1]->bindForReading();
+        _frameBuffers[1]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+
+        //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
+        //_dirLightShadowMapFrameBuffers1[0]->blit("rt0", 0, 0, 400, 400);
+
+
+        /*unsigned int s = 128;
+        unsigned int dx = 0;
+        unsigned int dy = 0;
+        unsigned int l = 0;
+
+
+        renderTarget* staticShadowMapRenderTarget = _pointLightShadowMapFrameBuffers0[l]->getRenderTarget("rt0");
+        renderTarget* dynamicShadowMapRenderTarget = _pointLightShadowMapFrameBuffers1[l]->getRenderTarget("rt0");
+
+        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5);
+        _pointLightShadowMapFrameBuffers0[l]->blita(0 + dx, s + dy, s, s);
+        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1);
+        _pointLightShadowMapFrameBuffers0[l]->blita(s + dx, s + dy, s, s);
+        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4);
+        _pointLightShadowMapFrameBuffers0[l]->blita(2 * s + dx, s + dy, s, s);
+        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0);
+        _pointLightShadowMapFrameBuffers0[l]->blita(3 * s + dx, s + dy, s, s);
+        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3);
+        _pointLightShadowMapFrameBuffers0[l]->blita(s * 2 + dx, s * 2 + dy, s, s);
+        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2);
+        _pointLightShadowMapFrameBuffers0[l]->blita(s * 2 + dx, 0 + dy, s, s);
+
+        dx = 512;*/
+        /*
+        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5);
+        _pointLightShadowMapFrameBuffers1[l]->blita(0 + dx, s + dy, s, s);
+        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1);
+        _pointLightShadowMapFrameBuffers1[l]->blita(s + dx, s + dy, s, s);
+        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4);
+        _pointLightShadowMapFrameBuffers1[l]->blita(2 * s + dx, s + dy, s, s);
+        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0);
+        _pointLightShadowMapFrameBuffers1[l]->blita(3 * s + dx, s + dy, s, s);
+        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3);
+        _pointLightShadowMapFrameBuffers1[l]->blita(s * 2 + dx, s * 2 + dy, s, s);
+        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2);
+        _pointLightShadowMapFrameBuffers1[l]->blita(s * 2 + dx, 0 + dy, s, s);*/
+
+
+        //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
+        //_dirLightShadowMapFrameBuffers1[0]->blit("rt0", _shadowMapSize/2, 0, _shadowMapSize/2, _shadowMapSize/2);
+
+        //_dirLightShadowMapFrameBuffers0[0]->bindForReading();
+        //_dirLightShadowMapFrameBuffers0[0]->blit("depth", 0, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
+
+        //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
+        //_dirLightShadowMapFrameBuffers1[0]->blit("depth", _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
+
+        _frameBuffers[0]->bindForReading();
+
+        //if (_hasSelectedObjects)
+          //  selectedObjectsPass();
     }
 
     void dsSceneRenderer::onRender()
     {
+        if (!_buffersInitialized)
+        {
+            createDirLightShadowMapsRenderTargets();
+            createSpotLightShadowMapsRenderTargets();
+            createPointLightShadowMapsRenderTargets();
+            _buffersInitialized = true;
+        }
+
+        _viewMatrix = _scene->getActiveCamera()->getViewMatrix();
+        _projMatrix = _scene->getActiveCamera()->getPerspProjMatrix();
+
+        for (GLuint i = 0; i < _allObjectsCount; i++)
+        {
+            sceneObject* sceneObj = (*_allObjects)[i];
+
+            glm::mat4 modelMatrix = sceneObj->getModelMatrix();
+
+            _modelMatrices[sceneObj->getId()] = modelMatrix;
+            _mvpMatrices[sceneObj->getId()] = _projMatrix * _viewMatrix * modelMatrix;
+            _itmvMatrices[sceneObj->getId()] = glm::inverse(glm::transpose(_viewMatrix * modelMatrix));
+        }
+
         render();
     }
 }

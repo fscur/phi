@@ -10,5 +10,4 @@ out vec4 fragColor;
 void main()
 {
 	fragColor = diffuseColor * texture(diffuseMap, fragTexCoord.xy);
-	//o fernando zuou tudo
 }

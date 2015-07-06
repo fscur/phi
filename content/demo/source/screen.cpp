@@ -12,7 +12,6 @@
 #include "uiSystem.h"
 #include "renderingSystem.h"
 #include "renderingCommunicationBuffer.h"
-#include "testSceneRenderer.h"
 
 float a;
 float angle;
@@ -172,32 +171,45 @@ void screen::initScene()
     //s->add(pointLight);
 
     sphere = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("sphere.model"));
-    sphere->setPosition(glm::vec3(0.0f, 2.4f, 0.0f));
+    sphere->setPosition(glm::vec3(2.5f, 1.8f, 0.0f));
     sphere->setSize(phi::size<float>(0.4f, 0.4f, 0.4f));
     //s->add(sphere);
 
     ///* lights */
     
-    phi::sceneObject* lamp0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
+    phi::sceneObject* spotLamp0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("spot_lamp.model"));
+    spotLamp0->setPosition(glm::vec3(-4.7, 3.5, -0.75));
+    spotLamp0->yaw(-phi::PI_OVER_2 + 0.3);
+    s->add(spotLamp0);
+    
+    phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(-4.7, 3.5, -0.75), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.3f, -1.0f, 0.2f), 0.7f);
+    s->add(spotLight0);
+
+    phi::sceneObject* spotLamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("spot_lamp.model"));
+    spotLamp1->setPosition(glm::vec3(-4.7, 3.5, 0.75));
+    spotLamp1->yaw(-phi::PI_OVER_2 - 0.3);
+    s->add(spotLamp1);
+    
+    phi::spotLight* spotLight1 = new phi::spotLight(glm::vec3(-4.7, 3.5, 0.75), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.3f, -1.0f, -0.2f), 0.7f);
+    s->add(spotLight1);
+
+    /*phi::sceneObject* lamp0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
     lamp0->setPosition(glm::vec3(0.0, 3.5, 0.0));
     s->add(lamp0);
 
     phi::pointLight* pointLight0 = new phi::pointLight(glm::vec3(0.0, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
-    s->add(pointLight0);
+    s->add(pointLight0);*/
 
-    phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(0.0, 1.8, 0.0), phi::color::fromRGBA(1.0f, 0.9f, 0.7f, 1.0f), 2.5f, 4.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.3f);
-    //s->add(spotLight0);
+    phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("hanging_lamp.model"));
+    lamp1->setPosition(glm::vec3(2.0, 3.5, 0.0));
+    //s->add(lamp1);
 
-    phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
-    lamp1->setPosition(glm::vec3(2.5, 3.5, 0.0));
-    s->add(lamp1);
-
-    phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.5, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
+    phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.0, 1.9, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.8f, 5.0f);
     s->add(pointLight1);
     
     phi::sceneObject* lamp2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
     lamp2->setPosition(glm::vec3(-2.5, 3.5, 0.0));
-    s->add(lamp2);
+    //s->add(lamp2);
 
     phi::pointLight* pointLight2 = new phi::pointLight(glm::vec3(-2.5, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
     s->add(pointLight2);
@@ -210,6 +222,7 @@ void screen::initScene()
     
     phi::sceneObject* ceiling = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling.model"));
     ceiling->setPosition(glm::vec3(0.0, 3.5, 0.0));
+    ceiling->setSize(phi::size<float>(1.0f, 2.0f, 1.0f));
     s->add(ceiling);
 
     phi::sceneObject* left_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("side_wall.model"));
@@ -227,7 +240,7 @@ void screen::initScene()
 
     phi::sceneObject* front_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("front_wall.model"));
     front_wall->setPosition(glm::vec3(0.0, 0.0, 2.0));
-    //s->add(front_wall);
+    s->add(front_wall);
     
     /*casket0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("casket.model"));
     casket0->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
