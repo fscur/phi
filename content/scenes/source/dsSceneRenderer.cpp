@@ -785,7 +785,7 @@ namespace phi
                 mesh* m = meshes[j];
                 sceneMesh* sm = sceneObj->getSceneMeshes()[j];
 
-                material* mat = m->getMaterial();
+                material* mat = sm->getMaterial();
 
                 bool selected = sm->getIsSelected();
 

@@ -4,6 +4,7 @@
 #include <vector>
 #include "control.h"
 #include "carouselItem.h"
+#include "carouselItemEventArgs.h"
 #include "quadRenderer2D.h"
 
 namespace phi
@@ -19,26 +20,32 @@ namespace phi
         color _backgroundColor;
         float _scrollOffset;
         float _targetScrollOffset;
+        eventHandler<carouselItemEventArgs>* _selectedItemChanged;
 
     private:
         void updateItems();
+        void notifySelectedItemChanged(carouselItemEventArgs e);
+        void carouselItemIsSelectedChanged(carouselItemEventArgs e);
 
     public:
         UI_API carouselList(size<GLuint> viewportSize);
         UI_API ~carouselList();
+
+        UI_API std::vector<carouselItem*> getItems() { return _items; }
+        UI_API eventHandler<carouselItemEventArgs>* getSelectedItemChanged() { return _selectedItemChanged; }
 
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;
         UI_API void setZIndex(float value) override;
         UI_API void setSize(size<GLuint> value) override;
         UI_API void setViewportSize(size<GLuint> value) override;
+        UI_API void setBackgroundColor(color value);
+        UI_API void setSelectedItem(carouselItem* item);
 
         UI_API void onMouseDown(mouseEventArgs* e) override;
         UI_API void onMouseWheel(mouseEventArgs* e) override;
 
         UI_API void render() override;
-
-        UI_API void setBackgroundColor(color value);
 
         UI_API void addCarouselItem(carouselItem* carouselItem);
     };

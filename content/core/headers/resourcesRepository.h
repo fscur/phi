@@ -17,6 +17,11 @@ namespace phi
         CORE_API void release();
         CORE_API void addResource(resource* r);
 
+        CORE_API std::vector<resource*> getAllResources()
+        {
+            return _resources;
+        }
+
         template<class T>
         T* getResource(std::string name)
         {

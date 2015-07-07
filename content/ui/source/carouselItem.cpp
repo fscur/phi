@@ -4,18 +4,26 @@ namespace phi
 {
     const float carouselItem::SELECTED_SCALE_PERCENT = 1.05f;
 
-    carouselItem::carouselItem(size<GLuint> viewportSize) : control(viewportSize)
+    carouselItem::carouselItem(std::string name, size<GLuint> viewportSize) : control(viewportSize)
     {
+        _name = name;
         _texture = uiRepository::repository->getResource<texture>("button.png");
         _selectedTexture = uiRepository::repository->getResource<texture>("button.png");
         _backgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), 0.0f, size<GLuint>(0, 0, 0), viewportSize);
         _selectedRenderer = new quadRenderer2D(glm::vec2(0, 0), 0.0f, size<GLuint>(0, 0, 0), viewportSize);
         _isSelected = false;
+        _isSelectedChanged = new eventHandler<carouselItemEventArgs>();
     }
 
     carouselItem::~carouselItem()
     {
         DELETE(_backgroundRenderer);
+    }
+
+    void carouselItem::notifyIsSelectedItemChanged(carouselItemEventArgs e)
+    {
+        if (_isSelectedChanged->isBound())
+            _isSelectedChanged->invoke(e);
     }
 
     void carouselItem::setX(int value)
@@ -118,6 +126,8 @@ namespace phi
 
         _backgroundRenderer->update();
         _selectedRenderer->update();
+
+        notifyIsSelectedItemChanged(carouselItemEventArgs(this));
     }
 
     void carouselItem::render()

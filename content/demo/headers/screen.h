@@ -52,6 +52,7 @@ private:
 	phi::commandsManager _commandsManager;
     phi::resourcesLoader _resourcesLoader;
     phi::resourcesRepository* _modelsRepository;
+    phi::resourcesRepository* _materialsRepository;
     phi::resourcesRepository* _texturesRepository;
 
     bool _ssao;
@@ -91,6 +92,7 @@ public:
     void hudControlLostFocus(phi::controlEventArgs e);
     void selectedSceneObjectChanged(phi::sceneObjectEventArgs e);
     void staticObjectsChanged(phi::eventArgs e);
+    void carouselListSelectedItemChanged(phi::carouselItemEventArgs e);
 
     void update() override;
     void render() override;

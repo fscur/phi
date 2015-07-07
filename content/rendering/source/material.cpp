@@ -9,7 +9,7 @@ namespace phi
         std::string name,
         std::string path,
         texture* diffuseTexture,
-		texture* normalTexture,
+        texture* normalTexture,
         texture* specularTexture, 
         texture* emissiveTexture, 
         color ambientColor,
@@ -21,7 +21,8 @@ namespace phi
         float ks,
         float shininess,
         float reflectivity,
-        bool isEmissive) :
+        bool isEmissive,
+        texture* thumbnail) :
         resource(name, path)
     {
         _diffuseTexture = diffuseTexture;
@@ -44,7 +45,7 @@ namespace phi
         std::string name,
         std::string path,
         std::string diffuseTextureName,
-		std::string normalTextureName,
+        std::string normalTextureName,
         std::string specularTextureName,
         std::string emissiveTextureName, 
         color ambientColor,
@@ -56,8 +57,9 @@ namespace phi
         float ks,
         float shininess,
         float reflectivity,
-        bool isEmissive) :
-        resource(name, path)
+        bool isEmissive,
+        texture* thumbnail) :
+    resource(name, path)
     {
         _diffuseTextureName = diffuseTextureName;
         _normalTextureName = normalTextureName;
@@ -73,6 +75,7 @@ namespace phi
         _shininess = shininess;
         _reflectivity = reflectivity;
         _isEmissive = isEmissive;
+        _thumbnail = thumbnail;
     }
 
     material::~material()
@@ -84,7 +87,7 @@ namespace phi
 
         if (!oFile.is_open())
             return;
-    
+
         oFile.clear();
         oFile.seekp(0);
 
@@ -113,7 +116,7 @@ namespace phi
 
         if (!iFile.is_open())
             return nullptr;
-    
+
         iFile.seekg(0);
 
         char* diffuseTextureName = new char[256];
@@ -145,9 +148,12 @@ namespace phi
         iFile.read(reinterpret_cast<char*>(&kd), sizeof(float));
         iFile.read(reinterpret_cast<char*>(&ks), sizeof(float));
         iFile.read(reinterpret_cast<char*>(&isEmissive), sizeof(bool));
-    
+
         iFile.close();
-        auto name = path::getFileName(filename);
+        auto name = path::getFileNameWithoutExtension(filename);
+        auto dir = path::getDirectoryFullName(filename);
+        auto thumbnailPath = dir + "\\" + name + ".th";
+        auto thumbnail = texture::fromFile(thumbnailPath);
 
         return new material(
             std::string(name),
@@ -165,6 +171,7 @@ namespace phi
             ks,
             shininess,
             reflectivity,
-            isEmissive); 
+            isEmissive,
+            thumbnail); 
     }
 }

@@ -28,7 +28,8 @@ namespace phi
         command(){}
         virtual void init() {}
         virtual bool canExecute() { return true; }
-        virtual void update() = 0;
+        virtual void update() { };
+        virtual void finish() { };
     };
 }
 #endif

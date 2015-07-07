@@ -19,6 +19,7 @@ phi::translationControl* tc;
 phi::rotationControl* rc;
 float t = 0.0f;
 phi::sceneObject* sphere;
+phi::carouselList* _materialsCarousel;
 
 screen::screen() : form()
 {
@@ -57,9 +58,9 @@ void screen::initScene()
     s->setAmbientLightColor(phi::color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
     s->getSelectedSceneObjectChanged()->bind<screen, &screen::selectedSceneObjectChanged>(this);
     s->getStaticObjectsChanged()->bind<screen, &screen::staticObjectsChanged>(this);
-    
-    /* decoration */
-    
+
+    ///* decoration */
+
     phi::sceneObject* flower = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("flower.model"));
     flower->setPosition(glm::vec3(2.0f, 0.8f, 0.0f));
     s->add(flower);
@@ -106,7 +107,7 @@ void screen::initScene()
     s->add(casket);
 
     ///* living room */
-    
+
     phi::sceneObject* sofa = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("sofa.model"));
     sofa->setPosition(glm::vec3(-3.1f, 0.0f, 1.4f));
     sofa->yaw(phi::PI);
@@ -122,9 +123,9 @@ void screen::initScene()
     chair1->yaw(-0.3);
     s->add(chair1);
 
-    
+
     /* dining */
-    
+
     phi::sceneObject* cabinet = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cabinet.model"));
     cabinet->setPosition(glm::vec3(4.7f, 0.0f, 0.0f));
     cabinet->yaw(phi::PI);
@@ -142,7 +143,7 @@ void screen::initScene()
     table_chair1->setPosition(glm::vec3(2.5, 0.0, -0.5));
     table_chair1->yaw(-0.2);
     s->add(table_chair1);
-    
+
     phi::sceneObject* table_chair2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("table_chair.model"));
     table_chair2->setPosition(glm::vec3(1.5, 0.0, 0.5));
     table_chair2->yaw(phi::PI-0.3);
@@ -162,8 +163,8 @@ void screen::initScene()
     table_chair5->setPosition(glm::vec3(0.8, 0.0, 0.0));
     table_chair5->yaw(phi::PI_OVER_2 - 0.1);
     s->add(table_chair5);
-    
-    
+
+
 
     ///* slider light */
     //
@@ -171,7 +172,7 @@ void screen::initScene()
     //s->add(pointLight);
 
     sphere = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("sphere.model"));
-    sphere->setPosition(glm::vec3(2.5f, 1.8f, 0.0f));
+    sphere->setPosition(glm::vec3(0.0f, 2.4f, 0.0f));
     sphere->setSize(phi::size<float>(0.4f, 0.4f, 0.4f));
     //s->add(sphere);
 
@@ -183,7 +184,7 @@ void screen::initScene()
     s->add(spotLamp0);
     
     phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(-4.7, 3.5, -0.75), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.3f, -1.0f, 0.2f), 0.7f);
-    //s->add(spotLight0);
+    s->add(spotLight0);
 
     phi::sceneObject* spotLamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("spot_lamp.model"));
     spotLamp1->setPosition(glm::vec3(-4.7, 3.5, 0.75));
@@ -191,7 +192,14 @@ void screen::initScene()
     s->add(spotLamp1);
     
     phi::spotLight* spotLight1 = new phi::spotLight(glm::vec3(-4.7, 3.5, 0.75), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.3f, -1.0f, -0.2f), 0.7f);
-    //s->add(spotLight1);
+    s->add(spotLight1);
+
+    /*phi::sceneObject* lamp0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
+    lamp0->setPosition(glm::vec3(0.0, 3.5, 0.0));
+    s->add(lamp0);
+
+    //phi::pointLight* pointLight0 = new phi::pointLight(glm::vec3(0.0, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
+    //s->add(pointLight0);
 
     phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("hanging_lamp.model"));
     lamp1->setPosition(glm::vec3(2.0, 3.5, 0.0));
@@ -200,11 +208,15 @@ void screen::initScene()
     phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.0, 1.9, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.8f, 5.0f);
     s->add(pointLight1);
     
+
+    //phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.5, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
+    //s->add(pointLight1);
+
     phi::sceneObject* lamp2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
     lamp2->setPosition(glm::vec3(-2.5, 3.5, 0.0));
     s->add(lamp2);
 
-    phi::pointLight* pointLight2 = new phi::pointLight(glm::vec3(-2.5, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
+    //phi::pointLight* pointLight2 = new phi::pointLight(glm::vec3(-2.5, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
     //s->add(pointLight2);
 
     ///* room */
@@ -212,7 +224,7 @@ void screen::initScene()
     phi::sceneObject* floor = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("floor.model"));
     floor->setPosition(glm::vec3(0.0, 0.0, 0.0));
     s->add(floor);
-    
+
     phi::sceneObject* ceiling = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling.model"));
     ceiling->setPosition(glm::vec3(0.0, 3.5, 0.0));
     ceiling->setSize(phi::size<float>(1.0f, 2.0f, 1.0f));
@@ -233,38 +245,35 @@ void screen::initScene()
 
     phi::sceneObject* front_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("front_wall.model"));
     front_wall->setPosition(glm::vec3(0.0, 0.0, 2.0));
-    s->add(front_wall);
-    
+    //s->add(front_wall);
+
     /*casket0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("casket.model"));
     casket0->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     casket0->yaw(phi::PI + phi::PI_OVER_2);
     s->add(casket0);*/
-    //
-    ///*auto pos = glm::vec3(5.0, 5.0, -5.0);
-    //phi::directionalLight* dirLight0 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
-    //s->add(dirLight0);
 
-    //pos = glm::vec3(5.0, 5.0, 5.0);
-    //phi::directionalLight* dirLight1 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
-    //s->add(dirLight1);
+    auto pos = glm::vec3(5.0, 5.0, -5.0);
+    phi::directionalLight* dirLight0 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
+    s->add(dirLight0);
 
-    //pos = glm::vec3(-5.0, 5.0, 5.0);
-    //phi::directionalLight* dirLight2 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
-    //s->add(dirLight2);
+    /*pos = glm::vec3(5.0, 5.0, 5.0);
+    phi::directionalLight* dirLight1 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
+    s->add(dirLight1);
 
-    //pos = glm::vec3(-5.0, 5.0, -5.0);
-    //phi::directionalLight* dirLight3 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
-    //s->add(dirLight3);*/
-    
-    /*phi::sceneObject* chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_chair.model"));
-    s->add(chair0);
-    */
-    /*auto dir = glm::vec3(1.0, -1.0, 0.0);
-    phi::spotLight* spotLight5 = new phi::spotLight(glm::vec3(-2.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.0f, 5.0f, dir, 0.9f);
-    //s->add(spotLight5);
+    pos = glm::vec3(-5.0, 5.0, 5.0);
+    phi::directionalLight* dirLight2 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
+    s->add(dirLight2);
 
-    //phi::pointLight* pointLight0 = new phi::pointLight(glm::vec3(0.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.0f, 5.0f);
-    //s->add(pointLight0);
+    pos = glm::vec3(-5.0, 5.0, -5.0);
+    phi::directionalLight* dirLight3 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
+    s->add(dirLight3);*/
+
+    //auto dir = glm::vec3(1.0, -1.0, 0.0);
+    //phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(-2.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.0f, 5.0f, dir, 0.9f);
+    //s->add(spotLight0);
+
+    /*phi::pointLight* pointLight0 = new phi::pointLight(glm::vec3(0.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.0f, 5.0f);
+    s->add(pointLight0);*/
 
     /*phi::sceneObject* cube0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("cube.model"));
     cube0->setPosition(glm::vec3(-2.0f, 0.5f, 0.0f));
@@ -379,48 +388,23 @@ void screen::initUI()
     //textBoxA->setX(132);
     //textBoxA->setY(180-48);
 
-    /*phi::carouselList* carouselListA = new phi::carouselList(getSize());
-    carouselListA->setBackgroundColor(phi::color::fromRGBA(0.3f, 0.3, 0.3f, 0.3f));
-    carouselListA->setSize(phi::size<unsigned int>(getSize().width - 10, 150));
-    carouselListA->setX(5);
-    carouselListA->setY(getSize().height - 155);
-    carouselListA->setZIndex(0);
+    _materialsCarousel = new phi::carouselList(getSize());
+    _materialsCarousel->setBackgroundColor(phi::color::fromRGBA(0.5f, 0.5f, 0.5f, 0.5f));
+    _materialsCarousel->setSize(phi::size<unsigned int>(getSize().width - 10, 150));
+    _materialsCarousel->setX(5);
+    _materialsCarousel->setY(getSize().height - 155);
+    _materialsCarousel->setZIndex(0);
+    _materialsCarousel->getSelectedItemChanged()->bind<screen, &screen::carouselListSelectedItemChanged>(this);
 
-    phi::carouselItem* carouselItemA = new phi::carouselItem(getSize());
-    carouselItemA->setTexture(_texturesRepository->getResource<phi::texture>("diffuse.bmp"));
-    phi::carouselItem* carouselItemB = new phi::carouselItem(getSize());
-    carouselItemB->setTexture(_texturesRepository->getResource<phi::texture>("normal.bmp"));
-    phi::carouselItem* carouselItemC = new phi::carouselItem(getSize());
-    carouselItemC->setTexture(_texturesRepository->getResource<phi::texture>("specular.bmp"));
-    phi::carouselItem* carouselItemD = new phi::carouselItem(getSize());
-    carouselItemD->setTexture(_texturesRepository->getResource<phi::texture>("smile.bmp"));
-    phi::carouselItem* carouselItemE = new phi::carouselItem(getSize());
-    carouselItemE->setTexture(_texturesRepository->getResource<phi::texture>("floor.bmp"));
-    phi::carouselItem* carouselItemF = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemG = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemH = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemI = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemJ = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemK = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemL = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemM = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemN = new phi::carouselItem(getSize());
-    phi::carouselItem* carouselItemO = new phi::carouselItem(getSize());
-    carouselListA->addCarouselItem(carouselItemA);
-    carouselListA->addCarouselItem(carouselItemB);
-    carouselListA->addCarouselItem(carouselItemC);
-    carouselListA->addCarouselItem(carouselItemD);
-    carouselListA->addCarouselItem(carouselItemE);
-    carouselListA->addCarouselItem(carouselItemF);
-    carouselListA->addCarouselItem(carouselItemG);
-    carouselListA->addCarouselItem(carouselItemH);
-    carouselListA->addCarouselItem(carouselItemI);
-    carouselListA->addCarouselItem(carouselItemJ);
-    carouselListA->addCarouselItem(carouselItemK);
-    carouselListA->addCarouselItem(carouselItemL);
-    carouselListA->addCarouselItem(carouselItemM);
-    carouselListA->addCarouselItem(carouselItemN);
-    carouselListA->addCarouselItem(carouselItemO);*/
+    auto materials = _materialsRepository->getAllResources();
+    auto materialsCount = materials.size();
+    for (unsigned int i = 0; i < materialsCount; i++)
+    {
+        auto material = (phi::material*)materials[i];
+        phi::carouselItem* carouselItem = new phi::carouselItem(material->getFullName(), getSize());
+        carouselItem->setTexture(material->getThumbnail());
+        _materialsCarousel->addCarouselItem(carouselItem);
+    }
 
     auto camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 
@@ -438,7 +422,7 @@ void screen::initUI()
     //phi::uiSystem::get()->addControl(_slider2);
     //phi::uiSystem::get()->addControl(_slider3);
     //phi::uiSystem::get()->addControl(_slider4);
-    //phi::uiSystem::get()->addControl(carouselListA);
+    phi::uiSystem::get()->addControl(_materialsCarousel);
 
     phi::uiSystem::get()->resize(getSize());
 
@@ -452,6 +436,7 @@ void screen::onInitialize()
     centerScreen();
     _resourcesLoader.load();
     _modelsRepository = _resourcesLoader.getModels();
+    _materialsRepository = _resourcesLoader.getMaterias();
     _texturesRepository = _resourcesLoader.getTextures();
     initScenesManager();
     initScene();
@@ -513,7 +498,7 @@ void screen::update()
     //phi::testSceneRenderer* renderer = dynamic_cast<phi::testSceneRenderer*>(phi::scenesManager::get()->getSceneRenderer());
     //renderer->setDayTime(7);
     //renderer->setSunOrientation(45);
-    
+
 }
 
 void screen::render()
@@ -666,20 +651,20 @@ void screen::slider1ValueChanged(phi::eventArgs e)
     glm::vec3 t = glm::vec3(-glm::cos(value) * 8.0f, pos.y, glm::sin(value) * 4.0f);
     pointLight->setPosition(t);
 
-    
+
     sphere->setPosition(t);
 }
 
 void screen::slider2ValueChanged(phi::eventArgs e)
 {
-    
+
     auto pointLight = phi::scenesManager::get()->getScene()->getPointLight(0);
     glm::vec3 pos = pointLight->getPosition();
     auto value =_slider2->getValue();
     glm::vec3 t = glm::vec3(pos.x, value, pos.z);
     pointLight->setPosition(t);
 
-    
+
     sphere->setPosition(t);
 }
 
@@ -730,6 +715,71 @@ void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
         rc->attachTo(e.sender);
     else
         rc->attachTo(nullptr);
+
+    if (e.sender->getSelected())
+    {
+        auto sceneMeshes = e.sender->getSceneMeshes();
+        auto sceneMeshesCount = sceneMeshes.size();
+        phi::sceneMesh* uniqueMesh = nullptr;
+        for (unsigned int i = 0; i < sceneMeshesCount; i++)
+        {
+            auto sm = sceneMeshes[i];
+            if (sm->getIsSelected())
+            {
+                if (uniqueMesh)
+                {
+                    uniqueMesh = nullptr;
+                    break;
+                }
+
+                uniqueMesh = sm;
+            }
+        }
+
+        if (uniqueMesh != nullptr)
+        {
+            auto carouselItems = _materialsCarousel->getItems();
+            auto carouselItemsCount = carouselItems.size();
+            for (unsigned int j = 0; j < carouselItemsCount; j++)
+            {
+                auto material = uniqueMesh->getMaterial();
+                auto item = carouselItems[j];
+                if (item->getName() == material->getFullName())
+                {
+                    _materialsCarousel->setSelectedItem(item);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void screen::carouselListSelectedItemChanged(phi::carouselItemEventArgs e)
+{
+    phi::sceneObject* obj = nullptr;
+    auto sceneObjects = phi::scenesManager::get()->getScene()->getAllObjects();
+    auto sceneObjectsCount = sceneObjects->size();
+    for (unsigned int i = 0; i < sceneObjectsCount; i++)
+    {
+        auto so = (*sceneObjects)[i];
+        if (so->getSelected())
+        {
+            obj = so;
+            break;
+        }
+    }
+
+    if (obj == nullptr)
+        return;
+
+    auto sceneMeshes = obj->getSceneMeshes();
+    auto sceneMeshesCount = sceneMeshes.size();
+    for (unsigned int i = 0; i < sceneMeshesCount; i++)
+    {
+        auto sm = sceneMeshes[i];
+        if (sm->getIsSelected())
+            sm->setMaterial(_materialsRepository->getResource<phi::material>(e.sender->getName()));
+    }
 }
 
 void screen::staticObjectsChanged(phi::eventArgs e)

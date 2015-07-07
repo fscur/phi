@@ -76,7 +76,7 @@ namespace phi
         }
     }
 
-    void selectCommand::update()
+    void selectCommand::finish()
     {
         if (_zBufferValue == 1.0f)
         {
@@ -93,17 +93,17 @@ namespace phi
             if (selectedObject->getSelected())
             {
                 unselectAllSceneObjects();
-                selectedObject->setSelected(true);
                 auto meshes = selectedObject->getSceneMeshes();
                 meshes[meshId]->setIsSelected(true);
+                selectedObject->setSelected(true);
             }
             else
             {
                 unselectAllSceneObjects();
-                selectedObject->setSelected(true);
                 auto meshes = selectedObject->getSceneMeshes();
                 for (unsigned int j = 0; j < meshes.size(); j++)
                     meshes[j]->setIsSelected(true);
+                selectedObject->setSelected(true);
             }
         }
     }

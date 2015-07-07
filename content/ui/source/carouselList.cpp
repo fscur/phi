@@ -9,6 +9,7 @@ namespace phi
         _backgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), 0.0f, size<GLuint>(0, 0, 0), viewportSize);
         _scrollOffset = 0.0f;
         _targetScrollOffset = 0.0f;
+        _selectedItemChanged = new eventHandler<carouselItemEventArgs>();
     }
 
     carouselList::~carouselList()
@@ -56,6 +57,20 @@ namespace phi
         _backgroundRenderer->update();
     }
 
+    void carouselList::setSelectedItem(carouselItem* item)
+    {
+        for(carouselItem* item2 : _items)
+            item2->setIsSelected(false);
+
+        item->setIsSelected(true);
+
+        float itemsHeight = _size.height - 2.0f * ITEM_MARGIN;
+        float maxScroll = _size.width - (_items.size() * (itemsHeight + ITEM_MARGIN) + ITEM_MARGIN);
+        _targetScrollOffset = glm::min(0.0f, glm::max(_targetScrollOffset - (float)item->getX() + _size.width * 0.5f - itemsHeight * 0.5f, maxScroll));
+        floatAnimator::animateFloat(&_scrollOffset, _targetScrollOffset, 250);
+        updateItems();
+    }
+
     void carouselList::addCarouselItem(carouselItem* carouselItem)
     {
         _items.push_back(carouselItem);
@@ -64,6 +79,8 @@ namespace phi
         carouselItem->setX(_x + _scrollOffset + (_items.size() - 1) * (height + ITEM_MARGIN) + ITEM_MARGIN);
         carouselItem->setY(_y + ITEM_MARGIN);
         carouselItem->setZIndex(_zIndex + 0.01f);
+
+        carouselItem->getIsSelectedChanged()->bind<carouselList, &carouselList::carouselItemIsSelectedChanged>(this);
     }
 
     void carouselList::updateItems()
@@ -81,6 +98,17 @@ namespace phi
         }
     }
 
+    void carouselList::notifySelectedItemChanged(carouselItemEventArgs e)
+    {
+        if (_selectedItemChanged->isBound())
+            _selectedItemChanged->invoke(e);
+    }
+
+    void carouselList::carouselItemIsSelectedChanged(carouselItemEventArgs e)
+    {
+        notifySelectedItemChanged(e.sender);
+    }
+
     void carouselList::onMouseDown(mouseEventArgs* e)
     {
         if (!getIsMouseOver())
@@ -94,12 +122,10 @@ namespace phi
             auto size = item->getSize();
             if (e->x >= x && e->x <= x + (int)size.width && e->y >= y && e->y <= y + (int)size.height)
             {
-                item->setIsSelected(true);
                 for(carouselItem* item2 : _items)
-                {
-                    if (item2 != item)
-                        item2->setIsSelected(false);
-                }
+                    item2->setIsSelected(false);
+
+                item->setIsSelected(true);
                 break;
             }
         }
@@ -125,6 +151,7 @@ namespace phi
     {
         updateItems();
 
+        glEnable(GL_BLEND);
         glEnable(GL_SCISSOR_TEST);
         glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
 
@@ -133,5 +160,6 @@ namespace phi
             item->render();
 
         glDisable(GL_SCISSOR_TEST);
+        glDisable(GL_BLEND);
     }
 }

@@ -2,6 +2,7 @@
 #define _PHI_CAROUSEL_ITEM_H_
 
 #include "control.h"
+#include "carouselItemEventArgs.h"
 #include "quadRenderer2D.h"
 
 namespace phi
@@ -11,17 +12,24 @@ namespace phi
     private:
         static const float SELECTED_SCALE_PERCENT;
 
+        std::string _name;
         texture* _texture;
         texture* _selectedTexture;
         quadRenderer2D* _backgroundRenderer;
         quadRenderer2D* _selectedRenderer;
         bool _isSelected;
+        eventHandler<carouselItemEventArgs>* _isSelectedChanged;
+
+    private:
+        void notifyIsSelectedItemChanged(carouselItemEventArgs e);
 
     public:
-        UI_API carouselItem(size<GLuint> viewportSize);
+        UI_API carouselItem(std::string name, size<GLuint> viewportSize);
         UI_API ~carouselItem();
 
+        UI_API std::string getName() { return _name; }
         UI_API bool getIsSelected() { return _isSelected; }
+        UI_API eventHandler<carouselItemEventArgs>* getIsSelectedChanged() { return _isSelectedChanged; }
 
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;
