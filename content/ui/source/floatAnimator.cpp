@@ -33,15 +33,17 @@ namespace phi
             float percent = (float)animation->getElapsed() / (float)animation->getMilliseconds();
             float diff = sin(percent * glm::pi<float>() * 0.5f);
 
-            *value = from + (to - from) * diff;
-
-            animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
-
             if (percent >= 1.0f)
             {
+                *value = to;
                 DELETE(animation);
                 _animations.erase(_animations.begin() + i);
                 i--;
+            }
+            else
+            {
+                *value = from + (to - from) * diff;
+                animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
             }
         }
 

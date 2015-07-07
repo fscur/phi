@@ -113,9 +113,10 @@ namespace phi
             for (GLuint j = 0; j < meshesCount; j++)
             {
                 mesh* m = meshes[j];
-                material* mat = m->getMaterial();
+                sceneMesh* sm = sceneObj->getSceneMeshes()[j];
+                material* mat = sm->getMaterial();
 
-                bool selected = sceneObj->getSelected();
+                bool selected = sm->getIsSelected();
 
                 sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
                 sh->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);

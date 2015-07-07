@@ -181,7 +181,10 @@ namespace phi
             }
 
             if ((_states[i.first.key] & DOWN) == NONE && (_states[i.first.key] & PRESSED) == NONE)
-                _executingCommands.erase(i.first.key);
+            {
+                if (_executingCommands.find(i.first.key) != _executingCommands.end())
+                    _executingCommands.erase(i.first.key);
+            }
         }
     }
 

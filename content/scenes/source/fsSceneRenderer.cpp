@@ -325,8 +325,9 @@ namespace phi
             for (GLuint j = 0; j < meshesCount; j++)
             {
                 mesh* m = meshes[j];
+                sceneMesh* sm = sceneObj->getSceneMeshes()[j];
 
-                material* mat = m->getMaterial();
+                material* mat = sm->getMaterial();
 
                 bool selected = sceneObj->getSelected();
                 sh->setUniform("selectionColor", getSelectionColor(sceneObj->getId(), m->getId(), selected));
@@ -393,7 +394,8 @@ namespace phi
                 for (GLuint j = 0; j < meshesCount; j++)
                 {
                     mesh* m = meshes[j];
-                    material* mat = m->getMaterial();
+                    sceneMesh* sm = sceneObj->getSceneMeshes()[j];
+                    material* mat = sm->getMaterial();
 
                     sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
                     sh->setUniform("mat.specularColor", mat->getSpecularColor());
@@ -469,7 +471,8 @@ namespace phi
                 for (GLuint j = 0; j < meshesCount; j++)
                 {
                     mesh* m = meshes[j];
-                    material* mat = m->getMaterial();
+                    sceneMesh* sm = sceneObj->getSceneMeshes()[j];
+                    material* mat = sm->getMaterial();
 
                     sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
                     sh->setUniform("mat.specularColor", mat->getSpecularColor());
@@ -547,7 +550,8 @@ namespace phi
                 for (GLuint j = 0; j < meshesCount; j++)
                 {
                     mesh* m = meshes[j];
-                    material* mat = m->getMaterial();
+                    sceneMesh* sm = sceneObj->getSceneMeshes()[j];
+                    material* mat = sm->getMaterial();
 
                     sh->setUniform("mat.diffuseColor", mat->getDiffuseColor());
                     sh->setUniform("mat.specularColor", mat->getSpecularColor());

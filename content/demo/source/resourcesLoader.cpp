@@ -66,7 +66,8 @@ namespace phi
             0.0f,
             0.0f,
             0.0f,
-            false);
+            false,
+            nullptr);
     }
 
     std::string resourcesLoader::getFullName(std::string relativePath, std::string fileName)
@@ -122,7 +123,8 @@ namespace phi
         auto filesCount = files.size();
 
         for (auto i = 0; i < filesCount; i++)
-            loadMaterial(files[i].path, sourceDirectory);
+            if (path::getExtension(files[i].path) == ".material")
+                loadMaterial(files[i].path, sourceDirectory);
     }
 
     void resourcesLoader::loadMaterial(std::string fileName, std::string directory)

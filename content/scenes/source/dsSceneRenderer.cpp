@@ -9,7 +9,7 @@ namespace phi
         _nearPlane = 0.1f;
         _farPlane = 20.0f;
         _shadowMapSize = 2048;
-        _pointLightShadowMapSize = 2048;
+        _pointLightShadowMapSize = 1024;
         _pointLightIndex = 0;
 
         _pointLightShadowMapDirs[0] = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -723,7 +723,7 @@ namespace phi
                 mesh* m = meshes[j];
                 sceneMesh* sm = sceneObj->getSceneMeshes()[j];
 
-                material* mat = m->getMaterial();
+                material* mat = sm->getMaterial();
 
                 bool selected = sm->getIsSelected();
 
@@ -1552,8 +1552,8 @@ namespace phi
 
         _frameBuffers[0]->bindForReading();
 
-        //if (_hasSelectedObjects)
-          //  selectedObjectsPass();
+        if (_hasSelectedObjects)
+            selectedObjectsPass();
     }
 
     void dsSceneRenderer::onRender()

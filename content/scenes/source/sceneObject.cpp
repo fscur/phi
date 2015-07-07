@@ -203,7 +203,9 @@ namespace phi
         for (unsigned int i = 0; i < meshesCount; i++)
         {
             auto mesh = model->getMeshes()[i];
-            sceneMeshes.push_back(new sceneMesh(mesh->getId()));
+            auto sm = new sceneMesh(mesh->getId());
+            sm->setMaterial(mesh->getMaterial());
+            sceneMeshes.push_back(sm);
         }
         sceneObj->_sceneMeshes = sceneMeshes;
         sceneObj->_model = model;
