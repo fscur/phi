@@ -179,17 +179,8 @@ namespace phi
                     break;
                 }
             }
-
-            if ((_states[i.first.key] & DOWN) == NONE && (_states[i.first.key] & PRESSED) == NONE)
-            {
-                if (_executingCommands.find(i.first.key) != _executingCommands.end())
-                    _executingCommands.erase(i.first.key);
-            }
         }
-    }
 
-    void commandsManager::update()
-    {
         std::unordered_map<int, command*>::iterator it = _pendingCommands.begin();
         while(it != _pendingCommands.end())
         {
@@ -209,5 +200,47 @@ namespace phi
             c->info = _commandInfo;
             c->update();
         }
+
+        it = _executingCommands.begin();
+        while(it != _executingCommands.end())
+        {
+            if ((_states[it->first] & UP) == UP || ((_states[it->first] & DOWN) == NONE && (_states[it->first] & PRESSED) == NONE))
+            {
+                auto command = _executingCommands.find(it->first);
+                command->second->finish();
+                it = _executingCommands.erase(it);
+            }
+            else
+                it++;
+        }
+
+        // SUPER COMMAND DEBUGGING LINES:
+        //if (_states[PHI_MOUSE_LEFT] != 0)
+        //{
+        //    std::cout << _states[PHI_MOUSE_LEFT] << " = ";
+
+        //    if ((_states[PHI_MOUSE_LEFT] & DOWN) == DOWN) 
+        //    {
+        //        std::cout << "DOWN ";
+        //    }
+
+        //    if ((_states[PHI_MOUSE_LEFT] & PRESSED) == PRESSED) 
+        //    {
+        //        std::cout << "PRESSED ";
+        //    }
+
+        //    if ((_states[PHI_MOUSE_LEFT] & UP) == UP) 
+        //    {
+        //        std::cout << "UP ";
+        //    }
+
+        //    //std::cout << "| P = " << _pendingCommands.size() << " ";
+        //    //std::cout << "E = " << _executingCommands.size();
+        //    std::cout << "\n";
+        //}
+    }
+
+    void commandsManager::update()
+    {
     }
 }

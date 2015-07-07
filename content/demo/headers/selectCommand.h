@@ -34,7 +34,7 @@ namespace phi
         ~selectCommand();
         void init() override;
         bool canExecute() override;
-        void update() override;
+        void finish() override;
     };
 }
 #endif

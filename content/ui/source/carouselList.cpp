@@ -66,7 +66,6 @@ namespace phi
 
         float itemsHeight = _size.height - 2.0f * ITEM_MARGIN;
         float maxScroll = _size.width - (_items.size() * (itemsHeight + ITEM_MARGIN) + ITEM_MARGIN);
-        LOG(std::to_string((float)item->getX()));
         _targetScrollOffset = glm::min(0.0f, glm::max(_targetScrollOffset - (float)item->getX() + _size.width * 0.5f - itemsHeight * 0.5f, maxScroll));
         floatAnimator::animateFloat(&_scrollOffset, _targetScrollOffset, 250);
         updateItems();

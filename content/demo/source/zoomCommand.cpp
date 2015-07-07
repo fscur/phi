@@ -46,7 +46,7 @@ namespace phi
         return true;
     }
 
-    void zoomCommand::update()
+    void zoomCommand::finish()
     {
         if (_zBufferValue == 1.0f)
             return;

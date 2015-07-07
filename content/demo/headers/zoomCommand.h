@@ -19,7 +19,7 @@ namespace phi
         ~zoomCommand();
         void init() override;
         bool canExecute() override;
-        void update() override;
+        void finish() override;
     };
 }
 #endif

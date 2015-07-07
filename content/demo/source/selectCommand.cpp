@@ -76,7 +76,7 @@ namespace phi
         }
     }
 
-    void selectCommand::update()
+    void selectCommand::finish()
     {
         if (_zBufferValue == 1.0f)
         {
