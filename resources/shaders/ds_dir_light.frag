@@ -107,7 +107,7 @@ void main(void)
 	float diffuse = light.intensity * max(0.0, dot(normal, s));
 	float spec = pow(max(0.0, dot(normal,h)), shininess);
 
-	float shadowFactor = calcShadowFactor(fragPosition);
+	float shadowFactor = calcVarianceShadowFactor(fragPosition);
 
 	fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
 	fragColor *= shadowFactor;

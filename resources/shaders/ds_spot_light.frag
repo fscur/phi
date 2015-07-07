@@ -47,9 +47,9 @@ float calcVarianceShadowFactor(vec3 fragPosition)
 	float variance = max(moments.y - moments.x * moments.x, 0.00002);
 
 	float d = lightSpacePos.z - moments.x;
-	float pMax = linstep(variance / (variance + d * d), 0.8, 1.0);
+	float pMax = linstep(variance / (variance + d * d), 0.5, 1.0);
 
-	return clamp(min(max(p, pMax), 1.0), 0.2, 1.0);
+	return clamp(min(max(p, pMax), 1.0), 0.0, 1.0);
 }
 
 float calcShadowFactor(vec3 fragPosition)
@@ -135,6 +135,6 @@ void main(void)
 
 		fragColor *= fadeEdgeFactor;
 
-		fragColor *= calcShadowFactor(fragPosition);
+		fragColor *= calcVarianceShadowFactor(fragPosition);
 	}
 }

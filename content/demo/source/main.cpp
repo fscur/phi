@@ -111,7 +111,6 @@ int main(int argc, char* args[])
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
-    
     app->run(mainScreen);
 
     delete mainScreen;

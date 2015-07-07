@@ -12,7 +12,9 @@ out vec2 fragColor;
 vec2 varianceShadow()
 {
 	//float depth = gl_FragCoord.z;
+
 	float depth = length(fragLightDir);
+	depth /= (farPlane - nearPlane);
 	float dx = dFdx(depth);
 	float dy = dFdy(depth);
 	float bias = depth * depth + 0.25 * (dx * dx + dy * dy);

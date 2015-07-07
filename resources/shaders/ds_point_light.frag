@@ -31,15 +31,19 @@ float linstep(float value, float low, float high)
 
 float calcVarianceShadowFactor(vec3 fragPosition)
 {	
-	vec3 lightDir = fragPosition - light.position;
+	vec3 fragWorldPos = (iv * vec4(fragPosition, 1.0)).xyz;
+	vec3 lightDir = fragWorldPos - light.position;
 	float distanceToLight = length(lightDir);
+
+	distanceToLight /= (light.range - 0.1);
 
 	vec2 moments = texture(shadowMap, lightDir).xy;
 
 	if (distanceToLight <= moments.x)
 		return 1.0;
-
+	
 	float p = step(distanceToLight, moments.x);
+
 	float variance = max(moments.y - moments.x * moments.x, 0.00002);
 
 	float d = distanceToLight - moments.x;
@@ -53,10 +57,11 @@ float calcShadowFactor(vec3 fragPosition)
 	vec3 fragWorldPos = (iv * vec4(fragPosition, 1.0)).xyz;
 	vec3 lightDir = fragWorldPos - light.position;
 	float distanceToLight = length(lightDir);
+	distanceToLight /= (light.range - 0.1);
 
 	float depth = texture(shadowMap, lightDir).x;
 
-	if (depth < distanceToLight - 0.01)
+	if (depth < distanceToLight - 0.05)
 		return 0.2;
 	else
 		return 1.0;
@@ -118,4 +123,6 @@ void main()
 	fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
 	fragColor *= attenuation;
 	fragColor *= calcShadowFactor(fragPosition);
+	//fragColor *= calcVarianceShadowFactor(fragPosition);
+	//fragColor = vec4(calcVarianceShadowFactor(fragPosition));
 }

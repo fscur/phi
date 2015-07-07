@@ -47,7 +47,7 @@ namespace phi
 
         if (status != GL_FRAMEBUFFER_COMPLETE)
         {
-            std::string msg = &"FB error, status: 0x%x\n" [status];
+            std::string msg = "FB error, status: " + std::to_string(status);
             LOG(msg);
             return false;
         }

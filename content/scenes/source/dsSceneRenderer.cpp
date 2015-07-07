@@ -8,9 +8,10 @@ namespace phi
     {
         _nearPlane = 0.1f;
         _farPlane = 20.0f;
-        _shadowMapSize = 2048;
-        _pointLightShadowMapSize = 2048;
+        _shadowMapSize = 256;
+        _pointLightShadowMapSize = 256;
         _pointLightIndex = 0;
+        _blurShadowMaps = false;
 
         _pointLightShadowMapDirs[0] = glm::vec3(1.0f, 0.0f, 0.0f);
         _pointLightShadowMapDirs[1] = glm::vec3(-1.0f, 0.0f, 0.0f);
@@ -51,6 +52,7 @@ namespace phi
         _buffersInitialized = false;
 
         createSSAOShader();
+        createBlurShader();
     }
 
     dsSceneRenderer::~dsSceneRenderer()
@@ -89,6 +91,28 @@ namespace phi
 
         createGeometryPassRenderTargets();
         createFinalImageRenderTargets();
+
+        auto s = size<GLuint>(_shadowMapSize, _shadowMapSize);
+        auto framebuffer = new frameBuffer("shadowMapBlur", s, color::transparent);
+        framebuffer->init();
+        framebuffer->bind();
+
+        texture* t = texture::create(s, GL_RG32F);
+
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        renderTarget* r = framebuffer->newRenderTarget(
+            "rt0", 
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0);
+
+        framebuffer->addRenderTarget(r);
+        
+        _frameBuffers.push_back(framebuffer);
     }
 
     void dsSceneRenderer::createGeometryPassRenderTargets()
@@ -475,6 +499,26 @@ namespace phi
         _frameBuffers[1]->enable(GL_CULL_FACE);
         _frameBuffers[1]->enable(GL_DEPTH_TEST);
         _frameBuffers[1]->unbind();
+
+        _frameBuffers.push_back(new frameBuffer("dsSceneRenderer2", _viewportSize, color::transparent));
+        _frameBuffers[2]->init();
+
+        _frameBuffers[2]->bind();
+
+        t = texture::create(_viewportSize, GL_RGBA);
+
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        r = _frameBuffers[2]->newRenderTarget(
+            "rt0", 
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0);
+
+        _frameBuffers[2]->addRenderTarget(r);
     }
 
     void dsSceneRenderer::createGeomPassShader()
@@ -676,6 +720,24 @@ namespace phi
         _ssaoShader = s;
     }
 
+    void dsSceneRenderer::createBlurShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+
+        shader* s = shaderManager::get()->loadShader("DS_BLUR", "ds_blur.vert", "ds_blur.frag", attribs);
+
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("tex");
+        s->addUniform("blurScale");
+
+        shaderManager::get()->addShader(s->getName(), s);
+
+        _blurShader = s;
+    }
+
     void dsSceneRenderer::geomPass()
     {
         _frameBuffers[0]->bind();
@@ -771,6 +833,8 @@ namespace phi
         if (directionalLightsCount == 0 && spotLightsCount == 0)
             return;
 
+        bool hasDynamicObjects = _dynamicObjects.size() > 0;
+
         glm::mat4 lp;
         glm::mat4 lv;
 
@@ -812,8 +876,12 @@ namespace phi
 
             glDisable(GL_DEPTH_TEST);
         }
+        else if (!hasDynamicObjects && _blurShadowMaps)
+        {
+            blurShadowMaps();
+        }
 
-        if (_dynamicObjects.size() > 0)
+        if (hasDynamicObjects)
         {
             for (GLuint i = 0; i < directionalLightsCount; i++)
             {
@@ -900,6 +968,99 @@ namespace phi
         glDisable(GL_DEPTH_TEST);
 
         dynamicFrameBuffer->unbind();
+    }
+
+    void dsSceneRenderer::blurShadowMaps()
+    {
+        auto blurScale = 1.0f;
+        
+        auto directionalLights = _scene->getDirectionalLights();
+        auto directionalLightsCount = directionalLights->size();
+
+        for (GLuint i = 0; i < directionalLightsCount; i++)
+        {
+            auto light = (*directionalLights)[i];
+
+            _frameBuffers[3]->bindForDrawing();
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glm::vec2 resolution = glm::vec2(_shadowMapSize, _shadowMapSize);
+            glm::mat4 modelMatrix = glm::mat4(
+                2.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 2.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+
+            _blurShader->bind();
+
+            _blurShader->setUniform("m", modelMatrix);
+            _blurShader->setUniform("res", resolution);
+            _blurShader->setUniform("tex", light->getShadowMap(), 0);
+            _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
+            meshRenderer::render(&_quad);
+            
+            _frameBuffers[3]->unbind();
+            
+            _dirLightShadowMapFrameBuffers0[i]->bindForDrawing();
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            _blurShader->setUniform("tex", _frameBuffers[3]->getRenderTarget("rt0")->getTexture(), 0);
+            _blurShader->setUniform("blurScale", glm::vec2(0.0,  blurScale * (1.0/resolution.y)));
+            meshRenderer::render(&_quad);
+
+            _blurShader->unbind();
+
+            _dirLightShadowMapFrameBuffers0[i]->unbind();
+
+            light->setShadowMap(_dirLightShadowMapFrameBuffers0[i]->getRenderTarget("rt0")->getTexture());
+        }
+
+        auto spotLights = _scene->getSpotLights();
+        auto spotLightsCount = spotLights->size();
+
+        for (GLuint i = 0; i < spotLightsCount; i++)
+        {
+            auto light = (*spotLights)[i];
+
+            _frameBuffers[3]->bindForDrawing();
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glm::vec2 resolution = glm::vec2(_shadowMapSize, _shadowMapSize);
+            glm::mat4 modelMatrix = glm::mat4(
+                2.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 2.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+
+            _blurShader->bind();
+
+            _blurShader->setUniform("m", modelMatrix);
+            _blurShader->setUniform("res", resolution);
+            _blurShader->setUniform("tex", light->getShadowMap(), 0);
+            _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
+            meshRenderer::render(&_quad);
+            
+            _frameBuffers[3]->unbind();
+            
+            _spotLightShadowMapFrameBuffers0[i]->bindForDrawing();
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            _blurShader->setUniform("tex", _frameBuffers[3]->getRenderTarget("rt0")->getTexture(), 0);
+            _blurShader->setUniform("blurScale", glm::vec2(0.0,  blurScale * (1.0/resolution.y)));
+            meshRenderer::render(&_quad);
+
+            _blurShader->unbind();
+
+            _spotLightShadowMapFrameBuffers0[i]->unbind();
+
+            light->setShadowMap(_spotLightShadowMapFrameBuffers0[i]->getRenderTarget("rt0")->getTexture());
+        }
+
+        _blurShadowMaps = false;
     }
 
     void dsSceneRenderer::pointLightShadowMapPasses()
@@ -1051,6 +1212,56 @@ namespace phi
         glViewport(0, 0, _viewportSize.width, _viewportSize.height);
     }
 
+    void dsSceneRenderer::blurPointLightShadowMaps()
+    {
+        auto blurScale = 1.5f;
+
+        auto pointLights = _scene->getPointLights();
+        auto pointLightsCount = pointLights->size();
+
+        for (GLuint i = 0; i < pointLightsCount; i++)
+        {
+            auto light = (*pointLights)[i];
+
+            _frameBuffers[3]->bindForDrawing();
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glm::vec2 resolution = glm::vec2(_shadowMapSize, _shadowMapSize);
+            glm::mat4 modelMatrix = glm::mat4(
+                2.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 2.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+
+            _blurShader->bind();
+
+            _blurShader->setUniform("m", modelMatrix);
+            _blurShader->setUniform("res", resolution);
+            _blurShader->setUniform("tex", light->getShadowMap(), 0);
+            _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
+            meshRenderer::render(&_quad);
+            
+            _frameBuffers[3]->unbind();
+            
+            _spotLightShadowMapFrameBuffers0[i]->bindForDrawing();
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            _blurShader->setUniform("tex", _frameBuffers[3]->getRenderTarget("rt0")->getTexture(), 0);
+            _blurShader->setUniform("blurScale", glm::vec2(0.0,  blurScale * (1.0/resolution.y)));
+            meshRenderer::render(&_quad);
+
+            _blurShader->unbind();
+
+            _spotLightShadowMapFrameBuffers0[i]->unbind();
+
+            light->setShadowMap(_spotLightShadowMapFrameBuffers0[i]->getRenderTarget("rt0")->getTexture());
+        }
+
+        _blurShadowMaps = false;
+    }
+
     void dsSceneRenderer::directionalLightPass()
     {
         auto directionalLights = _scene->getDirectionalLights();
@@ -1192,7 +1403,7 @@ namespace phi
             _spotLightShader->setUniform("rt1", _rt1Texture, 1);
             _spotLightShader->setUniform("rt2", _rt2Texture, 2);
             _spotLightShader->setUniform("rt3", _rt3Texture, 3);
-            _spotLightShader->setUniform("shadowMap", _spotLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture(), 4);
+            _spotLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
 
             //TODO: Cull lights
 
@@ -1337,7 +1548,6 @@ namespace phi
             _pointLightShader->setUniform("rt2", _rt2Texture, 2);
             _pointLightShader->setUniform("rt3", _rt3Texture, 3);
             _pointLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
-            //_pointLightShader->setUniform("shadowMap", _pointLightShadowMapFrameBuffers1[i]->getRenderTarget("rt0")->getTexture(), 4);
             meshRenderer::render(_mesh); 
 
             _pointLightShader->unbind();
@@ -1428,37 +1638,39 @@ namespace phi
 
     texture* dsSceneRenderer::blur(texture* source)
     {
-        _frameBuffers[1]->bindForDrawing();
+        auto blurScale = 4.0;
+
+        _frameBuffers[2]->bindForDrawing();
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glm::vec2 resolution = glm::vec2(1024, 1024);
+        glm::vec2 resolution = glm::vec2(source->getSize().width, source->getSize().height);
         glm::mat4 modelMatrix = glm::mat4(
             2.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 2.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f);
 
-        shader* s = shaderManager::get()->getShader("SSAO_BLUR");
+        shader* s = shaderManager::get()->getShader("DS_BLUR");
 
         s->bind();
 
         s->setUniform("m", modelMatrix);
         s->setUniform("res", resolution);
         s->setUniform("tex", source, 0);
-        s->setUniform("blurScale", glm::vec2(1.0 * (1.0/resolution.x), 0.0));
+        s->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
         meshRenderer::render(&_quad);
 
-        _frameBuffers[1]->unbind();
+        _frameBuffers[2]->unbind();
 
         _frameBuffers[1]->bindForDrawing();
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        source = _frameBuffers[1]->getRenderTarget("rt0")->getTexture();
+        source = _frameBuffers[2]->getRenderTarget("rt0")->getTexture();
 
         s->setUniform("tex", source, 0);
-        s->setUniform("blurScale", glm::vec2(0.0,  1.0 * (1.0/resolution.y)));
+        s->setUniform("blurScale", glm::vec2(0.0,  blurScale * (1.0/resolution.y)));
         meshRenderer::render(&_quad);
 
         s->unbind();
@@ -1481,7 +1693,10 @@ namespace phi
         pointLightShadowMapPasses();
 
         if (_redrawStaticShadowMaps)
+        {
             _redrawStaticShadowMaps = false;
+            _blurShadowMaps = true;
+        }
 
         _frameBuffers[1]->bindForDrawing();
         _frameBuffers[0]->bindForReading();
@@ -1495,50 +1710,52 @@ namespace phi
 
         ssao();
 
+        //blur(_frameBuffers[1]->getRenderTarget("rt0")->getTexture());
+
         renderingSystem::defaultFrameBuffer->bindForDrawing();
         _frameBuffers[1]->bindForReading();
         _frameBuffers[1]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
 
-        //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
+        ///_dirLightShadowMapFrameBuffers1[0]->bindForReading();
         //_dirLightShadowMapFrameBuffers1[0]->blit("rt0", 0, 0, 400, 400);
 
 
-        /*unsigned int s = 128;
-        unsigned int dx = 0;
-        unsigned int dy = 0;
-        unsigned int l = 0;
+        //unsigned int s = 128;
+        //unsigned int dx = 0;
+        //unsigned int dy = 0;
+        //unsigned int l = 0;
 
 
-        renderTarget* staticShadowMapRenderTarget = _pointLightShadowMapFrameBuffers0[l]->getRenderTarget("rt0");
-        renderTarget* dynamicShadowMapRenderTarget = _pointLightShadowMapFrameBuffers1[l]->getRenderTarget("rt0");
+        //renderTarget* staticShadowMapRenderTarget = _pointLightShadowMapFrameBuffers0[l]->getRenderTarget("rt0");
+        //renderTarget* dynamicShadowMapRenderTarget = _pointLightShadowMapFrameBuffers1[l]->getRenderTarget("rt0");
 
-        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5);
-        _pointLightShadowMapFrameBuffers0[l]->blita(0 + dx, s + dy, s, s);
-        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1);
-        _pointLightShadowMapFrameBuffers0[l]->blita(s + dx, s + dy, s, s);
-        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4);
-        _pointLightShadowMapFrameBuffers0[l]->blita(2 * s + dx, s + dy, s, s);
-        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0);
-        _pointLightShadowMapFrameBuffers0[l]->blita(3 * s + dx, s + dy, s, s);
-        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3);
-        _pointLightShadowMapFrameBuffers0[l]->blita(s * 2 + dx, s * 2 + dy, s, s);
-        _pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2);
-        _pointLightShadowMapFrameBuffers0[l]->blita(s * 2 + dx, 0 + dy, s, s);
+        //_pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5);
+        //_pointLightShadowMapFrameBuffers0[l]->blita(0 + dx, s + dy, s, s);
+        //_pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1);
+        //_pointLightShadowMapFrameBuffers0[l]->blita(s + dx, s + dy, s, s);
+        //_pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4);
+        //_pointLightShadowMapFrameBuffers0[l]->blita(2 * s + dx, s + dy, s, s);
+        //_pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0);
+        //_pointLightShadowMapFrameBuffers0[l]->blita(3 * s + dx, s + dy, s, s);
+        //_pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3);
+        //_pointLightShadowMapFrameBuffers0[l]->blita(s * 2 + dx, s * 2 + dy, s, s);
+        //_pointLightShadowMapFrameBuffers0[l]->bindForReading(staticShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2);
+        //_pointLightShadowMapFrameBuffers0[l]->blita(s * 2 + dx, 0 + dy, s, s);
 
-        dx = 512;*/
-        /*
-        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5);
-        _pointLightShadowMapFrameBuffers1[l]->blita(0 + dx, s + dy, s, s);
-        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1);
-        _pointLightShadowMapFrameBuffers1[l]->blita(s + dx, s + dy, s, s);
-        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4);
-        _pointLightShadowMapFrameBuffers1[l]->blita(2 * s + dx, s + dy, s, s);
-        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0);
-        _pointLightShadowMapFrameBuffers1[l]->blita(3 * s + dx, s + dy, s, s);
-        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3);
-        _pointLightShadowMapFrameBuffers1[l]->blita(s * 2 + dx, s * 2 + dy, s, s);
-        _pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2);
-        _pointLightShadowMapFrameBuffers1[l]->blita(s * 2 + dx, 0 + dy, s, s);*/
+        //dx = 512;
+        //
+        //_pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5);
+        //_pointLightShadowMapFrameBuffers1[l]->blita(0 + dx, s + dy, s, s);
+        //_pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1);
+        //_pointLightShadowMapFrameBuffers1[l]->blita(s + dx, s + dy, s, s);
+        //_pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4);
+        //_pointLightShadowMapFrameBuffers1[l]->blita(2 * s + dx, s + dy, s, s);
+        //_pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0);
+        //_pointLightShadowMapFrameBuffers1[l]->blita(3 * s + dx, s + dy, s, s);
+        //_pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3);
+        //_pointLightShadowMapFrameBuffers1[l]->blita(s * 2 + dx, s * 2 + dy, s, s);
+        //_pointLightShadowMapFrameBuffers1[l]->bindForReading(dynamicShadowMapRenderTarget, GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2);
+        //_pointLightShadowMapFrameBuffers1[l]->blita(s * 2 + dx, 0 + dy, s, s);
 
 
         //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
@@ -1552,8 +1769,8 @@ namespace phi
 
         _frameBuffers[0]->bindForReading();
 
-        //if (_hasSelectedObjects)
-          //  selectedObjectsPass();
+        if (_hasSelectedObjects)
+            selectedObjectsPass();
     }
 
     void dsSceneRenderer::onRender()

@@ -33,6 +33,7 @@ namespace phi
         quad _quad;
         bool _hasSelectedObjects;
         bool _buffersInitialized;
+        bool _blurShadowMaps;
 
         glm::mat4 _projMatrix;
         glm::mat4 _viewMatrix;
@@ -87,6 +88,7 @@ namespace phi
         void createShadowMapShaders();
 
         void createSSAOShader();
+        void createBlurShader();
 
         void geomPass();
         void shadowMapPasses();
@@ -100,7 +102,9 @@ namespace phi
         void ssao();
 
         texture* blur(texture* source);
-
+        
+        void blurShadowMaps();
+        void blurPointLightShadowMaps();
         void render();
 
     public:
