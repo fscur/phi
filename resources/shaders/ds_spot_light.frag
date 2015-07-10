@@ -47,9 +47,9 @@ float calcVarianceShadowFactor(vec3 fragPosition)
 	float variance = max(moments.y - moments.x * moments.x, 0.00002);
 
 	float d = lightSpacePos.z - moments.x;
-	float pMax = linstep(variance / (variance + d * d), 0.5, 1.0);
+	float pMax = linstep(variance / (variance + d * d), 0.8, 1.0);
 
-	return clamp(min(max(p, pMax), 1.0), 0.0, 1.0);
+	return clamp(min(max(p, pMax), 1.0), 0.2, 1.0);
 }
 
 float calcShadowFactor(vec3 fragPosition)
@@ -125,7 +125,15 @@ void main(void)
 		float diffuse = light.intensity * max(0.0, dot(normal, s));
 		float spec = pow(max(0.0, dot(normal,h)), shininess);
 
-		fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
+		float shadowFactor = calcVarianceShadowFactor(fragPosition);
+		vec4 diffuseComponent = light.color * diffuseColor * diffuse;
+		vec4 specularComponent = light.color * specularColor * spec;
+
+		fragColor = diffuseComponent;
+		fragColor *= shadowFactor;
+
+		if (shadowFactor > 0.5)
+			fragColor += specularComponent;
 
 		float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
 
@@ -134,7 +142,5 @@ void main(void)
 		float fadeEdgeFactor = 1.0 - ((1.0 - spotFactor)/(1.0 - light.cutoff + 0.0001));
 
 		fragColor *= fadeEdgeFactor;
-
-		fragColor *= calcVarianceShadowFactor(fragPosition);
 	}
 }

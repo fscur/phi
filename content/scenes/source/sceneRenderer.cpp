@@ -16,8 +16,8 @@ namespace phi
     {
         _scene = scene;
 
-        _allObjects = new std::vector<sceneObject*>();
-
+        /*_allObjects = new std::vector<sceneObject*>();
+        
         auto allObjects = scene->getAllObjects();
         for (auto i = 0; i < allObjects->size();i++)
         {
@@ -26,6 +26,9 @@ namespace phi
         }
 
         //_allObjects = _scene->getAllObjects();
+        */
+
+        _allObjects = _scene->getVisibleObjects();
         _allObjectsCount = _allObjects->size();
         _camera = _scene->getActiveCamera();
 

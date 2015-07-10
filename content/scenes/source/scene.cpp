@@ -17,6 +17,9 @@ namespace phi
         _size = size<GLuint>(800, 600);
         _deltaTime = 0.008f;
         _allObjects = new std::vector<sceneObject*>();
+        _visibleObjects = new std::vector<sceneObject*>();
+        _staticObjects = new std::map<GLuint, sceneObject*>();
+        _dynamicObjects = new std::map<GLuint, sceneObject*>();
         _directionalLights = new std::vector<directionalLight*>();
         _pointLights = new std::vector<pointLight*>();
         _spotLights = new std::vector<spotLight*>();
@@ -103,7 +106,7 @@ namespace phi
         if (_allObjects->size() == 0)
             return;
 
-        _visibleObjects.clear();
+        _visibleObjects->clear();
         _visibleObjectsCount = 0;
 
         //frustum* frustum = _cameras[0]->getFrustum();
@@ -120,33 +123,66 @@ namespace phi
             sceneObj = (*_allObjects)[i];
             
             auto objectId = sceneObj->getId();
-
-            if (sceneObj->getChanged())
+            
+            if (sceneObj->getActive())
             {
-                auto obj = _staticObjects.find(objectId);
+                _visibleObjects->push_back(sceneObj);
+                _visibleObjectsCount++;
 
-                if (obj != _staticObjects.end())
+                if (sceneObj->getChanged())
                 {
-                    _staticObjects.erase(objectId);
-                    _staticObjectsCount--;
+                    if (_staticObjects->find(objectId) != _staticObjects->end())
+                    {
+                        _staticObjects->erase(objectId);
+                        _staticObjectsCount--;
 
-                    _dynamicObjects[objectId] = sceneObj;
-                    _dynamicObjectsCount++;
+                        (*_dynamicObjects)[objectId] = sceneObj;
+                        _dynamicObjectsCount++;
                 
-                    staticObjectsChanged(eventArgs());
+                        staticObjectsChanged(eventArgs());
+                    }
+                    else if (_dynamicObjects->find(objectId) == _dynamicObjects->end())
+                    {
+                        (*_dynamicObjects)[objectId] = sceneObj;
+                        _dynamicObjectsCount++;
+                
+                        staticObjectsChanged(eventArgs());
+                    }
+                }
+                else
+                {
+                    auto obj = _dynamicObjects->find(objectId);
+
+                    if (obj != _dynamicObjects->end())
+                    {
+                        _dynamicObjects->erase(obj);
+                        _dynamicObjectsCount--;
+
+                        (*_staticObjects)[objectId] = sceneObj;
+                        _staticObjectsCount++;
+                    
+                        staticObjectsChanged(eventArgs());
+                    }
                 }
             }
             else
             {
-                auto obj = _dynamicObjects.find(objectId);
+                auto obj = _staticObjects->find(objectId);
 
-                if (obj != _dynamicObjects.end())
+                if (obj != _staticObjects->end())
                 {
-                    _dynamicObjects.erase(obj);
-                    _dynamicObjectsCount--;
+                    _staticObjects->erase(objectId);
+                    _staticObjectsCount--;
 
-                    _staticObjects[objectId] = sceneObj;
-                    _staticObjectsCount++;
+                    staticObjectsChanged(eventArgs());
+                }
+
+                obj = _dynamicObjects->find(objectId);
+
+                if (obj != _dynamicObjects->end())
+                {
+                    _dynamicObjects->erase(obj);
+                    _dynamicObjectsCount--;
                     
                     staticObjectsChanged(eventArgs());
                 }
@@ -167,7 +203,7 @@ namespace phi
         sceneObject->initialize();
         _allObjects->push_back(sceneObject);
         
-        _staticObjects[_sceneObjectsIds] = sceneObject;
+        (*_staticObjects)[_sceneObjectsIds] = sceneObject;
         _staticObjectsCount++;
 
         sceneObject->setId(_sceneObjectsIds++);

@@ -8,7 +8,7 @@ namespace phi
     {
         _nearPlane = 0.1f;
         _farPlane = 20.0f;
-        _shadowMapSize = 256;
+        _shadowMapSize = 1024;
         _pointLightShadowMapSize = 256;
         _pointLightIndex = 0;
         _blurShadowMaps = false;
@@ -52,6 +52,7 @@ namespace phi
         _buffersInitialized = false;
 
         createSSAOShader();
+        createReflectionsShader();
         createBlurShader();
     }
 
@@ -543,6 +544,7 @@ namespace phi
         s->addUniform("mat.ks");
         s->addUniform("mat.shininess");
         s->addUniform("mat.isEmissive");
+        s->addUniform("mat.reflectivity");
 
         s->addUniform("diffuseMap");
         s->addUniform("normalMap");
@@ -720,6 +722,28 @@ namespace phi
         _ssaoShader = s;
     }
 
+    void dsSceneRenderer::createReflectionsShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+
+        shader* s = shaderManager::get()->loadShader("POST_REFLECTIONS", "post_reflections.vert", "post_reflections.frag", attribs);
+        
+        s->addUniform("p");
+        s->addUniform("ip");
+        s->addUniform("m");
+        s->addUniform("res");
+        s->addUniform("rt1");
+        s->addUniform("rt1");
+        s->addUniform("rt2");
+        s->addUniform("rt3");
+
+        shaderManager::get()->addShader(s->getName(), s);
+
+        _reflectionsShader = s;
+    }
+
     void dsSceneRenderer::createBlurShader()
     {
         std::vector<std::string> attribs;
@@ -800,6 +824,7 @@ namespace phi
                 _geometryPassShader->setUniform("mat.ks", mat->getKs());
                 _geometryPassShader->setUniform("mat.shininess", mat->getShininess());
                 _geometryPassShader->setUniform("mat.isEmissive", mat->getIsEmissive());
+                _geometryPassShader->setUniform("mat.reflectivity", mat->getReflectivity());
 
                 _geometryPassShader->setUniform("diffuseMap", mat->getDiffuseTexture(), 0);
                 _geometryPassShader->setUniform("normalMap", mat->getNormalTexture(), 1);
@@ -830,10 +855,10 @@ namespace phi
         auto spotLights = _scene->getSpotLights();
         auto spotLightsCount = spotLights->size();
 
-        if (directionalLightsCount == 0 && spotLightsCount == 0)
-            return;
+        //if (directionalLightsCount == 0 && spotLightsCount == 0)
+            //return;
 
-        bool hasDynamicObjects = _dynamicObjects.size() > 0;
+        bool hasDynamicObjects = _dynamicObjects->size() > 0;
 
         glm::mat4 lp;
         glm::mat4 lv;
@@ -920,7 +945,7 @@ namespace phi
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (std::map<GLuint, sceneObject*>::iterator it = _staticObjects.begin(); it != _staticObjects.end(); ++it)
+        for (std::map<GLuint, sceneObject*>::iterator it = _staticObjects->begin(); it != _staticObjects->end(); ++it)
         {              
             unsigned int sceneObjId = it->first;
             sceneObject* sceneObj = it->second;
@@ -949,7 +974,7 @@ namespace phi
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
 
-        for (std::map<GLuint, sceneObject*>::iterator it = _dynamicObjects.begin(); it != _dynamicObjects.end(); ++it)
+        for (std::map<GLuint, sceneObject*>::iterator it = _dynamicObjects->begin(); it != _dynamicObjects->end(); ++it)
         {              
             unsigned int sceneObjId = it->first;
             sceneObject* sceneObj = it->second;
@@ -1112,7 +1137,7 @@ namespace phi
                     sceneObject* sceneObj = (*_allObjects)[i];
                     unsigned int sceneObjId = sceneObj->getId();*/
 
-                    for (std::map<GLuint, sceneObject*>::iterator it = _staticObjects.begin(); it != _staticObjects.end(); ++it)
+                    for (std::map<GLuint, sceneObject*>::iterator it = _staticObjects->begin(); it != _staticObjects->end(); ++it)
                     { 
                         unsigned int sceneObjId = it->first;
                         sceneObject* sceneObj = it->second;
@@ -1143,7 +1168,7 @@ namespace phi
             }
         }
 
-        if (_dynamicObjects.size() > 0)
+        if (_dynamicObjects->size() > 0)
         {
             for (GLuint l = 0; l < pointLightsCount; l++)
             {
@@ -1177,7 +1202,7 @@ namespace phi
                     glDepthMask(GL_TRUE);
                     //glCullFace(GL_FRONT);
 
-                    for (std::map<GLuint, sceneObject*>::iterator it = _dynamicObjects.begin(); it != _dynamicObjects.end(); ++it)
+                    for (std::map<GLuint, sceneObject*>::iterator it = _dynamicObjects->begin(); it != _dynamicObjects->end(); ++it)
                     {              
                         unsigned int sceneObjId = it->first;
                         sceneObject* sceneObj = it->second;
@@ -1592,13 +1617,10 @@ namespace phi
     {   
         _frameBuffers[1]->bindForDrawing();
 
+        glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_COLOR, GL_ONE);
         glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
-
-        texture* rt1Texture = _frameBuffers[0]->getRenderTarget("rt1")->getTexture();
-        texture* rt2Texture = _frameBuffers[0]->getRenderTarget("rt2")->getTexture();
-        texture* rt3Texture = _frameBuffers[0]->getRenderTarget("rt3")->getTexture();
 
         glm::mat4 ip = glm::inverse(_camera->getPerspProjMatrix());
         glm::vec2 res = glm::vec2(_viewportSize.width, _viewportSize.height);
@@ -1615,9 +1637,9 @@ namespace phi
         s->setUniform("ip", ip);
         s->setUniform("m", m);
         s->setUniform("res", res);
-        s->setUniform("rt1", rt1Texture, 0);
-        s->setUniform("rt2", rt2Texture, 1);
-        s->setUniform("rt3", rt3Texture, 2);
+        s->setUniform("rt1", _rt1Texture, 0);
+        s->setUniform("rt2", _rt2Texture, 1);
+        s->setUniform("rt3", _rt3Texture, 2);
         s->setUniform("randomNormalMap", _randomNormalsTexture, 3);
 
         s->setUniform("randomSize", 64.0f);
@@ -1632,8 +1654,48 @@ namespace phi
 
         glBlendEquation(GL_FUNC_ADD);
         glDisable(GL_BLEND);
-
+        glEnable(GL_DEPTH_TEST);
         _frameBuffers[1]->unbind();
+    }
+
+    void dsSceneRenderer::reflections()
+    {   
+        _frameBuffers[2]->bindForDrawing();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDisable(GL_DEPTH_TEST);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        glm::mat4 p = _camera->getPerspProjMatrix();
+        glm::mat4 ip = glm::inverse(p);
+        glm::vec2 res = glm::vec2(_viewportSize.width, _viewportSize.height);
+        glm::mat4 m = glm::mat4(
+            2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        shader* s = shaderManager::get()->getShader("POST_REFLECTIONS");
+
+        s->bind();
+        
+        s->setUniform("m", m);
+        s->setUniform("p", p);
+        s->setUniform("ip", ip);
+        s->setUniform("res", res);
+        s->setUniform("rt0", _frameBuffers[1]->getRenderTarget("rt0")->getTexture(), 0);
+        s->setUniform("rt1", _rt1Texture, 1);
+        s->setUniform("rt2", _rt2Texture, 2);
+        s->setUniform("rt3", _rt3Texture, 3);
+
+        meshRenderer::render(&_quad);
+
+        s->unbind();
+
+        //glDisable(GL_BLEND);
+        
+        glEnable(GL_DEPTH_TEST);
+        _frameBuffers[2]->unbind();
     }
 
     texture* dsSceneRenderer::blur(texture* source)
@@ -1709,6 +1771,7 @@ namespace phi
         glDepthMask(GL_FALSE);
 
         ssao();
+        //reflections();
 
         //blur(_frameBuffers[1]->getRenderTarget("rt0")->getTexture());
 

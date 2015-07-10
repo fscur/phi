@@ -7,7 +7,7 @@ uniform vec2 res;
 
 out vec4 fragColor;
 
-float d = 1.5; // kernel offset
+float d = 5.0; // kernel offset
 
 float lookupa(vec2 p, float dx, float dy)
 {
@@ -39,9 +39,9 @@ void main(void)
 
 	float g = gx*gx + gy*gy;
 
-	vec4 selectedColor = vec4(0.0, 1.0, 0.0, 1.0);
+	vec4 selectedColor = vec4(0.0, 0.1, 0.0, 1.0);
 
-	fragColor = (selectedColor * texture(selectionMap, p).a * 0.6) + selectedColor * g;
+	fragColor = (selectedColor * texture(selectionMap, p).a * 0.4) + selectedColor * g;
     //fragColor = texture(selectionMap, p.xy);
     //vec4 color = vec4(texture(selectionMap, p.xy).a, 0.0, 0.0, 1.0); 
     //fragColor = color;
