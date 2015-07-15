@@ -1,31 +1,26 @@
 #ifndef _PHI_CONE_H_
 #define _PHI_CONE_H_
 
-#include "sceneObject.h"
+#include "scenes.h"
 #include "globals.h"
+#include "model.h"
 
 namespace phi
 {
-    class cone :
-        public sceneObject
+    class cone
     {
-	private:
-		float _radius;
-		float _height;
     private:
-		cone(){};
-		mesh* create(unsigned int sectors);
+        model* _model;
+
+    private:
+        cone(){};
+        mesh* create(unsigned int sectors);
+
     public:
-        SCENES_API cone(float height, float radius, unsigned int sectors, material* material);
+        SCENES_API cone(unsigned int sectors, material* material);
         SCENES_API ~cone(void);
-		
-		SCENES_API float getRadius() const { return _radius; }
-		SCENES_API float getHeight() const { return _height; }
 
-		SCENES_API void setRadius(float radius);
-		SCENES_API void setHeight(float height);
-
-		SCENES_API void debugRender() override;
+        SCENES_API model* getModel() const { return _model; }
     };
 }
 

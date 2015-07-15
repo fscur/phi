@@ -20,8 +20,6 @@ namespace phi
     {
     private:
 
-        std::vector<sceneObject*> _children;
-        unsigned int _childrenCount;
         bool _isActive;
         bool _isSelected;
         bool _isInitialized;
@@ -44,8 +42,6 @@ namespace phi
         SCENES_API sceneObject();
         SCENES_API virtual ~sceneObject(void);
 
-        SCENES_API std::vector<sceneObject*> getChildren() const { return _children; }
-        SCENES_API virtual bool getChanged() const { return _changed; }
         SCENES_API bool getSelected() const { return _isSelected; }
         SCENES_API bool getActive() const { return _isActive; }
         SCENES_API unsigned int getId() const { return _id; }
@@ -58,8 +54,6 @@ namespace phi
         SCENES_API void setId(unsigned int value) { _id = value; }
 
         SCENES_API void initialize();
-
-        SCENES_API void addChild(sceneObject* child);
 
         SCENES_API void render();
         SCENES_API virtual void debugRender();

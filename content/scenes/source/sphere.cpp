@@ -3,12 +3,8 @@
 namespace phi
 {
     sphere::sphere(float radius, int rings, int sectors, material* material)
-        : sceneObject()
     {
         _radius = radius;
-        auto d = 2.0f * radius;
-        setSize(size<float>(d, d, d));
-
         _model = new model("sphere", "");
         auto m = create(rings + 1, sectors + 1);
         m->setMaterial(material);
@@ -72,6 +68,5 @@ namespace phi
     void sphere::setRadius(float radius)
     { 
         _radius = radius;
-        setSize(size<float>(radius * 2.0, radius * 2.0, radius * 2.0));
     }
 }

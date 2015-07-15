@@ -65,7 +65,7 @@ namespace phi
         double a = axis.x;
         double b = l != 0 ? axis.y / l : 1;
         double c = l != 0 ? axis.z / l : 0;
-        
+
         double cossine = cos(angle);
         double sine = sin(angle);
 
@@ -132,10 +132,10 @@ namespace phi
     {
         start = glm::normalize(start);
         dest = glm::normalize(dest);
- 
+
         float cosTheta = glm::dot(start, dest);
         glm::vec3 rotationAxis;
- 
+
         if (cosTheta < -1 + 0.000001f){
             // special case when vectors in opposite directions:
             // there is no "ideal" rotation axis
@@ -143,21 +143,28 @@ namespace phi
             rotationAxis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
             if (glm::length(rotationAxis) < 0.01 ) // bad luck, they were parallel, try again!
                 rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
- 
+
             rotationAxis = glm::normalize(rotationAxis);
             return glm::angleAxis(glm::pi<float>(), rotationAxis);
         }
- 
+
         rotationAxis = glm::cross(start, dest);
- 
+
         float s = sqrt( (1+cosTheta)*2 );
         float invs = 1 / s;
- 
+
         return glm::quat(
             s * 0.5f, 
             rotationAxis.x * invs,
             rotationAxis.y * invs,
             rotationAxis.z * invs
-        );
+            );
     }
+
+    glm::vec3 mathUtils::multiply(const glm::mat4 mat, const glm::vec3 vec)
+    {
+        auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
+        vec4 = mat * vec4;
+        return glm::vec3(vec4.x, vec4.y, vec4.z);
+    };
 }

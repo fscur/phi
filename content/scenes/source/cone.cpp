@@ -2,18 +2,11 @@
 
 namespace phi
 {
-    cone::cone(float height, float radius, unsigned int sectors, material* material)
-        : sceneObject()
-    {   
-        _radius = radius;
-        auto d =  2.0f * radius;
-        setSize(size<float>(d, d, height));
-
+    cone::cone(unsigned int sectors, material* material)
+    {
         _model = new model("cone", "");
         auto m = create(sectors);
         m->setMaterial(material);
-        _model->addMesh(m);
-
         _model->addMesh(m);
     }
 
@@ -143,86 +136,5 @@ namespace phi
         }
 
         return mesh::create("cone", vertices, indices);
-    }
-
-    void cone::setRadius(float radius)
-    { 
-        _radius = radius;
-        setSize(size<float>(_radius, _radius, _height));
-    }
-
-    void cone::setHeight(float height)
-    { 
-        _height = height;
-        setSize(size<float>(_radius, _height, _radius));
-    }
-
-    void cone::debugRender()
-    {
-#ifdef WIN32
-        /*
-        std::vector<vertex> vertices = _mesh->getVertices();
-
-        glPushMatrix();
-        //glDisable(GL_CULL_FACE);
-
-        glBegin(GL_LINES);
-        color color = color::red;
-
-        glColor3f(color.r, color.g, color.b);
-
-        for (unsigned int i = 0; i < vertices.size(); i++)
-        {
-        glm::vec3 a = vertices[i].getPosition();
-        glm::vec3 b = a + vertices[i].getNormal();
-
-        glVertex3f(a.x, a.y, a.z); 
-        glVertex3f(b.x, b.y, b.z);
-        }
-
-        /*color = Color::White;
-        glColor3f(color.R, color.G, color.B);*/
-
-        /*for (int index = 0; index < vertices.size(); index += 6)
-        {
-        int topIndex = index;
-        int i = index + 1;
-        int j = index + 2;
-        int k = index + 1;
-        int l = index + 2;
-        int botIndex = index + 5;
-
-        glm::vec3 a = vertices[topIndex].GetPosition();
-        glm::vec3 b = vertices[i].GetPosition();
-        glm::vec3 c = vertices[j].GetPosition();
-
-        glVertex3f(a.x, a.y, a.z); 
-        glVertex3f(b.x, b.y, b.z);
-
-        glVertex3f(b.x, b.y, b.z); 
-        glVertex3f(c.x, c.y, c.z);
-
-        glVertex3f(c.x, c.y, c.z);
-        glVertex3f(a.x, a.y, a.z);
-
-        a = vertices[botIndex].GetPosition();
-        b = vertices[k].GetPosition();
-        c = vertices[l].GetPosition();
-
-        glVertex3f(a.x, a.y, a.z); 
-        glVertex3f(b.x, b.y, b.z);
-
-        glVertex3f(b.x, b.y, b.z); 
-        glVertex3f(c.x, c.y, c.z);
-
-        glVertex3f(c.x, c.y, c.z);
-        glVertex3f(a.x, a.y, a.z);
-        }*/
-
-        //glEnd();
-
-        //glPopMatrix();
-#endif
-
     }
 }

@@ -19,7 +19,6 @@ namespace phi
         float calcRange(float radius, unsigned int sides);
     protected:
         pointLight(){};
-        void onPositionChanged() override;
     public:
 
         SCENES_API pointLight(glm::vec3 position, color color, float intensity, float range);
@@ -31,8 +30,6 @@ namespace phi
 
         SCENES_API void setIntensity(float value) override;
         SCENES_API void setRange(float value);
-
-        SCENES_API void update() override;
     };
 }
 #endif

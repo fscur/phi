@@ -115,7 +115,7 @@ namespace phi
         if (!_object)
             return;
 
-        auto viewModelFixed = _camera->getViewMatrix() * _object->getTranslationMatrix() * _object->getRotationMatrix();
+        auto viewModelFixed = _camera->getViewMatrix() * _object->getModelMatrix();
         auto x = viewModelFixed[3][0];
         auto y = viewModelFixed[3][1];
         auto z = viewModelFixed[3][2];
@@ -126,7 +126,15 @@ namespace phi
         viewModelFixed[3][2] = -1.0f;
         auto pos = glm::inverse(_camera->getViewMatrix()) * viewModelFixed * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-        auto translationMatrix = glm::translate(glm::vec3(pos.x, pos.y, pos.z)) * _object->getRotationMatrix() * glm::scale(glm::vec3(0.15f, 0.15f, 0.15f));
+        auto rot = glm::mat4();
+        auto obj = _object;
+        while (obj != nullptr)
+        {
+            rot = obj->getRotationMatrix() * rot;
+            obj = obj->getParent();
+        }
+
+        auto translationMatrix = glm::translate(glm::vec3(pos.x, pos.y, pos.z)) * rot * glm::scale(glm::vec3(0.15f, 0.15f, 0.15f));
 
         _modelMatrix = translationMatrix;
     }
@@ -290,10 +298,17 @@ namespace phi
 
         if (e->leftButtonPressed && (_mouseOverX || _mouseOverY || _mouseOverZ))
         {
+            auto multMat3 = [] (const glm::vec3 vec, const glm::mat4 mat)
+            {
+                auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
+                vec4 = mat * vec4;
+                return glm::vec3(vec4.x, vec4.y, vec4.z);
+            };
+
             _clickedOverX = _mouseOverX;
             _clickedOverY = _mouseOverY;
             _clickedOverZ = _mouseOverZ;
-            _startPos = _object->getPosition();
+            _startPos = multMat3(glm::vec3(), _object->getModelMatrix());
             _mouseStartPos = glm::vec2(e->x, e->y);
             e->handled = true;
         }
@@ -325,13 +340,30 @@ namespace phi
             return glm::vec3(vec4.x, vec4.y, vec4.z);
         };
 
-        glm::vec3 dir;
+        auto rot = glm::mat4();
+        auto obj = _object;
+        while (obj != nullptr)
+        {
+            rot = obj->getRotationMatrix() * rot;
+            obj = obj->getParent();
+        }
+
+        glm::vec3 dir, dirLocal;
         if (_clickedOverX)
-            dir = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), _object->getRotationMatrix()));
+        {
+            dir = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), rot));
+            dirLocal = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), _object->getRotationMatrix()));
+        }
         if (_clickedOverY)
-            dir = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), _object->getRotationMatrix()));
+        {
+            dir = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), rot));
+            dirLocal = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), _object->getRotationMatrix()));
+        }
         if (_clickedOverZ)
-            dir = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), _object->getRotationMatrix()));
+        {
+            dir = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), rot));
+            dirLocal = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), _object->getRotationMatrix()));
+        }
 
         if (_clickedOverX || _clickedOverY || _clickedOverZ)
         {
@@ -358,7 +390,9 @@ namespace phi
                 auto world4 = glm::inverse(_camera->getViewMatrix()) * glm::vec4(p1.x, p1.y, p1.z, 1.0f);
                 auto world = glm::vec3(world4.x, world4.y, world4.z);
 
-                _object->setPosition(world);
+                auto model = (_object->getParent() == nullptr ? glm::mat4() : _object->getParent()->getModelMatrix());
+                auto localWorld = multMat3(world, glm::inverse(model));
+                _object->setLocalPosition(localWorld);
             }
         }
     }

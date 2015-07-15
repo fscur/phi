@@ -10,7 +10,6 @@ namespace phi
     {
         _id = 0;
 
-        _childrenCount = 0;
         _isSelected = false;
         _isActive = true;
         _isInitialized = false;
@@ -20,8 +19,6 @@ namespace phi
 
     sceneObject::~sceneObject(void)
     {
-        for (unsigned int i = 0; i < _childrenCount; i++)
-            DELETE(_children[i]);
     }
 
     void sceneObject::initialize()
@@ -60,18 +57,8 @@ namespace phi
             setSelected(false);
     }
 
-    void sceneObject::addChild(sceneObject* child)
-    {
-        _children.push_back(child);
-        _childrenCount++;
-    }
-
     void sceneObject::render()
     {
-        //meshRenderer::render(_meshes[i]);
-
-        for (unsigned int i = 0; i < _childrenCount; i++)
-            _children[i]->render();
     }
 
     void sceneObject::update()
@@ -79,9 +66,6 @@ namespace phi
         object3D::update();
 
         //updateAabb();
-
-        for (unsigned int i = 0; i < _childrenCount; i++)
-            _children[i]->update();
     }
 
     void sceneObject::debugRender()

@@ -14,10 +14,13 @@ namespace phi
         _range = range;
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
         _radius = calcRadius(cutoff, _range);
-        _boundingVolume = new cone(_range, _radius * 1.15, 5, nullptr);
-        _boundingVolume->setDirection(direction);
-        _boundingVolume->setPosition(position);
-        _boundingVolume->update();
+
+
+        _boundingVolume = new cone(5, nullptr);
+        auto diameter =  2.0f * _radius * 1.15;
+        setSize(size<float>(diameter, diameter, _range));
+
+        setLocalPosition(position);
         setDirection(glm::normalize(direction));
         _transform = new transform();
         updateViewMatrix();
@@ -35,17 +38,12 @@ namespace phi
         return range * tg * 2.0f;
     }
 
-    void spotLight::onDirectionChanged()
-    {
-        _boundingVolume->setDirection(getDirection());
-    }
-
     void spotLight::setRange(float value)
     {
         _range = value;
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
         _radius = calcRadius(_cutoff, _range);
-        _boundingVolume->setRadius(_range);
+        setSize(size<float>(_radius, _radius, _range));
         updateProjectionMatrix();
     }
 
@@ -53,7 +51,7 @@ namespace phi
     {
         _cutoff = cutoff;
         _radius = calcRadius(_cutoff, _range);
-        _boundingVolume->setRadius(_radius);
+        setSize(size<float>(_radius, _radius, _range));
         updateProjectionMatrix();
     }
 
@@ -64,8 +62,12 @@ namespace phi
 
     void spotLight::update()
     {
+        auto changed = _changed;
+
         light::update();
-        _boundingVolume->update();
+
+        if (changed)
+            updateViewMatrix();
     }
 
     void spotLight::updateViewMatrix()

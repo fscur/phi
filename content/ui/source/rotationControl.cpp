@@ -57,7 +57,7 @@ namespace phi
         if (!_object)
             return;
 
-        auto viewModelFixed = _camera->getViewMatrix() * _object->getTranslationMatrix() * _object->getRotationMatrix();
+        auto viewModelFixed = _camera->getViewMatrix() * _object->getModelMatrix();
         auto x = viewModelFixed[3][0];
         auto y = viewModelFixed[3][1];
         auto z = viewModelFixed[3][2];
@@ -68,7 +68,15 @@ namespace phi
         viewModelFixed[3][2] = -1.0f;
         auto pos = glm::inverse(_camera->getViewMatrix()) * viewModelFixed * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-        auto translationMatrix = glm::translate(glm::vec3(pos.x, pos.y, pos.z)) * _object->getRotationMatrix() * glm::scale(glm::vec3(0.15f, 0.15f, 0.15f));
+        auto rot = glm::mat4();
+        auto obj = _object;
+        while (obj != nullptr)
+        {
+            rot = obj->getRotationMatrix() * rot;
+            obj = obj->getParent();
+        }
+
+        auto translationMatrix = glm::translate(glm::vec3(pos.x, pos.y, pos.z)) * rot * glm::scale(glm::vec3(0.15f, 0.15f, 0.15f));
 
         _modelMatrix = translationMatrix;
     }
@@ -305,15 +313,33 @@ namespace phi
 
         if (_clickedOverX || _clickedOverY || _clickedOverZ)
         {
-            glm::vec3 dir;
-            if (_clickedOverX)
-                dir = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), _object->getRotationMatrix()));
-            if (_clickedOverY)
-                dir = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), _object->getRotationMatrix()));
-            if (_clickedOverZ)
-                dir = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), _object->getRotationMatrix()));
+            auto rot = glm::mat4();
+            auto obj = _object;
+            while (obj != nullptr)
+            {
+                rot = obj->getRotationMatrix() * rot;
+                obj = obj->getParent();
+            }
 
-            auto planePoint = _object->getPosition();
+            glm::vec3 dir, dirLocal;
+            if (_clickedOverX)
+            {
+                dir = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), rot));
+                dirLocal = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), _object->getRotationMatrix()));
+            }
+            if (_clickedOverY)
+            {
+                dir = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), rot));
+                dirLocal = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), _object->getRotationMatrix()));
+            }
+            if (_clickedOverZ)
+            {
+                dir = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), rot));
+                dirLocal = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), _object->getRotationMatrix()));
+            }
+
+            auto objectPosition = multMat3(glm::vec3(), _object->getModelMatrix());
+            auto planePoint = objectPosition;
             auto planeNormal = dir;
             auto rayStart = _camera->getPosition();
             auto rayEnd = multMat3(screenToViewZNear(glm::vec2(e->x, e->y)), glm::inverse(_camera->getViewMatrix()));
@@ -332,15 +358,15 @@ namespace phi
                 _a = intersection;
                 _b = intersectionStart;
 
-                intersection = glm::normalize(intersection - _object->getPosition());
-                intersectionStart = glm::normalize(intersectionStart - _object->getPosition());
+                intersection = glm::normalize(intersection - objectPosition);
+                intersectionStart = glm::normalize(intersectionStart - objectPosition);
 
                 auto angle = glm::acos(glm::dot(intersection, intersectionStart));
                 auto sign = glm::sign(glm::dot(-dir, glm::cross(intersection, intersectionStart)));
                 // angle in [-179,180]
                 angle = angle * sign;
-                
-                _object->rotate(angle - _currentAngle, dir);
+
+                _object->rotate(angle - _currentAngle, dirLocal);
                 _currentAngle = angle;
                 //LOG(glm::degrees(_currentAngle));
             }

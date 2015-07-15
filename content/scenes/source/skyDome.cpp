@@ -103,7 +103,7 @@ namespace phi
         glm::vec3 pos = glm::vec3(x,y,z) * _radius;
         glm::vec3 dir = -glm::normalize(pos);
 
-        _sun->setPosition(pos);
+        _sun->setLocalPosition(pos);
         _sun->setDirection(dir);
 
         _horizonColor = calcHorizonColor(_dayTime);

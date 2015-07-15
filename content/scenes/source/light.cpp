@@ -15,7 +15,7 @@ namespace phi
     light::light(glm::vec3 position, color color, float intensity) :
         object3D()
     {
-        setPosition(position);
+        setLocalPosition(position);
         _color = color;
         _intensity = intensity;
         _shadowMap = nullptr;

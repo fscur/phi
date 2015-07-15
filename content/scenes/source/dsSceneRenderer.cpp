@@ -1356,7 +1356,7 @@ namespace phi
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
             cone* boundingVolume = light->getBoundingVolume();
-            glm::mat4 m = boundingVolume->getModelMatrix();
+            glm::mat4 m = light->getModelMatrix();
             glm::mat4 mvp = p * v * m;
             _mesh = boundingVolume->getModel()->getMeshes()[0];
 
@@ -1502,7 +1502,7 @@ namespace phi
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
             sphere* boundingVolume = light->getBoundingVolume();
-            glm::mat4 modelMatrix = boundingVolume->getModelMatrix();
+            glm::mat4 modelMatrix = light->getModelMatrix();
             glm::mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
             _mesh = boundingVolume->getModel()->getMeshes()[0];
 
@@ -1720,10 +1720,10 @@ namespace phi
         //_dirLightShadowMapFrameBuffers1[0]->blit("rt0", 0, 0, 400, 400);
 
 
-        //unsigned int s = 128;
-        //unsigned int dx = 0;
-        //unsigned int dy = 0;
-        //unsigned int l = 0;
+        unsigned int s = 128;
+        unsigned int dx = 0;
+        unsigned int dy = 0;
+        unsigned int l = 0;
 
 
         //renderTarget* staticShadowMapRenderTarget = _pointLightShadowMapFrameBuffers0[l]->getRenderTarget("rt0");
@@ -1766,6 +1766,18 @@ namespace phi
 
         //_dirLightShadowMapFrameBuffers1[0]->bindForReading();
         //_dirLightShadowMapFrameBuffers1[0]->blit("depth", _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
+
+        //_spotLightShadowMapFrameBuffers0[0]->bindForReading();
+        //_spotLightShadowMapFrameBuffers0[0]->blit("rt0", 0, 0, _shadowMapSize/2, _shadowMapSize/2);
+
+        //_spotLightShadowMapFrameBuffers1[0]->bindForReading();
+        //_spotLightShadowMapFrameBuffers1[0]->blit("rt0", _shadowMapSize/2, 0, _shadowMapSize/2, _shadowMapSize/2);
+
+        //_spotLightShadowMapFrameBuffers0[0]->bindForReading();
+        //_spotLightShadowMapFrameBuffers0[0]->blit("depth", 0, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
+
+        //_spotLightShadowMapFrameBuffers1[0]->bindForReading();
+        //_spotLightShadowMapFrameBuffers1[0]->blit("depth", _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2, _shadowMapSize/2);
 
         _frameBuffers[0]->bindForReading();
 

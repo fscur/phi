@@ -24,11 +24,13 @@ namespace phi
         GLuint _visibleObjectsCount;
         GLuint _staticObjectsCount;
         GLuint _dynamicObjectsCount;
+        GLuint _changedObjectsCount;
 
         size<GLuint> _size;
         float _deltaTime;
         color _backColor;
         color _ambientColor;
+        bool _lightChanged;
 
         camera *_activeCamera;
 
@@ -36,6 +38,7 @@ namespace phi
         std::map<GLuint, sceneObject*> _staticObjects;
         std::map<GLuint, sceneObject*> _dynamicObjects;
         std::vector<sceneObject*> _visibleObjects;
+        std::vector<object3D*> _changedObjects;
 
         std::vector<directionalLight*>* _directionalLights;
         std::vector<pointLight*>* _pointLights;
@@ -49,6 +52,8 @@ namespace phi
         unsigned int _sceneObjectsIds;
 
     private:
+        void sceneObjectChanged(phi::object3DEventArgs e);
+        void lightChanged(phi::object3DEventArgs e);
         void sceneObjectIsSelectedChanged(phi::sceneObjectEventArgs e);
         void staticObjectsChanged(phi::eventArgs e);
 

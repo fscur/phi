@@ -7,20 +7,23 @@
 
 namespace phi
 {
-    class sphere :
-        public sceneObject
+    class sphere
     {
-	private:
-		float _radius;
     private:
-		sphere(){};
-		mesh* create(GLuint rings, GLuint sectors);
+        float _radius;
+        model* _model;
+
+    private:
+        sphere(){};
+        mesh* create(GLuint rings, GLuint sectors);
     public:
         SCENES_API sphere(float radius, int rings, int sectors, material* material);
         SCENES_API ~sphere(void);
 
-		SCENES_API void setRadius(float radius);
-		SCENES_API float getRadius() const { return _radius; }
+        SCENES_API float getRadius() const { return _radius; }
+        SCENES_API model* getModel() const { return _model; }
+
+        SCENES_API void setRadius(float radius);
     };
 }
 

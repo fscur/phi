@@ -4,6 +4,7 @@
 #include "renderingSystem.h"
 #include <fstream>
 #include <iostream>
+#include <functional>
 
 namespace phi
 {
@@ -14,6 +15,7 @@ namespace phi
         _visibleObjectsCount = 0;
         _staticObjectsCount = 0;
         _dynamicObjectsCount = 0;
+        _changedObjectsCount = 0;
         _size = size<GLuint>(800, 600);
         _deltaTime = 0.008f;
         _allObjects = new std::vector<sceneObject*>();
@@ -23,6 +25,7 @@ namespace phi
         _cameras = new std::vector<camera*>();
         _selectedSceneObjectChanged = new eventHandler<sceneObjectEventArgs>();
         _staticObjectsChanged = new eventHandler<eventArgs>();
+        _lightChanged = false;
 
         _activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, phi::PI_OVER_4);
         _cameras->push_back(_activeCamera);
@@ -94,34 +97,33 @@ namespace phi
         for (GLuint i = 0; i < _cameras->size(); i++)
             (*_cameras)[i]->update();
 
-        for (GLuint i = 0; i < _pointLights->size(); i++)
-            (*_pointLights)[i]->update();
+        //for (GLuint i = 0; i < _pointLights->size(); i++)
+        //{
+        //    auto pointLight = (*_pointLights)[i];
+        //    if (pointLight->getChanged())
+        //        staticObjectsChanged(eventArgs());
 
-        for (GLuint i = 0; i < _spotLights->size(); i++)
-            (*_spotLights)[i]->update();
+        //    pointLight->update();
+        //}
 
-        if (_allObjects->size() == 0)
-            return;
+        //for (GLuint i = 0; i < _spotLights->size(); i++)
+        //{
+        //    auto spotLight = (*_spotLights)[i];
+        //    if (spotLight->getChanged())
+        //        staticObjectsChanged(eventArgs());
+
+        //    spotLight->update();
+        //}
 
         _visibleObjects.clear();
         _visibleObjectsCount = 0;
 
-        //frustum* frustum = _cameras[0]->getFrustum();
-        glm::mat4 viewMatrix = _activeCamera->getViewMatrix();
-        glm::mat4 perspMatrix = _activeCamera->getPerspProjMatrix();
-        glm::vec3 cameraPosition = _activeCamera->getPosition();
-        sceneObject* sceneObj = nullptr;
-        transform* transform = nullptr;
-        glm::vec3 center;
-        //float radius;
-
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
-            sceneObj = (*_allObjects)[i];
-            
+            auto sceneObj = (*_allObjects)[i];
             auto objectId = sceneObj->getId();
 
-            if (sceneObj->getChanged())
+            if (std::find(_changedObjects.begin(), _changedObjects.end(), sceneObj) != _changedObjects.end())
             {
                 auto obj = _staticObjects.find(objectId);
 
@@ -132,7 +134,7 @@ namespace phi
 
                     _dynamicObjects[objectId] = sceneObj;
                     _dynamicObjectsCount++;
-                
+
                     staticObjectsChanged(eventArgs());
                 }
             }
@@ -147,12 +149,22 @@ namespace phi
 
                     _staticObjects[objectId] = sceneObj;
                     _staticObjectsCount++;
-                    
+
                     staticObjectsChanged(eventArgs());
                 }
             }
+        }
 
-            sceneObj->update();
+        for (GLuint i = 0; i < _changedObjectsCount; i++)
+            _changedObjects[i]->update();
+
+        _changedObjects.clear();
+        _changedObjectsCount = 0;
+
+        if (_lightChanged)
+        {
+            staticObjectsChanged(eventArgs());
+            _lightChanged = false;
         }
     }
 
@@ -166,36 +178,83 @@ namespace phi
     {
         sceneObject->initialize();
         _allObjects->push_back(sceneObject);
-        
+
         _staticObjects[_sceneObjectsIds] = sceneObject;
         _staticObjectsCount++;
 
         sceneObject->setId(_sceneObjectsIds++);
         _allObjectsCount++;
 
+        if (sceneObject->getChanged())
+            sceneObject->update();
+
         staticObjectsChanged(eventArgs());
 
+        sceneObject->getChangedEvent()->bind<scene, &scene::sceneObjectChanged>(this);
         sceneObject->getIsSelectedChanged()->bind<scene, &scene::sceneObjectIsSelectedChanged>(this);
     }
 
     void scene::add(directionalLight* directionalLight)
     {
         _directionalLights->push_back(directionalLight);
+
+        if (directionalLight->getChanged())
+            directionalLight->update();
+
+        directionalLight->getChangedEvent()->bind<scene, &scene::sceneObjectChanged>(this);
+        directionalLight->getChangedEvent()->bind<scene, &scene::lightChanged>(this);
     }
 
     void scene::add(pointLight* pointLight)
     {
         _pointLights->push_back(pointLight);
+
+        if (pointLight->getChanged())
+            pointLight->update();
+
+        pointLight->getChangedEvent()->bind<scene, &scene::sceneObjectChanged>(this);
+        pointLight->getChangedEvent()->bind<scene, &scene::lightChanged>(this);
     }
 
     void scene::add(spotLight* spotLight)
     {
         _spotLights->push_back(spotLight);
+
+        if (spotLight->getChanged())
+            spotLight->update();
+
+        spotLight->getChangedEvent()->bind<scene, &scene::sceneObjectChanged>(this);
+        spotLight->getChangedEvent()->bind<scene, &scene::lightChanged>(this);
     }
 
     void scene::add(camera* camera)
     {
         _cameras->push_back(camera);
+    }
+
+    void scene::sceneObjectChanged(phi::object3DEventArgs e)
+    {
+        _changedObjects.push_back(e.sender);
+        _changedObjectsCount++;
+
+        //std::function<void(object3D*)> addToList = [&] (object3D* obj)
+        //{
+        //    _changedObjects.push_back(obj);
+        //    _changedObjectsCount++;
+
+        //    auto children = obj->getChildren();
+        //    auto childCount = children.size();
+
+        //    for (GLuint i = 0; i < childCount; i++)
+        //        addToList(children[i]);
+        //};
+
+        //addToList(e.sender);
+    }
+
+    void scene::lightChanged(phi::object3DEventArgs e)
+    {
+        _lightChanged = true;
     }
 
     void scene::sceneObjectIsSelectedChanged(phi::sceneObjectEventArgs e)
@@ -291,7 +350,7 @@ namespace phi
             stream.read((char*)&qz, sizeof(float));
             stream.read((char*)&qw, sizeof(float));
             auto obj = getSceneObjectById(id);
-            obj->setPosition(glm::vec3(px, py, pz));
+            obj->setLocalPosition(glm::vec3(px, py, pz));
             obj->setSize(size<float>(w, h, d));
             obj->setOrientation(glm::quat(qw, qx, qy, qz));
         }

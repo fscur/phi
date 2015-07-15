@@ -23,8 +23,6 @@ namespace phi
         float calcRadius(float cutoff, float range);
         void updateViewMatrix();
         void updateProjectionMatrix();
-    protected:
-        void onDirectionChanged() override;
 
     public:
         SCENES_API spotLight();

@@ -10,8 +10,11 @@ namespace phi
         _boundingVolumeSides = 5;
         _range = range;
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
-        _boundingVolume = new sphere(calcRange(_range, _boundingVolumeSides), _boundingVolumeSides, _boundingVolumeSides, nullptr);
-        _boundingVolume->setPosition(position);
+        auto radius = calcRange(_range, _boundingVolumeSides);
+        auto d = 2.0f * radius;
+        setLocalPosition(position);
+        setSize(size<float>(d, d, d));
+        _boundingVolume = new sphere(radius, _boundingVolumeSides, _boundingVolumeSides, nullptr);
     }
 
     pointLight::~pointLight()
@@ -32,17 +35,8 @@ namespace phi
     {
         _range = value;
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
-        _boundingVolume->setRadius(calcRange(value, _boundingVolumeSides));
-    }
-
-    void pointLight::onPositionChanged()
-    {
-        _boundingVolume->setPosition(getPosition());
-    }
-
-    void pointLight::update()
-    {
-        light::update();
-        _boundingVolume->update();
+        auto radius = calcRange(value, _boundingVolumeSides);
+        _boundingVolume->setRadius(radius);
+        setSize(size<float>(radius * 2.0, radius * 2.0, radius * 2.0));
     }
 }
