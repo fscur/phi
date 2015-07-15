@@ -14,16 +14,14 @@ namespace phi
     private:
         void updateViewMatrix();
 
-    protected:
-        void onPositionChanged() override;
-        void onDirectionChanged() override;
-
     public:
         SCENES_API directionalLight();
         SCENES_API directionalLight(glm::vec3 position, color color, float intensity, glm::vec3 direction);
         SCENES_API ~directionalLight();
 
-        SCENES_API transform* getTransform();
+        SCENES_API void update() override;
+
+        SCENES_API glm::mat4 getViewMatrix() { return _viewMatrix; }
     };
 }
 #endif

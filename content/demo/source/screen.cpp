@@ -188,39 +188,37 @@ void screen::initScene()
     s->add(spotLight0);
     
 
-    phi::sceneObject* spotLamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("spot_lamp.model"));
-    spotLamp1->setLocalPosition(glm::vec3(-4.7, 3.5, 0.75));
-    spotLamp1->yaw(-phi::PI_OVER_2 - 0.3);
-    s->add(spotLamp1);
-    
-    phi::spotLight* spotLight1 = new phi::spotLight(glm::vec3(0.0, 0.0, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.25, -0.8, 0.8), 0.7f);
-    spotLamp1->addChild(spotLight1);
-    s->add(spotLight1);
+    //phi::sceneObject* spotLamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("spot_lamp.model"));
+    //spotLamp1->setLocalPosition(glm::vec3(-4.7, 3.5, 0.75));
+    //spotLamp1->yaw(-phi::PI_OVER_2 - 0.3);
+    //s->add(spotLamp1);
+    //
+    //phi::spotLight* spotLight1 = new phi::spotLight(glm::vec3(0.0, 0.0, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.25, -0.8, 0.8), 0.7f);
+    //spotLamp1->addChild(spotLight1);
+    //s->add(spotLight1);
 
-    /*phi::sceneObject* lamp0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
-    lamp0->setPosition(glm::vec3(0.0, 3.5, 0.0));
-    s->add(lamp0);
-
-    //phi::pointLight* pointLight0 = new phi::pointLight(glm::vec3(0.0, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
-    //s->add(pointLight0);
-
-    phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("hanging_lamp.model"));
-    lamp1->setPosition(glm::vec3(2.0, 3.5, 0.0));
+    //phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("hanging_lamp.model"));
+    //lamp1->setLocalPosition(glm::vec3(2.0, 3.5, 0.0));
     //s->add(lamp1);
 
-    phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.0, 1.9, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.8f, 5.0f);
-    s->add(pointLight1);
-    
+    //phi::spotLight* spotLight2 = new phi::spotLight(glm::vec3(2.0, 1.9, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.3f);
+    //s->add(spotLight2);
 
-    //phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.5, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
+    //phi::pointLight* pointLight1 = new phi::pointLight(glm::vec3(2.0, 1.9, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.8f, 5.0f);
     //s->add(pointLight1);
 
-    phi::sceneObject* lamp2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
-    lamp2->setPosition(glm::vec3(-2.5, 3.5, 0.0));
-    s->add(lamp2);
+    //phi::sceneObject* lamp2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("ceiling_lamp.model"));
+    //lamp2->setLocalPosition(glm::vec3(-2.5, 3.5, 0.0));
+    //s->add(lamp2);
 
     //phi::pointLight* pointLight2 = new phi::pointLight(glm::vec3(-2.5, 2.4, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
     //s->add(pointLight2);
+
+    //phi::spotLight* spotLight3 = new phi::spotLight(glm::vec3(-2.5, 2.4, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 1.5f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.1f);
+    //s->add(spotLight3);
+
+    //phi::spotLight* spotLight4 = new phi::spotLight(glm::vec3(-2.5, 2.4, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 0.5f, 3.0f, glm::vec3(0.0f, 1.0f, 0.0f), 0.1f);
+    //s->add(spotLight4);
 
     ///* room */
     //
@@ -255,9 +253,9 @@ void screen::initScene()
     casket0->yaw(phi::PI + phi::PI_OVER_2);
     s->add(casket0);*/
 
-    //auto pos = glm::vec3(5.0, 5.0, -5.0);
-    //phi::directionalLight* dirLight0 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);
-    //s->add(dirLight0);
+    auto pos = glm::vec3(5.0, 3.0, -5.0);
+    phi::directionalLight* dirLight0 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 2.5f, -pos);
+    s->add(dirLight0);
 
     /*pos = glm::vec3(5.0, 5.0, 5.0);
     phi::directionalLight* dirLight1 = new phi::directionalLight(pos, phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.4f, -pos);

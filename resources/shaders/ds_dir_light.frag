@@ -108,7 +108,13 @@ void main(void)
 	float spec = pow(max(0.0, dot(normal,h)), shininess);
 
 	float shadowFactor = calcVarianceShadowFactor(fragPosition);
+	vec4 diffuseComponent = light.color * diffuseColor * diffuse;
+	vec4 specularComponent = light.color * specularColor * spec;
+	
+	fragColor = diffuseComponent;
 
-	fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
 	fragColor *= shadowFactor;
+
+	if (shadowFactor > 0.5)
+		fragColor += specularComponent;
 }

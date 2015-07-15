@@ -35,9 +35,9 @@ namespace phi
         camera *_activeCamera;
 
         std::vector<sceneObject*>* _allObjects;
-        std::map<GLuint, sceneObject*> _staticObjects;
-        std::map<GLuint, sceneObject*> _dynamicObjects;
-        std::vector<sceneObject*> _visibleObjects;
+        std::map<GLuint, sceneObject*>* _staticObjects;
+        std::map<GLuint, sceneObject*>* _dynamicObjects;
+        std::vector<sceneObject*>* _visibleObjects;
         std::vector<object3D*> _changedObjects;
 
         std::vector<directionalLight*>* _directionalLights;
@@ -65,9 +65,9 @@ namespace phi
         SCENES_API color getBackColor() const { return _backColor; }
         SCENES_API color getAmbientColor() const { return _ambientColor; }
         SCENES_API std::vector<sceneObject*>* getAllObjects() { return _allObjects; }
-        SCENES_API std::map<GLuint, sceneObject*> getStaticObjects() { return _staticObjects; }
-        SCENES_API std::map<GLuint, sceneObject*> getDynamicObjects() { return _dynamicObjects; }
-        SCENES_API std::vector<sceneObject*> getVisibleObjects() const { return _visibleObjects; }
+        SCENES_API std::map<GLuint, sceneObject*>* getStaticObjects() { return _staticObjects; }
+        SCENES_API std::map<GLuint, sceneObject*>* getDynamicObjects() { return _dynamicObjects; }
+        SCENES_API std::vector<sceneObject*>* getVisibleObjects() const { return _visibleObjects; }
         SCENES_API GLuint getVisibleObjectsCount() const { return _visibleObjectsCount; }
         SCENES_API GLuint getAllObjectsCount() const { return _allObjectsCount; }
         SCENES_API std::vector<directionalLight*>* getDirectionalLights() const { return _directionalLights; }

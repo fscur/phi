@@ -61,7 +61,7 @@ float calcShadowFactor(vec3 fragPosition)
 
 	float depth = texture(shadowMap, lightDir).x;
 
-	if (depth < distanceToLight - 0.05)
+	if (depth < distanceToLight - 0.005)
 		return 0.2;
 	else
 		return 1.0;

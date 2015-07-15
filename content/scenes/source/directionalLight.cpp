@@ -12,6 +12,8 @@ namespace phi
         light(position, color, intensity)
     {
         setDirection(direction);
+        _projectionMatrix = glm::ortho<float>(-20, 20, -20, 20, -50, 50.0);
+        updateViewMatrix();
     }
 
     directionalLight::~directionalLight()
@@ -28,28 +30,13 @@ namespace phi
         _transform->setViewMatrix(_viewMatrix);
     }
 
-
-    void directionalLight::onDirectionChanged()
+    void directionalLight::update()
     {
-        updateViewMatrix();
-    }
+        auto changed = _changed;
 
+        light::update();
 
-    void directionalLight::onPositionChanged()
-    {
-        updateViewMatrix();
-    }
-
-    transform* directionalLight::getTransform()
-    {
-        if (!_transform)
-        {
-            _transform = new transform();
+        if (changed)
             updateViewMatrix();
-            _projectionMatrix = glm::ortho<float>(-20, 20, -20, 20, -50, 50.0);
-            _transform->setProjectionMatrix(_projectionMatrix);
-        }
-
-        return _transform;
     }
 }

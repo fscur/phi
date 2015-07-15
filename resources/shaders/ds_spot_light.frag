@@ -92,6 +92,7 @@ vec3 decodeNormal (vec2 enc)
 
 void main(void)
 {
+	fragColor = vec4(0.0);
 	vec2 texCoord = gl_FragCoord.xy / res;
 
 	vec4 c0 = texture(rt0, texCoord);

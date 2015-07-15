@@ -8,6 +8,7 @@ struct material
 	float ks;
 	float shininess;
 	float isEmissive;
+	float reflectivity;
 };
 
 in vec3 fragNormal; 
@@ -52,12 +53,14 @@ void main()
 
 	vec2 normal = encodeNormal(n);
 
-    vec4 diffuseColor = texture(diffuseMap, fragTexCoord) * mat.diffuseColor;
-    vec4 ambientColor = diffuseColor * ambientLightColor * max(mat.isEmissive, 0.2);
+    vec4 diffuseColor = texture(diffuseMap, fragTexCoord) * mat.diffuseColor * mat.kd;
+    vec4 ambientColor = diffuseColor * ambientLightColor * max(mat.isEmissive, 0.5);
+    //vec4 ambientColor = diffuseColor * ambientLightColor;
 	vec4 specularColor = mat.specularColor * texture(specularMap, fragTexCoord) * mat.ks;
 
 	rt0 = vec4(ambientColor.rgb, mat.shininess/512.0); //RGBA
-    rt1 = vec4(diffuseColor.rgb * mat.kd, normal.x); //RGBA16F
+    rt1 = vec4(diffuseColor.rgb, normal.x); //RGBA16F
+    //rt1 = vec4(1.0, 1.0, mat.reflectivity, normal.x); //RGBA16F
     rt2 = vec4(specularColor.rgb, normal.y); //RGBA16F
     rt3 = selectionColor; //RGBA
 }

@@ -52,8 +52,8 @@ namespace phi
         float _ssaoSampleRadius;
         float _ssaoIntensity;
 
-        std::map<GLuint, sceneObject*> _staticObjects;
-        std::map<GLuint, sceneObject*> _dynamicObjects;
+        std::map<GLuint, sceneObject*>* _staticObjects;
+        std::map<GLuint, sceneObject*>* _dynamicObjects;
 
         texture* _rt0Texture;
         texture* _rt1Texture;
@@ -88,6 +88,7 @@ namespace phi
         void createShadowMapShaders();
 
         void createSSAOShader();
+        void createReflectionsShader();
         void createBlurShader();
 
         void geomPass();
@@ -100,7 +101,7 @@ namespace phi
         void spotLightPass();
         void selectedObjectsPass();
         void ssao();
-
+        void reflections();
         texture* blur(texture* source);
         
         void blurShadowMaps();
