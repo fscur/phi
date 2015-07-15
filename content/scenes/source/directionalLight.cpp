@@ -32,7 +32,7 @@ namespace phi
 
     void directionalLight::update()
     {
-        auto changed = _changed;
+        auto changed = getChanged();
 
         light::update();
 

@@ -53,7 +53,7 @@ namespace phi
     {
         auto oldValue = _isActive;
         _isActive = value;
-        _changed = true;
+        setChanged(true);
         if (oldValue && !value)
             setSelected(false);
 

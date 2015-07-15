@@ -30,18 +30,16 @@ namespace phi
         std::vector<object3D*> _children;
         object3D* _parent;
         eventHandler<object3DEventArgs>* _changedEvent;
-
-    protected:
         bool _changed;
 
     private:
         void updateLocalModelMatrix();
-        void setChanged(bool value);
 
     protected:
         CORE_API virtual void onChanged() {}
         CORE_API virtual void onPositionChanged() { }
         CORE_API virtual void onDirectionChanged() { }
+        CORE_API void setChanged(bool value);
 
     public:
         CORE_API glm::vec3 getPosition();

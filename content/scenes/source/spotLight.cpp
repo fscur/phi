@@ -62,7 +62,7 @@ namespace phi
 
     void spotLight::update()
     {
-        auto changed = _changed;
+        auto changed = getChanged();
 
         light::update();
 

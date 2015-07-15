@@ -164,6 +164,28 @@ namespace phi
                     }
                 }
             }
+            else
+            {
+                auto obj = _staticObjects->find(objectId);
+
+                if (obj != _staticObjects->end())
+                {
+                    _staticObjects->erase(objectId);
+                    _staticObjectsCount--;
+
+                    staticObjectsChanged(eventArgs());
+                }
+
+                obj = _dynamicObjects->find(objectId);
+
+                if (obj != _dynamicObjects->end())
+                {
+                    _dynamicObjects->erase(obj);
+                    _dynamicObjectsCount--;
+
+                    staticObjectsChanged(eventArgs());
+                }
+            }
         }
 
         for (GLuint i = 0; i < _changedObjectsCount; i++)
