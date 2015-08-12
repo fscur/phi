@@ -17,6 +17,7 @@ namespace phi
         _xColor = color(1.0f, 0.0f, 0.0f, 0.5f);
         _yColor = color(0.0f, 1.0f, 0.0f, 0.5f);
         _zColor = color(0.0f, 0.0f, 1.0f, 0.5f);
+        _rotationFinished = new eventHandler<rotationEventArgs>();
         createCircleMesh();
     }
 
@@ -231,6 +232,7 @@ namespace phi
             _clickedOverZ = _mouseOverZ;
             _mouseStartPos = glm::vec2(e->x, e->y);
             _currentAngle = 0.0f;
+            _startOrientation = _object->getOrientation();
             e->handled = true;
         }
     }
@@ -240,12 +242,15 @@ namespace phi
         if (!_object)
             return;
 
-        if (e->leftButtonPressed)
+        if (e->leftButtonPressed && (_clickedOverX || _clickedOverY || _clickedOverZ))
         {
             _clickedOverX = _clickedOverY = _clickedOverZ = false;
             colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
             colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
             colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
+
+            if (_rotationFinished->isBound())
+                _rotationFinished->invoke(phi::rotationEventArgs(_object, _startOrientation, _object->getOrientation()));
         }
     }
 

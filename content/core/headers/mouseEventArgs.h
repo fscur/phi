@@ -16,6 +16,9 @@ namespace phi
         bool middleButtonPressed;
         float wheelDelta;
         bool handled;
+        bool isCtrlPressed;
+        bool isShiftPressed;
+        bool isAltPressed;
 
         mouseEventArgs() : handled(false) {}
     };

@@ -6,6 +6,7 @@
 #include "lineMesh.h"
 #include "shader.h"
 #include "camera.h"
+#include "rotationEventArgs.h"
 
 namespace phi
 {
@@ -35,6 +36,8 @@ namespace phi
         bool _clickedOverZ;
         glm::vec2 _mouseStartPos;
         float _currentAngle;
+        glm::quat _startOrientation;
+        eventHandler<rotationEventArgs>* _rotationFinished;
 
     private:
         void createCircleMesh();
@@ -49,6 +52,8 @@ namespace phi
     public:
         UI_API rotationControl(size<GLuint> viewportSize);
         UI_API ~rotationControl();
+
+        UI_API eventHandler<rotationEventArgs>* getRotationFinished() { return _rotationFinished; }
 
         UI_API void setCamera(camera* value) { _camera = value; }
 

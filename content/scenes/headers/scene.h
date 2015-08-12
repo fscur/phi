@@ -3,6 +3,7 @@
 
 #include "scenes.h"
 #include <typeinfo>
+#include <mutex>
 #include "globals.h"
 #include "mathUtils.h"
 #include "shaderManager.h"
@@ -39,6 +40,7 @@ namespace phi
         std::map<GLuint, sceneObject*>* _dynamicObjects;
         std::vector<sceneObject*>* _visibleObjects;
         std::vector<object3D*> _changedObjects;
+        std::mutex _changedObjectsMutex;
 
         std::vector<directionalLight*>* _directionalLights;
         std::vector<pointLight*>* _pointLights;

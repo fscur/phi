@@ -10,6 +10,7 @@
 #include "ray.h"
 #include "camera.h"
 #include "frustum.h"
+#include "translationEventArgs.h"
 
 namespace phi
 {
@@ -36,9 +37,11 @@ namespace phi
         object3D* _object;
         shader* _shader;
         glm::vec3 _startPos;
+        glm::vec3 _startLocalPos;
         glm::vec2 _mouseStartPos;
         camera* _camera;
         glm::mat4 _modelMatrix;
+        eventHandler<translationEventArgs>* _translationFinished;
 
     private:
         mesh* createArrowMesh();
@@ -58,6 +61,8 @@ namespace phi
     public:
         UI_API translationControl(size<GLuint> viewportSize);
         UI_API ~translationControl();
+
+        UI_API eventHandler<translationEventArgs>* getTranslationFinished() { return _translationFinished; }
 
         UI_API void setCamera(camera* value) { _camera = value; }
 

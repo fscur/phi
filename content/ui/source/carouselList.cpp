@@ -106,7 +106,8 @@ namespace phi
 
     void carouselList::carouselItemIsSelectedChanged(carouselItemEventArgs e)
     {
-        notifySelectedItemChanged(e.sender);
+        if (e.sender->getIsSelected())
+            notifySelectedItemChanged(e.sender);
     }
 
     void carouselList::onMouseDown(mouseEventArgs* e)

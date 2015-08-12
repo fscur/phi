@@ -118,6 +118,8 @@ namespace phi
         _visibleObjects->clear();
         _visibleObjectsCount = 0;
 
+        _changedObjectsMutex.lock();
+
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             auto sceneObj = (*_allObjects)[i];
@@ -188,11 +190,17 @@ namespace phi
             }
         }
 
+        _changedObjectsMutex.unlock();
+
         for (GLuint i = 0; i < _changedObjectsCount; i++)
             _changedObjects[i]->update();
 
+        _changedObjectsMutex.lock();
+
         _changedObjects.clear();
         _changedObjectsCount = 0;
+
+        _changedObjectsMutex.unlock();
 
         if (_lightChanged)
         {
@@ -267,8 +275,12 @@ namespace phi
 
     void scene::sceneObjectChanged(phi::object3DEventArgs e)
     {
+        _changedObjectsMutex.lock();
+
         _changedObjects.push_back(e.sender);
         _changedObjectsCount++;
+
+        _changedObjectsMutex.unlock();
 
         //std::function<void(object3D*)> addToList = [&] (object3D* obj)
         //{

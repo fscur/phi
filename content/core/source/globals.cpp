@@ -35,4 +35,9 @@ namespace phi
         for (std::vector<unsigned int>::iterator iterator = values.begin(); iterator != values.end(); ++iterator)
             intArray[i++] = *iterator;
     }
+
+    void globals::log(glm::vec3 vec)
+    {
+        LOG(std::to_string(vec.x) + ";" + std::to_string(vec.y) + ";" + std::to_string(vec.z));
+    }
 }

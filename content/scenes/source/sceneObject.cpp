@@ -45,6 +45,13 @@ namespace phi
     {
         _isSelected = value;
 
+        auto meshesCount = _sceneMeshes.size();
+        for (unsigned int i = 0; i < meshesCount; i++)
+        {
+            auto m = _sceneMeshes[i];
+            m->setIsSelected(_isSelected);
+        }
+
         if (_isSelectedChanged->isBound())
             _isSelectedChanged->invoke(sceneObjectEventArgs(this));
     }

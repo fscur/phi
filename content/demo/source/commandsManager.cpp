@@ -1,246 +1,120 @@
 #include "commandsManager.h"
-#include "selectCommand.h"
-#include "panCommand.h"
-#include "rotateCommand.h"
-#include "zoomCommand.h"
+#include "selectAtPositionCommand.h"
+#include "undoCommand.h"
+#include "redoCommand.h"
+#include <algorithm>
 
-namespace phi
+commandsManager::commandsManager()
 {
-    commandsManager::commandsManager()
+    _shortcuts.add("Select", phi::inputKey(PHI_MOUSE_LEFT, NONE));
+    _shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, CTRL_PRESSED));
+    _shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, CTRL_PRESSED));
+    _commands["Select"] = [] () -> command*
     {
-        _isMouseDown = false;
-        _isCtrlPressed = false;
-        _isShiftPressed = false;
-        _isAltPressed = false;
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        return new selectAtPositionCommand(glm::vec2(mouseX, mouseY));
+    };
+    _commands["Undo"] = [&] () -> command* { return new undoCommand(this); };
+    _commands["Redo"] = [&] () -> command* { return new redoCommand(this); };
+    _executingCommand = false;
+}
 
-        _commandInfo = new commandInfo();
-        _commands[inputKey(PHI_MOUSE_LEFT, NONE)] = [] () -> command* { return new selectCommand(); };
-        _commands[inputKey(PHI_MOUSE_MIDDLE, NONE)] = [] () -> command* { return new panCommand(); };
-        _commands[inputKey(PHI_MOUSE_RIGHT, NONE)] = [] () -> command* { return new rotateCommand(); };
-        _commands[inputKey(PHI_MOUSE_WHEEL_UP, NONE)] = [] () -> command* { return new zoomCommand(true); };
-        _commands[inputKey(PHI_MOUSE_WHEEL_DOWN, NONE)] = [] () -> command* { return new zoomCommand(false); };
-        std::fill_n(_states, TOTAL_KEYS, NONE);
-        _modifiers = NONE;
-    }
+commandsManager::~commandsManager()
+{
+}
 
-    commandsManager::~commandsManager()
+void commandsManager::enqueueCommand(command* cmd, std::function<void(command*)> callback, bool isUndo)
+{
+    _pendingCommandsMutex.lock();
+    _pendingCommands.push(new pendingCommand(cmd, callback, isUndo));
+    _pendingCommandsMutex.unlock();
+}
+
+void commandsManager::startNextCommand()
+{
+    _pendingCommandsMutex.lock();
+    if (!_executingCommand && !_pendingCommands.empty())
     {
-        delete(_commandInfo);
-
-        while(_pendingCommands.size() > 0)
-        {
-            command* c = _pendingCommands[0];
-            _pendingCommands.erase(_pendingCommands.begin());
-            DELETE(c);
-        }
-    }
-
-    void commandsManager::onBeginInput(phi::size<unsigned int> viewportSize)
-    {
-        std::fill_n(_states, TOTAL_KEYS, NONE);
-        _modifiers = NONE;
-
-        if (_commandInfo == nullptr)
-            _commandInfo = new commandInfo();
-
-        if (_isMouseDown)
-        {
-            if (_mouseDownEventArgs.leftButtonPressed)
-                _states[PHI_MOUSE_LEFT] |= PRESSED;
-
-            if (_mouseDownEventArgs.middleButtonPressed)
-                _states[PHI_MOUSE_MIDDLE] |= PRESSED;
-
-            if (_mouseDownEventArgs.rightButtonPressed)
-                _states[PHI_MOUSE_RIGHT] |= PRESSED;
-        }
-
-        if (_isCtrlPressed)
-            _modifiers |= CTRL_PRESSED;
-
-        if (_isShiftPressed)
-            _modifiers |= SHIFT_PRESSED;
-
-        if (_isAltPressed)
-            _modifiers |= ALT_PRESSED;
-
-        _commandInfo->viewportSize = viewportSize;
-    }
-
-    bool commandsManager::onMouseDown(mouseEventArgs* e)
-    {
-        if (e->leftButtonPressed)
-            _states[PHI_MOUSE_LEFT] |= DOWN;
-
-        if (e->middleButtonPressed)
-            _states[PHI_MOUSE_MIDDLE] |= DOWN;
-
-        if (e->rightButtonPressed)
-            _states[PHI_MOUSE_RIGHT] |= DOWN;
-
-        _isMouseDown = true;
-        _mouseDownEventArgs = *e;
-        _commandInfo->mouseDownPos = glm::vec2(e->x, e->y);
-        _commandInfo->mousePos = glm::vec2(e->x, e->y);
-
-        return true;
-    }
-
-    bool commandsManager::onMouseMove(mouseEventArgs* e)
-    {
-        _commandInfo->lastMousePos = _commandInfo->mousePos;
-        _commandInfo->mousePos = glm::vec2(e->x, e->y);
-
-        return true;
-    }
-
-    bool commandsManager::onMouseUp(mouseEventArgs* e)
-    {
-        if (!_isMouseDown)
-            return false;
-
-        int key;
-        if (e->leftButtonPressed)
-            _states[PHI_MOUSE_LEFT] |= UP;
-
-        if (e->middleButtonPressed)
-            _states[PHI_MOUSE_MIDDLE] |= UP;
-
-        if (e->rightButtonPressed)
-            _states[PHI_MOUSE_RIGHT] |= UP;
-
-        _commandInfo->mousePos = glm::vec2(e->x, e->y);
-
-        _isMouseDown = false;
-
-        _mouseDownEventArgs.leftButtonPressed = false;
-        _mouseDownEventArgs.middleButtonPressed = false;
-        _mouseDownEventArgs.rightButtonPressed = false;
-
-        return true;
-    }
-
-    bool commandsManager::onMouseWheel(mouseEventArgs* e)
-    {
-        int key;
-        if (e->wheelDelta > 0)
-            key = PHI_MOUSE_WHEEL_UP;
+        _executingCommand = true;
+        pendingCommand* pendingCmd = _pendingCommands.front();
+        if (!pendingCmd->isUndo)
+            pendingCmd->cmd->startAsync(pendingCmd->callback);
         else
-            key = PHI_MOUSE_WHEEL_DOWN;
+            pendingCmd->cmd->startUndoAsync(pendingCmd->callback);
+        _pendingCommands.pop();
+    }
+    _pendingCommandsMutex.unlock();
+}
 
-        _commandInfo->wheelDelta = e->wheelDelta;
-        _commandInfo->mousePos = glm::vec2(e->x, e->y);
+void commandsManager::undo()
+{
+    if (_undo.empty())
+        return;
 
-        _states[key] |= DOWN;
+    auto cmd = _undo.top();
+    _undo.pop();
 
+    auto callback = [&] (command* c)
+    {
+        _redo.push(c);
+        _executingCommand = false;
+        startNextCommand();
+    };
+    enqueueCommand(cmd, callback, true);
+}
+
+void commandsManager::redo()
+{
+    if (_redo.empty())
+        return;
+
+    auto cmd = _redo.top();
+    _redo.pop();
+
+    auto callback = [&] (command* c)
+    {
+        _undo.push(c);
+        _executingCommand = false;
+        startNextCommand();
+    };
+    enqueueCommand(cmd, callback, false);
+}
+
+void commandsManager::executeCommand(command* cmd)
+{
+    auto callback = [&] (command* c)
+    {
+        if (c->getIsUndoable())
+        {
+            _undo.push(c);
+            std::stack<command*> empty;
+            std::swap(_redo, empty);
+        }
+
+        _executingCommand = false;
+        startNextCommand();
+    };
+    enqueueCommand(cmd, callback, false);
+    startNextCommand();
+}
+
+void commandsManager::update()
+{
+    //startNextCommand();
+}
+
+bool commandsManager::onInput(phi::inputKey key)
+{
+    const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
+    auto cmdName = _shortcuts[key];
+    if (cmdName == "")
+        return false;
+
+    auto cmd = _commands[cmdName]();
+    if (cmd != nullptr)
+    {
+        executeCommand(cmd);
         return true;
-    }
-
-    bool commandsManager::onKeyDown(keyboardEventArgs e)
-    {
-        _isCtrlPressed = e.isCtrlPressed;
-        _isShiftPressed = e.isShiftPressed;
-        _isAltPressed = e.isAltPressed;
-
-        if (_isCtrlPressed)
-            _modifiers |= CTRL_PRESSED;
-
-        if (_isShiftPressed)
-            _modifiers |= SHIFT_PRESSED;
-
-        if(_isAltPressed)
-            _modifiers |= ALT_PRESSED;
-
-        return true;
-    }
-
-    bool commandsManager::onKeyUp(keyboardEventArgs e)
-    {
-        _isCtrlPressed = false;
-        _isShiftPressed = false;
-        _isAltPressed = false;
-
-        return true;
-    }
-
-    void commandsManager::onEndInput()
-    {
-        for (auto i : _commands)
-        {
-            if ((_states[i.first.key] & DOWN) == DOWN && _modifiers == i.first.modifiers)
-            {
-                auto f = i.second;
-                if (f != nullptr)
-                {
-                    command* command = f();
-                    command->info = _commandInfo;
-                    _pendingCommands[i.first.key] = command;
-                    command->init();
-                    break;
-                }
-            }
-        }
-
-        std::unordered_map<int, command*>::iterator it = _pendingCommands.begin();
-        while(it != _pendingCommands.end())
-        {
-            command* c = it->second;
-            if (c->canExecute())
-            {
-                _executingCommands[it->first] = c;
-                it = _pendingCommands.erase(it);
-            }
-            else
-                it++;
-        }
-
-        for (auto i : _executingCommands)
-        {
-            command* c = i.second;
-            c->info = _commandInfo;
-            c->update();
-        }
-
-        it = _executingCommands.begin();
-        while(it != _executingCommands.end())
-        {
-            if ((_states[it->first] & UP) == UP || ((_states[it->first] & DOWN) == NONE && (_states[it->first] & PRESSED) == NONE))
-            {
-                auto command = _executingCommands.find(it->first);
-                command->second->finish();
-                it = _executingCommands.erase(it);
-            }
-            else
-                it++;
-        }
-
-        // SUPER COMMAND DEBUGGING LINES:
-        //if (_states[PHI_MOUSE_LEFT] != 0)
-        //{
-        //    std::cout << _states[PHI_MOUSE_LEFT] << " = ";
-
-        //    if ((_states[PHI_MOUSE_LEFT] & DOWN) == DOWN) 
-        //    {
-        //        std::cout << "DOWN ";
-        //    }
-
-        //    if ((_states[PHI_MOUSE_LEFT] & PRESSED) == PRESSED) 
-        //    {
-        //        std::cout << "PRESSED ";
-        //    }
-
-        //    if ((_states[PHI_MOUSE_LEFT] & UP) == UP) 
-        //    {
-        //        std::cout << "UP ";
-        //    }
-
-        //    //std::cout << "| P = " << _pendingCommands.size() << " ";
-        //    //std::cout << "E = " << _executingCommands.size();
-        //    std::cout << "\n";
-        //}
-    }
-
-    void commandsManager::update()
-    {
     }
 }

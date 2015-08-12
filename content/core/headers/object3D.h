@@ -7,7 +7,6 @@
 #include "mathUtils.h"
 #include "aabb.h"
 #include "eventHandler.h"
-#include "object3D.h"
 #include "object3DEventArgs.h"
 #include <vector>
 

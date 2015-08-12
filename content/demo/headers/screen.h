@@ -16,6 +16,9 @@
 #include "size.h"
 #include "commandsManager.h"
 #include "resourcesLoader.h"
+#include "inputManager.h"
+#include "fpsCameraController.h"
+#include "defaultCameraController.h"
 
 class screen :
     public form
@@ -49,11 +52,14 @@ private:
 
     phi::sceneRenderer* _sceneRenderer;
 
-	phi::commandsManager _commandsManager;
-    phi::resourcesLoader _resourcesLoader;
+	phi::resourcesLoader _resourcesLoader;
     phi::resourcesRepository* _modelsRepository;
     phi::resourcesRepository* _materialsRepository;
     phi::resourcesRepository* _texturesRepository;
+    commandsManager* _commandsManager;
+    inputManager* _inputManager;
+    fpsCameraController* _fpsController;
+    defaultCameraController* _defaultController;
 
     bool _ssao;
 
@@ -75,8 +81,8 @@ public:
     void onMouseMove(phi::mouseEventArgs* e) override;
     void onMouseUp(phi::mouseEventArgs* e) override;
     void onMouseWheel(phi::mouseEventArgs* e) override;
-    void onKeyDown(phi::keyboardEventArgs e) override;
-    void onKeyUp(phi::keyboardEventArgs e) override;
+    void onKeyDown(phi::keyboardEventArgs* e) override;
+    void onKeyUp(phi::keyboardEventArgs* e) override;
 	void onEndInput() override;
 
     void closeButtonClick(phi::mouseEventArgs* e);
@@ -93,6 +99,8 @@ public:
     void selectedSceneObjectChanged(phi::sceneObjectEventArgs e);
     void staticObjectsChanged(phi::eventArgs e);
     void carouselListSelectedItemChanged(phi::carouselItemEventArgs e);
+    void translationFinished(phi::translationEventArgs e);
+    void rotationFinished(phi::rotationEventArgs e);
 
     void update() override;
     void render() override;

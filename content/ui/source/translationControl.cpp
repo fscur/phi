@@ -23,6 +23,7 @@ namespace phi
         _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
         _zModelMatrix = glm::mat4();
         _clickedOverX = _clickedOverY = _clickedOverZ = false;
+        _translationFinished = new eventHandler<translationEventArgs>();
     }
 
     mesh* translationControl::createArrowMesh()
@@ -308,7 +309,8 @@ namespace phi
             _clickedOverX = _mouseOverX;
             _clickedOverY = _mouseOverY;
             _clickedOverZ = _mouseOverZ;
-            _startPos = multMat3(glm::vec3(), _object->getModelMatrix());
+            _startPos = _object->getPosition();
+            _startLocalPos = _object->getLocalPosition();
             _mouseStartPos = glm::vec2(e->x, e->y);
             e->handled = true;
         }
@@ -319,12 +321,15 @@ namespace phi
         if (!_object)
             return;
 
-        if (e->leftButtonPressed)
+        if (e->leftButtonPressed && (_clickedOverX || _clickedOverY || _clickedOverZ))
         {
             _clickedOverX = _clickedOverY = _clickedOverZ = false;
             colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
             colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
             colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
+
+            if (_translationFinished->isBound())
+                _translationFinished->invoke(phi::translationEventArgs(_object, _startLocalPos, _object->getLocalPosition()));
         }
     }
 

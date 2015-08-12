@@ -12,6 +12,12 @@
 #include "uiSystem.h"
 #include "renderingSystem.h"
 #include "renderingCommunicationBuffer.h"
+#include "translateObjectCommand.h"
+#include "rotateObjectCommand.h"
+#include "setSceneObjectVisibilityCommand.h"
+#include "multiCommand.h"
+#include "selectObjectCommand.h"
+#include "setMaterialCommand.h"
 
 float a;
 float angle;
@@ -30,6 +36,8 @@ screen::screen() : form()
     _translationSpeed = 1.0f;
     _rotationSpeed = 0.01f;
     _sceneRenderer = nullptr;
+    _commandsManager = new commandsManager();
+    _inputManager = new inputManager(_commandsManager);
 }
 
 screen::~screen()
@@ -101,10 +109,10 @@ void screen::initScene()
     rug1->setLocalPosition(glm::vec3(2.0f, 0.0f, 0.0f));
     s->add(rug1);
 
-    phi::sceneObject* casket = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("casket.model"));
-    casket->setLocalPosition(glm::vec3(-1.0f, 0.0f, 1.5f));
-    casket->yaw(phi::PI + phi::PI_OVER_2);
-    s->add(casket);
+    casket0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("casket.model"));
+    casket0->setLocalPosition(glm::vec3(-1.0f, 0.0f, 1.5f));
+    casket0->yaw(phi::PI + phi::PI_OVER_2);
+    s->add(casket0);
 
     ///* living room */
 
@@ -416,10 +424,12 @@ void screen::initUI()
 
     tc = new phi::translationControl(getSize());
     tc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    tc->getTranslationFinished()->bind<screen, &screen::translationFinished>(this);
     phi::uiSystem::get()->addControl(tc);
 
     rc = new phi::rotationControl(getSize());
     rc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    rc->getRotationFinished()->bind<screen, &screen::rotationFinished>(this);
     phi::uiSystem::get()->addControl(rc);
 
     phi::uiSystem::get()->addControl(buttonA);
@@ -447,6 +457,9 @@ void screen::onInitialize()
     initScenesManager();
     initScene();
     initUI();
+    _fpsController = new fpsCameraController(getSize());
+    _defaultController = new defaultCameraController(getSize());
+    _inputManager->setCurrentCameraController(_defaultController);
 }
 
 bool oi = false;
@@ -473,7 +486,8 @@ void screen::update()
     phi::scenesManager::get()->update();
     phi::colorAnimator::update();
     phi::uiSystem::get()->update();
-    _commandsManager.update();
+    _inputManager->update();
+    _commandsManager->update();
 
     /*_labelFps->setText("FPS: " + std::to_string(getFps()));
 
@@ -572,51 +586,44 @@ void screen::onResize(SDL_Event e)
 
 void screen::onBeginInput()
 {
-    _commandsManager.onBeginInput(getSize());
 }
 
 void screen::onMouseDown(phi::mouseEventArgs* e)
 {
-    if (_commandsManager.onMouseDown(e))
-        return;
+    _inputManager->onMouseDown(e);
 }
 
 void screen::onMouseMove(phi::mouseEventArgs* e) 
 {
-    if (_commandsManager.onMouseMove(e))
-        return;
+    _inputManager->onMouseMove(e);
 }
 
 void screen::onMouseUp(phi::mouseEventArgs* e)
 {
-    if (_commandsManager.onMouseUp(e))
-        return;
+    _inputManager->onMouseUp(e);
 }
 
 void screen::onMouseWheel(phi::mouseEventArgs* e)
 {
-    if (_commandsManager.onMouseWheel(e))
-        return;
+    _inputManager->onMouseWheel(e);
 }
 
-void screen::onKeyDown(phi::keyboardEventArgs e)
+void screen::onKeyDown(phi::keyboardEventArgs* e)
 {
-    if (_commandsManager.onKeyDown(e))
+    if (_inputManager->onKeyDown(e))
         return;
 
-    if (e.key == PHIK_ESCAPE)
+    if (e->key == PHIK_ESCAPE)
         close();
 }
 
-void screen::onKeyUp(phi::keyboardEventArgs e)
+void screen::onKeyUp(phi::keyboardEventArgs* e)
 {
-    if (_commandsManager.onKeyUp(e))
-        return;
+    _inputManager->onKeyUp(e);
 }
 
 void screen::onEndInput()
 {
-    _commandsManager.onEndInput();
 }
 
 void screen::onClosing()
@@ -628,21 +635,35 @@ void screen::hideSelectedButtonClick(phi::mouseEventArgs* e)
 {
     //oi = !oi;
 
+    auto cmds = std::vector<command*>();
+    cmds.push_back(new selectObjectCommand(nullptr, nullptr));
+
     auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
     for (auto i = 0; i < allObjects->size();i++)
     {
-        if  (allObjects->at(i)->getSelected())
-            allObjects->at(i)->setActive(false);
+        auto obj = allObjects->at(i);
+        if (obj->getSelected())
+            cmds.push_back(new setSceneObjectVisibilityCommand(obj, false));
     }
+
+    auto multiCmd = new multiCommand(cmds);
+    _commandsManager->executeCommand(multiCmd);
 }
 
 void screen::showAllButtonClick(phi::mouseEventArgs* e)
 {
+    auto cmds = std::vector<command*>();
+
     auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
     for (auto i = 0; i < allObjects->size();i++)
     {
-        allObjects->at(i)->setActive(true);
+        auto obj = allObjects->at(i);
+        if (!obj->getActive())
+            cmds.push_back(new setSceneObjectVisibilityCommand(obj, true));
     }
+
+    auto multiCmd = new multiCommand(cmds);
+    _commandsManager->executeCommand(multiCmd);
 }
 
 void screen::slider1ValueChanged(phi::eventArgs e)
@@ -722,42 +743,42 @@ void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
     else
         rc->attachTo(nullptr);
 
-    if (e.sender->getSelected())
-    {
-        auto sceneMeshes = e.sender->getSceneMeshes();
-        auto sceneMeshesCount = sceneMeshes.size();
-        phi::sceneMesh* uniqueMesh = nullptr;
-        for (unsigned int i = 0; i < sceneMeshesCount; i++)
-        {
-            auto sm = sceneMeshes[i];
-            if (sm->getIsSelected())
-            {
-                if (uniqueMesh)
-                {
-                    uniqueMesh = nullptr;
-                    break;
-                }
+    //if (e.sender->getSelected())
+    //{
+    //    auto sceneMeshes = e.sender->getSceneMeshes();
+    //    auto sceneMeshesCount = sceneMeshes.size();
+    //    phi::sceneMesh* uniqueMesh = nullptr;
+    //    for (unsigned int i = 0; i < sceneMeshesCount; i++)
+    //    {
+    //        auto sm = sceneMeshes[i];
+    //        if (sm->getIsSelected())
+    //        {
+    //            if (uniqueMesh)
+    //            {
+    //                uniqueMesh = nullptr;
+    //                break;
+    //            }
 
-                uniqueMesh = sm;
-            }
-        }
+    //            uniqueMesh = sm;
+    //        }
+    //    }
 
-        if (uniqueMesh != nullptr)
-        {
-            auto carouselItems = _materialsCarousel->getItems();
-            auto carouselItemsCount = carouselItems.size();
-            for (unsigned int j = 0; j < carouselItemsCount; j++)
-            {
-                auto material = uniqueMesh->getMaterial();
-                auto item = carouselItems[j];
-                if (item->getName() == material->getFullName())
-                {
-                    _materialsCarousel->setSelectedItem(item);
-                    break;
-                }
-            }
-        }
-    }
+    //    if (uniqueMesh != nullptr)
+    //    {
+    //        auto carouselItems = _materialsCarousel->getItems();
+    //        auto carouselItemsCount = carouselItems.size();
+    //        for (unsigned int j = 0; j < carouselItemsCount; j++)
+    //        {
+    //            auto material = uniqueMesh->getMaterial();
+    //            auto item = carouselItems[j];
+    //            if (item->getName() == material->getFullName())
+    //            {
+    //                _materialsCarousel->setSelectedItem(item);
+    //                break;
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 void screen::carouselListSelectedItemChanged(phi::carouselItemEventArgs e)
@@ -778,18 +799,38 @@ void screen::carouselListSelectedItemChanged(phi::carouselItemEventArgs e)
     if (obj == nullptr)
         return;
 
+    auto cmds = std::vector<command*>();
+
     auto sceneMeshes = obj->getSceneMeshes();
     auto sceneMeshesCount = sceneMeshes.size();
     for (unsigned int i = 0; i < sceneMeshesCount; i++)
     {
         auto sm = sceneMeshes[i];
         if (sm->getIsSelected())
-            sm->setMaterial(_materialsRepository->getResource<phi::material>(e.sender->getName()));
+        {
+            auto material = _materialsRepository->getResource<phi::material>(e.sender->getName());
+            cmds.push_back(new setMaterialCommand(sm, material));
+        }
     }
+
+    auto multiCmd = new multiCommand(cmds);
+    _commandsManager->executeCommand(multiCmd);
 }
 
 void screen::staticObjectsChanged(phi::eventArgs e)
 {
     if (_sceneRenderer)
         _sceneRenderer->redrawStaticShadowMaps();
+}
+
+void screen::translationFinished(phi::translationEventArgs e)
+{
+    auto cmd = new translateObjectCommand(e.sender, e.startPos, e.endPos);
+    _commandsManager->executeCommand(cmd);
+}
+
+void screen::rotationFinished(phi::rotationEventArgs e)
+{
+    auto cmd = new rotateObjectCommand(e.sender, e.startOrientation, e.endOrientation);
+    _commandsManager->executeCommand(cmd);
 }

@@ -74,6 +74,8 @@ void form::setIsFullScreen(bool value)
 
 void form::initialize(std::string applicationPath)
 {
+    SDL_Event e;
+    while (SDL_PollEvent(&e) != 0);
     _applicationPath = applicationPath;
     onInitialize();
 }
@@ -94,7 +96,7 @@ void form::initWindow()
         //1024,
         //768,
         //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-        SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
+    SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
 
     if (_window == NULL)
         LOG("Window could not be created! SDL_Error: " << SDL_GetError());
@@ -166,6 +168,9 @@ void form::input()
             me.leftButtonPressed = e.button.button == SDL_BUTTON_LEFT;
             me.rightButtonPressed = e.button.button == SDL_BUTTON_RIGHT;
             me.middleButtonPressed = e.button.button == SDL_BUTTON_MIDDLE;
+            me.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
+            me.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
+            me.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
             me.x = e.motion.x;
             me.y = e.motion.y;
             me.clicks = e.button.clicks;
@@ -187,6 +192,9 @@ void form::input()
             me.leftButtonPressed = e.button.button == SDL_BUTTON_LEFT;
             me.rightButtonPressed = e.button.button == SDL_BUTTON_RIGHT;
             me.middleButtonPressed = e.button.button == SDL_BUTTON_MIDDLE;
+            me.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
+            me.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
+            me.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
             me.x = e.motion.x;
             me.y = e.motion.y;
             me.clicks = e.button.clicks;
@@ -204,13 +212,14 @@ void form::input()
                 onMouseWheel(&me);
             break;
         case SDL_KEYDOWN:
+            SDL_StopTextInput();
             if (!SDL_IsTextInputActive())
             {
-                ke.key = e.key.keysym.sym;
+                ke.key = e.key.keysym.scancode;
                 ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
                 ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
                 ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
-                onKeyDown(ke);
+                onKeyDown(&ke);
                 phi::input::notifyKeyDown(ke);
             }
             else
@@ -226,7 +235,6 @@ void form::input()
                     ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
                     ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
                     ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
-                    onKeyDown(ke);
                     phi::input::notifyKeyDown(ke);
                 }
             }
@@ -237,7 +245,7 @@ void form::input()
             ke.isCtrlPressed = (e.key.keysym.sym & (PHIK_RCTRL | PHIK_LCTRL)) > 0;
             ke.isShiftPressed = (e.key.keysym.sym & (PHIK_RSHIFT | PHIK_LSHIFT)) > 0;
             ke.isAltPressed = (e.key.keysym.sym & (PHIK_RALT | PHIK_LALT)) > 0;
-            onKeyUp(ke);
+            onKeyUp(&ke);
 
             if (e.key.keysym.sym == SDLK_F11)
                 setIsFullScreen(!getIsFullScreen());

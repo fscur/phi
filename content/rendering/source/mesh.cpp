@@ -276,7 +276,7 @@ namespace phi
 
     void mesh::setMaterial(material* value)
     { 
-        _material = value; 
+        _material = value;
 
         if (_material != nullptr)
             _materialName = value->getName(); 

@@ -76,8 +76,8 @@ public:
     virtual void onMouseMove(phi::mouseEventArgs* e){}
     virtual void onMouseUp(phi::mouseEventArgs* e){}
     virtual void onMouseWheel(phi::mouseEventArgs* e){}
-    virtual void onKeyDown(phi::keyboardEventArgs e){}
-    virtual void onKeyUp(phi::keyboardEventArgs e){}
+    virtual void onKeyDown(phi::keyboardEventArgs* e){}
+    virtual void onKeyUp(phi::keyboardEventArgs* e){}
 
     void initialize(std::string applicationPath);
     bool loop();
