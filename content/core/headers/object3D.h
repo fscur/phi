@@ -30,7 +30,6 @@ namespace phi
         object3D* _parent;
         eventHandler<object3DEventArgs>* _changedEvent;
         bool _changed;
-
     private:
         void updateLocalModelMatrix();
 
@@ -38,7 +37,7 @@ namespace phi
         CORE_API virtual void onChanged() {}
         CORE_API virtual void onPositionChanged() { }
         CORE_API virtual void onDirectionChanged() { }
-        CORE_API void setChanged(bool value);
+        CORE_API void setChanged();
 
     public:
         CORE_API glm::vec3 getPosition();
@@ -64,7 +63,7 @@ namespace phi
         CORE_API void setSize(size<float> value);
         CORE_API void setDirection(glm::vec3 direction);
         CORE_API void setAabb(aabb* value) { _aabb = value; }
-        CORE_API void setParent(object3D* value) { _parent = value; setChanged(true); }
+        CORE_API void setParent(object3D* value) { _parent = value; setChanged(); }
 
         CORE_API void addChild(object3D* child);
 

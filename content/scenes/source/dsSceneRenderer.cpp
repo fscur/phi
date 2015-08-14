@@ -1,6 +1,7 @@
 #include "dsSceneRenderer.h"
 #include "quad.h"
 #include "path.h"
+#include "lineMesh.h"
 
 namespace phi
 {
@@ -112,7 +113,7 @@ namespace phi
             GL_COLOR_ATTACHMENT0);
 
         framebuffer->addRenderTarget(r);
-        
+
         _frameBuffers.push_back(framebuffer);
     }
 
@@ -729,7 +730,7 @@ namespace phi
         attribs.push_back("inTexCoord");
 
         shader* s = shaderManager::get()->loadShader("POST_REFLECTIONS", "post_reflections.vert", "post_reflections.frag", attribs);
-        
+
         s->addUniform("p");
         s->addUniform("ip");
         s->addUniform("m");
@@ -832,6 +833,70 @@ namespace phi
 
                 meshRenderer::render(m);
             }
+
+            //--------------------BEGIN DRAW AABB-------------------
+            //if (sceneObj->getSelected())
+            //{
+            //    _geometryPassShader->unbind();
+
+            //    auto min = mathUtils::multiply(sceneObj->getModelMatrix(), sceneObj->getAabb()->getMin());
+            //    auto max = mathUtils::multiply(sceneObj->getModelMatrix(), sceneObj->getAabb()->getMax());
+
+            //    auto mvp = _camera->getPerspProjMatrix() * _camera->getViewMatrix();
+            //    auto shader = shaderManager::get()->getShader("UI_MESH");
+            //    shader->bind();
+            //    shader->setUniform("mvp", mvp);
+            //    shader->setUniform("color", color::white);
+            //    auto aPos = std::vector<glm::vec3>();
+
+            //    aPos.push_back(min); // 0
+            //    aPos.push_back(glm::vec3(max.x, min.y, min.z)); // 1
+            //    aPos.push_back(glm::vec3(max.x, min.y, max.z)); // 2
+            //    aPos.push_back(glm::vec3(min.x, min.y, max.z)); // 3
+
+            //    aPos.push_back(glm::vec3(min.x, max.y, min.z)); // 4
+            //    aPos.push_back(glm::vec3(max.x, max.y, min.z)); // 5
+            //    aPos.push_back(max); // 6
+            //    aPos.push_back(glm::vec3(min.x, max.y, max.z)); // 7
+
+            //    auto ind = std::vector<GLuint>();
+            //    ind.push_back(0);
+            //    ind.push_back(1);
+            //    ind.push_back(1);
+            //    ind.push_back(2);
+            //    ind.push_back(2);
+            //    ind.push_back(3);
+            //    ind.push_back(3);
+            //    ind.push_back(0);
+
+            //    ind.push_back(4);
+            //    ind.push_back(5);
+            //    ind.push_back(5);
+            //    ind.push_back(6);
+            //    ind.push_back(6);
+            //    ind.push_back(7);
+            //    ind.push_back(7);
+            //    ind.push_back(4);
+
+            //    ind.push_back(0);
+            //    ind.push_back(4);
+            //    ind.push_back(1);
+            //    ind.push_back(5);
+            //    ind.push_back(2);
+            //    ind.push_back(6);
+            //    ind.push_back(3);
+            //    ind.push_back(7);
+
+            //    auto a = lineMesh::create("oi", aPos, ind);
+            //    a->bind();
+            //    a->render();
+            //    a->unbind();
+            //    DELETE(a);
+            //    shader->unbind();
+
+            //    _geometryPassShader->bind();
+            //}
+            //---------------------END DRAW AABB--------------------
         }
 
         _geometryPassShader->unbind();
@@ -856,7 +921,7 @@ namespace phi
         auto spotLightsCount = spotLights->size();
 
         //if (directionalLightsCount == 0 && spotLightsCount == 0)
-            //return;
+        //return;
 
         bool hasDynamicObjects = _dynamicObjects->size() > 0;
 
@@ -998,7 +1063,7 @@ namespace phi
     void dsSceneRenderer::blurShadowMaps()
     {
         auto blurScale = 1.0f;
-        
+
         auto directionalLights = _scene->getDirectionalLights();
         auto directionalLightsCount = directionalLights->size();
 
@@ -1024,9 +1089,9 @@ namespace phi
             _blurShader->setUniform("tex", light->getShadowMap(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
             meshRenderer::render(&_quad);
-            
+
             _frameBuffers[3]->unbind();
-            
+
             _dirLightShadowMapFrameBuffers0[i]->bindForDrawing();
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -1067,9 +1132,9 @@ namespace phi
             _blurShader->setUniform("tex", light->getShadowMap(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
             meshRenderer::render(&_quad);
-            
+
             _frameBuffers[3]->unbind();
-            
+
             _spotLightShadowMapFrameBuffers0[i]->bindForDrawing();
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -1266,9 +1331,9 @@ namespace phi
             _blurShader->setUniform("tex", light->getShadowMap(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
             meshRenderer::render(&_quad);
-            
+
             _frameBuffers[3]->unbind();
-            
+
             _spotLightShadowMapFrameBuffers0[i]->bindForDrawing();
             glDrawBuffer(GL_COLOR_ATTACHMENT0);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -1678,7 +1743,7 @@ namespace phi
         shader* s = shaderManager::get()->getShader("POST_REFLECTIONS");
 
         s->bind();
-        
+
         s->setUniform("m", m);
         s->setUniform("p", p);
         s->setUniform("ip", ip);
@@ -1693,7 +1758,7 @@ namespace phi
         s->unbind();
 
         //glDisable(GL_BLEND);
-        
+
         glEnable(GL_DEPTH_TEST);
         _frameBuffers[2]->unbind();
     }

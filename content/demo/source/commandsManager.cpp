@@ -2,6 +2,7 @@
 #include "selectAtPositionCommand.h"
 #include "undoCommand.h"
 #include "redoCommand.h"
+#include "zoomToFitCommand.h"
 #include <algorithm>
 
 commandsManager::commandsManager()
@@ -9,6 +10,7 @@ commandsManager::commandsManager()
     _shortcuts.add("Select", phi::inputKey(PHI_MOUSE_LEFT, NONE));
     _shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, CTRL_PRESSED));
     _shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, CTRL_PRESSED));
+    _shortcuts.add("ZoomToFit", phi::inputKey(PHI_SCANCODE_F, CTRL_PRESSED));
     _commands["Select"] = [] () -> command*
     {
         int mouseX, mouseY;
@@ -17,6 +19,7 @@ commandsManager::commandsManager()
     };
     _commands["Undo"] = [&] () -> command* { return new undoCommand(this); };
     _commands["Redo"] = [&] () -> command* { return new redoCommand(this); };
+    _commands["ZoomToFit"] = [&] () -> command* { return new zoomToFitCommand(); };
     _executingCommand = false;
 }
 

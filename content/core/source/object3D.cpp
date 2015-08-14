@@ -16,7 +16,7 @@ namespace phi
         _pitch = 0;
 
         _size = size<float>(1.0f, 1.0f, 1.0f);
-        setChanged(true);
+        setChanged();
         _aabb = nullptr;
         _parent = nullptr;
     }
@@ -31,42 +31,39 @@ namespace phi
         //    DELETE(_children[i]);
     }
 
-    void object3D::setChanged(bool value)
+    void object3D::setChanged()
     {
-        if (_changed == value)
+        if (_changed)
             return;
 
-        _changed = value;
+        _changed = true;
+
+        auto childrenCount = _children.size();
+        for (unsigned int i = 0; i < childrenCount; i++)
+            _children[i]->setChanged();
 
         onChanged();
         if (_changedEvent->isBound())
             _changedEvent->invoke(object3DEventArgs(this));
-
-        if (_changed)
-        {
-            auto childrenCount = _children.size();
-            for (unsigned int i = 0; i < childrenCount; i++)
-                _children[i]->setChanged(true);
-        }
     }
 
     void object3D::setLocalPosition(glm::vec3 value)
     {
         _position = value;
-        setChanged(true);
+        setChanged();
         onPositionChanged();
     }
 
     void object3D::setOrientation(glm::quat value)
     {
         _orientation = value;
-        setChanged(true);
+        setChanged();
     }
 
     void object3D::setDirection(glm::vec3 direction)
     {
         _orientation = mathUtils::rotationBetweenVectors(_direction, direction) * _orientation;
-        setChanged(true);
+        setChanged();
 
         onDirectionChanged();
     }
@@ -74,7 +71,7 @@ namespace phi
     void object3D::setSize(size<float> value)
     {
         _size = value;
-        setChanged(true);
+        setChanged();
     }
 
     glm::vec3 object3D::getPosition()
@@ -175,40 +172,40 @@ namespace phi
         if (_changed)
         {
             updateLocalModelMatrix();
-            setChanged(false);
+            _changed = false;
         }
     }
 
     void object3D::translate(glm::vec3 translation)
     {
         _position += translation;
-        setChanged(true);
+        setChanged();
     }
 
     void object3D::rotate(float angle, glm::vec3 axis)
     {
         _orientation = glm::angleAxis(angle, axis) * _orientation;
-        setChanged(true);
+        setChanged();
     }
 
     void object3D::pitch(float angle)
     {
         _pitch += angle;
         _orientation = glm::angleAxis(angle, glm::vec3(1.0f, 0.0f, 0.0f)) * _orientation;
-        setChanged(true);
+        setChanged();
     }
 
     void object3D::yaw(float angle)
     {
         _yaw += angle;
         _orientation = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * _orientation;
-        setChanged(true);
+        setChanged();
     }
 
     void object3D::roll(float angle)
     {
         _roll += angle;
         _orientation = glm::angleAxis(angle, glm::vec3(0.0f, 0.0f, 1.0f)) * _orientation;
-        setChanged(true);
+        setChanged();
     }
 }

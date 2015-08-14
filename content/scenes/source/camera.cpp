@@ -24,7 +24,7 @@ namespace phi
         auto diff = value - getPosition();
         setDirection(glm::normalize(diff));
         _focus = glm::length(diff);
-        setChanged(true);
+        setChanged();
     }
 
     void camera::update()
@@ -64,7 +64,7 @@ namespace phi
         _focus = glm::max(_focus - dist, _frustum->getZNear());
         setLocalPosition(position);
 
-        setChanged(true);
+        setChanged();
     }
 
     void camera::zoomOut(glm::vec3 targetPos)
@@ -81,7 +81,7 @@ namespace phi
         _focus -= dist;
         setLocalPosition(position);
 
-        setChanged(true);
+        setChanged();
     }
 
     void camera::orbit(glm::vec3 origin, glm::vec3 axisX, glm::vec3 axisY, float angleX, float angleY)
@@ -112,6 +112,6 @@ namespace phi
         setLocalPosition(position);
         setOrientation(q2 * q1);
 
-        setChanged(true);
+        setChanged();
     }
 }

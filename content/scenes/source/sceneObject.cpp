@@ -39,6 +39,8 @@ namespace phi
             for (unsigned int i = 0; i < verticesCount; i++)
                 _points.push_back(vertices[i].getPosition());
         }
+
+        updateAabb();
     }
 
     void sceneObject::setSelected(bool value)
@@ -60,7 +62,7 @@ namespace phi
     {
         auto oldValue = _isActive;
         _isActive = value;
-        setChanged(true);
+        setChanged();
         if (oldValue && !value)
             setSelected(false);
 
