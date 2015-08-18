@@ -25,7 +25,7 @@ void selectAtPositionCommand::init()
     while (true)
     {
         _bufferRequest->mutex.lock();
-        if (!_bufferRequest->completed)
+        if (_bufferRequest->completed)
             break;
 
         _bufferRequest->mutex.unlock();
@@ -50,6 +50,13 @@ void selectAtPositionCommand::init()
     DELETE(_pickRequest);
     _bufferRequest = nullptr;
     _pickRequest = nullptr;
+
+    if (_zBufferValue == 1.0f)
+    {
+        _selectCommand = new selectObjectCommand(nullptr, nullptr);
+        _initialized = true;
+        return;
+    }
 
     _meshId = id >> 8;
     _objectId = id & 255;

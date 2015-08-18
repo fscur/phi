@@ -27,7 +27,6 @@ form::form()
     _inputCost = 0;
     _updateCost = 0;
     _renderCost = 0;
-    _isFullScreen = true;
 
     initWindow();
 }
@@ -62,13 +61,15 @@ void form::setIsFullScreen(bool value)
 
     if (_isFullScreen)
     {
-        if (SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP) < 0)
+        if (SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN) < 0)
             printf("SDL could not enter fullscreen mode! SDL_Error: %s\n", SDL_GetError());
     }
     else
     {
         if (SDL_SetWindowFullscreen(_window, 0) < 0)
             printf("SDL could not leave fullscreen mode! SDL_Error: %s\n", SDL_GetError());
+        else
+            SDL_SetWindowPosition(_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     }
 }
 
@@ -91,12 +92,14 @@ void form::initWindow()
         _title.c_str(),
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        r.w,
-        r.h,
-        //1024,
-        //768,
-        //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-    SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
+        //r.w,
+        //r.h,
+        1366,
+        768,
+        SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+        //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
+
+    _isFullScreen = false;
 
     if (_window == NULL)
         LOG("Window could not be created! SDL_Error: " << SDL_GetError());

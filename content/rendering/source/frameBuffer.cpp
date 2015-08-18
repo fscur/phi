@@ -36,7 +36,6 @@ namespace phi
         glBindFramebuffer(GL_FRAMEBUFFER, _id);
 
         glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
-        glViewport(_x, _y, _size.width, _size.height);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
@@ -100,8 +99,6 @@ namespace phi
     void frameBuffer::setSize(size<GLuint> value)
     {
         _size = value;
-
-        glViewport(0,0, _size.width, _size.height);
     }
 
     void frameBuffer::setClearColor(color value)
@@ -115,8 +112,6 @@ namespace phi
         _x = x;
         _y = y;
         _size = size;
-
-        glViewport(_x, _y, _size.width, _size.height);
     }
 
     void frameBuffer::clear()

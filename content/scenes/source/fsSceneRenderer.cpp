@@ -669,6 +669,7 @@ namespace phi
         };
 
         glDrawBuffers(2, drawBuffers);
+        glViewport(0, 0, _viewportSize.width, _viewportSize.height);
 
         glDepthMask(GL_TRUE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

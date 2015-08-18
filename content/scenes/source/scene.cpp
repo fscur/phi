@@ -190,12 +190,8 @@ namespace phi
             }
         }
 
-        _changedObjectsMutex.unlock();
-
         for (GLuint i = 0; i < _changedObjectsCount; i++)
             _changedObjects[i]->update();
-
-        _changedObjectsMutex.lock();
 
         _changedObjects.clear();
         _changedObjectsCount = 0;

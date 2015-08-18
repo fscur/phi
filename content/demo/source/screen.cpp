@@ -18,11 +18,13 @@
 #include "multiCommand.h"
 #include "selectObjectCommand.h"
 #include "setMaterialCommand.h"
+#include "zoomToFitCommand.h"
 
 float a;
 float angle;
 phi::translationControl* tc;
 phi::rotationControl* rc;
+phi::button3D* fb;
 float t = 0.0f;
 phi::sceneObject* sphere;
 phi::carouselList* _materialsCarousel;
@@ -315,8 +317,8 @@ void screen::initUI()
     closeButton->setText("X");
     closeButton->setBackgroundColor(phi::color::red);
     closeButton->setForegroundColor(phi::color::white);
-    closeButton->setSize(phi::size<GLuint>(24, 24));
-    closeButton->setX(getSize().width - 24);
+    closeButton->setSize(phi::size<GLuint>(30, 30));
+    closeButton->setX(getSize().width - 30);
     closeButton->setY(0);
     closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
     phi::uiSystem::get()->addControl(closeButton);
@@ -404,9 +406,9 @@ void screen::initUI()
 
     _materialsCarousel = new phi::carouselList(getSize());
     _materialsCarousel->setBackgroundColor(phi::color::fromRGBA(0.5f, 0.5f, 0.5f, 0.5f));
-    _materialsCarousel->setSize(phi::size<unsigned int>(getSize().width - 10, 150));
-    _materialsCarousel->setX(5);
-    _materialsCarousel->setY(getSize().height - 155);
+    _materialsCarousel->setSize(phi::size<unsigned int>(getSize().width, 150));
+    _materialsCarousel->setX(0);
+    _materialsCarousel->setY(getSize().height - 150);
     _materialsCarousel->setZIndex(0);
     _materialsCarousel->getSelectedItemChanged()->bind<screen, &screen::carouselListSelectedItemChanged>(this);
 
@@ -431,6 +433,10 @@ void screen::initUI()
     rc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
     rc->getRotationFinished()->bind<screen, &screen::rotationFinished>(this);
     phi::uiSystem::get()->addControl(rc);
+
+    fb = new phi::button3D(getSize());
+    fb->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    phi::uiSystem::get()->addControl(fb);
 
     phi::uiSystem::get()->addControl(buttonA);
     phi::uiSystem::get()->addControl(buttonB);
@@ -735,13 +741,17 @@ void screen::hudControlLostFocus(phi::controlEventArgs e)
 void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
 {
     if (e.sender->getSelected())
+    {
         tc->attachTo(e.sender);
-    else
-        tc->attachTo(nullptr);
-    if (e.sender->getSelected())
         rc->attachTo(e.sender);
+        //fb->attachTo(e.sender);
+    }
     else
+    {
+        tc->attachTo(nullptr);
         rc->attachTo(nullptr);
+        //fb->attachTo(nullptr);
+    }
 
     //if (e.sender->getSelected())
     //{
