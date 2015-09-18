@@ -19,13 +19,19 @@ namespace phi
         bool _clickedOver;
         color _backgroundColor;
         color _foregroundColor;
-        color _currentColor;
+        color _overlayColor;
         texture* _texture;
         quadRenderer2D* _textureRenderer;
+        quadRenderer2D* _overlayRenderer;
         textRenderer2D* _textRenderer;
         mouseEventHandler* _click;
 
+    private:
         void updateTextLocation();
+        void animateMouseEnter();
+        void animateMouseLeave();
+        void animatePressed();
+        void animateUnpressed();
 
     public:
         UI_API button(size<GLuint> viewportSize);

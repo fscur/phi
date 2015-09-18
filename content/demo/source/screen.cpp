@@ -156,7 +156,7 @@ void screen::initScene()
 
     phi::sceneObject* table_chair2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("table_chair.model"));
     table_chair2->setLocalPosition(glm::vec3(1.5, 0.0, 0.5));
-    table_chair2->yaw(phi::PI-0.3);
+    table_chair2->yaw(phi::PI - 0.3);
     s->add(table_chair2);
 
     phi::sceneObject* table_chair3 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("table_chair.model"));
@@ -315,7 +315,7 @@ void screen::initUI()
 
     phi::button* closeButton = new phi::button(getSize());
     closeButton->setText("X");
-    closeButton->setBackgroundColor(phi::color::red);
+    closeButton->setBackgroundColor(phi::color::fromRGBA(1.0f, 0.5f, 0.5f, 1.0f));
     closeButton->setForegroundColor(phi::color::white);
     closeButton->setSize(phi::size<GLuint>(30, 30));
     closeButton->setX(getSize().width - 30);
@@ -325,7 +325,7 @@ void screen::initUI()
 
     phi::button* buttonA = new phi::button(getSize());
     buttonA->setText("Hide selected");
-    buttonA->setBackgroundColor(phi::color::red);
+    buttonA->setBackgroundColor(phi::color::fromRGBA(1.0f, 0.5f, 0.5f, 1.0f));
     buttonA->setForegroundColor(phi::color::white);
     buttonA->setSize(phi::size<GLuint>(200, 30));
     buttonA->setZIndex(20.0f);
@@ -335,7 +335,7 @@ void screen::initUI()
 
     phi::button* buttonB = new phi::button(getSize());
     buttonB->setText("Show all");
-    buttonB->setBackgroundColor(phi::color::red);
+    buttonB->setBackgroundColor(phi::color::fromRGBA(1.0f, 0.5f, 0.5f, 1.0f));
     buttonB->setForegroundColor(phi::color::white);
     buttonB->setSize(phi::size<GLuint>(200, 30));
     buttonB->setZIndex(20.0f);
@@ -474,12 +474,12 @@ void screen::update()
 {
     _sceneRenderer = phi::scenesManager::get()->getSceneRenderer();
 
-    a+= 0.01;
+    a += 0.01;
     if (a > 2 * phi::PI)
-        a -=2 * phi::PI;
+        a -= 2 * phi::PI;
 
     if (t > 24.0f)
-        t -=24.0f;
+        t -= 24.0f;
 
     t += 0.01f;
 
@@ -599,7 +599,7 @@ void screen::onMouseDown(phi::mouseEventArgs* e)
     _inputManager->onMouseDown(e);
 }
 
-void screen::onMouseMove(phi::mouseEventArgs* e) 
+void screen::onMouseMove(phi::mouseEventArgs* e)
 {
     _inputManager->onMouseMove(e);
 }
@@ -645,7 +645,7 @@ void screen::hideSelectedButtonClick(phi::mouseEventArgs* e)
     cmds.push_back(new selectObjectCommand(nullptr, nullptr));
 
     auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
-    for (auto i = 0; i < allObjects->size();i++)
+    for (auto i = 0; i < allObjects->size(); i++)
     {
         auto obj = allObjects->at(i);
         if (obj->getSelected())
@@ -661,7 +661,7 @@ void screen::showAllButtonClick(phi::mouseEventArgs* e)
     auto cmds = std::vector<command*>();
 
     auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
-    for (auto i = 0; i < allObjects->size();i++)
+    for (auto i = 0; i < allObjects->size(); i++)
     {
         auto obj = allObjects->at(i);
         if (!obj->getActive())
@@ -680,7 +680,7 @@ void screen::slider1ValueChanged(phi::eventArgs e)
 
     auto pointLight = phi::scenesManager::get()->getScene()->getPointLight(0);
     glm::vec3 pos = pointLight->getPosition();
-    auto value =_slider1->getValue();
+    auto value = _slider1->getValue();
     glm::vec3 t = glm::vec3(-glm::cos(value) * 8.0f, pos.y, glm::sin(value) * 4.0f);
     pointLight->setLocalPosition(t);
 
@@ -693,7 +693,7 @@ void screen::slider2ValueChanged(phi::eventArgs e)
 
     auto pointLight = phi::scenesManager::get()->getScene()->getPointLight(0);
     glm::vec3 pos = pointLight->getPosition();
-    auto value =_slider2->getValue();
+    auto value = _slider2->getValue();
     glm::vec3 t = glm::vec3(pos.x, value, pos.z);
     pointLight->setLocalPosition(t);
 

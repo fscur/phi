@@ -8,6 +8,7 @@
 commandsManager::commandsManager()
 {
     _shortcuts.add("Select", phi::inputKey(PHI_MOUSE_LEFT, NONE));
+    _shortcuts.add("DeselectAll", phi::inputKey(PHI_SCANCODE_ESCAPE, NONE));
     _shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, CTRL_PRESSED));
     _shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, CTRL_PRESSED));
     _shortcuts.add("ZoomToFit", phi::inputKey(PHI_SCANCODE_F, CTRL_PRESSED));
@@ -17,6 +18,7 @@ commandsManager::commandsManager()
         SDL_GetMouseState(&mouseX, &mouseY);
         return new selectAtPositionCommand(glm::vec2(mouseX, mouseY));
     };
+    _commands["DeselectAll"] = [&]() -> command* { return new selectObjectCommand(nullptr, 0); };
     _commands["Undo"] = [&] () -> command* { return new undoCommand(this); };
     _commands["Redo"] = [&] () -> command* { return new redoCommand(this); };
     _commands["ZoomToFit"] = [&] () -> command* { return new zoomToFitCommand(); };

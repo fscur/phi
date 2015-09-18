@@ -29,6 +29,7 @@ namespace phi
         _selectedSceneObjectChanged = new eventHandler<sceneObjectEventArgs>();
         _staticObjectsChanged = new eventHandler<eventArgs>();
         _lightChanged = false;
+        _aabb = nullptr;
 
         _activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, phi::PI_OVER_4);
         _cameras->push_back(_activeCamera);
@@ -163,6 +164,7 @@ namespace phi
                         _staticObjectsCount++;
 
                         staticObjectsChanged(eventArgs());
+                        updateAabb();
                     }
                 }
             }
@@ -186,6 +188,7 @@ namespace phi
                     _dynamicObjectsCount--;
 
                     staticObjectsChanged(eventArgs());
+                    updateAabb();
                 }
             }
         }
@@ -208,7 +211,7 @@ namespace phi
     void scene::setSize(size<GLuint> size)
     {
         _size = size;
-        _activeCamera->getFrustum()->setAspect((float)_size.width/(float)_size.height);
+        _activeCamera->getFrustum()->setAspect((float)_size.width / (float)_size.height);
     }
 
     void scene::add(sceneObject* sceneObject)
@@ -229,6 +232,8 @@ namespace phi
 
         sceneObject->getChangedEvent()->bind<scene, &scene::sceneObjectChanged>(this);
         sceneObject->getIsSelectedChanged()->bind<scene, &scene::sceneObjectIsSelectedChanged>(this);
+
+        addSceneObjectAabb(sceneObject);
     }
 
     void scene::add(directionalLight* directionalLight)
@@ -267,6 +272,84 @@ namespace phi
     void scene::add(camera* camera)
     {
         _cameras->push_back(camera);
+    }
+
+    void scene::addSceneObjectAabb(sceneObject* sceneObject)
+    {
+        auto min = phi::mathUtils::multiply(sceneObject->getModelMatrix(), sceneObject->getAabb()->getMin());
+        auto max = phi::mathUtils::multiply(sceneObject->getModelMatrix(), sceneObject->getAabb()->getMax());
+
+        if (_aabb == nullptr)
+        {
+            _aabb = new aabb(min, max);
+            return;
+        }
+
+        auto minX = _aabb->getMin().x;
+        auto minY = _aabb->getMin().y;
+        auto minZ = _aabb->getMin().z;
+        auto maxX = _aabb->getMax().x;
+        auto maxY = _aabb->getMax().y;
+        auto maxZ = _aabb->getMax().z;
+
+        if (min.x < minX)
+            minX = min.x;
+        if (min.y < minY)
+            minY = min.y;
+        if (min.z < minZ)
+            minZ = min.z;
+
+        if (max.x > maxX)
+            maxX = max.x;
+        if (max.y > maxY)
+            maxY = max.y;
+        if (max.z > maxZ)
+            maxZ = max.z;
+
+        _aabb = new aabb(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
+    }
+
+    void scene::updateAabb()
+    {
+        auto objCount = _allObjects->size();
+        if (objCount == 0)
+        {
+            _aabb = nullptr;
+            return;
+        }
+
+        auto firstObjAabb = (*_allObjects)[0]->getAabb();
+        auto minX = firstObjAabb->getMin().x;
+        auto minY = firstObjAabb->getMin().y;
+        auto minZ = firstObjAabb->getMin().z;
+        auto maxX = firstObjAabb->getMax().x;
+        auto maxY = firstObjAabb->getMax().y;
+        auto maxZ = firstObjAabb->getMax().z;
+
+        for (unsigned int i = 1; i < objCount; i++)
+        {
+            auto obj = (*_allObjects)[i];
+            auto aabb = obj->getAabb();
+
+            auto min = phi::mathUtils::multiply(obj->getModelMatrix(), obj->getAabb()->getMin());
+            auto max = phi::mathUtils::multiply(obj->getModelMatrix(), obj->getAabb()->getMax());
+
+            if (min.x < minX)
+                minX = min.x;
+            if (min.y < minY)
+                minY = min.y;
+            if (min.z < minZ)
+                minZ = min.z;
+
+            if (max.x > maxX)
+                maxX = max.x;
+            if (max.y > maxY)
+                maxY = max.y;
+            if (max.z > maxZ)
+                maxZ = max.z;
+        }
+
+        _aabb = new aabb(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
     }
 
     void scene::sceneObjectChanged(phi::object3DEventArgs e)
@@ -338,7 +421,7 @@ namespace phi
         stream.open(path.c_str(), std::ios::out | std::ios::binary);
 
         auto objCount = (*_allObjects).size();
-        for (unsigned int i = 0; i < objCount; i ++)
+        for (unsigned int i = 0; i < objCount; i++)
         {
             sceneObject* sceneObj = (*_allObjects)[i];
             auto id = sceneObj->getId();
@@ -372,7 +455,7 @@ namespace phi
         auto totalBytes = stream.tellg();
         stream.seekg(0, std::ios::beg);
 
-        auto bytesPerObj = 10 * sizeof(float) + sizeof(unsigned int);
+        auto bytesPerObj = 10 * sizeof(float)+sizeof(unsigned int);
         for (auto i = 0; i < totalBytes / bytesPerObj; i++)
         {
             unsigned int id;
