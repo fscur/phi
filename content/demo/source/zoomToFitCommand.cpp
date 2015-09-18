@@ -8,23 +8,35 @@ zoomToFitCommand::zoomToFitCommand()
 
 void zoomToFitCommand::execute()
 {
-    phi::sceneObject* object = nullptr;
-    phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+    phi::sceneObject* selectedObject = nullptr;
+    auto scene = phi::scenesManager::get()->getScene();
+    auto camera = scene->getActiveCamera();
 
     auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
     for (auto i = 0; i < allObjects->size();i++)
     {
-        object = allObjects->at(i);
+        auto object = allObjects->at(i);
         if (object->getSelected())
+        {
+            selectedObject = object;
             break;
+        }
     }
 
-    if (object == nullptr)
-        return;
+    glm::vec3 min;
+    glm::vec3 max;
 
-    auto pos = object->getPosition();
-    auto min = phi::mathUtils::multiply(object->getModelMatrix(), object->getAabb()->getMin());
-    auto max = phi::mathUtils::multiply(object->getModelMatrix(), object->getAabb()->getMax());
+    if (selectedObject == nullptr)
+    {
+        min = scene->getAabb()->getMin();
+        max = scene->getAabb()->getMax();
+    }
+    else
+    {
+        min = phi::mathUtils::multiply(selectedObject->getModelMatrix(), selectedObject->getAabb()->getMin());
+        max = phi::mathUtils::multiply(selectedObject->getModelMatrix(), selectedObject->getAabb()->getMax());
+    }
+
     auto fov = camera->getFrustum()->getFov();
 
     auto p = (max + min) * 0.5f;

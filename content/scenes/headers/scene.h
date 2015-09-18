@@ -32,6 +32,7 @@ namespace phi
         color _backColor;
         color _ambientColor;
         bool _lightChanged;
+        aabb* _aabb;
 
         camera *_activeCamera;
 
@@ -58,6 +59,8 @@ namespace phi
         void lightChanged(phi::object3DEventArgs e);
         void sceneObjectIsSelectedChanged(phi::sceneObjectEventArgs e);
         void staticObjectsChanged(phi::eventArgs e);
+        void addSceneObjectAabb(sceneObject* sceneObject);
+        void updateAabb();
 
     public:
         SCENES_API scene();
@@ -77,6 +80,7 @@ namespace phi
         SCENES_API std::vector<spotLight*>* getSpotLights() const { return _spotLights; }
         SCENES_API eventHandler<sceneObjectEventArgs>* getSelectedSceneObjectChanged() const { return _selectedSceneObjectChanged; }
         SCENES_API eventHandler<eventArgs>* getStaticObjectsChanged() const { return _staticObjectsChanged; }
+        SCENES_API aabb* getAabb() const { return _aabb; }
         
         SCENES_API void setSize(size<GLuint> size);
         SCENES_API void setActiveCamera(camera* value) { _activeCamera = value; }
