@@ -5,6 +5,7 @@
 #include "control.h"
 #include "carouselItem.h"
 #include "carouselItemEventArgs.h"
+#include "button.h"
 #include "quadRenderer2D.h"
 
 namespace phi
@@ -13,6 +14,7 @@ namespace phi
     {
     private:
         static const unsigned int ITEM_MARGIN = 10;
+        static const unsigned int BUTTON_MARGIN = 30;
 
         texture* _texture;
         quadRenderer2D* _backgroundRenderer;
@@ -20,12 +22,17 @@ namespace phi
         color _backgroundColor;
         float _scrollOffset;
         float _targetScrollOffset;
+        float _contentOffset;
         eventHandler<carouselItemEventArgs>* _selectedItemChanged;
+        bool _expanded;
+        button* _expandButton;
 
     private:
         void updateItems();
         void notifySelectedItemChanged(carouselItemEventArgs e);
         void carouselItemIsSelectedChanged(carouselItemEventArgs e);
+        void expandButtonClick(phi::mouseEventArgs* e);
+        void setContentHeight(float value);
 
     public:
         UI_API carouselList(size<GLuint> viewportSize);
@@ -42,7 +49,9 @@ namespace phi
         UI_API void setBackgroundColor(color value);
         UI_API void setSelectedItem(carouselItem* item);
 
+        UI_API void onMouseMove(mouseEventArgs* e) override;
         UI_API void onMouseDown(mouseEventArgs* e) override;
+        UI_API void onMouseUp(mouseEventArgs* e) override;
         UI_API void onMouseWheel(mouseEventArgs* e) override;
 
         UI_API void render() override;

@@ -8,6 +8,8 @@ namespace phi
         _text = "";
         _texture = uiRepository::repository->getResource<texture>("button.png");
         _textureRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
+        _overlayRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.01f, size<GLuint>(0, 0, 0), viewportSize);
+        _overlayColor = color::fromRGBA(1.0f, 1.0f, 1.0f, 0.0f);
         _textRenderer = new textRenderer2D(viewportSize);
         _font = uiRepository::repository->getResource<font>("Consola_18");
         _textX = 0;
@@ -33,12 +35,33 @@ namespace phi
         _textY = (int)(_y + _size.height * 0.5f - textSize.height * 0.5f);
     }
 
+    void button::animateMouseEnter()
+    {
+        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300);
+    }
+
+    void button::animateMouseLeave()
+    {
+        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500);
+    }
+
+    void button::animatePressed()
+    {
+        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300);
+    }
+
+    void button::animateUnpressed()
+    {
+        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500);
+    }
+
     void button::setX(int value)
     {
         _x = value;
         _textureRenderer->setLocation(glm::vec2(_x, _y));
-        _textureRenderer->setZIndex(_zIndex);
         _textureRenderer->update();
+        _overlayRenderer->setLocation(glm::vec2(_x, _y));
+        _overlayRenderer->update();
         updateTextLocation();
     }
 
@@ -47,6 +70,8 @@ namespace phi
         _y = value;
         _textureRenderer->setLocation(glm::vec2(_x, _y));
         _textureRenderer->update();
+        _overlayRenderer->setLocation(glm::vec2(_x, _y));
+        _overlayRenderer->update();
         updateTextLocation();
     }
 
@@ -55,6 +80,8 @@ namespace phi
         control::setZIndex(value);
         _textureRenderer->setZIndex(_zIndex);
         _textureRenderer->update();
+        _overlayRenderer->setZIndex(_zIndex + 0.01f);
+        _overlayRenderer->update();
     }
 
     void button::setSize(size<GLuint> value)
@@ -62,6 +89,8 @@ namespace phi
         _size = value;
         _textureRenderer->setSize(value);
         _textureRenderer->update();
+        _overlayRenderer->setSize(value);
+        _overlayRenderer->update();
         updateTextLocation();
     }
 
@@ -74,7 +103,6 @@ namespace phi
     void button::setBackgroundColor(color value)
     {
         _backgroundColor = value;
-        _currentColor = _backgroundColor;
     }
 
     void button::setViewportSize(size<GLuint> value)
@@ -82,17 +110,22 @@ namespace phi
         control::setViewportSize(value);
         _textureRenderer->setViewportSize(getViewportSize());
         _textureRenderer->update();
+        _overlayRenderer->setViewportSize(getViewportSize());
+        _overlayRenderer->update();
         _textRenderer->setViewportSize(getViewportSize());
         _textRenderer->update();
     }
 
     void button::render()
     {
+        glEnable(GL_BLEND);
         glEnable(GL_SCISSOR_TEST);
         glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
-        _textureRenderer->render(_texture, _currentColor);
-        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX, _textY), _zIndex + 0.01f);
+        _textureRenderer->render(_texture, _backgroundColor);
+        _overlayRenderer->render(_texture, _overlayColor);
+        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX, _textY), _zIndex + 0.02f);
         glDisable(GL_SCISSOR_TEST);
+        glDisable(GL_BLEND);
     }
 
     void button::onMouseDown(mouseEventArgs* e)
@@ -100,10 +133,13 @@ namespace phi
         if (getIsMouseOver() && e->leftButtonPressed && !_clickedOver)
         {
             _clickedOver = true;
-            _textureRenderer->setLocation(glm::vec2(_x + 1, _y + 1));
-            _textureRenderer->setSize(size<GLuint>(_size.width - 2, _size.height - 2));
-            _textureRenderer->update();
-            colorAnimator::animateColor(&_currentColor, color(glm::min(1.0f, _backgroundColor.r + 0.5f), glm::min(1.0f, _backgroundColor.g + 0.5f), glm::min(1.0f, _backgroundColor.b + 0.5f), 1), 300);
+            //_textureRenderer->setLocation(glm::vec2(_x + 1, _y + 1));
+            //_textureRenderer->setSize(size<GLuint>(_size.width - 2, _size.height - 2));
+            //_textureRenderer->update();
+            //_overlayRenderer->setLocation(glm::vec2(_x + 1, _y + 1));
+            //_overlayRenderer->setSize(size<GLuint>(_size.width - 2, _size.height - 2));
+            //_overlayRenderer->update();
+            animatePressed();
             e->handled = true;
         }
     }
@@ -116,22 +152,25 @@ namespace phi
                 _click->invoke(e);
 
             _clickedOver = false;
-            _textureRenderer->setLocation(glm::vec2(_x, _y));
-            _textureRenderer->setSize(_size);
-            _textureRenderer->update();
+            //_textureRenderer->setLocation(glm::vec2(_x, _y));
+            //_textureRenderer->setSize(_size);
+            //_textureRenderer->update();
+            //_overlayRenderer->setLocation(glm::vec2(_x, _y));
+            //_overlayRenderer->setSize(_size);
+            //_overlayRenderer->update();
 
             if (!getIsMouseOver())
-                colorAnimator::animateColor(&_currentColor, _backgroundColor, 300);
+                animateUnpressed();
         }
     }
 
     void button::onMouseEnter(mouseEventArgs* e)
     {
-        colorAnimator::animateColor(&_currentColor, color(glm::min(1.0f, _backgroundColor.r + 0.5f), glm::min(1.0f, _backgroundColor.g + 0.5f), glm::min(1.0f, _backgroundColor.b + 0.5f), 1), 300);
+        animateMouseEnter();
     }
 
     void button::onMouseLeave(mouseEventArgs* e)
     {
-        colorAnimator::animateColor(&_currentColor, _backgroundColor, 500);
+        animateMouseLeave();
     }
 }

@@ -36,6 +36,11 @@ namespace phi
             if (percent >= 1.0f)
             {
                 *value = to;
+
+                auto callback = animation->getCallback();
+                if (callback != nullptr)
+                    callback(*value);
+
                 DELETE(animation);
                 _animations.erase(_animations.begin() + i);
                 i--;
@@ -44,6 +49,10 @@ namespace phi
             {
                 *value = from + (to - from) * diff;
                 animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
+
+                auto callback = animation->getCallback();
+                if (callback != nullptr)
+                    callback(*value);
             }
         }
 
