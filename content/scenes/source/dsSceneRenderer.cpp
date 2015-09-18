@@ -165,7 +165,7 @@ namespace phi
 
         _frameBuffers[0]->addRenderTarget(r);
 
-        t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
+        t = texture::create(_viewportSize, GL_RGBA16F);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -173,6 +173,20 @@ namespace phi
 
         r = _frameBuffers[0]->newRenderTarget(
             "rt3", 
+            t,
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT3);
+
+        _frameBuffers[0]->addRenderTarget(r);
+
+        t = texture::create(_viewportSize, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV);
+        t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+        r = _frameBuffers[0]->newRenderTarget(
+            "rt4", 
             t, 
             GL_DRAW_FRAMEBUFFER,
             GL_DEPTH_STENCIL_ATTACHMENT);
@@ -182,10 +196,10 @@ namespace phi
         t = renderingSystem::pickingFrameBuffer->getPickingTexture();
 
         r = _frameBuffers[0]->newRenderTarget(
-            "rt4", 
+            "rt5", 
             t,
             GL_DRAW_FRAMEBUFFER,
-            GL_COLOR_ATTACHMENT3);
+            GL_COLOR_ATTACHMENT4);
 
         _frameBuffers[0]->addRenderTarget(r);
 
@@ -735,10 +749,11 @@ namespace phi
         s->addUniform("ip");
         s->addUniform("m");
         s->addUniform("res");
-        s->addUniform("rt1");
+        s->addUniform("rt0");
         s->addUniform("rt1");
         s->addUniform("rt2");
         s->addUniform("rt3");
+        s->addUniform("rt4");
 
         shaderManager::get()->addShader(s->getName(), s);
 
@@ -772,17 +787,18 @@ namespace phi
             GL_COLOR_ATTACHMENT0, 
             GL_COLOR_ATTACHMENT1, 
             GL_COLOR_ATTACHMENT2, 
-            GL_COLOR_ATTACHMENT3,
+            GL_COLOR_ATTACHMENT3, 
+            GL_COLOR_ATTACHMENT4,
         };
 
-        glDrawBuffers(4, drawBuffers);
+        glDrawBuffers(5, drawBuffers);
 
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         auto color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-        glClearBufferfv(GL_COLOR, 3, &color.r);
+        glClearBufferfv(GL_COLOR, 4, &color.r);
 
         _geometryPassShader->bind();
 
@@ -910,6 +926,7 @@ namespace phi
         _rt1Texture = _frameBuffers[0]->getRenderTarget("rt1")->getTexture();
         _rt2Texture = _frameBuffers[0]->getRenderTarget("rt2")->getTexture();
         _rt3Texture = _frameBuffers[0]->getRenderTarget("rt3")->getTexture();
+        _rt4Texture = _frameBuffers[0]->getRenderTarget("rt4")->getTexture();
     }
 
     void dsSceneRenderer::shadowMapPasses()
@@ -1400,7 +1417,7 @@ namespace phi
             _dirLightShader->setUniform("rt0", _rt0Texture, 0);
             _dirLightShader->setUniform("rt1", _rt1Texture, 1);
             _dirLightShader->setUniform("rt2", _rt2Texture, 2);
-            _dirLightShader->setUniform("rt3", _rt3Texture, 3);
+            _dirLightShader->setUniform("rt3", _rt4Texture, 3);
             _dirLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
 
             meshRenderer::render(&_quad);
@@ -1492,7 +1509,7 @@ namespace phi
             _spotLightShader->setUniform("rt0", _rt0Texture, 0);
             _spotLightShader->setUniform("rt1", _rt1Texture, 1);
             _spotLightShader->setUniform("rt2", _rt2Texture, 2);
-            _spotLightShader->setUniform("rt3", _rt3Texture, 3);
+            _spotLightShader->setUniform("rt3", _rt4Texture, 3);
             _spotLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
 
             //TODO: Cull lights
@@ -1636,7 +1653,7 @@ namespace phi
             _pointLightShader->setUniform("rt0", _rt0Texture, 0);
             _pointLightShader->setUniform("rt1", _rt1Texture, 1);
             _pointLightShader->setUniform("rt2", _rt2Texture, 2);
-            _pointLightShader->setUniform("rt3", _rt3Texture, 3);
+            _pointLightShader->setUniform("rt3", _rt4Texture, 3);
             _pointLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
             meshRenderer::render(_mesh); 
 
@@ -1656,7 +1673,7 @@ namespace phi
 
         glm::vec2 resolution = glm::vec2(_viewportSize.width, _viewportSize.height);
 
-        renderTarget* selectedRenderTarget = _frameBuffers[0]->getRenderTarget("rt4");
+        renderTarget* selectedRenderTarget = _frameBuffers[0]->getRenderTarget("rt5");
         shader* sh = shaderManager::get()->getShader("POST_SELECTED_OBJECTS");
 
         sh->bind();
@@ -1704,7 +1721,7 @@ namespace phi
         s->setUniform("res", res);
         s->setUniform("rt1", _rt1Texture, 0);
         s->setUniform("rt2", _rt2Texture, 1);
-        s->setUniform("rt3", _rt3Texture, 2);
+        s->setUniform("rt3", _rt4Texture, 2);
         s->setUniform("randomNormalMap", _randomNormalsTexture, 3);
 
         s->setUniform("randomSize", 64.0f);
@@ -1752,6 +1769,7 @@ namespace phi
         s->setUniform("rt1", _rt1Texture, 1);
         s->setUniform("rt2", _rt2Texture, 2);
         s->setUniform("rt3", _rt3Texture, 3);
+        s->setUniform("rt4", _rt4Texture, 4);
 
         meshRenderer::render(&_quad);
 
@@ -1836,13 +1854,13 @@ namespace phi
         glDepthMask(GL_FALSE);
 
         ssao();
-        //reflections();
+        reflections();
 
         //blur(_frameBuffers[1]->getRenderTarget("rt0")->getTexture());
 
         renderingSystem::defaultFrameBuffer->bindForDrawing();
-        _frameBuffers[1]->bindForReading();
-        _frameBuffers[1]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
+        _frameBuffers[2]->bindForReading();
+        _frameBuffers[2]->blit("rt0", 0, 0, _viewportSize.width, _viewportSize.height);
 
         ///_dirLightShadowMapFrameBuffers1[0]->bindForReading();
         //_dirLightShadowMapFrameBuffers1[0]->blit("rt0", 0, 0, 400, 400);

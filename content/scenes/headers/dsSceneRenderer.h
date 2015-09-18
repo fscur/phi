@@ -59,6 +59,7 @@ namespace phi
         texture* _rt1Texture;
         texture* _rt2Texture;
         texture* _rt3Texture;
+        texture* _rt4Texture;
 
         shader* _shadowMapShader;
         shader* _pointLightShadowMapShader;

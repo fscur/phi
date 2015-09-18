@@ -123,14 +123,14 @@ void screen::initScene()
     sofa->yaw(phi::PI);
     s->add(sofa);
 
-    phi::sceneObject* chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_chair.model"));
+    phi::sceneObject* chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("brown_chair.model"));
     chair0->setLocalPosition(glm::vec3(-3.8, 0.0, -1.0));
-    chair0->yaw(0.3);
+    chair0->yaw(-phi::PI_OVER_2 + 0.3);
     s->add(chair0);
 
     phi::sceneObject* chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("black_chair.model"));
     chair1->setLocalPosition(glm::vec3(-2.3, 0.0, -1.0));
-    chair1->yaw(-0.3);
+    chair1->yaw(-phi::PI_OVER_2 - 0.3);
     s->add(chair1);
 
 
