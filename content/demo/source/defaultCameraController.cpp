@@ -35,7 +35,11 @@ void defaultCameraController::initPan(glm::vec2 mousePos)
     phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
     glm::mat4 proj = camera->getPerspProjMatrix();
 
-    _eyeZ = -proj[3].z / (_zBufferValue * -2.0 + 1.0 - proj[2].z);
+    if (_zBufferValue == 1.0f)
+        _eyeZ = 20.0f;
+    else
+        _eyeZ = -proj[3].z / (_zBufferValue * -2.0 + 1.0 - proj[2].z);
+
     _cameraPos = camera->getPosition();
     _cameraRight = camera->getRight();
     _cameraUp = camera->getUp();
@@ -47,60 +51,57 @@ void defaultCameraController::initRotate(glm::vec2 mousePos)
 {
     _zBufferValue = phi::renderingSystem::defaultFrameBuffer->getZBufferValue(mousePos);
 
-    if (_zBufferValue == 1.0f)
-        return;
-
     phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
     glm::mat4 proj = camera->getPerspProjMatrix();
 
     _lastMousePos = mousePos;
 
     float z = -proj[3].z / (_zBufferValue * -2.0 + 1.0 - proj[2].z);
+    if (_zBufferValue == 1.0f)
+        _targetPos = phi::scenesManager::get()->getScene()->getAabb()->getCenter();
+    else
+    {
+        phi::frustum* frustum = camera->getFrustum();
 
-    phi::frustum* frustum = camera->getFrustum();
+        float zNear = frustum->getZNear();
+        float iez = 1.0f / zNear;
+        float zFar = frustum->getZFar();
+        float aspect = frustum->getAspect();
+        float fov = frustum->getFov();
 
-    float zNear = frustum->getZNear();
-    float iez = 1.0f / zNear;
-    float zFar = frustum->getZFar();
-    float aspect = frustum->getAspect();
-    float fov = frustum->getFov();
+        float tg = glm::tan(fov * 0.5f) * zNear;
 
-    float tg = glm::tan(fov * 0.5f) * zNear;
+        float h = _viewportSize.height;
+        float w = _viewportSize.width;
 
-    float h = _viewportSize.height;
-    float w = _viewportSize.width;
+        float hh = h * 0.5f;
+        float hw = w * 0.5f;
 
-    float hh = h * 0.5f;
-    float hw = w * 0.5f;
+        float ys0 = mousePos.y - hh;
+        float yp0 = ys0 / hh;
+        float ym0 = -(yp0 * tg);
 
-    float ys0 = mousePos.y - hh;
-    float yp0 = ys0/hh;
-    float ym0 = -(yp0 * tg);
+        float xs0 = mousePos.x - hw;
+        float xp0 = xs0 / hw;
+        float xm0 = xp0 * tg * aspect;
 
-    float xs0 = mousePos.x - hw;
-    float xp0 = xs0/hw;
-    float xm0 = xp0 * tg * aspect;
+        float x = (xm0 / zNear) * (z);
+        float y = (ym0 / zNear) * (z);
 
-    float x = (xm0/zNear) * (z);
-    float y = (ym0/zNear) * (z);
+        glm::vec3 camPos = camera->getPosition();
+        glm::vec3 camDir = camera->getDirection();
+        glm::vec3 camRight = camera->getRight();
+        glm::vec3 camUp = camera->getUp();
 
-    glm::vec3 camPos = camera->getPosition();
-    glm::vec3 camDir = camera->getDirection();
-    glm::vec3 camRight = camera->getRight();
-    glm::vec3 camUp = camera->getUp();
+        _targetPos = camPos + camDir * z + -camRight * x + camUp * y;
+    }
 
-    glm::vec3 targetPos = camPos + camDir * z + -camRight * x + camUp * y;
-
-    _targetPos = targetPos;
     _eyeZ = z;
     _rotating = true;
 }
 
 void defaultCameraController::pan(glm::vec2 mousePos)
 {
-    if (_zBufferValue == 1.0f)
-        return;
-
     phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
     phi::frustum* frustum = camera->getFrustum();
 
@@ -149,9 +150,6 @@ void defaultCameraController::pan(glm::vec2 mousePos)
 
 void defaultCameraController::rotate(glm::vec2 mousePos)
 {
-    if (_zBufferValue == 1.0f)
-        return;
-
     phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
     phi::frustum* frustum = camera->getFrustum();
 
@@ -182,13 +180,14 @@ void defaultCameraController::zoom(glm::vec2 mousePos, bool in)
 {
     _zBufferValue = phi::renderingSystem::defaultFrameBuffer->getZBufferValue(mousePos);
 
-    if (_zBufferValue == 1.0f)
-        return;
-
     phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
     glm::mat4 proj = camera->getPerspProjMatrix();
 
-    float z = -proj[3].z / (_zBufferValue * -2.0 + 1.0 - proj[2].z);
+    float z;
+    if (_zBufferValue == 1.0f)
+        z = 10.0f;
+    else
+        z = -proj[3].z / (_zBufferValue * -2.0 + 1.0 - proj[2].z);
 
     phi::frustum* frustum = camera->getFrustum();
 
@@ -214,8 +213,8 @@ void defaultCameraController::zoom(glm::vec2 mousePos, bool in)
     float xp0 = xs0/hw;
     float xm0 = xp0 * tg * aspect;
 
-    float x = (xm0/zNear) * (z);
-    float y = (ym0/zNear) * (z);
+    float x = (xm0/zNear) * z;
+    float y = (ym0/zNear) * z;
 
     glm::vec3 camPos = camera->getPosition();
     glm::vec3 camDir = camera->getDirection();
