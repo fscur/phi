@@ -55,11 +55,11 @@ namespace phi
         _textRenderer->update();
     }
 
-    void label::render()
+    void label::onRender()
     {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _textRenderer->render(_text, _font, _foregroundColor, _backgroundColor, glm::vec2(_textX, _textY), _zIndex + 0.001f);
-        glDisable(GL_BLEND);
+        //glDisable(GL_BLEND);
     }
 }

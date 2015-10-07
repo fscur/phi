@@ -315,7 +315,8 @@ void screen::initUI()
 
     phi::button* closeButton = new phi::button(getSize());
     closeButton->setText("X");
-    closeButton->setBackgroundColor(phi::color::fromRGBA(1.0f, 0.5f, 0.5f, 1.0f));
+    closeButton->setToolTipText("Close");
+    closeButton->setBackgroundColor(phi::color::fromRGBA(0.7f, 0.7f, 0.7f, 0.5f));
     closeButton->setForegroundColor(phi::color::white);
     closeButton->setSize(phi::size<GLuint>(30, 30));
     closeButton->setX(getSize().width - 30);
@@ -325,7 +326,8 @@ void screen::initUI()
 
     phi::button* buttonA = new phi::button(getSize());
     buttonA->setText("Hide selected");
-    buttonA->setBackgroundColor(phi::color::fromRGBA(1.0f, 0.5f, 0.5f, 1.0f));
+    buttonA->setToolTipText("Hide selected object");
+    buttonA->setBackgroundColor(phi::color::fromRGBA(0.7f, 0.7f, 0.7f, 0.5f));
     buttonA->setForegroundColor(phi::color::white);
     buttonA->setSize(phi::size<GLuint>(200, 30));
     buttonA->setZIndex(20.0f);
@@ -335,13 +337,25 @@ void screen::initUI()
 
     phi::button* buttonB = new phi::button(getSize());
     buttonB->setText("Show all");
-    buttonB->setBackgroundColor(phi::color::fromRGBA(1.0f, 0.5f, 0.5f, 1.0f));
+    buttonB->setToolTipText("Show all hidden objects");
+    buttonB->setBackgroundColor(phi::color::fromRGBA(0.7f, 0.7f, 0.7f, 0.5f));
     buttonB->setForegroundColor(phi::color::white);
     buttonB->setSize(phi::size<GLuint>(200, 30));
     buttonB->setZIndex(20.0f);
     buttonB->setX(10);
     buttonB->setY(50);
     buttonB->getClick()->bind<screen, &screen::showAllButtonClick>(this);
+
+    //phi::toggleButton* buttonC = new phi::toggleButton(getSize());
+    //buttonC->setText("Use esse \"template\" para criar um toggleButton ;)");
+    //buttonC->setToolTipText("Hehe :)");
+    //buttonC->setBackgroundColor(phi::color::fromRGBA(1.0f, 0.5f, 0.5f, 1.0f));
+    //buttonC->setForegroundColor(phi::color::white);
+    //buttonC->setCheckedColor(phi::color::fromRGBA(1.0f, 0.2f, 0.2f, 1.0f));
+    //buttonC->setSize(phi::size<GLuint>(200, 30));
+    //buttonC->setZIndex(20.0f);
+    //buttonC->setX(10);
+    //buttonC->setY(90);
 
     _slider1 = new phi::slider(getSize());
     _slider1->setTrackColor(phi::color::gray);
@@ -405,22 +419,41 @@ void screen::initUI()
     //textBoxA->setY(180-48);
 
     _materialsCarousel = new phi::carouselList(getSize());
-    _materialsCarousel->setBackgroundColor(phi::color::fromRGBA(0.5f, 0.5f, 0.5f, 0.5f));
+    _materialsCarousel->setBackgroundColor(phi::color::fromRGBA(0.5, 0.5, 0.5, 0.5));
     _materialsCarousel->setSize(phi::size<unsigned int>(getSize().width, 150));
     _materialsCarousel->setX(0);
     _materialsCarousel->setY(getSize().height - 150);
     _materialsCarousel->setZIndex(0);
     _materialsCarousel->getSelectedItemChanged()->bind<screen, &screen::carouselListSelectedItemChanged>(this);
+    _materialsCarousel->setExpanded(false);
 
-    auto materials = _materialsRepository->getAllResources();
-    auto materialsCount = materials.size();
-    for (unsigned int i = 0; i < materialsCount; i++)
+    auto dirs = _materialsRepository->getDirectoriesFromPath("");
+    for (unsigned int i = 0; i < dirs.size(); i++)
     {
-        auto material = (phi::material*)materials[i];
-        phi::carouselItem* carouselItem = new phi::carouselItem(material->getFullName(), getSize());
-        carouselItem->setTexture(material->getThumbnail());
-        _materialsCarousel->addCarouselItem(carouselItem);
+        auto tab = new phi::carouselTab(getSize());
+        tab->setName(dirs[i]);
+        tab->setImage(phi::uiRepository::repository->getResource<phi::texture>("categories/" + dirs[i] + ".png"));
+        _materialsCarousel->addTab(tab);
+
+        auto materials = _materialsRepository->getResourcesFromPath<phi::material>(dirs[i]);
+        for (unsigned int j = 0; j < materials.size(); j++)
+        {
+            auto material = materials[j];
+            phi::carouselItem* carouselItem = new phi::carouselItem(material->getFullName(), getSize());
+            carouselItem->setTexture(material->getThumbnail());
+            carouselItem->setToolTipText(material->getName());
+            tab->addCarouselItem(carouselItem);
+        }
     }
+    //auto materials = _materialsRepository->getAllResources();
+    //auto materialsCount = materials.size();
+    //for (unsigned int i = 0; i < materialsCount; i++)
+    //{
+    //    auto material = (phi::material*)materials[i];
+    //    phi::carouselItem* carouselItem = new phi::carouselItem(material->getFullName(), getSize());
+    //    carouselItem->setTexture(material->getThumbnail());
+    //    _materialsCarousel->addCarouselItem(carouselItem);
+    //}
 
     auto camera = phi::scenesManager::get()->getScene()->getActiveCamera();
 
@@ -440,6 +473,7 @@ void screen::initUI()
 
     phi::uiSystem::get()->addControl(buttonA);
     phi::uiSystem::get()->addControl(buttonB);
+    //phi::uiSystem::get()->addControl(buttonC);
     //phi::uiSystem::get()->addControl(_slider1);
     //phi::uiSystem::get()->addControl(_slider2);
     //phi::uiSystem::get()->addControl(_slider3);

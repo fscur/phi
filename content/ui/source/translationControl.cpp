@@ -431,13 +431,13 @@ namespace phi
         _shader->unbind();
     }
 
-    void translationControl::render()
+    void translationControl::onRender()
     {
         if (!_object)
             return;
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         updateModelMatrix();
         updateAabbs();

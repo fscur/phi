@@ -5,6 +5,7 @@ uniform sampler2D rt0;
 uniform sampler2D rt1;
 uniform sampler2D rt2;
 uniform sampler2D rt3;
+uniform sampler2D rt4;
 uniform vec2 res;
 uniform mat4 ip;
 uniform mat4 p;
@@ -21,7 +22,7 @@ vec3 decodePosition(vec2 texCoord)
 {
 	vec4 clipSpaceLocation;
 	clipSpaceLocation.xy = texCoord * 2.0 - 1.0;
-	clipSpaceLocation.z = texture(rt3, texCoord).r * 2.0 - 1.0;
+	clipSpaceLocation.z = texture(rt4, texCoord).r * 2.0 - 1.0;
 	clipSpaceLocation.w = 1.0;
 
 	vec4 homogenousLocation = ip *  clipSpaceLocation;
@@ -109,7 +110,7 @@ vec4 ComputeReflection(vec4 color)
 		//intersections
 		vec2 samplePos = currentPosition.xy;
 		float currentDepth = linearizeDepth(currentPosition.z);
-		float sampleDepth = linearizeDepth(texture(rt3, samplePos).r);
+		float sampleDepth = linearizeDepth(texture(rt4, samplePos).r);
 		float diff = currentDepth - sampleDepth;
 		//float error = length(screenSpaceVector);
 		float error = 0.005;
@@ -161,7 +162,7 @@ vec4 ComputeReflection(vec4 color)
 //Main
 void main()
 {
-	float reflectivity = texture(rt1, fragTexCoord).b;
+	float reflectivity = texture(rt3, fragTexCoord).x;
 
 	vec4 color = vec4(texture(rt0, fragTexCoord).rgb, 1.0);
 

@@ -13,6 +13,7 @@ namespace phi
         _selectedRenderer = new quadRenderer2D(glm::vec2(0, 0), 0.0f, size<GLuint>(0, 0, 0), viewportSize);
         _isSelected = false;
         _isSelectedChanged = new eventHandler<carouselItemEventArgs>();
+        _clickedOver = false;
     }
 
     carouselItem::~carouselItem()
@@ -130,16 +131,29 @@ namespace phi
         notifyIsSelectedItemChanged(carouselItemEventArgs(this));
     }
 
-    void carouselItem::render()
+    void carouselItem::onMouseDown(mouseEventArgs* e)
     {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if (e->leftButtonPressed && getIsMouseOver())
+        {
+            _clickedOver = true;
+            e->handled = true;
+        }
+    }
 
+    void carouselItem::onMouseUp(mouseEventArgs* e)
+    {
+        if (_clickedOver && e->leftButtonPressed && getIsMouseOver())
+        {
+            setIsSelected(true);
+            e->handled = true;
+        }
+    }
+
+    void carouselItem::onRender()
+    {
         _backgroundRenderer->render(_texture, color::white);
 
         if (_isSelected)
-            _selectedRenderer->render(_selectedTexture, color::fromRGBA(0.0f, 0.0f, 1.0f, 0.15f));
-
-        glDisable(GL_BLEND);
+            _selectedRenderer->render(_selectedTexture, color::fromRGBA(1.0f, 1.0f, 1.0f, 0.15f));
     }
 }

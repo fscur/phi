@@ -70,7 +70,7 @@ namespace phi
 
         UI_API void attachTo(object3D* object);
 
-        UI_API void render() override;
+        UI_API void onRender() override;
     };
 }
 

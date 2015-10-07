@@ -8,6 +8,7 @@ struct spotLight
 	float oneOverRangeSqr;
 	vec3 direction;
 	float cutoff;
+	float radius;
 };
 
 uniform mat4 v;
@@ -47,9 +48,9 @@ float calcVarianceShadowFactor(vec3 fragPosition)
 	float variance = max(moments.y - moments.x * moments.x, 0.00002);
 
 	float d = lightSpacePos.z - moments.x;
-	float pMax = linstep(variance / (variance + d * d), 0.5, 1.0);
+	float pMax = linstep(variance / (variance + d * d), 0.8, 1.0);
 
-	return clamp(min(max(p, pMax), 1.0), 0.0, 1.0);
+	return clamp(min(max(p, pMax), 1.0), 0.2, 1.0);
 }
 
 float calcShadowFactor(vec3 fragPosition)
@@ -92,7 +93,6 @@ vec3 decodeNormal (vec2 enc)
 
 void main(void)
 {
-	fragColor = vec4(0.0);
 	vec2 texCoord = gl_FragCoord.xy / res;
 
 	vec4 c0 = texture(rt0, texCoord);
@@ -116,26 +116,34 @@ void main(void)
 	float spotFactor = dot(spotDir, lightDirNormalized);
 	float cutoff = light.cutoff;
 
+	float distanceToPoint = length(lightDir);
+
 	if (spotFactor > cutoff)
 	{
-		float distanceToPoint = length(lightDir);
-		
 		vec3 s = -lightDirNormalized;
 		vec3 fp = normalize(-fragPosition);
 		vec3 h = normalize(fp+s);
 		float diffuse = light.intensity * max(0.0, dot(normal, s));
 		float spec = pow(max(0.0, dot(normal,h)), shininess);
 
-		fragColor = light.color * diffuseColor * diffuse + light.color * specularColor * spec;
+		float shadowFactor = calcVarianceShadowFactor(fragPosition);
+		vec4 diffuseComponent = light.color * diffuseColor * diffuse;
+		vec4 specularComponent = light.color * specularColor * spec;
 
-		float attenuation = 1 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
+		fragColor = diffuseComponent;
+		fragColor *= shadowFactor;
+
+		if (shadowFactor > 0.5)
+			fragColor += specularComponent;
+
+		float attenuation = 1.0 - pow(distanceToPoint, 2.0) * light.oneOverRangeSqr;
 
 		fragColor *= attenuation;
 
 		float fadeEdgeFactor = 1.0 - ((1.0 - spotFactor)/(1.0 - light.cutoff + 0.0001));
 
 		fragColor *= fadeEdgeFactor;
-
-		fragColor *= calcVarianceShadowFactor(fragPosition);
 	}
+
+	//fragColor += vec4(0.1, 0.1, 0.0, 1.0);
 }

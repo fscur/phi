@@ -8,6 +8,7 @@
 #endif
 
 #include <list>
+#include <algorithm>
 
 //http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
 //or
@@ -180,6 +181,15 @@ namespace phi
             _stub.second = &classMethodStub<C, function>;
 
             _stubs->push_back(_stub);
+        }
+
+        template <class C, void(C::*function)(ARG0)>
+        void unbind(C* instance)
+        {
+            stub s = stub(nullptr, nullptr);
+            s.first = instance;
+            s.second = &classMethodStub<C, function>;
+            _stubs->erase(std::remove(_stubs->begin(), _stubs->end(), s), _stubs->end());
         }
 
         /// Invokes the delegate

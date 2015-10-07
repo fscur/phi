@@ -13,37 +13,52 @@ namespace phi
     {
     private:
         std::string _text;
+        texture* _image;
         font* _font;
         int _textX;
         int _textY;
         bool _clickedOver;
-        color _backgroundColor;
         color _foregroundColor;
         color _overlayColor;
-        texture* _texture;
-        quadRenderer2D* _textureRenderer;
+        quadRenderer2D* _backgroundRenderer;
         quadRenderer2D* _overlayRenderer;
         textRenderer2D* _textRenderer;
+        quadRenderer2D* _imageRenderer;
         mouseEventHandler* _click;
+
+    protected:
+        color _backgroundColor;
+        color _currentBackgroundColor;
+        texture* _backgroundTexture;
 
     private:
         void updateTextLocation();
-        void animateMouseEnter();
-        void animateMouseLeave();
-        void animatePressed();
-        void animateUnpressed();
+        void updateImageLocation();
+
+    protected:
+        void virtual onClick() {}
+        virtual void animateMouseEnter();
+        virtual void animateMouseLeave();
+        virtual void animatePressed();
+        virtual void animateUnpressed();
+        virtual void renderBackground();
+        virtual void renderOverlay();
+        virtual void renderImage();
+        virtual void renderForeground();
 
     public:
         UI_API button(size<GLuint> viewportSize);
         UI_API ~button();
 
         UI_API std::string getText() { return _text; }
+        UI_API texture* getTexture() { return _image; }
         UI_API color getBackgroundColor() { return _backgroundColor; }
         UI_API color getForegroundColor() { return _foregroundColor; }
         UI_API font* getFont() { return _font; }
         UI_API mouseEventHandler* getClick() { return _click; }
 
         UI_API void setText(std::string value);
+        UI_API void setImage(texture* value);
         UI_API void setBackgroundColor(color value);
         UI_API void setForegroundColor(color value) { _foregroundColor = value; }
         UI_API void setFont(font* value) { _font = value; }
@@ -59,7 +74,7 @@ namespace phi
         UI_API void onMouseEnter(mouseEventArgs* e) override;
         UI_API void onMouseLeave(mouseEventArgs* e) override;
 
-        UI_API void render() override;
+        UI_API void onRender() override;
     };
 }
 

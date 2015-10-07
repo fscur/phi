@@ -5,6 +5,7 @@
 #include "directoryInfo.h"
 #include "renderingSystem.h"
 #include "application.h"
+#include <algorithm>
 
 namespace phi
 {
@@ -97,9 +98,14 @@ namespace phi
         for (auto i = 0; i < filesCount; i++)
         {
             auto fileName = files[i].path;
-            auto tex = texture::fromFile(fileName);
-            tex->setFullName(getFullName(sourceDirectory, fileName));
-            _texturesRepository->addResource(tex);
+            auto ext = path::getExtension(fileName);
+            std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+            if (ext == ".png" || ext == ".bmp" || ext == ".jpg")
+            {
+                auto tex = texture::fromFile(fileName);
+                tex->setFullName(getFullName(sourceDirectory, fileName));
+                _texturesRepository->addResource(tex);
+            }
         }
     }
 

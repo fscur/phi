@@ -6,12 +6,14 @@ namespace phi
     button::button(size<GLuint> viewportSize) : control(viewportSize)
     {
         _text = "";
-        _texture = uiRepository::repository->getResource<texture>("button.png");
-        _textureRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
-        _overlayRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.01f, size<GLuint>(0, 0, 0), viewportSize);
+        _image = nullptr;
+        _backgroundTexture = uiRepository::repository->getResource<texture>("button.png");
+        _backgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
+        _overlayRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.02f, size<GLuint>(0, 0, 0), viewportSize);
         _overlayColor = color::fromRGBA(1.0f, 1.0f, 1.0f, 0.0f);
+        _imageRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.01f, size<GLuint>(0, 0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
-        _font = uiRepository::repository->getResource<font>("Consola_18");
+        _font = uiRepository::repository->getResource<font>("Consola_14");
         _textX = 0;
         _textY = 0;
         _clickedOver = false;
@@ -20,7 +22,8 @@ namespace phi
 
     button::~button()
     {
-        DELETE(_textureRenderer);
+        DELETE(_backgroundRenderer);
+        DELETE(_overlayRenderer);
         DELETE(_textRenderer);
     }
 
@@ -33,6 +36,16 @@ namespace phi
             _textX = (int)(_x + _size.width * 0.5f - textSize.width * 0.5f);
 
         _textY = (int)(_y + _size.height * 0.5f - textSize.height * 0.5f);
+    }
+
+    void button::updateImageLocation()
+    {
+        if (_image == nullptr)
+            return;
+
+        auto size = _image->getSize();
+        _imageRenderer->setLocation(glm::vec2(_x + _size.width * 0.5f - size.width * 0.5f, _y + _size.height * 0.5f - size.height * 0.5f));
+        _imageRenderer->update();
     }
 
     void button::animateMouseEnter()
@@ -58,40 +71,48 @@ namespace phi
     void button::setX(int value)
     {
         _x = value;
-        _textureRenderer->setLocation(glm::vec2(_x, _y));
-        _textureRenderer->update();
+        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->update();
         _overlayRenderer->setLocation(glm::vec2(_x, _y));
         _overlayRenderer->update();
+        updateImageLocation();
         updateTextLocation();
     }
 
     void button::setY(int value)
     {
         _y = value;
-        _textureRenderer->setLocation(glm::vec2(_x, _y));
-        _textureRenderer->update();
+        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->update();
         _overlayRenderer->setLocation(glm::vec2(_x, _y));
         _overlayRenderer->update();
+        updateImageLocation();
         updateTextLocation();
     }
 
     void button::setZIndex(float value)
     {
         control::setZIndex(value);
-        _textureRenderer->setZIndex(_zIndex);
-        _textureRenderer->update();
-        _overlayRenderer->setZIndex(_zIndex + 0.01f);
+        _backgroundRenderer->setZIndex(_zIndex);
+        _backgroundRenderer->update();
+        _overlayRenderer->setZIndex(_zIndex + 0.02f);
         _overlayRenderer->update();
+        _imageRenderer->setZIndex(_zIndex + 0.01f);
+        _imageRenderer->update();
     }
 
     void button::setSize(size<GLuint> value)
     {
         _size = value;
-        _textureRenderer->setSize(value);
-        _textureRenderer->update();
+        _backgroundRenderer->setSize(value);
+        _backgroundRenderer->update();
         _overlayRenderer->setSize(value);
         _overlayRenderer->update();
+        updateImageLocation();
         updateTextLocation();
+
+        if (_image != nullptr)
+            _imageRenderer->setSize(_image->getSize());
     }
 
     void button::setText(std::string value)
@@ -100,32 +121,66 @@ namespace phi
         updateTextLocation();
     }
 
+    void button::setImage(texture* value)
+    {
+        _image = value;
+        if (_image != nullptr)
+        {
+            _imageRenderer->setSize(_image->getSize());
+            updateImageLocation();
+        }
+    }
+
     void button::setBackgroundColor(color value)
     {
-        _backgroundColor = value;
+        _backgroundColor = _currentBackgroundColor = value;
     }
 
     void button::setViewportSize(size<GLuint> value)
     {
         control::setViewportSize(value);
-        _textureRenderer->setViewportSize(getViewportSize());
-        _textureRenderer->update();
+        _backgroundRenderer->setViewportSize(getViewportSize());
+        _backgroundRenderer->update();
         _overlayRenderer->setViewportSize(getViewportSize());
         _overlayRenderer->update();
         _textRenderer->setViewportSize(getViewportSize());
         _textRenderer->update();
     }
 
-    void button::render()
+    void button::onRender()
     {
-        glEnable(GL_BLEND);
+        control::onRender();
+        glPushAttrib(GL_SCISSOR_BIT);
         glEnable(GL_SCISSOR_TEST);
         glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
-        _textureRenderer->render(_texture, _backgroundColor);
-        _overlayRenderer->render(_texture, _overlayColor);
-        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX, _textY), _zIndex + 0.02f);
-        glDisable(GL_SCISSOR_TEST);
-        glDisable(GL_BLEND);
+        renderBackground();
+        renderImage();
+        renderOverlay();
+        renderForeground();
+        glPopAttrib();
+    }
+
+    void button::renderBackground()
+    {
+        _backgroundRenderer->render(_backgroundTexture, _currentBackgroundColor);
+    }
+
+    void button::renderOverlay()
+    {
+        _overlayRenderer->render(_backgroundTexture, _overlayColor);
+    }
+
+    void button::renderImage()
+    {
+        if (_image == nullptr)
+            return;
+
+        _imageRenderer->render(_image, color::white);
+    }
+
+    void button::renderForeground()
+    {
+        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX, _textY), _zIndex + 0.03f);
     }
 
     void button::onMouseDown(mouseEventArgs* e)
@@ -148,8 +203,12 @@ namespace phi
     {
         if (e->leftButtonPressed && _clickedOver)
         {
-            if (getIsMouseOver() && _click->isBound())
-                _click->invoke(e);
+            if (getIsMouseOver())
+            {
+                onClick();
+                if (_click->isBound())
+                    _click->invoke(e);
+            }
 
             _clickedOver = false;
             //_textureRenderer->setLocation(glm::vec2(_x, _y));

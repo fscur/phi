@@ -270,7 +270,8 @@ void form::input()
 bool form::loop()
 {
     _now = SDL_GetTicks();
-    phi::clock::millisecondsElapsed = _now;
+    phi::clock::millisecondsElapsed = _now - phi::clock::totalMillisecondsElapsed;
+    phi::clock::totalMillisecondsElapsed = _now;
 
     _inputCost0 = SDL_GetTicks();
     input();

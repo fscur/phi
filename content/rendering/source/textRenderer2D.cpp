@@ -67,9 +67,6 @@ namespace phi
 
     void textRenderer2D::render(std::string text, font* font, color foreColor, color backColor, glm::vec2 location, float zIndex)
     {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
         _shader->bind();
 
         _shader->setUniform("res", glm::vec2(_viewportSize.width, _viewportSize.height));
@@ -118,8 +115,6 @@ namespace phi
         }
 
         _shader->unbind();
-
-        glDisable(GL_BLEND);
     }
 
     size<unsigned int> textRenderer2D::measureSize(std::string text, font* font)

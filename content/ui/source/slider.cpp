@@ -148,13 +148,13 @@ namespace phi
         setValue(_minValue + steps * _stepValue);
     }
 
-    void slider::render()
+    void slider::onRender()
     {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _trackQuad->render(_texture, _trackColor);
         _sliderQuad->render(_texture, _currentSliderColor);
-        glDisable(GL_BLEND);
+        //glDisable(GL_BLEND);
     }
 
     void slider::onMouseDown(mouseEventArgs* e)

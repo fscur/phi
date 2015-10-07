@@ -1,0 +1,26 @@
+- Hierarquia de objetos:
+	- Esconder hierarquicamente;
+- Se esconder luz, não renderizar a luz;
+- Criar opção de "cast shadows" nas lâmpidas;
+- Transparência;
+- Criar tamanho de shadow map independente para dynamic e static e para luzes (quando se movimentam);
+- Frustum culling da câmera;
+- Criar lista de objetos que não foram alterados no frame para que o update destes sejam chamados também;
+- Reduzir quantidade de ifs no update de scene;
+- Criar lista de luzes que afetam um objeto e lista de objetos afetados por uma luz, e renderizar conforme essas listas;
+- Ordenar meshes (instancing);
+- Reduzir trocas de estado do OpenGL;
+- Revisar shaders: ver o que pode ser calculado na aplicação e nos vertex shaders;
+- Arrumar cone (não está renderizando direito quando renderiza os 2 lados da mesh) / problema de normais;
+
+- Compilador de shader:
+	- includes;
+- Light volumes rendering;
+- Criar pasta resources do sistema;
+- Salvar cena (luzes);
+- Transladar pelos planos;
+- Gizmos de escala;
+- Carousel animado;
+- Poder setar no material se ele é front ou double faced;
+
+- Remover dependência de UI com Scenes (translationControl e rotationControl usam o objeto de câmera);

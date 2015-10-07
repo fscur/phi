@@ -22,7 +22,7 @@ namespace phi
 
     void colorAnimator::update()
     {
-        int currentMilliseconds = clock::millisecondsElapsed;
+        int currentMilliseconds = clock::totalMillisecondsElapsed;
 
         std::unordered_map<color*, colorAnimation*>::iterator i = _animations.begin();
         while (i != _animations.end())
@@ -39,7 +39,7 @@ namespace phi
 
             animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
 
-            float percent = (float)animation->getElapsed() / (float)animation->getMilliseconds();
+            float percent = glm::clamp((float)animation->getElapsed() / (float)animation->getMilliseconds(), 0.0f, 1.0f);
 
             colorFromVar->r = colorFrom.r + rDiff * percent;
             colorFromVar->g = colorFrom.g + gDiff * percent;

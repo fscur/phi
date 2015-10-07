@@ -393,13 +393,13 @@ namespace phi
         _object = object;
     }
 
-    void rotationControl::render()
+    void rotationControl::onRender()
     {
         if (!_object)
             return;
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glLineWidth((GLfloat)2.5f);
 
         updateModelMatrix();

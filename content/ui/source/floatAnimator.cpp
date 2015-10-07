@@ -21,11 +21,17 @@ namespace phi
 
     void floatAnimator::update()
     {
-        int currentMilliseconds = clock::millisecondsElapsed;
+        int currentMilliseconds = clock::totalMillisecondsElapsed;
 
         for (unsigned int i = 0; i < _animations.size(); i++)
         {
             floatAnimation* animation = _animations[i];
+            if (animation->getDelayElapsed() < animation->getDelayMilliseconds())
+            {
+                animation->setDelayElapsed(animation->getDelayElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
+                continue;
+            }
+
             float* value = animation->getValue();
             float from = animation->getFrom();
             float to = animation->getTo();

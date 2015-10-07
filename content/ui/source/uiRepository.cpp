@@ -19,6 +19,22 @@ namespace phi
         texture->setFullName("button.png");
         repository->addResource(texture);
 
+        auto addTexture = [&](std::string relativePath) -> void
+        {
+            auto tex = texture::fromFile(texturesPath + relativePath);
+            tex->setFullName(relativePath);
+            repository->addResource(tex);
+        };
+
+        addTexture("categories/Coverings.png");
+        addTexture("categories/Fabrics.png");
+        addTexture("categories/Misc.png");
+        addTexture("categories/Metals.png");
+        addTexture("categories/Woods.png");
+        addTexture("categories/Emissives.png");
+        addTexture("arrow_down.png");
+        addTexture("arrow_up.png");
+
         std::string fontsPath = info.applicationPath + UI_FONTS_PATH;
         repository->addResource(new font("Consola_14", fontsPath + "Consola.ttf", 14, renderingSystem::freeTypeLibrary));
         repository->addResource(new font("Consola_16", fontsPath + "Consola.ttf", 16, renderingSystem::freeTypeLibrary));

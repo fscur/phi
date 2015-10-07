@@ -132,7 +132,7 @@ namespace phi
         _object = object;
     }
 
-    void button3D::render()
+    void button3D::onRender()
     {
         if (!_object)
             return;

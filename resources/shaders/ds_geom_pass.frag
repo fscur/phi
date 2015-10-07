@@ -28,6 +28,7 @@ layout (location = 0) out vec4 rt0;
 layout (location = 1) out vec4 rt1;
 layout (location = 2) out vec4 rt2; 
 layout (location = 3) out vec4 rt3; 
+layout (location = 4) out vec4 rt4;
 
 //http://aras-p.info/texts/CompactNormalStorage.html
 //method 7 - stereographic projection
@@ -60,7 +61,7 @@ void main()
 
 	rt0 = vec4(ambientColor.rgb, mat.shininess/512.0); //RGBA
     rt1 = vec4(diffuseColor.rgb, normal.x); //RGBA16F
-    //rt1 = vec4(1.0, 1.0, mat.reflectivity, normal.x); //RGBA16F
     rt2 = vec4(specularColor.rgb, normal.y); //RGBA16F
-    rt3 = selectionColor; //RGBA
+    rt3 = vec4(mat.reflectivity, 1.0, 1.0, 1.0); //RGBA16F
+    rt4 = selectionColor; //RGBA
 }

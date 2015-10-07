@@ -43,7 +43,7 @@ namespace phi
         UI_API void setSize(size<GLuint> value) override;
 		UI_API void setViewportSize(size<GLuint> value) override;
 
-        UI_API void render() override;
+        UI_API void onRender() override;
     };
 }
 

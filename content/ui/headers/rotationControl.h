@@ -60,7 +60,7 @@ namespace phi
         UI_API void attachTo(object3D* object);
 
         UI_API virtual bool isPointInside(int x, int y) override;
-        UI_API void render() override;
+        UI_API void onRender() override;
     };
 }
 

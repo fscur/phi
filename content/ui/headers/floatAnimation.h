@@ -14,9 +14,11 @@ namespace phi
         int _milliseconds;
         int _elapsed;
         std::function<void(float)> _callback;
+        int _delayMilliseconds;
+        int _delayElapsed;
 
     public:
-        floatAnimation(float* value, float to, int milliseconds, std::function<void(float)> callback = nullptr)
+        floatAnimation(float* value, float to, int milliseconds, std::function<void(float)> callback = nullptr, int delayMilliseconds = 0)
         {
             _value = value;
             _from = *value;
@@ -24,6 +26,8 @@ namespace phi
             _milliseconds = milliseconds;
             _elapsed = 0;
             _callback = callback;
+            _delayMilliseconds = delayMilliseconds;
+            _delayElapsed = 0;
         }
 
         float* getValue() { return _value; }
@@ -32,8 +36,11 @@ namespace phi
         int getMilliseconds() { return _milliseconds; }
         int getElapsed() { return _elapsed; }
         std::function<void(float)> getCallback() { return _callback; }
+        int getDelayMilliseconds() { return _delayMilliseconds; }
+        int getDelayElapsed() { return _delayElapsed; }
 
         void setElapsed(int value) { _elapsed = value; }
+        void setDelayElapsed(int value) { _delayElapsed = value; }
     };
 }
 

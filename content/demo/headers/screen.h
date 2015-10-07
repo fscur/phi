@@ -5,6 +5,7 @@
 #include "scenesManager.h"
 #include "Form.h"
 #include "button.h"
+#include "toggleButton.h"
 #include "label.h"
 #include "slider.h"
 #include "textBox.h"

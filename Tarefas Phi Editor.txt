@@ -1,0 +1,6 @@
+- wpf
+- Luz da thumbnail dos materiais não deve ficar de frente (na câmera);
+- Salvar e carregar configuração do dock das janelas;
+- Adicionar search nas janelas de resources;
+- Poder setar no material se ele é front ou double faced;
+- Poder ir direto para um resource através das properties; (Pensar outra forma)

@@ -19,6 +19,7 @@ namespace phi
         quadRenderer2D* _selectedRenderer;
         bool _isSelected;
         eventHandler<carouselItemEventArgs>* _isSelectedChanged;
+        bool _clickedOver;
 
     private:
         void notifyIsSelectedItemChanged(carouselItemEventArgs e);
@@ -39,7 +40,9 @@ namespace phi
         UI_API void setTexture(texture* value) { _texture = value; }
         UI_API void setIsSelected(bool value);
 
-        UI_API void render() override;
+        UI_API void onRender() override;
+        UI_API void onMouseDown(mouseEventArgs* e) override;
+        UI_API void onMouseUp(mouseEventArgs* e) override;
     };
 }
 

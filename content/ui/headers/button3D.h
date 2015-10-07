@@ -27,7 +27,7 @@ namespace phi
         UI_API button3D(size<GLuint> viewportSize);
         UI_API void setCamera(camera* value) { _camera = value; }
         UI_API void attachTo(object3D* object);
-        UI_API void render() override;
+        UI_API void onRender() override;
     };
 }
 

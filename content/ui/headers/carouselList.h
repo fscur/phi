@@ -5,7 +5,8 @@
 #include "control.h"
 #include "carouselItem.h"
 #include "carouselItemEventArgs.h"
-#include "button.h"
+#include "carouselTab.h"
+#include "toggleButton.h"
 #include "quadRenderer2D.h"
 
 namespace phi
@@ -13,32 +14,32 @@ namespace phi
     class carouselList : public control
     {
     private:
-        static const unsigned int ITEM_MARGIN = 10;
         static const unsigned int BUTTON_MARGIN = 30;
 
-        texture* _texture;
-        quadRenderer2D* _backgroundRenderer;
-        std::vector<carouselItem*> _items;
         color _backgroundColor;
-        float _scrollOffset;
-        float _targetScrollOffset;
-        float _contentOffset;
-        eventHandler<carouselItemEventArgs>* _selectedItemChanged;
         bool _expanded;
         button* _expandButton;
+        float _contentOffset;
+        std::vector<carouselTab*> _tabs;
+        std::vector<toggleButton*> _tabsButtons;
+        carouselTab* _currentTab;
+        eventHandler<carouselItemEventArgs>* _selectedItemChanged;
+        texture* _arrowUpTexture;
+        texture* _arrowDownTexture;
 
     private:
-        void updateItems();
-        void notifySelectedItemChanged(carouselItemEventArgs e);
-        void carouselItemIsSelectedChanged(carouselItemEventArgs e);
         void expandButtonClick(phi::mouseEventArgs* e);
-        void setContentHeight(float value);
+        void setContentOffset(float value);
+        void notifySelectedItemChanged(carouselItemEventArgs e);
+        void carouselTabSelectedItemChanged(carouselItemEventArgs e);
+        void updateTabs();
+        void tabButtonCheckedChanging(controlCancelEventArgs* e);
 
     public:
         UI_API carouselList(size<GLuint> viewportSize);
         UI_API ~carouselList();
 
-        UI_API std::vector<carouselItem*> getItems() { return _items; }
+        UI_API bool getExpanded();
         UI_API eventHandler<carouselItemEventArgs>* getSelectedItemChanged() { return _selectedItemChanged; }
 
         UI_API void setX(int value) override;
@@ -47,16 +48,12 @@ namespace phi
         UI_API void setSize(size<GLuint> value) override;
         UI_API void setViewportSize(size<GLuint> value) override;
         UI_API void setBackgroundColor(color value);
-        UI_API void setSelectedItem(carouselItem* item);
+        UI_API void setExpanded(bool value);
 
-        UI_API void onMouseMove(mouseEventArgs* e) override;
-        UI_API void onMouseDown(mouseEventArgs* e) override;
-        UI_API void onMouseUp(mouseEventArgs* e) override;
-        UI_API void onMouseWheel(mouseEventArgs* e) override;
+        UI_API void addTab(carouselTab* carouselTab);
 
-        UI_API void render() override;
-
-        UI_API void addCarouselItem(carouselItem* carouselItem);
+        void update() override;
+        void onRender() override;
     };
 }
 
