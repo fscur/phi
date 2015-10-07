@@ -65,8 +65,9 @@ namespace phi
 
         if (_checked)
         {
-            colorAnimator::animateColor(&_checkedCurrentColor, _checkedColor, 300);
-            colorAnimator::animateColor(&_currentBackgroundColor, color::fromRGBA(_backgroundColor.r, _backgroundColor.g, _backgroundColor.b, 0.0f), 300);
+            colorAnimator::animateColor(&_currentBackgroundColor, _checkedColor, 300);
+            //colorAnimator::animateColor(&_checkedCurrentColor, _checkedColor, 300);
+            //colorAnimator::animateColor(&_currentBackgroundColor, color::fromRGBA(_backgroundColor.r, _backgroundColor.g, _backgroundColor.b, 0.0f), 300);
         }
         else
         {
@@ -86,7 +87,7 @@ namespace phi
         glEnable(GL_SCISSOR_TEST);
         glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
         renderBackground();
-        _checkedBackgroundRenderer->render(_backgroundTexture, _checkedCurrentColor);
+        //_checkedBackgroundRenderer->render(_backgroundTexture, _checkedCurrentColor);
         renderImage();
         renderOverlay();
         renderForeground();
