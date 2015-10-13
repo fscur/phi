@@ -9,7 +9,7 @@ namespace phi
     {
         _nearPlane = 0.1f;
         _farPlane = 20.0f;
-        _shadowMapSize = 1024;
+        _shadowMapSize = 2048;
         _pointLightShadowMapSize = 256;
         _pointLightIndex = 0;
         _blurShadowMaps = false;
