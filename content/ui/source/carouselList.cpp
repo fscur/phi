@@ -149,6 +149,7 @@ namespace phi
 
         if (pos < _tabsButtons.size())
         {
+            setExpanded(true);
             if (_tabs[pos] == _currentTab && tabButton->getChecked())
                 e->cancel = true;
             else
@@ -160,7 +161,6 @@ namespace phi
 
                     _currentTab = _tabs[pos];
                     addChild(_currentTab);
-                    setExpanded(true);
 
                     auto tabsCount = _tabs.size();
                     for (unsigned int i = 0; i < tabsCount; i++)

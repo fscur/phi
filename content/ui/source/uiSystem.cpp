@@ -126,14 +126,14 @@ namespace phi
             {
                 if (!control->getIsMouseOver())
                     control->notifyMouseEnter(e);
-
-                control->notifyMouseMove(e);
             }
             else
             {
                 if (control->getIsMouseOver())
                     control->notifyMouseLeave(e);
             }
+
+            control->notifyMouseMove(e);
         }
     }
 
