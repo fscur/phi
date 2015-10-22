@@ -310,7 +310,7 @@ namespace phi
         oFile.close();
     }
 
-    mesh* mesh::fromMesh(std::string fileName)
+    mesh* mesh::fromMesh(std::string fileName) // Acho que isso está deprecado (??) (I think this is deprecated)
     {
         LOG("fromMesh: " << fileName);
 
@@ -319,7 +319,7 @@ namespace phi
             LOG("fromMesh: Invalid file format.");
             return nullptr;
         }
-
+        
         mesh* m = new mesh();
 
         GLuint pSize = -1;

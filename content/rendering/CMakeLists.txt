@@ -11,6 +11,7 @@ add_definitions(-DRENDERING_EXPORTS)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../inc/GLM)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../core/headers)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../io/headers)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../loader/headers)
 include_directories(headers)
 
 #libs
@@ -85,6 +86,7 @@ add_library(rendering SHARED ${source_files} ${header_files})
 
 add_dependencies(rendering core)
 add_dependencies(rendering io)
+add_dependencies(rendering loader)
 
 target_link_libraries(rendering ${ASSIMP_LIBRARY})
 target_link_libraries(rendering ${SDL_LIBRARY})
@@ -99,6 +101,7 @@ endif (WIN32)
 
 target_link_libraries(rendering core)
 target_link_libraries(rendering io)
+target_link_libraries(rendering loader)
 
 install(TARGETS rendering 
     RUNTIME 

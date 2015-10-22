@@ -1,6 +1,7 @@
 #include "model.h"
 #include "globals.h"
 #include "path.h"
+#include "importer.h"
 #include <fstream>
 #include <iostream>
 
@@ -18,64 +19,24 @@ namespace phi
 
     model* model::fromFile(std::string fileName)
     {
-        /*LOG("fromFile: " << fileName);
-
-        if (!globals::contains(fileName, ".model"))
-        {
-        LOG("fromFile: Invalid file format.");
-        return nullptr;
-        }*/
-
-        auto materialName = new char[256];
-
-        std::ifstream iFile;
-        iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
-
-        if (!iFile.is_open())
-        {
-            LOG("fromFile: Could not load the file.");
-            return nullptr;
-        }
-
-        iFile.seekg(0);
-
-        auto uintSize = sizeof(GLuint);
-        auto floatSize = sizeof(GLfloat);
         auto modelName = path::getFileNameWithoutExtension(fileName);
         GLuint meshCount = 0;
+
+        std::vector<meshData*>* meshesData = new std::vector<meshData*>();
+        if (!importer::importMesh(fileName, meshesData))
+        {
+            LOG("Failed to load mesh");
+            return nullptr;
+        }
 
         model* md = new model(modelName, fileName);
 
         auto i = 0;
-
-        while(iFile.peek() != -1)
+        for each (meshData* data in *meshesData)
         {
             auto meshName = modelName + "_mesh_" + std::to_string(meshCount++);
 
-            iFile.read(materialName, 256);
-
-            GLuint verticesCount = -1;
-            iFile.read(reinterpret_cast<char*>(&verticesCount), uintSize);
-
-            GLuint positionsSize = verticesCount * 3 * floatSize;
-            GLuint texCoordsSize = verticesCount * 2 * floatSize;
-            GLuint normalsSize = verticesCount * 3 * floatSize;
-
-            GLfloat* positionsBuffer = new GLfloat[verticesCount * 3];
-            GLfloat* texCoordsBuffer = new GLfloat[verticesCount * 2];
-            GLfloat* normalsBuffer = new GLfloat[verticesCount * 3];
-
-            iFile.read(reinterpret_cast<char*>(positionsBuffer), positionsSize);
-            iFile.read(reinterpret_cast<char*>(texCoordsBuffer), texCoordsSize);
-            iFile.read(reinterpret_cast<char*>(normalsBuffer), normalsSize);
-
-            GLuint indicesCount = -1;
-            iFile.read(reinterpret_cast<char*>(&indicesCount), uintSize);
-
-            GLuint* indicesBuffer = new GLuint[indicesCount];
-            iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * sizeof(unsigned int));
-
-            mesh* m = mesh::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer, materialName);
+            mesh* m = mesh::create(data->getVerticesSize(), data->getPositions(), data->getTextureCoords(), data->getNormals(), data->getIndicesSize(), data->getIndices(), data->getMaterialName());
             m->setId(i++);
 
             md->_meshes.push_back(m);
