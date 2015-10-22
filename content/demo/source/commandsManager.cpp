@@ -93,8 +93,13 @@ void commandsManager::executeCommand(command* cmd)
         if (c->getIsUndoable())
         {
             _undo.push(c);
-            std::stack<command*> empty;
-            std::swap(_redo, empty);
+            /*std::stack<command*> empty;
+            std::swap(_redo, empty);*/
+
+            while (!_redo.empty())
+            {
+                _redo.pop();
+            }
         }
 
         _executingCommand = false;
