@@ -1,3 +1,5 @@
+- Adicionar Carousel dos Modelos
+- Revisar o sistema de eventos da UI
 - Hierarquia de objetos:
 	- Esconder hierarquicamente;
 - Se esconder luz, não renderizar a luz;
