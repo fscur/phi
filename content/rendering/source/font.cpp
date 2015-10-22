@@ -1,5 +1,6 @@
 #include "font.h"
 #include "resource.h"
+#include <algorithm>
 
 namespace phi
 {
