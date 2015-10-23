@@ -120,10 +120,14 @@ namespace phi
         //if (higher && !higher->getIsMouseOver())
         //    higher->notifyMouseEnter(e);
 
+        auto topMost = true;
         for (control* control : _controls)
         {
             if (control->isPointInside(e->x, e->y))
             {
+                control->setIsTopMost(topMost);
+                topMost = false;
+
                 if (!control->getIsMouseOver())
                     control->notifyMouseEnter(e);
             }
@@ -212,7 +216,7 @@ namespace phi
         cntrl->getMouseLeave()->unbind<uiSystem, &uiSystem::controlMouseLeave>(this);
         cntrl->getAddedChild()->unbind<uiSystem, &uiSystem::controlAddedChild>(this);
         cntrl->getRemovedChild()->unbind<uiSystem, &uiSystem::controlRemovedChild>(this);
-        
+
         for (control* child : cntrl->getChildren())
             removeControlFromList(child);
 

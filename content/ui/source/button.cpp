@@ -147,17 +147,33 @@ namespace phi
         _textRenderer->update();
     }
 
+    void button::setIsTopMost(bool value)
+    {
+        control::setIsTopMost(value);
+        if (!getIsTopMost())
+            animateMouseLeave();
+        else
+            animateMouseEnter();
+    }
+
     void button::onRender()
     {
         control::onRender();
-        glPushAttrib(GL_SCISSOR_BIT);
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
+        
+        control::controlsScissors->pushScissor(_x, _y, _size.width, _size.height);
+        control::controlsScissors->enable();
+
+        //glPushAttrib(GL_SCISSOR_BIT);
+        //glEnable(GL_SCISSOR_TEST);
+        //glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
         renderBackground();
         renderImage();
         renderOverlay();
         renderForeground();
-        glPopAttrib();
+        //glPopAttrib();
+
+        control::controlsScissors->popScissor();
+        control::controlsScissors->disable();
     }
 
     void button::renderBackground()
@@ -225,7 +241,8 @@ namespace phi
 
     void button::onMouseEnter(mouseEventArgs* e)
     {
-        animateMouseEnter();
+        if (getIsTopMost())
+            animateMouseEnter();
     }
 
     void button::onMouseLeave(mouseEventArgs* e)

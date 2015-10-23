@@ -68,6 +68,7 @@ namespace phi
         UI_API void setZIndex(float value) override;
         UI_API void setSize(size<GLuint> value) override;
         UI_API void setViewportSize(size<GLuint> value) override;
+        UI_API void setIsTopMost(bool value) override;
 
         UI_API void onMouseDown(mouseEventArgs* e) override;
         UI_API void onMouseUp(mouseEventArgs* e) override;

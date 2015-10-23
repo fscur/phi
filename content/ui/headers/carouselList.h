@@ -14,7 +14,10 @@ namespace phi
     class carouselList : public control
     {
     private:
-        static const unsigned int BUTTON_MARGIN = 30;
+        static const unsigned int TABS_HEIGHT = 30;
+        static const unsigned int TABS_WIDTH = 120;
+        static const unsigned int TABS_MARGIN = 2;
+        static const unsigned int EXPAND_BUTTON_WIDTH = 60;
 
         color _backgroundColor;
         bool _expanded;
@@ -26,6 +29,9 @@ namespace phi
         eventHandler<carouselItemEventArgs>* _selectedItemChanged;
         texture* _arrowUpTexture;
         texture* _arrowDownTexture;
+        float _scrollOffset;
+        float _targetScrollOffset;
+        scissor _tabsScissor;
 
     private:
         void expandButtonClick(phi::mouseEventArgs* e);
@@ -33,6 +39,7 @@ namespace phi
         void notifySelectedItemChanged(carouselItemEventArgs e);
         void carouselTabSelectedItemChanged(carouselItemEventArgs e);
         void updateTabs();
+        void updateScissors();
         void tabButtonCheckedChanging(controlCancelEventArgs* e);
 
     public:
@@ -52,7 +59,8 @@ namespace phi
 
         UI_API void addTab(carouselTab* carouselTab);
 
-        void update() override;
+        UI_API void onMouseWheel(mouseEventArgs* e) override;
+
         void onRender() override;
     };
 }

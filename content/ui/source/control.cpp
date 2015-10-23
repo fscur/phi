@@ -5,6 +5,7 @@
 namespace phi
 {
     toolTip* control::_toolTip = nullptr;
+    scissorStack* control::controlsScissors = nullptr;
 
     control::control(size<GLuint> viewportSize)
     {
@@ -15,6 +16,7 @@ namespace phi
         _viewportSize = viewportSize;
         _isFocused = false;
         _isMouseOver = false;
+        _isTopMost = false;
         _toolTipText = "";
         _renderToolTip = false;
         _mouseEnter = new mouseEventHandler();
@@ -34,6 +36,7 @@ namespace phi
     void control::init(size<GLuint> viewportSize)
     {
         _toolTip = new toolTip(viewportSize);
+        controlsScissors = new scissorStack(viewportSize);
     }
 
     void control::addChild(control* child)

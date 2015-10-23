@@ -342,17 +342,24 @@ namespace phi
 
     void textBox::onRender()
     {
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
+        //glEnable(GL_SCISSOR_TEST);
+        //glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
         //glEnable(GL_BLEND);
         //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        control::controlsScissors->pushScissor(_x, _y, _size.width, _size.height);
+        control::controlsScissors->enable();
+
         _backgroundRenderer->render(_texture, _currentColor);
         if (getIsFocused())
             _selectionRenderer->render(_texture, color::fromRGBA(0.0f, 0.0f, 0.9f, 1.0f));
         _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX + _textOffsetX, _textY), _zIndex + 0.02f);
         if (getIsFocused())
             _cursorRenderer->render(_texture, color::fromRGBA(0.3f, 0.3f, 0.3f, 1.0f));
+
+        control::controlsScissors->popScissor();
+        control::controlsScissors->disable();
         //glDisable(GL_BLEND);
-        glDisable(GL_SCISSOR_TEST);
+        //glDisable(GL_SCISSOR_TEST);
     }
 }

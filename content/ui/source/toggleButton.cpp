@@ -83,14 +83,20 @@ namespace phi
 
     void toggleButton::onRender()
     {
-        glPushAttrib(GL_SCISSOR_BIT);
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
+        control::controlsScissors->pushScissor(_x, _y, _size.width, _size.height);
+        control::controlsScissors->enable();
+
+        //glPushAttrib(GL_SCISSOR_BIT);
+        //glEnable(GL_SCISSOR_TEST);
+        //glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
         renderBackground();
         //_checkedBackgroundRenderer->render(_backgroundTexture, _checkedCurrentColor);
         renderImage();
         renderOverlay();
         renderForeground();
-        glPopAttrib();
+        //glPopAttrib();
+
+        control::controlsScissors->popScissor();
+        control::controlsScissors->disable();
     }
 }

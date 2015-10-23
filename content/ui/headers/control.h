@@ -13,6 +13,7 @@
 #include "uiRepository.h"
 #include "controlEventArgs.h"
 #include "toolTip.h"
+#include "scissorStack.h"
 
 namespace phi
 {
@@ -22,6 +23,7 @@ namespace phi
         static toolTip* _toolTip;
         bool _isMouseOver;
         bool _isFocused;
+        bool _isTopMost;
         mouseEventHandler* _mouseEnter;
         mouseEventHandler* _mouseLeave;
         eventHandler<controlEventArgs>* _gotFocus;
@@ -37,11 +39,15 @@ namespace phi
         void notifyLostFocus(controlEventArgs e);
 
     protected:
+        static scissorStack* controlsScissors;
         int _x;
         int _y;
         float _zIndex;
         size<GLuint> _size;
         size<GLuint> _viewportSize;
+
+    protected:
+        static void pushScissor(float x, float y, float width, float height);
 
     public:
         UI_API control(size<GLuint> viewportSize);
@@ -65,6 +71,7 @@ namespace phi
         UI_API virtual size<GLuint> getSize() { return _size; }
         UI_API virtual bool getIsMouseOver() { return _isMouseOver; }
         UI_API virtual bool getIsFocused() { return _isFocused; }
+        UI_API virtual bool getIsTopMost() { return _isTopMost; }
         UI_API virtual size<GLuint> getViewportSize() { return _viewportSize; }
         UI_API std::string getToolTipText() const { return _toolTipText; }
         UI_API std::vector<control*> getChildren() { return _children; }
@@ -75,6 +82,7 @@ namespace phi
         UI_API virtual void setSize(size<GLuint> value) { _size = value; }
         UI_API virtual void setViewportSize(size<GLuint> value) { _viewportSize = value; }
         UI_API virtual void setIsFocused(bool value);
+        UI_API virtual void setIsTopMost(bool value) { _isTopMost = value; }
         UI_API void setToolTipText(const std::string value) { _toolTipText = value; }
 
         UI_API virtual bool isPointInside(int x, int y);
