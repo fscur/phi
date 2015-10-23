@@ -275,9 +275,9 @@ namespace phi
             break;
         case PHIK_RIGHT:
             if (!e.isShiftPressed)
-                _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, _text.length());
+                _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::min((size_t)(_cursorIndex + 1), _text.length());
             else
-                _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, _text.length());
+                _selectionEndIndex = _cursorIndex = glm::min((size_t)(_cursorIndex + 1), _text.length());
             updateCursorLocation();
             updateSelectionRenderer();
             break;

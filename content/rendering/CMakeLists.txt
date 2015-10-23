@@ -43,16 +43,16 @@ if(NOT OPENGL_FOUND)
     message(OPENGL not found!)
 endif(NOT OPENGL_FOUND)
 
-if (NOT ASSIMP_INCLUDE_DIRS)
-   set(ASSIMP_INCLUDE_DIRS "" CACHE PATH "Assimp Include Dir")
-endif()
-
-if (NOT ASSIMP_LIBRARY)
-   set(ASSIMP_LIBRARY "" CACHE FILEPATH "Assimp Libs")
-endif()
-
-
-include_directories(${ASSIMP_INCLUDE_DIRS})
+#if (NOT ASSIMP_INCLUDE_DIRS)
+#   set(ASSIMP_INCLUDE_DIRS "" CACHE PATH "Assimp Include Dir")
+#endif()
+#
+#if (NOT ASSIMP_LIBRARY)
+#   set(ASSIMP_LIBRARY "" CACHE FILEPATH "Assimp Libs")
+#endif()
+#
+#
+#include_directories(${ASSIMP_INCLUDE_DIRS})
 
 include_directories(${SDL_INCLUDE_DIR})
 include_directories(${SDL_TTF_INCLUDE_DIRS})
@@ -60,7 +60,7 @@ include_directories(${SDL_IMAGE_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
-link_directories(${ASSIMP_LIBRARY})
+#link_directories(${ASSIMP_LIBRARY})
 link_directories(${SDL_LIBRARY})
 link_directories(${SDL_TTF_LIBRARIES})
 link_directories(${SDL_IMAGE_LIBRARIES})
@@ -88,7 +88,7 @@ add_dependencies(rendering core)
 add_dependencies(rendering io)
 add_dependencies(rendering loader)
 
-target_link_libraries(rendering ${ASSIMP_LIBRARY})
+#target_link_libraries(rendering ${ASSIMP_LIBRARY})
 target_link_libraries(rendering ${SDL_LIBRARY})
 target_link_libraries(rendering ${SDL_TTF_LIBRARY})
 target_link_libraries(rendering ${SDL_IMAGE_LIBRARY})

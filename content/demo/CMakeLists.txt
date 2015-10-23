@@ -38,23 +38,23 @@ if(NOT OPENGL_FOUND)
     message(OPENGL not found!)
 endif(NOT OPENGL_FOUND)
 
-if (NOT ASSIMP_INCLUDE_DIRS)
-   set(ASSIMP_INCLUDE_DIRS "" CACHE PATH "Assimp Include Dir")
-endif()
+#if (NOT ASSIMP_INCLUDE_DIRS)
+#   set(ASSIMP_INCLUDE_DIRS "" CACHE PATH "Assimp Include Dir")
+#endif()
+#
+#if (NOT ASSIMP_LIBRARY)
+#   set(ASSIMP_LIBRARY "" CACHE FILEPATH "Assimp Libs")
+#endif()
 
-if (NOT ASSIMP_LIBRARY)
-   set(ASSIMP_LIBRARY "" CACHE FILEPATH "Assimp Libs")
-endif()
 
-
-include_directories(${ASSIMP_INCLUDE_DIRS})
+#include_directories(${ASSIMP_INCLUDE_DIRS})
 
 include_directories(${SDL_INCLUDE_DIR})
 include_directories(${SDL_TTF_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
-link_directories(${ASSIMP_LIBRARY})
+#link_directories(${ASSIMP_LIBRARY})
 link_directories(${SDL_LIBRARY})
 link_directories(${SDL_TTF_LIBRARIES})
 link_directories(${OPENGL_LIBRARIES})
@@ -96,7 +96,7 @@ add_executable(demo ${source_files} ${header_files} ${font_files} ${model_files}
 
 add_dependencies(demo ui)
 
-target_link_libraries(demo ${ASSIMP_LIBRARY})
+#target_link_libraries(demo ${ASSIMP_LIBRARY})
 target_link_libraries(demo ${SDL_LIBRARY})
 target_link_libraries(demo ${SDL_TTF_LIBRARY})
 target_link_libraries(demo ${OPENGL_LIBRARY})
