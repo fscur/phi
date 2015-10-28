@@ -99,7 +99,7 @@ namespace phi
         float itemsHeight = _size.height - 2.0f * ITEM_MARGIN;
         float maxScroll = _size.width - (_items.size() * (itemsHeight + ITEM_MARGIN) + ITEM_MARGIN);
         _targetScrollOffset = glm::min(0.0f, glm::max(_targetScrollOffset - (float)item->getX() + _size.width * 0.5f - itemsHeight * 0.5f, maxScroll));
-        floatAnimator::animateFloat(&_scrollOffset, _targetScrollOffset, 250);
+        floatAnimator::animateFloat(new floatAnimation(&_scrollOffset, _targetScrollOffset, 250, nullptr, 0, easingFunctions::easeOutQuad));
         updateItems();
     }
 
@@ -131,7 +131,7 @@ namespace phi
         float itemsHeight = getItemHeight();
         float maxScroll = _size.width - (_items.size() * (itemsHeight + ITEM_MARGIN) + ITEM_MARGIN);
         _targetScrollOffset = glm::min(0.0f, glm::max(_targetScrollOffset - e->wheelDelta * (itemsHeight + ITEM_MARGIN), maxScroll));
-        floatAnimator::animateFloat(new floatAnimation(&_scrollOffset, _targetScrollOffset, 250, [&](float v) -> void { updateItems(); }));
+        floatAnimator::animateFloat(new floatAnimation(&_scrollOffset, _targetScrollOffset, 250, [&](float v) -> void { updateItems(); }, 0, easingFunctions::easeOutQuad));
         e->handled = true;
     }
 

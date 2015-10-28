@@ -7,7 +7,7 @@
     #define FORCEINLINE
 #endif
 
-#include <list>
+#include <vector>
 #include <algorithm>
 
 //http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
@@ -154,7 +154,7 @@ namespace phi
         public:
         delegate(void)
         {   
-            _stubs = new std::list<stub>();
+            _stubs = new std::vector<stub>();
         }
 
         ~delegate()
@@ -190,16 +190,18 @@ namespace phi
             s.first = instance;
             s.second = &classMethodStub<C, function>;
             _stubs->erase(std::remove(_stubs->begin(), _stubs->end(), s), _stubs->end());
+            _i--;
         }
 
         /// Invokes the delegate
-        void invoke(ARG0 arg0) const
+        void invoke(ARG0 arg0)
         {
             //assert(_stub.second != nullptr, "Cannot invoke unbound delegate. Call bind() first.")();
 
-            for (typename std::list<stub>::iterator i = _stubs->begin(); i != _stubs->end(); ++i)
+            for (_i = 0; _i < _stubs->size(); ++_i)
             {
-                (*i).second((*i).first, arg0);
+                stub a = (*_stubs)[_i];
+                a.second(a.first, arg0);
             }
         }
  
@@ -209,7 +211,8 @@ namespace phi
         }
 
     private:
-        std::list<stub>* _stubs;
+        std::vector<stub>* _stubs;
+        int _i;
     };
 }
 #endif

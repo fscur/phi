@@ -14,24 +14,31 @@ namespace phi
     class carouselList : public control
     {
     private:
-        static const unsigned int TABS_HEIGHT = 30;
-        static const unsigned int TABS_WIDTH = 120;
-        static const unsigned int TABS_MARGIN = 2;
+        static const unsigned int HEADER_HEIGHT = 30;
+        static const unsigned int SUB_TAB_WIDTH = 120;
+        static const unsigned int TAB_MARGIN = 2;
+        static const unsigned int REGIONS_MARGIN = 4;
         static const unsigned int EXPAND_BUTTON_WIDTH = 60;
+        static const unsigned int TABS_WIDTH = HEADER_HEIGHT * 3 + TAB_MARGIN * 2;
 
         color _backgroundColor;
         bool _expanded;
         button* _expandButton;
         float _contentOffset;
-        std::vector<carouselTab*> _tabs;
+        std::vector<std::vector<carouselTab*>*> _tabs;
         std::vector<toggleButton*> _tabsButtons;
-        carouselTab* _currentTab;
+        std::vector<std::vector<toggleButton*>*> _subTabsButtons;
+        unsigned int _currentTab;
+        carouselTab* _currentSubTab;
         eventHandler<carouselItemEventArgs>* _selectedItemChanged;
         texture* _arrowUpTexture;
         texture* _arrowDownTexture;
-        float _scrollOffset;
-        float _targetScrollOffset;
+        float _tabsScrollOffset;
+        float _tabsTargetScrollOffset;
+        float _subTabsScrollOffset;
+        float _subTabsTargetScrollOffset;
         scissor _tabsScissor;
+        scissor _subTabsScissor;
 
     private:
         void expandButtonClick(phi::mouseEventArgs* e);
@@ -41,12 +48,16 @@ namespace phi
         void updateTabs();
         void updateScissors();
         void tabButtonCheckedChanging(controlCancelEventArgs* e);
+        void subTabButtonCheckedChanging(controlCancelEventArgs* e);
+        void subTabButtonCheckedChanged(controlEventArgs e);
+        toggleButton* createTabButton(std::string text, texture* image, float x, float y, size<GLuint> size);
+        void changeCurrentSubTab(carouselTab* subTab);
 
     public:
         UI_API carouselList(size<GLuint> viewportSize);
         UI_API ~carouselList();
 
-        UI_API bool getExpanded();
+        UI_API bool getExpanded() { return _expanded; }
         UI_API eventHandler<carouselItemEventArgs>* getSelectedItemChanged() { return _selectedItemChanged; }
 
         UI_API void setX(int value) override;
@@ -57,7 +68,8 @@ namespace phi
         UI_API void setBackgroundColor(color value);
         UI_API void setExpanded(bool value);
 
-        UI_API void addTab(carouselTab* carouselTab);
+        UI_API int addTab(std::string toolTipText, texture* image);
+        UI_API void addSubTab(int tabIndex, carouselTab* carouselTab);
 
         UI_API void onMouseWheel(mouseEventArgs* e) override;
 

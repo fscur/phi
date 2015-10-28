@@ -50,22 +50,22 @@ namespace phi
 
     void button::animateMouseEnter()
     {
-        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300);
+        colorAnimator::animateColor(new colorAnimation(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300, easingFunctions::easeOutCubic));
     }
 
     void button::animateMouseLeave()
     {
-        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500);
+        colorAnimator::animateColor(new colorAnimation(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500, easingFunctions::easeOutCubic));
     }
 
     void button::animatePressed()
     {
-        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300);
+        colorAnimator::animateColor(new colorAnimation(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300, easingFunctions::easeOutCubic));
     }
 
     void button::animateUnpressed()
     {
-        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500);
+        colorAnimator::animateColor(new colorAnimation(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500, easingFunctions::easeOutCubic));
     }
 
     void button::setX(int value)

@@ -37,7 +37,11 @@ namespace phi
             float to = animation->getTo();
 
             float percent = (float)animation->getElapsed() / (float)animation->getMilliseconds();
-            float diff = sin(percent * glm::pi<float>() * 0.5f);
+            //float diff = sin(percent * glm::pi<float>() * 0.5f);
+            //float t = percent;
+            //float diff = t<.5 ? 4 * t*t*t : (t - 1)*(2 * t - 2)*(2 * t - 2) + 1; // bão!
+            //float diff = t*(2 - t);
+            float diff = animation->getEasingFunction()(percent);
 
             if (percent >= 1.0f)
             {

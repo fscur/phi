@@ -40,11 +40,12 @@ namespace phi
             animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
 
             float percent = glm::clamp((float)animation->getElapsed() / (float)animation->getMilliseconds(), 0.0f, 1.0f);
+            float easing = animation->getEasingFunction()(percent);
 
-            colorFromVar->r = colorFrom.r + rDiff * percent;
-            colorFromVar->g = colorFrom.g + gDiff * percent;
-            colorFromVar->b = colorFrom.b + bDiff * percent;
-            colorFromVar->a = colorFrom.a + aDiff * percent;
+            colorFromVar->r = colorFrom.r + rDiff * easing;
+            colorFromVar->g = colorFrom.g + gDiff * easing;
+            colorFromVar->b = colorFrom.b + bDiff * easing;
+            colorFromVar->a = colorFrom.a + aDiff * easing;
 
             if (percent >= 1.0f)
                 _animations.erase(i++);
