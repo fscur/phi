@@ -181,7 +181,6 @@ namespace phi
         carouselTab->setZIndex(_zIndex + 0.01f);
         carouselTab->setSize(size<GLuint>(_size.width, _size.height - _contentOffset, _size.depth));
         carouselTab->setBackgroundColor(_backgroundColor);
-        carouselTab->getSelectedItemChanged()->bind<carouselList, &carouselList::carouselTabSelectedItemChanged>(this);
 
         auto i = _tabs[tabIndex]->size();
         _tabs[tabIndex]->push_back(carouselTab);
@@ -340,8 +339,6 @@ namespace phi
 
     void carouselList::carouselTabSelectedItemChanged(carouselItemEventArgs e)
     {
-        if (e.sender->getIsSelected())
-            notifySelectedItemChanged(e.sender);
     }
 
     void carouselList::expandButtonClick(phi::mouseEventArgs* e)

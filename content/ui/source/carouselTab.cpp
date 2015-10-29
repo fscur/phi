@@ -9,7 +9,6 @@ namespace phi
         _backgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), 0.0f, size<GLuint>(0, 0, 0), viewportSize);
         _scrollOffset = 0.0f;
         _targetScrollOffset = 0.0f;
-        _selectedItemChanged = new eventHandler<carouselItemEventArgs>();
     }
 
     carouselTab::~carouselTab()
@@ -59,48 +58,18 @@ namespace phi
         _backgroundRenderer->update();
     }
 
-    void carouselTab::notifySelectedItemChanged(carouselItemEventArgs e)
+    void carouselTab::addCarouselItem(carouselItem* item)
     {
-        if (_selectedItemChanged->isBound())
-            _selectedItemChanged->invoke(e);
-    }
-
-    void carouselTab::carouselItemIsSelectedChanged(carouselItemEventArgs e)
-    {
-        if (e.sender->getIsSelected())
-        {
-            for (carouselItem* item : _items)
-                if (item != e.sender)
-                    item->setIsSelected(false);
-
-            notifySelectedItemChanged(e.sender);
-        }
-    }
-
-    void carouselTab::addCarouselItem(carouselItem* carouselItem)
-    {
-        _items.push_back(carouselItem);
         GLuint height = _size.height - ITEM_MARGIN * 2.0f;
-        carouselItem->setSize(size<GLuint>(height, height));
-        carouselItem->setX(_x + _scrollOffset + (_items.size() - 1) * (height + ITEM_MARGIN) + ITEM_MARGIN);
-        carouselItem->setY(_y + ITEM_MARGIN);
-        carouselItem->setZIndex(_zIndex + 0.01f);
-        carouselItem->getIsSelectedChanged()->bind<carouselTab, &carouselTab::carouselItemIsSelectedChanged>(this);
-        addChild(carouselItem);
-    }
+        item->setSize(size<GLuint>(height, height));
+        item->setX(_x + _scrollOffset + (_items.size() - 1) * (height + ITEM_MARGIN) + ITEM_MARGIN);
+        item->setY(_y + ITEM_MARGIN);
+        item->setZIndex(_zIndex + 0.01f);
+        item->setBackgroundColor(color::fromRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+        //b->getClick()->bind([](mouseEventArgs* e) -> void {});
 
-    void carouselTab::setSelectedItem(carouselItem* item)
-    {
-        for (carouselItem* item2 : _items)
-            item2->setIsSelected(false);
-
-        item->setIsSelected(true);
-
-        float itemsHeight = _size.height - 2.0f * ITEM_MARGIN;
-        float maxScroll = _size.width - (_items.size() * (itemsHeight + ITEM_MARGIN) + ITEM_MARGIN);
-        _targetScrollOffset = glm::min(0.0f, glm::max(_targetScrollOffset - (float)item->getX() + _size.width * 0.5f - itemsHeight * 0.5f, maxScroll));
-        floatAnimator::animateFloat(new floatAnimation(&_scrollOffset, _targetScrollOffset, 250, nullptr, 0, easingFunctions::easeOutQuad));
-        updateItems();
+        _items.push_back(item);
+        addChild(item);
     }
 
     void carouselTab::updateItems()
@@ -110,7 +79,7 @@ namespace phi
 
         for (unsigned int i = 0; i < itemsCount; i++)
         {
-            carouselItem* item = _items[i];
+            button* item = _items[i];
             item->setSize(size<GLuint>(height, height));
             item->setX(_x + _scrollOffset + i * (height + ITEM_MARGIN) + ITEM_MARGIN);
             item->setY(_y + ITEM_MARGIN);

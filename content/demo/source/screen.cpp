@@ -424,7 +424,6 @@ void screen::initUI()
     _materialsCarousel->setX(0);
     _materialsCarousel->setY(getSize().height - 150);
     _materialsCarousel->setZIndex(0);
-    _materialsCarousel->getSelectedItemChanged()->bind<screen, &screen::carouselListSelectedItemChanged>(this);
     _materialsCarousel->setExpanded(false);
 
     auto materialsDirs = _materialsRepository->getDirectoriesFromPath("");
@@ -441,8 +440,9 @@ void screen::initUI()
         {
             auto material = materials[j];
             phi::carouselItem* carouselItem = new phi::carouselItem(material->getFullName(), getSize());
-            carouselItem->setTexture(material->getThumbnail());
+            carouselItem->setImage(material->getThumbnail());
             carouselItem->setToolTipText(material->getName());
+            carouselItem->getClick()->bind<screen, &screen::carouselListItemClick>(this);
             tab->addCarouselItem(carouselItem);
         }
     }
@@ -460,7 +460,7 @@ void screen::initUI()
         {
             auto model = models[j];
             phi::carouselItem* carouselItem = new phi::carouselItem(model->getFullName(), getSize());
-            carouselItem->setTexture(model->getThumbnail());
+            carouselItem->setImage(model->getThumbnail());
             carouselItem->setToolTipText(model->getName());
             tab->addCarouselItem(carouselItem);
         }
@@ -836,7 +836,7 @@ void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
     //}
 }
 
-void screen::carouselListSelectedItemChanged(phi::carouselItemEventArgs e)
+void screen::carouselListItemClick(phi::mouseEventArgs* e)
 {
     phi::sceneObject* obj = nullptr;
     auto sceneObjects = phi::scenesManager::get()->getScene()->getAllObjects();
@@ -855,7 +855,7 @@ void screen::carouselListSelectedItemChanged(phi::carouselItemEventArgs e)
         return;
 
     auto cmds = std::vector<command*>();
-
+    auto carouselItem = (phi::carouselItem*)e->sender;
     auto sceneMeshes = obj->getSceneMeshes();
     auto sceneMeshesCount = sceneMeshes.size();
     for (unsigned int i = 0; i < sceneMeshesCount; i++)
@@ -863,7 +863,7 @@ void screen::carouselListSelectedItemChanged(phi::carouselItemEventArgs e)
         auto sm = sceneMeshes[i];
         if (sm->getIsSelected())
         {
-            auto material = _materialsRepository->getResource<phi::material>(e.sender->getName());
+            auto material = _materialsRepository->getResource<phi::material>(carouselItem->getName());
             cmds.push_back(new setMaterialCommand(sm, material));
         }
     }

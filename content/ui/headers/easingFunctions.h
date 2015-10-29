@@ -1,6 +1,8 @@
 #ifndef _PHI_EASING_FUNCTIONS_H_
 #define _PHI_EASING_FUNCTIONS_H_
 
+#include <math.h>
+
 namespace phi
 {
     class easingFunctions
@@ -55,6 +57,27 @@ namespace phi
                 return 7.5625*(t -= (2.25 / 2.75))*t + .9375;
             else
                 return 7.5625*(t -= (2.625 / 2.75))*t + .984375;
+        }
+
+        static float easeOutElastic(float t)
+        {
+            float s = 1.70158;
+            float p = 0;
+            float a = 1;
+            if (t == 0)
+                return 0;
+            if (t == 1)
+                return 1;
+            if (!p)
+                p = .3;
+            if (a < 1)
+            {
+                a = 1;
+                float s = p / 4;
+            }
+            else
+                s = p / (2 * 3.14159265358979323846) * std::asin(1 / a);
+            return a*std::pow(2, -10 * t) * std::sin((t - s)*(2 * 3.14159265358979323846) / p) + 1;
         }
     };
 }

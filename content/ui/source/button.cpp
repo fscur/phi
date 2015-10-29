@@ -38,12 +38,32 @@ namespace phi
         _textY = (int)(_y + _size.height * 0.5f - textSize.height * 0.5f);
     }
 
+    void button::updateImageSize()
+    {
+        if (_image == nullptr)
+            return;
+
+        auto imageSize = _image->getSize();
+        if (imageSize.width < _size.width &&
+            imageSize.height < _size.height)
+        {
+            _imageRenderer->setSize(size<GLuint>(imageSize.width, imageSize.height));
+            return;
+        }
+
+        auto imageRatio = imageSize.width / imageSize.height;
+        if (_size.width >= _size.height)
+            _imageRenderer->setSize(size<GLuint>(_size.height, _size.height * imageRatio));
+        else
+            _imageRenderer->setSize(size<GLuint>(_size.width * (1.0f / imageRatio), _size.width));
+    }
+
     void button::updateImageLocation()
     {
         if (_image == nullptr)
             return;
 
-        auto size = _image->getSize();
+        auto size = _imageRenderer->getSize();
         _imageRenderer->setLocation(glm::vec2(_x + _size.width * 0.5f - size.width * 0.5f, _y + _size.height * 0.5f - size.height * 0.5f));
         _imageRenderer->update();
     }
@@ -108,11 +128,9 @@ namespace phi
         _backgroundRenderer->update();
         _overlayRenderer->setSize(value);
         _overlayRenderer->update();
+        updateImageSize();
         updateImageLocation();
         updateTextLocation();
-
-        if (_image != nullptr)
-            _imageRenderer->setSize(_image->getSize());
     }
 
     void button::setText(std::string value)
@@ -124,11 +142,8 @@ namespace phi
     void button::setImage(texture* value)
     {
         _image = value;
-        if (_image != nullptr)
-        {
-            _imageRenderer->setSize(_image->getSize());
-            updateImageLocation();
-        }
+        updateImageSize();
+        updateImageLocation();
     }
 
     void button::setBackgroundColor(color value)
@@ -159,7 +174,7 @@ namespace phi
     void button::onRender()
     {
         control::onRender();
-        
+
         control::controlsScissors->pushScissor(_x, _y, _size.width, _size.height);
         control::controlsScissors->enable();
 
@@ -223,7 +238,10 @@ namespace phi
             {
                 onClick();
                 if (_click->isBound())
+                {
+                    e->sender = this;
                     _click->invoke(e);
+                }
             }
 
             _clickedOver = false;

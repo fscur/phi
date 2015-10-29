@@ -19,6 +19,7 @@ namespace phi
         bool isCtrlPressed;
         bool isShiftPressed;
         bool isAltPressed;
+        void* sender;
 
         mouseEventArgs() : handled(false) {}
     };

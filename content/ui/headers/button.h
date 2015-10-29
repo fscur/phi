@@ -33,6 +33,7 @@ namespace phi
 
     private:
         void updateTextLocation();
+        void updateImageSize();
         void updateImageLocation();
 
     protected:
