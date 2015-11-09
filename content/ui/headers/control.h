@@ -14,6 +14,7 @@
 #include "controlEventArgs.h"
 #include "toolTip.h"
 #include "scissorStack.h"
+#include "dragDropController.h"
 
 namespace phi
 {
@@ -34,6 +35,9 @@ namespace phi
         float _mouseStillTime;
         bool _renderToolTip;
         std::vector<control*> _children;
+        std::string _dragData;
+        texture* _dragTexture;
+        bool _clickedOver;
 
         void notifyGotFocus(controlEventArgs e);
         void notifyLostFocus(controlEventArgs e);
@@ -45,9 +49,6 @@ namespace phi
         float _zIndex;
         size<GLuint> _size;
         size<GLuint> _viewportSize;
-
-    protected:
-        static void pushScissor(float x, float y, float width, float height);
 
     public:
         UI_API control(size<GLuint> viewportSize);
@@ -75,6 +76,8 @@ namespace phi
         UI_API virtual size<GLuint> getViewportSize() { return _viewportSize; }
         UI_API std::string getToolTipText() const { return _toolTipText; }
         UI_API std::vector<control*> getChildren() { return _children; }
+        UI_API std::string getDragData() { return _dragData; }
+        UI_API texture* getDragTexture() { return _dragTexture; }
 
         UI_API virtual void setX(int value) { _x = value; }
         UI_API virtual void setY(int value) { _y = value; }
@@ -84,6 +87,8 @@ namespace phi
         UI_API virtual void setIsFocused(bool value);
         UI_API virtual void setIsTopMost(bool value) { _isTopMost = value; }
         UI_API void setToolTipText(const std::string value) { _toolTipText = value; }
+        UI_API void setDragData(std::string value) { _dragData = value; }
+        UI_API void setDragTexture(texture* value) { _dragTexture = value; }
 
         UI_API virtual bool isPointInside(int x, int y);
         UI_API virtual void update();

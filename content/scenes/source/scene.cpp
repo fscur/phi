@@ -406,13 +406,18 @@ namespace phi
 
     void scene::remove(sceneObject* sceneObj)
     {
-        //std::vector<sceneObject*>::iterator position = std::find(_allObjects.begin(), _allObjects.end(), sceneObj);
+        std::vector<sceneObject*>::iterator position = std::find(_allObjects->begin(), _allObjects->end(), sceneObj);
+        if (position != _allObjects->end())
+        {
+            _allObjects->erase(position--);
+            _allObjectsCount--;
+        }
 
-        //if (position != _allObjects.end()) // == vector.end() means the element was not found
-        //{
-        //	_allObjects.erase(position);
-        //	_allObjectsCount--;
-        //}
+        if (_staticObjects->find(sceneObj->getId()) != _staticObjects->end())
+            _staticObjects->erase(sceneObj->getId());
+
+        if (_dynamicObjects->find(sceneObj->getId()) != _dynamicObjects->end())
+            _dynamicObjects->erase(sceneObj->getId());
     }
 
     void scene::save(std::string path)
@@ -455,7 +460,7 @@ namespace phi
         auto totalBytes = stream.tellg();
         stream.seekg(0, std::ios::beg);
 
-        auto bytesPerObj = 10 * sizeof(float)+sizeof(unsigned int);
+        auto bytesPerObj = 10 * sizeof(float) + sizeof(unsigned int);
         for (auto i = 0; i < totalBytes / bytesPerObj; i++)
         {
             unsigned int id;

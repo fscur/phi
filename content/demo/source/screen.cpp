@@ -19,6 +19,7 @@
 #include "selectObjectCommand.h"
 #include "setMaterialCommand.h"
 #include "zoomToFitCommand.h"
+#include "addSceneObjectCommand.h"
 
 float a;
 float angle;
@@ -462,6 +463,8 @@ void screen::initUI()
             phi::carouselItem* carouselItem = new phi::carouselItem(model->getFullName(), getSize());
             carouselItem->setImage(model->getThumbnail());
             carouselItem->setToolTipText(model->getName());
+            carouselItem->setDragData(model->getFullName());
+            carouselItem->setDragTexture(model->getThumbnail());
             tab->addCarouselItem(carouselItem);
         }
     }
@@ -490,6 +493,7 @@ void screen::initUI()
     //phi::uiSystem::get()->addControl(_slider3);
     //phi::uiSystem::get()->addControl(_slider4);
     phi::uiSystem::get()->addControl(_materialsCarousel);
+    //phi::uiSystem::get()->addControl(textBoxA);
 
     phi::uiSystem::get()->resize(getSize());
 
@@ -508,6 +512,7 @@ void screen::onInitialize()
     initScenesManager();
     initScene();
     initUI();
+    phi::dragDropController::get()->getDradDropEnded()->bind<screen, &screen::dragDropEnded>(this);
     _fpsController = new fpsCameraController(getSize());
     _defaultController = new defaultCameraController(getSize());
     _inputManager->setCurrentCameraController(_defaultController);
@@ -775,12 +780,12 @@ void screen::textBox2TextChanged(phi::eventArgs e)
 
 void screen::hudControlGotFocus(phi::controlEventArgs e)
 {
-    SDL_StartTextInput();
+    //SDL_StartTextInput();
 }
 
 void screen::hudControlLostFocus(phi::controlEventArgs e)
 {
-    SDL_StopTextInput();
+    //SDL_StopTextInput();
 }
 
 void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
@@ -888,4 +893,14 @@ void screen::rotationFinished(phi::rotationEventArgs e)
 {
     auto cmd = new rotateObjectCommand(e.sender, e.startOrientation, e.endOrientation);
     _commandsManager->executeCommand(cmd);
+}
+
+void screen::dragDropEnded(phi::dragDropEventArgs* e)
+{
+    if (e->handled)
+        return;
+
+    auto object = phi::sceneObject::create(_modelsRepository->getResource<phi::model>(e->data));
+    auto command = new addSceneObjectCommand(object, glm::vec2(e->x, e->y));
+    _commandsManager->executeCommand(command);
 }

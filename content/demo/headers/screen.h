@@ -103,6 +103,7 @@ public:
     void carouselListItemClick(phi::mouseEventArgs* e);
     void translationFinished(phi::translationEventArgs e);
     void rotationFinished(phi::rotationEventArgs e);
+    void dragDropEnded(phi::dragDropEventArgs* e);
 
     void update() override;
     void render() override;
