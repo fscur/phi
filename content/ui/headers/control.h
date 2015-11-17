@@ -39,6 +39,7 @@ namespace phi
         texture* _dragTexture;
         bool _clickedOver;
 
+        void resetToolTip();
         void notifyGotFocus(controlEventArgs e);
         void notifyLostFocus(controlEventArgs e);
 
@@ -79,8 +80,8 @@ namespace phi
         UI_API std::string getDragData() { return _dragData; }
         UI_API texture* getDragTexture() { return _dragTexture; }
 
-        UI_API virtual void setX(int value) { _x = value; }
-        UI_API virtual void setY(int value) { _y = value; }
+        UI_API virtual void setX(int value) { _x = value; resetToolTip(); }
+        UI_API virtual void setY(int value) { _y = value; resetToolTip(); }
         UI_API virtual void setZIndex(float value) { _zIndex = value; }
         UI_API virtual void setSize(size<GLuint> value) { _size = value; }
         UI_API virtual void setViewportSize(size<GLuint> value) { _viewportSize = value; }

@@ -90,7 +90,7 @@ namespace phi
 
     void button::setX(int value)
     {
-        _x = value;
+        control::setX(value);
         _backgroundRenderer->setLocation(glm::vec2(_x, _y));
         _backgroundRenderer->update();
         _overlayRenderer->setLocation(glm::vec2(_x, _y));
@@ -101,7 +101,7 @@ namespace phi
 
     void button::setY(int value)
     {
-        _y = value;
+        control::setY(value);
         _backgroundRenderer->setLocation(glm::vec2(_x, _y));
         _backgroundRenderer->update();
         _overlayRenderer->setLocation(glm::vec2(_x, _y));

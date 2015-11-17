@@ -90,7 +90,7 @@ namespace phi
     void control::notifyMouseMove(mouseEventArgs* e)
     {
         onMouseMove(e);
-        _mouseStillTime = 0.0f;
+        resetToolTip();
         if (!_dragData.empty() && _clickedOver && !dragDropController::get()->getIsDragging())
             dragDropController::get()->startDrag(_dragData, _dragTexture);
     }
@@ -115,7 +115,7 @@ namespace phi
         if (!_isMouseOver)
         {
             _isMouseOver = true;
-            _mouseStillTime = 0.0f;
+            resetToolTip();
 
             onMouseEnter(e);
             if (_mouseEnter->isBound())
@@ -128,7 +128,7 @@ namespace phi
         if (_isMouseOver)
         {
             _isMouseOver = false;
-            _mouseStillTime = 0.0f;
+            resetToolTip();
 
             onMouseLeave(e);
             if (_mouseLeave->isBound())
@@ -148,13 +148,19 @@ namespace phi
             _lostFocus->invoke(e);
     }
 
+    void control::resetToolTip()
+    {
+        _mouseStillTime = 0.0f;
+        _renderToolTip = false;
+    }
+
     void control::update()
     {
-        if (_isMouseOver)
+        if (_isMouseOver && !_renderToolTip)
         {
             _mouseStillTime += clock::millisecondsElapsed;
 
-            if (_mouseStillTime > 1000.0f && _toolTipText != "" && !_renderToolTip)
+            if (_mouseStillTime > 1000.0f && _toolTipText != "")
             {
                 //_toolTip->setText(_toolTipText);
                 //auto toolTipSize = _toolTip->getSize();
@@ -170,11 +176,7 @@ namespace phi
 
                 _renderToolTip = true;
             }
-            else
-                _renderToolTip = false;
         }
-        else
-            _renderToolTip = false;
     }
 
     void control::render()
