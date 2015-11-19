@@ -38,39 +38,59 @@ namespace phi
         _textY = (int)(_y + _size.height * 0.5f - textSize.height * 0.5f);
     }
 
+    void button::updateImageSize()
+    {
+        if (_image == nullptr)
+            return;
+
+        auto imageSize = _image->getSize();
+        if (imageSize.width < _size.width &&
+            imageSize.height < _size.height)
+        {
+            _imageRenderer->setSize(size<GLuint>(imageSize.width, imageSize.height));
+            return;
+        }
+
+        auto imageRatio = imageSize.width / imageSize.height;
+        if (_size.width >= _size.height)
+            _imageRenderer->setSize(size<GLuint>(_size.height, _size.height * imageRatio));
+        else
+            _imageRenderer->setSize(size<GLuint>(_size.width * (1.0f / imageRatio), _size.width));
+    }
+
     void button::updateImageLocation()
     {
         if (_image == nullptr)
             return;
 
-        auto size = _image->getSize();
+        auto size = _imageRenderer->getSize();
         _imageRenderer->setLocation(glm::vec2(_x + _size.width * 0.5f - size.width * 0.5f, _y + _size.height * 0.5f - size.height * 0.5f));
         _imageRenderer->update();
     }
 
     void button::animateMouseEnter()
     {
-        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300);
+        colorAnimator::animateColor(new colorAnimation(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300, easingFunctions::easeOutCubic));
     }
 
     void button::animateMouseLeave()
     {
-        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500);
+        colorAnimator::animateColor(new colorAnimation(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500, easingFunctions::easeOutCubic));
     }
 
     void button::animatePressed()
     {
-        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300);
+        colorAnimator::animateColor(new colorAnimation(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.3f), 300, easingFunctions::easeOutCubic));
     }
 
     void button::animateUnpressed()
     {
-        colorAnimator::animateColor(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500);
+        colorAnimator::animateColor(new colorAnimation(&_overlayColor, color(1.0f, 1.0f, 1.0f, 0.0f), 500, easingFunctions::easeOutCubic));
     }
 
     void button::setX(int value)
     {
-        _x = value;
+        control::setX(value);
         _backgroundRenderer->setLocation(glm::vec2(_x, _y));
         _backgroundRenderer->update();
         _overlayRenderer->setLocation(glm::vec2(_x, _y));
@@ -81,7 +101,7 @@ namespace phi
 
     void button::setY(int value)
     {
-        _y = value;
+        control::setY(value);
         _backgroundRenderer->setLocation(glm::vec2(_x, _y));
         _backgroundRenderer->update();
         _overlayRenderer->setLocation(glm::vec2(_x, _y));
@@ -108,11 +128,9 @@ namespace phi
         _backgroundRenderer->update();
         _overlayRenderer->setSize(value);
         _overlayRenderer->update();
+        updateImageSize();
         updateImageLocation();
         updateTextLocation();
-
-        if (_image != nullptr)
-            _imageRenderer->setSize(_image->getSize());
     }
 
     void button::setText(std::string value)
@@ -124,11 +142,8 @@ namespace phi
     void button::setImage(texture* value)
     {
         _image = value;
-        if (_image != nullptr)
-        {
-            _imageRenderer->setSize(_image->getSize());
-            updateImageLocation();
-        }
+        updateImageSize();
+        updateImageLocation();
     }
 
     void button::setBackgroundColor(color value)
@@ -147,17 +162,33 @@ namespace phi
         _textRenderer->update();
     }
 
+    void button::setIsTopMost(bool value)
+    {
+        control::setIsTopMost(value);
+        if (!getIsTopMost())
+            animateMouseLeave();
+        else
+            animateMouseEnter();
+    }
+
     void button::onRender()
     {
         control::onRender();
-        glPushAttrib(GL_SCISSOR_BIT);
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
+
+        control::controlsScissors->pushScissor(_x, _y, _size.width, _size.height);
+        control::controlsScissors->enable();
+
+        //glPushAttrib(GL_SCISSOR_BIT);
+        //glEnable(GL_SCISSOR_TEST);
+        //glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
         renderBackground();
         renderImage();
         renderOverlay();
         renderForeground();
-        glPopAttrib();
+        //glPopAttrib();
+
+        control::controlsScissors->popScissor();
+        control::controlsScissors->disable();
     }
 
     void button::renderBackground()
@@ -207,7 +238,10 @@ namespace phi
             {
                 onClick();
                 if (_click->isBound())
+                {
+                    e->sender = this;
                     _click->invoke(e);
+                }
             }
 
             _clickedOver = false;
@@ -225,7 +259,8 @@ namespace phi
 
     void button::onMouseEnter(mouseEventArgs* e)
     {
-        animateMouseEnter();
+        if (getIsTopMost())
+            animateMouseEnter();
     }
 
     void button::onMouseLeave(mouseEventArgs* e)

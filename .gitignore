@@ -13,6 +13,7 @@
 [Rr]eleases/
 buildx86/
 buildx64/
+build/
 bld/
 [Bb]in/
 [Oo]bj/

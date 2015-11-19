@@ -120,8 +120,8 @@ void form::initWindow()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    SDL_StopTextInput();
     //SDL_ShowCursor(0);
-
     _glContext = SDL_GL_CreateContext(_window);
 
     if (!_glContext)
@@ -222,7 +222,6 @@ void form::input()
                 onMouseWheel(&me);
             break;
         case SDL_KEYDOWN:
-            SDL_StopTextInput();
             if (!SDL_IsTextInputActive())
             {
                 ke.key = e.key.keysym.scancode;

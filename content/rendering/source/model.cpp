@@ -31,6 +31,12 @@ namespace phi
 
         model* md = new model(modelName, fileName);
 
+        auto name = path::getFileNameWithoutExtension(fileName);
+        auto dir = path::getDirectoryFullName(fileName);
+        auto thumbnailPath = dir + "\\" + name + ".th";
+        auto thumbnail = texture::fromFile(thumbnailPath);
+        md->setThumbnail(thumbnail);
+
         auto i = 0;
         for each (meshData* data in *meshesData)
         {

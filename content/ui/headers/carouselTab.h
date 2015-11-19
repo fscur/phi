@@ -2,6 +2,7 @@
 #define _PHI_CAROUSEL_TAB_H_
 
 #include "carouselItem.h"
+#include "button.h"
 
 namespace phi
 {
@@ -15,7 +16,6 @@ namespace phi
         texture* _backgroundTexture;
         quadRenderer2D* _backgroundRenderer;
         std::vector<carouselItem*> _items;
-        eventHandler<carouselItemEventArgs>* _selectedItemChanged;
         color _backgroundColor;
         float _scrollOffset;
         float _targetScrollOffset;
@@ -23,8 +23,6 @@ namespace phi
     private:
         void updateItems();
         float getItemHeight();
-        void notifySelectedItemChanged(carouselItemEventArgs e);
-        void carouselItemIsSelectedChanged(carouselItemEventArgs e);
 
     public:
         UI_API carouselTab(size<GLuint> viewportSize);
@@ -32,7 +30,6 @@ namespace phi
 
         UI_API std::string getName() const { return _name; }
         UI_API texture* getImage() const { return _image; }
-        UI_API eventHandler<carouselItemEventArgs>* getSelectedItemChanged() { return _selectedItemChanged; }
         UI_API std::vector<carouselItem*> getItems() { return _items; }
 
         UI_API void setName(const std::string value) { _name = value; }
@@ -44,8 +41,7 @@ namespace phi
         UI_API void setViewportSize(size<GLuint> value) override;
         UI_API void setBackgroundColor(color value);
 
-        UI_API void addCarouselItem(carouselItem* carouselItem);
-        UI_API void setSelectedItem(carouselItem* item);
+        UI_API void addCarouselItem(carouselItem* item);
 
         UI_API void onMouseWheel(mouseEventArgs* e) override;
 

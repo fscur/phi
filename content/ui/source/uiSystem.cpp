@@ -51,7 +51,9 @@ namespace phi
         input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
         _cursorRenderer = new quadRenderer2D(glm::vec2(0.0f, 0.0f), 1.0f, size<GLuint>(0.0f, 0.0f), size<GLuint>(0.0f, 0.0f));
         setCursor(phi::uiRepository::repository->getResource<cursor>("DefaultCursor"));
-        _cursorRenderer->setViewportSize(_info.size);
+        _cursorRenderer->setViewportSize(info.size);
+        dragDropController::get()->init(info.size);
+        dragDropController::get()->getDradDropEnded()->bind<uiSystem, &uiSystem::dragDropEnded>(this);
     }
 
     void uiSystem::setCursor(cursor* value)
@@ -120,10 +122,14 @@ namespace phi
         //if (higher && !higher->getIsMouseOver())
         //    higher->notifyMouseEnter(e);
 
+        auto topMost = true;
         for (control* control : _controls)
         {
             if (control->isPointInside(e->x, e->y))
             {
+                control->setIsTopMost(topMost);
+                topMost = false;
+
                 if (!control->getIsMouseOver())
                     control->notifyMouseEnter(e);
             }
@@ -161,6 +167,11 @@ namespace phi
             if (control->getIsFocused())
                 control->notifyKeyUp(e);
         }
+    }
+
+    void uiSystem::dragDropEnded(dragDropEventArgs* e)
+    {
+        // Implementar para que o drag drop ended seja notificado para todos os controles
     }
 
     void uiSystem::notifyControlGotFocus(controlEventArgs e)
@@ -212,7 +223,7 @@ namespace phi
         cntrl->getMouseLeave()->unbind<uiSystem, &uiSystem::controlMouseLeave>(this);
         cntrl->getAddedChild()->unbind<uiSystem, &uiSystem::controlAddedChild>(this);
         cntrl->getRemovedChild()->unbind<uiSystem, &uiSystem::controlRemovedChild>(this);
-        
+
         for (control* child : cntrl->getChildren())
             removeControlFromList(child);
 
@@ -296,6 +307,8 @@ namespace phi
 
         for (control* ctrl : _rootControls)
             ctrl->render();
+
+        dragDropController::get()->render();
 
         glDisable(GL_BLEND);
 

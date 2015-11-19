@@ -55,7 +55,7 @@ namespace phi
             auto x = glm::max(0.0f, _location.x - (w - glm::min(w * 0.5f, _viewportSize.width - _location.x)));
             _backgroundRenderer->setLocation(glm::vec2(x, l.y));
             _backgroundRenderer->update();
-        }, 150));
+        }, 150, easingFunctions::easeOutQuad));
 
         float* h = new float(0.0f);
         floatAnimator::animateFloat(new phi::floatAnimation(h, targetHeight, 100, [&](float h) -> void
@@ -70,7 +70,7 @@ namespace phi
             }
 
             _backgroundRenderer->update();
-        }));
+        }, 0, easingFunctions::easeOutQuad));
 
         _textColor = color::fromRGBA(1.0f, 1.0f, 1.0f, 0.0f);
         colorAnimator::animateColor(&_textColor, color::white, 350);

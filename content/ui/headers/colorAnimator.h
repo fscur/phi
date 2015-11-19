@@ -1,7 +1,7 @@
 #ifndef _PHI_COLOR_ANIMATOR_H_
 #define _PHI_COLOR_ANIMATOR_H_
 
-#include "core.h"
+#include "ui.h"
 #include "globals.h"
 #include "color.h"
 #include "mathUtils.h"
@@ -17,9 +17,9 @@ namespace phi
         static int _lastUpdateMilliseconds;
 
     public:
-        CORE_API static void animateColor(color* colorFrom, color colorTo, int milliseconds);
-        CORE_API static void animateColor(colorAnimation* animation);
-        CORE_API static void update();
+        UI_API static void animateColor(color* colorFrom, color colorTo, int milliseconds);
+        UI_API static void animateColor(colorAnimation* animation);
+        UI_API static void update();
     };
 }
 

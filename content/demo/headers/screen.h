@@ -101,9 +101,10 @@ public:
     void hudControlLostFocus(phi::controlEventArgs e);
     void selectedSceneObjectChanged(phi::sceneObjectEventArgs e);
     void staticObjectsChanged(phi::eventArgs e);
-    void carouselListSelectedItemChanged(phi::carouselItemEventArgs e);
+    void carouselListItemClick(phi::mouseEventArgs* e);
     void translationFinished(phi::translationEventArgs e);
     void rotationFinished(phi::rotationEventArgs e);
+    void dragDropEnded(phi::dragDropEventArgs* e);
 
     void update() override;
     void render() override;

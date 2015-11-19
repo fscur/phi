@@ -5,6 +5,7 @@
 namespace phi
 {
     toolTip* control::_toolTip = nullptr;
+    scissorStack* control::controlsScissors = nullptr;
 
     control::control(size<GLuint> viewportSize)
     {
@@ -15,8 +16,11 @@ namespace phi
         _viewportSize = viewportSize;
         _isFocused = false;
         _isMouseOver = false;
+        _isTopMost = false;
         _toolTipText = "";
         _renderToolTip = false;
+        _dragData = "";
+        _clickedOver = false;
         _mouseEnter = new mouseEventHandler();
         _mouseLeave = new mouseEventHandler();
         _gotFocus = new eventHandler<controlEventArgs>();
@@ -34,6 +38,7 @@ namespace phi
     void control::init(size<GLuint> viewportSize)
     {
         _toolTip = new toolTip(viewportSize);
+        controlsScissors = new scissorStack(viewportSize);
     }
 
     void control::addChild(control* child)
@@ -71,17 +76,23 @@ namespace phi
     void control::notifyMouseDown(mouseEventArgs* e)
     {
         onMouseDown(e);
+        if (getIsMouseOver() && e->leftButtonPressed)
+            _clickedOver = true;
     }
 
     void control::notifyMouseUp(mouseEventArgs* e)
     {
         onMouseUp(e);
+        if (e->leftButtonPressed && _clickedOver)
+            _clickedOver = false;
     }
 
     void control::notifyMouseMove(mouseEventArgs* e)
     {
         onMouseMove(e);
-        _mouseStillTime = 0.0f;
+        resetToolTip();
+        if (!_dragData.empty() && _clickedOver && !dragDropController::get()->getIsDragging())
+            dragDropController::get()->startDrag(_dragData, _dragTexture);
     }
 
     void control::notifyMouseWheel(mouseEventArgs* e)
@@ -104,7 +115,7 @@ namespace phi
         if (!_isMouseOver)
         {
             _isMouseOver = true;
-            _mouseStillTime = 0.0f;
+            resetToolTip();
 
             onMouseEnter(e);
             if (_mouseEnter->isBound())
@@ -117,7 +128,7 @@ namespace phi
         if (_isMouseOver)
         {
             _isMouseOver = false;
-            _mouseStillTime = 0.0f;
+            resetToolTip();
 
             onMouseLeave(e);
             if (_mouseLeave->isBound())
@@ -137,37 +148,35 @@ namespace phi
             _lostFocus->invoke(e);
     }
 
+    void control::resetToolTip()
+    {
+        _mouseStillTime = 0.0f;
+        _renderToolTip = false;
+    }
+
     void control::update()
     {
-        if (_isMouseOver)
+        if (_isMouseOver && !_renderToolTip)
         {
             _mouseStillTime += clock::millisecondsElapsed;
 
             if (_mouseStillTime > 1000.0f && _toolTipText != "")
             {
-                if (!_renderToolTip)
-                {
-                    //_toolTip->setText(_toolTipText);
-                    //auto toolTipSize = _toolTip->getSize();
-                    //auto x = glm::max(0.0f, _x + _size.width * 0.5f - toolTipSize.width * 0.5f);
-                    //x = glm::min(x, (float)(_viewportSize.width - toolTipSize.width));
-                    //float y;
-                    //if (_y + _size.height + toolTipSize.height > _viewportSize.height)
-                    //    y = _y - toolTipSize.height;
-                    //else
-                    //    y = _y + _size.height;
+                //_toolTip->setText(_toolTipText);
+                //auto toolTipSize = _toolTip->getSize();
+                //auto x = glm::max(0.0f, _x + _size.width * 0.5f - toolTipSize.width * 0.5f);
+                //x = glm::min(x, (float)(_viewportSize.width - toolTipSize.width));
+                //float y;
+                //if (_y + _size.height + toolTipSize.height > _viewportSize.height)
+                //    y = _y - toolTipSize.height;
+                //else
+                //    y = _y + _size.height;
 
+                _toolTip->show(_toolTipText, glm::vec2(_x + _size.width * 0.5f, _y + _size.height), _size);
 
-                    _toolTip->show(_toolTipText, glm::vec2(_x + _size.width * 0.5f, _y + _size.height), _size);
-
-                    _renderToolTip = true;
-                }
+                _renderToolTip = true;
             }
-            else
-                _renderToolTip = false;
         }
-        else
-            _renderToolTip = false;
     }
 
     void control::render()

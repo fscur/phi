@@ -34,6 +34,8 @@ namespace phi
         addTexture("categories/Emissives.png");
         addTexture("arrow_down.png");
         addTexture("arrow_up.png");
+        addTexture("models.png");
+        addTexture("materials.png");
 
         std::string fontsPath = info.applicationPath + UI_FONTS_PATH;
         repository->addResource(new font("Consola_14", fontsPath + "Consola.ttf", 14, renderingSystem::freeTypeLibrary));

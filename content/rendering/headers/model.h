@@ -10,9 +10,15 @@ namespace phi
 	{
     private:
         std::vector<mesh*> _meshes;
+        texture* _thumbnail;
     public:
         RENDERING_API model(std::string name, std::string path);
+
         RENDERING_API std::vector<mesh*> getMeshes() const { return _meshes; }
+        RENDERING_API texture* getThumbnail() const { return _thumbnail; }
+
+        RENDERING_API void setThumbnail(texture* value) { _thumbnail = value; }
+
         RENDERING_API void addMesh(mesh* mesh);
         RENDERING_API static model* fromFile(std::string fileName);
     };
