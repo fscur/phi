@@ -7,11 +7,11 @@
 
 commandsManager::commandsManager()
 {
-    _shortcuts.add("Select", phi::inputKey(PHI_MOUSE_LEFT, NONE));
-    _shortcuts.add("DeselectAll", phi::inputKey(PHI_SCANCODE_ESCAPE, NONE));
-    _shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, CTRL_PRESSED));
-    _shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, CTRL_PRESSED));
-    _shortcuts.add("ZoomToFit", phi::inputKey(PHI_SCANCODE_F, CTRL_PRESSED));
+    _shortcuts.add("Select", phi::inputKey(PHI_MOUSE_LEFT, PHI_NONE));
+    _shortcuts.add("DeselectAll", phi::inputKey(PHI_SCANCODE_ESCAPE, PHI_NONE));
+    _shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, PHI_CTRL_PRESSED));
+    _shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, PHI_CTRL_PRESSED));
+    _shortcuts.add("ZoomToFit", phi::inputKey(PHI_SCANCODE_F, PHI_CTRL_PRESSED));
     _commands["Select"] = [] () -> command*
     {
         int mouseX, mouseY;

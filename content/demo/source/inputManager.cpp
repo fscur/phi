@@ -14,9 +14,9 @@ inputManager::~inputManager()
 
 phi::inputKey inputManager::mouseToKey(phi::mouseEventArgs* e)
 {
-    auto modifiers = e->isAltPressed ? ALT_PRESSED : 0;
-    modifiers |= e->isCtrlPressed ? CTRL_PRESSED : 0;
-    modifiers |= e->isShiftPressed ? SHIFT_PRESSED : 0;
+    auto modifiers = e->isAltPressed ? PHI_ALT_PRESSED : 0;
+    modifiers |= e->isCtrlPressed ? PHI_CTRL_PRESSED : 0;
+    modifiers |= e->isShiftPressed ? PHI_SHIFT_PRESSED : 0;
 
     if (e->leftButtonPressed)
         return phi::inputKey(PHI_MOUSE_LEFT, modifiers);
@@ -28,9 +28,9 @@ phi::inputKey inputManager::mouseToKey(phi::mouseEventArgs* e)
 
 phi::inputKey inputManager::keyboardToKey(phi::keyboardEventArgs* e)
 {
-    auto modifiers = e->isAltPressed ? ALT_PRESSED : 0;
-    modifiers |= e->isCtrlPressed ? CTRL_PRESSED : 0;
-    modifiers |= e->isShiftPressed ? SHIFT_PRESSED : 0;
+    auto modifiers = e->isAltPressed ? PHI_ALT_PRESSED : 0;
+    modifiers |= e->isCtrlPressed ? PHI_CTRL_PRESSED : 0;
+    modifiers |= e->isShiftPressed ? PHI_SHIFT_PRESSED : 0;
     return phi::inputKey(e->key, modifiers);
 }
 
@@ -59,9 +59,9 @@ bool inputManager::onMouseWheel(phi::mouseEventArgs* e)
     phi::inputKey* input;
 
     if (e->wheelDelta > 0)
-        input = new phi::inputKey(PHI_MOUSE_WHEEL_UP, NONE);
+        input = new phi::inputKey(PHI_MOUSE_WHEEL_UP, PHI_NONE);
     else
-        input = new phi::inputKey(PHI_MOUSE_WHEEL_DOWN, NONE);
+        input = new phi::inputKey(PHI_MOUSE_WHEEL_DOWN, PHI_NONE);
 
     auto res = _currentController->onMouseWheel(e, *input);
     DELETE(input);

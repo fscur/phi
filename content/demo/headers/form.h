@@ -1,6 +1,10 @@
 #ifndef _FORM_H_
 #define _FORM_H_
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 #include <string>
 #include <SDL\SDL.h>
 #include "demo.h"
@@ -36,6 +40,8 @@ private:
     std::string _applicationPath;
     glm::vec2 _lastMousePos;
 
+    HWND _hwnd;
+
 private:
     void initWindow();
     void input();
@@ -62,6 +68,10 @@ public:
     std::string getApplicationPath() const { return _applicationPath; }
     SDL_Window* getWindow() const { return _window; }
     SDL_GLContext getGlContext() const { return _glContext; }
+
+#ifdef WIN32
+    HWND getHwnd() const { return _hwnd; }
+#endif
     void setTitle(std::string value);
     void setSize(phi::size<unsigned int> value);
     void setIsFullScreen(bool value);

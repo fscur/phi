@@ -1,5 +1,6 @@
 #if WIN32
 #include <GL/glew.h>
+#include <SDL\SDL_syswm.h>
 #else
 #include <OpenGL/gl3.h>
 #endif
@@ -133,6 +134,12 @@ void form::initWindow()
 
     if(glewInitStatus != GLEW_OK)
         LOG("Error: " << glewGetErrorString(glewInitStatus));
+
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(_window, &wmInfo);
+    _hwnd = wmInfo.info.win.window;
+
 #endif
 }
 

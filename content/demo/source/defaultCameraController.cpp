@@ -10,10 +10,10 @@ defaultCameraController::defaultCameraController(phi::size<unsigned int> viewpor
 {
     _rotating = false;
     _panning = false;
-    _shortcuts.add("Pan", phi::inputKey(PHI_MOUSE_MIDDLE, NONE));
-    _shortcuts.add("Rotate", phi::inputKey(PHI_MOUSE_RIGHT, NONE));
-    _shortcuts.add("ZoomIn", phi::inputKey(PHI_MOUSE_WHEEL_UP, NONE));
-    _shortcuts.add("ZoomOut", phi::inputKey(PHI_MOUSE_WHEEL_DOWN, NONE));
+    _shortcuts.add("Pan", phi::inputKey(PHI_MOUSE_MIDDLE, PHI_NONE));
+    _shortcuts.add("Rotate", phi::inputKey(PHI_MOUSE_RIGHT, PHI_NONE));
+    _shortcuts.add("ZoomIn", phi::inputKey(PHI_MOUSE_WHEEL_UP, PHI_NONE));
+    _shortcuts.add("ZoomOut", phi::inputKey(PHI_MOUSE_WHEEL_DOWN, PHI_NONE));
 }
 
 void defaultCameraController::executeInput(phi::inputKey key, glm::vec2 mousePos)

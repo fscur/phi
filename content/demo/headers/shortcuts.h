@@ -5,15 +5,15 @@
 #include <string>
 #include "inputKey.h"
 
-static const unsigned int TOTAL_KEYS = 310;
+static const unsigned int PHI_TOTAL_KEYS = 310;
 
-static const unsigned int NONE = 0;
-static const unsigned int DOWN = 1;
-static const unsigned int PRESSED = 2;
-static const unsigned int UP = 4;
-static const unsigned int CTRL_PRESSED = 1;
-static const unsigned int SHIFT_PRESSED = 2;
-static const unsigned int ALT_PRESSED = 4;
+static const unsigned int PHI_NONE = 0;
+static const unsigned int PHI_DOWN = 1;
+static const unsigned int PHI_PRESSED = 2;
+static const unsigned int PHI_UP = 4;
+static const unsigned int PHI_CTRL_PRESSED = 1;
+static const unsigned int PHI_SHIFT_PRESSED = 2;
+static const unsigned int PHI_ALT_PRESSED = 4;
 
 static const unsigned long PHI_MOUSE_LEFT = 301;
 static const unsigned long PHI_MOUSE_MIDDLE = 302;

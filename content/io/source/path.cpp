@@ -6,6 +6,17 @@
 
 namespace phi
 {
+    bool path::exists(std::string path)
+    {
+        if (FILE *file = fopen(path.c_str(), "r")) 
+        {
+            fclose(file);
+            return true;
+        }
+
+        return false;
+    }
+
     std::string path::getDirectoryFullName(std::string path)
     {
         std::replace(path.begin(), path.end(), '/', '\\');

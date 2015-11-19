@@ -14,6 +14,12 @@ namespace phi
         glm::vec3 _min;
         glm::vec3 _max;
         glm::vec3 _center;
+        float _width;
+        float _height;
+        float _depth;
+        float _halfWidth;
+        float _halfHeight;
+        float _halfDepth;
         float _radius;
 
     public:
@@ -32,6 +38,15 @@ namespace phi
         CORE_API void setMax(glm::vec3 max) { _max = max; }
         CORE_API void setCenter(glm::vec3 center) { _center = center; }
         CORE_API void setRadius(float radius) { _radius = radius; }
+
+        CORE_API float getWidth() { return _width; }
+        CORE_API float getHeight() { return _height; }
+        CORE_API float getDepth() { return _depth; }
+        CORE_API float getHalfWidth() { return _halfWidth; }
+        CORE_API float getHalfHeight() { return _halfHeight; }
+        CORE_API float getHalfDepth() { return _halfDepth; }
+
+        CORE_API bool contains(glm::vec3 position);
 
         CORE_API void update(std::vector<glm::vec3> &points);
     };
