@@ -9,8 +9,8 @@
 
 #include "phi/core/aabb.h"
 
-#import <SEFacet.tlb>
-#import <SEReader.tlb>
+#import <phi/demo/SEFacet.tlb>
+#import <phi/demo/SEReader.tlb>
 
 #include <string>
 #include <vector>
