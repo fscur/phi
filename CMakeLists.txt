@@ -65,7 +65,7 @@ set (resources_dir ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set (image_dir ${CMAKE_CURRENT_SOURCE_DIR}/images)
 file(GLOB image_files ${image_dir}/*.*)
 
- file(GLOB HOOK_SCRIPTS ./git/*) 
+ file(GLOB HOOK_SCRIPTS ./git_hooks/*) 
  if (HOOK_SCRIPTS) 
     file(COPY ${HOOK_SCRIPTS} DESTINATION ${CMAKE_SOURCE_DIR}/.git/hooks) 
 endif (HOOK_SCRIPTS)
