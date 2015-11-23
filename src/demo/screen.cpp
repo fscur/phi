@@ -1,28 +1,27 @@
-#include "phi/demo/screen.h"
+#include <phi/demo/screen.h>
 
-#include "phi/rendering/renderingSystem.h"
-#include "phi/rendering/renderingSystem.h"
-#include "phi/rendering/renderingCommunicationBuffer.h"
+#include <phi/rendering/renderingSystem.h>
+#include <phi/rendering/renderingSystem.h>
+#include <phi/rendering/renderingCommunicationBuffer.h>
+#include <phi/scenes/box.h>
+#include <phi/scenes/plane.h>
+#include <phi/scenes/sphere.h>
+#include <phi/scenes/cone.h>
+#include <phi/scenes/fsSceneRenderer.h>
+#include <phi/scenes/dsSceneRenderer.h>
+#include <phi/ui/colorAnimator.h>
+#include <phi/ui/uiRepository.h>
+#include <phi/ui/uiSystem.h>
 
-#include "phi/scenes/box.h"
-#include "phi/scenes/plane.h"
-#include "phi/scenes/sphere.h"
-#include "phi/scenes/cone.h"
-#include "phi/scenes/fsSceneRenderer.h"
-#include "phi/scenes/dsSceneRenderer.h"
-
-#include "phi/ui/colorAnimator.h"
-#include "phi/ui/uiRepository.h"
-#include "phi/ui/uiSystem.h"
-
-#include "phi/demo/translateObjectCommand.h"
-#include "phi/demo/rotateObjectCommand.h"
-#include "phi/demo/setSceneObjectVisibilityCommand.h"
-#include "phi/demo/multiCommand.h"
-#include "phi/demo/selectObjectCommand.h"
-#include "phi/demo/setMaterialCommand.h"
-#include "phi/demo/zoomToFitCommand.h"
-#include "phi/demo/addSceneObjectCommand.h"
+#include <phi/demo/translateObjectCommand.h>
+#include <phi/demo/rotateObjectCommand.h>
+#include <phi/demo/setSceneObjectVisibilityCommand.h>
+#include <phi/demo/multiCommand.h>
+#include <phi/demo/selectObjectCommand.h>
+#include <phi/demo/setMaterialCommand.h>
+#include <phi/demo/zoomToFitCommand.h>
+#include <phi/demo/addSceneObjectCommand.h>
+#include <phi/demo/SEImporter.h>
 
 float a;
 float angle;
@@ -32,6 +31,9 @@ phi::button3D* fb;
 float t = 0.0f;
 phi::sceneObject* sphere;
 phi::carouselList* _materialsCarousel;
+phi::sceneObject* casket0;
+phi::sceneObject* cube;
+bool oi = false;
 
 screen::screen() : form()
 {
@@ -59,9 +61,6 @@ void screen::initScenesManager()
 
     phi::scenesManager::get()->init(info);
 }
-
-phi::sceneObject* casket0;
-phi::sceneObject* cube;
 
 void screen::initScene()
 {
@@ -350,6 +349,17 @@ void screen::initUI()
     buttonB->setY(50);
     buttonB->getClick()->bind<screen, &screen::showAllButtonClick>(this);
 
+    phi::button* buttonC = new phi::button(getSize());
+    buttonC->setText("Import");
+    buttonC->setToolTipText("Import Engineering Files");
+    buttonC->setBackgroundColor(phi::color::fromRGBA(0.7f, 0.7f, 0.7f, 0.5f));
+    buttonC->setForegroundColor(phi::color::white);
+    buttonC->setSize(phi::size<GLuint>(200, 30));
+    buttonC->setZIndex(20.0f);
+    buttonC->setX(10);
+    buttonC->setY(90);
+    buttonC->getClick()->bind<screen, &screen::importSEButtonClick>(this);
+
     //phi::toggleButton* buttonC = new phi::toggleButton(getSize());
     //buttonC->setText("Use esse \"template\" para criar um toggleButton ;)");
     //buttonC->setToolTipText("Hehe :)");
@@ -490,6 +500,7 @@ void screen::initUI()
 
     phi::uiSystem::get()->addControl(buttonA);
     phi::uiSystem::get()->addControl(buttonB);
+    phi::uiSystem::get()->addControl(buttonC);
     //phi::uiSystem::get()->addControl(buttonC);
     //phi::uiSystem::get()->addControl(_slider1);
     //phi::uiSystem::get()->addControl(_slider2);
@@ -520,8 +531,6 @@ void screen::onInitialize()
     _defaultController = new defaultCameraController(getSize());
     _inputManager->setCurrentCameraController(_defaultController);
 }
-
-bool oi = false;
 
 void screen::update()
 {
@@ -724,6 +733,38 @@ void screen::showAllButtonClick(phi::mouseEventArgs* e)
     auto multiCmd = new multiCommand(cmds);
     _commandsManager->executeCommand(multiCmd);
 }
+
+void screen::importSEButtonClick(phi::mouseEventArgs* e)
+{
+#ifdef WIN32
+
+    OPENFILENAMEA ofn = { 0 };
+    char buffer[300];
+    memset(buffer, '\0', 300);
+    ofn.lStructSize = sizeof(OPENFILENAMEA);
+    ofn.hwndOwner = this->getHwnd();
+    ofn.lpstrFile = buffer;
+    ofn.nMaxFile = 300;
+    ofn.Flags = OFN_EXPLORER;
+    ofn.lpstrFilter = NULL;
+    ofn.lpstrCustomFilter = NULL;
+    ofn.nFilterIndex = 0;
+    ofn.lpstrFileTitle = NULL;
+    ofn.lpstrInitialDir = NULL;
+    ofn.lpstrTitle = NULL;
+
+    GetOpenFileNameA(&ofn);
+
+    std::cout << buffer << (int)CommDlgExtendedError() << std::endl;
+
+    auto sePartImporter = new SEImporter();
+    auto sceneObject = sePartImporter->import(std::string(buffer));
+
+    _commandsManager->executeCommand(new addSceneObjectCommand(sceneObject));
+
+#endif
+}
+
 
 void screen::slider1ValueChanged(phi::eventArgs e)
 {

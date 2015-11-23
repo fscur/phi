@@ -19,6 +19,7 @@ private:
 
 public:
     addSceneObjectCommand(phi::sceneObject* object, glm::vec2 screenPos);
+    addSceneObjectCommand(phi::sceneObject* object);
 
     void init();
     void execute() override;

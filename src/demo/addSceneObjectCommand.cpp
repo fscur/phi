@@ -8,6 +8,12 @@ addSceneObjectCommand::addSceneObjectCommand(phi::sceneObject* object, glm::vec2
     _initialized = false;
 }
 
+addSceneObjectCommand::addSceneObjectCommand(phi::sceneObject* object)
+    : _object(object), command()
+{
+    _initialized = true;
+}
+
 void addSceneObjectCommand::init()
 {
     if (_initialized)
