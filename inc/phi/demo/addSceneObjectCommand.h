@@ -17,11 +17,11 @@ private:
     phi::bufferRequest* _bufferRequest;
     bool _initialized;
 
+    void init();
 public:
     addSceneObjectCommand(phi::sceneObject* object, glm::vec2 screenPos);
     addSceneObjectCommand(phi::sceneObject* object);
 
-    void init();
     void execute() override;
     void executeUndo() override;
 };

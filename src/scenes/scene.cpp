@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <functional>
+#include <algorithm>
 
 namespace phi
 {
@@ -23,6 +24,7 @@ namespace phi
         _deltaTime = 0.008f;
         _allObjects = new std::vector<sceneObject*>();
         _visibleObjects = new std::vector<sceneObject*>();
+        _selectedObjects = new std::vector<sceneObject*>();
         _staticObjects = new std::map<GLuint, sceneObject*>();
         _dynamicObjects = new std::map<GLuint, sceneObject*>();
         _directionalLights = new std::vector<directionalLight*>();
@@ -54,6 +56,19 @@ namespace phi
 
         for (GLuint i = 0; i < _cameras->size(); i++)
             DELETE((*_cameras)[i]);
+
+        delete _allObjects;
+        delete _selectedObjects;
+        delete _staticObjects;
+        delete _dynamicObjects;
+        delete _visibleObjects;
+        delete _directionalLights;
+        delete _pointLights;
+        delete _spotLights;
+        delete _cameras;
+        delete _aabb;
+        delete _selectedSceneObjectChanged;
+        delete _staticObjectsChanged;
     }
 
     void scene::input()
@@ -277,6 +292,28 @@ namespace phi
         _cameras->push_back(camera);
     }
 
+    std::vector<sceneObject*>* scene::getSelected()
+    {
+        return _selectedObjects;
+    }
+
+    void scene::setSelected(std::vector<sceneObject*>* sceneObjects, bool selected)
+    {
+        if (sceneObjects == nullptr)
+        {
+            _selectedObjects->clear();
+            return;
+        }
+
+        auto s = sceneObjects->size();
+
+        for (auto i = 0; i < s; i++)
+        {
+            auto object = _allObjects->at(i);
+            object->setSelected(selected);
+        }
+    }
+
     void scene::addSceneObjectAabb(sceneObject* sceneObject)
     {
         auto min = phi::mathUtils::multiply(sceneObject->getModelMatrix(), sceneObject->getAabb()->getMin());
@@ -386,6 +423,14 @@ namespace phi
 
     void scene::sceneObjectIsSelectedChanged(phi::sceneObjectEventArgs e)
     {
+        auto obj = std::find(_selectedObjects->begin(), _selectedObjects->end(), e.sender);
+        auto selected = e.sender->getSelected();
+
+        if (obj == _selectedObjects->end() && selected)
+            _selectedObjects->push_back(e.sender);
+        else if (!_selectedObjects->empty() && !selected)
+            _selectedObjects->erase(obj);
+
         if (_selectedSceneObjectChanged->isBound())
             _selectedSceneObjectChanged->invoke(e);
     }

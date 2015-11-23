@@ -43,6 +43,7 @@ namespace phi
         std::map<GLuint, sceneObject*>* _staticObjects;
         std::map<GLuint, sceneObject*>* _dynamicObjects;
         std::vector<sceneObject*>* _visibleObjects;
+        std::vector<sceneObject*>* _selectedObjects;
         std::vector<object3D*> _changedObjects;
         std::mutex _changedObjectsMutex;
 
@@ -93,7 +94,6 @@ namespace phi
 
         SCENES_API void input();
         SCENES_API void update();
-        SCENES_API void render();
 
         SCENES_API void add(sceneObject* sceneObject);
         SCENES_API void add(directionalLight* directionalLight);
@@ -101,8 +101,10 @@ namespace phi
         SCENES_API void add(spotLight* spotLight);
         SCENES_API void add(camera* camera);
 
+        SCENES_API std::vector<sceneObject*>* getSelected();
+        SCENES_API void setSelected(std::vector<sceneObject*>* sceneObjects, bool selected);
+
         SCENES_API sceneObject* getSceneObject(GLuint index) const { return (*_allObjects)[index]; }
-        SCENES_API sceneObject* getSceneObject(glm::vec2 mousePos);
         SCENES_API sceneObject* getSceneObjectById(unsigned int id);
 
         SCENES_API directionalLight* getDirectionalLight(GLuint index) const { return (*_directionalLights)[index]; }

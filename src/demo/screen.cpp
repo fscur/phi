@@ -701,8 +701,6 @@ void screen::onClosing()
 
 void screen::hideSelectedButtonClick(phi::mouseEventArgs* e)
 {
-    //oi = !oi;
-
     auto cmds = std::vector<command*>();
     cmds.push_back(new selectObjectCommand(nullptr, nullptr));
 
@@ -764,7 +762,6 @@ void screen::importSEButtonClick(phi::mouseEventArgs* e)
 
 #endif
 }
-
 
 void screen::slider1ValueChanged(phi::eventArgs e)
 {

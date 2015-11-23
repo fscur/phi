@@ -1,9 +1,9 @@
-#include "phi/demo/commandsManager.h"
-#include "phi/demo/selectAtPositionCommand.h"
-#include "phi/demo/undoCommand.h"
-#include "phi/demo/redoCommand.h"
-#include "phi/demo/zoomToFitCommand.h"
-
+#include <phi/demo/commandsManager.h>
+#include <phi/demo/selectAtPositionCommand.h>
+#include <phi/demo/undoCommand.h>
+#include <phi/demo/redoCommand.h>
+#include <phi/demo/zoomToFitCommand.h>
+#include <phi/demo/deleteSceneObjectCommand.h>
 #include <algorithm>
 
 commandsManager::commandsManager()
@@ -13,16 +13,21 @@ commandsManager::commandsManager()
     _shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, PHI_CTRL_PRESSED));
     _shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, PHI_CTRL_PRESSED));
     _shortcuts.add("ZoomToFit", phi::inputKey(PHI_SCANCODE_F, PHI_CTRL_PRESSED));
+    _shortcuts.add("DeleteSceneObject", phi::inputKey(PHI_SCANCODE_DELETE, PHI_NONE));
+
     _commands["Select"] = [] () -> command*
     {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
         return new selectAtPositionCommand(glm::vec2(mouseX, mouseY));
     };
+
     _commands["DeselectAll"] = [&]() -> command* { return new selectObjectCommand(nullptr, 0); };
     _commands["Undo"] = [&] () -> command* { return new undoCommand(this); };
     _commands["Redo"] = [&] () -> command* { return new redoCommand(this); };
     _commands["ZoomToFit"] = [&] () -> command* { return new zoomToFitCommand(); };
+    _commands["DeleteSceneObject"] = [&]() -> command* { return new deleteSceneObjectCommand(); };
+
     _executingCommand = false;
 }
 
