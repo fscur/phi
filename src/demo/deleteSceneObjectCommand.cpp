@@ -15,6 +15,7 @@ void deleteSceneObjectCommand::execute()
     for (auto object : _objects)
     {
         scene->remove(object);
+        object->setActive(false);
         object->setSelected(false);
     }
 }
@@ -26,6 +27,7 @@ void deleteSceneObjectCommand::executeUndo()
     for (auto object : _objects)
     {
         scene->add(object);
+        object->setActive(true);
         object->setSelected(true);
     }
 }

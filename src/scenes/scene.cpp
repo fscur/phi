@@ -462,7 +462,10 @@ namespace phi
         }
 
         if (_staticObjects->find(sceneObj->getId()) != _staticObjects->end())
+        {
             _staticObjects->erase(sceneObj->getId());
+            staticObjectsChanged(eventArgs());
+        }
 
         if (_dynamicObjects->find(sceneObj->getId()) != _dynamicObjects->end())
             _dynamicObjects->erase(sceneObj->getId());
