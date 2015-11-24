@@ -1,7 +1,8 @@
-#include "phi/rendering/model.h"
-#include "phi/core/globals.h"
-#include "phi/io/path.h"
-#include "phi/loader/importer.h"
+#include <phi/core/globals.h>
+#include <phi/io/path.h>
+#include <phi/loader/importer.h>
+#include <phi/rendering/model.h>
+
 #include <fstream>
 #include <iostream>
 

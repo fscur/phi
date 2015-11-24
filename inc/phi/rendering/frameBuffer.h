@@ -1,20 +1,20 @@
 #ifndef _PHI_FRAME_BUFFER_H_
 #define _PHI_FRAME_BUFFER_H_
 
+#include <phi/core/globals.h>
+#include <phi/core/color.h>
+#include <phi/core/size.h>
+
+#include "rendering.h"
+#include "renderTarget.h"
+
 #if WIN32
 #include <GL/glew.h>
 #else
 #include <OpenGL/gl3.h>
 #endif
-
 #include <glm/glm.hpp>
-
 #include <map>
-#include "phi/rendering/rendering.h"
-#include "phi/core/globals.h"
-#include "phi/core/color.h"
-#include "phi/core/size.h"
-#include "phi/rendering/renderTarget.h"
 
 namespace phi
 {

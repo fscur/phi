@@ -1,8 +1,9 @@
-#include "phi/rendering/frustum.h"
+#include <phi/rendering/frustum.h>
+
 #include <iostream>
-#include <glm\gtc\matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #if WIN32
-#include <GL/glew.h>
+#include <gl/glew.h>
 #else
 #include <OpenGL/gl3.h>
 #endif

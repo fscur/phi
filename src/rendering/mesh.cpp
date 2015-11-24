@@ -1,6 +1,6 @@
-#include "phi/rendering/mesh.h"
-#include "phi/core/globals.h"
-#include "phi/io/path.h"
+#include <phi/core/globals.h>
+#include <phi/io/path.h>
+#include <phi/rendering/mesh.h>
 
 #include <fstream>
 #include <iostream>

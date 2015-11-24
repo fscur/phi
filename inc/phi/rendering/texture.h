@@ -1,17 +1,20 @@
 #ifndef _PHI_TEXTURE_H_
 #define _PHI_TEXTURE_H_
 
-#if WIN32
-    #include <GL/glew.h>
-#else
-    #include <OpenGL/gl3.h>
-#endif
-#include "phi/rendering/rendering.h"
+#include <phi/core/resource.h>
+#include <phi/core/size.h>
+
+#include "rendering.h"
+#include "SDL_Extensions.h"
+
 #include <string>
 #include <vector>
-#include "phi/core/size.h"
-#include "SDL_Extensions.h"
-#include "phi/core/resource.h"
+
+#if WIN32
+#include <GL/glew.h>
+#else
+#include <OpenGL/gl3.h>
+#endif
 
 namespace phi
 {

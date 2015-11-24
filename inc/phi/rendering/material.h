@@ -1,8 +1,9 @@
 #ifndef _PHI_MATERIAL_H_
 #define _PHI_MATERIAL_H_
 
-#include "phi/rendering/texture.h"
-#include "phi/core/color.h"
+#include <phi/core/color.h>
+
+#include "texture.h"
 
 namespace phi
 {

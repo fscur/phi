@@ -1,8 +1,9 @@
 #ifndef _PHI_RAY_H_
 #define _PHI_RAY_H_
 
-#include "phi/rendering/rendering.h"
-#include "phi/core/aabb.h"
+#include <phi/core/aabb.h>
+
+#include "rendering.h"
 
 namespace phi
 {

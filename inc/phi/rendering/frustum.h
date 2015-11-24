@@ -1,10 +1,12 @@
 #ifndef _PHI_FRUSTUM_H_
 #define _PHI_FRUSTUM_H_
 
-#include "phi/rendering/rendering.h"
-#include "phi/core/eventHandler.h"
-#include "glm\vec3.hpp"
-#include "glm\mat4x4.hpp"
+#include <phi/core/eventHandler.h>
+
+#include "rendering.h"
+
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 #include <iostream>
 #include <vector>
 

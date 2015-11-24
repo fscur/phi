@@ -1,17 +1,20 @@
 #ifndef _PHI_SHADER_H_
 #define _PHI_SHADER_H_
 
+#include <phi/core/color.h>
+
+#include "texture.h"
+
+#include <map>
+#include <string>
+#include <vector>
+#include <glm/glm.hpp>
+
 #if WIN32
 #include <GL/glew.h>
 #else
 #include <OpenGL/gl3.h>
 #endif
-#include "phi/core/color.h"
-#include <map>
-#include <string>
-#include <vector>
-#include <glm/glm.hpp>
-#include "phi/rendering/texture.h"
 
 namespace phi
 {

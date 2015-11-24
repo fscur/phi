@@ -1,9 +1,9 @@
-#include "phi/rendering/renderingSystem.h"
-#include "phi/core/globals.h"
-#include "phi/rendering/texture.h"
-#include "phi/rendering/material.h"
-#include "phi/rendering/mesh.h"
-#include "phi/rendering/shaderManager.h"
+#include <phi/core/globals.h>
+#include <phi/rendering/renderingSystem.h>
+#include <phi/rendering/texture.h>
+#include <phi/rendering/material.h>
+#include <phi/rendering/mesh.h>
+#include <phi/rendering/shaderManager.h>
 
 namespace phi
 {

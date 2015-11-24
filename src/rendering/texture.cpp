@@ -1,8 +1,9 @@
+#include <phi/core/globals.h>
+#include <phi/io/path.h>
+#include <phi/rendering/texture.h>
+
 #include <stdio.h>
-#include <SDL\SDL_image.h>
-#include "phi/rendering/texture.h"
-#include "phi/core/globals.h"
-#include "phi/io/path.h"
+#include <SDL/SDL_image.h>
 
 namespace phi
 {

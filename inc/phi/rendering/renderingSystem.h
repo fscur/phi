@@ -1,21 +1,22 @@
 #ifndef _PHI_RENDERING_SYSTEM_H_
 #define _PHI_RENDERING_SYSTEM_H_
 
+#include <phi/core/resourcesRepository.h>
+#include <phi/core/size.h>
+
+#include "rendering.h"
+#include "defaultFrameBuffer.h"
+#include "pickingFrameBuffer.h"
+
 #if WIN32
-    #include <GL/glew.h>
+#include <GL/glew.h>
 #else
-    #include <OpenGL/gl3.h>
+#include <OpenGL/gl3.h>
 #endif
 
 #include <freetype/ft2build.h>
-#include <freetype\freetype.h>
-//#include FT_FREETYPE_H
-
-#include "phi/rendering/rendering.h"
-#include "phi/core/resourcesRepository.h"
-#include "phi/rendering/defaultFrameBuffer.h"
-#include "phi/rendering/pickingFrameBuffer.h"
-#include "phi/core/size.h"
+#include <freetype/freetype.h>
+#include FT_FREETYPE_H
 
 namespace phi
 {

@@ -1,15 +1,16 @@
 #ifndef _PHI_RENDERING_COMMUNICATION_BUFFER_H_
 #define _PHI_RENDERING_COMMUNICATION_BUFFER_H_
 
-#include <vector>
-#include <mutex>
+#include "rendering.h"
+#include "pickingFrameBuffer.h"
+
 #if WIN32
 #include <GL/glew.h>
 #else
 #include <OpenGL/gl3.h>
 #endif
-#include "rendering.h"
-#include "pickingFrameBuffer.h"
+#include <vector>
+#include <mutex>
 
 namespace phi
 {

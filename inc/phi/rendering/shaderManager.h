@@ -1,8 +1,9 @@
 #ifndef _PHI_SHADER_MANAGER_H_
 #define _PHI_SHADER_MANAGER_H_
 
-#include "phi/rendering/rendering.h"
-#include "phi/rendering/shader.h"
+#include "rendering.h"
+#include "shader.h"
+
 #include <map>
 #include <string>
 

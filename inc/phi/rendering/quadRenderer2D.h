@@ -1,11 +1,13 @@
 #ifndef _PHI_QUAD_RENDERER_H_
 #define _PHI_QUAD_RENDERER_H_
-#include "phi/rendering/rendering.h"
-#include "phi/rendering/shaderManager.h"
-#include "phi/rendering/shader.h"
-#include "phi/rendering/quad.h"
-#include "phi/core/size.h"
-#include "phi/rendering/transform.h"
+
+#include <phi/core/size.h>
+
+#include "rendering.h"
+#include "shaderManager.h"
+#include "shader.h"
+#include "quad.h"
+#include "transform.h"
 
 namespace phi
 {
