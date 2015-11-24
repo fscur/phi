@@ -103,7 +103,8 @@ namespace phi
         }
 
         mesh* m = new mesh();
-        auto floatSize = sizeof(GLfloat);
+        auto floatSize = (GLuint)sizeof(GLfloat);
+
         m->_indices = indices;
         m->_vertices = vertices;
         m->_indicesCount = indicesCount;
@@ -111,10 +112,10 @@ namespace phi
         m->_texCoordsBuffer = texCoordsBuffer;
         m->_normalsBuffer = normalsBuffer;
         m->_tangentsBuffer = tangentsBuffer;
-        m->_pSize = verticesCount * 3 * floatSize;
-        m->_tSize = verticesCount * 2 * floatSize;
-        m->_nSize = verticesCount * 3 * floatSize;
-        m->_tgSize = verticesCount * 3 * floatSize;
+        m->_pSize = verticesCount * 3u * floatSize;
+        m->_tSize = verticesCount * 2u * floatSize;
+        m->_nSize = verticesCount * 3u * floatSize;
+        m->_tgSize = verticesCount * 3u * floatSize;
         m->_materialName = materialName;
 
         m->storeBuffers();
@@ -126,17 +127,20 @@ namespace phi
     {
         _vertices = vertices;
         _indices = indices;
-        _indicesCount = indices.size();
+        _indicesCount = (GLuint)indices.size();
 
-        _pSize = vertices.size() * 3 * sizeof(GLfloat);
-        _tSize = vertices.size() * 2 * sizeof(GLfloat);
-        _nSize = vertices.size() * 3 * sizeof(GLfloat);
-        _tgSize = vertices.size() * 3 * sizeof(GLfloat);
+        auto verticesCount = (GLuint)vertices.size();
+        auto sizeOfFloat = (GLuint)sizeof(GLfloat);
 
-        _positionsBuffer = new GLfloat[vertices.size() * 3];
-        _texCoordsBuffer = new GLfloat[vertices.size() * 2];
-        _normalsBuffer = new GLfloat[vertices.size() * 3];
-        _tangentsBuffer = new GLfloat[vertices.size() * 3];
+        _pSize = verticesCount * 3 * sizeOfFloat;
+        _tSize = verticesCount * 2 * sizeOfFloat;
+        _nSize = verticesCount * 3 * sizeOfFloat;
+        _tgSize = verticesCount * 3 * sizeOfFloat;
+
+        _positionsBuffer = new GLfloat[verticesCount * 3];
+        _texCoordsBuffer = new GLfloat[verticesCount * 2];
+        _normalsBuffer = new GLfloat[verticesCount * 3];
+        _tangentsBuffer = new GLfloat[verticesCount * 3];
 
         createBuffers(vertices, _positionsBuffer, _texCoordsBuffer, _normalsBuffer, _tangentsBuffer);
 
@@ -524,9 +528,9 @@ namespace phi
         }
 
         //create vertices
-        GLuint pSize = pIndexes.size();
-        GLuint tSize = tIndexes.size();
-        GLuint nSize = nIndexes.size();
+        GLuint pSize = (GLuint)pIndexes.size();
+        GLuint tSize = (GLuint)tIndexes.size();
+        GLuint nSize = (GLuint)nIndexes.size();
 
         std::vector<vertex> tempVertices;
 
@@ -550,7 +554,7 @@ namespace phi
 
         //select vertices and create indices
         std::vector<vertex> vertices;
-        GLuint vSize = tempVertices.size();
+        GLuint vSize = (GLuint)tempVertices.size();
 
         vertex vertex;
         bool exists = false;

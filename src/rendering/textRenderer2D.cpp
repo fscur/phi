@@ -123,7 +123,9 @@ namespace phi
             return size<unsigned int>(0, 0);
 
         float maxWidth = 0.0f;
-        float currentWidth = 0.0f, currentHeight = font->getLineHeight();
+        float currentWidth = 0.0f;
+        float currentHeight = (float)font->getLineHeight();
+
         for(char& p : text)
         {
             if (p == '\n')
