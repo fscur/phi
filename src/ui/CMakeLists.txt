@@ -16,6 +16,7 @@ link_directories(${LIBS_DIRS})
 
 find_package(OPENGL REQUIRED)
 find_package(FREETYPE REQUIRED)
+find_package(BULLET REQUIRED)
 
 if(NOT OPENGL_FOUND)
     message(OPENGL not found!)
@@ -23,6 +24,7 @@ endif(NOT OPENGL_FOUND)
 
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
+include_directories(${BULLET_INCLUDE_DIRS})
 
 link_directories(${OPENGL_LIBRARIES})
 link_directories(${FREETYPE_LIBRARIES})
@@ -47,6 +49,10 @@ add_dependencies(ui rendering)
 
 target_link_libraries(ui ${OPENGL_LIBRARY})
 target_link_libraries(ui ${FREETYPE_LIBRARY})
+target_link_libraries(ui ${BULLET_LIBRARY})
+target_link_libraries(ui ${BULLET_COLLISION_LIBRARY})
+target_link_libraries(ui ${BULLET_DYNAMICS_LIBRARY})
+target_link_libraries(ui ${BULLET_MATH_LIBRARY})
 
 if (WIN32)
     target_link_libraries(ui ${GLEW_LIBRARY})

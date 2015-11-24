@@ -57,6 +57,11 @@ namespace phi
         static CORE_API glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 
         static CORE_API glm::vec3 multiply(const glm::mat4 mat, const glm::vec3 vec);
+
+        static CORE_API bool isClose(float a, float b, float error = 1e-3)
+        {
+            return glm::abs(a - b) < error;
+        }
     };
 }
 #endif

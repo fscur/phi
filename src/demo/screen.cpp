@@ -1,18 +1,19 @@
-#include <phi/demo/screen.h>
-
 #include <phi/rendering/renderingSystem.h>
 #include <phi/rendering/renderingSystem.h>
 #include <phi/rendering/renderingCommunicationBuffer.h>
+
 #include <phi/scenes/box.h>
 #include <phi/scenes/plane.h>
 #include <phi/scenes/sphere.h>
 #include <phi/scenes/cone.h>
 #include <phi/scenes/fsSceneRenderer.h>
 #include <phi/scenes/dsSceneRenderer.h>
+
 #include <phi/ui/colorAnimator.h>
 #include <phi/ui/uiRepository.h>
 #include <phi/ui/uiSystem.h>
 
+#include <phi/demo/screen.h>
 #include <phi/demo/translateObjectCommand.h>
 #include <phi/demo/rotateObjectCommand.h>
 #include <phi/demo/setSceneObjectVisibilityCommand.h>
@@ -22,6 +23,8 @@
 #include <phi/demo/zoomToFitCommand.h>
 #include <phi/demo/addSceneObjectCommand.h>
 #include <phi/demo/SEImporter.h>
+
+#include <bullet/btBulletDynamicsCommon.h>
 
 float a;
 float angle;
@@ -486,11 +489,13 @@ void screen::initUI()
 
     tc = new phi::translationControl(getSize());
     tc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    tc->getTranslating()->bind<screen, &screen::translating>(this);
     tc->getTranslationFinished()->bind<screen, &screen::translationFinished>(this);
     phi::uiSystem::get()->addControl(tc);
 
     rc = new phi::rotationControl(getSize());
     rc->setCamera(phi::scenesManager::get()->getScene()->getActiveCamera());
+    rc->getRotating()->bind<screen, &screen::rotating>(this);
     rc->getRotationFinished()->bind<screen, &screen::rotationFinished>(this);
     phi::uiSystem::get()->addControl(rc);
 
@@ -640,6 +645,78 @@ void screen::render()
     for (unsigned int i = 0; i < count; i++)
     if (_activeCamera != _cameras[i])
     _cameras[i]->DebugRender();*/
+
+    //Draw AABB:
+    //auto camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+    //auto shader = phi::shaderManager::get()->getShader("UI_MESH");
+    //auto objs = *phi::scenesManager::get()->getScene()->getAllObjects();
+    //for (auto so : objs)
+    //{
+    //    auto rd = so->getRigidBody();
+    //    auto sh = so->getShape();
+    //    btVector3 btMin, btMax;
+    //    rd->getAabb(btMin, btMax);
+    //    //sh->getAabb(btTransform(), btMin, btMax);
+    //    auto min = glm::vec3(btMin.getX(), btMin.getY(), btMin.getZ());
+    //    auto max = glm::vec3(btMax.getX(), btMax.getY(), btMax.getZ());
+    //    //auto min = _object->getAabb()->getMin();
+    //    //auto max = _object->getAabb()->getMax();
+    //    auto lbb = glm::vec3(min.x, min.y, min.z);
+    //    auto lbf = glm::vec3(min.x, min.y, max.z);
+    //    auto ltf = glm::vec3(min.x, max.y, max.z);
+    //    auto ltb = glm::vec3(min.x, max.y, min.z);
+    //    auto rbb = glm::vec3(max.x, min.y, min.z);
+    //    auto rbf = glm::vec3(max.x, min.y, max.z);
+    //    auto rtf = glm::vec3(max.x, max.y, max.z);
+    //    auto rtb = glm::vec3(max.x, max.y, min.z);
+
+    //    auto mvp = camera->getPerspProjMatrix() * camera->getViewMatrix();
+    //    shader->bind();
+    //    shader->setUniform("mvp", mvp);
+    //    shader->setUniform("color", phi::color::orange);
+    //    auto pos = std::vector<glm::vec3>();
+    //    pos.push_back(lbb);
+    //    pos.push_back(lbf);
+    //    pos.push_back(ltf);
+    //    pos.push_back(ltb);
+    //    pos.push_back(rbb);
+    //    pos.push_back(rbf);
+    //    pos.push_back(rtf);
+    //    pos.push_back(rtb);
+    //    auto ind = new std::vector<GLuint>();
+    //    ind->push_back(0);
+    //    ind->push_back(1);
+    //    ind->push_back(1);
+    //    ind->push_back(2);
+    //    ind->push_back(2);
+    //    ind->push_back(3);
+    //    ind->push_back(3);
+    //    ind->push_back(0);
+    //    ind->push_back(4);
+    //    ind->push_back(5);
+    //    ind->push_back(5);
+    //    ind->push_back(6);
+    //    ind->push_back(6);
+    //    ind->push_back(7);
+    //    ind->push_back(7);
+    //    ind->push_back(4);
+    //    ind->push_back(0);
+    //    ind->push_back(4);
+    //    ind->push_back(1);
+    //    ind->push_back(5);
+    //    ind->push_back(2);
+    //    ind->push_back(6);
+    //    ind->push_back(3);
+    //    ind->push_back(7);
+
+    //    auto a = phi::lineMesh::create("oi", pos, ind);
+    //    a->bind();
+    //    a->render();
+    //    a->unbind();
+
+    //    DELETE(a);
+    //}
+    //shader->unbind();
 }
 
 void screen::onResize(SDL_Event e)
@@ -924,14 +1001,169 @@ void screen::staticObjectsChanged(phi::eventArgs e)
         _sceneRenderer->redrawStaticShadowMaps();
 }
 
-void screen::translationFinished(phi::translationEventArgs e)
+struct contactSensorCallback : public btCollisionWorld::ContactResultCallback
 {
-    auto cmd = new translateObjectCommand(e.sender, e.startPos, e.endPos);
+    contactSensorCallback(btCollisionObject& tgtBody, screen& context)
+        : btCollisionWorld::ContactResultCallback(), body(tgtBody), ctxt(context), collided(false)
+    {
+    }
+
+    btCollisionObject& body;
+    screen& ctxt;
+    bool collided;
+
+    virtual bool needsCollision(btBroadphaseProxy* proxy) const
+    {
+        if (!btCollisionWorld::ContactResultCallback::needsCollision(proxy)) // superclass will check m_collisionFilterGroup and m_collisionFilterMask
+            return false;
+
+        return body.checkCollideWithOverride(static_cast<btCollisionObject*>(proxy->m_clientObject)); // if passed filters, may also want to avoid contacts between constraints
+    }
+
+    virtual btScalar addSingleResult(btManifoldPoint& cp,
+        const btCollisionObjectWrapper* colObj0, int partId0, int index0,
+        const btCollisionObjectWrapper* colObj1, int partId1, int index1)
+    {
+        btVector3 pt; // will be set to point of collision relative to body
+        if (colObj0->m_collisionObject == &body)
+            pt = cp.m_localPointA;
+        else
+        {
+            assert(colObj1->m_collisionObject == &body && "body does not match either collision object");
+            pt = cp.m_localPointB;
+        }
+
+        collided = true;
+        // do stuff with the collision point
+        return 0;
+    }
+};
+
+void screen::translating(phi::translationEventArgs* e)
+{
+    // Colisão usando Bullet:
+    auto sceneObj = static_cast<phi::sceneObject*>(e->sender);
+    auto scene = phi::scenesManager::get()->getScene();
+    scene->getBulletWorld()->updateAabbs();
+    sceneObj->getBulletRigidBody()->clearForces();
+
+    contactSensorCallback callback(*sceneObj->getBulletRigidBody(), *this);
+    scene->getBulletWorld()->contactTest(sceneObj->getBulletRigidBody(), callback);
+
+    if (callback.collided)
+    {
+        e->cancel = true;
+        //e->valorGãmbisDELETERISSOASSIMQUEPOSSIVEL = callback.mainfoldPoint.getDistance();
+        //e->directionDELETERISSOASSIMQUEPOSSIVEL = glm::vec3(callback.mainfoldPoint.m_normalWorldOnB.getX(), callback.mainfoldPoint.m_normalWorldOnB.getY(), callback.mainfoldPoint.m_normalWorldOnB.getZ());
+    }
+
+    // Colisão usando FCL:
+    //auto objects = *scene->getAllObjects();
+    //auto obj = static_cast<phi::sceneObject*>(e->sender);
+    //auto orient = obj->getOrientation();
+    //auto pos = e->startPos;
+    //auto transf = fcl::Transform3f(fcl::Quaternion3f(orient.w, orient.x, orient.y, orient.z), fcl::Vec3f(pos.x, pos.y, pos.z));
+    //auto co = new fcl::CollisionObject(boost::shared_ptr<fcl::CollisionGeometry>(obj->getFclModel()), transf);
+    //auto goalTransf = fcl::Transform3f(fcl::Quaternion3f(orient.w, orient.x, orient.y, orient.z), fcl::Vec3f(e->endPos.x, e->endPos.y, e->endPos.z));
+    //for each (auto so in objects)
+    //{
+    //    if (so == e->sender)
+    //        continue;
+
+    //    auto orient2 = so->getOrientation();
+    //    auto pos2 = so->getPosition();
+    //    auto transf2 = fcl::Transform3f(fcl::Quaternion3f(orient2.w, orient2.x, orient2.y, orient2.z), fcl::Vec3f(pos2.x, pos2.y, pos2.z));
+    //    auto co2 = new fcl::CollisionObject(boost::shared_ptr<fcl::CollisionGeometry>(so->getFclModel()), transf2);
+
+    //    fcl::ContinuousCollisionRequest request;
+    //    request.ccd_solver_type = fcl::CCDC_NAIVE;
+    //    request.num_max_iterations = 200;
+    //    request.toc_err = 0.00000000001f;
+    //    fcl::ContinuousCollisionResult result;
+    //    auto a = fcl::continuousCollide(co, goalTransf, co2, transf2, request, result);
+
+    //    if (result.is_collide)
+    //    {
+    //        auto colPos = glm::vec3(result.contact_tf1.getTranslation()[0], result.contact_tf1.getTranslation()[1], result.contact_tf1.getTranslation()[2]);
+    //        auto diff = e->endPos - colPos;
+    //        if (colPos == e->startPos)
+    //            continue;
+
+    //        e->cancel = true;
+
+    //        LOG(std::to_string(colPos.x) + ";" + std::to_string(colPos.y) + ";" + std::to_string(colPos.z));
+    //        e->valorGãmbisDELETERISSOASSIMQUEPOSSIVEL = glm::length(e->endPos - colPos);
+
+    //        return;
+    //    }
+    //}
+}
+
+void screen::translationFinished(phi::translationEventArgs* e)
+{
+    if (e->startPos == e->endPos)
+        return;
+
+    auto cmd = new translateObjectCommand(e->sender, e->startPos, e->endPos);
     _commandsManager->executeCommand(cmd);
+}
+
+void screen::rotating(phi::rotationEventArgs* e)
+{
+    // Colisão usando Bullet:
+    auto sceneObj = static_cast<phi::sceneObject*>(e->sender);
+    auto scene = phi::scenesManager::get()->getScene();
+
+    contactSensorCallback callback(*sceneObj->getBulletRigidBody(), *this);
+    scene->getBulletWorld()->contactTest(sceneObj->getBulletRigidBody(), callback);
+    if (callback.collided)
+        e->cancel = true;
+
+    // Colisão usando FCL:
+    //auto objects = *scene->getAllObjects();
+    //auto obj = static_cast<phi::sceneObject*>(e->sender);
+    //auto orient = e->startOrientation;
+    //auto pos = obj->getPosition();
+    //auto transf = fcl::Transform3f(fcl::Quaternion3f(orient.w, orient.x, orient.y, orient.z), fcl::Vec3f(pos.x, pos.y, pos.z));
+    //auto co = new fcl::CollisionObject(boost::shared_ptr<fcl::CollisionGeometry>(obj->getFclModel()), transf);
+    //auto goalTransf = fcl::Transform3f(fcl::Quaternion3f(e->endOrientation.w, e->endOrientation.x, e->endOrientation.y, e->endOrientation.z), fcl::Vec3f(pos.x, pos.y, pos.z));
+
+    //for each (auto so in objects)
+    //{
+    //    if (so == e->sender)
+    //        continue;
+
+    //    auto orient2 = so->getOrientation();
+    //    auto pos2 = so->getPosition();
+    //    auto transf2 = fcl::Transform3f(fcl::Quaternion3f(orient2.w, orient2.x, orient2.y, orient2.z), fcl::Vec3f(pos2.x, pos2.y, pos2.z));
+    //    auto co2 = new fcl::CollisionObject(boost::shared_ptr<fcl::CollisionGeometry>(so->getFclModel()), transf2);
+
+    //    fcl::ContinuousCollisionRequest request;
+    //    //request.num_max_iterations = 200;
+    //    //request.toc_err = 0.00000000001f;
+    //    fcl::ContinuousCollisionResult result;
+    //    auto a = fcl::continuousCollide(co, goalTransf, co2, transf2, request, result);
+
+    //    if (result.is_collide)
+    //    {
+    //        e->cancel = true;
+    //        auto fclRot = result.contact_tf1.getRotation();
+    //        auto rotMat = glm::mat3(
+    //            fclRot.getColumn(0)[0], fclRot.getColumn(0)[1], fclRot.getColumn(0)[2],
+    //            fclRot.getColumn(1)[0], fclRot.getColumn(1)[1], fclRot.getColumn(1)[2],
+    //            fclRot.getColumn(2)[0], fclRot.getColumn(2)[1], fclRot.getColumn(2)[2]);
+    //        e->cancelOrientation = glm::quat(rotMat);
+    //        //e->cancelOrientation = glm::quat(result.contact_tf1.getQuatRotation()[0], result.contact_tf1.getQuatRotation()[1], result.contact_tf1.getQuatRotation()[2], result.contact_tf1.getQuatRotation()[3]);
+    //        return;
+    //    }
+    //}
 }
 
 void screen::rotationFinished(phi::rotationEventArgs e)
 {
+    if (e.startOrientation == e.endOrientation)
+        return;
+
     auto cmd = new rotateObjectCommand(e.sender, e.startOrientation, e.endOrientation);
     _commandsManager->executeCommand(cmd);
 }

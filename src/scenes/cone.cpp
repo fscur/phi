@@ -1,4 +1,4 @@
-#include "phi/scenes/cone.h"
+#include <phi/scenes/cone.h>
 
 namespace phi
 {
@@ -18,7 +18,7 @@ namespace phi
     {
         //TODO: bug-> When creating a cone with 100 sides or more, the geometry is fucked up!!!!!
         std::vector<vertex> tempVertices;
-        std::vector<GLuint> indices;
+        auto indices = new std::vector<GLuint>();
 
         glm::vec3 top = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 bot = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -132,7 +132,7 @@ namespace phi
                 vertices.push_back(vertex);
             }
 
-            indices.push_back(index);
+            indices->push_back(index);
         }
 
         return mesh::create("cone", vertices, indices);

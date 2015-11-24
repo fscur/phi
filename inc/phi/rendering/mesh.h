@@ -40,7 +40,7 @@ namespace phi
         GLuint _iSize;
 
         std::vector<vertex> _vertices;
-        std::vector<GLuint> _indices;
+        std::vector<GLuint>* _indices;
         bool _isBound;
 
         std::string _materialName;
@@ -60,13 +60,13 @@ namespace phi
 
     protected:
         mesh();
-        void addVertices(std::vector<vertex> vertices, std::vector<GLuint> indices);
+        void addVertices(std::vector<vertex> vertices, std::vector<GLuint>* indices);
 
     public:
 
         RENDERING_API ~mesh();
 
-        RENDERING_API static mesh* create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint> &indices);
+        RENDERING_API static mesh* create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint>* indices);
         RENDERING_API static mesh* create(
             GLuint verticesCount, 
             GLfloat* positionsBuffer, 
@@ -81,15 +81,16 @@ namespace phi
         RENDERING_API unsigned int getId() const { return _id; }
         RENDERING_API bool getIsBound() const { return _isBound; }
         RENDERING_API std::vector<vertex> getVertices() const { return _vertices; }
-        RENDERING_API std::vector<GLuint> getIndices() const { return _indices; }
+        RENDERING_API std::vector<GLuint>* getIndices() const { return _indices; }
         RENDERING_API material* getMaterial() const { return _material; }
         RENDERING_API std::string getMaterialName() const { return _materialName; }
+        RENDERING_API GLfloat* getPositionsBuffer() const { return _positionsBuffer; }
 
         RENDERING_API void setId(GLuint value) { _id = value; }
         RENDERING_API void setMaterial(material* value);
 
-        RENDERING_API static void calcNormals(std::vector<vertex> &vertices, std::vector<GLuint> indices);
-        RENDERING_API static void calcTangents(std::vector<vertex> &vertices, std::vector<GLuint> indices);
+        RENDERING_API static void calcNormals(std::vector<vertex> &vertices, std::vector<GLuint> &indices);
+        RENDERING_API static void calcTangents(std::vector<vertex> &vertices, std::vector<GLuint> &indices);
 
         RENDERING_API void bind();
         RENDERING_API void render();

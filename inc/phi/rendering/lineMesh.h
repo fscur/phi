@@ -28,20 +28,20 @@ namespace phi
         GLuint _iSize;
 
         std::vector<glm::vec3> _positions;
-        std::vector<GLuint> _indices;
+        std::vector<GLuint>* _indices;
 
     private:
         void storeBuffers();
 
     protected:
         lineMesh();
-        void addData(std::vector<glm::vec3> positions, std::vector<GLuint> indices);
+        void addData(std::vector<glm::vec3> positions, std::vector<GLuint>* indices);
 
     public:
 
         RENDERING_API ~lineMesh();
 
-        RENDERING_API static lineMesh* create(std::string name, std::vector<glm::vec3> &positions, std::vector<GLuint> &indices);
+        RENDERING_API static lineMesh* create(std::string name, std::vector<glm::vec3> &positions, std::vector<GLuint>* indices);
         RENDERING_API static lineMesh* create(
             GLuint positionsCount,
             GLfloat* positionsBuffer,

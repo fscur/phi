@@ -2,15 +2,18 @@
 #define _PHI_TRANSLATION_CONTROL_H_
 
 #include "phi/ui/control.h"
-#include "phi/rendering/mesh.h"
-#include "phi/rendering/transform.h"
-#include "phi/core/object3D.h"
-#include "phi/rendering/shader.h"
-#include "phi/core/aabb.h"
-#include "phi/rendering/ray.h"
-#include "phi/scenes/camera.h"
-#include "phi/rendering/frustum.h"
 #include "phi/ui/translationEventArgs.h"
+
+#include <phi/core/object3D.h>
+#include <phi/core/aabb.h>
+
+#include <phi/rendering/mesh.h>
+#include <phi/rendering/transform.h>
+#include <phi/rendering/ray.h>
+#include <phi/rendering/frustum.h>
+#include <phi/rendering/shader.h>
+
+#include <phi/scenes/camera.h>
 
 namespace phi
 {
@@ -41,7 +44,8 @@ namespace phi
         glm::vec2 _mouseStartPos;
         camera* _camera;
         glm::mat4 _modelMatrix;
-        eventHandler<translationEventArgs>* _translationFinished;
+        eventHandler<translationEventArgs*>* _translating;
+        eventHandler<translationEventArgs*>* _translationFinished;
 
     private:
         mesh* createArrowMesh();
@@ -62,7 +66,8 @@ namespace phi
         UI_API translationControl(size<GLuint> viewportSize);
         UI_API ~translationControl();
 
-        UI_API eventHandler<translationEventArgs>* getTranslationFinished() { return _translationFinished; }
+        UI_API eventHandler<translationEventArgs*>* getTranslating() const { return _translating; }
+        UI_API eventHandler<translationEventArgs*>* getTranslationFinished() const { return _translationFinished; }
 
         UI_API void setCamera(camera* value) { _camera = value; }
 

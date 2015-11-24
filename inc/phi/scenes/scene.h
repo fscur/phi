@@ -1,12 +1,12 @@
 #ifndef _PHI_SCENE_H_
 #define _PHI_SCENE_H_
 
-#include "phi/core/globals.h"
-#include "phi/core/mathUtils.h"
+#include <phi/core/globals.h>
+#include <phi/core/mathUtils.h>
 
-#include "phi/rendering/shaderManager.h"
-#include "phi/rendering/material.h"
-#include "phi/rendering/meshRenderer.h"
+#include <phi/rendering/shaderManager.h>
+#include <phi/rendering/material.h>
+#include <phi/rendering/meshRenderer.h>
 
 #include "phi/scenes/scenes.h"
 #include "phi/scenes/sceneObject.h"
@@ -58,7 +58,10 @@ namespace phi
 
         unsigned int _sceneObjectsIds;
 
+        btCollisionWorld* _bulletWorld;
+
     private:
+        void initBulletWorld();
         void sceneObjectChanged(phi::object3DEventArgs e);
         void lightChanged(phi::object3DEventArgs e);
         void sceneObjectIsSelectedChanged(phi::sceneObjectEventArgs e);
@@ -85,6 +88,7 @@ namespace phi
         SCENES_API eventHandler<sceneObjectEventArgs>* getSelectedSceneObjectChanged() const { return _selectedSceneObjectChanged; }
         SCENES_API eventHandler<eventArgs>* getStaticObjectsChanged() const { return _staticObjectsChanged; }
         SCENES_API aabb* getAabb() const { return _aabb; }
+        SCENES_API btCollisionWorld* getBulletWorld() const { return _bulletWorld; }
         
         SCENES_API void setSize(size<GLuint> size);
         SCENES_API void setActiveCamera(camera* value) { _activeCamera = value; }

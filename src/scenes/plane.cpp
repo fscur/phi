@@ -1,4 +1,4 @@
-#include "phi/scenes/plane.h"
+#include <phi/scenes/plane.h>
 
 #include <glm/gtx/vector_angle.hpp>
 
@@ -62,14 +62,14 @@ namespace phi
         vertices.push_back(v2);
         vertices.push_back(v3);
 
-        std::vector<GLuint> indices;
-        indices.push_back(0);
-        indices.push_back(1);
-        indices.push_back(2);
+        auto indices = new std::vector<GLuint>();
+        indices->push_back(0);
+        indices->push_back(1);
+        indices->push_back(2);
 
-        indices.push_back(2);
-        indices.push_back(3);
-        indices.push_back(0);
+        indices->push_back(2);
+        indices->push_back(3);
+        indices->push_back(0);
 
         return mesh::create("mesh0", vertices, indices);
     }

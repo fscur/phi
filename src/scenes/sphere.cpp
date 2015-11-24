@@ -1,4 +1,4 @@
-#include "phi/scenes/sphere.h"
+#include <phi/scenes/sphere.h>
 
 namespace phi
 {
@@ -21,7 +21,7 @@ namespace phi
         float piOver2 = PI * 0.5f;
 
         std::vector<vertex> vertices;
-        std::vector<GLuint> indices;
+        auto indices = new std::vector<GLuint>();
 
         float const R = 1.0f/(float)(rings-1.0f);
         float const S = 1.0f/(float)(sectors-1.0f);
@@ -51,16 +51,16 @@ namespace phi
                 int c = (r+1) * sectors + (s+1);
                 int d = r * sectors + (s+1);
 
-                indices.push_back(a);
-                indices.push_back(b);
-                indices.push_back(c);
-                indices.push_back(c);
-                indices.push_back(d);
-                indices.push_back(a);
+                indices->push_back(a);
+                indices->push_back(b);
+                indices->push_back(c);
+                indices->push_back(c);
+                indices->push_back(d);
+                indices->push_back(a);
             }
         }
 
-        mesh::calcTangents(vertices, indices);
+        mesh::calcTangents(vertices, *indices);
 
         return mesh::create("sphere", vertices, indices);
     }

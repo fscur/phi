@@ -1107,7 +1107,7 @@ phi::sceneObject * SEImporter::import(std::string fileName)
                 }
 
                 auto name = meshData->name;
-                auto mesh = phi::mesh::create(name + "_" + std::to_string(meshId), vs, meshData->is);
+                auto mesh = phi::mesh::create(name + "_" + std::to_string(meshId), vs, &meshData->is);
                 mesh->setId(meshId++);
                 auto mat = (*styleMaterials)[pair.first];
                 mesh->setMaterial(mat);

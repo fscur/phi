@@ -1,9 +1,10 @@
 #ifndef _PHI_ROTATION_EVENT_ARGS_H_
 #define _PHI_ROTATION_EVENT_ARGS_H_
 
-#include "phi/core/object3DEventArgs.h"
-#include <glm\glm.hpp>
-#include <glm\gtc\quaternion.hpp>
+#include <phi/core/object3DEventArgs.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace phi
 {
@@ -13,13 +14,12 @@ namespace phi
     public:
         glm::quat startOrientation;
         glm::quat endOrientation;
+        bool cancel;
 
     public:
         rotationEventArgs(object3D* sender, glm::quat start, glm::quat end)
-            : object3DEventArgs(sender)
+            : object3DEventArgs(sender), startOrientation(start), endOrientation(end), cancel(false)
         {
-            startOrientation = start;
-            endOrientation = end;
         }
     };
 }

@@ -107,7 +107,9 @@ public:
     void selectedSceneObjectChanged(phi::sceneObjectEventArgs e);
     void staticObjectsChanged(phi::eventArgs e);
     void carouselListItemClick(phi::mouseEventArgs* e);
-    void translationFinished(phi::translationEventArgs e);
+    void translating(phi::translationEventArgs* e);
+    void translationFinished(phi::translationEventArgs* e);
+    void rotating(phi::rotationEventArgs* e);
     void rotationFinished(phi::rotationEventArgs e);
     void dragDropEnded(phi::dragDropEventArgs* e);
 

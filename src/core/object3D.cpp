@@ -58,6 +58,7 @@ namespace phi
     {
         _orientation = value;
         setChanged();
+        onDirectionChanged();
     }
 
     void object3D::setDirection(glm::vec3 direction)
@@ -186,6 +187,7 @@ namespace phi
     {
         _orientation = glm::angleAxis(angle, axis) * _orientation;
         setChanged();
+        onDirectionChanged();
     }
 
     void object3D::pitch(float angle)
@@ -193,6 +195,7 @@ namespace phi
         _pitch += angle;
         _orientation = glm::angleAxis(angle, glm::vec3(1.0f, 0.0f, 0.0f)) * _orientation;
         setChanged();
+        onDirectionChanged();
     }
 
     void object3D::yaw(float angle)
@@ -200,6 +203,7 @@ namespace phi
         _yaw += angle;
         _orientation = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * _orientation;
         setChanged();
+        onDirectionChanged();
     }
 
     void object3D::roll(float angle)
@@ -207,5 +211,6 @@ namespace phi
         _roll += angle;
         _orientation = glm::angleAxis(angle, glm::vec3(0.0f, 0.0f, 1.0f)) * _orientation;
         setChanged();
+        onDirectionChanged();
     }
 }

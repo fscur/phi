@@ -1,14 +1,14 @@
-#include "phi/scenes/scene.h"
+#include <phi/rendering/renderingSystem.h>
 
-#include "phi/rendering/renderingSystem.h"
-
-#include "phi/scenes/plane.h"
-#include "phi/scenes/sphere.h"
+#include <phi/scenes/scene.h>
+#include <phi/scenes/plane.h>
+#include <phi/scenes/sphere.h>
 
 #include <fstream>
 #include <iostream>
 #include <functional>
 #include <algorithm>
+#include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
 namespace phi
 {
@@ -38,6 +38,8 @@ namespace phi
 
         _activeCamera = new camera(0.1f, 1000.0f, 800.0f / 600.0f, phi::PI_OVER_4);
         _cameras->push_back(_activeCamera);
+
+        initBulletWorld();
     }
 
     scene::~scene()
@@ -69,6 +71,16 @@ namespace phi
         delete _aabb;
         delete _selectedSceneObjectChanged;
         delete _staticObjectsChanged;
+    }
+
+    void scene::initBulletWorld()
+    {
+        auto broadphase = new btDbvtBroadphase(); // Escolher o algoritmo de otimização de pares de colisão (que vai escolher os pares que serão testados)
+        auto collisionConfiguration = new btDefaultCollisionConfiguration(); // Configuração da colisão "full" (depois do broadphase)
+        auto dispatcher = new btCollisionDispatcher(collisionConfiguration);
+        auto solver = new btSequentialImpulseConstraintSolver; // Responsável pela física (gravidade, forças, articulações, etc.)
+        _bulletWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfiguration);
+        btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
     }
 
     void scene::input()
@@ -242,6 +254,8 @@ namespace phi
 
         sceneObject->setId(_sceneObjectsIds++);
         _allObjectsCount++;
+
+        _bulletWorld->addCollisionObject(sceneObject->getBulletRigidBody());
 
         if (sceneObject->getChanged())
             sceneObject->update();
@@ -469,6 +483,8 @@ namespace phi
 
         if (_dynamicObjects->find(sceneObj->getId()) != _dynamicObjects->end())
             _dynamicObjects->erase(sceneObj->getId());
+
+        _bulletWorld->removeCollisionObject(sceneObj->getBulletRigidBody());
     }
 
     void scene::save(std::string path)

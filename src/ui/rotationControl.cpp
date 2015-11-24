@@ -1,7 +1,7 @@
-#include "phi/ui/rotationControl.h"
+#include <phi/rendering/shaderManager.h>
 
-#include "phi/rendering/shaderManager.h"
-#include "phi/ui/colorAnimator.h"
+#include <phi/ui/rotationControl.h>
+#include <phi/ui/colorAnimator.h>
 
 #include <glm/gtx/constants.hpp>
 
@@ -19,6 +19,7 @@ namespace phi
         _xColor = color(1.0f, 0.0f, 0.0f, 0.5f);
         _yColor = color(0.0f, 1.0f, 0.0f, 0.5f);
         _zColor = color(0.0f, 0.0f, 1.0f, 0.5f);
+        _rotating = new eventHandler<rotationEventArgs*>();
         _rotationFinished = new eventHandler<rotationEventArgs>();
         createCircleMesh();
     }
@@ -28,7 +29,7 @@ namespace phi
         _xPositions = std::vector<glm::vec3>();
         _yPositions = std::vector<glm::vec3>();
         _zPositions = std::vector<glm::vec3>();
-        auto indices = std::vector<GLuint>();
+        auto indices = new std::vector<GLuint>();
         auto r = 0.7f;
         auto n = 50;
         auto as = (glm::pi<float>() * 2.0f) / (float)n;
@@ -47,8 +48,8 @@ namespace phi
             _xPositions.push_back(multMat3(pos, _xModelMatrix));
             _yPositions.push_back(multMat3(pos, _yModelMatrix));
             _zPositions.push_back(pos);
-            indices.push_back(i);
-            indices.push_back((i + 1) % n);
+            indices->push_back(i);
+            indices->push_back((i + 1) % n);
             a += as;
         }
 
@@ -373,9 +374,19 @@ namespace phi
                 // angle in [-179,180]
                 angle = angle * sign;
 
+                auto currentRot = _object->getOrientation();
                 _object->rotate(angle - _currentAngle, dirLocal);
-                _currentAngle = angle;
-                //LOG(glm::degrees(_currentAngle));
+
+                auto args = new rotationEventArgs(_object, currentRot, _object->getOrientation());
+                if (_rotating->isBound())
+                    _rotating->invoke(args);
+
+                if (args->cancel)
+                    _object->setOrientation(currentRot);
+                else
+                    _currentAngle = angle;
+
+                DELETE(args);
             }
         }
     }

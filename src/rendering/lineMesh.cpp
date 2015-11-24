@@ -20,7 +20,7 @@ namespace phi
         glDeleteVertexArrays(1, &_vao);
     }
 
-    lineMesh* lineMesh::create(std::string name, std::vector<glm::vec3> &positions, std::vector<GLuint> &indices)
+    lineMesh* lineMesh::create(std::string name, std::vector<glm::vec3> &positions, std::vector<GLuint>* indices)
     {
         lineMesh* m = new lineMesh();
         m->addData(positions, indices);
@@ -33,10 +33,10 @@ namespace phi
         GLuint indicesCount,
         GLuint* indicesBuffer)
     {
-        std::vector<GLuint> indices;
+        auto indices = new std::vector<GLuint>();
 
         for (GLuint i = 0; i < indicesCount; i++)
-            indices.push_back(indicesBuffer[i]);
+            indices->push_back(indicesBuffer[i]);
 
         std::vector<glm::vec3> positions;
 
@@ -61,11 +61,11 @@ namespace phi
         return m;
     }
 
-    void lineMesh::addData(std::vector<glm::vec3> positions, std::vector<GLuint> indices)
+    void lineMesh::addData(std::vector<glm::vec3> positions, std::vector<GLuint>* indices)
     {
         _positions = positions;
         _indices = indices;
-        _indicesCount = indices.size();
+        _indicesCount = indices->size();
 
         _pSize = positions.size() * 3 * sizeof(GLfloat);
 
@@ -97,7 +97,7 @@ namespace phi
 
         glGenBuffers(1, &_indicesVbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesVbo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &_indices[0], GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &(*_indices)[0], GL_STATIC_DRAW);
     }
 
     void lineMesh::bind()

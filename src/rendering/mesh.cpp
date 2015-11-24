@@ -1,6 +1,8 @@
-#include "phi/rendering/mesh.h"
-#include "phi/core/globals.h"
-#include "phi/io/path.h"
+#include <phi/rendering/mesh.h>
+
+#include <phi/core/globals.h>
+
+#include <phi/io/path.h>
 
 #include <fstream>
 #include <iostream>
@@ -37,7 +39,7 @@ namespace phi
     glDeleteVertexArrays(1, &_vao);
     }
 
-    mesh* mesh::create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint> &indices)
+    mesh* mesh::create(std::string name, std::vector<vertex> &vertices, std::vector<GLuint>* indices)
     {
         mesh* m = new mesh();
         m->addVertices(vertices, indices);
@@ -53,10 +55,10 @@ namespace phi
         GLuint* indicesBuffer, 
         std::string materialName)
     {
-        std::vector<GLuint> indices;
+        auto indices = new std::vector<GLuint>();
 
         for (GLuint i = 0; i < indicesCount; i++)
-            indices.push_back(indicesBuffer[i]);
+            indices->push_back(indicesBuffer[i]);
 
         std::vector<vertex> vertices;
 
@@ -84,7 +86,7 @@ namespace phi
             vertices.push_back(vert);
         }
 
-        mesh::calcTangents(vertices, indices);
+        mesh::calcTangents(vertices, *indices);
 
         unsigned int tgIndex = 0;
         GLfloat* tangentsBuffer = new GLfloat[verticesCount * 3];
@@ -122,11 +124,11 @@ namespace phi
         return m;
     }
 
-    void mesh::addVertices(std::vector<vertex> vertices, std::vector<GLuint> indices)
+    void mesh::addVertices(std::vector<vertex> vertices, std::vector<GLuint>* indices)
     {
         _vertices = vertices;
         _indices = indices;
-        _indicesCount = indices.size();
+        _indicesCount = indices->size();
 
         _pSize = vertices.size() * 3 * sizeof(GLfloat);
         _tSize = vertices.size() * 2 * sizeof(GLfloat);
@@ -168,7 +170,8 @@ namespace phi
 
         glGenBuffers(1, &_indicesVbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesVbo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &_indices[0], GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &(*_indices)[0], GL_STATIC_DRAW);
+        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &_indices[0], GL_STATIC_DRAW); // Ativar arte abstrata
     }
 
     void mesh::createBuffers(std::vector<vertex> vertices, GLfloat* &vertexBuffer, GLfloat* &texCoordBuffer, GLfloat* &normalBuffer, GLfloat* &tangentBuffer)
@@ -358,7 +361,7 @@ namespace phi
         m->_indicesCount = m->_iSize / sizeof(GLuint);
 
         for (GLuint i = 0; i < m->_indicesCount; i++)
-            m->_indices.push_back(m->_indicesBuffer[i]);
+            m->_indices->push_back(m->_indicesBuffer[i]);
 
         GLuint verticesCount = m->_pSize / sizeof(GLfloat) / 3;
 
@@ -386,7 +389,7 @@ namespace phi
             m->_vertices.push_back(vert);
         }
 
-        m->calcTangents(m->_vertices, m->_indices);
+        m->calcTangents(m->_vertices, *m->_indices);
 
         unsigned int tgIndex = 0;
         m->_tangentsBuffer = new GLfloat[verticesCount * 3];
@@ -452,7 +455,7 @@ namespace phi
         std::vector<GLuint> tIndexes;
         std::vector<GLuint> nIndexes;
 
-        std::vector<GLuint> indices;
+        auto indices = new std::vector<GLuint>();
 
         //read obj and fill vectors of indices
         std::ifstream file(fileName);
@@ -582,21 +585,21 @@ namespace phi
                 vertices.push_back(vertex);
             }
 
-            indices.push_back(index);
+            indices->push_back(index);
         }
 
         //calc normals
         if (shouldCalcNormals || nSize == 0)
-            calcNormals(vertices, indices);
+            calcNormals(vertices, *indices);
 
         //calc tangents
         if (tSize > 0)
-            calcTangents(vertices, indices);
+            calcTangents(vertices, *indices);
 
         return mesh::create(name, vertices, indices);
     }
 
-    void mesh::calcNormals(std::vector<vertex> &vertices, std::vector<GLuint> indices)
+    void mesh::calcNormals(std::vector<vertex> &vertices, std::vector<GLuint> &indices)
     {
         for(GLuint i = 0; i< indices.size(); i += 3)
         {
@@ -631,7 +634,7 @@ namespace phi
         }
     }
 
-    void mesh::calcTangents(std::vector<vertex> &vertices, std::vector<GLuint> indices)
+    void mesh::calcTangents(std::vector<vertex> &vertices, std::vector<GLuint> &indices)
     {
         for(GLuint i = 0; i< indices.size(); i += 3)
         {

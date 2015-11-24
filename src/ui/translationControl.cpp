@@ -1,12 +1,12 @@
-#include "phi/ui/translationControl.h"
+#include <phi/rendering/shaderManager.h>
+#include <phi/rendering/meshRenderer.h>
+#include <phi/rendering/lineMesh.h>
 
-#include "phi/rendering/shaderManager.h"
-#include "phi/rendering/meshRenderer.h"
-#include "phi/rendering/lineMesh.h"
-
-#include "phi/ui/colorAnimator.h"
+#include <phi/ui/translationControl.h>
+#include <phi/ui/colorAnimator.h>
 
 #include <glm/gtx/constants.hpp>
+#include <bullet/btBulletDynamicsCommon.h>
 
 namespace phi
 {
@@ -26,13 +26,14 @@ namespace phi
         _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
         _zModelMatrix = glm::mat4();
         _clickedOverX = _clickedOverY = _clickedOverZ = false;
-        _translationFinished = new eventHandler<translationEventArgs>();
+        _translating = new eventHandler<translationEventArgs*>();
+        _translationFinished = new eventHandler<translationEventArgs*>();
     }
 
     mesh* translationControl::createArrowMesh()
     {
         std::vector<vertex> vertices;
-        std::vector<GLuint> indices;
+        auto indices = new std::vector<GLuint>();
 
         auto sides = 10;
         auto pr = 0.05f;
@@ -54,41 +55,41 @@ namespace phi
 
         for (auto i = 1; i < sides + 1; i++)
         {
-            indices.push_back(i);
-            indices.push_back(i % sides + 1);
-            indices.push_back(0);
+            indices->push_back(i);
+            indices->push_back(i % sides + 1);
+            indices->push_back(0);
         }
 
         for (auto i = 1; i < sides + 1; i++)
         {
-            indices.push_back(i);
-            indices.push_back(i + sides);
-            indices.push_back(i % sides + 1);
+            indices->push_back(i);
+            indices->push_back(i + sides);
+            indices->push_back(i % sides + 1);
 
-            indices.push_back(i % sides + 1);
-            indices.push_back(i + sides);
-            indices.push_back(i % sides + sides + 1);
+            indices->push_back(i % sides + 1);
+            indices->push_back(i + sides);
+            indices->push_back(i % sides + sides + 1);
         }
 
         for (auto i = 1; i < sides + 1; i++)
         {
-            indices.push_back(i + sides);
-            indices.push_back(i + sides + sides);
-            indices.push_back(i % sides + 1 + sides);
+            indices->push_back(i + sides);
+            indices->push_back(i + sides + sides);
+            indices->push_back(i % sides + 1 + sides);
 
-            indices.push_back(i % sides + 1 + sides);
-            indices.push_back(i + sides + sides);
-            indices.push_back(i % sides + sides + 1 + sides);
+            indices->push_back(i % sides + 1 + sides);
+            indices->push_back(i + sides + sides);
+            indices->push_back(i % sides + sides + 1 + sides);
         }
 
         for (auto i = 1; i < sides + 1; i++)
         {
-            indices.push_back(i + sides * 2);
-            indices.push_back(sides * 3 + 1);
-            indices.push_back(i % sides + 1 + sides * 2);
+            indices->push_back(i + sides * 2);
+            indices->push_back(sides * 3 + 1);
+            indices->push_back(i % sides + 1 + sides * 2);
         }
 
-        mesh::calcTangents(vertices, indices);
+        mesh::calcTangents(vertices, *indices);
 
         //auto min = vertices[0].getPosition();
         //auto max = vertices[0].getPosition();
@@ -151,7 +152,7 @@ namespace phi
         auto min = glm::vec4(-0.80901699437494742410229341718282f * 0.05f, -0.95105651629515357211643933337938f * 0.05f, 0.0f, 1.0f);
         auto max = glm::vec4(1.0f * 0.05f, 0.95105651629515357211643933337938f * 0.05f, 0.5f, 1.0f);
 
-        auto createAabb = [&] (const glm::mat4 modelMatrix)
+        auto createAabb = [&](const glm::mat4 modelMatrix)
         {
             auto newMin = _modelMatrix * modelMatrix * min;
             auto newMax = _modelMatrix * modelMatrix * max;
@@ -167,8 +168,8 @@ namespace phi
     {
         float w = (float)screenSize.width;
         float h = (float)screenSize.height;
-        float x = (2 * screenCoords.x)/w - 1.0f; 
-        float y = 1.0f - (2 * screenCoords.y)/h;
+        float x = (2 * screenCoords.x) / w - 1.0f;
+        float y = 1.0f - (2 * screenCoords.y) / h;
 
         glm::mat4 invPersp = glm::inverse(_camera->getPerspProjMatrix());
         glm::mat4 invView = glm::inverse(_camera->getViewMatrix());
@@ -227,11 +228,11 @@ namespace phi
         float hw = w * 0.5f;
 
         float ys = mousePos.y - hh;
-        float yp = ys/hh;
+        float yp = ys / hh;
         float y = -(yp * tg);
 
         float xs = mousePos.x - hw;
-        float xp = xs/hw;
+        float xp = xs / hw;
         float x = xp * tg * aspect;
 
         return glm::vec3(x, y, -zNear);
@@ -251,9 +252,9 @@ namespace phi
 
     int translationControl::lineLineIntersect(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, glm::vec3 *pa, glm::vec3 *pb, float *mua, float *mub)
     {
-        glm::vec3 p13,p43,p21;
-        float d1343,d4321,d1321,d4343,d2121;
-        float numer,denom;
+        glm::vec3 p13, p43, p21;
+        float d1343, d4321, d1321, d4343, d2121;
+        float numer, denom;
         float epsilon = glm::epsilon<float>();
 
         p13.x = p1.x - p3.x;
@@ -302,7 +303,7 @@ namespace phi
 
         if (e->leftButtonPressed && (_mouseOverX || _mouseOverY || _mouseOverZ))
         {
-            auto multMat3 = [] (const glm::vec3 vec, const glm::mat4 mat)
+            auto multMat3 = [](const glm::vec3 vec, const glm::mat4 mat)
             {
                 auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
                 vec4 = mat * vec4;
@@ -332,7 +333,7 @@ namespace phi
             colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
 
             if (_translationFinished->isBound())
-                _translationFinished->invoke(phi::translationEventArgs(_object, _startLocalPos, _object->getLocalPosition()));
+                _translationFinished->invoke(new phi::translationEventArgs(_object, _startLocalPos, _object->getLocalPosition()));
         }
     }
 
@@ -341,7 +342,7 @@ namespace phi
         if (!_object)
             return;
 
-        auto multMat3 = [] (const glm::vec3 vec, const glm::mat4 mat)
+        auto multMat3 = [](const glm::vec3 vec, const glm::mat4 mat)
         {
             auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
             vec4 = mat * vec4;
@@ -381,7 +382,7 @@ namespace phi
             auto screenObjectEndPos = screenObjectPos + screenObjectDir * (glm::dot(mouseStartToEnd, screenObjectDir) - glm::dot(_mouseStartPos - screenObjectPos, screenObjectDir));
             auto viewObjectEndPos = screenToViewZNear(screenObjectEndPos);
 
-            auto worldToView = [&] (const glm::vec3 vec)
+            auto worldToView = [&](const glm::vec3 vec)
             {
                 auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
                 vec4 = _camera->getViewMatrix() * vec4;
@@ -395,12 +396,23 @@ namespace phi
             float t1, t2;
             if (lineLineIntersect(glm::vec3(), viewObjectEndPos, viewObjectStartPos, viewObjectStartDirPos, &p1, &p2, &t1, &t2))
             {
-                auto world4 = glm::inverse(_camera->getViewMatrix()) * glm::vec4(p1.x, p1.y, p1.z, 1.0f);
-                auto world = glm::vec3(world4.x, world4.y, world4.z);
+                //auto world4 = glm::inverse(_camera->getViewMatrix()) * glm::vec4(p1.x, p1.y, p1.z, 1.0f);
+                //auto world = glm::vec3(world4.x, world4.y, world4.z);
+                //auto model = (_object->getParent() == nullptr ? glm::mat4() : _object->getParent()->getModelMatrix());
+                //auto localWorld = multMat3(world, glm::inverse(model));
+                auto localWorld = _startPos + dir * t2;
 
-                auto model = (_object->getParent() == nullptr ? glm::mat4() : _object->getParent()->getModelMatrix());
-                auto localWorld = multMat3(world, glm::inverse(model));
+                auto currentPos = _object->getLocalPosition();
                 _object->setLocalPosition(localWorld);
+
+                auto args = new translationEventArgs(_object, currentPos, localWorld);
+                if (_translating->isBound())
+                    _translating->invoke(args);
+
+                if (args->cancel)
+                    _object->setLocalPosition(currentPos);
+
+                DELETE(args);
             }
         }
     }

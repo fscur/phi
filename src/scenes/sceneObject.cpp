@@ -1,8 +1,9 @@
-#include "phi/scenes/sceneObject.h"
+#include <phi/core/mathUtils.h>
+#include <phi/core/globals.h>
 
-#include "phi/core/mathUtils.h"
-#include "phi/core/globals.h"
-#include "phi/rendering/meshRenderer.h"
+#include <phi/rendering/meshRenderer.h>
+
+#include <phi/scenes/sceneObject.h>
 
 namespace phi
 {
@@ -16,6 +17,8 @@ namespace phi
         _isInitialized = false;
         setAabb(new aabb(glm::vec3(), glm::vec3()));
         _isSelectedChanged = new eventHandler<sceneObjectEventArgs>();
+        _bulletRigidBody = nullptr;
+        _bulletShape = nullptr;
     }
 
     sceneObject::~sceneObject(void)
@@ -98,7 +101,7 @@ namespace phi
         glPushMatrix();
         glColor3f(1.0f, 1.0f, 0.0f);
         for (int i = 0; i < points.size(); i++)
-        {   
+        {
         int j = i == points.size() - 1 ? 0 : i + 1;
         glm::vec3 p0 = points[i];
         glm::vec3 p1 = points[j];
@@ -128,17 +131,17 @@ namespace phi
         // front quad
         glVertex3f(min.x, min.y, min.z); glVertex3f(max.x, min.y, min.z);
         glVertex3f(max.x, min.y, min.z); glVertex3f(max.x, max.y, min.z);
-        glVertex3f(max.x, max.y, min.z); glVertex3f(min.x, max.y, min.z); 
+        glVertex3f(max.x, max.y, min.z); glVertex3f(min.x, max.y, min.z);
         glVertex3f(min.x, max.y, min.z); glVertex3f(min.x, min.y, min.z);
         //back quad
         glVertex3f(min.x, min.y, max.z); glVertex3f(max.x, min.y, max.z);
         glVertex3f(max.x, min.y, max.z); glVertex3f(max.x, max.y, max.z);
-        glVertex3f(max.x, max.y, max.z); glVertex3f(min.x, max.y, max.z); 
+        glVertex3f(max.x, max.y, max.z); glVertex3f(min.x, max.y, max.z);
         glVertex3f(min.x, max.y, max.z); glVertex3f(min.x, min.y, max.z);
         //connect lines
         glVertex3f(min.x, min.y, min.z); glVertex3f(min.x, min.y, max.z);
         glVertex3f(max.x, min.y, min.z); glVertex3f(max.x, min.y, max.z);
-        glVertex3f(max.x, max.y, min.z); glVertex3f(max.x, max.y, max.z); 
+        glVertex3f(max.x, max.y, min.z); glVertex3f(max.x, max.y, max.z);
         glVertex3f(min.x, max.y, min.z); glVertex3f(min.x, max.y, max.z);
 
         glColor3f(1.0f, 0.0f, 0.0f);
@@ -162,9 +165,9 @@ namespace phi
         float pi = PI;
         float pi_2 = PI/2.0f;
 
-        for(r = 0; r < rings; r++) 
+        for(r = 0; r < rings; r++)
         {
-        for(s = 0; s < sectors; s++) 
+        for(s = 0; s < sectors; s++)
         {
         float const y = sin(-pi_2 + pi * r * R );
         float const x = cos(2*pi * s * S) * sin( pi * r * R );
@@ -176,7 +179,7 @@ namespace phi
 
         glColor3f(1.0f, 0.0f, 1.0f);
         for (int i = 0; i < points.size(); i++)
-        {   
+        {
         int j = i == points.size() - 1 ? 0 : i + 1;
         glm::vec3 p0 = points[i];
         glm::vec3 p1 = points[j];
@@ -193,19 +196,28 @@ namespace phi
     sceneObject* sceneObject::create(model* model)
     {
         sceneObject* sceneObj = new sceneObject();
+        sceneObj->_bulletShape = new btCompoundShape();
 
         std::vector<sceneMesh*> sceneMeshes;
         auto meshesCount = model->getMeshes().size();
         for (unsigned int i = 0; i < meshesCount; i++)
         {
             auto mesh = model->getMeshes()[i];
-            auto sm = new sceneMesh(mesh->getId());
+            auto sm = new sceneMesh(mesh);
             sm->setMaterial(mesh->getMaterial());
             sceneMeshes.push_back(sm);
+            sceneObj->_bulletShape->addChildShape(btTransform::getIdentity(), sm->getBulletShape());
         }
         sceneObj->_sceneMeshes = sceneMeshes;
         sceneObj->_model = model;
         sceneObj->initPoints();
+        sceneObj->_bulletShape->setMargin(btScalar(0.0f));
+        auto groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.0f, 0.0f, 0.0f)));
+        auto groundRigidBodyCI = btRigidBody::btRigidBodyConstructionInfo(0.0f, groundMotionState, sceneObj->_bulletShape, btVector3(0.0f, 0.0f, 0.0f));
+        sceneObj->_bulletRigidBody = new btRigidBody(groundRigidBodyCI);
+        sceneObj->_bulletRigidBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+        sceneObj->_bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+
         return sceneObj;
     }
 
@@ -217,7 +229,7 @@ namespace phi
         {
             auto m = _sceneMeshes[i];
 
-            if (m->getMeshID() == meshId && !m->getIsSelected())
+            if (m->getMesh()->getId() == meshId && !m->getIsSelected())
                 m->setIsSelected(true);
             else
                 m->setIsSelected(false);
@@ -237,9 +249,38 @@ namespace phi
         {
             glm::vec3 point = _points[i];
             glm::vec4 p = getModelMatrix() * glm::vec4(point.x, point.y, point.z, 1);
-            points[i] = glm::vec3(p.x, p.y, p.z)/p.w;
+            points[i] = glm::vec3(p.x, p.y, p.z) / p.w;
         }
 
         getAabb()->update(points);
+    }
+
+    void sceneObject::onPositionChanged()
+    {
+        auto pos = getLocalPosition();
+        btTransform trans = _bulletRigidBody->getWorldTransform();
+        trans.setOrigin(btVector3(pos.x, pos.y, pos.z));
+        _bulletRigidBody->setWorldTransform(trans);
+
+        auto i = 0;
+        for (auto sm : _sceneMeshes)
+            _bulletShape->updateChildTransform(i++, btTransform::getIdentity());
+
+        btMotionState* motionState = _bulletRigidBody->getMotionState();
+        motionState->getWorldTransform(trans);
+        trans.setOrigin(btVector3(pos.x, pos.y, pos.z));
+        motionState->setWorldTransform(trans);
+
+        _bulletShape->recalculateLocalAabb();
+        _bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    }
+
+    void sceneObject::onDirectionChanged()
+    {
+        auto transform = _bulletRigidBody->getWorldTransform();
+        auto dir = getOrientation();
+        transform.setRotation(btQuaternion(dir.x, dir.y, dir.z, dir.w));
+        _bulletRigidBody->setWorldTransform(transform);
+        _bulletShape->recalculateLocalAabb();
     }
 }

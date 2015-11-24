@@ -1,7 +1,9 @@
-#include "phi/rendering/textRenderer2D.h"
-#include "phi/rendering/meshRenderer.h"
-#include "phi/rendering/texture.h"
-#include "phi/core/globals.h"
+#include <phi/core/globals.h>
+
+#include <phi/rendering/textRenderer2D.h>
+#include <phi/rendering/meshRenderer.h>
+#include <phi/rendering/texture.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace phi
@@ -33,13 +35,13 @@ namespace phi
         vertices.push_back(vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 0.0f)));
         vertices.push_back(vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f)));
 
-        std::vector<GLuint> indices;
-        indices.push_back(0);
-        indices.push_back(1);
-        indices.push_back(2);
-        indices.push_back(2);
-        indices.push_back(3);
-        indices.push_back(0);
+        auto indices = new std::vector<GLuint>();
+        indices->push_back(0);
+        indices->push_back(1);
+        indices->push_back(2);
+        indices->push_back(2);
+        indices->push_back(3);
+        indices->push_back(0);
 
         _mesh = mesh::create("", vertices, indices);
     }

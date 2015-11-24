@@ -1,20 +1,21 @@
 #ifndef _PHI_SCENEOBJECT_H_
 #define _PHI_SCENEOBJECT_H_
 
-#include "phi/core/size.h"
-#include "phi/core/aabb.h"
-#include "phi/core/object3D.h"
-#include "phi/core/eventHandler.h"
-#include "phi/core/eventArgs.h"
+#include <phi/core/size.h>
+#include <phi/core/aabb.h>
+#include <phi/core/object3D.h>
+#include <phi/core/eventHandler.h>
+#include <phi/core/eventArgs.h>
 
-#include "phi/rendering/material.h"
-#include "phi/rendering/model.h"
+#include <phi/rendering/material.h>
+#include <phi/rendering/model.h>
 
 #include "phi/scenes/scenes.h"
 #include "phi/scenes/sceneObjectEventArgs.h"
 #include "phi/scenes/sceneMesh.h"
 
 #include <list>
+#include <BulletCollision/Gimpact/btGImpactShape.h>
 
 namespace phi
 {
@@ -32,14 +33,19 @@ namespace phi
 
         unsigned int _id;
 
-        std::vector<sceneMesh*> _sceneMeshes;
-
     protected:
+        std::vector<sceneMesh*> _sceneMeshes;
         model* _model;
+        btCompoundShape* _bulletShape;
+        btRigidBody* _bulletRigidBody;
 
     private:
         void initPoints();
         void updateAabb();
+
+    protected:
+        SCENES_API virtual void onPositionChanged() override;
+        SCENES_API virtual void onDirectionChanged() override;
 
     public:
         SCENES_API sceneObject();
@@ -51,6 +57,8 @@ namespace phi
         SCENES_API eventHandler<sceneObjectEventArgs>* getIsSelectedChanged() { return _isSelectedChanged; }
         SCENES_API std::vector<sceneMesh*> getSceneMeshes() { return _sceneMeshes; }
         SCENES_API model* getModel() { return _model; }
+        SCENES_API btCompoundShape* getBulletShape() const { return _bulletShape; }
+        SCENES_API btRigidBody* getBulletRigidBody() const { return _bulletRigidBody; }
 
         SCENES_API void setSelected(bool value);
         SCENES_API void setActive(bool value);
