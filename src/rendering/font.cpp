@@ -82,14 +82,14 @@ namespace phi
             }
 
             glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-            c[i].ax = g->advance.x >> 6;
-            c[i].ay = g->advance.y >> 6;
+            c[i].ax = (float)(g->advance.x >> 6);
+            c[i].ay = (float)(g->advance.y >> 6);
 
-            c[i].bw = g->bitmap.width;
-            c[i].bh = g->bitmap.rows;
+            c[i].bw = (float)g->bitmap.width;
+            c[i].bh = (float)g->bitmap.rows;
 
-            c[i].bl = g->bitmap_left;
-            c[i].bt = g->bitmap_top;
+            c[i].bl = (float)g->bitmap_left;
+            c[i].bt = (float)g->bitmap_top;
 
             c[i].tx = ox / (float)_texWidth;
             c[i].ty = oy / (float)_texHeight;
@@ -98,9 +98,9 @@ namespace phi
             ox += g->bitmap.width + 1;
         }
 
-        _baseLine = glm::abs(face->size->metrics.descender / 64.0f);
-        _ascender = glm::abs(face->size->metrics.ascender / 64.0f);
-        _lineHeight = face->size->metrics.height / 64.0f;
+        _baseLine = (int)glm::abs(face->size->metrics.descender / 64.0f);
+        _ascender = (int)glm::abs(face->size->metrics.ascender / 64.0f);
+        _lineHeight = (int)(face->size->metrics.height / 64.0f);
 
         //fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", _texWidth, _texHeight, _texWidth * _texHeight / 1024);
     }

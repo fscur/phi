@@ -12,12 +12,12 @@
 BSTR ConvertMBSToBSTR(const std::string& str)
 {
     int wslen = ::MultiByteToWideChar(CP_ACP, 0,
-        str.data(), str.length(),
+        str.data(), (int)str.length(),
         NULL, 0);
 
     BSTR wsdata = ::SysAllocStringLen(NULL, wslen);
     ::MultiByteToWideChar(CP_ACP, 0,
-        str.data(), str.length(),
+        str.data(), (int)str.length(),
         wsdata, wslen);
     return wsdata;
 }
@@ -57,7 +57,7 @@ SEImporter::octree::octree(phi::aabb aabb, unsigned int maxLevels, unsigned int 
     _aabb = aabb;
     _maxLevels = maxLevels;
 
-    _maxItems = (unsigned int)(totalItems / glm::pow<float>(8, _maxLevels));
+    _maxItems = (unsigned int)(totalItems / (unsigned int)glm::pow<float>(8.0f, (float)_maxLevels));
 
     if (_maxItems < 10)
         _maxItems = 10;
@@ -257,7 +257,8 @@ bool SEImporter::octree::insert(phi::vertex vertex, unsigned int &index)
             posDataList.push_back(posData);
 
             _positions.push_back(pos);
-            _items[_positions.size() - 1] = posDataList;
+            auto pSize = (unsigned int)_positions.size();
+            _items[pSize - 1] = posDataList;
 
             index = posData.index;
 
@@ -288,11 +289,15 @@ bool SEImporter::octree::insert(phi::vertex vertex, unsigned int &index)
             index = posData.index;
             return true;
         }
+
+        return false;
     }
     else
     {
         return insertIntoChildren(vertex, index);
     }
+
+    return false;
 }
 
 SEImporter::StyleLibrary::StyleLibrary()
@@ -441,35 +446,35 @@ SEImporter::SEImporter()
     _defaultStyle->ID = 0;
     _defaultStyle->Name = "default";
     _defaultStyle->Description = "default style";
-    _defaultStyle->Alpha = 1.0;
+    _defaultStyle->Alpha = 1.0f;
     _defaultStyle->Ambient = phi::color::white;
     _defaultStyle->BumpFileName = "";
-    _defaultStyle->BumpHeight = 0.0;
-    _defaultStyle->BumpMirror = 0.0;
-    _defaultStyle->BumpOffsetX = 0.0;
-    _defaultStyle->BumpOffsetY = 0.0;
-    _defaultStyle->BumpRotation = 0.0;
-    _defaultStyle->BumpScaleX = 0.0;
-    _defaultStyle->BumpScaleY = 0.0;
-    _defaultStyle->BumpUnits = 0.0;
+    _defaultStyle->BumpHeight = 0.0f;
+    _defaultStyle->BumpMirror = 0;
+    _defaultStyle->BumpOffsetX = 0.0f;
+    _defaultStyle->BumpOffsetY = 0.0f;
+    _defaultStyle->BumpRotation = 0.0f;
+    _defaultStyle->BumpScaleX = 0.0f;
+    _defaultStyle->BumpScaleY = 0.0f;
+    _defaultStyle->BumpUnits = 0;
     _defaultStyle->Diffuse = phi::color::white;
     _defaultStyle->Emission = phi::color::white;
-    _defaultStyle->Reflectivity = 0.0;
-    _defaultStyle->Refraction = 0.0;
+    _defaultStyle->Reflectivity = 0.0f;
+    _defaultStyle->Refraction = 0.0f;
     _defaultStyle->Shadows = 0;
-    _defaultStyle->Shininess = 0.0;
+    _defaultStyle->Shininess = 0.0f;
     _defaultStyle->Specular = phi::color::white;
     _defaultStyle->TextureFileName = "";
     _defaultStyle->TextureMirror = 0;
-    _defaultStyle->TextureOffsetX = 0.0;
-    _defaultStyle->TextureOffsetY = 0.0;
-    _defaultStyle->TextureRotation = 0.0;
-    _defaultStyle->TextureScaleX = 0.0;
-    _defaultStyle->TextureScaleY = 0.0;
-    _defaultStyle->TextureTransBG = 0.0;
-    _defaultStyle->TextureTransColor = 0.0;
-    _defaultStyle->TextureUnits = 0.0;
-    _defaultStyle->TextureWeight = 0.0;
+    _defaultStyle->TextureOffsetX = 0.0f;
+    _defaultStyle->TextureOffsetY = 0.0f;
+    _defaultStyle->TextureRotation = 0.0f;
+    _defaultStyle->TextureScaleX = 0.0f;
+    _defaultStyle->TextureScaleY = 0.0f;
+    _defaultStyle->TextureTransBG = false;
+    _defaultStyle->TextureTransColor = 0;
+    _defaultStyle->TextureUnits = 0;
+    _defaultStyle->TextureWeight = 0.0f;
 }
 
 SEImporter::~SEImporter()
@@ -483,7 +488,7 @@ SEImporter::SEStyle* SEImporter::loadStyle(SEFACETLib::IStyleLibrary* styleLib, 
 
     VARIANT_BOOL pVal = styleLib->GetStyleExists(styleID);
 
-    bool exists = (bool)pVal;
+    bool exists = !(pVal == VARIANT_FALSE);
 
     if (!exists)
         return nullptr;
@@ -591,7 +596,7 @@ SEImporter::SEStyle* SEImporter::loadStyle(SEFACETLib::IStyleLibrary* styleLib, 
     style->TextureRotation = textureRotation;
     style->TextureScaleX = textureScaleX;
     style->TextureScaleY = textureScaleY;
-    style->TextureTransBG = textureTransBG;
+    style->TextureTransBG = !(textureTransBG == VARIANT_FALSE);
     style->TextureTransColor = textureTransColor;
     style->TextureUnits = textureUnits;
     style->TextureWeight = textureWeight;
