@@ -92,7 +92,6 @@ target_link_libraries(demo ${BULLET_LIBRARY})
 target_link_libraries(demo ${BULLET_COLLISION_LIBRARY})
 target_link_libraries(demo ${BULLET_DYNAMICS_LIBRARY})
 target_link_libraries(demo ${BULLET_MATH_LIBRARY})
-#target_link_libraries(demo ${BULLET_SOFTBODY_LIBRARY})
 
 if (WIN32)
     target_link_libraries(demo ${GLEW_LIBRARY})
