@@ -1,5 +1,6 @@
-#include "phi/rendering/font.h"
-#include "phi/core/resource.h"
+#include <phi/core/resource.h>
+#include <phi/rendering/font.h>
+
 #include <algorithm>
 
 namespace phi

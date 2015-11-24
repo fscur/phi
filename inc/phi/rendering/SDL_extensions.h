@@ -1,10 +1,11 @@
 #ifndef _SDL_EXTENSIONS_H_
 #define _SDL_EXTENSIONS_H_
 
+#include "rendering.h"
+
 #include <cstring>
 #include <cstdlib>
 #include <SDL/SDL.h>
-#include "phi/rendering/rendering.h"
 
 namespace phi
 {

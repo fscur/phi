@@ -1,14 +1,15 @@
 #ifndef _PHI_RENDER_TARGET_H_
 #define _PHI_RENDER_TARGET_H_
 
+#include "rendering.h"
+#include "texture.h"
+
 #if WIN32
 #include <GL/glew.h>
 #else
 #include <OpenGL/gl3.h>
 #endif
 #include <string>
-#include "phi/rendering/rendering.h"
-#include "phi/rendering/texture.h"
 
 namespace phi
 {

@@ -1,7 +1,8 @@
+#include <phi/core/globals.h>
+#include <phi/rendering/shader.h>
+
 #include <fstream>
 #include <iostream>
-#include "phi/core/globals.h"
-#include "phi/rendering/shader.h"
 
 namespace phi
 {

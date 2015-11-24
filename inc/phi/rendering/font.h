@@ -1,11 +1,11 @@
 #ifndef _PHI_FONT_H_
 #define _PHI_FONT_H_
 
-#include "phi/core/globals.h"
-#include "phi/core/resource.h"
+#include <phi/core/globals.h>
+#include <phi/core/resource.h>
 
-#include "phi/rendering/rendering.h"
-#include "phi/rendering/texture.h"
+#include "rendering.h"
+#include "texture.h"
 
 #include <string>
 #include <glm\glm.hpp>

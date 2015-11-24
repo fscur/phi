@@ -1,8 +1,9 @@
 #ifndef _PHI_TRANSFORM_H_
 #define _PHI_TRANSFORM_H_
 
-#include "phi/rendering/rendering.h"
-#include <glm\glm.hpp>
+#include "rendering.h"
+
+#include <glm/glm.hpp>
 
 namespace phi
 {

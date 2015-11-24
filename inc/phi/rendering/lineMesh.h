@@ -1,14 +1,15 @@
 #ifndef _PHI_LINE_MESH_H_
 #define _PHI_LINE_MESH_H_
 
+#include "rendering.h"
+
 #if WIN32
-    #include <GL/glew.h>
+#include <GL/glew.h>
 #else
-    #include <OpenGL/gl3.h>
+#include <OpenGL/gl3.h>
 #endif
 #include <vector>
 #include <glm/glm.hpp>
-#include "rendering.h"
 
 namespace phi
 {

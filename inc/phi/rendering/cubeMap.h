@@ -1,17 +1,20 @@
 #ifndef _PHI_CUBE_MAP_H_
 #define _PHI_CUBE_MAP_H_
 
-#if WIN32
-    #include <GL/glew.h>
-#else
-    #include <OpenGL/gl3.h>
-#endif
+#include <phi/core/size.h>
+#include <phi/core/resource.h>
+
 #include "rendering.h"
+#include "SDL_Extensions.h"
+
 #include <string>
 #include <vector>
-#include "size.h"
-#include "SDL_Extensions.h"
-#include "resource.h"
+
+#if WIN32
+#include <GL/glew.h>
+#else
+#include <OpenGL/gl3.h>
+#endif
 
 namespace phi
 {

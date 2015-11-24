@@ -1,6 +1,7 @@
-#include "phi/rendering/material.h"
-#include "phi/rendering/renderingSystem.h"
-#include "phi/io/path.h"
+#include <phi/io/path.h>
+#include <phi/rendering/renderingSystem.h>
+#include <phi/rendering/material.h>
+
 #include <fstream>
 
 namespace phi

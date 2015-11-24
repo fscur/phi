@@ -1,13 +1,13 @@
 #ifndef _PHI_TEXT_RENDERER_H_
 #define _PHI_TEXT_RENDERER_H_
 
-#include "phi/rendering/rendering.h"
+#include <phi/core/size.h>
 
-#include "phi/rendering/shaderManager.h"
-#include "phi/rendering/shader.h"
-#include "phi/rendering/quad.h"
-#include "phi/rendering/font.h"
-#include "phi/core/size.h"
+#include "rendering.h"
+#include "shaderManager.h"
+#include "shader.h"
+#include "quad.h"
+#include "font.h"
 
 namespace phi
 {

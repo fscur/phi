@@ -1,4 +1,4 @@
-#include "phi/rendering/ray.h"
+#include <phi/rendering/ray.h>
 
 namespace phi
 {
@@ -181,6 +181,8 @@ namespace phi
             *normal = minNormal;
             return true;
         }
+
+        return false;
     }
 
     bool ray::intersects(glm::vec3 bl, glm::vec3 br, glm::vec3 tr, glm::vec3 tl, float* t)
