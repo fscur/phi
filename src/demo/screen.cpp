@@ -363,6 +363,15 @@ void screen::initUI()
     buttonC->setY(90);
     buttonC->getClick()->bind<screen, &screen::importSEButtonClick>(this);
 
+    _labelFps = new phi::label(getSize());
+    _labelFps->setBackgroundColor(phi::color::fromRGBA(0.95f, 0.95f, 0.95f, 0.5f));
+    _labelFps->setForegroundColor(phi::color::white);
+    _labelFps->setText("No FPS");
+    _labelFps->setToolTipText("Current frames per second");
+    _labelFps->setSize(phi::size<GLuint>(30, 30));
+    _labelFps->setX(getSize().width - 60);
+    _labelFps->setY(0);
+
     //phi::toggleButton* buttonC = new phi::toggleButton(getSize());
     //buttonC->setText("Use esse \"template\" para criar um toggleButton ;)");
     //buttonC->setToolTipText("Hehe :)");
@@ -507,6 +516,7 @@ void screen::initUI()
     phi::uiSystem::get()->addControl(buttonB);
     phi::uiSystem::get()->addControl(buttonC);
     //phi::uiSystem::get()->addControl(buttonC);
+    //phi::uiSystem::get()->addControl(_labelFps);
     //phi::uiSystem::get()->addControl(_slider1);
     //phi::uiSystem::get()->addControl(_slider2);
     //phi::uiSystem::get()->addControl(_slider3);
@@ -562,9 +572,9 @@ void screen::update()
     _inputManager->update();
     _commandsManager->update();
 
-    /*_labelFps->setText("FPS: " + std::to_string(getFps()));
+    _labelFps->setText(std::to_string(getFps()));
 
-    _labelDt->setText("TotalTime/Frame: " + std::to_string(getDt()));
+    /*_labelDt->setText("TotalTime/Frame: " + std::to_string(getDt()));
     _labelInputCost->setText("InputCost: " + std::to_string(getInputCost()));
     _labelUpdateCost->setText("UpdateCost: " + std::to_string(getUpdateCost()));
     _labelRenderCost->setText("RenderCost: " + std::to_string(getRenderCost()));*/
