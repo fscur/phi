@@ -2,6 +2,7 @@
 #define _PHI_COLOR_H_
 
 #include "core.h"
+
 #include <algorithm>
 
 namespace phi

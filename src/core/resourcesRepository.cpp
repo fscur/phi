@@ -1,6 +1,6 @@
-#include "phi/core/resourcesRepository.h"
-#include "phi/core/resource.h"
-#include "phi/core/globals.h"
+#include <phi/core/resourcesRepository.h>
+#include <phi/core/resource.h>
+#include <phi/core/globals.h>
 
 namespace phi
 {
