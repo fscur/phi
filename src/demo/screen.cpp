@@ -821,7 +821,7 @@ void screen::importSEButtonClick(phi::mouseEventArgs* e)
     ofn.lpstrFile = buffer;
     ofn.nMaxFile = 300;
     ofn.Flags = OFN_EXPLORER;
-    ofn.lpstrFilter = NULL;
+    ofn.lpstrFilter = "Supported Files(*.par, *.psm, *.asm, *.jt)\0 * .par; *.psm; *.asm; *.jt\0Part files (*.par)\0 * .par\0Sheet Metal files (*.psm)\0 * .psm\0Assembly files (*.asm)\0 * .asm\0Jt files (*.jt)\0 * .jt\0";
     ofn.lpstrCustomFilter = NULL;
     ofn.nFilterIndex = 0;
     ofn.lpstrFileTitle = NULL;
