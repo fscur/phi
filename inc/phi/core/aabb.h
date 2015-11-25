@@ -1,11 +1,11 @@
 #ifndef _PHI_AABB_H_
 #define _PHI_AABB_H_
 
-#include <vector>
-#include <glm/glm.hpp>
-
 #include "core.h"
 #include "size.h"
+
+#include <vector>
+#include <glm/glm.hpp>
 
 namespace phi
 {

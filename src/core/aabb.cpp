@@ -1,4 +1,6 @@
-#include "phi/core/aabb.h"
+#include <phi/core/aabb.h>
+
+#include <algorithm>
 
 namespace phi
 {
@@ -28,7 +30,6 @@ namespace phi
         _halfHeight = _height * 0.5f;
         _halfDepth = _depth * 0.5f;
         _center = (_min + _max) / 2.0f;
-
         _radius = glm::length(_min - _center);
     }
 
@@ -56,12 +57,8 @@ namespace phi
         float maxY = std::numeric_limits<float>::lowest();
         float maxZ = std::numeric_limits<float>::lowest();
 
-        glm::vec3* tmpPoints = &points[0];
-
-        for (unsigned int i = 0, n = points.size(); i < n; i++)
+        for(auto pos : points)
         {
-            glm::vec3 pos = tmpPoints[i];
-
             if (pos.x < minX)
                 minX = pos.x;
 
@@ -90,7 +87,6 @@ namespace phi
         _halfHeight = _height * 0.5f;
         _halfDepth = _depth * 0.5f;
         _center = (_min + _max) / 2.0f;
-
         _radius = glm::length(_min - _center);
     }
 }

@@ -1,10 +1,11 @@
 #ifndef _PHI_RESOURCES_REPOSITORY_H_
 #define _PHI_RESOURCES_REPOSITORY_H_
 
+#include "resource.h"
+
 #include <vector>
 #include <string>
 #include <sstream>
-#include "resource.h"
 
 namespace phi
 {
