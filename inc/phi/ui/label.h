@@ -19,6 +19,7 @@ namespace phi
         color _backgroundColor;
         color _foregroundColor;
         texture* _texture;
+        quadRenderer2D* _backgroundRenderer;
         textRenderer2D* _textRenderer;
         int _textX;
         int _textY;
