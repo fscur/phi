@@ -46,18 +46,17 @@ namespace phi
 
     void camera::zoomIn(glm::vec3 targetPos)
     {
-        float dist = mathUtils::distance(targetPos, getPosition());
+        auto zFar = _frustum->getZFar();
+        auto zNear = _frustum->getZNear();
+        float dist = mathUtils::distance(targetPos, getPosition()) - zNear;
         glm::vec3 direction = glm::normalize(targetPos - getPosition());
 
-        float factor = 0.3f;
+        float factor = 0.5f;
 
         if (dist < 1.0)
             factor = 1 - (1/(pow(2.0f, dist)));
 
         dist *= factor;
-
-        if (dist < _frustum->getZNear() + 0.25f)
-            return;
 
         glm::vec3 offset = direction * dist;
 
@@ -65,16 +64,23 @@ namespace phi
 
         _focus = glm::max(_focus - dist, _frustum->getZNear());
         setLocalPosition(position);
-
         setChanged();
+
+        if (dist - zNear < 0.2f)
+        {
+            _frustum->setZFar(100.01f);
+            _frustum->setZNear(0.01f);
+        }
     }
 
     void camera::zoomOut(glm::vec3 targetPos)
     {
+        auto zFar = _frustum->getZFar();
+        auto zNear = _frustum->getZNear();
         float dist = mathUtils::distance(targetPos, getPosition());
         glm::vec3 direction = glm::normalize(targetPos - getPosition());
 
-        dist *= -0.3f / (1 -0.3f);
+        dist *= -0.5f / (1 -0.5f);
 
         glm::vec3 offset = direction * dist;
 
@@ -82,6 +88,12 @@ namespace phi
 
         _focus -= dist;
         setLocalPosition(position);
+
+        if (dist - zNear > 0.2f)
+        {
+            _frustum->setZFar(1000.0f);
+            _frustum->setZNear(0.1f);
+        }
 
         setChanged();
     }
