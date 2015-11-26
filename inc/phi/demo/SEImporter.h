@@ -200,12 +200,13 @@ private:
             std::string name;
             octree* o;
             std::vector<phi::vertex> vs;
-            std::vector<GLuint> is;
+            std::vector<GLuint>* is;
             GLuint index = 0;
 
             meshData(phi::aabb aabb, unsigned int totalVertices)
             {
                 o = new octree(aabb, 4, totalVertices);
+                is = new std::vector<GLuint>();
             }
 
             ~meshData()

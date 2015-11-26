@@ -682,7 +682,7 @@ void SEImporter::buildMeshData(SEPart* part)
                 if (data->o->insert(vData.vertex, vData.index))
                     data->vs.push_back(vData.vertex);
 
-                data->is.push_back(vData.index);
+                data->is->push_back(vData.index);
             };
 
             if (it != meshDataPerStyle->end())
@@ -745,15 +745,15 @@ void SEImporter::buildMeshData(SEPart* part)
 
                     if (glm::dot(glm::cross((v1 - v0), (v2 - v0)), n0) < 0)
                     {
-                        data->is.push_back(a.index);
-                        data->is.push_back(c.index);
-                        data->is.push_back(b.index);
+                        data->is->push_back(a.index);
+                        data->is->push_back(c.index);
+                        data->is->push_back(b.index);
                     }
                     else
                     {
-                        data->is.push_back(a.index);
-                        data->is.push_back(b.index);
-                        data->is.push_back(c.index);
+                        data->is->push_back(a.index);
+                        data->is->push_back(b.index);
+                        data->is->push_back(c.index);
                     }
                 }
             }
@@ -761,7 +761,7 @@ void SEImporter::buildMeshData(SEPart* part)
     }
 
     for each (auto pair in (*meshDataPerStyle))
-        phi::mesh::calcTangents(pair.second->vs, pair.second->is);
+        phi::mesh::calcTangents(pair.second->vs, *pair.second->is);
 
     part->setStyleMaterials(styleMaterials);
     part->setMeshDataPerStyle(meshDataPerStyle);
@@ -1079,7 +1079,8 @@ phi::sceneObject * SEImporter::import(std::string fileName)
     }
     else if (ext.compare(".par") == 0 || ext.compare(".psm") == 0)
     {
-        loadPart(fileName, nullptr);
+        auto part = loadPart(fileName, nullptr);
+        _partOccurrences[part].push_back(glm::mat4());
     }
 
     auto meshId = 0;
@@ -1112,7 +1113,7 @@ phi::sceneObject * SEImporter::import(std::string fileName)
                 }
 
                 auto name = meshData->name;
-                auto mesh = phi::mesh::create(name + "_" + std::to_string(meshId), vs, &meshData->is);
+                auto mesh = phi::mesh::create(name + "_" + std::to_string(meshId), vs, meshData->is);
                 mesh->setId(meshId++);
                 auto mat = (*styleMaterials)[pair.first];
                 mesh->setMaterial(mat);

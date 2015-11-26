@@ -1,4 +1,5 @@
 #include <phi/ui/scissor.h>
+#include <phi/core/globals.h>
 
 namespace phi
 {
@@ -24,7 +25,7 @@ namespace phi
             intersection.y + intersection.height > intersection.y)
             return intersection;
 
-        scissor();
+        return scissor();
     }
 
     bool scissor::intersectsWith(glm::vec2 point)
