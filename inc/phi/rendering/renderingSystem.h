@@ -20,13 +20,14 @@
 
 namespace phi
 {
-    static const std::string RENDERING_TEXTURES_PATH = "./resources/textures/";
-    static const std::string RENDERING_MESHES_PATH = "./resources/models/";
+    static const std::string RENDERING_TEXTURES_PATH = "./textures/";
+    static const std::string RENDERING_MESHES_PATH = "./models/";
 
     struct renderingSystemInfo
     {
     public:
         std::string applicationPath;
+        std::string resourcesPath;
         size<GLuint> size;
     };
 

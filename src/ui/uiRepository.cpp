@@ -33,7 +33,7 @@ namespace phi
         addTexture("models.png");
         addTexture("materials.png");
 
-        std::string fontsPath = info.applicationPath + UI_FONTS_PATH;
+        std::string fontsPath = info.resourcesPath + UI_FONTS_PATH;
         repository->addResource(new font("Consola_14", fontsPath + "Consola.ttf", 14, renderingSystem::freeTypeLibrary));
         repository->addResource(new font("Consola_16", fontsPath + "Consola.ttf", 16, renderingSystem::freeTypeLibrary));
         repository->addResource(new font("Consola_18", fontsPath + "Consola.ttf", 18, renderingSystem::freeTypeLibrary));
@@ -41,7 +41,7 @@ namespace phi
         repository->addResource(new font("Consola_100", fontsPath + "Consola.ttf", 100, renderingSystem::freeTypeLibrary));
         repository->addResource(new font("Arial_72", fontsPath + "Arial.ttf", 72, renderingSystem::freeTypeLibrary));
         
-        std::string cursorsPath = info.applicationPath + UI_CURSORS_PATH;
+        std::string cursorsPath = info.resourcesPath + UI_CURSORS_PATH;
         repository->addResource(new cursor("TextCursor", cursorsPath + "text.png", glm::vec2(0.5f, 0.5f)));
         repository->addResource(new cursor("DefaultCursor", cursorsPath + "default.png", glm::vec2(0.0f, 0.0f)));
 

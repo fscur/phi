@@ -12,14 +12,15 @@
 
 namespace phi
 {
-    static const std::string UI_TEXTURES_PATH = "./resources/textures/";
-    static const std::string UI_FONTS_PATH = "./resources/fonts/";
-    static const std::string UI_CURSORS_PATH = "./resources/cursors/";
+    static const std::string UI_TEXTURES_PATH = "./textures/";
+    static const std::string UI_FONTS_PATH = "./fonts/";
+    static const std::string UI_CURSORS_PATH = "./cursors/";
 
     struct uiRepositoryInfo
     {
     public:
         std::string applicationPath;
+        std::string resourcesPath;
         size<GLuint> size;
     };
 

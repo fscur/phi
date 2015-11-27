@@ -132,9 +132,13 @@ int main(int argc, char* args[])
 
     if (!_resourcesPath.empty())
         mainScreen->setResourcesPath(_resourcesPath);
+    else
+        mainScreen->setResourcesPath(path + "\\resources\\");
 
     mainScreen->initialize(path);
-    _scenesManager->setSceneRenderer(_renderer);
+
+    if (_renderer != nullptr)
+        _scenesManager->setSceneRenderer(_renderer);
 
     app->run(mainScreen);
 

@@ -44,6 +44,7 @@ namespace phi
         {
             renderingSystemInfo renderingInfo = renderingSystemInfo();
             renderingInfo.applicationPath = _info.applicationPath;
+            renderingInfo.resourcesPath = _info.resourcesPath;
             renderingInfo.size = info.size;
             renderingSystem::init(renderingInfo);
         }

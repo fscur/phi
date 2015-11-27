@@ -60,6 +60,7 @@ void screen::initScenesManager()
 {
     phi::scenesManagerInfo info;
     info.applicationPath = getApplicationPath();
+    info.resourcesPath = _resourcesPath;
     info.size = getSize();
 
     phi::scenesManager::get()->init(info);
@@ -313,6 +314,7 @@ void screen::initUI()
 {
     phi::uiSystemInfo info = phi::uiSystemInfo();
     info.applicationPath = getApplicationPath();
+    info.resourcesPath = _resourcesPath;
     info.size = getSize();
     phi::uiSystem::get()->init(info);
 

@@ -12,6 +12,7 @@ namespace phi
     {
     public:
         std::string applicationPath;
+        std::string resourcesPath;
         size<GLuint> size;
     };
 

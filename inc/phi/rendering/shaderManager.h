@@ -9,7 +9,7 @@
 
 namespace phi
 {
-    static const std::string SHADERS_PATH = "./resources/shaders/";
+    static const std::string SHADERS_PATH = "./shaders/";
 
     struct shaderManagerInfo
     {
