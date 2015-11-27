@@ -32,7 +32,7 @@ namespace phi
         glm::vec3 _pointLightShadowMapDirs[6];
         glm::vec3 _pointLightShadowMapUps[6];
 
-        quad _quad;
+        quad* _quad;
         bool _hasSelectedObjects;
         bool _buffersInitialized;
         bool _blurShadowMaps;
@@ -112,10 +112,12 @@ namespace phi
         void render();
 
     public:
-        dsSceneRenderer(size<GLuint> viewportSize, std::string exeDir);
-        ~dsSceneRenderer();
-        void onRender() override;
-        void initBuffers() override;
+        SCENES_API dsSceneRenderer();
+        SCENES_API ~dsSceneRenderer();
+        SCENES_API void init(size<GLuint> viewportSize) override;
+        SCENES_API void init(size<GLuint> viewportSize, std::string exeDir);
+        SCENES_API void onRender() override;
+        SCENES_API void initBuffers() override;
     };
 }
 

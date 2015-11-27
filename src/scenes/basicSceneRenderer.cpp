@@ -3,14 +3,21 @@
 
 namespace phi
 {
-    basicSceneRenderer::basicSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
+    basicSceneRenderer::basicSceneRenderer() : sceneRenderer()
     {
-        initBuffers();
-        createGeomPassShader();
     }
 
     basicSceneRenderer::~basicSceneRenderer()
     {
+        delete _quad;
+    }
+
+    void basicSceneRenderer::init(size<GLuint> viewportSize)
+    {
+        _viewportSize = viewportSize;
+        _quad = new quad();
+        initBuffers();
+        createGeomPassShader();
     }
 
     void basicSceneRenderer::initBuffers()
@@ -151,7 +158,7 @@ namespace phi
         sh->setUniform("res", resolution);
         sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
 
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         sh->unbind();
 

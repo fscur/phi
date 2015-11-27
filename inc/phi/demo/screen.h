@@ -58,8 +58,10 @@ private:
 	phi::pointLight* _blueLight;
 
     phi::sceneRenderer* _sceneRenderer;
-
+    
+    std::string _resourcesPath;
 	phi::resourcesLoader _resourcesLoader;
+
     phi::resourcesRepository* _modelsRepository;
     phi::resourcesRepository* _materialsRepository;
     phi::resourcesRepository* _texturesRepository;
@@ -117,6 +119,7 @@ public:
     void render() override;
 
     void setSceneRenderer(phi::sceneRenderer* value) { _sceneRenderer = value; }
+    void setResourcesPath(std::string value) { _resourcesPath = value; }
 };
 
 #endif
