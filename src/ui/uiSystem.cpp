@@ -38,6 +38,7 @@ namespace phi
         {
             renderingSystemInfo renderingInfo = renderingSystemInfo();
             renderingInfo.applicationPath = info.applicationPath;
+            renderingInfo.resourcesPath = info.resourcesPath;
             renderingInfo.size = info.size;
             renderingSystem::init(renderingInfo);
         }
@@ -46,6 +47,7 @@ namespace phi
         {
             phi::uiRepositoryInfo repositoryInfo = phi::uiRepositoryInfo();
             repositoryInfo.applicationPath = info.applicationPath;
+            repositoryInfo.resourcesPath = info.resourcesPath;
             repositoryInfo.size = info.size;
             phi::uiRepository::init(repositoryInfo);
         }

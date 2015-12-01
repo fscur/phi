@@ -11,6 +11,7 @@ namespace phi
     class resourcesLoader
     {
     private:
+        std::string _resourcesPath;
         std::string _texturesPath;
         std::string _materialsPath;
         std::string _modelsPath;
@@ -50,6 +51,7 @@ namespace phi
         resourcesRepository* getModels() const { return _modelsRepository; }
 
         void load();
+        void load(std::string path);
     };
 }
 

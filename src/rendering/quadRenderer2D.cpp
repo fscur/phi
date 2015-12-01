@@ -20,7 +20,7 @@ namespace phi
 
     quadRenderer2D::~quadRenderer2D()
     {
-        delete _transform;
+        safeDelete(_transform);
     }
 
     void quadRenderer2D::update()

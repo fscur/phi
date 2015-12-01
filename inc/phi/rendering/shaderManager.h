@@ -1,6 +1,8 @@
 #ifndef _PHI_SHADER_MANAGER_H_
 #define _PHI_SHADER_MANAGER_H_
 
+#include <phi/core/globals.h>
+
 #include "rendering.h"
 #include "shader.h"
 
@@ -9,7 +11,7 @@
 
 namespace phi
 {
-    static const std::string SHADERS_PATH = "./resources/shaders/";
+    static const std::string SHADERS_PATH = "./shaders/";
 
     struct shaderManagerInfo
     {

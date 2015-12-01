@@ -6,8 +6,41 @@
 
 namespace phi
 {
-    dsSceneRenderer::dsSceneRenderer(size<GLuint> viewportSize, std::string exeDir) : sceneRenderer(viewportSize)
+    dsSceneRenderer::dsSceneRenderer() : sceneRenderer()
     {
+        
+    }
+
+    dsSceneRenderer::~dsSceneRenderer()
+    {
+        for (GLuint i = 0; i < _frameBuffers.size(); i++)
+            safeDelete(_frameBuffers[i]);
+
+        for (GLuint i = 0; i < _dirLightShadowMapFrameBuffers0.size(); i++)
+            safeDelete(_dirLightShadowMapFrameBuffers0[i]);
+
+        for (GLuint i = 0; i < _dirLightShadowMapFrameBuffers1.size(); i++)
+            safeDelete(_dirLightShadowMapFrameBuffers1[i]);
+
+        for (GLuint i = 0; i < _spotLightShadowMapFrameBuffers0.size(); i++)
+            safeDelete(_spotLightShadowMapFrameBuffers0[i]);
+
+        for (GLuint i = 0; i < _spotLightShadowMapFrameBuffers1.size(); i++)
+            safeDelete(_spotLightShadowMapFrameBuffers1[i]);
+
+        for (GLuint i = 0; i < _pointLightShadowMapFrameBuffers0.size(); i++)
+            safeDelete(_pointLightShadowMapFrameBuffers0[i]);
+
+        for (GLuint i = 0; i < _pointLightShadowMapFrameBuffers1.size(); i++)
+            safeDelete(_pointLightShadowMapFrameBuffers1[i]);
+
+        safeDelete(_quad);
+    }
+
+    void dsSceneRenderer::init(size<GLuint> viewportSize)
+    {
+        _viewportSize = viewportSize;
+        _quad = new quad();
         _nearPlane = 0.1f;
         _farPlane = 20.0f;
         _shadowMapSize = 2048;
@@ -44,8 +77,6 @@ namespace phi
         createSpotLightShader();
         createShadowMapShaders();
 
-        _randomNormalsTexture = texture::fromFile(exeDir + "\\" "random_normal.bmp");
-
         _ssaoActive = false;
         _ssaoBias = 0.1f;
         _ssaoIntensity = 1.2f;
@@ -58,28 +89,11 @@ namespace phi
         createBlurShader();
     }
 
-    dsSceneRenderer::~dsSceneRenderer()
+    void dsSceneRenderer::init(size<GLuint> viewportSize, std::string exeDir)
     {
-        for (GLuint i = 0; i < _frameBuffers.size(); i++)
-            safeDelete(_frameBuffers[i]);
+        _randomNormalsTexture = texture::fromFile(exeDir + "\\" "random_normal.bmp");
 
-        for (GLuint i = 0; i < _dirLightShadowMapFrameBuffers0.size(); i++)
-            safeDelete(_dirLightShadowMapFrameBuffers0[i]);
-
-        for (GLuint i = 0; i < _dirLightShadowMapFrameBuffers1.size(); i++)
-            safeDelete(_dirLightShadowMapFrameBuffers1[i]);
-
-        for (GLuint i = 0; i < _spotLightShadowMapFrameBuffers0.size(); i++)
-            safeDelete(_spotLightShadowMapFrameBuffers0[i]);
-
-        for (GLuint i = 0; i < _spotLightShadowMapFrameBuffers1.size(); i++)
-            safeDelete(_spotLightShadowMapFrameBuffers1[i]);
-
-        for (GLuint i = 0; i < _pointLightShadowMapFrameBuffers0.size(); i++)
-            safeDelete(_pointLightShadowMapFrameBuffers0[i]);
-
-        for (GLuint i = 0; i < _pointLightShadowMapFrameBuffers1.size(); i++)
-            safeDelete(_pointLightShadowMapFrameBuffers1[i]);
+        init(viewportSize);
     }
 
     void dsSceneRenderer::initBuffers()
@@ -1106,7 +1120,7 @@ namespace phi
             _blurShader->setUniform("res", resolution);
             _blurShader->setUniform("tex", light->getShadowMap(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
-            meshRenderer::render(&_quad);
+            meshRenderer::render(_quad);
 
             _frameBuffers[3]->unbind();
 
@@ -1116,7 +1130,7 @@ namespace phi
 
             _blurShader->setUniform("tex", _frameBuffers[3]->getRenderTarget("rt0")->getTexture(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(0.0,  blurScale * (1.0/resolution.y)));
-            meshRenderer::render(&_quad);
+            meshRenderer::render(_quad);
 
             _blurShader->unbind();
 
@@ -1149,7 +1163,7 @@ namespace phi
             _blurShader->setUniform("res", resolution);
             _blurShader->setUniform("tex", light->getShadowMap(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
-            meshRenderer::render(&_quad);
+            meshRenderer::render(_quad);
 
             _frameBuffers[3]->unbind();
 
@@ -1159,7 +1173,7 @@ namespace phi
 
             _blurShader->setUniform("tex", _frameBuffers[3]->getRenderTarget("rt0")->getTexture(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(0.0,  blurScale * (1.0/resolution.y)));
-            meshRenderer::render(&_quad);
+            meshRenderer::render(_quad);
 
             _blurShader->unbind();
 
@@ -1348,7 +1362,7 @@ namespace phi
             _blurShader->setUniform("res", resolution);
             _blurShader->setUniform("tex", light->getShadowMap(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
-            meshRenderer::render(&_quad);
+            meshRenderer::render(_quad);
 
             _frameBuffers[3]->unbind();
 
@@ -1358,7 +1372,7 @@ namespace phi
 
             _blurShader->setUniform("tex", _frameBuffers[3]->getRenderTarget("rt0")->getTexture(), 0);
             _blurShader->setUniform("blurScale", glm::vec2(0.0,  blurScale * (1.0/resolution.y)));
-            meshRenderer::render(&_quad);
+            meshRenderer::render(_quad);
 
             _blurShader->unbind();
 
@@ -1421,7 +1435,7 @@ namespace phi
             _dirLightShader->setUniform("rt3", _rt4Texture, 3);
             _dirLightShader->setUniform("shadowMap", light->getShadowMap(), 4);
 
-            meshRenderer::render(&_quad);
+            meshRenderer::render(_quad);
 
             _dirLightShader->unbind();
 
@@ -1689,7 +1703,7 @@ namespace phi
         sh->setUniform("res", resolution);
         sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
 
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         sh->unbind();
 
@@ -1731,7 +1745,7 @@ namespace phi
         s->setUniform("scale", _ssaoScale);
         s->setUniform("bias", _ssaoBias);
 
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         s->unbind();
 
@@ -1772,7 +1786,7 @@ namespace phi
         s->setUniform("rt3", _rt3Texture, 3);
         s->setUniform("rt4", _rt4Texture, 4);
 
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         s->unbind();
 
@@ -1805,7 +1819,7 @@ namespace phi
         s->setUniform("res", resolution);
         s->setUniform("tex", source, 0);
         s->setUniform("blurScale", glm::vec2(blurScale * (1.0/resolution.x), 0.0));
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         _frameBuffers[2]->unbind();
 
@@ -1817,7 +1831,7 @@ namespace phi
 
         s->setUniform("tex", source, 0);
         s->setUniform("blurScale", glm::vec2(0.0,  blurScale * (1.0/resolution.y)));
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         s->unbind();
 

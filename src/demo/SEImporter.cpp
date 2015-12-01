@@ -328,7 +328,7 @@ SEImporter::StyleLibrary::StyleLibrary()
         }
 
         pClassFactory = NULL;
-        delete pClassFactory;
+        phi::safeDelete(pClassFactory);
 
         pIUnknown->QueryInterface(CLSID_IStyleLibrary, (void**)&_instance);
     }
@@ -367,7 +367,7 @@ SEImporter::FacetReader::FacetReader()
         }
 
         pClassFactory = NULL;
-        delete pClassFactory;
+        phi::safeDelete(pClassFactory);
 
         pIUnknown->QueryInterface(CLSID_IFacetReader, (void**)&_instance);
     }
@@ -406,7 +406,7 @@ SEImporter::FileReader::FileReader()
         }
 
         pClassFactory = NULL;
-        delete pClassFactory;
+        phi::safeDelete(pClassFactory);
 
         pIUnknown->QueryInterface(CLSID_ISEFileReader, (void**)&_instance);
     }
@@ -879,7 +879,7 @@ SEImporter::SEPart* SEImporter::loadPart(std::string fileName, SEStyle* style)
 
     if (hr != S_OK)
     {
-        delete facetReader;
+        phi::safeDelete(facetReader);
         return nullptr;
     }
 
@@ -1058,8 +1058,8 @@ SEImporter::SEPart* SEImporter::loadPart(std::string fileName, SEStyle* style)
 
     partReader->Close();
 
-    delete facetReader;
-    delete styleLibrary;
+    phi::safeDelete(facetReader);
+    phi::safeDelete(styleLibrary);
 
     buildMeshData(part);
 

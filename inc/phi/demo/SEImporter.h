@@ -1,13 +1,14 @@
 #ifndef _SE_IMPORTER_
 #define _SE_IMPORTER_
 
-#include "phi/rendering/material.h"
-#include "phi/rendering/model.h"
-#include "phi/rendering/vertex.h"
+#include <phi/core/globals.h>
+#include <phi/core/aabb.h>
 
-#include "phi/scenes/sceneObject.h"
+#include <phi/rendering/material.h>
+#include <phi/rendering/model.h>
+#include <phi/rendering/vertex.h>
 
-#include "phi/core/aabb.h"
+#include <phi/scenes/sceneObject.h>
 
 #import <phi/demo/SEFacet.tlb>
 #import <phi/demo/SEReader.tlb>
@@ -211,7 +212,7 @@ private:
 
             ~meshData()
             {
-                delete o;
+                phi::safeDelete(o);
             }
         };
     private:
@@ -235,10 +236,10 @@ private:
         ~SEPart()
         {
             for each (auto pair in (*_styles))
-                delete pair.second;
+                phi::safeDelete(pair.second);
 
-            delete _styles;
-            delete _bodies;
+            phi::safeDelete(_styles);
+            phi::safeDelete(_bodies);
         }
 
         std::string getName() const { return _name; }
@@ -273,8 +274,8 @@ private:
 
         ~SEAssembly()
         {
-            delete _parts;
-            delete _subAssemblies;
+            phi::safeDelete(_parts);
+            phi::safeDelete(_subAssemblies);
         }
 
         std::string getName() const { return _name; }

@@ -26,7 +26,7 @@ namespace phi
         pickingFrameBuffer->init();
 
         shaderManagerInfo shaderInfo;
-        shaderInfo.path = info.applicationPath;
+        shaderInfo.path = info.resourcesPath;
         shaderManager::get()->init(shaderInfo);
 
         initialized = true;

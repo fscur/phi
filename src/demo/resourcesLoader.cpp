@@ -19,9 +19,9 @@ namespace phi
         _materialsRepository = nullptr;
         _modelsRepository = nullptr;
 
-        _texturesPath = "resources\\textures";
-        _materialsPath = "resources\\materials";
-        _modelsPath = "resources\\models";
+        _texturesPath = "textures";
+        _materialsPath = "materials";
+        _modelsPath = "models";
 
         createDefaultTextures();
         createDefaultMaterial();
@@ -83,7 +83,7 @@ namespace phi
     void resourcesLoader::loadTextures()
     {
         _texturesRepository = new resourcesRepository();
-        auto sourceDirectory = path::getDirectoryFullName(application::exePath) + "\\" + _texturesPath;
+        auto sourceDirectory = _resourcesPath + "\\" + _texturesPath;
         loadTextures(sourceDirectory, sourceDirectory);
     }
 
@@ -116,7 +116,7 @@ namespace phi
     void resourcesLoader::loadMaterials()
     {
         _materialsRepository = new resourcesRepository();
-        auto sourceDirectory = path::getDirectoryFullName(application::exePath) + "\\" + _materialsPath;
+        auto sourceDirectory = _resourcesPath + "\\" + _materialsPath;
         loadMaterials(sourceDirectory, sourceDirectory);
     }
 
@@ -177,7 +177,7 @@ namespace phi
     void resourcesLoader::loadModels()
     {
         _modelsRepository = new resourcesRepository();
-        auto sourceDirectory = path::getDirectoryFullName(application::exePath) + "\\" + _modelsPath;
+        auto sourceDirectory = _resourcesPath + "\\" + _modelsPath;
         loadModels(sourceDirectory, sourceDirectory);
     }
 
@@ -216,10 +216,17 @@ namespace phi
         _modelsRepository->addResource(model);
     }
 
-    void resourcesLoader::load()
+    void resourcesLoader::load(std::string resourcesPath)
     {
+        _resourcesPath = resourcesPath;
+
         loadTextures();
         loadMaterials();
         loadModels();
+    }
+
+    void resourcesLoader::load()
+    {
+        load(path::getDirectoryFullName(application::exePath) + "\\resources\\");
     }
 }

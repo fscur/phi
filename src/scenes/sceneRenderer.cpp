@@ -2,9 +2,8 @@
 
 namespace phi
 {
-    sceneRenderer::sceneRenderer(size<GLuint> viewportSize)
+    sceneRenderer::sceneRenderer()
     {
-        _viewportSize = viewportSize;
         _redrawStaticShadowMaps = true;
     }
 

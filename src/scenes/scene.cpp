@@ -46,7 +46,7 @@ namespace phi
     {
         for (GLuint i = 0; i < _allObjects->size(); i++)
             safeDelete((*_allObjects)[i]);
-
+       
         for (GLuint i = 0; i < _directionalLights->size(); i++)
             safeDelete((*_directionalLights)[i]);
 
@@ -59,18 +59,18 @@ namespace phi
         for (GLuint i = 0; i < _cameras->size(); i++)
             safeDelete((*_cameras)[i]);
 
-        delete _allObjects;
-        delete _selectedObjects;
-        delete _staticObjects;
-        delete _dynamicObjects;
-        delete _visibleObjects;
-        delete _directionalLights;
-        delete _pointLights;
-        delete _spotLights;
-        delete _cameras;
-        delete _aabb;
-        delete _selectedSceneObjectChanged;
-        delete _staticObjectsChanged;
+        safeDelete(_allObjects);
+        safeDelete(_selectedObjects);
+        safeDelete(_staticObjects);
+        safeDelete(_dynamicObjects);
+        safeDelete(_visibleObjects);
+        safeDelete(_directionalLights);
+        safeDelete(_pointLights);
+        safeDelete(_spotLights);
+        safeDelete(_cameras);
+        safeDelete(_aabb);
+        safeDelete(_selectedSceneObjectChanged);
+        safeDelete(_staticObjectsChanged);
     }
 
     void scene::initBulletWorld()

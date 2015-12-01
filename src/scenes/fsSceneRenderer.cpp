@@ -2,8 +2,19 @@
 
 namespace phi
 {
-    fsSceneRenderer::fsSceneRenderer(size<GLuint> viewportSize) : sceneRenderer(viewportSize)
+    fsSceneRenderer::fsSceneRenderer() : sceneRenderer()
     {
+    }
+
+    fsSceneRenderer::~fsSceneRenderer()
+    {
+        safeDelete(_quad);
+    }
+
+    void fsSceneRenderer::init(size<GLuint> viewportSize)
+    {
+        _viewportSize = viewportSize;
+        _quad = new quad();
         initBuffers();
 
         createAmbientLightShader();
@@ -12,10 +23,6 @@ namespace phi
         createSpotLightShader();
 
         createEmissiveBloomShaders();
-    }
-
-    fsSceneRenderer::~fsSceneRenderer()
-    {
     }
 
     void fsSceneRenderer::initBuffers()
@@ -603,7 +610,7 @@ namespace phi
         sh->setUniform("res", resolution);
         sh->setUniform("tex1", curRenderTarget->getTexture(), 0);
 
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         sh->unbind();
 
@@ -622,7 +629,7 @@ namespace phi
         sh->setUniform("tex1", tex1, 0);
         sh->setUniform("tex2", tex2, 1);
 
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         sh->unbind();
     }
@@ -649,7 +656,7 @@ namespace phi
         sh->setUniform("res", resolution);
         sh->setUniform("selectionMap", selectedRenderTarget->getTexture(), 0);
 
-        meshRenderer::render(&_quad);
+        meshRenderer::render(_quad);
 
         sh->unbind();
 

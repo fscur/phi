@@ -11,7 +11,7 @@ namespace phi
         public sceneRenderer
     {
     private:
-        quad _quad;
+        quad* _quad;
         frameBuffer* _frameBuffer;
 
     private:
@@ -22,10 +22,11 @@ namespace phi
         void render();
         void selectedObjectsPass();
     public:
-        SCENES_API basicSceneRenderer(size<GLuint> viewportSize);
+        SCENES_API basicSceneRenderer();
         SCENES_API ~basicSceneRenderer();
         SCENES_API void onRender() override;
         SCENES_API void initBuffers() override;
+        SCENES_API void init(size<GLuint> viewportSize) override;
     };
 }
 

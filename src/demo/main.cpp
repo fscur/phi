@@ -1,9 +1,9 @@
+#include <phi/core/globals.h>
+
+#include <phi/demo/screen.h>
+#include <phi/demo/application.h>
+
 #include <vector>
-
-#include "phi/demo/screen.h"
-
-#include "phi/demo/application.h"
-#include "phi/core/globals.h"
 
 struct commandLineCommand
 {
@@ -23,22 +23,38 @@ public:
 };
 
 std::vector<commandLineCommand> commandLineCommands;
+phi::scenesManager* _scenesManager;
+phi::sceneRenderer* _renderer;
+std::string _resourcesPath;
 
 void rCommandFunction(std::vector<std::string> args)
 {
     std::string r = args[0];
 
     if (r == "0")
-        phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::basicRenderer);
+       _renderer = phi::scenesManager::basicRenderer;
     else if (r == "1")
-        phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::fsRenderer);
+        _renderer = phi::scenesManager::fsRenderer;
     else if (r == "2")
-        phi::scenesManager::get()->setSceneRenderer(phi::scenesManager::dsRenderer);
+        _renderer = phi::scenesManager::dsRenderer;
+}
+
+void rpCommandFunction(std::vector<std::string> args)
+{
+    _resourcesPath = args[0];
 }
 
 void initCommandLineCommands()
 {
+    /***********
+
+    /r <0..2>           Set renderer
+    /rp <path>          Set resources path
+
+    ***********/
     commandLineCommands.push_back(commandLineCommand("/r", &rCommandFunction));
+    commandLineCommands.push_back(commandLineCommand("/rp", &rpCommandFunction));
+
 }
 
 void processCommandLine(int argc, char* args[])
@@ -106,16 +122,28 @@ int main(int argc, char* args[])
     application::path = path;
     application::exePath = exePath;
 
-    screen *mainScreen = new screen();
-    mainScreen->initialize(path);
+    _scenesManager = phi::scenesManager::get();
 
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
+
+    auto mainScreen = new screen();
+
+    if (!_resourcesPath.empty())
+        mainScreen->setResourcesPath(_resourcesPath);
+    else
+        mainScreen->setResourcesPath(path + "\\resources\\");
+
+    mainScreen->initialize(path);
+
+    if (_renderer != nullptr)
+        _scenesManager->setSceneRenderer(_renderer);
+
     app->run(mainScreen);
 
-    delete mainScreen;
-    delete app;
+    phi::safeDelete(mainScreen);
+    phi::safeDelete(app);
 
     return 0;
 }

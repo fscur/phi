@@ -138,18 +138,13 @@ namespace phi
             for(std::map<std::string, shader*>::iterator i = _shaders->begin(); i != _shaders->end(); i++) 
             {
                 (i->second)->release();
-                delete (i->second);
-                (i->second) = NULL;
+                safeDelete(i->second);
             }
 
-            delete _shaders;
-            _shaders = NULL;
+            safeDelete(_shaders);
         }
 
         if (_instance)
-        {
-            delete _instance;
-            _instance = NULL;
-        }
+            safeDelete(_instance);
     }
 }

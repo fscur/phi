@@ -16,6 +16,10 @@ namespace phi
 
     scenesManager::scenesManager()
     {
+        basicRenderer = new basicSceneRenderer();
+        fsRenderer = new fsSceneRenderer();
+        dsRenderer = new dsSceneRenderer();
+
         _isShadowMapEnabled = false;
         _debugMode = false;
     }
@@ -40,14 +44,15 @@ namespace phi
         {
             renderingSystemInfo renderingInfo = renderingSystemInfo();
             renderingInfo.applicationPath = _info.applicationPath;
+            renderingInfo.resourcesPath = _info.resourcesPath;
             renderingInfo.size = info.size;
             renderingSystem::init(renderingInfo);
         }
 
-        basicRenderer = new basicSceneRenderer(_info.size);
-        fsRenderer = new fsSceneRenderer(_info.size);
-        auto dir = _info.applicationPath;
-        dsRenderer = new dsSceneRenderer(_info.size, dir);
+        basicRenderer->init(info.size);
+        fsRenderer->init(info.size);
+        dsRenderer->init(info.size, info.applicationPath);
+
         setSceneRenderer(scenesManager::basicRenderer);
 
         if (!result)
@@ -73,7 +78,10 @@ namespace phi
 
     void scenesManager::release()
     {
-        //TODO: Think about how to handle HUD system, as we need the resource manager and shader manager to display the HUD for now. EDIT: I don't think that's a problem anymore.
+        //TODO: Think about how to handle HUD system, as we need the resource manager and shader manager to display the HUD for now. 
+        //EDIT: I don't think that's a problem anymore.
+        //EDIT: I think you have to think better!
+
         renderingSystem::release();
         shaderManager::get()->release();
 

@@ -2,6 +2,7 @@
 #define _PHI_QUAD_RENDERER_H_
 
 #include <phi/core/size.h>
+#include <phi/core/globals.h>
 
 #include "rendering.h"
 #include "shaderManager.h"

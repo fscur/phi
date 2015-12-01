@@ -11,7 +11,7 @@ namespace phi
         public sceneRenderer
     {
     private:
-        quad _quad;
+        quad* _quad;
         frameBuffer* _frameBuffer;
         frameBuffer* _postFrameBuffer;
         glm::mat4 _projMatrix;
@@ -45,9 +45,10 @@ namespace phi
         void selectedObjectsPass();
 
     public:
-        SCENES_API fsSceneRenderer(size<GLuint> viewportSize);
+        SCENES_API fsSceneRenderer();
         SCENES_API ~fsSceneRenderer();
         SCENES_API void onRender() override;
+        SCENES_API void init(size<GLuint> viewportSize);
         SCENES_API void initBuffers() override;
     };
 }
