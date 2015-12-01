@@ -11,7 +11,7 @@ namespace phi
         _expandButton = new button(viewportSize);
         _expandButton->setToolTipText("Hide");
         _expandButton->setImage(_arrowDownTexture);
-        _expandButton->setSize(phi::size<GLuint>(EXPAND_BUTTON_WIDTH, HEADER_HEIGHT));
+        _expandButton->setSize(phi::size<GLuint>((GLuint)EXPAND_BUTTON_WIDTH, (GLuint)HEADER_HEIGHT));
         _expandButton->setForegroundColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
         _expandButton->getClick()->bind<carouselList, &carouselList::expandButtonClick>(this);
         addChild(_expandButton);
@@ -32,7 +32,7 @@ namespace phi
     {
         _contentOffset = value;
         updateTabs();
-        _expandButton->setY(_y + _contentOffset - _expandButton->getSize().height);
+        _expandButton->setY((int)(_y + _contentOffset - _expandButton->getSize().height));
         updateScissors();
     }
 
@@ -49,8 +49,8 @@ namespace phi
     {
         control::setY(value);
         if (_currentSubTab != nullptr)
-            _currentSubTab->setY(_y + _contentOffset);
-        _expandButton->setY(_y + _contentOffset - HEADER_HEIGHT);
+            _currentSubTab->setY((int)(_y + _contentOffset));
+        _expandButton->setY((int)(_y + _contentOffset - HEADER_HEIGHT));
         updateScissors();
     }
 
@@ -65,7 +65,7 @@ namespace phi
     void carouselList::setSize(size<GLuint> value)
     {
         control::setSize(value);
-        setContentOffset(HEADER_HEIGHT);
+        setContentOffset((int)HEADER_HEIGHT);
         _expandButton->setX(_x + _size.width - EXPAND_BUTTON_WIDTH);
         updateScissors();
     }
@@ -86,7 +86,7 @@ namespace phi
         _expandButton->setViewportSize(getViewportSize());
     }
 
-    toggleButton* carouselList::createTabButton(std::string text, texture* image, float x, float y, size<GLuint> size)
+    toggleButton* carouselList::createTabButton(std::string text, texture* image, int x, int y, size<GLuint> size)
     {
         auto tabButton = new toggleButton(_viewportSize);
         tabButton->setSize(size);
@@ -115,7 +115,7 @@ namespace phi
 
         if (_currentSubTab != nullptr)
         {
-            int lastPos = std::find(subTabsList->begin(), subTabsList->end(), _currentSubTab) - subTabsList->begin();
+            auto lastPos = std::find(subTabsList->begin(), subTabsList->end(), _currentSubTab) - subTabsList->begin();
             auto lastTabButton = (*_subTabsButtons[_currentTab])[lastPos];
 
             lastTabButton->getCheckedChanged()->bind<carouselList, &carouselList::subTabButtonCheckedChanged>(this);
@@ -129,7 +129,7 @@ namespace phi
         if (subTab == nullptr)
             return;
 
-        int pos = std::find(subTabsList->begin(), subTabsList->end(), subTab) - subTabsList->begin();
+        auto pos = std::find(subTabsList->begin(), subTabsList->end(), subTab) - subTabsList->begin();
         auto tabButton = (*_subTabsButtons[_currentTab])[pos];
 
         addChild(subTab);
@@ -158,8 +158,8 @@ namespace phi
         auto tabButton = createTabButton(
             "",
             image,
-            _tabsScissor.x + _tabsScrollOffset + index * (HEADER_HEIGHT + TAB_MARGIN),
-            _tabsScissor.y,
+            (int)(_tabsScissor.x + _tabsScrollOffset + index * (HEADER_HEIGHT + TAB_MARGIN)),
+            (int)_tabsScissor.y,
             size<GLuint>(HEADER_HEIGHT, HEADER_HEIGHT));
         tabButton->setZIndex(_zIndex + 0.02f);
         tabButton->setToolTipText(toolTipText);
@@ -171,15 +171,15 @@ namespace phi
 
         tabButton->getCheckedChanging()->bind<carouselList, &carouselList::tabButtonCheckedChanging>(this);
 
-        return index;
+        return (int)index;
     }
 
     void carouselList::addSubTab(int tabIndex, carouselTab* carouselTab)
     {
         carouselTab->setX(_x);
-        carouselTab->setY(_y + _contentOffset);
+        carouselTab->setY((int)(_y + _contentOffset));
         carouselTab->setZIndex(_zIndex + 0.01f);
-        carouselTab->setSize(size<GLuint>(_size.width, _size.height - _contentOffset, _size.depth));
+        carouselTab->setSize(size<GLuint>(_size.width, (GLuint)(_size.height - _contentOffset), _size.depth));
         carouselTab->setBackgroundColor(_backgroundColor);
 
         auto i = _tabs[tabIndex]->size();
@@ -187,11 +187,10 @@ namespace phi
 
         auto tabButton = createTabButton(
             carouselTab->getName(),
-            nullptr, //carouselTab->getImage(),
-            _x + _subTabsScrollOffset + i * (SUB_TAB_WIDTH + TAB_MARGIN),
+            nullptr,
+            (int)(_x + _subTabsScrollOffset + i * (SUB_TAB_WIDTH + TAB_MARGIN)),
             _y,
-            size<GLuint>(SUB_TAB_WIDTH, HEADER_HEIGHT));
-        //tabButton->getCheckedChanging()->bind<carouselList, &carouselList::subTabButtonCheckedChanging>(this);
+            size<GLuint>((GLuint)SUB_TAB_WIDTH, (GLuint)HEADER_HEIGHT));
 
         _subTabsButtons[tabIndex]->push_back(tabButton);
 
@@ -216,13 +215,13 @@ namespace phi
 
         if (_expanded)
         {
-            floatAnimator::animateFloat(new floatAnimation(&_contentOffset, HEADER_HEIGHT, 500, [&](float v) -> void { setContentOffset(v); }, 0, easingFunctions::easeInOutCubic));
+            floatAnimator::animateFloat(new floatAnimation(&_contentOffset, (float)HEADER_HEIGHT, 500, [&](float v) -> void { setContentOffset(v); }, 0, easingFunctions::easeInOutCubic));
             _expandButton->setToolTipText("Hide");
             _expandButton->setImage(_arrowDownTexture);
         }
         else
         {
-            floatAnimator::animateFloat(new floatAnimation(&_contentOffset, _size.height, 1000, [&](float v) -> void { setContentOffset(v); }, 0, easingFunctions::easeOutBounce));
+            floatAnimator::animateFloat(new floatAnimation(&_contentOffset, (float)_size.height, 1000, [&](float v) -> void { setContentOffset(v); }, 0, easingFunctions::easeOutBounce));
             _expandButton->setToolTipText("Show");
             _expandButton->setImage(_arrowUpTexture);
         }
@@ -231,7 +230,7 @@ namespace phi
     void carouselList::tabButtonCheckedChanging(controlCancelEventArgs* e)
     {
         auto tabButton = (toggleButton*)e->sender;
-        int pos = std::find(_tabsButtons.begin(), _tabsButtons.end(), tabButton) - _tabsButtons.begin();
+        auto pos = (int)(std::find(_tabsButtons.begin(), _tabsButtons.end(), tabButton) - _tabsButtons.begin());
 
         if (pos < _tabsButtons.size())
         {
@@ -303,10 +302,10 @@ namespace phi
             for (unsigned int i = 0; i < subTabsCount; i++)
             {
                 carouselTab* tab = (*_tabs[j])[i];
-                tab->setY(_y + _contentOffset);
+                tab->setY((int)(_y + _contentOffset));
                 auto tabButton = (*_subTabsButtons[j])[i];
-                tabButton->setX(_x + _subTabsScrollOffset + i * (SUB_TAB_WIDTH + TAB_MARGIN));
-                tabButton->setY(_y + _contentOffset - tabButton->getSize().height);
+                tabButton->setX((int)(_x + _subTabsScrollOffset + i * (SUB_TAB_WIDTH + TAB_MARGIN)));
+                tabButton->setY((int)(_y + _contentOffset - tabButton->getSize().height));
             }
         }
 
@@ -320,15 +319,15 @@ namespace phi
                 x = _tabsScissor.x + TABS_WIDTH * 0.5f - totalSize * 0.5f + i * (HEADER_HEIGHT + TAB_MARGIN);
             else
                 x = _tabsScissor.x + _tabsScrollOffset + i * (HEADER_HEIGHT + TAB_MARGIN);
-            tabButton->setX(x);
-            tabButton->setY(_y + _contentOffset - tabButton->getSize().height);
+            tabButton->setX((int)x);
+            tabButton->setY((int)(_y + _contentOffset - tabButton->getSize().height));
         }
     }
 
     void carouselList::updateScissors()
     {
-        _subTabsScissor = scissor(_x, _y + _contentOffset - HEADER_HEIGHT, _size.width - EXPAND_BUTTON_WIDTH - REGIONS_MARGIN * 2.0f - TABS_WIDTH, HEADER_HEIGHT);
-        _tabsScissor = scissor(_x + _subTabsScissor.x + _subTabsScissor.width + REGIONS_MARGIN, _y + _contentOffset - HEADER_HEIGHT, TABS_WIDTH, HEADER_HEIGHT);
+        _subTabsScissor = scissor((float)_x, (float)(_y + _contentOffset - HEADER_HEIGHT), (float)(_size.width - EXPAND_BUTTON_WIDTH - REGIONS_MARGIN * 2.0f - TABS_WIDTH), (float)HEADER_HEIGHT);
+        _tabsScissor = scissor((float)(_x + _subTabsScissor.x + _subTabsScissor.width + REGIONS_MARGIN), (float)(_y + _contentOffset - HEADER_HEIGHT), (float)TABS_WIDTH, (float)HEADER_HEIGHT);
     }
 
     void carouselList::notifySelectedItemChanged(carouselItemEventArgs e)
@@ -385,7 +384,7 @@ namespace phi
         control::controlsScissors->popScissor();
         control::controlsScissors->disable();
 
-        control::controlsScissors->pushScissor(_x, _y + _contentOffset - HEADER_HEIGHT, _size.width, HEADER_HEIGHT);
+        control::controlsScissors->pushScissor((float)_x, (float)(_y + _contentOffset - HEADER_HEIGHT), (float)_size.width, (float)HEADER_HEIGHT);
         control::controlsScissors->enable();
         _expandButton->render();
         control::controlsScissors->popScissor();
@@ -393,7 +392,7 @@ namespace phi
 
         if (_currentSubTab != nullptr)
         {
-            control::controlsScissors->pushScissor(_x, _y + HEADER_HEIGHT, _size.width, _size.height - HEADER_HEIGHT);
+            control::controlsScissors->pushScissor((float)_x, (float)(_y + HEADER_HEIGHT), (float)_size.width, (float)(_size.height - HEADER_HEIGHT));
             control::controlsScissors->enable();
             _currentSubTab->render();
             control::controlsScissors->popScissor();

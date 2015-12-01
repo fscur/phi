@@ -26,6 +26,8 @@ phi::inputKey inputManager::mouseToKey(phi::mouseEventArgs* e)
         return phi::inputKey(PHI_MOUSE_RIGHT, modifiers);
     else if (e->middleButtonPressed)
         return phi::inputKey(PHI_MOUSE_MIDDLE, modifiers);
+
+    return phi::inputKey(PHI_NONE, PHI_NONE);
 }
 
 phi::inputKey inputManager::keyboardToKey(phi::keyboardEventArgs* e)
@@ -66,7 +68,7 @@ bool inputManager::onMouseWheel(phi::mouseEventArgs* e)
         input = new phi::inputKey(PHI_MOUSE_WHEEL_DOWN, PHI_NONE);
 
     auto res = _currentController->onMouseWheel(e, *input);
-    DELETE(input);
+    safeDelete(input);
     return res;
 }
 

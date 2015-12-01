@@ -22,7 +22,7 @@ namespace phi
         _text = text;
 
         auto textSize = _foregroundRenderer->measureSize(_text, _font);
-        _size = size<GLuint>(textSize.width + 2.0f * TEXT_MARGIN, textSize.height + 2.0f * TEXT_MARGIN);
+        _size = size<GLuint>((GLuint)(textSize.width + 2.0f * TEXT_MARGIN), (GLuint)(textSize.height + 2.0f * TEXT_MARGIN));
 
         float textY;
         float targetHeight;
@@ -36,21 +36,21 @@ namespace phi
         {
             _location = location;
             textY = _location.y + TEXT_MARGIN;
-            targetHeight = _size.height;
+            targetHeight = (float)_size.height;
         }
 
         auto textX = glm::max(0.0f, _location.x - (_size.width - glm::min(_size.width * 0.5f, _viewportSize.width - _location.x))) + TEXT_MARGIN;
         _textLocation = glm::vec2(textX, textY);
 
-        _backgroundRenderer->setSize(size<GLuint>(3.0f, 0.0f));
+        _backgroundRenderer->setSize(size<GLuint>((GLuint)3.0f, (GLuint)0.0f));
         _backgroundRenderer->setLocation(_location);
         _backgroundRenderer->update();
 
         float* w = new float(3.0f);
-        floatAnimator::animateFloat(new phi::floatAnimation(w, _size.width, 150, [&](float w) -> void
+        floatAnimator::animateFloat(new phi::floatAnimation(w, (float)_size.width, 150, [&](float w) -> void
         {
             auto s = _backgroundRenderer->getSize();
-            _backgroundRenderer->setSize(size<GLuint>(w, s.height));
+            _backgroundRenderer->setSize(size<GLuint>((GLuint)w, s.height));
             auto l = _backgroundRenderer->getLocation();
             auto x = glm::max(0.0f, _location.x - (w - glm::min(w * 0.5f, _viewportSize.width - _location.x)));
             _backgroundRenderer->setLocation(glm::vec2(x, l.y));
@@ -61,7 +61,7 @@ namespace phi
         floatAnimator::animateFloat(new phi::floatAnimation(h, targetHeight, 100, [&](float h) -> void
         {
             auto s = _backgroundRenderer->getSize();
-            _backgroundRenderer->setSize(size<GLuint>(s.width, glm::abs(h)));
+            _backgroundRenderer->setSize(size<GLuint>(s.width, (GLuint)glm::abs(h)));
 
             if (h < 0.0f)
             {
@@ -82,7 +82,7 @@ namespace phi
         glEnable(GL_SCISSOR_TEST);
         auto l = _backgroundRenderer->getLocation();
         auto s = _backgroundRenderer->getSize();
-        glScissor(l.x, _viewportSize.height - s.height - l.y, s.width, s.height);
+        glScissor((GLuint)l.x, (GLuint)(_viewportSize.height - s.height - l.y), (GLuint)s.width, (GLuint)s.height);
 
         _backgroundRenderer->render(_backgroundTexture, color::black);
         _foregroundRenderer->render(_text, _font, _textColor, color::transparent, _textLocation, 30.1f);

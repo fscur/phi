@@ -5,6 +5,7 @@
 #include "size.h"
 
 #include <vector>
+
 #include <glm/glm.hpp>
 
 namespace phi
@@ -24,6 +25,7 @@ namespace phi
         float _radius;
 
     public:
+
         CORE_API aabb(){}
         CORE_API aabb(glm::vec3 position, size<float> size);
         CORE_API aabb(glm::vec3 min, glm::vec3 max);

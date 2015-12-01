@@ -21,10 +21,10 @@ namespace phi
         {
             for(std::map<std::string, renderTarget*>::iterator i = _renderTargets->begin(); i != _renderTargets->end(); i++) 
             {
-                DELETE(i->second);
+                safeDelete(i->second);
             }
 
-            DELETE(_renderTargets);
+            safeDelete(_renderTargets);
         }
 
         glDeleteFramebuffers(1, &_id);

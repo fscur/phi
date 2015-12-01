@@ -16,7 +16,7 @@ namespace phi
         }
 
         auto uintSize = sizeof(unsigned int);
-        auto floatSize = sizeof(float);
+        auto floatSize = (unsigned int)sizeof(float);
         *data = std::vector<meshData*>();
 
         while (iFile.peek() != -1)

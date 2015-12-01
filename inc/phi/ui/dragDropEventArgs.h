@@ -12,11 +12,11 @@ namespace phi
     public:
         bool handled;
         std::string data;
-        float x;
-        float y;
+        int x;
+        int y;
 
     public:
-        dragDropEventArgs(std::string data, float x, float y)
+        dragDropEventArgs(std::string data, int x, int y)
             : handled(false), data(data), x(x), y(y), eventArgs()
         {
         }

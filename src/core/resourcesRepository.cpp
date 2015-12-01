@@ -15,7 +15,7 @@ namespace phi
     void resourcesRepository::release()
     {
         for (unsigned int i = 0; i < _resources.size(); i++)
-            DELETE(_resources[i]);
+            safeDelete(_resources[i]);
     }
 
     void resourcesRepository::addResource(resource* r)

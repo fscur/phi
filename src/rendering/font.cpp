@@ -107,6 +107,6 @@ namespace phi
 
     font::~font()
     {
-        DELETE(_texture);
+        safeDelete(_texture);
     }
 }

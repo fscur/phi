@@ -84,6 +84,7 @@ add_executable(demo
 add_dependencies(demo ui)
 
 target_link_libraries(demo ${ASSIMP_LIBRARY})
+target_link_libraries(demo ${SDLMAIN_LIBRARY})
 target_link_libraries(demo ${SDL_LIBRARY})
 target_link_libraries(demo ${SDL_TTF_LIBRARY})
 target_link_libraries(demo ${OPENGL_LIBRARY})

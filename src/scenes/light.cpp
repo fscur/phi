@@ -24,7 +24,7 @@ namespace phi
 
     light::~light()
     {
-        DELETE(_transform);
+        safeDelete(_transform);
     }
 
     transform* light::getTransform()

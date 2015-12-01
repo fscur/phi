@@ -14,6 +14,6 @@ namespace phi
     cursor::~cursor()
     {
         _texture->release();
-        DELETE(_texture);
+        safeDelete(_texture);
     }
 }

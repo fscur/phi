@@ -13,7 +13,7 @@ namespace phi
 
     carouselTab::~carouselTab()
     {
-        DELETE(_backgroundRenderer);
+        safeDelete(_backgroundRenderer);
     }
 
     void carouselTab::setX(int value)
@@ -60,10 +60,10 @@ namespace phi
 
     void carouselTab::addCarouselItem(carouselItem* item)
     {
-        GLuint height = _size.height - ITEM_MARGIN * 2.0f;
-        item->setSize(size<GLuint>(height, height));
-        item->setX(_x + _scrollOffset + (_items.size() - 1) * (height + ITEM_MARGIN) + ITEM_MARGIN);
-        item->setY(_y + ITEM_MARGIN);
+        auto height = _size.height - ITEM_MARGIN * 2.0f;
+        item->setSize(size<GLuint>((GLuint)height, (GLuint)height));
+        item->setX((int)(_x + _scrollOffset + (_items.size() - 1) * (height + ITEM_MARGIN) + ITEM_MARGIN));
+        item->setY((int)(_y + ITEM_MARGIN));
         item->setZIndex(_zIndex + 0.01f);
         item->setBackgroundColor(color::fromRGBA(0.0f, 0.0f, 0.0f, 0.0f));
         //b->getClick()->bind([](mouseEventArgs* e) -> void {});
@@ -74,14 +74,14 @@ namespace phi
 
     void carouselTab::updateItems()
     {
-        GLuint height = getItemHeight();
+        auto height = getItemHeight();
         auto itemsCount = _items.size();
 
         for (unsigned int i = 0; i < itemsCount; i++)
         {
             button* item = _items[i];
-            item->setSize(size<GLuint>(height, height));
-            item->setX(_x + _scrollOffset + i * (height + ITEM_MARGIN) + ITEM_MARGIN);
+            item->setSize(size<GLuint>((GLuint)height, (GLuint)height));
+            item->setX((int)(_x + _scrollOffset + i * (height + ITEM_MARGIN) + ITEM_MARGIN));
             item->setY(_y + ITEM_MARGIN);
             item->setZIndex(_zIndex + 0.01f);
         }

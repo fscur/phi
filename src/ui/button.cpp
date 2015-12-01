@@ -22,9 +22,9 @@ namespace phi
 
     button::~button()
     {
-        DELETE(_backgroundRenderer);
-        DELETE(_overlayRenderer);
-        DELETE(_textRenderer);
+        safeDelete(_backgroundRenderer);
+        safeDelete(_overlayRenderer);
+        safeDelete(_textRenderer);
     }
 
     void button::updateTextLocation()
@@ -55,7 +55,7 @@ namespace phi
         if (_size.width >= _size.height)
             _imageRenderer->setSize(size<GLuint>(_size.height, _size.height * imageRatio));
         else
-            _imageRenderer->setSize(size<GLuint>(_size.width * (1.0f / imageRatio), _size.width));
+            _imageRenderer->setSize(size<GLuint>(_size.width * (GLuint)(1.0f / imageRatio), _size.width));
     }
 
     void button::updateImageLocation()
@@ -175,7 +175,7 @@ namespace phi
     {
         control::onRender();
 
-        control::controlsScissors->pushScissor(_x, _y, _size.width, _size.height);
+        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.width, (float)_size.height);
         control::controlsScissors->enable();
 
         //glPushAttrib(GL_SCISSOR_BIT);

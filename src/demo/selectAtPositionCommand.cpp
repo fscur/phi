@@ -47,8 +47,8 @@ void selectAtPositionCommand::init()
     auto id = _pickRequest->result;
     _bufferRequest->mutex.unlock();
     _pickRequest->mutex.unlock();
-    DELETE(_bufferRequest);
-    DELETE(_pickRequest);
+    safeDelete(_bufferRequest);
+    safeDelete(_pickRequest);
     _bufferRequest = nullptr;
     _pickRequest = nullptr;
 

@@ -17,7 +17,7 @@ namespace phi
 
 
         _boundingVolume = new cone(5, nullptr);
-        auto diameter =  2.0f * _radius * 1.15;
+        auto diameter =  2.0f * _radius * 1.15f;
         setSize(size<float>(diameter, diameter, _range));
 
         setLocalPosition(position);

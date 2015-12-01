@@ -46,7 +46,7 @@ namespace phi
 
     textRenderer2D::~textRenderer2D()
     {
-        DELETE(_mesh);
+        safeDelete(_mesh);
     }
 
     void textRenderer2D::update()

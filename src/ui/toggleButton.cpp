@@ -83,7 +83,7 @@ namespace phi
 
     void toggleButton::onRender()
     {
-        control::controlsScissors->pushScissor(_x, _y, _size.width, _size.height);
+        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.width, (float)_size.height);
         control::controlsScissors->enable();
 
         //glPushAttrib(GL_SCISSOR_BIT);

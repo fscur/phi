@@ -53,7 +53,7 @@ namespace phi
                 if (callback != nullptr)
                     callback(*value);
 
-                DELETE(animation);
+                safeDelete(animation);
                 _animations.erase(_animations.begin() + i);
                 i--;
             }

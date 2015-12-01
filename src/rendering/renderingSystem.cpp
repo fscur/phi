@@ -34,7 +34,7 @@ namespace phi
 
     void renderingSystem::release()
     {
-        DELETE(defaultFrameBuffer);
+        safeDelete(defaultFrameBuffer);
     }
 
     void renderingSystem::resize(size<GLuint> viewportSize)

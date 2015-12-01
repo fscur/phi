@@ -91,7 +91,7 @@ void screen::initScene()
     floor_lamp->setLocalPosition(glm::vec3(-4.7f, 0.0f, -1.7f));
     s->add(floor_lamp);
 
-    phi::pointLight* pointLight_lamp = new phi::pointLight(glm::vec3(-4.7, 1.0, -1.7), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.8f, 10.0f);
+    phi::pointLight* pointLight_lamp = new phi::pointLight(glm::vec3(-4.7f, 1.0f, -1.7f), phi::color::fromRGBA(1.0f, 0.9f, 0.7f, 1.0f), 0.8f, 10.0f);
     //s->add(pointLight_lamp);
 
     phi::sceneObject* telephone = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Decorations\\telephone.model"));
@@ -130,13 +130,13 @@ void screen::initScene()
     s->add(sofa);
 
     phi::sceneObject* chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\brown_chair.model"));
-    chair0->setLocalPosition(glm::vec3(-3.8, 0.0, -1.0));
-    chair0->yaw(-phi::PI_OVER_2 + 0.3);
+    chair0->setLocalPosition(glm::vec3(-3.8f, 0.0f, -1.0f));
+    chair0->yaw(-phi::PI_OVER_2 + 0.3f);
     s->add(chair0);
 
     phi::sceneObject* chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\black_chair.model"));
-    chair1->setLocalPosition(glm::vec3(-2.3, 0.0, -1.0));
-    chair1->yaw(-phi::PI_OVER_2 - 0.3);
+    chair1->setLocalPosition(glm::vec3(-2.3f, 0.0f, -1.0f));
+    chair1->yaw(-phi::PI_OVER_2 - 0.3f);
     s->add(chair1);
 
 
@@ -152,32 +152,32 @@ void screen::initScene()
     s->add(table);
 
     phi::sceneObject* table_chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair0->setLocalPosition(glm::vec3(1.5, 0.0, -0.5f));
+    table_chair0->setLocalPosition(glm::vec3(1.5f, 0.0f, -0.5f));
     s->add(table_chair0);
 
     phi::sceneObject* table_chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair1->setLocalPosition(glm::vec3(2.5, 0.0, -0.5));
-    table_chair1->yaw(-0.2);
+    table_chair1->setLocalPosition(glm::vec3(2.5f, 0.0f, -0.5f));
+    table_chair1->yaw(-0.2f);
     s->add(table_chair1);
 
     phi::sceneObject* table_chair2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair2->setLocalPosition(glm::vec3(1.5, 0.0, 0.5));
-    table_chair2->yaw(phi::PI - 0.3);
+    table_chair2->setLocalPosition(glm::vec3(1.5f, 0.0f, 0.5f));
+    table_chair2->yaw(phi::PI - 0.3f);
     s->add(table_chair2);
 
     phi::sceneObject* table_chair3 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair3->setLocalPosition(glm::vec3(2.5, 0.0, 0.5));
-    table_chair3->yaw(phi::PI + 0.4);
+    table_chair3->setLocalPosition(glm::vec3(2.5f, 0.0f, 0.5f));
+    table_chair3->yaw(phi::PI + 0.4f);
     s->add(table_chair3);
 
     phi::sceneObject* table_chair4 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair4->setLocalPosition(glm::vec3(3.0, 0.0, 0.1));
-    table_chair4->yaw(phi::PI_OVER_2 + phi::PI + 0.1);
+    table_chair4->setLocalPosition(glm::vec3(3.0f, 0.0f, 0.1f));
+    table_chair4->yaw(phi::PI_OVER_2 + phi::PI + 0.1f);
     s->add(table_chair4);
 
     phi::sceneObject* table_chair5 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair5->setLocalPosition(glm::vec3(0.8, 0.0, 0.0));
-    table_chair5->yaw(phi::PI_OVER_2 - 0.1);
+    table_chair5->setLocalPosition(glm::vec3(0.8f, 0.0f, 0.0f));
+    table_chair5->yaw(phi::PI_OVER_2 - 0.1f);
     s->add(table_chair5);
 
 
@@ -190,29 +190,29 @@ void screen::initScene()
     ///* lights */
 
     phi::sceneObject* spotLamp0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Lamps\\spot_lamp.model"));
-    spotLamp0->setLocalPosition(glm::vec3(-4.7, 3.5, -0.75));
-    spotLamp0->yaw(-phi::PI_OVER_2 + 0.3);
+    spotLamp0->setLocalPosition(glm::vec3(-4.7f, 3.5f, -0.75f));
+    spotLamp0->yaw(-phi::PI_OVER_2 + 0.3f);
     s->add(spotLamp0);
 
-    phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(0.0, 0.0, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.25, -0.8, 0.8), 0.7f);
+    phi::spotLight* spotLight0 = new phi::spotLight(glm::vec3(0.0f, 0.0f, 0.0f), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.25, -0.8, 0.8), 0.7f);
     spotLamp0->addChild(spotLight0);
     s->add(spotLight0);
 
 
     phi::sceneObject* spotLamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Lamps\\spot_lamp.model"));
-    spotLamp1->setLocalPosition(glm::vec3(-4.7, 3.5, 0.75));
-    spotLamp1->yaw(-phi::PI_OVER_2 - 0.3);
+    spotLamp1->setLocalPosition(glm::vec3(-4.7f, 3.5f, 0.75f));
+    spotLamp1->yaw(-phi::PI_OVER_2 - 0.3f);
     s->add(spotLamp1);
 
-    phi::spotLight* spotLight1 = new phi::spotLight(glm::vec3(0.0, 0.0, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.25, -0.8, 0.8), 0.7f);
+    phi::spotLight* spotLight1 = new phi::spotLight(glm::vec3(0.0f, 0.0f, 0.0f), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 4.0f, glm::vec3(-0.25, -0.8, 0.8), 0.7f);
     spotLamp1->addChild(spotLight1);
     s->add(spotLight1);
 
     phi::sceneObject* lamp1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Lamps\\hanging_lamp.model"));
-    lamp1->setLocalPosition(glm::vec3(2.0, 3.5, 0.0));
+    lamp1->setLocalPosition(glm::vec3(2.0f, 3.5f, 0.0f));
     s->add(lamp1);
 
-    phi::spotLight* spotLight2 = new phi::spotLight(glm::vec3(0.0, -1.6, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.3f);
+    phi::spotLight* spotLight2 = new phi::spotLight(glm::vec3(0.0f, -1.6f, 0.0f), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 2.5f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.3f);
     s->add(spotLight2);
     lamp1->addChild(spotLight2);
 
@@ -220,47 +220,47 @@ void screen::initScene()
     //s->add(pointLight1);
 
     phi::sceneObject* lamp2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Lamps\\ceiling_lamp.model"));
-    lamp2->setLocalPosition(glm::vec3(-2.5, 3.5, 0.0));
+    lamp2->setLocalPosition(glm::vec3(-2.5f, 3.5f, 0.0f));
     s->add(lamp2);
 
     //phi::pointLight* pointLight2 = new phi::pointLight(glm::vec3(0.0, -1.1, 0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 0.5f, 10.0f);
     //s->add(pointLight2);
     //lamp2->addChild(pointLight2);
 
-    phi::spotLight* spotLight3 = new phi::spotLight(glm::vec3(0.0, -1.1, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 1.5f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.1f);
+    phi::spotLight* spotLight3 = new phi::spotLight(glm::vec3(0.0f, -1.1f, 0.0f), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 1.5f, 5.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.1f);
     s->add(spotLight3);
     lamp2->addChild(spotLight3);
 
-    phi::spotLight* spotLight4 = new phi::spotLight(glm::vec3(0.0, -1.1, 0.0), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 0.5f, 3.0f, glm::vec3(0.0f, 1.0f, 0.0f), 0.1f);
+    phi::spotLight* spotLight4 = new phi::spotLight(glm::vec3(0.0f, -1.1f, 0.0f), phi::color::fromRGBA(1.0f, 0.7f, 0.5f, 1.0f), 0.5f, 3.0f, glm::vec3(0.0f, 1.0f, 0.0f), 0.1f);
     s->add(spotLight4);
     lamp2->addChild(spotLight4);
 
     ///* room */
     //
     phi::sceneObject* floor = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Structures\\floor.model"));
-    floor->setLocalPosition(glm::vec3(0.0, 0.0, 0.0));
+    floor->setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     s->add(floor);
 
     phi::sceneObject* ceiling = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Structures\\ceiling.model"));
-    ceiling->setLocalPosition(glm::vec3(0.0, 3.5, 0.0));
+    ceiling->setLocalPosition(glm::vec3(0.0f, 3.5f, 0.0f));
     ceiling->setSize(phi::size<float>(1.0f, 2.0f, 1.0f));
     s->add(ceiling);
 
     phi::sceneObject* left_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Structures\\side_wall.model"));
-    left_wall->setLocalPosition(glm::vec3(-5.0, 0.0, 0.0));
+    left_wall->setLocalPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
     s->add(left_wall);
 
     phi::sceneObject* right_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Structures\\side_wall.model"));
-    right_wall->setLocalPosition(glm::vec3(5.0, 0.0, 0.0));
+    right_wall->setLocalPosition(glm::vec3(5.0f, 0.0f, 0.0f));
     right_wall->yaw(phi::PI);
     s->add(right_wall);
 
     phi::sceneObject* back_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Structures\\back_wall.model"));
-    back_wall->setLocalPosition(glm::vec3(0.0, 0.0, -2.0));
+    back_wall->setLocalPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     s->add(back_wall);
 
     phi::sceneObject* front_wall = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Structures\\front_wall.model"));
-    front_wall->setLocalPosition(glm::vec3(0.0, 0.0, 2.0));
+    front_wall->setLocalPosition(glm::vec3(0.0f, 0.0f, 2.0f));
     //s->add(front_wall);
 
     /*casket0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("casket.model"));
@@ -268,13 +268,13 @@ void screen::initScene()
     casket0->yaw(phi::PI + phi::PI_OVER_2);
     s->add(casket0);*/
 
-    auto pos = glm::vec3(5.0, 3.0, -5.0);
+    auto pos = glm::vec3(5.0f, 3.0f, -5.0f);
     sphere = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Decorations\\sphere.model"));
     sphere->setLocalPosition(pos);
     sphere->setSize(phi::size<float>(0.4f, 0.4f, 0.4f));
     s->add(sphere);
 
-    phi::directionalLight* dirLight0 = new phi::directionalLight(glm::vec3(0.0), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 2.5f, -pos);
+    phi::directionalLight* dirLight0 = new phi::directionalLight(glm::vec3(0.0), phi::color::fromRGBA(1.0f, 0.9f, 0.7f, 1.0f), 2.5f, -pos);
     s->add(dirLight0);
     sphere->addChild(dirLight0);
 
@@ -551,7 +551,7 @@ void screen::update()
 {
     _sceneRenderer = phi::scenesManager::get()->getSceneRenderer();
 
-    a += 0.01;
+    a += 0.01f;
     if (a > 2 * phi::PI)
         a -= 2 * phi::PI;
 

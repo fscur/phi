@@ -9,7 +9,9 @@ namespace phi
 {
     bool path::exists(std::string path)
     {
-        if (FILE *file = fopen(path.c_str(), "r")) 
+        FILE *file;
+        fopen_s(&file, path.c_str(), "r");
+        if (file)
         {
             fclose(file);
             return true;
@@ -21,7 +23,7 @@ namespace phi
     std::string path::getDirectoryFullName(std::string path)
     {
         std::replace(path.begin(), path.end(), '/', '\\');
-        int slashIndex = path.find_last_of('\\');
+        auto slashIndex = path.find_last_of('\\');
 
         return path.substr(0, path.size() - (path.size() - slashIndex));
     }
@@ -29,7 +31,7 @@ namespace phi
     std::string path::getFileName(std::string path)
     {
         std::replace(path.begin(), path.end(), '/', '\\');
-        int slashIndex = path.find_last_of('\\');
+        auto slashIndex = path.find_last_of('\\');
 
         return path.substr(slashIndex + 1, path.size() - slashIndex - 1);
     }
@@ -37,8 +39,8 @@ namespace phi
     std::string path::getFileNameWithoutExtension(std::string path)
     {
         std::replace(path.begin(), path.end(), '/', '\\');
-        int slashIndex = path.find_last_of('\\');
-        int dotIndex = path.find_last_of('.');
+        auto slashIndex = path.find_last_of('\\');
+        auto dotIndex = path.find_last_of('.');
 
         if (dotIndex < slashIndex)
             return "";
@@ -48,7 +50,7 @@ namespace phi
 
     std::string path::getExtension(std::string path)
     {
-        int dotIndex = path.find_last_of('.');
+        auto dotIndex = path.find_last_of('.');
 
         if (dotIndex < 0)
             return "";

@@ -49,35 +49,35 @@ namespace phi
 
         static float easeOutBounce(float t)
         {
-            if (t < (1 / 2.75))
-                return 7.5625*t*t;
-            else if (t < (2 / 2.75))
-                return 7.5625*(t -= (1.5 / 2.75))*t + .75;
-            else if (t < (2.5 / 2.75))
-                return 7.5625*(t -= (2.25 / 2.75))*t + .9375;
+            if (t < (1.0f / 2.75f))
+                return 7.5625f * t * t;
+            else if (t < (2.0f / 2.75f))
+                return 7.5625f * (t -= (1.5f / 2.75f))*t + .75f;
+            else if (t < (2.5f / 2.75f))
+                return 7.5625f * (t -= (2.25f / 2.75f))*t + .9375f;
             else
-                return 7.5625*(t -= (2.625 / 2.75))*t + .984375;
+                return 7.5625f  *(t -= (2.625f / 2.75f))*t + .984375f;
         }
 
         static float easeOutElastic(float t)
         {
-            float s = 1.70158;
+            float s = 1.70158f;
             float p = 0;
             float a = 1;
-            if (t == 0)
-                return 0;
-            if (t == 1)
-                return 1;
+            if (t == 0.0f)
+                return 0.0f;
+            if (t == 1.0f)
+                return 1.0f;
             if (!p)
-                p = .3;
-            if (a < 1)
+                p = .3f;
+            if (a < 1.0f)
             {
-                a = 1;
-                float s = p / 4;
+                a = 1.0f;
+                float s = p / 4.0f;
             }
             else
-                s = p / (2 * 3.14159265358979323846) * std::asin(1 / a);
-            return a*std::pow(2, -10 * t) * std::sin((t - s)*(2 * 3.14159265358979323846) / p) + 1;
+                s = p / (2.0f * 3.14159265358979323846f) * std::asin(1.0f / a);
+            return a*std::pow(2.0f, -10.0f * t) * std::sin((t - s)*(2.0f * 3.14159265358979323846f) / p) + 1.0f;
         }
     };
 }

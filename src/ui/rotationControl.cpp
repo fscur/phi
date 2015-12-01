@@ -274,25 +274,25 @@ namespace phi
 
         auto screenToViewZNear = [&] (const glm::vec2 vec)
         {
-            float zNear = _camera->getFrustum()->getZNear();
-            float aspect = _camera->getFrustum()->getAspect();
-            float fov = _camera->getFrustum()->getFov();
+            auto zNear = _camera->getFrustum()->getZNear();
+            auto aspect = _camera->getFrustum()->getAspect();
+            auto fov = _camera->getFrustum()->getFov();
 
-            float tg = glm::tan(fov * 0.5f) * zNear;
+            auto tg = glm::tan(fov * 0.5f) * zNear;
 
-            float h = _viewportSize.height;
-            float w = _viewportSize.width;
+            auto h = _viewportSize.height;
+            auto w = _viewportSize.width;
 
-            float hh = h * 0.5f;
-            float hw = w * 0.5f;
+            auto hh = h * 0.5f;
+            auto hw = w * 0.5f;
 
-            float ys = vec.y - hh;
-            float yp = ys/hh;
-            float y = -(yp * tg);
+            auto ys = vec.y - hh;
+            auto yp = ys/hh;
+            auto y = -(yp * tg);
 
-            float xs = vec.x - hw;
-            float xp = xs/hw;
-            float x = xp * tg * aspect;
+            auto xs = vec.x - hw;
+            auto xp = xs/hw;
+            auto x = xp * tg * aspect;
 
             return glm::vec3(x, y, -zNear);
         };
@@ -386,7 +386,7 @@ namespace phi
                 else
                     _currentAngle = angle;
 
-                DELETE(args);
+                safeDelete(args);
             }
         }
     }

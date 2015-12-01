@@ -29,11 +29,11 @@ namespace phi
 
     void resourcesLoader::createDefaultTextures()
     {
-        char* data = new char[4];
-        data[0] = 255;
-        data[1] = 255;
-        data[2] = 255;
-        data[3] = 255;
+        unsigned char* data = new unsigned char[4];
+        data[0] = 0xFF;
+        data[1] = 0xFF;
+        data[2] = 0xFF;
+        data[3] = 0xFF;
 
         _defaultDiffuseTexture = 
             texture::create(size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
@@ -44,10 +44,10 @@ namespace phi
         _defaultEmissiveTexture = 
             texture::create(size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
 
-        data[0] = 255;
-        data[1] = 128;
-        data[2] = 128;
-        data[3] = 255;
+        data[0] = 0xFF;
+        data[1] = 0x80;
+        data[2] = 0xFF;
+        data[3] = 0xFF;
 
         _defaultNormalTexture = 
             texture::create(size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);

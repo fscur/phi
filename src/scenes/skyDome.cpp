@@ -20,7 +20,7 @@ namespace phi
         m->setMaterial(material);
         _model->addMesh(m);
 
-        _sun = new phi::directionalLight(glm::vec3(), phi::color::fromRGBA(1.0, 0.9, 0.6, 1.0), 1.0f, glm::vec3());
+        _sun = new phi::directionalLight(glm::vec3(), phi::color::fromRGBA(1.0f, 0.9f, 0.6f, 1.0f), 1.0f, glm::vec3());
     }
 
     skyDome::~skyDome()
@@ -78,16 +78,16 @@ namespace phi
 
     float skyDome::getLightChanellValue2(float a, float b, float c, float d, float e)
     {
-        float t0 = (2.0 * e) - 1.0; //-1 -> 0 -> 1
+        float t0 = (2.0f * e) - 1.0f; //-1 -> 0 -> 1
         float f = pow(abs(t0), d);
-        return (1.0 / ((c * f) + 1.0)) * a + b;
+        return (1.0f / ((c * f) + 1.0f)) * a + b;
     }
 
     phi::color skyDome::calcHorizonColor(float t)
     {
-        float r = getLightChanellValue2(0.9, 0.1, 8000.0, 16.0, t * T);
-        float g = getLightChanellValue2(0.9, 0.1, 9000.0, 12.0, t * T);
-        float b = getLightChanellValue2(0.8, 0.2, 1000.0, 8.0, t * T);
+        float r = getLightChanellValue2(0.9f, 0.1f, 8000.0f, 16.0f, t * T);
+        float g = getLightChanellValue2(0.9f, 0.1f, 9000.0f, 12.0f, t * T);
+        float b = getLightChanellValue2(0.8f, 0.2f, 1000.0f, 8.0f, t * T);
 
         return phi::color(glm::clamp<float>(r, 0.0f, 1.0f), glm::clamp<float>(g, 0.0f, 1.0f), glm::clamp<float>(b, 0.0f, 1.0f), 1.0f);
     }

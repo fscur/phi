@@ -52,7 +52,7 @@ namespace phi
         void tabButtonCheckedChanging(controlCancelEventArgs* e);
         void subTabButtonCheckedChanging(controlCancelEventArgs* e);
         void subTabButtonCheckedChanged(controlEventArgs e);
-        toggleButton* createTabButton(std::string text, texture* image, float x, float y, size<GLuint> size);
+        toggleButton* createTabButton(std::string text, texture* image, int x, int y, size<GLuint> size);
         void changeCurrentSubTab(carouselTab* subTab);
 
     public:

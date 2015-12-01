@@ -52,7 +52,7 @@ namespace phi
 
         control::init(info.size);
         input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
-        _cursorRenderer = new quadRenderer2D(glm::vec2(0.0f, 0.0f), 1.0f, size<GLuint>(0.0f, 0.0f), size<GLuint>(0.0f, 0.0f));
+        _cursorRenderer = new quadRenderer2D(glm::vec2(), 1.0f, size<GLuint>(), size<GLuint>());
         setCursor(phi::uiRepository::repository->getResource<cursor>("DefaultCursor"));
         _cursorRenderer->setViewportSize(info.size);
         dragDropController::get()->init(info.size);

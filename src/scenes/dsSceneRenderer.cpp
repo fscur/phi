@@ -61,25 +61,25 @@ namespace phi
     dsSceneRenderer::~dsSceneRenderer()
     {
         for (GLuint i = 0; i < _frameBuffers.size(); i++)
-            DELETE(_frameBuffers[i]);
+            safeDelete(_frameBuffers[i]);
 
         for (GLuint i = 0; i < _dirLightShadowMapFrameBuffers0.size(); i++)
-            DELETE(_dirLightShadowMapFrameBuffers0[i]);
+            safeDelete(_dirLightShadowMapFrameBuffers0[i]);
 
         for (GLuint i = 0; i < _dirLightShadowMapFrameBuffers1.size(); i++)
-            DELETE(_dirLightShadowMapFrameBuffers1[i]);
+            safeDelete(_dirLightShadowMapFrameBuffers1[i]);
 
         for (GLuint i = 0; i < _spotLightShadowMapFrameBuffers0.size(); i++)
-            DELETE(_spotLightShadowMapFrameBuffers0[i]);
+            safeDelete(_spotLightShadowMapFrameBuffers0[i]);
 
         for (GLuint i = 0; i < _spotLightShadowMapFrameBuffers1.size(); i++)
-            DELETE(_spotLightShadowMapFrameBuffers1[i]);
+            safeDelete(_spotLightShadowMapFrameBuffers1[i]);
 
         for (GLuint i = 0; i < _pointLightShadowMapFrameBuffers0.size(); i++)
-            DELETE(_pointLightShadowMapFrameBuffers0[i]);
+            safeDelete(_pointLightShadowMapFrameBuffers0[i]);
 
         for (GLuint i = 0; i < _pointLightShadowMapFrameBuffers1.size(); i++)
-            DELETE(_pointLightShadowMapFrameBuffers1[i]);
+            safeDelete(_pointLightShadowMapFrameBuffers1[i]);
     }
 
     void dsSceneRenderer::initBuffers()

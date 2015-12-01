@@ -23,7 +23,7 @@ namespace phi
 
     object3D::~object3D()
     {
-        DELETE(_aabb);
+        safeDelete(_aabb);
 
         // Do I need to delete those, or should the scene?
         //auto _childrenCount = _children.size();

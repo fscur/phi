@@ -10,7 +10,7 @@ namespace phi
         _isDragging = false;
         _dragDropEnded = new eventHandler<dragDropEventArgs*>();
         _dragTexture = nullptr;
-        _dragTextureRenderer = new quadRenderer2D(glm::vec2(), 10.0f, size<GLuint>(0.0f, 0.0f), size<GLuint>(0.0f, 0.0f));
+        _dragTextureRenderer = new quadRenderer2D(glm::vec2(), 10.0f, size<GLuint>((GLuint)0.0f, (GLuint)0.0f), size<GLuint>((GLuint)0.0f, (GLuint)0.0f));
         input::mouseUp->bind<dragDropController, &dragDropController::inputMouseUp>(this);
         input::mouseMove->bind<dragDropController, &dragDropController::inputMouseMove>(this);
     }
@@ -27,6 +27,7 @@ namespace phi
     {
         _viewportSize = viewportSize;
         _dragTextureRenderer->setViewportSize(_viewportSize);
+        _dragTextureRenderer->setSize(size<GLuint>((GLuint)128.0f, (GLuint)128.0f));
         _dragTextureRenderer->update();
     }
     
@@ -35,8 +36,6 @@ namespace phi
         _isDragging = true;
         _dragData = data;
         _dragTexture = texture;
-        _dragTextureRenderer->setSize(size<unsigned int>(128.0f, 128.0f));
-        _dragTextureRenderer->update();
     }
 
     void dragDropController::inputMouseUp(mouseEventArgs* e)

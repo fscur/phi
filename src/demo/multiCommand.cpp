@@ -19,7 +19,7 @@ void multiCommand::execute()
 void multiCommand::executeUndo()
 {
     auto commandsCount = _commands.size();
-    for (int i = commandsCount - 1; i >= 0; i--)
+    for (auto i = commandsCount - 1; i >= 0; i--)
     {
         auto cmd = _commands[i];
         cmd->startUndo();

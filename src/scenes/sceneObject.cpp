@@ -238,7 +238,7 @@ namespace phi
 
     void sceneObject::updateAabb()
     {
-        unsigned int count = _points.size();
+        unsigned int count = (unsigned int)_points.size();
 
         if (count == 0)
             return;

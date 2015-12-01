@@ -23,11 +23,11 @@ namespace phi
     scenesManager::~scenesManager()
     {
         for (GLuint i = 0; i < _scenes.size(); i++)
-            DELETE(_scenes[i]);
+            safeDelete(_scenes[i]);
 
-        DELETE(basicRenderer);
-        DELETE(fsRenderer);
-        DELETE(dsRenderer);
+        safeDelete(basicRenderer);
+        safeDelete(fsRenderer);
+        safeDelete(dsRenderer);
     }
 
     bool scenesManager::init(scenesManagerInfo info)
@@ -77,7 +77,7 @@ namespace phi
         renderingSystem::release();
         shaderManager::get()->release();
 
-        DELETE(_instance);
+        safeDelete(_instance);
     }
 
     void scenesManager::resize(size<GLuint> size)

@@ -21,8 +21,8 @@ namespace phi
         int _textX;
         int _textY;
         int _textOffsetX;
-        int _selectionStartIndex;
-        int _selectionEndIndex;
+        unsigned int _selectionStartIndex;
+        unsigned int _selectionEndIndex;
         bool _isClickingOver;
         unsigned int _cursorIndex;
         color _backgroundColor;

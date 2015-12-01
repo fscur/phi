@@ -38,6 +38,6 @@ namespace phi
         _oneOverRangeSqr = 1.0f / (glm::pow(_range, 2.0f));
         auto radius = calcRange(value, _boundingVolumeSides);
         _boundingVolume->setRadius(radius);
-        setSize(size<float>(radius * 2.0, radius * 2.0, radius * 2.0));
+        setSize(size<float>(radius * 2.0f, radius * 2.0f, radius * 2.0f));
     }
 }

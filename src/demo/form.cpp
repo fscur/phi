@@ -181,9 +181,9 @@ void form::input()
             me.leftButtonPressed = e.button.button == SDL_BUTTON_LEFT;
             me.rightButtonPressed = e.button.button == SDL_BUTTON_RIGHT;
             me.middleButtonPressed = e.button.button == SDL_BUTTON_MIDDLE;
-            me.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
-            me.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
-            me.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
+            me.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL] == 0 ? false : true;
+            me.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT] == 0 ? false : true;
+            me.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT] == 0 ? false : true;
             me.x = e.motion.x;
             me.y = e.motion.y;
             me.clicks = e.button.clicks;
@@ -205,9 +205,9 @@ void form::input()
             me.leftButtonPressed = e.button.button == SDL_BUTTON_LEFT;
             me.rightButtonPressed = e.button.button == SDL_BUTTON_RIGHT;
             me.middleButtonPressed = e.button.button == SDL_BUTTON_MIDDLE;
-            me.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
-            me.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
-            me.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
+            me.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL] == 0 ? false : true;
+            me.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT] == 0 ? false : true;
+            me.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT] == 0 ? false : true;
             me.x = e.motion.x;
             me.y = e.motion.y;
             me.clicks = e.button.clicks;
@@ -218,8 +218,8 @@ void form::input()
         case SDL_MOUSEWHEEL:
             me = phi::mouseEventArgs();
             me.wheelDelta = (float)e.wheel.y;
-            me.x = _lastMousePos.x;
-            me.y = _lastMousePos.y;
+            me.x = (int)_lastMousePos.x;
+            me.y = (int)_lastMousePos.y;
             phi::input::notifyMouseWheel(&me);
             if (!me.handled)
                 onMouseWheel(&me);
@@ -228,9 +228,9 @@ void form::input()
             if (!SDL_IsTextInputActive())
             {
                 ke.key = e.key.keysym.scancode;
-                ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
-                ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
-                ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
+                ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL] == 0 ? false : true;
+                ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT] == 0 ? false : true;
+                ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT] == 0 ? false : true;
                 onKeyDown(&ke);
                 phi::input::notifyKeyDown(ke);
             }
@@ -244,9 +244,9 @@ void form::input()
                     e.key.keysym.sym == PHIK_END)
                 {
                     ke.key = e.key.keysym.sym;
-                    ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL];
-                    ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT];
-                    ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT];
+                    ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL] == 0 ? false : true;
+                    ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT] == 0 ? false : true;
+                    ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT] == 0 ? false : true;
                     phi::input::notifyKeyDown(ke);
                 }
             }
@@ -254,9 +254,9 @@ void form::input()
 
         case SDL_KEYUP:
             ke.key = e.key.keysym.sym;
-            ke.isCtrlPressed = (e.key.keysym.sym & (PHIK_RCTRL | PHIK_LCTRL)) > 0;
-            ke.isShiftPressed = (e.key.keysym.sym & (PHIK_RSHIFT | PHIK_LSHIFT)) > 0;
-            ke.isAltPressed = (e.key.keysym.sym & (PHIK_RALT | PHIK_LALT)) > 0;
+            ke.isCtrlPressed = currentKeyStates[SDL_SCANCODE_LCTRL] == 0 ? false : true;
+            ke.isShiftPressed = currentKeyStates[SDL_SCANCODE_LSHIFT] == 0 ? false : true;
+            ke.isAltPressed = currentKeyStates[SDL_SCANCODE_LALT] == 0 ? false : true;
             onKeyUp(&ke);
 
             if (e.key.keysym.sym == SDLK_F11)

@@ -45,19 +45,19 @@ namespace phi
     scene::~scene()
     {
         for (GLuint i = 0; i < _allObjects->size(); i++)
-            DELETE((*_allObjects)[i]);
+            safeDelete((*_allObjects)[i]);
 
         for (GLuint i = 0; i < _directionalLights->size(); i++)
-            DELETE((*_directionalLights)[i]);
+            safeDelete((*_directionalLights)[i]);
 
         for (GLuint i = 0; i < _pointLights->size(); i++)
-            DELETE((*_pointLights)[i]);
+            safeDelete((*_pointLights)[i]);
 
         for (GLuint i = 0; i < _spotLights->size(); i++)
-            DELETE((*_spotLights)[i]);
+            safeDelete((*_spotLights)[i]);
 
         for (GLuint i = 0; i < _cameras->size(); i++)
-            DELETE((*_cameras)[i]);
+            safeDelete((*_cameras)[i]);
 
         delete _allObjects;
         delete _selectedObjects;

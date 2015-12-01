@@ -14,12 +14,20 @@
 #define LOG(message) \
     std::cout << message << std::endl;
 
-#define DELETE(object)    \
-    if (object)           \
-    {                     \
-    delete object;    \
-    object = nullptr; \
+namespace phi
+{
+    template<class T> void safeDelete(T*& pVal)
+    {
+        delete pVal;
+        pVal = NULL;
     }
+
+    template<class T> void safeDeleteArray(T*& pVal)
+    {
+        delete[] pVal;
+        pVal = NULL;
+    }
+}
 
 #define LOGV phi::globals::log
 

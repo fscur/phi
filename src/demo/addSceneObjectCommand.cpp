@@ -34,7 +34,7 @@ void addSceneObjectCommand::init()
     phi::renderingCommunicationBuffer::removeRequest(_bufferRequest);
     auto zBufferValue = _bufferRequest->result;
     _bufferRequest->mutex.unlock();
-    DELETE(_bufferRequest);
+    safeDelete(_bufferRequest);
     _bufferRequest = nullptr;
 
     if (zBufferValue == 1.0f)

@@ -100,7 +100,7 @@ namespace phi
 
         //select vertices and create indices
         std::vector<vertex> vertices;
-        unsigned int vSize = tempVertices.size();
+        unsigned int vSize = (unsigned int)tempVertices.size();
 
         vertex vertex;
         bool exists = false;

@@ -93,7 +93,7 @@ std::string getDirPath(std::string filePath)
 {
     std::string exePath = filePath;
 
-    int index = filePath.find_last_of('\\');
+    auto index = filePath.find_last_of('\\');
     return exePath.substr(0, index);
 }
 

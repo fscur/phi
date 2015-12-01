@@ -215,25 +215,25 @@ namespace phi
 
     glm::vec3 translationControl::screenToViewZNear(glm::vec2 mousePos)
     {
-        float zNear = _camera->getFrustum()->getZNear();
-        float aspect = _camera->getFrustum()->getAspect();
-        float fov = _camera->getFrustum()->getFov();
+        auto zNear = _camera->getFrustum()->getZNear();
+        auto aspect = _camera->getFrustum()->getAspect();
+        auto fov = _camera->getFrustum()->getFov();
 
-        float tg = glm::tan(fov * 0.5f) * zNear;
+        auto tg = glm::tan(fov * 0.5f) * zNear;
 
-        float h = _viewportSize.height;
-        float w = _viewportSize.width;
+        auto h = _viewportSize.height;
+        auto w = _viewportSize.width;
 
-        float hh = h * 0.5f;
-        float hw = w * 0.5f;
+        auto hh = h * 0.5f;
+        auto hw = w * 0.5f;
 
-        float ys = mousePos.y - hh;
-        float yp = ys / hh;
-        float y = -(yp * tg);
+        auto ys = mousePos.y - hh;
+        auto yp = ys / hh;
+        auto y = -(yp * tg);
 
-        float xs = mousePos.x - hw;
-        float xp = xs / hw;
-        float x = xp * tg * aspect;
+        auto xs = mousePos.x - hw;
+        auto xp = xs / hw;
+        auto x = xp * tg * aspect;
 
         return glm::vec3(x, y, -zNear);
     }
@@ -412,7 +412,7 @@ namespace phi
                 if (args->cancel)
                     _object->setLocalPosition(currentPos);
 
-                DELETE(args);
+                safeDelete(args);
             }
         }
     }

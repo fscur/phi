@@ -15,7 +15,7 @@ namespace phi
 
     label::~label()
     {
-        DELETE(_textRenderer);
+        safeDelete(_textRenderer);
     }
 
     void label::updateTextLocation()

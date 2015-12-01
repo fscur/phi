@@ -13,9 +13,9 @@ namespace phi
         _text = "";
         _texture = uiRepository::repository->getResource<texture>("button.png");
         _font = uiRepository::repository->getResource<font>("Consola_18");
-        _backgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
-        _cursorRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.03f, size<GLuint>(CURSOR_WIDTH, _font->getLineHeight(), 0), viewportSize);
-        _selectionRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.01f, size<GLuint>(0.0f, 0.0f, 0.0f), viewportSize);
+        _backgroundRenderer = new quadRenderer2D(glm::vec2(), _zIndex, size<GLuint>(), viewportSize);
+        _cursorRenderer = new quadRenderer2D(glm::vec2(), _zIndex + 0.03f, size<GLuint>(CURSOR_WIDTH, _font->getLineHeight()), viewportSize);
+        _selectionRenderer = new quadRenderer2D(glm::vec2(), _zIndex + 0.01f, size<GLuint>(), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
         _textX = 0;
         _textY = 0;
@@ -29,8 +29,8 @@ namespace phi
 
     textBox::~textBox()
     {
-        DELETE(_backgroundRenderer);
-        DELETE(_textRenderer);
+        safeDelete(_backgroundRenderer);
+        safeDelete(_textRenderer);
     }
 
     void textBox::notifyTextChanged(eventArgs e)
@@ -56,14 +56,14 @@ namespace phi
         float y = _y + _size.height * 0.5f - _cursorRenderer->getSize().height * 0.5f;
         if (x > _x + _size.width - 1)
         {
-            _textOffsetX += ((_x + _size.width -1) - x);
-            x = _x + _size.width - 1;
+            _textOffsetX += (int)glm::round(((_x + _size.width -1) - x));
+            x = (float)(_x + _size.width - 1.0f);
         }
 
         if (x < _x)
         {
-            _textOffsetX -= x - _x;
-            x = _x;
+            _textOffsetX -= (int)glm::round(x - _x);
+            x = (float)_x;
         }
 
         //size<unsigned int> textSize = _textRenderer->measureSize(_text, _font);
@@ -77,12 +77,12 @@ namespace phi
         if (textSize.width < _size.width)
         {
             _textOffsetX = 0;
-            x = _x + subTextSize.width;
+            x = (float)(_x + subTextSize.width);
         }
         else if (textSize.width + _textOffsetX < _size.width)
         {
             _textOffsetX -= (textSize.width + _textOffsetX) - _size.width;
-            x = _x + _size.width - 1;
+            x = (float)(_x + _size.width - 1.0f);
         }
 
         _cursorRenderer->setLocation(glm::vec2(x, y));
@@ -276,9 +276,9 @@ namespace phi
             break;
         case PHIK_RIGHT:
             if (!e.isShiftPressed)
-                _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::min((size_t)(_cursorIndex + 1), _text.length());
+                _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, (unsigned int)_text.length());
             else
-                _selectionEndIndex = _cursorIndex = glm::min((size_t)(_cursorIndex + 1), _text.length());
+                _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, (unsigned int)_text.length());
             updateCursorLocation();
             updateSelectionRenderer();
             break;
@@ -312,9 +312,9 @@ namespace phi
             break;
         case PHIK_END:
             if (!e.isShiftPressed)
-                _selectionStartIndex = _selectionEndIndex = _cursorIndex = _text.length();
+                _selectionStartIndex = _selectionEndIndex = _cursorIndex = (unsigned int)_text.length();
             else
-                _selectionEndIndex = _cursorIndex = _text.length();
+                _selectionEndIndex = _cursorIndex = (unsigned int)_text.length();
             updateCursorLocation();
             updateSelectionRenderer();
             break;
@@ -348,7 +348,7 @@ namespace phi
         //glEnable(GL_BLEND);
         //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        control::controlsScissors->pushScissor(_x, _y, _size.width, _size.height);
+        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.width, (float)_size.height);
         control::controlsScissors->enable();
 
         _backgroundRenderer->render(_texture, _currentColor);

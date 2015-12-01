@@ -29,7 +29,7 @@ namespace phi
         */
 
         _allObjects = _scene->getVisibleObjects();
-        _allObjectsCount = _allObjects->size();
+        _allObjectsCount = (GLuint)_allObjects->size();
         _camera = _scene->getActiveCamera();
 
         renderingSystem::defaultFrameBuffer->clear();

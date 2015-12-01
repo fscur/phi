@@ -50,7 +50,7 @@ namespace phi
         }
 
         lineMesh* m = new lineMesh();
-        auto floatSize = sizeof(GLfloat);
+        auto floatSize = (GLuint)sizeof(GLfloat);
         m->_indices = indices;
         m->_indicesCount = indicesCount;
         m->_positionsBuffer = positionsBuffer;
@@ -65,9 +65,9 @@ namespace phi
     {
         _positions = positions;
         _indices = indices;
-        _indicesCount = indices->size();
+        _indicesCount = (GLuint)indices->size();
 
-        _pSize = positions.size() * 3 * sizeof(GLfloat);
+        _pSize = (GLuint)positions.size() * 3 * sizeof(GLfloat);
 
         _positionsBuffer = new GLfloat[positions.size() * 3];
 

@@ -32,8 +32,8 @@ namespace phi
 
     control::~control()
     {
-        DELETE(_mouseEnter);
-        DELETE(_mouseLeave);
+        safeDelete(_mouseEnter);
+        safeDelete(_mouseLeave);
     }
 
     void control::init(size<GLuint> viewportSize)

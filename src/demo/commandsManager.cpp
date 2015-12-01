@@ -133,4 +133,6 @@ bool commandsManager::onInput(phi::inputKey key)
         executeCommand(cmd);
         return true;
     }
+
+    return false;
 }

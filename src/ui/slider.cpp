@@ -2,7 +2,8 @@
 #include "phi/ui/colorAnimator.h"
 
 #include <glm\glm.hpp>
-
+#include <GLM\gtc\type_precision.hpp>
+#include <GLM\gtc\type_ptr.hpp>
 namespace phi
 {
     slider::slider(size<GLuint> viewportSize) : control(viewportSize)
@@ -20,8 +21,8 @@ namespace phi
 
     slider::~slider()
     {
-        DELETE(_sliderQuad);
-        DELETE(_trackQuad);
+        safeDelete(_sliderQuad);
+        safeDelete(_trackQuad);
     }
 
     void slider::setX(int value)
@@ -128,10 +129,10 @@ namespace phi
 
     void slider::updateSlider()
     {
-        float percent = (_value - _minValue) / (_maxValue - _minValue);
+        auto percent = (_value - _minValue) / (_maxValue - _minValue);
 
-        float y = _y + 1;
-        _sliderQuad->setLocation(glm::vec2(_trackQuad->getLocation().x, y));
+        auto y = _y + 1;
+        _sliderQuad->setLocation(glm::vec2(_trackQuad->getLocation().x, (float)y));
         _sliderQuad->setSize(size<GLuint>((unsigned int)(percent * _size.width), _size.height - 2));
         _sliderQuad->update();
     }
