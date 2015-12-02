@@ -110,7 +110,7 @@ namespace phi
         for (GLuint i = 0; i < _allObjectsCount; i++)
         {
             sceneObject* sceneObj = (*_allObjects)[i];
-
+            
             glm::mat4 mvp = projectionMatrix * viewMatrix * sceneObj->getModelMatrix();
             sh->setUniform("mvp", mvp);
 
