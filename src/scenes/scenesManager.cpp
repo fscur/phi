@@ -78,10 +78,6 @@ namespace phi
 
     void scenesManager::release()
     {
-        //TODO: Think about how to handle HUD system, as we need the resource manager and shader manager to display the HUD for now. 
-        //EDIT: I don't think that's a problem anymore.
-        //EDIT: I think you have to think better!
-
         renderingSystem::release();
         shaderManager::get()->release();
 
