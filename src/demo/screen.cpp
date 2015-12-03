@@ -79,7 +79,7 @@ void screen::initScene()
     ///* decoration */
 
     phi::sceneObject* flower = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Decorations\\flower.model"));
-    flower->setLocalPosition(glm::vec3(2.0f, 0.8f, 0.0f));
+    flower->setLocalPosition(glm::vec3(2.0f, 0.815f, 0.0f));
     s->add(flower);
 
     phi::sceneObject* portrait = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Decorations\\portrait.model"));
@@ -89,7 +89,7 @@ void screen::initScene()
     s->add(portrait);
 
     phi::sceneObject* floor_lamp = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Lamps\\floor_lamp.model"));
-    floor_lamp->setLocalPosition(glm::vec3(-4.7f, 0.0f, -1.7f));
+    floor_lamp->setLocalPosition(glm::vec3(-4.7f, 0.01f, -1.7f));
     s->add(floor_lamp);
 
     phi::pointLight* pointLight_lamp = new phi::pointLight(glm::vec3(-4.7f, 1.0f, -1.7f), phi::color::fromRGBA(1.0f, 0.9f, 0.7f, 1.0f), 0.8f, 10.0f);
@@ -105,17 +105,17 @@ void screen::initScene()
     s->add(pair_vase);
 
     phi::sceneObject* flower_vase = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Decorations\\flower_vase.model"));
-    flower_vase->setLocalPosition(glm::vec3(4.7f, 0.76f, -0.20f));
+    flower_vase->setLocalPosition(glm::vec3(4.7f, 0.762f, -0.20f));
     flower_vase->yaw(-1.5);
     s->add(flower_vase);
 
     phi::sceneObject* rug = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Decorations\\persian_rug.model"));
-    rug->setLocalPosition(glm::vec3(-3.0f, 0.0f, -0.5f));
+    rug->setLocalPosition(glm::vec3(-3.0f, 0.0001f, -0.5f));
     s->add(rug);
 
     phi::sceneObject* rug1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Decorations\\persian_rug_1.model"));
     rug1->setSize(phi::size<float>(1.25f, 1.0f, 1.25f));
-    rug1->setLocalPosition(glm::vec3(2.0f, 0.0f, 0.0f));
+    rug1->setLocalPosition(glm::vec3(2.0f, 0.0001f, 0.0f));
     s->add(rug1);
 
     casket0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Decorations\\casket.model"));
@@ -126,17 +126,17 @@ void screen::initScene()
     ///* living room */
 
     phi::sceneObject* sofa = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\sofa.model"));
-    sofa->setLocalPosition(glm::vec3(-3.1f, 0.0f, 1.4f));
+    sofa->setLocalPosition(glm::vec3(-3.1f, 0.025f, 1.4f));
     sofa->yaw(phi::PI);
     s->add(sofa);
 
     phi::sceneObject* chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\brown_chair.model"));
-    chair0->setLocalPosition(glm::vec3(-3.8f, 0.0f, -1.0f));
+    chair0->setLocalPosition(glm::vec3(-3.8f, 0.01f, -1.0f));
     chair0->yaw(-phi::PI_OVER_2 + 0.3f);
     s->add(chair0);
 
     phi::sceneObject* chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\black_chair.model"));
-    chair1->setLocalPosition(glm::vec3(-2.3f, 0.0f, -1.0f));
+    chair1->setLocalPosition(glm::vec3(-2.3f, 0.01f, -1.0f));
     chair1->yaw(-phi::PI_OVER_2 - 0.3f);
     s->add(chair1);
 
@@ -149,46 +149,46 @@ void screen::initScene()
     s->add(cabinet);
 
     phi::sceneObject* table = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Tables\\table2.model"));
-    table->setLocalPosition(glm::vec3(2.0f, 0.0f, 0.0f));
+    table->setLocalPosition(glm::vec3(2.0f, 0.015f, 0.0f));
     s->add(table);
 
     phi::sceneObject* table_chair0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair0->setLocalPosition(glm::vec3(1.5f, 0.0f, -0.5f));
+    table_chair0->setLocalPosition(glm::vec3(1.5f, 0.01f, -0.5f));
     s->add(table_chair0);
 
     phi::sceneObject* table_chair1 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair1->setLocalPosition(glm::vec3(2.5f, 0.0f, -0.5f));
+    table_chair1->setLocalPosition(glm::vec3(2.5f, 0.01f, -0.5f));
     table_chair1->yaw(-0.2f);
     s->add(table_chair1);
 
     phi::sceneObject* table_chair2 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair2->setLocalPosition(glm::vec3(1.5f, 0.0f, 0.5f));
+    table_chair2->setLocalPosition(glm::vec3(1.5f, 0.01f, 0.5f));
     table_chair2->yaw(phi::PI - 0.3f);
     s->add(table_chair2);
 
     phi::sceneObject* table_chair3 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair3->setLocalPosition(glm::vec3(2.5f, 0.0f, 0.5f));
+    table_chair3->setLocalPosition(glm::vec3(2.5f, 0.01f, 0.5f));
     table_chair3->yaw(phi::PI + 0.4f);
     s->add(table_chair3);
 
     phi::sceneObject* table_chair4 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair4->setLocalPosition(glm::vec3(3.0f, 0.0f, 0.1f));
+    table_chair4->setLocalPosition(glm::vec3(3.0f, 0.01f, 0.1f));
     table_chair4->yaw(phi::PI_OVER_2 + phi::PI + 0.1f);
     s->add(table_chair4);
 
     phi::sceneObject* table_chair5 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Chairs\\table_chair.model"));
-    table_chair5->setLocalPosition(glm::vec3(0.8f, 0.0f, 0.0f));
+    table_chair5->setLocalPosition(glm::vec3(0.8f, 0.01f, 0.0f));
     table_chair5->yaw(phi::PI_OVER_2 - 0.1f);
     s->add(table_chair5);
 
 
 
-    ///* slider light */
-    //
-    //phi::pointLight* pointLight = new phi::pointLight(glm::vec3(-8.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.4f, 5.0f);
-    //s->add(pointLight);
+///* slider light */
+//
+//phi::pointLight* pointLight = new phi::pointLight(glm::vec3(-8.0f, 2.0f, 0.0f), phi::color::fromRGBA(1.0, 0.9, 0.7, 1.0), 1.4f, 5.0f);
+//s->add(pointLight);
 
-    ///* lights */
+///* lights */
 
     phi::sceneObject* spotLamp0 = phi::sceneObject::create(_modelsRepository->getResource<phi::model>("Lamps\\spot_lamp.model"));
     spotLamp0->setLocalPosition(glm::vec3(-4.7f, 3.5f, -0.75f));
@@ -456,7 +456,7 @@ void screen::initUI()
 
     auto materialsDirs = _materialsRepository->getDirectoriesFromPath("");
     auto materialsTabIndex = _materialsCarousel->addTab("Materials", phi::uiRepository::repository->getResource<phi::texture>("materials.png"));
-    for (unsigned int i = 0; i < materialsDirs.size(); i++)
+    for(unsigned int i = 0; i < materialsDirs.size(); i++)
     {
         auto tab = new phi::carouselTab(getSize());
         tab->setName(materialsDirs[i]);
@@ -464,7 +464,7 @@ void screen::initUI()
         _materialsCarousel->addSubTab(materialsTabIndex, tab);
 
         auto materials = _materialsRepository->getResourcesFromPath<phi::material>(materialsDirs[i]);
-        for (unsigned int j = 0; j < materials.size(); j++)
+        for(unsigned int j = 0; j < materials.size(); j++)
         {
             auto material = materials[j];
             phi::carouselItem* carouselItem = new phi::carouselItem(material->getFullName(), getSize());
@@ -477,14 +477,14 @@ void screen::initUI()
 
     auto modelsDirs = _modelsRepository->getDirectoriesFromPath("");
     auto modelsTabIndex = _materialsCarousel->addTab("Models", phi::uiRepository::repository->getResource<phi::texture>("models.png"));
-    for (unsigned int i = 0; i < modelsDirs.size(); i++)
+    for(unsigned int i = 0; i < modelsDirs.size(); i++)
     {
         auto tab = new phi::carouselTab(getSize());
         tab->setName(modelsDirs[i]);
         _materialsCarousel->addSubTab(modelsTabIndex, tab);
 
         auto models = _modelsRepository->getResourcesFromPath<phi::model>(modelsDirs[i]);
-        for (unsigned int j = 0; j < models.size(); j++)
+        for(unsigned int j = 0; j < models.size(); j++)
         {
             auto model = models[j];
             phi::carouselItem* carouselItem = new phi::carouselItem(model->getFullName(), getSize());
@@ -537,7 +537,7 @@ void screen::onInitialize()
     setTitle("Teste");
     centerScreen();
 
-    if (_resourcesPath.empty())
+    if(_resourcesPath.empty())
         _resourcesLoader.load();
     else
         _resourcesLoader.load(_resourcesPath);
@@ -559,15 +559,15 @@ void screen::update()
     _sceneRenderer = phi::scenesManager::get()->getSceneRenderer();
 
     a += 0.01f;
-    if (a > 2 * phi::PI)
+    if(a > 2 * phi::PI)
         a -= 2 * phi::PI;
 
-    if (t > 24.0f)
+    if(t > 24.0f)
         t -= 24.0f;
 
     t += 0.01f;
 
-    if (oi)
+    if(oi)
     {
         auto pos = casket0->getPosition();
         casket0->setLocalPosition(glm::vec3(pos.x + 0.001, pos.y, pos.z));
@@ -772,10 +772,10 @@ void screen::onMouseWheel(phi::mouseEventArgs* e)
 
 void screen::onKeyDown(phi::keyboardEventArgs* e)
 {
-    if (_inputManager->onKeyDown(e))
+    if(_inputManager->onKeyDown(e))
         return;
 
-    if (e->key == PHIK_ESCAPE)
+    if(e->key == PHIK_ESCAPE)
         close();
 }
 
@@ -799,10 +799,10 @@ void screen::hideSelectedButtonClick(phi::mouseEventArgs* e)
     cmds.push_back(new selectObjectCommand(nullptr, nullptr));
 
     auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
-    for (auto i = 0; i < allObjects->size(); i++)
+    for(auto i = 0; i < allObjects->size(); i++)
     {
         auto obj = allObjects->at(i);
-        if (obj->getSelected())
+        if(obj->getSelected())
             cmds.push_back(new setSceneObjectVisibilityCommand(obj, false));
     }
 
@@ -815,10 +815,10 @@ void screen::showAllButtonClick(phi::mouseEventArgs* e)
     auto cmds = std::vector<command*>();
 
     auto allObjects = phi::scenesManager::get()->getScene()->getAllObjects();
-    for (auto i = 0; i < allObjects->size(); i++)
+    for(auto i = 0; i < allObjects->size(); i++)
     {
         auto obj = allObjects->at(i);
-        if (!obj->getActive())
+        if(!obj->getActive())
             cmds.push_back(new setSceneObjectVisibilityCommand(obj, true));
     }
 
@@ -847,7 +847,7 @@ void screen::importSEButtonClick(phi::mouseEventArgs* e)
 
     GetOpenFileNameA(&ofn);
 
-    std::cout << buffer << (int)CommDlgExtendedError() << std::endl;
+    std::cout << buffer << (int) CommDlgExtendedError() << std::endl;
 
     auto sePartImporter = new SEImporter();
     auto sceneObject = sePartImporter->import(std::string(buffer));
@@ -925,7 +925,7 @@ void screen::hudControlLostFocus(phi::controlEventArgs e)
 
 void screen::selectedSceneObjectChanged(phi::sceneObjectEventArgs e)
 {
-    if (e.sender->getSelected())
+    if(e.sender->getSelected())
     {
         tc->attachTo(e.sender);
         rc->attachTo(e.sender);
@@ -981,27 +981,27 @@ void screen::carouselListItemClick(phi::mouseEventArgs* e)
     phi::sceneObject* obj = nullptr;
     auto sceneObjects = phi::scenesManager::get()->getScene()->getAllObjects();
     auto sceneObjectsCount = sceneObjects->size();
-    for (unsigned int i = 0; i < sceneObjectsCount; i++)
+    for(unsigned int i = 0; i < sceneObjectsCount; i++)
     {
         auto so = (*sceneObjects)[i];
-        if (so->getSelected())
+        if(so->getSelected())
         {
             obj = so;
             break;
         }
     }
 
-    if (obj == nullptr)
+    if(obj == nullptr)
         return;
 
     auto cmds = std::vector<command*>();
     auto carouselItem = (phi::carouselItem*)e->sender;
     auto sceneMeshes = obj->getSceneMeshes();
     auto sceneMeshesCount = sceneMeshes.size();
-    for (unsigned int i = 0; i < sceneMeshesCount; i++)
+    for(unsigned int i = 0; i < sceneMeshesCount; i++)
     {
         auto sm = sceneMeshes[i];
-        if (sm->getIsSelected())
+        if(sm->getIsSelected())
         {
             auto material = _materialsRepository->getResource<phi::material>(carouselItem->getName());
             cmds.push_back(new setMaterialCommand(sm, material));
@@ -1014,7 +1014,7 @@ void screen::carouselListItemClick(phi::mouseEventArgs* e)
 
 void screen::staticObjectsChanged(phi::eventArgs e)
 {
-    if (_sceneRenderer)
+    if(_sceneRenderer)
         _sceneRenderer->redrawStaticShadowMaps();
 }
 
@@ -1031,7 +1031,7 @@ struct contactSensorCallback : public btCollisionWorld::ContactResultCallback
 
     virtual bool needsCollision(btBroadphaseProxy* proxy) const
     {
-        if (!btCollisionWorld::ContactResultCallback::needsCollision(proxy)) // superclass will check m_collisionFilterGroup and m_collisionFilterMask
+        if(!btCollisionWorld::ContactResultCallback::needsCollision(proxy)) // superclass will check m_collisionFilterGroup and m_collisionFilterMask
             return false;
 
         return body.checkCollideWithOverride(static_cast<btCollisionObject*>(proxy->m_clientObject)); // if passed filters, may also want to avoid contacts between constraints
@@ -1042,7 +1042,7 @@ struct contactSensorCallback : public btCollisionWorld::ContactResultCallback
         const btCollisionObjectWrapper* colObj1, int partId1, int index1)
     {
         btVector3 pt; // will be set to point of collision relative to body
-        if (colObj0->m_collisionObject == &body)
+        if(colObj0->m_collisionObject == &body)
             pt = cp.m_localPointA;
         else
         {
@@ -1067,7 +1067,7 @@ void screen::translating(phi::translationEventArgs* e)
     contactSensorCallback callback(*sceneObj->getBulletRigidBody(), *this);
     scene->getBulletWorld()->contactTest(sceneObj->getBulletRigidBody(), callback);
 
-    if (callback.collided)
+    if(callback.collided)
     {
         e->cancel = true;
         //e->valorGãmbisDELETERISSOASSIMQUEPOSSIVEL = callback.mainfoldPoint.getDistance();
@@ -1118,7 +1118,7 @@ void screen::translating(phi::translationEventArgs* e)
 
 void screen::translationFinished(phi::translationEventArgs* e)
 {
-    if (e->startPos == e->endPos)
+    if(e->startPos == e->endPos)
         return;
 
     auto cmd = new translateObjectCommand(e->sender, e->startPos, e->endPos);
@@ -1133,7 +1133,7 @@ void screen::rotating(phi::rotationEventArgs* e)
 
     contactSensorCallback callback(*sceneObj->getBulletRigidBody(), *this);
     scene->getBulletWorld()->contactTest(sceneObj->getBulletRigidBody(), callback);
-    if (callback.collided)
+    if(callback.collided)
         e->cancel = true;
 
     // Colisão usando FCL:
@@ -1178,7 +1178,7 @@ void screen::rotating(phi::rotationEventArgs* e)
 
 void screen::rotationFinished(phi::rotationEventArgs e)
 {
-    if (e.startOrientation == e.endOrientation)
+    if(e.startOrientation == e.endOrientation)
         return;
 
     auto cmd = new rotateObjectCommand(e.sender, e.startOrientation, e.endOrientation);
@@ -1187,7 +1187,7 @@ void screen::rotationFinished(phi::rotationEventArgs e)
 
 void screen::dragDropEnded(phi::dragDropEventArgs* e)
 {
-    if (e->handled)
+    if(e->handled)
         return;
 
     auto object = phi::sceneObject::create(_modelsRepository->getResource<phi::model>(e->data));
