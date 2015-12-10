@@ -5,11 +5,11 @@
 
 namespace phi
 {
-    toolTip::toolTip(size<GLuint> viewportSize)
+    toolTip::toolTip(sizef viewportSize)
     {
         _viewportSize = viewportSize;
 
-        _backgroundRenderer = new quadRenderer2D(glm::vec2(), 30.0f, size<GLuint>(), viewportSize);
+        _backgroundRenderer = new quadRenderer2D(vec2(), 30.0f, sizef(), viewportSize);
         _backgroundTexture = uiRepository::repository->getResource<texture>("button.png");
 
         _foregroundRenderer = new textRenderer2D(viewportSize);
@@ -17,43 +17,43 @@ namespace phi
         _textColor = color::white;
     }
 
-    void toolTip::show(const std::string text, const glm::vec2 location, const size<GLuint> rect)
+    void toolTip::show(const std::string text, const vec2 location, const sizef rect)
     {
         _text = text;
 
         auto textSize = _foregroundRenderer->measureSize(_text, _font);
-        _size = size<GLuint>((GLuint)(textSize.width + 2.0f * TEXT_MARGIN), (GLuint)(textSize.height + 2.0f * TEXT_MARGIN));
+        _size = sizef((GLuint)(textSize.w + 2.0f * TEXT_MARGIN), (GLuint)(textSize.h + 2.0f * TEXT_MARGIN));
 
         float textY;
         float targetHeight;
-        if (location.y + _size.height > _viewportSize.height)
+        if (location.y + _size.h > _viewportSize.h)
         {
-            _location = glm::vec2(location.x, location.y - rect.height);
-            textY = _location.y - _size.height + TEXT_MARGIN;
-            targetHeight = -(float)_size.height;
+            _location = vec2(location.x, location.y - rect.h);
+            textY = _location.y - _size.h + TEXT_MARGIN;
+            targetHeight = -(float)_size.h;
         }
         else
         {
             _location = location;
             textY = _location.y + TEXT_MARGIN;
-            targetHeight = (float)_size.height;
+            targetHeight = (float)_size.h;
         }
 
-        auto textX = glm::max(0.0f, _location.x - (_size.width - glm::min(_size.width * 0.5f, _viewportSize.width - _location.x))) + TEXT_MARGIN;
-        _textLocation = glm::vec2(textX, textY);
+        auto textX = glm::max(0.0f, _location.x - (_size.w - glm::min(_size.w * 0.5f, _viewportSize.w - _location.x))) + TEXT_MARGIN;
+        _textLocation = vec2(textX, textY);
 
-        _backgroundRenderer->setSize(size<GLuint>((GLuint)3.0f, (GLuint)0.0f));
+        _backgroundRenderer->setSize(sizef((GLuint)3.0f, (GLuint)0.0f));
         _backgroundRenderer->setLocation(_location);
         _backgroundRenderer->update();
 
         float* w = new float(3.0f);
-        floatAnimator::animateFloat(new phi::floatAnimation(w, (float)_size.width, 150, [&](float w) -> void
+        floatAnimator::animateFloat(new phi::floatAnimation(w, (float)_size.w, 150, [&](float w) -> void
         {
             auto s = _backgroundRenderer->getSize();
-            _backgroundRenderer->setSize(size<GLuint>((GLuint)w, s.height));
+            _backgroundRenderer->setSize(sizef((GLuint)w, s.h));
             auto l = _backgroundRenderer->getLocation();
-            auto x = glm::max(0.0f, _location.x - (w - glm::min(w * 0.5f, _viewportSize.width - _location.x)));
-            _backgroundRenderer->setLocation(glm::vec2(x, l.y));
+            auto x = glm::max(0.0f, _location.x - (w - glm::min(w * 0.5f, _viewportSize.w - _location.x)));
+            _backgroundRenderer->setLocation(vec2(x, l.y));
             _backgroundRenderer->update();
         }, 150, easingFunctions::easeOutQuad));
 
@@ -61,12 +61,12 @@ namespace phi
         floatAnimator::animateFloat(new phi::floatAnimation(h, targetHeight, 100, [&](float h) -> void
         {
             auto s = _backgroundRenderer->getSize();
-            _backgroundRenderer->setSize(size<GLuint>(s.width, (GLuint)glm::abs(h)));
+            _backgroundRenderer->setSize(sizef(s.w, (GLuint)abs(h)));
 
             if (h < 0.0f)
             {
                 auto l = _backgroundRenderer->getLocation();
-                _backgroundRenderer->setLocation(glm::vec2(l.x, _location.y + h));
+                _backgroundRenderer->setLocation(vec2(l.x, _location.y + h));
             }
 
             _backgroundRenderer->update();
@@ -82,7 +82,7 @@ namespace phi
         glEnable(GL_SCISSOR_TEST);
         auto l = _backgroundRenderer->getLocation();
         auto s = _backgroundRenderer->getSize();
-        glScissor((GLuint)l.x, (GLuint)(_viewportSize.height - s.height - l.y), (GLuint)s.width, (GLuint)s.height);
+        glScissor((GLuint)l.x, (GLuint)(_viewportSize.h - s.h - l.y), (GLuint)s.w, (GLuint)s.h);
 
         _backgroundRenderer->render(_backgroundTexture, color::black);
         _foregroundRenderer->render(_text, _font, _textColor, color::transparent, _textLocation, 30.1f);

@@ -54,7 +54,7 @@ namespace phi
 
         control::init(info.size);
         input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
-        _cursorRenderer = new quadRenderer2D(glm::vec2(), 1.0f, size<GLuint>(), size<GLuint>());
+        _cursorRenderer = new quadRenderer2D(vec2(), 1.0f, sizef(), sizef());
         setCursor(phi::uiRepository::repository->getResource<cursor>("DefaultCursor"));
         _cursorRenderer->setViewportSize(info.size);
         dragDropController::get()->init(info.size);
@@ -63,19 +63,22 @@ namespace phi
 
     void uiSystem::setCursor(cursor* value)
     {
-        glm::vec2 mousePos;
+        /*vec2 mousePos;
+
+
+
         if (_cursor != nullptr)
-            mousePos = _cursorRenderer->getLocation() + glm::vec2(_cursor->getTexture()->getSize().width * _cursor->getHotPoint().x, _cursor->getTexture()->getSize().height * _cursor->getHotPoint().y);
+            mousePos = _cursorRenderer->getLocation() + vec2(_cursor->getTexture()->getSize().w * _cursor->getHotPoint().x, _cursor->getTexture()->getSize().h * _cursor->getHotPoint().y);
         else
-            mousePos = glm::vec2();
+            mousePos = vec2();
 
         _cursor = value;
-        size<GLuint> size = _cursor->getTexture()->getSize();
-        glm::vec2 hotPoint = _cursor->getHotPoint();
-        _cursorRenderer->setLocation(glm::vec2(mousePos.x - size.width * hotPoint.x, mousePos.y - size.height * hotPoint.y));
+        sizef size = _cursor->getTexture()->getSize();
+        vec2 hotPoint = _cursor->getHotPoint();
+        _cursorRenderer->setLocation(vec2(mousePos.x - size.w * hotPoint.x, mousePos.y - size.h * hotPoint.y));
         _cursorRenderer->setZIndex(50.0f);
         _cursorRenderer->setSize(_cursor->getTexture()->getSize());
-        _cursorRenderer->update();
+        _cursorRenderer->update();*/
     }
 
     void uiSystem::inputMouseDown(mouseEventArgs* e)
@@ -102,9 +105,11 @@ namespace phi
 
     void uiSystem::inputMouseMove(mouseEventArgs* e)
     {
-        size<GLuint> size = _cursor->getTexture()->getSize();
-        glm::vec2 hotPoint = _cursor->getHotPoint();
-        _cursorRenderer->setLocation(glm::vec2(e->x - size.width * hotPoint.x, e->y - size.height * hotPoint.y));
+        auto w = _cursor->getTexture()->getWidth();
+        auto h = _cursor->getTexture()->getHeight();
+
+        vec2 hotPoint = _cursor->getHotPoint();
+        _cursorRenderer->setLocation(vec2(e->x - w * hotPoint.x, e->y - h * hotPoint.y));
         _cursorRenderer->update();
 
         //control* higher = nullptr;
@@ -271,7 +276,7 @@ namespace phi
         removeControl((control*)e.sender);
     }
 
-    void uiSystem::resize(size<GLuint> size)
+    void uiSystem::resize(sizef size)
     {
         _info.size = size;
 

@@ -15,13 +15,13 @@ namespace phi
         float _range;
         float _oneOverRangeSqr;
         unsigned int _boundingVolumeSides;
+
     private:
         float calcRange(float radius, unsigned int sides);
-    protected:
-        pointLight(){};
+
     public:
 
-        SCENES_API pointLight(glm::vec3 position, color color, float intensity, float range);
+        SCENES_API pointLight(vec3 position, color color, float intensity, float range);
         SCENES_API ~pointLight();
 
         SCENES_API sphere* getBoundingVolume() const { return _boundingVolume; }

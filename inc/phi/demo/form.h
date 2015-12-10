@@ -1,24 +1,26 @@
 #ifndef _FORM_H_
 #define _FORM_H_
 
-#include "phi/demo/demo.h"
-#include "phi/core/size.h"
-#include "phi/core/mouseEventArgs.h"
-#include "phi/core/keyboardEventArgs.h"
+#include "demo.h"
+
+#include <phi/core/globals.h>
+#include <phi/core/size.h>
+#include <phi/core/mouseEventArgs.h>
+#include <phi/core/keyboardEventArgs.h>
+
+#include <SDL/SDL.h>
 
 #ifdef WIN32
 #include <windows.h>
 #endif
 
 #include <string>
-#include <SDL\SDL.h>
-#include <glm\glm.hpp>
 
 class form
 {
 private:
     std::string _title;
-    phi::size<unsigned int> _size;
+    phi::sizef _size;
     bool _isClosed;
     bool _isFullScreen;
     SDL_Window* _window;
@@ -39,7 +41,7 @@ private:
     unsigned int _fps;
 
     std::string _applicationPath;
-    glm::vec2 _lastMousePos;
+    phi::vec2 _lastMousePos;
 
     HWND _hwnd;
 
@@ -49,8 +51,8 @@ private:
     static int renderLoopWrapper(void *data);
     int renderLoop();
 protected:
-    virtual void onBeginInput() = 0;
-    virtual void onEndInput() = 0;
+    /*virtual void onBeginInput() = 0;
+    virtual void onEndInput() = 0;*/
     virtual void update() = 0;
     virtual void render() = 0;
 
@@ -59,7 +61,7 @@ public:
     ~form();
 
     std::string getTitle() const { return _title; }
-    phi::size<unsigned int> getSize() const { return _size; }
+    phi::sizef getSize() const { return _size; }
     bool getIsFullScreen() const { return _isFullScreen; }
     unsigned int getFps() const { return _fps; }
     double getDt() const { return _dt; }
@@ -74,10 +76,10 @@ public:
     HWND getHwnd() const { return _hwnd; }
 #endif
     void setTitle(std::string value);
-    void setSize(phi::size<unsigned int> value);
+    void setSize(phi::sizef value);
     void setIsFullScreen(bool value);
     void show();
-    void resize(phi::size<unsigned int> size);
+    void resize(phi::sizef size);
 
     virtual void onResize(SDL_Event e);
     virtual void onClosing(){}

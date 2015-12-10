@@ -4,38 +4,35 @@
 namespace phi
 {
     template <typename T>
-    class size
+    struct tsize
     {
-    private:
-        T _width;
-        T _height;
-        T _depth;
+    public:
+        T &w;
+        T &h;
+        T &d;
 
     public:
-        const T &width;
-        const T &height;
-        const T &depth;
-
-    public:
-        size(T w = (T)0, T h = (T)0, T d = (T)0) :
-            _width(w),
-            _height(h),
-            _depth(d),
-            width(_width),
-            height(_height),
-            depth(_depth)
+        tsize(T w = (T)0, T h = (T)0, T d = (T)0) :
+            w(w),
+            h(h),
+            d(d)
         {
         }
 
-        ~size(){}
+        ~tsize(){}
 
-        void operator=(const size<T> &s)
+        void operator=(const tsize<T> &s)
         {
-            _width = s.width;
-            _height = s.height;
-            _depth = s.depth;
+            w = s.w;
+            h = s.h;
+            d = s.d;
         }
     };
+
+    using sizeui = tsize<unsigned int>;
+    using sizeul = tsize<unsigned long>;
+    using sizef = tsize<float>;
+    using sized = tsize<double>;
 }
 
 #endif 

@@ -5,22 +5,22 @@
 
 namespace phi
 {
-	class pickingFrameBuffer :
-		public frameBuffer
-	{
-	private:
-		texture* _pickingTexture;
-	public:
-		RENDERING_API pickingFrameBuffer(size<GLuint> size);
-		RENDERING_API ~pickingFrameBuffer();
-		
-		RENDERING_API texture* getPickingTexture() const { return _pickingTexture; }
-		
-		RENDERING_API void init() override;
-		RENDERING_API void clear() override;
+    class pickingFrameBuffer :
+        public frameBuffer
+    {
+    private:
+        texture* _pickingTexture;
+    public:
+        RENDERING_API pickingFrameBuffer(sizef size);
+        RENDERING_API ~pickingFrameBuffer();
 
-		RENDERING_API GLuint pick(glm::vec2 mousePos);
-	};
+        RENDERING_API texture* getPickingTexture() const { return _pickingTexture; }
+
+        RENDERING_API void init() override;
+        RENDERING_API void clear() override;
+
+        RENDERING_API GLuint pick(vec2 mousePos);
+    };
 }
 
 #endif

@@ -1,28 +1,26 @@
 #ifndef _PHI_CONE_H_
 #define _PHI_CONE_H_
 
-#include "phi/core/globals.h"
+#include "scenes.h"
 
-#include "phi/rendering/model.h"
-
-#include "phi/scenes/scenes.h"
+#include <phi/rendering/mesh.h>
 
 namespace phi
 {
-    class cone
+    class cone :
+        public mesh
     {
     private:
-        model* _model;
+        cone(geometry* geometry, material* material);
 
     private:
-        cone(){};
-        mesh* create(unsigned int sectors);
+        static geometry* createConeGeometry(uint sectors);
 
     public:
-        SCENES_API cone(unsigned int sectors, material* material);
-        SCENES_API ~cone(void);
+        SCENES_API static cone* create(uint sectors, material* material);
 
-        SCENES_API model* getModel() const { return _model; }
+    public:
+        SCENES_API ~cone();
     };
 }
 

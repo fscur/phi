@@ -2,50 +2,53 @@
 #define _PHI_GLOBALS_H
 
 #include "core.h"
-
 #include <iostream>
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
+#include <GLM/gtc/quaternion.hpp>
 
-//Functions
-
-//writes a message to the console
-#define LOG(message) \
-    std::cout << message << std::endl;
+using uint = unsigned int;
+using byte = unsigned char;
 
 namespace phi
 {
-    template<class T> void safeDelete(T*& pVal)
-    {
-        delete pVal;
-        pVal = NULL;
-    }
+    using id = unsigned long;
+    using vec2 = glm::vec2;
+    using vec3 = glm::vec3;
+    using vec4 = glm::vec4;
+    using mat3 = glm::mat3;
+    using mat4 = glm::mat4;
+    using quat = glm::quat;
 
-    template<class T> void safeDeleteArray(T*& pVal)
-    {
-        delete[] pVal;
-        pVal = NULL;
-    }
-}
-
-#define LOGV phi::globals::log
-
-namespace phi
-{
     static const float PI = 3.1415926536f;
     static const float PI_OVER_2 = 1.5707963268f;
     static const float PI_OVER_4 = 0.7853981634f;
 
-    class globals
+    template<class T> 
+    void safeDelete(T value)
     {
-    public:
-        static CORE_API bool contains(const std::string &s, std::string value);
-        static CORE_API std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
-        static CORE_API std::vector<std::string> split(const std::string &s, char delim);
-        static CORE_API void toArray(std::vector<unsigned int> values, unsigned int* &intArray);
-        static CORE_API void log(glm::vec3 vec);
-    };
+        delete value;
+        value = NULL;
+    }
+
+    template<class T> 
+    void safeDeleteArray(T value)
+    {
+        delete[] value;
+        value = NULL;
+    }
+
+    template<class T> 
+    void log(T& value)
+    {
+        std::cout << value << std::endl;
+    }
+
+    inline void log(vec3 value)
+    {
+        std::cout << value.x << "; " << value.y << "; " << value.z << std::endl;
+    }
 }
 
 #endif

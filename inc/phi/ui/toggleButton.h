@@ -20,7 +20,7 @@ namespace phi
         void onClick() override;
 
     public:
-        UI_API toggleButton(size<GLuint> viewportSize);
+        UI_API toggleButton(sizef viewportSize);
 
         UI_API bool getChecked() const { return _checked; }
         UI_API color getCheckedColor() const { return _checkedColor; }
@@ -30,8 +30,8 @@ namespace phi
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;
         UI_API void setZIndex(float value) override;
-        UI_API void setSize(size<GLuint> value) override;
-        UI_API void setViewportSize(size<GLuint> value) override;
+        UI_API void setSize(sizef value) override;
+        UI_API void setViewportSize(sizef value) override;
         UI_API void setChecked(const bool value);
         UI_API void setCheckedColor(const color value) { _checkedColor = value; }
 

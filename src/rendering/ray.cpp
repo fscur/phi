@@ -2,7 +2,7 @@
 
 namespace phi
 {
-    ray::ray(glm::vec3 origin, glm::vec3 direction)
+    ray::ray(vec3 origin, vec3 direction)
     {
         _origin = origin;
         _direction = direction;
@@ -111,30 +111,30 @@ namespace phi
         return true;
     }
 
-    bool ray::intersects(aabb* aabb, glm::vec3* normal)
+    bool ray::intersects(aabb* aabb, vec3* normal)
     {
         if (intersects(aabb))
         {
             auto min = aabb->getMin();
             auto max = aabb->getMax();
-            auto lbb = glm::vec3(min.x, min.y, min.z);
-            auto lbf = glm::vec3(min.x, min.y, max.z);
-            auto ltf = glm::vec3(min.x, max.y, max.z);
-            auto ltb = glm::vec3(min.x, max.y, min.z);
-            auto rbb = glm::vec3(max.x, min.y, min.z);
-            auto rbf = glm::vec3(max.x, min.y, max.z);
-            auto rtf = glm::vec3(max.x, max.y, max.z);
-            auto rtb = glm::vec3(max.x, max.y, min.z);
+            auto lbb = vec3(min.x, min.y, min.z);
+            auto lbf = vec3(min.x, min.y, max.z);
+            auto ltf = vec3(min.x, max.y, max.z);
+            auto ltb = vec3(min.x, max.y, min.z);
+            auto rbb = vec3(max.x, min.y, min.z);
+            auto rbf = vec3(max.x, min.y, max.z);
+            auto rtf = vec3(max.x, max.y, max.z);
+            auto rtb = vec3(max.x, max.y, min.z);
 
             auto minT = std::numeric_limits<float>::max();
-            auto minNormal = glm::vec3();
+            auto minNormal = vec3();
             float t;
             if (intersects(lbb, lbf, ltf, ltb, &t))
             {
                 if (t < minT)
                 {
                     minT = t;
-                    minNormal = glm::vec3(-1.0f, 0.0f, 0.0f);
+                    minNormal = vec3(-1.0f, 0.0f, 0.0f);
                 }
             }
             if (intersects(rbf, rbb, rtb, rtf, &t))
@@ -142,7 +142,7 @@ namespace phi
                 if (t < minT)
                 {
                     minT = t;
-                    minNormal = glm::vec3(1.0f, 0.0f, 0.0f);
+                    minNormal = vec3(1.0f, 0.0f, 0.0f);
                 }
             }
             if (intersects(lbf, rbf, rtf, ltf, &t))
@@ -150,7 +150,7 @@ namespace phi
                 if (t < minT)
                 {
                     minT = t;
-                    minNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+                    minNormal = vec3(0.0f, 0.0f, 1.0f);
                 }
             }
             if (intersects(rbb, lbb, ltb, rtb, &t))
@@ -158,7 +158,7 @@ namespace phi
                 if (t < minT)
                 {
                     minT = t;
-                    minNormal = glm::vec3(0.0f, 0.0f, -1.0f);
+                    minNormal = vec3(0.0f, 0.0f, -1.0f);
                 }
             }
             if (intersects(ltf, rtf, rtb, ltb, &t))
@@ -166,7 +166,7 @@ namespace phi
                 if (t < minT)
                 {
                     minT = t;
-                    minNormal = glm::vec3(0.0f, 1.0f, 0.0f);
+                    minNormal = vec3(0.0f, 1.0f, 0.0f);
                 }
             }
             if (intersects(lbb, rbb, rbf, lbf, &t))
@@ -174,7 +174,7 @@ namespace phi
                 if (t < minT)
                 {
                     minT = t;
-                    minNormal = glm::vec3(0.0f, -1.0f, 0.0f);
+                    minNormal = vec3(0.0f, -1.0f, 0.0f);
                 }
             }
 
@@ -185,18 +185,18 @@ namespace phi
         return false;
     }
 
-    bool ray::intersects(glm::vec3 bl, glm::vec3 br, glm::vec3 tr, glm::vec3 tl, float* t)
+    bool ray::intersects(vec3 bl, vec3 br, vec3 tr, vec3 tl, float* t)
     {
-        auto planeNormal = glm::normalize(glm::cross(bl - br, br - tr));
-        auto d = glm::dot(planeNormal, bl);
-        *t = (d - glm::dot(planeNormal, _origin))/(glm::dot(planeNormal, (_direction)));
-        float nDotA = glm::dot(planeNormal, _origin);
-        float nDotBA = glm::dot(planeNormal, _direction);
+        auto planeNormal = normalize(cross(bl - br, br - tr));
+        auto d = dot(planeNormal, bl);
+        *t = (d - dot(planeNormal, _origin))/(dot(planeNormal, (_direction)));
+        float nDotA = dot(planeNormal, _origin);
+        float nDotBA = dot(planeNormal, _direction);
         auto point = _origin + (((d - nDotA)/nDotBA) * _direction);
-        auto in = glm::dot(bl, tl-bl) <= glm::dot(point, tl-bl) &&
-            glm::dot(point, tl-bl) <= glm::dot(tl, tl-bl) &&
-            glm::dot(bl, br-bl) <= glm::dot(point, br-bl) &&
-            glm::dot(point, br-bl) <= glm::dot(br, br-bl);
+        auto in = dot(bl, tl-bl) <= dot(point, tl-bl) &&
+            dot(point, tl-bl) <= dot(tl, tl-bl) &&
+            dot(bl, br-bl) <= dot(point, br-bl) &&
+            dot(point, br-bl) <= dot(br, br-bl);
 
         return in;
     }

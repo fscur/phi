@@ -30,10 +30,10 @@ namespace phi
         float _stepValue;
 
         void updateSlider();
-		void changeValue(glm::vec2 pos);
+		void changeValue(vec2 pos);
 
     public:
-		UI_API slider(size<GLuint> viewportSize);
+		UI_API slider(sizef viewportSize);
         UI_API ~slider();
 
         UI_API color getTrackColor() { return _trackColor; }
@@ -53,8 +53,8 @@ namespace phi
 
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;
-        UI_API void setSize(size<GLuint> value) override;
-		UI_API void setViewportSize(size<GLuint> value) override;
+        UI_API void setSize(sizef value) override;
+		UI_API void setViewportSize(sizef value) override;
 		UI_API void setZIndex(float value) override;
 
         UI_API void onMouseDown(mouseEventArgs* e) override;

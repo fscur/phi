@@ -51,7 +51,7 @@ namespace phi
         virtual void renderForeground();
 
     public:
-        UI_API button(size<GLuint> viewportSize);
+        UI_API button(sizef viewportSize);
         UI_API ~button();
 
         UI_API std::string getText() { return _text; }
@@ -70,8 +70,8 @@ namespace phi
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;
         UI_API void setZIndex(float value) override;
-        UI_API void setSize(size<GLuint> value) override;
-        UI_API void setViewportSize(size<GLuint> value) override;
+        UI_API void setSize(sizef value) override;
+        UI_API void setViewportSize(sizef value) override;
         UI_API void setIsTopMost(bool value) override;
 
         UI_API void onMouseDown(mouseEventArgs* e) override;

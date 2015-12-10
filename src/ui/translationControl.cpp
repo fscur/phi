@@ -1,36 +1,36 @@
 #include <phi/rendering/shaderManager.h>
-#include <phi/rendering/meshRenderer.h>
+#include <phi/rendering/geometryRenderer.h>
 #include <phi/rendering/lineMesh.h>
 
 #include <phi/ui/translationControl.h>
 #include <phi/ui/colorAnimator.h>
 
-#include <glm/gtx/constants.hpp>
 #include <bullet/btBulletDynamicsCommon.h>
+#include <GLM\gtc\constants.hpp>
 
 namespace phi
 {
-    translationControl::translationControl(size<GLuint> viewportSize) :
+    translationControl::translationControl(sizef viewportSize) :
         control(viewportSize)
     {
-        _arrowMesh = createArrowMesh();
+        _arrowGeometry = createArrowGeometry();
         _shader = shaderManager::get()->getShader("UI_MESH");
         _object = nullptr;
-        _xAabb = new aabb(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        _yAabb = new aabb(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        _zAabb = new aabb(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+        _xAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
+        _yAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
+        _zAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
         _xColor = color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f);
         _yColor = color::fromRGBA(0.0f, 1.0f, 0.0f, 0.5f);
         _zColor = color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f);
-        _xModelMatrix = glm::rotate(glm::pi<float>() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-        _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
-        _zModelMatrix = glm::mat4();
+        _xModelMatrix = glm::rotate(PI * 0.5f, vec3(0.0f, 1.0f, 0.0f));
+        _yModelMatrix = glm::rotate(PI * -0.5f, vec3(1.0f, 0.0f, 0.0f));
+        _zModelMatrix = mat4();
         _clickedOverX = _clickedOverY = _clickedOverZ = false;
         _translating = new eventHandler<translationEventArgs*>();
         _translationFinished = new eventHandler<translationEventArgs*>();
     }
 
-    mesh* translationControl::createArrowMesh()
+    geometry* translationControl::createArrowGeometry()
     {
         std::vector<vertex> vertices;
         auto indices = new std::vector<GLuint>();
@@ -38,20 +38,20 @@ namespace phi
         auto sides = 10;
         auto pr = 0.05f;
         auto sr = 0.02f;
-        auto ap = (glm::pi<float>() * 2.0f) / (float)sides;
+        auto ap = (PI * 2.0f) / (float)sides;
 
-        vertices.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); // 0
-
-        for (auto i = 0; i < sides; i++)
-            vertices.push_back(glm::vec3(glm::cos(ap * i) * pr, glm::sin(ap * i) * pr, 0.35f));
+        vertices.push_back(vec3(0.0f, 0.0f, 0.5f)); // 0
 
         for (auto i = 0; i < sides; i++)
-            vertices.push_back(glm::vec3(glm::cos(ap * i) * sr, glm::sin(ap * i) * sr, 0.35f));
+            vertices.push_back(vec3(glm::cos(ap * i) * pr, glm::sin(ap * i) * pr, 0.35f));
 
         for (auto i = 0; i < sides; i++)
-            vertices.push_back(glm::vec3(glm::cos(ap * i) * sr, glm::sin(ap * i) * sr, 0.0f));
+            vertices.push_back(vec3(glm::cos(ap * i) * sr, glm::sin(ap * i) * sr, 0.35f));
 
-        vertices.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+        for (auto i = 0; i < sides; i++)
+            vertices.push_back(vec3(glm::cos(ap * i) * sr, glm::sin(ap * i) * sr, 0.0f));
+
+        vertices.push_back(vec3(0.0f, 0.0f, 0.0f));
 
         for (auto i = 1; i < sides + 1; i++)
         {
@@ -89,7 +89,7 @@ namespace phi
             indices->push_back(i % sides + 1 + sides * 2);
         }
 
-        mesh::calcTangents(vertices, *indices);
+        geometry::calcTangents(vertices, *indices);
 
         //auto min = vertices[0].getPosition();
         //auto max = vertices[0].getPosition();
@@ -112,7 +112,7 @@ namespace phi
         //        max.z = pos.z;
         //}
 
-        return mesh::create("arrow", vertices, indices);
+        return geometry::create("arrow", vertices, indices);
     }
 
     void translationControl::updateModelMatrix()
@@ -129,9 +129,9 @@ namespace phi
         viewModelFixed[3][0] = -1.0f * px;
         viewModelFixed[3][1] = -1.0f * py;
         viewModelFixed[3][2] = -1.0f;
-        auto pos = glm::inverse(_camera->getViewMatrix()) * viewModelFixed * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        auto pos = inverse(_camera->getViewMatrix()) * viewModelFixed * vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-        auto rot = glm::mat4();
+        auto rot = mat4();
         auto obj = _object;
         while (obj != nullptr)
         {
@@ -139,7 +139,7 @@ namespace phi
             obj = obj->getParent();
         }
 
-        auto translationMatrix = glm::translate(glm::vec3(pos.x, pos.y, pos.z)) * rot * glm::scale(glm::vec3(0.15f, 0.15f, 0.15f));
+        auto translationMatrix = translate(vec3(pos.x, pos.y, pos.z)) * rot * scale(vec3(0.15f, 0.15f, 0.15f));
 
         _modelMatrix = translationMatrix;
     }
@@ -149,14 +149,14 @@ namespace phi
         if (!_object)
             return;
 
-        auto min = glm::vec4(-0.80901699437494742410229341718282f * 0.05f, -0.95105651629515357211643933337938f * 0.05f, 0.0f, 1.0f);
-        auto max = glm::vec4(1.0f * 0.05f, 0.95105651629515357211643933337938f * 0.05f, 0.5f, 1.0f);
+        auto min = vec4(-0.80901699437494742410229341718282f * 0.05f, -0.95105651629515357211643933337938f * 0.05f, 0.0f, 1.0f);
+        auto max = vec4(1.0f * 0.05f, 0.95105651629515357211643933337938f * 0.05f, 0.5f, 1.0f);
 
-        auto createAabb = [&](const glm::mat4 modelMatrix)
+        auto createAabb = [&](const mat4 modelMatrix)
         {
             auto newMin = _modelMatrix * modelMatrix * min;
             auto newMax = _modelMatrix * modelMatrix * max;
-            return new aabb(glm::vec3(newMin.x, newMin.y, newMin.z), glm::vec3(newMax.x, newMax.y, newMax.z));
+            return new aabb(vec3(newMin.x, newMin.y, newMin.z), vec3(newMax.x, newMax.y, newMax.z));
         };
 
         _xAabb = createAabb(_xModelMatrix);
@@ -164,21 +164,21 @@ namespace phi
         _zAabb = createAabb(_zModelMatrix);
     }
 
-    ray translationControl::castRay(glm::vec2 screenCoords, size<unsigned int> screenSize)
+    ray translationControl::castRay(vec2 screenCoords, sizef screenSize)
     {
-        float w = (float)screenSize.width;
-        float h = (float)screenSize.height;
+        float w = (float)screenSize.w;
+        float h = (float)screenSize.h;
         float x = (2 * screenCoords.x) / w - 1.0f;
         float y = 1.0f - (2 * screenCoords.y) / h;
 
-        glm::mat4 invPersp = glm::inverse(_camera->getPerspProjMatrix());
-        glm::mat4 invView = glm::inverse(_camera->getViewMatrix());
+        mat4 invPersp = inverse(_camera->getPerspProjMatrix());
+        mat4 invView = inverse(_camera->getViewMatrix());
 
-        glm::vec4 ray_clip = glm::vec4(x, y, -1.0f, 1.0f);
-        glm::vec4 ray_eye = invPersp * ray_clip;
-        ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0f, 0.0f);
-        glm::vec3 ray_world = glm::vec3(invView * ray_eye);
-        ray_world = glm::normalize(ray_world);
+        vec4 ray_clip = vec4(x, y, -1.0f, 1.0f);
+        vec4 ray_eye = invPersp * ray_clip;
+        ray_eye = vec4(ray_eye.x, ray_eye.y, -1.0f, 0.0f);
+        vec3 ray_world = vec3(invView * ray_eye);
+        ray_world = normalize(ray_world);
 
         return ray(_camera->getPosition(), ray_world);
     }
@@ -188,7 +188,7 @@ namespace phi
         if (!_object)
             return false;
 
-        auto ray = castRay(glm::vec2(x, y), _viewportSize);
+        auto ray = castRay(vec2(x, y), _viewportSize);
         auto xMouseOverOld = _mouseOverX;
         _mouseOverX = ray.intersects(_xAabb);
         if (!xMouseOverOld && _mouseOverX)
@@ -213,16 +213,16 @@ namespace phi
         return _mouseOverX || _mouseOverY || _mouseOverZ;
     }
 
-    glm::vec3 translationControl::screenToViewZNear(glm::vec2 mousePos)
+    vec3 translationControl::screenToViewZNear(vec2 mousePos)
     {
         auto zNear = _camera->getFrustum()->getZNear();
         auto aspect = _camera->getFrustum()->getAspect();
         auto fov = _camera->getFrustum()->getFov();
 
-        auto tg = glm::tan(fov * 0.5f) * zNear;
+        auto tg = tan(fov * 0.5f) * zNear;
 
-        auto h = _viewportSize.height;
-        auto w = _viewportSize.width;
+        auto h = _viewportSize.h;
+        auto w = _viewportSize.w;
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
@@ -235,24 +235,24 @@ namespace phi
         auto xp = xs / hw;
         auto x = xp * tg * aspect;
 
-        return glm::vec3(x, y, -zNear);
+        return vec3(x, y, -zNear);
     }
 
-    glm::vec2 translationControl::worldToScreen(glm::vec3 worldPos)
+    vec2 translationControl::worldToScreen(vec3 worldPos)
     {
         auto vp = _camera->getPerspProjMatrix() * _camera->getViewMatrix();
-        auto vw = _viewportSize.width * 0.5f;
-        auto vh = _viewportSize.height * 0.5f;
-        auto v = glm::vec2(vw, vh);
-        auto pos = glm::vec4(worldPos, 1.0);
+        auto vw = _viewportSize.w * 0.5f;
+        auto vh = _viewportSize.h * 0.5f;
+        auto v = vec2(vw, vh);
+        auto pos = vec4(worldPos, 1.0);
         pos = vp * pos;
         pos = pos / pos.w;
-        return glm::vec2(pos.x, -pos.y) * v + v;
+        return vec2(pos.x, -pos.y) * v + v;
     }
 
-    int translationControl::lineLineIntersect(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, glm::vec3 *pa, glm::vec3 *pb, float *mua, float *mub)
+    int translationControl::lineLineIntersect(vec3 p1, vec3 p2, vec3 p3, vec3 p4, vec3 *pa, vec3 *pb, float *mua, float *mub)
     {
-        glm::vec3 p13, p43, p21;
+        vec3 p13, p43, p21;
         float d1343, d4321, d1321, d4343, d2121;
         float numer, denom;
         float epsilon = glm::epsilon<float>();
@@ -263,12 +263,12 @@ namespace phi
         p43.x = p4.x - p3.x;
         p43.y = p4.y - p3.y;
         p43.z = p4.z - p3.z;
-        if (glm::abs(p43.x) < epsilon && glm::abs(p43.y) < epsilon && glm::abs(p43.z) < epsilon)
+        if (abs(p43.x) < epsilon && abs(p43.y) < epsilon && abs(p43.z) < epsilon)
             return false;
         p21.x = p2.x - p1.x;
         p21.y = p2.y - p1.y;
         p21.z = p2.z - p1.z;
-        if (glm::abs(p21.x) < epsilon && glm::abs(p21.y) < epsilon && glm::abs(p21.z) < epsilon)
+        if (abs(p21.x) < epsilon && abs(p21.y) < epsilon && abs(p21.z) < epsilon)
             return false;
 
         d1343 = p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
@@ -278,7 +278,7 @@ namespace phi
         d2121 = p21.x * p21.x + p21.y * p21.y + p21.z * p21.z;
 
         denom = d2121 * d4343 - d4321 * d4321;
-        if (glm::abs(denom) < epsilon)
+        if (abs(denom) < epsilon)
             return false;
 
         numer = d1343 * d4321 - d1321 * d4343;
@@ -303,19 +303,12 @@ namespace phi
 
         if (e->leftButtonPressed && (_mouseOverX || _mouseOverY || _mouseOverZ))
         {
-            auto multMat3 = [](const glm::vec3 vec, const glm::mat4 mat)
-            {
-                auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
-                vec4 = mat * vec4;
-                return glm::vec3(vec4.x, vec4.y, vec4.z);
-            };
-
             _clickedOverX = _mouseOverX;
             _clickedOverY = _mouseOverY;
             _clickedOverZ = _mouseOverZ;
             _startPos = _object->getPosition();
             _startLocalPos = _object->getLocalPosition();
-            _mouseStartPos = glm::vec2(e->x, e->y);
+            _mouseStartPos = vec2(e->x, e->y);
             e->handled = true;
         }
     }
@@ -342,14 +335,7 @@ namespace phi
         if (!_object)
             return;
 
-        auto multMat3 = [](const glm::vec3 vec, const glm::mat4 mat)
-        {
-            auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
-            vec4 = mat * vec4;
-            return glm::vec3(vec4.x, vec4.y, vec4.z);
-        };
-
-        auto rot = glm::mat4();
+        auto rot = mat4();
         auto obj = _object;
         while (obj != nullptr)
         {
@@ -357,49 +343,49 @@ namespace phi
             obj = obj->getParent();
         }
 
-        glm::vec3 dir, dirLocal;
+        vec3 dir, dirLocal;
         if (_clickedOverX)
         {
-            dir = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), rot));
-            dirLocal = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), _object->getRotationMatrix()));
+            dir = glm::normalize(mathUtils::multiply(rot, vec3(1.0f, 0.0f, 0.0f)));
+            dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(1.0f, 0.0f, 0.0f)));
         }
         if (_clickedOverY)
         {
-            dir = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), rot));
-            dirLocal = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), _object->getRotationMatrix()));
+            dir = glm::normalize(mathUtils::multiply(rot, vec3(0.0f, 1.0f, 0.0f)));
+            dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(0.0f, 1.0f, 0.0f)));
         }
         if (_clickedOverZ)
         {
-            dir = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), rot));
-            dirLocal = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), _object->getRotationMatrix()));
+            dir = glm::normalize(mathUtils::multiply(rot, vec3(0.0f, 0.0f, 1.0f)));
+            dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(0.0f, 0.0f, 1.0f)));
         }
 
         if (_clickedOverX || _clickedOverY || _clickedOverZ)
         {
             auto screenObjectPos = worldToScreen(_startPos);
             auto screenObjectDir = glm::normalize(worldToScreen(_startPos + dir) - screenObjectPos);
-            auto mouseStartToEnd = glm::vec2(e->x, e->y) - screenObjectPos;
-            auto screenObjectEndPos = screenObjectPos + screenObjectDir * (glm::dot(mouseStartToEnd, screenObjectDir) - glm::dot(_mouseStartPos - screenObjectPos, screenObjectDir));
+            auto mouseStartToEnd = vec2(e->x, e->y) - screenObjectPos;
+            auto screenObjectEndPos = screenObjectPos + screenObjectDir * (dot(mouseStartToEnd, screenObjectDir) - glm::dot(_mouseStartPos - screenObjectPos, screenObjectDir));
             auto viewObjectEndPos = screenToViewZNear(screenObjectEndPos);
 
-            auto worldToView = [&](const glm::vec3 vec)
+            auto worldToView = [&](const vec3 vec)
             {
-                auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
-                vec4 = _camera->getViewMatrix() * vec4;
-                return glm::vec3(vec4.x, vec4.y, vec4.z);
+                auto v = vec4(vec.x, vec.y, vec.z, 1.0f);
+                v = _camera->getViewMatrix() * v;
+                return vec3(v.x, v.y, v.z);
             };
 
             auto viewObjectStartPos = worldToView(_startPos);
             auto viewObjectStartDirPos = worldToView(_startPos + dir);
 
-            glm::vec3 p1, p2;
+            vec3 p1, p2;
             float t1, t2;
-            if (lineLineIntersect(glm::vec3(), viewObjectEndPos, viewObjectStartPos, viewObjectStartDirPos, &p1, &p2, &t1, &t2))
+            if (lineLineIntersect(vec3(), viewObjectEndPos, viewObjectStartPos, viewObjectStartDirPos, &p1, &p2, &t1, &t2))
             {
-                //auto world4 = glm::inverse(_camera->getViewMatrix()) * glm::vec4(p1.x, p1.y, p1.z, 1.0f);
-                //auto world = glm::vec3(world4.x, world4.y, world4.z);
-                //auto model = (_object->getParent() == nullptr ? glm::mat4() : _object->getParent()->getModelMatrix());
-                //auto localWorld = multMat3(world, glm::inverse(model));
+                //auto world4 = inverse(_camera->getViewMatrix()) * vec4(p1.x, p1.y, p1.z, 1.0f);
+                //auto world = vec3(world4.x, world4.y, world4.z);
+                //auto model = (_object->getParent() == nullptr ? mat4() : _object->getParent()->getModelMatrix());
+                //auto localWorld = multMat3(world, inverse(model));
                 auto localWorld = _startPos + dir * t2;
 
                 auto currentPos = _object->getLocalPosition();
@@ -435,14 +421,14 @@ namespace phi
         updateAabbs();
     }
 
-    void translationControl::renderArrow(mesh* mesh, color color, glm::mat4 modelMatrix)
+    void translationControl::renderArrow(geometry* geometry, color color, mat4 modelMatrix)
     {
         auto mvp = _camera->getPerspProjMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
 
         _shader->bind();
         _shader->setUniform("mvp", mvp);
         _shader->setUniform("color", color);
-        meshRenderer::render(mesh);
+        geometryRenderer::render(geometry);
         _shader->unbind();
     }
 
@@ -456,27 +442,27 @@ namespace phi
 
         updateModelMatrix();
         updateAabbs();
-        renderArrow(_arrowMesh, _xColor, _xModelMatrix);
-        renderArrow(_arrowMesh, _yColor, _yModelMatrix);
-        renderArrow(_arrowMesh, _zColor, _zModelMatrix);
+        renderArrow(_arrowGeometry, _xColor, _xModelMatrix);
+        renderArrow(_arrowGeometry, _yColor, _yModelMatrix);
+        renderArrow(_arrowGeometry, _zColor, _zModelMatrix);
 
         //Draw AABB:
         //auto min = _object->getAabb()->getMin();
         //auto max = _object->getAabb()->getMax();
-        //auto lbb = glm::vec3(min.x, min.y, min.z);
-        //auto lbf = glm::vec3(min.x, min.y, max.z);
-        //auto ltf = glm::vec3(min.x, max.y, max.z);
-        //auto ltb = glm::vec3(min.x, max.y, min.z);
-        //auto rbb = glm::vec3(max.x, min.y, min.z);
-        //auto rbf = glm::vec3(max.x, min.y, max.z);
-        //auto rtf = glm::vec3(max.x, max.y, max.z);
-        //auto rtb = glm::vec3(max.x, max.y, min.z);
+        //auto lbb = vec3(min.x, min.y, min.z);
+        //auto lbf = vec3(min.x, min.y, max.z);
+        //auto ltf = vec3(min.x, max.y, max.z);
+        //auto ltb = vec3(min.x, max.y, min.z);
+        //auto rbb = vec3(max.x, min.y, min.z);
+        //auto rbf = vec3(max.x, min.y, max.z);
+        //auto rtf = vec3(max.x, max.y, max.z);
+        //auto rtb = vec3(max.x, max.y, min.z);
 
         //auto mvp = _camera->getPerspProjMatrix() * _camera->getViewMatrix();
         //_shader->bind();
         //_shader->setUniform("mvp", mvp);
         //_shader->setUniform("color", color::orange);
-        //auto pos = std::vector<glm::vec3>();
+        //auto pos = std::vector<vec3>();
         //pos.push_back(lbb);
         //pos.push_back(lbf);
         //pos.push_back(ltf);
@@ -511,7 +497,7 @@ namespace phi
         //ind.push_back(3);
         //ind.push_back(7);
 
-        //auto a = lineMesh::create("oi", pos, ind);
+        //auto a = linegeometry::create("oi", pos, ind);
         //a->bind();
         //a->render();
         //a->unbind();

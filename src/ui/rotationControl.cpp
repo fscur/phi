@@ -1,20 +1,18 @@
 #include <phi/rendering/shaderManager.h>
-
 #include <phi/ui/rotationControl.h>
 #include <phi/ui/colorAnimator.h>
 
-#include <glm/gtx/constants.hpp>
 
 namespace phi
 {
-    rotationControl::rotationControl(size<GLuint> viewportSize) :
+    rotationControl::rotationControl(sizef viewportSize) :
         control(viewportSize)
     {
         _shader = shaderManager::get()->getShader("UI_MESH");
         _object = nullptr;
-        _xModelMatrix = glm::rotate(glm::pi<float>() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-        _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
-        _zModelMatrix = glm::mat4();
+        _xModelMatrix = glm::rotate(glm::pi<float>() * 0.5f, vec3(0.0f, 1.0f, 0.0f));
+        _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, vec3(1.0f, 0.0f, 0.0f));
+        _zModelMatrix = mat4();
         _clickedOverX = _clickedOverY = _clickedOverZ = _mouseOverX = _mouseOverY = _mouseOverZ = false;
         _xColor = color(1.0f, 0.0f, 0.0f, 0.5f);
         _yColor = color(0.0f, 1.0f, 0.0f, 0.5f);
@@ -26,27 +24,20 @@ namespace phi
 
     void rotationControl::createCircleMesh()
     {
-        _xPositions = std::vector<glm::vec3>();
-        _yPositions = std::vector<glm::vec3>();
-        _zPositions = std::vector<glm::vec3>();
+        _xPositions = std::vector<vec3>();
+        _yPositions = std::vector<vec3>();
+        _zPositions = std::vector<vec3>();
         auto indices = new std::vector<GLuint>();
         auto r = 0.7f;
         auto n = 50;
         auto as = (glm::pi<float>() * 2.0f) / (float)n;
         auto a = 0.0f;
 
-        auto multMat3 = [] (const glm::vec3 vec, const glm::mat4 mat)
-        {
-            auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
-            vec4 = mat * vec4;
-            return glm::vec3(vec4.x, vec4.y, vec4.z);
-        };
-
         for (auto i = 0; i < n; i++)
         {
-            auto pos = glm::vec3(glm::cos(a) * r, glm::sin(a) * r, 0.0f);
-            _xPositions.push_back(multMat3(pos, _xModelMatrix));
-            _yPositions.push_back(multMat3(pos, _yModelMatrix));
+            auto pos = vec3(glm::cos(a) * r, glm::sin(a) * r, 0.0f);
+            _xPositions.push_back(mathUtils::multiply(_xModelMatrix, pos));
+            _yPositions.push_back(mathUtils::multiply(_yModelMatrix, pos));
             _zPositions.push_back(pos);
             indices->push_back(i);
             indices->push_back((i + 1) % n);
@@ -70,9 +61,9 @@ namespace phi
         viewModelFixed[3][0] = -1.0f * px;
         viewModelFixed[3][1] = -1.0f * py;
         viewModelFixed[3][2] = -1.0f;
-        auto pos = glm::inverse(_camera->getViewMatrix()) * viewModelFixed * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        auto pos = glm::inverse(_camera->getViewMatrix()) * viewModelFixed * vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-        auto rot = glm::mat4();
+        auto rot = mat4();
         auto obj = _object;
         while (obj != nullptr)
         {
@@ -80,12 +71,12 @@ namespace phi
             obj = obj->getParent();
         }
 
-        auto translationMatrix = glm::translate(glm::vec3(pos.x, pos.y, pos.z)) * rot * glm::scale(glm::vec3(0.15f, 0.15f, 0.15f));
+        auto translationMatrix = glm::translate(vec3(pos.x, pos.y, pos.z)) * rot * glm::scale(vec3(0.15f, 0.15f, 0.15f));
 
         _modelMatrix = translationMatrix;
     }
 
-    float minimum_distance(glm::vec2 v, glm::vec2 w, glm::vec2 p)
+    float minimum_distance(vec2 v, vec2 w, vec2 p)
     {
         // Return minimum distance between line segment vw and point p
         const float l2 = glm::length2(w - v);  // i.e. |w-v|^2 -  avoid a sqrt
@@ -98,7 +89,7 @@ namespace phi
         const float t = glm::dot(p - v, w - v) / l2;
         if (t < 0.0) return glm::length(v - p);       // Beyond the 'v' end of the segment
         else if (t > 1.0) return glm::length(w - p);  // Beyond the 'w' end of the segment
-        const glm::vec2 projection = v + t * (w - v);  // Projection falls on the segment
+        const vec2 projection = v + t * (w - v);  // Projection falls on the segment
         return glm::length(projection - p);
     }
 
@@ -110,10 +101,10 @@ namespace phi
     //    Return: 0 = disjoint (no intersection)
     //            1 =  intersection in the unique point *I0
     //            2 = the  segment lies in the plane
-    int intersect3D_SegmentPlane(glm::vec3 rayStart, glm::vec3 rayEnd, glm::vec3 planePoint, glm::vec3 planeNormal, glm::vec3* intersection)
+    int intersect3D_SegmentPlane(vec3 rayStart, vec3 rayEnd, vec3 planePoint, vec3 planeNormal, vec3* intersection)
     {
-        glm::vec3 u = rayEnd - rayStart;
-        glm::vec3 w = rayStart - planePoint;
+        vec3 u = rayEnd - rayStart;
+        vec3 w = rayStart - planePoint;
 
         float D = glm::dot(planeNormal, u);
         float N = -glm::dot(planeNormal, w);
@@ -137,22 +128,22 @@ namespace phi
 
     bool rotationControl::isPointInside(int x, int y)
     {
-        auto hh = _viewportSize.height * 0.5f;
-        auto hw = _viewportSize.width * 0.5f;
+        auto hh = _viewportSize.h * 0.5f;
+        auto hw = _viewportSize.w * 0.5f;
 
-        auto vp = _camera->getPerspProjMatrix() * _camera->getViewMatrix() * _modelMatrix;
+        auto vp = _camera->getProjectionMatrix() * _camera->getViewMatrix() * _modelMatrix;
 
-        auto worldToScreen = [&] (const glm::vec3 vec)
+        auto worldToScreen = [&] (const vec3 vec)
         {
-            auto v = glm::vec2(hw, hh);
-            auto pos = glm::vec4(vec, 1.0);
+            auto v = vec2(hw, hh);
+            auto pos = vec4(vec, 1.0);
             pos = vp * pos;
             pos = pos / pos.w;
-            return glm::vec2(pos.x, -pos.y) * v + v;
+            return vec2(pos.x, -pos.y) * v + v;
         };
 
         auto count = _xPositions.size();
-        auto mousePosition = glm::vec2(x, y);
+        auto mousePosition = vec2(x, y);
 
         auto mouseOverXOld = _mouseOverX;
         auto mouseOverYOld = _mouseOverY;
@@ -233,7 +224,7 @@ namespace phi
             _clickedOverX = _mouseOverX;
             _clickedOverY = _mouseOverY;
             _clickedOverZ = _mouseOverZ;
-            _mouseStartPos = glm::vec2(e->x, e->y);
+            _mouseStartPos = vec2(e->x, e->y);
             _currentAngle = 0.0f;
             _startOrientation = _object->getOrientation();
             e->handled = true;
@@ -257,31 +248,24 @@ namespace phi
         }
     }
 
-    glm::vec3 _a;
-    glm::vec3 _b;
+    vec3 _a;
+    vec3 _b;
 
     void rotationControl::onMouseMove(mouseEventArgs* e)
     {
         if (!_object)
             return;
 
-        auto multMat3 = [] (const glm::vec3 vec, const glm::mat4 mat)
-        {
-            auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
-            vec4 = mat * vec4;
-            return glm::vec3(vec4.x, vec4.y, vec4.z);
-        };
-
-        auto screenToViewZNear = [&] (const glm::vec2 vec)
+        auto screenToViewZNear = [&] (const vec2 vec)
         {
             auto zNear = _camera->getFrustum()->getZNear();
             auto aspect = _camera->getFrustum()->getAspect();
             auto fov = _camera->getFrustum()->getFov();
 
-            auto tg = glm::tan(fov * 0.5f) * zNear;
+            auto tg = tan(fov * 0.5f) * zNear;
 
-            auto h = _viewportSize.height;
-            auto w = _viewportSize.width;
+            auto h = _viewportSize.h;
+            auto w = _viewportSize.w;
 
             auto hh = h * 0.5f;
             auto hw = w * 0.5f;
@@ -294,26 +278,26 @@ namespace phi
             auto xp = xs/hw;
             auto x = xp * tg * aspect;
 
-            return glm::vec3(x, y, -zNear);
+            return vec3(x, y, -zNear);
         };
 
-        auto worldToScreen = [&] (const glm::vec3 worldPos)
+        auto worldToScreen = [&] (const vec3 worldPos)
         {
             auto vp = _camera->getPerspProjMatrix() * _camera->getViewMatrix();
-            auto vw = _viewportSize.width * 0.5f;
-            auto vh = _viewportSize.height * 0.5f;
-            auto v = glm::vec2(vw, vh);
-            auto pos = glm::vec4(worldPos, 1.0);
+            auto vw = _viewportSize.w * 0.5f;
+            auto vh = _viewportSize.h * 0.5f;
+            auto v = vec2(vw, vh);
+            auto pos = vec4(worldPos, 1.0);
             pos = vp * pos;
             pos = pos / pos.w;
-            return glm::vec2(pos.x, -pos.y) * v + v;
+            return vec2(pos.x, -pos.y) * v + v;
         };
 
-        auto worldToView = [&] (const glm::vec3 vec)
+        auto worldToView = [&] (const vec3 vec)
         {
-            auto vec4 = glm::vec4(vec.x, vec.y, vec.z, 1.0f);
-            vec4 = _camera->getViewMatrix() * vec4;
-            return glm::vec3(vec4.x, vec4.y, vec4.z);
+            auto v = vec4(vec.x, vec.y, vec.z, 1.0f);
+            v = _camera->getViewMatrix() * v;
+            return vec3(v.x, v.y, v.z);
         };
 
         if (e->x == _mouseStartPos.x && e->y == _mouseStartPos.y)
@@ -321,7 +305,7 @@ namespace phi
 
         if (_clickedOverX || _clickedOverY || _clickedOverZ)
         {
-            auto rot = glm::mat4();
+            auto rot = mat4();
             auto obj = _object;
             while (obj != nullptr)
             {
@@ -329,33 +313,33 @@ namespace phi
                 obj = obj->getParent();
             }
 
-            glm::vec3 dir, dirLocal;
+            vec3 dir, dirLocal;
             if (_clickedOverX)
             {
-                dir = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), rot));
-                dirLocal = glm::normalize(multMat3(glm::vec3(1.0f, 0.0f, 0.0f), _object->getRotationMatrix()));
+                dir = glm::normalize(mathUtils::multiply(rot, vec3(1.0f, 0.0f, 0.0f)));
+                dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(1.0f, 0.0f, 0.0f)));
             }
             if (_clickedOverY)
             {
-                dir = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), rot));
-                dirLocal = glm::normalize(multMat3(glm::vec3(0.0f, 1.0f, 0.0f), _object->getRotationMatrix()));
+                dir = glm::normalize(mathUtils::multiply(rot, vec3(0.0f, 1.0f, 0.0f)));
+                dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(0.0f, 1.0f, 0.0f)));
             }
             if (_clickedOverZ)
             {
-                dir = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), rot));
-                dirLocal = glm::normalize(multMat3(glm::vec3(0.0f, 0.0f, 1.0f), _object->getRotationMatrix()));
+                dir = glm::normalize(mathUtils::multiply(rot, vec3(0.0f, 0.0f, 1.0f)));
+                dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(0.0f, 0.0f, 1.0f)));
             }
 
-            auto objectPosition = multMat3(glm::vec3(), _object->getModelMatrix());
+            auto objectPosition = mathUtils::multiply(_object->getModelMatrix(), vec3());
             auto planePoint = objectPosition;
             auto planeNormal = dir;
             auto rayStart = _camera->getPosition();
-            auto rayEnd = multMat3(screenToViewZNear(glm::vec2(e->x, e->y)), glm::inverse(_camera->getViewMatrix()));
-            auto rayEndStart = multMat3(screenToViewZNear(_mouseStartPos), glm::inverse(_camera->getViewMatrix()));
+            auto rayEnd = mathUtils::multiply(glm::inverse(_camera->getViewMatrix()), screenToViewZNear(vec2(e->x, e->y)));
+            auto rayEndStart = mathUtils::multiply(glm::inverse(_camera->getViewMatrix()), screenToViewZNear(_mouseStartPos));
 
-            glm::vec3 intersection, intersectionStart;
+            vec3 intersection, intersectionStart;
             auto b = intersect3D_SegmentPlane(rayStart, rayEnd, planePoint, planeNormal, &intersection);
-            //LOG("rayStart[" + std::to_string(rayStart.x) + ";" + std::to_string(rayStart.y) + ";" + std::to_string(rayStart.z) + "]" + 
+            //log("rayStart[" + std::to_string(rayStart.x) + ";" + std::to_string(rayStart.y) + ";" + std::to_string(rayStart.z) + "]" + 
             //    "rayEnd[" + std::to_string(rayEnd.x) + ";" + std::to_string(rayEnd.y) + ";" + std::to_string(rayEnd.z) + "]" + 
             //    "planePoint[" + std::to_string(planePoint.x) + ";" + std::to_string(planePoint.y) + ";" + std::to_string(planePoint.z) + "]" + 
             //    "planePoint[" + std::to_string(planeNormal.x) + ";" + std::to_string(planeNormal.y) + ";" + std::to_string(planeNormal.z) + "]");
@@ -426,20 +410,20 @@ namespace phi
         //_shader->bind();
         //_shader->setUniform("mvp", mvp);
         //_shader->setUniform("color", color::white);
-        //auto aPos = std::vector<glm::vec3>();
+        //auto aPos = std::vector<vec3>();
         //aPos.push_back(_object->getPosition());
         //aPos.push_back(_a);
-        //auto bPos = std::vector<glm::vec3>();
+        //auto bPos = std::vector<vec3>();
         //bPos.push_back(_object->getPosition());
         //bPos.push_back(_b);
         //auto ind = std::vector<GLuint>();
         //ind.push_back(0);
         //ind.push_back(1);
-        //auto a = lineMesh::create("oi", aPos, ind);
+        //auto a = linegeometry::create("oi", aPos, ind);
         //a->bind();
         //a->render();
         //a->unbind();
-        //auto b = lineMesh::create("oi", bPos, ind);
+        //auto b = linegeometry::create("oi", bPos, ind);
         //b->bind();
         //b->render();
         //b->unbind();
@@ -448,7 +432,7 @@ namespace phi
         //_shader->unbind();
     }
 
-    void rotationControl::renderCircle(color color, glm::mat4 modelMatrix)
+    void rotationControl::renderCircle(color color, mat4 modelMatrix)
     {
         auto mvp = _camera->getPerspProjMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
         _shader->bind();

@@ -1,13 +1,13 @@
 #ifndef _PHI_CURSOR_H_
 #define _PHI_CURSOR_H_
 
-#include "phi/core/resource.h"
+#include <phi/core/globals.h>
+#include <phi/core/resource.h>
 
-#include "phi/rendering/texture.h"
+#include <phi/rendering/texture.h>
 
-#include "phi/ui/ui.h"
+#include "ui.h"
 
-#include <glm\glm.hpp>
 #include <string>
 
 namespace phi
@@ -17,14 +17,14 @@ namespace phi
     {
     private:
         texture* _texture;
-        glm::vec2 _hotPoint;
+        vec2 _hotPoint;
 
     public:
-        cursor(std::string name, std::string path, glm::vec2 hotPoint);
+        cursor(std::string name, std::string path, vec2 hotPoint);
         ~cursor();
 
         texture* getTexture() { return _texture; }
-        glm::vec2 getHotPoint() { return _hotPoint; }
+        vec2 getHotPoint() { return _hotPoint; }
     };
 }
 

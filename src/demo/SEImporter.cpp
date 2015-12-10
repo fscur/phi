@@ -57,7 +57,7 @@ SEImporter::octree::octree(phi::aabb aabb, unsigned int maxLevels, unsigned int 
     _aabb = aabb;
     _maxLevels = maxLevels;
 
-    _maxItems = (unsigned int)(totalItems / (unsigned int)glm::pow<float>(8.0f, (float)_maxLevels));
+    _maxItems = (unsigned int)(totalItems / (unsigned int)pow<float>(8.0f, (float)_maxLevels));
 
     if (_maxItems < 10)
         _maxItems = 10;
@@ -128,13 +128,13 @@ phi::aabb SEImporter::octree::createAabb(phi::aabb parentAabb, unsigned int inde
         maxZ = parentAabbMax.z;
     }
 
-    auto min = glm::vec3(minX, minY, minZ);
-    auto max = glm::vec3(maxX, maxY, maxZ);
+    auto min = phi::vec3(minX, minY, minZ);
+    auto max = phi::vec3(maxX, maxY, maxZ);
 
     return phi::aabb(min, max);
 }
 
-void SEImporter::octree::insertIntoChildren(glm::vec3 position, std::vector<positionData> posDataList)
+void SEImporter::octree::insertIntoChildren(phi::vec3 position, std::vector<positionData> posDataList)
 {
     auto pos = position;
 
@@ -426,13 +426,13 @@ SEImporter::SEImporter()
     data[3] = 255;
 
     _defaultDiffuseTexture =
-        phi::texture::create(phi::size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        phi::texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
 
     _defaultSpecularTexture =
-        phi::texture::create(phi::size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        phi::texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
 
     _defaultEmissiveTexture =
-        phi::texture::create(phi::size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        phi::texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
 
     data[0] = 255;
     data[1] = 128;
@@ -440,7 +440,7 @@ SEImporter::SEImporter()
     data[3] = 255;
 
     _defaultNormalTexture =
-        phi::texture::create(phi::size<GLuint>(1, 1), GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        phi::texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
 
     _defaultStyle = new SEStyle();
     _defaultStyle->ID = 0;
@@ -641,7 +641,7 @@ phi::material* SEImporter::createMaterialFromStyle(SEStyle* style)
 
 void SEImporter::buildMeshData(SEPart* part)
 {
-    auto styleMaterials = new std::map<unsigned long, phi::material*>();
+    /*auto styleMaterials = new std::map<unsigned long, phi::material*>();
     auto meshDataPerStyle = new std::map<unsigned long, SEPart::meshData*>();
     auto styles = part->getStyles();
 
@@ -708,7 +708,7 @@ void SEImporter::buildMeshData(SEPart* part)
                 auto v1 = vs[1];
                 auto v2 = vs[2];
 
-                if (glm::dot(glm::cross((v1.position - v0.position), (v2.position - v0.position)), v0.normal) < 0)
+                if (dot(cross((v1.position - v0.position), (v2.position - v0.position)), v0.normal) < 0)
                 {
                     v2 = v1;
                     v1 = vs[2];
@@ -743,7 +743,7 @@ void SEImporter::buildMeshData(SEPart* part)
                     auto v2 = c.vertex.getPosition();
                     auto n0 = a.vertex.getNormal();
 
-                    if (glm::dot(glm::cross((v1 - v0), (v2 - v0)), n0) < 0)
+                    if (dot(cross((v1 - v0), (v2 - v0)), n0) < 0)
                     {
                         data->is->push_back(a.index);
                         data->is->push_back(c.index);
@@ -761,13 +761,13 @@ void SEImporter::buildMeshData(SEPart* part)
     }
 
     for each (auto pair in (*meshDataPerStyle))
-        phi::mesh::calcTangents(pair.second->vs, *pair.second->is);
+        phi::geometry::calcTangents(pair.second->vs, *pair.second->is);
 
     part->setStyleMaterials(styleMaterials);
-    part->setMeshDataPerStyle(meshDataPerStyle);
+    part->setMeshDataPerStyle(meshDataPerStyle);*/
 }
 
-glm::mat4 SEImporter::getModelMatrix(SEREADERLib::IAttachment* attachment)
+phi::mat4 SEImporter::getModelMatrix(SEREADERLib::IAttachment* attachment)
 {
     void *pVoid = 0;
     SAFEARRAY* pData = attachment->GetMatrix();
@@ -776,14 +776,14 @@ glm::mat4 SEImporter::getModelMatrix(SEREADERLib::IAttachment* attachment)
 
     hr = ::SafeArrayUnaccessData(pData);
 
-    return glm::mat4(
+    return phi::mat4(
         pDoubles[0], pDoubles[1], pDoubles[2], pDoubles[3],
         pDoubles[4], pDoubles[5], pDoubles[6], pDoubles[7],
         pDoubles[8], pDoubles[9], pDoubles[10], pDoubles[11],
         pDoubles[12], pDoubles[13], pDoubles[14], pDoubles[15]);
 }
 
-SEImporter::SEAssembly* SEImporter::loadAssembly(std::string fileName, glm::mat4 parentModelMatrix)
+SEImporter::SEAssembly* SEImporter::loadAssembly(std::string fileName, phi::mat4 parentModelMatrix)
 {
     auto fileReader = new FileReader();
     auto assemblyReader = fileReader->getInstance();
@@ -1018,11 +1018,11 @@ SEImporter::SEPart* SEImporter::loadPart(std::string fileName, SEStyle* style)
 
                     totalVertices++;
 
-                    auto position = (glm::vec4(posX, posY, posZ, 1.0));
-                    auto normal = glm::vec3(normX, normY, normZ);
-                    auto texCoord = glm::vec2(texU, texV);
+                    auto position = (phi::vec4(posX, posY, posZ, 1.0));
+                    auto normal = phi::vec3(normX, normY, normZ);
+                    auto texCoord = phi::vec2(texU, texV);
 
-                    auto vert = SEVertex(glm::vec3(position.x, position.y, position.z), normal, texCoord);
+                    auto vert = SEVertex(phi::vec3(position.x, position.y, position.z), normal, texCoord);
 
                     vertices->push_back(vert);
                 }
@@ -1040,9 +1040,9 @@ SEImporter::SEPart* SEImporter::loadPart(std::string fileName, SEStyle* style)
     auto cY = (minY + maxY) * 0.5;
     auto cZ = (minZ + maxZ) * 0.5;
 
-    auto c = glm::vec3(cX, cY, cZ);
-    auto min = glm::vec3(minX, minY, minZ);
-    auto max = glm::vec3(maxX, maxY, maxZ);
+    auto c = phi::vec3(cX, cY, cZ);
+    auto min = phi::vec3(minX, minY, minZ);
+    auto max = phi::vec3(maxX, maxY, maxZ);
 
     min -= c;
     max -= c;
@@ -1066,21 +1066,21 @@ SEImporter::SEPart* SEImporter::loadPart(std::string fileName, SEStyle* style)
     return part;
 }
 
-phi::sceneObject * SEImporter::import(std::string fileName)
+phi::object3D * SEImporter::import(std::string fileName)
 {
-    auto initial = std::chrono::high_resolution_clock::now();
+    /*auto initial = std::chrono::high_resolution_clock::now();
     auto ext = toLower(phi::path::getExtension(fileName));
 
-    std::vector<phi::mesh*>* meshes = new std::vector<phi::mesh*>();
+    std::vector<phi::geometry*>* meshes = new std::vector<phi::geometry*>();
 
     if (ext.compare(".asm") == 0)
     {
-        loadAssembly(fileName, glm::mat4());
+        loadAssembly(fileName, phi::mat4());
     }
     else if (ext.compare(".par") == 0 || ext.compare(".psm") == 0)
     {
         auto part = loadPart(fileName, nullptr);
-        _partOccurrences[part].push_back(glm::mat4());
+        _partOccurrences[part].push_back(phi::mat4());
     }
 
     auto meshId = 0;
@@ -1101,19 +1101,19 @@ phi::sceneObject * SEImporter::import(std::string fileName)
                 for (auto vertex : meshData->vs)
                 {
                     auto p3 = vertex.getPosition();
-                    auto p4 = modelMatrix * glm::vec4(p3.x, p3.y, p3.z, 1.0);
+                    auto p4 = modelMatrix * phi::vec4(p3.x, p3.y, p3.z, 1.0);
 
                     auto n3 = vertex.getNormal();
-                    auto n4 = modelMatrix * glm::vec4(n3.x, n3.y, n3.z, 0.0);
+                    auto n4 = modelMatrix * phi::vec4(n3.x, n3.y, n3.z, 0.0);
 
-                    vertex.setPosition(glm::vec3(p4.x, p4.y, p4.z));
-                    vertex.setNormal(glm::vec3(n4.x, n4.y, n4.z));
+                    vertex.setPosition(phi::vec3(p4.x, p4.y, p4.z));
+                    vertex.setNormal(phi::vec3(n4.x, n4.y, n4.z));
 
                     vs.push_back(vertex);
                 }
 
                 auto name = meshData->name;
-                auto mesh = phi::mesh::create(name + "_" + std::to_string(meshId), vs, meshData->is);
+                auto mesh = phi::geometry::create(name + "_" + std::to_string(meshId), vs, meshData->is);
                 mesh->setId(meshId++);
                 auto mat = (*styleMaterials)[pair.first];
                 mesh->setMaterial(mat);
@@ -1123,12 +1123,12 @@ phi::sceneObject * SEImporter::import(std::string fileName)
     }
 
     auto name = phi::path::getFileNameWithoutExtension(fileName);
-    auto model = new phi::model(name, "");
+    auto model = new phi::model(name);
 
     for each (auto mesh in *meshes)
         model->addMesh(mesh);
 
-    auto sceneObject = phi::sceneObject::create(model);
+    auto sceneObject = phi::object3D::create(model);
 
     sceneObject->pitch(-phi::PI_OVER_2);
     sceneObject->yaw(-phi::PI_OVER_2);
@@ -1137,7 +1137,8 @@ phi::sceneObject * SEImporter::import(std::string fileName)
     auto diff = final - initial;
     auto elapsedSeconds = std::chrono::duration_cast<std::chrono::duration<double>>(diff).count();
     auto msg = "Importing '" + fileName + "': " + std::to_string(elapsedSeconds);
-    LOG(msg);
+    phi::log(msg);*/
+    //return sceneObject;
 
-    return sceneObject;
+    return nullptr;
 }

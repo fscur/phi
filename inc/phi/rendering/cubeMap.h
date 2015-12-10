@@ -26,23 +26,23 @@ namespace phi
         GLuint _textureType;
 
 	protected:
-		size<GLuint> _size;
+		tsize<GLuint> _size;
 
     private:
-		cubeMap(GLuint id, size<GLuint> size, std::string name, std::string path);
+		cubeMap(GLuint id, tsize<GLuint> size, std::string name, std::string path);
 
     public:
         RENDERING_API ~cubeMap();
 
 		RENDERING_API GLuint getId() const { return _id; }
-		RENDERING_API size<GLuint> getSize() const { return _size; }
+		RENDERING_API tsize<GLuint> getSize() const { return _size; }
 
 		RENDERING_API void bind(GLuint level = 0);
 		RENDERING_API void setParam(GLenum name, GLint value);
         RENDERING_API void release();
 
 		RENDERING_API static cubeMap* fromFile(std::string fileName);
-		RENDERING_API static cubeMap* createCubeMap(size<GLuint> size, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, const std::vector<GLvoid*> data = std::vector<GLvoid*>());
+		RENDERING_API static cubeMap* createCubeMap(tsize<GLuint> size, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, const std::vector<GLvoid*> data = std::vector<GLvoid*>());
     };
 }
 #endif

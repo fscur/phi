@@ -3,10 +3,10 @@
 
 namespace phi
 {
-    carouselTab::carouselTab(size<GLuint> viewportSize) : control(viewportSize)
+    carouselTab::carouselTab(sizef viewportSize) : control(viewportSize)
     {
         _backgroundTexture = uiRepository::repository->getResource<texture>("button.png");
-        _backgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), 0.0f, size<GLuint>(0, 0, 0), viewportSize);
+        _backgroundRenderer = new quadRenderer2D(vec2(0, 0), 0.0f, sizef(0, 0, 0), viewportSize);
         _scrollOffset = 0.0f;
         _targetScrollOffset = 0.0f;
     }
@@ -19,7 +19,7 @@ namespace phi
     void carouselTab::setX(int value)
     {
         control::setX(value);
-        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->setLocation(vec2(_x, _y));
         _backgroundRenderer->update();
         updateItems();
     }
@@ -27,7 +27,7 @@ namespace phi
     void carouselTab::setY(int value)
     {
         control::setY(value);
-        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->setLocation(vec2(_x, _y));
         _backgroundRenderer->update();
         updateItems();
     }
@@ -39,7 +39,7 @@ namespace phi
         _backgroundRenderer->update();
     }
 
-    void carouselTab::setSize(size<GLuint> value)
+    void carouselTab::setSize(sizef value)
     {
         control::setSize(value);
         _backgroundRenderer->setSize(value);
@@ -51,7 +51,7 @@ namespace phi
         _backgroundColor = value;
     }
 
-    void carouselTab::setViewportSize(size<GLuint> value)
+    void carouselTab::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
         _backgroundRenderer->setViewportSize(getViewportSize());
@@ -60,8 +60,8 @@ namespace phi
 
     void carouselTab::addCarouselItem(carouselItem* item)
     {
-        auto height = _size.height - ITEM_MARGIN * 2.0f;
-        item->setSize(size<GLuint>((GLuint)height, (GLuint)height));
+        auto height = _size.h - ITEM_MARGIN * 2.0f;
+        item->setSize(sizef((GLuint)height, (GLuint)height));
         item->setX((int)(_x + _scrollOffset + (_items.size() - 1) * (height + ITEM_MARGIN) + ITEM_MARGIN));
         item->setY((int)(_y + ITEM_MARGIN));
         item->setZIndex(_zIndex + 0.01f);
@@ -80,7 +80,7 @@ namespace phi
         for (unsigned int i = 0; i < itemsCount; i++)
         {
             button* item = _items[i];
-            item->setSize(size<GLuint>((GLuint)height, (GLuint)height));
+            item->setSize(sizef((GLuint)height, (GLuint)height));
             item->setX((int)(_x + _scrollOffset + i * (height + ITEM_MARGIN) + ITEM_MARGIN));
             item->setY(_y + ITEM_MARGIN);
             item->setZIndex(_zIndex + 0.01f);
@@ -89,7 +89,7 @@ namespace phi
 
     float carouselTab::getItemHeight()
     {
-        return _size.height - ITEM_MARGIN * 2.0f;
+        return _size.h - ITEM_MARGIN * 2.0f;
     }
 
     void carouselTab::onMouseWheel(mouseEventArgs* e)
@@ -98,7 +98,7 @@ namespace phi
             return;
 
         float itemsHeight = getItemHeight();
-        float maxScroll = _size.width - (_items.size() * (itemsHeight + ITEM_MARGIN) + ITEM_MARGIN);
+        float maxScroll = _size.w - (_items.size() * (itemsHeight + ITEM_MARGIN) + ITEM_MARGIN);
         _targetScrollOffset = glm::min(0.0f, glm::max(_targetScrollOffset - e->wheelDelta * (itemsHeight + ITEM_MARGIN), maxScroll));
         floatAnimator::animateFloat(new floatAnimation(&_scrollOffset, _targetScrollOffset, 250, [&](float v) -> void { updateItems(); }, 0, easingFunctions::easeOutQuad));
         e->handled = true;

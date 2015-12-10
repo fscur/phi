@@ -12,7 +12,7 @@ namespace phi
         _size = size;
         FT_Face face;
         if (FT_New_Face(library, path.c_str(), 0, &face))
-            LOG("Could not open font");
+            log("Could not open font");
 
         FT_Set_Pixel_Sizes(face, 0, _size);
         FT_GlyphSlot g = face->glyph;
@@ -47,7 +47,7 @@ namespace phi
         _texWidth = std::max(_texWidth, roww);
         _texHeight += rowh;
 
-        _texture = texture::create(phi::size<GLuint>(_texWidth, _texHeight), GL_RGBA, GL_RED, GL_UNSIGNED_BYTE);
+        _texture = texture::create(_texWidth, _texHeight, GL_RGBA, GL_RED, GL_UNSIGNED_BYTE);
         _texture->bind(0);
 
         // We require 1 byte alignment when uploading texture data
@@ -98,8 +98,8 @@ namespace phi
             ox += g->bitmap.width + 1;
         }
 
-        _baseLine = (int)glm::abs(face->size->metrics.descender / 64.0f);
-        _ascender = (int)glm::abs(face->size->metrics.ascender / 64.0f);
+        _baseLine = (int)abs(face->size->metrics.descender / 64.0f);
+        _ascender = (int)abs(face->size->metrics.ascender / 64.0f);
         _lineHeight = (int)(face->size->metrics.height / 64.0f);
 
         //fprintf(stderr, "Generated a %d x %d (%d kb) texture atlas\n", _texWidth, _texHeight, _texWidth * _texHeight / 1024);

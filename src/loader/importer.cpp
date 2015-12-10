@@ -1,10 +1,11 @@
-#include "phi/loader/importer.h"
+#include <phi/loader/importer.h>
+
 #include <iostream>
 #include <fstream>
 
 namespace phi
 {
-    int importer::importMesh(std::string fileName, std::vector<meshData*>* data)
+    int importer::importMesh(std::string fileName, std::vector<geometryData*>* data)
     {
         std::ifstream iFile;
         iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
@@ -17,7 +18,7 @@ namespace phi
 
         auto uintSize = sizeof(unsigned int);
         auto floatSize = (unsigned int)sizeof(float);
-        *data = std::vector<meshData*>();
+        *data = std::vector<geometryData*>();
 
         while (iFile.peek() != -1)
         {
@@ -45,7 +46,9 @@ namespace phi
             unsigned int* indicesBuffer = new unsigned int[indicesCount];
             iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * uintSize);
 
-            data->push_back(new meshData(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer, materialName));
+            auto geometry = geometryData::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
+
+            data->push_back(geometry);
         }
 
         return 1;

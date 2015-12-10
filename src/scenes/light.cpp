@@ -3,8 +3,8 @@
 
 namespace phi
 {
-    light::light() :
-        object3D()
+    light::light(object3D::objectType type) :
+        object3D("light", type)
     {
         _color = color::black;
         _intensity = 0.0f;
@@ -12,8 +12,8 @@ namespace phi
         _transform = new transform();
     }
 
-    light::light(glm::vec3 position, color color, float intensity) :
-        object3D()
+    light::light(vec3 position, color color, float intensity, object3D::objectType type) :
+        object3D("light", type)
     {
         setLocalPosition(position);
         _color = color;

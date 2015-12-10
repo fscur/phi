@@ -2,7 +2,7 @@
 
 namespace phi
 {
-	defaultFrameBuffer::defaultFrameBuffer(size<GLuint> size, color clearColor) : frameBuffer("default", size, clearColor)
+	defaultFrameBuffer::defaultFrameBuffer(sizef size, color clearColor) : frameBuffer("default", size, clearColor)
 	{
 	}
 

@@ -2,10 +2,10 @@
 
 namespace phi
 {
-    scissorStack::scissorStack(size<GLuint> viewportSize)
+    scissorStack::scissorStack(sizef viewportSize)
     {
         _viewportSize = viewportSize;
-        pushScissor(0.0f, 0.0f, (float)_viewportSize.width, (float)_viewportSize.height);
+        pushScissor(0.0f, 0.0f, (float)_viewportSize.w, (float)_viewportSize.h);
     }
 
     void scissorStack::calculateCurrentScissor()
@@ -39,7 +39,7 @@ namespace phi
     void scissorStack::enable()
     {
         glEnable(GL_SCISSOR_TEST);
-        glScissor((GLint)_currentScissor.x, (GLint)(_viewportSize.height - _currentScissor.height - _currentScissor.y), (GLint)_currentScissor.width, (GLint)_currentScissor.height);
+        glScissor((GLint)_currentScissor.x, (GLint)(_viewportSize.h - _currentScissor.h - _currentScissor.y), (GLint)_currentScissor.w, (GLint)_currentScissor.h);
     }
 
     void scissorStack::disable()

@@ -2,12 +2,11 @@
 #define _PHI_MATH_UTILS_H_
 
 #include "core.h"
+#include "globals.h"
 
-#include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <list>
 
 namespace phi
 {
@@ -48,19 +47,19 @@ namespace phi
             return value;
         }
 
-        static CORE_API float distance(glm::vec3 v0, glm::vec3 v1);
-        static CORE_API std::list<glm::vec3> rotateAboutAxis(std::list<glm::vec3>* points, glm::vec3 origin, glm::vec3 axis, float angle);
-        static CORE_API std::list<glm::vec3> rotateAboutAxis(std::list<glm::vec3>* points, glm::vec3 axis, float angle);
-        static CORE_API glm::vec3 rotateAboutAxis(glm::vec3 point, glm::vec3 origin, glm::vec3 axis, float angle);
-        static CORE_API glm::vec3 rotateAboutAxis(glm::vec3 point, glm::vec3 axis, float angle);
-        static CORE_API glm::mat4 getRotationMatrixAboutAnArbitraryAxis(glm::vec3 origin, glm::vec3 axis, float angle);
-        static CORE_API glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
+        static CORE_API float distance(vec3 v0, vec3 v1);
+        static CORE_API std::vector<vec3> rotateAboutAxis(std::vector<vec3>* points, vec3 origin, vec3 axis, float angle);
+        static CORE_API std::vector<vec3> rotateAboutAxis(std::vector<vec3>* points, vec3 axis, float angle);
+        static CORE_API vec3 rotateAboutAxis(vec3 point, vec3 origin, vec3 axis, float angle);
+        static CORE_API vec3 rotateAboutAxis(vec3 point, vec3 axis, float angle);
+        static CORE_API mat4 getRotationMatrixAboutAnArbitraryAxis(vec3 origin, vec3 axis, float angle);
+        static CORE_API quat rotationBetweenVectors(vec3 start, vec3 dest);
 
-        static CORE_API glm::vec3 multiply(const glm::mat4 mat, const glm::vec3 vec);
+        static CORE_API vec3 multiply(const mat4 mat, const vec3 vec);
 
         static CORE_API bool isClose(float a, float b, float error = 1e-3)
         {
-            return glm::abs(a - b) < error;
+            return abs(a - b) < error;
         }
     };
 }

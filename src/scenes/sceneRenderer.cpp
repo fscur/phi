@@ -4,50 +4,64 @@ namespace phi
 {
     sceneRenderer::sceneRenderer()
     {
-        _redrawStaticShadowMaps = true;
+        createShader();
     }
 
     sceneRenderer::~sceneRenderer()
     {
     }
 
+    void sceneRenderer::createShader()
+    {
+        std::vector<std::string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+
+        _shader = shaderManager::get()->loadShader("BASIC_GEOM_PASS", "basic_geom_pass.vert", "basic_geom_pass.frag", attribs);
+
+        _shader->addUniform(BASIC_SHADER::MVP, "mvp");
+        _shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffuseMap");
+        _shader->addUniform(BASIC_SHADER::DIFFUSE_COLOR, "diffuseColor");
+
+        _shader->init();
+    }
+
     void sceneRenderer::render(scene* scene)
     {
         _scene = scene;
+        _camera = _scene->getCamera();
 
-        /*_allObjects = new std::vector<sceneObject*>();
-        
-        auto allObjects = scene->getAllObjects();
-        for (auto i = 0; i < allObjects->size();i++)
-        {
-            if (allObjects->at(i)->getActive())
-                _allObjects->push_back(allObjects->at(i));
-        }
-
-        //_allObjects = _scene->getAllObjects();
-        */
-
-        _allObjects = _scene->getVisibleObjects();
-        _allObjectsCount = (GLuint)_allObjects->size();
-        _camera = _scene->getActiveCamera();
+        auto renderList = _scene->getRenderList();
 
         renderingSystem::defaultFrameBuffer->clear();
 
-        onRender();
+        auto p = _camera->getProjectionMatrix();
+        auto v = _camera->getViewMatrix();
+        auto vp = v * p;
+
+        _shader->bind();
+
+        for (auto pair : renderList)
+        {
+            auto material = pair.first;
+
+            _shader->setUniform(BASIC_SHADER::DIFFUSE_MAP, material->getDiffuseTexture(), 0);
+            _shader->setUniform(BASIC_SHADER::DIFFUSE_COLOR, material->getDiffuseColor());
+
+            for (auto object : pair.second)
+            {
+                auto mvp = vp * object->getModelMatrix();
+                _shader->setUniform(BASIC_SHADER::MVP, mvp);
+
+                object->getGeometry()->render();
+            }
+        }
+
+        _shader->unbind();
     }
 
-    color sceneRenderer::getSelectionColor(int objectId, int meshId, bool selected)
+    void sceneRenderer::resize(sizef size)
     {
-        unsigned int r = objectId & 255;
-        unsigned int g = meshId & 255;
-        unsigned int b = (meshId << 8) & 255;
-
-        return color((float)r/255.0f, (float)g/255.0f, (float)b/255.0f, selected ? 1.0f : 0.0f);
-    }
-
-    void sceneRenderer::resize(size<GLuint> size)
-    {
-        _viewportSize = size;
-        initBuffers();
+        _viewportSize = size; 
     }
 }

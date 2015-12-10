@@ -8,8 +8,6 @@
 
 #include <phi/io/path.h>
 
-#include <glm\glm.hpp>
-
 namespace phi
 {
     resourcesRepository* uiRepository::repository;
@@ -42,8 +40,8 @@ namespace phi
         repository->addResource(new font("Arial_72", fontsPath + "Arial.ttf", 72, renderingSystem::freeTypeLibrary));
         
         std::string cursorsPath = info.resourcesPath + UI_CURSORS_PATH;
-        repository->addResource(new cursor("TextCursor", cursorsPath + "text.png", glm::vec2(0.5f, 0.5f)));
-        repository->addResource(new cursor("DefaultCursor", cursorsPath + "default.png", glm::vec2(0.0f, 0.0f)));
+        repository->addResource(new cursor("TextCursor", cursorsPath + "text.png", vec2(0.5f, 0.5f)));
+        repository->addResource(new cursor("DefaultCursor", cursorsPath + "default.png", vec2(0.0f, 0.0f)));
 
         initialized = true;
     }

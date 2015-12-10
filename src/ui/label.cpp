@@ -2,11 +2,11 @@
 
 namespace phi
 {
-    label::label(size<GLuint> viewportSize) : control(viewportSize)
+    label::label(sizef viewportSize) : control(viewportSize)
     {
         _text = "";
         _texture = uiRepository::repository->getResource<texture>("button.png");
-        _backgroundRenderer = new quadRenderer2D(glm::vec2(), 0.0f, phi::size<GLuint>(0, 0), viewportSize);
+        _backgroundRenderer = new quadRenderer2D(vec2(), 0.0f, phi::sizef(0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
         _font = uiRepository::repository->getResource<font>("Consola_14");
         _textX = 0;
@@ -20,19 +20,19 @@ namespace phi
 
     void label::updateTextLocation()
     {
-        size<unsigned int> textSize = _textRenderer->measureSize(_text, _font);
-        if (textSize.width > _size.width)
+        sizef textSize = _textRenderer->measureSize(_text, _font);
+        if (textSize.w > _size.w)
             _textX = _x;
         else
-            _textX = (int)(_x + _size.width * 0.5f - textSize.width * 0.5f);
+            _textX = (int)(_x + _size.w * 0.5f - textSize.w * 0.5f);
 
-        _textY = (int)(_y + _size.height * 0.5f - textSize.height * 0.5f);
+        _textY = (int)(_y + _size.h * 0.5f - textSize.h * 0.5f);
     }
 
     void label::setX(int value)
     {
         _x = value;
-        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->setLocation(vec2(_x, _y));
         _backgroundRenderer->update();
         updateTextLocation();
     }
@@ -40,12 +40,12 @@ namespace phi
     void label::setY(int value)
     {
         _y = value;
-        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->setLocation(vec2(_x, _y));
         _backgroundRenderer->update();
         updateTextLocation();
     }
 
-	void label::setSize(size<GLuint> size)
+	void label::setSize(sizef size)
     {
         _size = size;
         _backgroundRenderer->setSize(size);
@@ -59,7 +59,7 @@ namespace phi
         updateTextLocation();
     }
 
-	void label::setViewportSize(size<GLuint> value)
+	void label::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
         _textRenderer->setViewportSize(getViewportSize());
@@ -71,7 +71,7 @@ namespace phi
         //glEnable(GL_BLEND);
         //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _backgroundRenderer->render(_texture, _backgroundColor);
-        _textRenderer->render(_text, _font, _foregroundColor, _backgroundColor, glm::vec2(_textX, _textY), _zIndex + 0.001f);
+        _textRenderer->render(_text, _font, _foregroundColor, _backgroundColor, vec2(_textX, _textY), _zIndex + 0.001f);
         //glDisable(GL_BLEND);
     }
 }

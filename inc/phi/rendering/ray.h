@@ -10,18 +10,18 @@ namespace phi
     class ray
     {
     private:
-        glm::vec3 _origin;
-        glm::vec3 _direction;
+        vec3 _origin;
+        vec3 _direction;
     public:
-        RENDERING_API ray(glm::vec3 origin = glm::vec3(), glm::vec3 direction = glm::vec3());
+        RENDERING_API ray(vec3 origin = vec3(), vec3 direction = vec3());
         RENDERING_API ~ray();
 
-        RENDERING_API glm::vec3 getOrigin() const { return _origin; }
-        RENDERING_API glm::vec3 getDirection() const { return _direction; }
+        RENDERING_API vec3 getOrigin() const { return _origin; }
+        RENDERING_API vec3 getDirection() const { return _direction; }
 
         RENDERING_API bool intersects(aabb* aabb);
-        RENDERING_API bool intersects(aabb* aabb, glm::vec3* normal);
-        RENDERING_API bool intersects(glm::vec3 bl, glm::vec3 tl, glm::vec3 tr, glm::vec3 br, float* t);
+        RENDERING_API bool intersects(aabb* aabb, vec3* normal);
+        RENDERING_API bool intersects(vec3 bl, vec3 tl, vec3 tr, vec3 br, float* t);
     };
 }
 #endif

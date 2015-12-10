@@ -13,7 +13,7 @@ namespace phi
     public:
         std::string applicationPath;
         std::string resourcesPath;
-        size<GLuint> size;
+        sizef size;
     };
 
     class uiSystem
@@ -58,7 +58,7 @@ namespace phi
         UI_API eventHandler<controlEventArgs>* getControlGotFocus() { return _controlGotFocus; }
         UI_API eventHandler<controlEventArgs>* getControlLostFocus() { return _controlLostFocus; }
         UI_API void setCursor(cursor* value);
-        UI_API void resize(size<GLuint> value);
+        UI_API void resize(sizef value);
 
         UI_API void addControl(control* control);
         UI_API void removeControl(control* control);

@@ -3,27 +3,27 @@
 
 namespace phi
 {
-    toggleButton::toggleButton(size<GLuint> viewportSize) : button(viewportSize)
+    toggleButton::toggleButton(sizef viewportSize) : button(viewportSize)
     {
         _checked = false;
         _checkedColor = color::white;
         _checkedCurrentColor = color::fromRGBA(0.0f, 0.0f, 0.0f, 0.0f);
         _checkedChanging = new eventHandler<controlCancelEventArgs*>();
         _checkedChanged = new eventHandler<controlEventArgs>();
-        _checkedBackgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.001f, size<GLuint>(0, 0, 0), viewportSize);
+        _checkedBackgroundRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.001f, sizef(0, 0, 0), viewportSize);
     }
 
     void toggleButton::setX(int value)
     {
         button::setX(value);
-        _checkedBackgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _checkedBackgroundRenderer->setLocation(vec2(_x, _y));
         _checkedBackgroundRenderer->update();
     }
 
     void toggleButton::setY(int value)
     {
         button::setY(value);
-        _checkedBackgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _checkedBackgroundRenderer->setLocation(vec2(_x, _y));
         _checkedBackgroundRenderer->update();
     }
 
@@ -34,14 +34,14 @@ namespace phi
         _checkedBackgroundRenderer->update();
     }
 
-    void toggleButton::setSize(size<GLuint> value)
+    void toggleButton::setSize(sizef value)
     {
         button::setSize(value);
         _checkedBackgroundRenderer->setSize(value);
         _checkedBackgroundRenderer->update();
     }
 
-    void toggleButton::setViewportSize(size<GLuint> value)
+    void toggleButton::setViewportSize(sizef value)
     {
         button::setViewportSize(value);
         _checkedBackgroundRenderer->setViewportSize(getViewportSize());
@@ -83,12 +83,12 @@ namespace phi
 
     void toggleButton::onRender()
     {
-        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.width, (float)_size.height);
+        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.w, (float)_size.h);
         control::controlsScissors->enable();
 
         //glPushAttrib(GL_SCISSOR_BIT);
         //glEnable(GL_SCISSOR_TEST);
-        //glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
+        //glScissor(_x, (_viewportSize.h - _size.h - _y), _size.w, _size.h);
         renderBackground();
         //_checkedBackgroundRenderer->render(_backgroundTexture, _checkedCurrentColor);
         renderImage();

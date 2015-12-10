@@ -3,9 +3,9 @@
 namespace phi
 {
     transform::transform(): 
-		_p(glm::mat4(1.0f)), 
-		_v(glm::mat4(1.0f)), 
-		_m(glm::mat4(1.0f))
+		_p(mat4(1.0f)), 
+		_v(mat4(1.0f)), 
+		_m(mat4(1.0f))
     {
     }
 

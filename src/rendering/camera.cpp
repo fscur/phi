@@ -1,31 +1,25 @@
-#include "phi/scenes/camera.h"
-
-#include "phi/core/globals.h"
-
+#include <phi/rendering/camera.h>
+#include <phi/core/globals.h>
 #include <glm/gtx/vector_angle.hpp>
 
 namespace phi
 {
-    camera::camera(
-        float zNear,
-        float zFar,
-        float aspect,
-        float fov)
-        : object3D()
+    camera::camera(float nearDistance, float farDistance, sizef resolution, float fov) :
+        object3D("camera", object3D::objectType::CAMERA)
     {
-        _frustum = new frustum(glm::vec3(), getDirection(), getUp(), zNear, zFar, aspect, fov);
+        _frustum = new frustum(vec3(), getDirection(), getUp(), nearDistance, farDistance, resolution, fov);
         _focus = 1.0f;
-        _viewMatrix = glm::lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp());
+        _viewMatrix = lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp());
     }
 
-    void camera::setTarget(glm::vec3 value)
+    void camera::setTarget(vec3 value)
     {
         if (getChanged())
             update();
 
         auto diff = value - getPosition();
-        setDirection(glm::normalize(diff));
-        _focus = glm::length(diff);
+        setDirection(normalize(diff));
+        _focus = length(diff);
         setChanged();
     }
 
@@ -36,31 +30,31 @@ namespace phi
         object3D::update();
 
         if (changed)
-            _viewMatrix = glm::lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp());
+            _viewMatrix = lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp());
     }
 
-    void camera::moveTo(glm::vec3 position)
+    void camera::moveTo(vec3 position)
     {
         setLocalPosition(position);
     }
 
-    void camera::zoomIn(glm::vec3 targetPos)
+    void camera::zoomIn(vec3 targetPos)
     {
         auto zFar = _frustum->getZFar();
         auto zNear = _frustum->getZNear();
         float dist = mathUtils::distance(targetPos, getPosition()) - zNear;
-        glm::vec3 direction = glm::normalize(targetPos - getPosition());
+        vec3 direction = normalize(targetPos - getPosition());
 
         float factor = 0.5f;
 
         if (dist < 1.0)
-            factor = 1 - (1/(pow(2.0f, dist)));
+            factor = 1 - (1 / (pow(2.0f, dist)));
 
         dist *= factor;
 
-        glm::vec3 offset = direction * dist;
+        vec3 offset = direction * dist;
 
-        glm::vec3 position = getPosition() + offset;
+        vec3 position = getPosition() + offset;
 
         _focus = glm::max(_focus - dist, _frustum->getZNear());
         setLocalPosition(position);
@@ -73,18 +67,18 @@ namespace phi
         }
     }
 
-    void camera::zoomOut(glm::vec3 targetPos)
+    void camera::zoomOut(vec3 targetPos)
     {
         auto zFar = _frustum->getZFar();
         auto zNear = _frustum->getZNear();
         float dist = mathUtils::distance(targetPos, getPosition());
-        glm::vec3 direction = glm::normalize(targetPos - getPosition());
+        vec3 direction = normalize(targetPos - getPosition());
 
-        dist *= -0.5f / (1 -0.5f);
+        dist *= -0.5f / (1 - 0.5f);
 
-        glm::vec3 offset = direction * dist;
+        vec3 offset = direction * dist;
 
-        glm::vec3 position = getPosition() + offset;
+        vec3 position = getPosition() + offset;
 
         _focus -= dist;
         setLocalPosition(position);
@@ -98,30 +92,30 @@ namespace phi
         setChanged();
     }
 
-    void camera::orbit(glm::vec3 origin, glm::vec3 axisX, glm::vec3 axisY, float angleX, float angleY)
+    void camera::orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY)
     {
-        glm::vec3 position = getPosition();
+        vec3 position = getPosition();
         position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
         position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
 
-        glm::vec3 target = getPosition() + getDirection() * _focus;
+        vec3 target = getPosition() + getDirection() * _focus;
         target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
         target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
 
-        auto dir = glm::normalize(target - position);
+        auto dir = normalize(target - position);
 
-        auto upDot = glm::dot(dir, glm::vec3(0.0f, 1.0f, 0.0f));
+        auto upDot = dot(dir, vec3(0.0f, 1.0f, 0.0f));
         if (upDot > 0.98f || upDot < -0.98f)
         {
             orbit(origin, axisX, axisY, angleX, 0.0f); // I hope this line never starts a stack overflow
             return;
         }
 
-        auto right = glm::normalize(glm::cross(dir, glm::vec3(0.0f, -1.0f, 0.0f)));
+        auto right = normalize(cross(dir, vec3(0.0f, -1.0f, 0.0f)));
 
-        auto q1 = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), dir);
-        auto angle = glm::orientedAngle(q1 * glm::vec3(1.0f, 0.0f, 0.0f), right, dir);
-        auto q2 = glm::angleAxis(angle, dir);
+        auto q1 = mathUtils::rotationBetweenVectors(vec3(0.0f, 0.0f, 1.0f), dir);
+        auto angle = orientedAngle(q1 * vec3(1.0f, 0.0f, 0.0f), right, dir);
+        auto q2 = angleAxis(angle, dir);
 
         setLocalPosition(position);
         setOrientation(q2 * q1);

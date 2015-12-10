@@ -3,12 +3,11 @@
 
 #include <phi/core/globals.h>
 #include <phi/core/aabb.h>
+#include <phi/core/vertex.h>
+#include <phi/core/object3D.h>
 
 #include <phi/rendering/material.h>
 #include <phi/rendering/model.h>
-#include <phi/rendering/vertex.h>
-
-#include <phi/scenes/sceneObject.h>
 
 #import <phi/demo/SEFacet.tlb>
 #import <phi/demo/SEReader.tlb>
@@ -59,7 +58,7 @@ private:
         };
 
         phi::aabb _aabb;
-        std::vector<glm::vec3> _positions;
+        std::vector<phi::vec3> _positions;
         std::map<unsigned int, std::vector<positionData>> _items;
 
         unsigned int* _indexPtr;
@@ -73,7 +72,7 @@ private:
         unsigned int _currentLevel;
 
         bool insertIntoChildren(phi::vertex vertex, unsigned int &index);
-        void insertIntoChildren(glm::vec3 position, std::vector<positionData> posDataList);
+        void insertIntoChildren(phi::vec3 position, std::vector<positionData> posDataList);
         phi::aabb createAabb(phi::aabb parentAabb, unsigned int index);
         void subdivide();
     public:
@@ -122,12 +121,12 @@ private:
     struct SEVertex
     {
     public:
-        glm::vec3 position;
-        glm::vec3 normal;
-        glm::vec2 texCoord;
+        phi::vec3 position;
+        phi::vec3 normal;
+        phi::vec2 texCoord;
 
     public:
-        SEVertex(glm::vec3 position, glm::vec3 normal, glm::vec2 texCoord) :
+        SEVertex(phi::vec3 position, phi::vec3 normal, phi::vec2 texCoord) :
             position(position), normal(normal), texCoord(texCoord) {}
 
         ~SEVertex() {}
@@ -326,7 +325,7 @@ private:
 
     std::map<std::string, SEAssembly*> _assemblies;
     std::map<std::string, SEPart*> _parts;
-    std::map<SEPart*, std::vector<glm::mat4>> _partOccurrences;
+    std::map<SEPart*, std::vector<phi::mat4>> _partOccurrences;
 
 private:
     SEStyle* loadStyle(SEFACETLib::IStyleLibrary* styleLib, unsigned long styleID);
@@ -334,15 +333,15 @@ private:
 
     void buildMeshData(SEPart* part);
 
-    glm::mat4 SEImporter::getModelMatrix(SEREADERLib::IAttachment* attachment);
+    phi::mat4 SEImporter::getModelMatrix(SEREADERLib::IAttachment* attachment);
 
-    SEAssembly* loadAssembly(std::string fileName, glm::mat4 parentModelMatrix);
+    SEAssembly* loadAssembly(std::string fileName, phi::mat4 parentModelMatrix);
     SEPart* loadPart(std::string fileName, SEStyle* style);
 
 public:
     SEImporter();
     ~SEImporter();
-    phi::sceneObject* import(std::string fileName);
+    phi::object3D* import(std::string fileName);
 };
 
 #endif

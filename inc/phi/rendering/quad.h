@@ -1,17 +1,19 @@
 #ifndef _PHI_QUAD_H_
 #define _PHI_QUAD_H_
 
-#include "mesh.h"
+#include "rendering.h"
+
+#include <phi/core/geometryData.h>
 
 namespace phi
 {
-	class quad :
-		public mesh
-	{
-	public:
-		RENDERING_API quad();
-		RENDERING_API ~quad();
-	};
+    class quad :
+        public geometryData
+    {
+    public:
+        RENDERING_API quad();
+        RENDERING_API ~quad();
+    };
 }
 
 #endif

@@ -48,14 +48,14 @@ namespace phi
         int _x;
         int _y;
         float _zIndex;
-        size<GLuint> _size;
-        size<GLuint> _viewportSize;
+        sizef _size;
+        sizef _viewportSize;
 
     public:
-        UI_API control(size<GLuint> viewportSize);
+        UI_API control(sizef viewportSize);
         UI_API ~control();
 
-        static void init(size<GLuint> viewportSize);
+        static void init(sizef viewportSize);
 
         UI_API void addChild(control* child);
         UI_API void removeChild(control* child);
@@ -70,11 +70,11 @@ namespace phi
         UI_API virtual int getX() { return _x; }
         UI_API virtual int getY() { return _y; }
         UI_API virtual float getZIndex() { return _zIndex; }
-        UI_API virtual size<GLuint> getSize() { return _size; }
+        UI_API virtual sizef getSize() { return _size; }
         UI_API virtual bool getIsMouseOver() { return _isMouseOver; }
         UI_API virtual bool getIsFocused() { return _isFocused; }
         UI_API virtual bool getIsTopMost() { return _isTopMost; }
-        UI_API virtual size<GLuint> getViewportSize() { return _viewportSize; }
+        UI_API virtual sizef getViewportSize() { return _viewportSize; }
         UI_API std::string getToolTipText() const { return _toolTipText; }
         UI_API std::vector<control*> getChildren() { return _children; }
         UI_API std::string getDragData() { return _dragData; }
@@ -83,8 +83,8 @@ namespace phi
         UI_API virtual void setX(int value) { _x = value; resetToolTip(); }
         UI_API virtual void setY(int value) { _y = value; resetToolTip(); }
         UI_API virtual void setZIndex(float value) { _zIndex = value; }
-        UI_API virtual void setSize(size<GLuint> value) { _size = value; }
-        UI_API virtual void setViewportSize(size<GLuint> value) { _viewportSize = value; }
+        UI_API virtual void setSize(sizef value) { _size = value; }
+        UI_API virtual void setViewportSize(sizef value) { _viewportSize = value; }
         UI_API virtual void setIsFocused(bool value);
         UI_API virtual void setIsTopMost(bool value) { _isTopMost = value; }
         UI_API void setToolTipText(const std::string value) { _toolTipText = value; }

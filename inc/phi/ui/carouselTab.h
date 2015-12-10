@@ -25,7 +25,7 @@ namespace phi
         float getItemHeight();
 
     public:
-        UI_API carouselTab(size<GLuint> viewportSize);
+        UI_API carouselTab(sizef viewportSize);
         UI_API ~carouselTab();
 
         UI_API std::string getName() const { return _name; }
@@ -37,8 +37,8 @@ namespace phi
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;
         UI_API void setZIndex(float value) override;
-        UI_API void setSize(size<GLuint> value) override;
-        UI_API void setViewportSize(size<GLuint> value) override;
+        UI_API void setSize(sizef value) override;
+        UI_API void setViewportSize(sizef value) override;
         UI_API void setBackgroundColor(color value);
 
         UI_API void addCarouselItem(carouselItem* item);

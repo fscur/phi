@@ -50,54 +50,54 @@ namespace phi
 
     void shaderManager::addRenderToQuadShader()
     {
-        std::vector<std::string> attribs;
+        /*std::vector<std::string> attribs;
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
         shader* s = loadShader("RENDER_TO_QUAD", "render_to_quad.vert", "render_to_quad.frag", attribs);
 
-        s->addUniform("quadTexture");
+        s->addUniform(SHADER_CONSTANTS::TEXTURE_0, "quadTexture");
 
-        addShader(s->getName(), s);
+        addShader(s->getName(), s);*/
     }
 
     void shaderManager::addHudQuadShader()
     {
-        std::vector<std::string> attribs;
+        /*std::vector<std::string> attribs;
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
         shader* s = loadShader("HUD_QUAD", "hud_quad.vert", "hud_quad.frag", attribs);
 
-        s->addUniform("mvp");
-        s->addUniform("quadTexture");
-        s->addUniform("backColor");
+        s->addUniform(SHADER_CONSTANTS::MVP, "mvp");
+        s->addUniform(SHADER_CONSTANTS::TEXTURE_0, "quadTexture");
+        s->addUniform(SHADER_CONSTANTS::BACK_COLOR, "backColor");
 
-        addShader(s->getName(), s);
+        addShader(s->getName(), s);*/
     }
 
     void shaderManager::addHudTextShader()
     {
-        std::vector<std::string> attribs;
+        /*std::vector<std::string> attribs;
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
         shader* s = loadShader("HUD_TEXT", "hud_text.vert", "hud_text.frag", attribs);
 
-        s->addUniform("mvp");
-        s->addUniform("res");
-        s->addUniform("texture");
-        s->addUniform("color");
-        s->addUniform("texCoordOrigin");
-        s->addUniform("texCoordQuadSize");
-        s->addUniform("texSize");
+        s->addUniform(SHADER_CONSTANTS::MVP, "mvp");
+        s->addUniform(SHADER_CONSTANTS::RES, "res");
+        s->addUniform(SHADER_CONSTANTS::TEXTURE_0, "texture");
+        s->addUniform(SHADER_CONSTANTS::COLOR, "color");
+        s->addUniform(SHADER_CONSTANTS::MVP, "texCoordOrigin");
+        s->addUniform(SHADER_CONSTANTS::MVP, "texCoordQuadSize");
+        s->addUniform(SHADER_CONSTANTS::MVP, "texSize");
 
-        addShader(s->getName(), s);
+        addShader(s->getName(), s);*/
     }
 
     void shaderManager::addUIMeshShader()
     {
-        std::vector<std::string> attribs;
+        /*std::vector<std::string> attribs;
         attribs.push_back("inPosition");
 
         shader* s = loadShader("UI_MESH", "ui_mesh.vert", "ui_mesh.frag", attribs);
@@ -105,12 +105,12 @@ namespace phi
         s->addUniform("mvp");
         s->addUniform("color");
 
-        addShader(s->getName(), s);
+        addShader(s->getName(), s);*/
     }
 
     void shaderManager::addPostSelectedObjectsShader()
     {
-        std::vector<std::string> attribs;
+        /*std::vector<std::string> attribs;
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
@@ -120,7 +120,7 @@ namespace phi
         s->addUniform("res");
         s->addUniform("selectionMap");
 
-        addShader(s->getName(), s);
+        addShader(s->getName(), s);*/
     }
 
     shader* shaderManager::getShader(std::string name)

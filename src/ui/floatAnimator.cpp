@@ -2,7 +2,6 @@
 #include "phi/core/clock.h"
 #include "phi/core/globals.h"
 
-#include <glm/gtx/constants.hpp>
 #include <string>
 
 namespace phi
@@ -39,7 +38,7 @@ namespace phi
 
             float percent = (float)animation->getElapsed() / (float)animation->getMilliseconds();
             percent = glm::clamp(percent, 0.0f, 1.0f);
-            //float diff = sin(percent * glm::pi<float>() * 0.5f);
+            //float diff = sin(percent * pi<float>() * 0.5f);
             //float t = percent;
             //float diff = t<.5 ? 4 * t*t*t : (t - 1)*(2 * t - 2)*(2 * t - 2) + 1; // bão!
             //float diff = t*(2 - t);

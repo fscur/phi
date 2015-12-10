@@ -20,23 +20,23 @@ namespace phi
         quadRenderer2D* _backgroundRenderer;
         texture* _backgroundTexture;
         textRenderer2D* _foregroundRenderer;
-        size<GLuint> _viewportSize;
+        sizef _viewportSize;
         font* _font;
         std::string _text;
-        glm::vec2 _textLocation;
-        glm::vec2 _location;
-        size<GLuint> _size;
+        vec2 _textLocation;
+        vec2 _location;
+        sizef _size;
         color _textColor;
 
     public:
-        toolTip(size<GLuint> viewportSize);
+        toolTip(sizef viewportSize);
         ~toolTip();
 
         std::string getText() const { return _text; }
-        glm::vec2 getLocation() const { return _location; }
-        size<GLuint> getSize() const { return _size; }
+        vec2 getLocation() const { return _location; }
+        sizef getSize() const { return _size; }
 
-        void show(const std::string text, const glm::vec2 location, const size<GLuint> size);
+        void show(const std::string text, const vec2 location, const sizef size);
 
         void render();
     };

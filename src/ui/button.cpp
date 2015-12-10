@@ -3,15 +3,15 @@
 
 namespace phi
 {
-    button::button(size<GLuint> viewportSize) : control(viewportSize)
+    button::button(sizef viewportSize) : control(viewportSize)
     {
         _text = "";
         _image = nullptr;
         _backgroundTexture = uiRepository::repository->getResource<texture>("button.png");
-        _backgroundRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
-        _overlayRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.02f, size<GLuint>(0, 0, 0), viewportSize);
+        _backgroundRenderer = new quadRenderer2D(vec2(0, 0), _zIndex, sizef(0, 0, 0), viewportSize);
+        _overlayRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.02f, sizef(0, 0, 0), viewportSize);
         _overlayColor = color::fromRGBA(1.0f, 1.0f, 1.0f, 0.0f);
-        _imageRenderer = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.01f, size<GLuint>(0, 0, 0), viewportSize);
+        _imageRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.01f, sizef(0, 0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
         _font = uiRepository::repository->getResource<font>("Consola_14");
         _textX = 0;
@@ -29,13 +29,13 @@ namespace phi
 
     void button::updateTextLocation()
     {
-        size<unsigned int> textSize = _textRenderer->measureSize(_text, _font);
-        if (textSize.width > _size.width)
+        sizef textSize = _textRenderer->measureSize(_text, _font);
+        if (textSize.w > _size.w)
             _textX = _x;
         else
-            _textX = (int)(_x + _size.width * 0.5f - textSize.width * 0.5f);
+            _textX = (int)(_x + _size.w * 0.5f - textSize.w * 0.5f);
 
-        _textY = (int)(_y + _size.height * 0.5f - textSize.height * 0.5f);
+        _textY = (int)(_y + _size.h * 0.5f - textSize.h * 0.5f);
     }
 
     void button::updateImageSize()
@@ -43,19 +43,22 @@ namespace phi
         if (_image == nullptr)
             return;
 
-        auto imageSize = _image->getSize();
-        if (imageSize.width < _size.width &&
-            imageSize.height < _size.height)
+        auto width = _image->getWidth();
+        auto height = _image->getHeight();
+
+        if (width < _size.w &&
+            height < _size.h)
         {
-            _imageRenderer->setSize(size<GLuint>(imageSize.width, imageSize.height));
+            _imageRenderer->setSize(sizef(width, height));
             return;
         }
 
-        auto imageRatio = imageSize.width / imageSize.height;
-        if (_size.width >= _size.height)
-            _imageRenderer->setSize(size<GLuint>(_size.height, _size.height * imageRatio));
+        auto imageRatio = width / height;
+
+        if (_size.w >= _size.h)
+            _imageRenderer->setSize(sizef(_size.h, _size.h * imageRatio));
         else
-            _imageRenderer->setSize(size<GLuint>(_size.width * (GLuint)(1.0f / imageRatio), _size.width));
+            _imageRenderer->setSize(sizef(_size.w * (GLuint)(1.0f / imageRatio), _size.w));
     }
 
     void button::updateImageLocation()
@@ -64,7 +67,7 @@ namespace phi
             return;
 
         auto size = _imageRenderer->getSize();
-        _imageRenderer->setLocation(glm::vec2(_x + _size.width * 0.5f - size.width * 0.5f, _y + _size.height * 0.5f - size.height * 0.5f));
+        _imageRenderer->setLocation(vec2(_x + _size.w * 0.5f - size.w * 0.5f, _y + _size.h * 0.5f - size.h * 0.5f));
         _imageRenderer->update();
     }
 
@@ -91,9 +94,9 @@ namespace phi
     void button::setX(int value)
     {
         control::setX(value);
-        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->setLocation(vec2(_x, _y));
         _backgroundRenderer->update();
-        _overlayRenderer->setLocation(glm::vec2(_x, _y));
+        _overlayRenderer->setLocation(vec2(_x, _y));
         _overlayRenderer->update();
         updateImageLocation();
         updateTextLocation();
@@ -102,9 +105,9 @@ namespace phi
     void button::setY(int value)
     {
         control::setY(value);
-        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->setLocation(vec2(_x, _y));
         _backgroundRenderer->update();
-        _overlayRenderer->setLocation(glm::vec2(_x, _y));
+        _overlayRenderer->setLocation(vec2(_x, _y));
         _overlayRenderer->update();
         updateImageLocation();
         updateTextLocation();
@@ -121,7 +124,7 @@ namespace phi
         _imageRenderer->update();
     }
 
-    void button::setSize(size<GLuint> value)
+    void button::setSize(sizef value)
     {
         _size = value;
         _backgroundRenderer->setSize(value);
@@ -151,7 +154,7 @@ namespace phi
         _backgroundColor = _currentBackgroundColor = value;
     }
 
-    void button::setViewportSize(size<GLuint> value)
+    void button::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
         _backgroundRenderer->setViewportSize(getViewportSize());
@@ -175,12 +178,12 @@ namespace phi
     {
         control::onRender();
 
-        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.width, (float)_size.height);
+        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.w, (float)_size.h);
         control::controlsScissors->enable();
 
         //glPushAttrib(GL_SCISSOR_BIT);
         //glEnable(GL_SCISSOR_TEST);
-        //glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
+        //glScissor(_x, (_viewportSize.h - _size.h - _y), _size.w, _size.h);
         renderBackground();
         renderImage();
         renderOverlay();
@@ -211,7 +214,7 @@ namespace phi
 
     void button::renderForeground()
     {
-        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX, _textY), _zIndex + 0.03f);
+        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, vec2(_textX, _textY), _zIndex + 0.03f);
     }
 
     void button::onMouseDown(mouseEventArgs* e)
@@ -219,11 +222,11 @@ namespace phi
         if (getIsMouseOver() && e->leftButtonPressed && !_clickedOver)
         {
             _clickedOver = true;
-            //_textureRenderer->setLocation(glm::vec2(_x + 1, _y + 1));
-            //_textureRenderer->setSize(size<GLuint>(_size.width - 2, _size.height - 2));
+            //_textureRenderer->setLocation(vec2(_x + 1, _y + 1));
+            //_textureRenderer->setSize(sizef(_size.w - 2, _size.h - 2));
             //_textureRenderer->update();
-            //_overlayRenderer->setLocation(glm::vec2(_x + 1, _y + 1));
-            //_overlayRenderer->setSize(size<GLuint>(_size.width - 2, _size.height - 2));
+            //_overlayRenderer->setLocation(vec2(_x + 1, _y + 1));
+            //_overlayRenderer->setSize(sizef(_size.w - 2, _size.h - 2));
             //_overlayRenderer->update();
             animatePressed();
             e->handled = true;
@@ -245,10 +248,10 @@ namespace phi
             }
 
             _clickedOver = false;
-            //_textureRenderer->setLocation(glm::vec2(_x, _y));
+            //_textureRenderer->setLocation(vec2(_x, _y));
             //_textureRenderer->setSize(_size);
             //_textureRenderer->update();
-            //_overlayRenderer->setLocation(glm::vec2(_x, _y));
+            //_overlayRenderer->setLocation(vec2(_x, _y));
             //_overlayRenderer->setSize(_size);
             //_overlayRenderer->update();
 

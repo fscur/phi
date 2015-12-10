@@ -1,18 +1,19 @@
 #ifndef _CAMERA_CONTROLLER_H_
 #define _CAMERA_CONTROLLER_H_
 
-#include "phi/core/mouseEventArgs.h"
-#include "phi/core/keyboardEventArgs.h"
-#include "phi/core/inputKey.h"
-#include "phi/core/size.h"
+#include <phi\core\mouseEventArgs.h>
+#include <phi\core\keyboardEventArgs.h>
+#include <phi\core\inputKey.h>
+#include <phi\core\size.h>
+#include <phi\rendering\camera.h>
 
 class cameraController
 {
 protected:
-    phi::size<unsigned int> _viewportSize;
+    phi::camera* _camera;
 
 public:
-    cameraController(phi::size<unsigned int> viewportSize) : _viewportSize(viewportSize) {}
+    cameraController(phi::camera* camera) : _camera(camera) {}
 
     virtual bool onMouseDown(phi::mouseEventArgs* e, phi::inputKey key) { return false; }
     virtual bool onMouseMove(phi::mouseEventArgs* e) { return false; }

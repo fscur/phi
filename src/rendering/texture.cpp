@@ -7,11 +7,23 @@
 
 namespace phi
 {
-    texture::texture(GLuint id, size<GLuint> size, std::string name, std::string path) :
-        resource(name, path)
+    texture* texture::defaultDiffuse = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+    texture* texture::defaultNormal = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+    texture* texture::defaultSpecular = createDefault(new byte[4]{ 0xFF, 0x80, 0xFF, 0xFF });
+    texture* texture::defaultEmissive = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+
+    texture* texture::createDefault(byte* data)
+    {
+        auto t = texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        safeDeleteArray(data);
+        return t;
+    }
+
+    texture::texture(GLuint id, uint w, uint h)
     {
         _id = id;
-        _size = size;
+        _w = w;
+        _h = h;
     }
 
     texture::~texture()
@@ -82,26 +94,26 @@ namespace phi
 
         SDL_FreeSurface(surface);
 
-        auto t =  new texture(id, size<GLuint>(width, height), path::getFileName(fileName), fileName);
+        auto t =  new texture(id, width, height);
         t->_textureType = GL_TEXTURE_2D;
 
         return t;
     }
 
-    texture* texture::create(size<GLuint> size, GLint internalFormat, GLint format, GLint type, GLuint level, GLvoid* data)
+    texture* texture::create(uint w, uint h, GLint internalFormat, GLint format, GLint type, GLuint level, GLvoid* data)
     {
         GLuint id = 0;
         glGenTextures(1, &id);
         glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D(GL_TEXTURE_2D, level, internalFormat, size.width, size.height, 0, format, type, data);
-        auto t = new texture(id, size, "", "");
+        glTexImage2D(GL_TEXTURE_2D, level, internalFormat, w, h, 0, format, type, data);
+        auto t = new texture(id, w, h);
 
         t->_textureType = GL_TEXTURE_2D;
 
         return t;
     }
 
-    texture* texture::createCubeMap(size<GLuint> size, GLint internalFormat, GLint format, GLint type, GLuint level, const std::vector<GLvoid*> data)
+    texture* texture::createCubeMap(uint w, uint h, GLint internalFormat, GLint format, GLint type, GLuint level, const std::vector<GLvoid*> data)
     {
         GLuint id = 0;
         glGenTextures(1, &id);
@@ -110,9 +122,9 @@ namespace phi
         bool hasData = data.size() > 0;
 
         for (unsigned int i = 0 ; i < 6 ; i++) 
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, internalFormat, size.width, size.height, 0, format, type, hasData ? data[i] : 0);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, internalFormat, w, h, 0, format, type, hasData ? data[i] : 0);
 
-        auto t = new texture(id, size, "", "");
+        auto t = new texture(id, w, h);
         t->_textureType = GL_TEXTURE_CUBE_MAP;
         return t;
     }

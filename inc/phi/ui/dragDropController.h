@@ -24,7 +24,7 @@ namespace phi
     {
     private:
         static dragDropController* _instance;
-        size<GLuint> _viewportSize;
+        sizef _viewportSize;
         bool _isDragging;
         std::string _dragData;
         texture* _dragTexture;
@@ -39,7 +39,7 @@ namespace phi
     public:
         UI_API static dragDropController* get();
 
-        UI_API void init(size<GLuint> viewportSize);
+        UI_API void init(sizef viewportSize);
 
         UI_API bool getIsDragging() { return _isDragging; }
         UI_API std::string getDragData() { return _dragData; }

@@ -3,7 +3,7 @@
 
 namespace phi
 {
-    cursor::cursor(std::string name, std::string path, glm::vec2 hotPoint) :
+    cursor::cursor(std::string name, std::string path, vec2 hotPoint) :
         resource(name, path)
     {
         _fullName = name;

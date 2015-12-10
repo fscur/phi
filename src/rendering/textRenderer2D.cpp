@@ -1,5 +1,5 @@
 #include <phi/core/globals.h>
-#include <phi/rendering/meshRenderer.h>
+#include <phi/rendering/geometryRenderer.h>
 #include <phi/rendering/texture.h>
 #include <phi/rendering/textRenderer2D.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -17,36 +17,23 @@ namespace phi
         return round(pow(2,ceil(logbase2)));
     }
 
-    textRenderer2D::textRenderer2D(size<GLuint> viewportSize)
+    textRenderer2D::textRenderer2D(sizef viewportSize)
     {
         _viewportSize = viewportSize;
 
         updateViewMatrix();
         updateProjMatrix();
-        _modelMatrix = glm::mat4(1.0f);
+        _modelMatrix = mat4(1.0f);
 
         _shader = shaderManager::get()->getShader("HUD_TEXT");
-
-        std::vector<vertex> vertices;
-        vertices.push_back(vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 1.0f)));
-        vertices.push_back(vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 1.0f)));
-        vertices.push_back(vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 0.0f)));
-        vertices.push_back(vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f)));
-
-        auto indices = new std::vector<GLuint>();
-        indices->push_back(0);
-        indices->push_back(1);
-        indices->push_back(2);
-        indices->push_back(2);
-        indices->push_back(3);
-        indices->push_back(0);
-
-        _mesh = mesh::create("", vertices, indices);
+        _quad = new quad();
+        _quadGeometry = new geometry(_quad);
     }
 
     textRenderer2D::~textRenderer2D()
     {
-        safeDelete(_mesh);
+        safeDelete(_quad);
+        safeDelete(_quadGeometry);
     }
 
     void textRenderer2D::update()
@@ -57,70 +44,68 @@ namespace phi
 
     void textRenderer2D::updateViewMatrix()
     {
-        _viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        _viewMatrix = lookAt(vec3(0.0f, 0.0f, 1.0f), vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
     }
 
     void textRenderer2D::updateProjMatrix()
     {
-        _projectionMatrix = glm::ortho<float>(0.0f, (float)_viewportSize.width, 0.0f, (float)_viewportSize.height, -50.0f, 50.0f);
+        _projectionMatrix = glm::ortho<float>(0.0f, (float)_viewportSize.w, 0.0f, (float)_viewportSize.h, -50.0f, 50.0f);
     }
 
-    void textRenderer2D::render(std::string text, font* font, color foreColor, color backColor, glm::vec2 location, float zIndex)
+    void textRenderer2D::render(std::string text, font* font, color foreColor, color backColor, vec2 location, float zIndex)
     {
-        _shader->bind();
+        //_shader->bind();
 
-        _shader->setUniform("res", glm::vec2(_viewportSize.width, _viewportSize.height));
-        _shader->setUniform("color", foreColor);
-        _shader->setUniform("texture", font->getTexture(), 0);
-        _shader->setUniform("texSize", glm::vec2(font->getTexWidth(), font->getTexHeight()));
+        //_shader->setUniform("res", vec2(_viewportSize.w, _viewportSize.h));
+        //_shader->setUniform("color", foreColor);
+        //_shader->setUniform("texture", font->getTexture(), 0);
+        //_shader->setUniform("texSize", vec2(font->getTexWidth(), font->getTexHeight()));
 
-        meshRenderer mr = meshRenderer();
+        //mat4 vp = _projectionMatrix * _viewMatrix;
 
-        glm::mat4 vp = _projectionMatrix * _viewMatrix;
+        //float currentX = location.x, currentY = location.y;
+        //for(char& p : text)
+        //{
+        //    if (p == '\n')
+        //    {
+        //        currentX = location.x;
+        //        currentY += font->getLineHeight();
+        //        continue;
+        //    }
 
-        float currentX = location.x, currentY = location.y;
-        for(char& p : text)
-        {
-            if (p == '\n')
-            {
-                currentX = location.x;
-                currentY += font->getLineHeight();
-                continue;
-            }
+        //    float x = currentX + font->c[p].bl;
+        //    float y = currentY + font->getAscender() - font->c[p].bt;// - (font->c[p].bh - font->c[p].bt - font->getBaseLine()) * sy;
+        //    float w = font->c[p].bw;
+        //    float h = font->c[p].bh;
 
-            float x = currentX + font->c[p].bl;
-            float y = currentY + font->getAscender() - font->c[p].bt;// - (font->c[p].bh - font->c[p].bt - font->getBaseLine()) * sy;
-            float w = font->c[p].bw;
-            float h = font->c[p].bh;
+        //    currentX += font->c[p].ax;
+        //    currentY += font->c[p].ay;
 
-            currentX += font->c[p].ax;
-            currentY += font->c[p].ay;
+        //    float tl = font->c[p].tx;
+        //    float tr = font->c[p].tx + font->c[p].bw / font->getTexWidth();
+        //    float tt = font->c[p].ty;
+        //    float tb = font->c[p].ty + font->c[p].bh / font->getTexHeight();
 
-            float tl = font->c[p].tx;
-            float tr = font->c[p].tx + font->c[p].bw / font->getTexWidth();
-            float tt = font->c[p].ty;
-            float tb = font->c[p].ty + font->c[p].bh / font->getTexHeight();
+        //    _modelMatrix = mat4(
+        //        w, 0.0f, 0.0f, 0.0f,
+        //        0.0f, h, 0.0f, 0.0f,
+        //        0.0f, 0.0f, 1.0f, 0.0f,
+        //        x + w * 0.5f, _viewportSize.h - (y + h * 0.5f), zIndex, 1.0f);
 
-            _modelMatrix = glm::mat4(
-                w, 0.0f, 0.0f, 0.0f,
-                0.0f, h, 0.0f, 0.0f,
-                0.0f, 0.0f, 1.0f, 0.0f,
-                x + w * 0.5f, _viewportSize.height - (y + h * 0.5f), zIndex, 1.0f);
+        //    _shader->setUniform("mvp", vp * _modelMatrix);
+        //    _shader->setUniform("texCoordOrigin", vec2(tl, tt));
+        //    _shader->setUniform("texCoordQuadSize", vec2(font->c[p].bw / font->getTexWidth(), font->c[p].bh / font->getTexHeight()));
 
-            _shader->setUniform("mvp", vp * _modelMatrix);
-            _shader->setUniform("texCoordOrigin", glm::vec2(tl, tt));
-            _shader->setUniform("texCoordQuadSize", glm::vec2(font->c[p].bw / font->getTexWidth(), font->c[p].bh / font->getTexHeight()));
+        //    geometryRenderer::render(_quadGeometry);
+        //}
 
-            mr.render(_mesh);
-        }
-
-        _shader->unbind();
+        //_shader->unbind();
     }
 
-    size<unsigned int> textRenderer2D::measureSize(std::string text, font* font)
+    sizef textRenderer2D::measureSize(std::string text, font* font)
     {
         if (text.empty())
-            return size<unsigned int>(0, 0);
+            return sizef(0, 0);
 
         float maxWidth = 0.0f;
         float currentWidth = 0.0f;
@@ -140,10 +125,10 @@ namespace phi
             maxWidth = glm::max(currentWidth, maxWidth);
         }
 
-        return size<unsigned int>((GLint)maxWidth, (GLint)currentHeight);
+        return sizef(maxWidth, currentHeight);
     }
 
-    unsigned int textRenderer2D::measureString(std::string text, font* font, size<unsigned int> sz)
+    unsigned int textRenderer2D::measureString(std::string text, font* font, sizef sz)
     {
         if (text.empty())
             return 0;
@@ -158,7 +143,7 @@ namespace phi
                 continue;
             }
 
-            if (currentWidth + font->c[p].ax > sz.width)
+            if (currentWidth + font->c[p].ax > sz.w)
                 break;
 
             currentWidth += font->c[p].ax;

@@ -28,7 +28,7 @@ namespace phi
     public:
         std::string applicationPath;
         std::string resourcesPath;
-        size<GLuint> size;
+        sizef size;
     };
 
     class renderingSystem
@@ -43,7 +43,7 @@ namespace phi
 
     public:
         RENDERING_API static void init(renderingSystemInfo info);
-        RENDERING_API static void resize(size<GLuint> viewportSize);
+        RENDERING_API static void resize(sizef viewportSize);
         RENDERING_API static void release();
     };
 }

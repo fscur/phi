@@ -70,7 +70,7 @@ namespace phi
                     continue;
                 }
 
-                current->result = current->buffer->getZBufferValue(glm::vec2(current->x, current->y));
+                current->result = current->buffer->getZBufferValue(vec2(current->x, current->y));
                 current->completed = true;
                 current->mutex.unlock();
             }
@@ -92,7 +92,7 @@ namespace phi
                     continue;
                 }
 
-                current->result = current->buffer->pick(glm::vec2(current->x, current->y));
+                current->result = current->buffer->pick(vec2(current->x, current->y));
                 current->completed = true;
                 current->mutex.unlock();
             }

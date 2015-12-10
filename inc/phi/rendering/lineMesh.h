@@ -1,6 +1,8 @@
 #ifndef _PHI_LINE_MESH_H_
 #define _PHI_LINE_MESH_H_
 
+#include <phi/core/globals.h>
+
 #include "rendering.h"
 
 #if WIN32
@@ -9,7 +11,6 @@
 #include <OpenGL/gl3.h>
 #endif
 #include <vector>
-#include <glm/glm.hpp>
 
 namespace phi
 {
@@ -28,7 +29,7 @@ namespace phi
         GLuint _pSize;
         GLuint _iSize;
 
-        std::vector<glm::vec3> _positions;
+        std::vector<vec3> _positions;
         std::vector<GLuint>* _indices;
 
     private:
@@ -36,13 +37,13 @@ namespace phi
 
     protected:
         lineMesh();
-        void addData(std::vector<glm::vec3> positions, std::vector<GLuint>* indices);
+        void addData(std::vector<vec3> positions, std::vector<GLuint>* indices);
 
     public:
 
         RENDERING_API ~lineMesh();
 
-        RENDERING_API static lineMesh* create(std::string name, std::vector<glm::vec3> &positions, std::vector<GLuint>* indices);
+        RENDERING_API static lineMesh* create(std::string name, std::vector<vec3> &positions, std::vector<GLuint>* indices);
         RENDERING_API static lineMesh* create(
             GLuint positionsCount,
             GLfloat* positionsBuffer,

@@ -1,8 +1,9 @@
 #ifndef _PHI_TEXTURE_H_
 #define _PHI_TEXTURE_H_
 
-#include <phi/core/resource.h>
+#include <phi/core/globals.h>
 #include <phi/core/size.h>
+#include <phi/core/resource.h>
 
 #include "rendering.h"
 #include "SDL_Extensions.h"
@@ -18,33 +19,43 @@
 
 namespace phi
 {
-    class texture :
-        public resource
+    class texture
     {
     private:
         GLuint _id;
         GLuint _textureType;
 
-	protected:
-		size<GLuint> _size;
+    protected:
+        uint _w;
+        uint _h;
 
     private:
-		texture(GLuint id, size<GLuint> size, std::string name, std::string path);
+        texture(uint id, uint w, uint h);
+
+    private:
+        static texture* createDefault(byte* data);
+
+    public:
+        RENDERING_API static texture* defaultDiffuse;
+        RENDERING_API static texture* defaultNormal;
+        RENDERING_API static texture* defaultSpecular;
+        RENDERING_API static texture* defaultEmissive;
 
     public:
         RENDERING_API ~texture();
 
-		RENDERING_API GLuint getId() const { return _id; }
-		RENDERING_API size<GLuint> getSize() const { return _size; }
-        RENDERING_API GLuint getTextureType() const { return _textureType; }
+        RENDERING_API uint getId() const { return _id; }
+        RENDERING_API uint getWidth() const { return _w; }
+        RENDERING_API uint getHeight() const { return _h; }
+        RENDERING_API uint getTextureType() const { return _textureType; }
 
-		RENDERING_API void bind(GLuint level = 0);
-		RENDERING_API void setParam(GLenum name, GLint value);
+        RENDERING_API void bind(GLuint level = 0);
+        RENDERING_API void setParam(GLenum name, GLint value);
         RENDERING_API void release();
 
-		RENDERING_API static texture* fromFile(std::string fileName);
-		RENDERING_API static texture* create(size<GLuint> size, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, GLvoid* data = 0);
-        RENDERING_API static texture* createCubeMap(size<GLuint> size, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, const std::vector<GLvoid*> data = std::vector<GLvoid*>());
+        RENDERING_API static texture* fromFile(std::string fileName);
+        RENDERING_API static texture* create(uint w, uint h, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, GLvoid* data = 0);
+        RENDERING_API static texture* createCubeMap(uint w, uint h, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, const std::vector<GLvoid*> data = std::vector<GLvoid*>());
     };
 }
 #endif

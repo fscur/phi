@@ -9,25 +9,32 @@ namespace phi
 {
     class sceneRenderer
     {
-    protected:
+    private:
+        enum BASIC_SHADER
+        {
+            MVP,
+            DIFFUSE_MAP,
+            DIFFUSE_COLOR,
+        };
+
+    private:
         scene* _scene;
-        std::vector<sceneObject*>* _allObjects;
-        GLuint _allObjectsCount;
-        size<GLuint> _viewportSize;
+        sizef _viewportSize;
         camera* _camera;
-        bool _redrawStaticShadowMaps;
+        shader* _shader;
+
+    private:
+        void createShader();
 
     protected:
         SCENES_API virtual void onRender() = 0;
-        SCENES_API virtual void init(size<GLuint> viewportSize) = 0;
+        SCENES_API virtual void init(sizef viewportSize) = 0;
         SCENES_API virtual void initBuffers() = 0;
     public:
         SCENES_API sceneRenderer();
         SCENES_API ~sceneRenderer();
         SCENES_API void render(scene* scene);
-        SCENES_API color getSelectionColor(int objectId, int meshId, bool selected);
-        SCENES_API void resize(size<GLuint> size);
-        SCENES_API void redrawStaticShadowMaps() { _redrawStaticShadowMaps = true; };
+        SCENES_API void resize(sizef size);
     };
 }
 

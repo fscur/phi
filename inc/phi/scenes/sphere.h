@@ -1,28 +1,30 @@
 #ifndef _PHI_SPHERE_H_
 #define _PHI_SPHERE_H_
 
-#include <glm\glm.hpp>
-#include "phi/scenes/sceneObject.h"
-#include "phi/core/globals.h"
+#include "scenes.h"
+
+#include <phi/rendering/mesh.h>
 
 namespace phi
 {
-    class sphere
+    class sphere :
+        public mesh
     {
     private:
         float _radius;
-        model* _model;
+    private:
+        sphere(float radius, geometry* geometry, material* material);
 
     private:
-        sphere(){};
-        mesh* create(GLuint rings, GLuint sectors);
+        static geometry* createSphereGeometry(uint rings, uint sectors);
+
     public:
-        SCENES_API sphere(float radius, int rings, int sectors, material* material);
-        SCENES_API ~sphere(void);
+        SCENES_API static sphere* create(float radius, uint rings, uint sectors, material* material);
+
+    public:
+        SCENES_API ~sphere();
 
         SCENES_API float getRadius() const { return _radius; }
-        SCENES_API model* getModel() const { return _model; }
-
         SCENES_API void setRadius(float radius);
     };
 }

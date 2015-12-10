@@ -54,7 +54,7 @@ void form::setTitle(std::string value)
     SDL_SetWindowTitle(_window, _title.c_str());
 }
 
-void form::setSize(phi::size<unsigned int> value)
+void form::setSize(phi::sizef value)
 {
     _size = value;
 }
@@ -106,12 +106,12 @@ void form::initWindow()
     _isFullScreen = false;
 
     if (_window == NULL)
-        LOG("Window could not be created! SDL_Error: " << SDL_GetError());
+        phi::log("Window could not be created! SDL_Error: " + std::string(SDL_GetError()));
 
     int width = 0;
     int height = 0;
     SDL_GetWindowSize(_window, &width, &height);
-    _size = phi::size<unsigned int>(width, height, 0);
+    _size = phi::sizef((float)width, (float)height);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -128,7 +128,7 @@ void form::initWindow()
     _glContext = SDL_GL_CreateContext(_window);
 
     if (!_glContext)
-        LOG("Could not create context: " << SDL_GetError());
+        phi::log("Could not create context: " + std::string(SDL_GetError()));
 
 #ifdef WIN32
     glewExperimental = GL_TRUE;
@@ -136,7 +136,7 @@ void form::initWindow()
     GLenum glewInitStatus = glewInit();
 
     if(glewInitStatus != GLEW_OK)
-        LOG("Error: " << glewGetErrorString(glewInitStatus));
+        std::cout << "Error: " << glewGetErrorString(glewInitStatus);
 
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
@@ -157,7 +157,7 @@ void form::show()
 
 void form::input()
 {
-    onBeginInput();
+//    onBeginInput();
     SDL_Event e;
 
     while (SDL_PollEvent(&e) != 0)
@@ -192,7 +192,7 @@ void form::input()
                 onMouseDown(&me);
             break;
         case SDL_MOUSEMOTION:
-            _lastMousePos = glm::vec2(e.motion.x, e.motion.y);
+            _lastMousePos = phi::vec2(e.motion.x, e.motion.y);
             me = phi::mouseEventArgs();
             me.x = e.motion.x;
             me.y = e.motion.y;
@@ -273,7 +273,7 @@ void form::input()
         }
     }
 
-    onEndInput();
+    //onEndInput();
 }
 
 bool form::loop()
@@ -304,7 +304,7 @@ bool form::loop()
         _fps = _frames;
         _frames = 0;
         _processedTime -= 1000.0f;
-        //LOG(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
+        //log(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
     }
 
     _lastTime = _now;
@@ -323,7 +323,7 @@ int form::renderLoop()
     int s = SDL_GL_MakeCurrent(_window, _glContext);
 
     if (s != 0)
-        LOG(SDL_GetError());
+        phi::log(std::string(SDL_GetError()));
 
     while (!_isClosed)
     {
@@ -368,25 +368,25 @@ void form::close()
 
 void form::onResize(SDL_Event e)
 {
-    phi::size<GLuint> sz = phi::size<GLuint>(e.window.data1, e.window.data2);
+    auto sz = phi::sizef((float)e.window.data1, (float)e.window.data2);
     setSize(sz);
 }
 
-void form::resize(phi::size<unsigned int> size)
+void form::resize(phi::sizef size)
 {
     setSize(size);
 
     if (_isFullScreen)
         SDL_SetWindowFullscreen(_window, 0);
 
-    SDL_SetWindowSize(_window, (int)size.width, (int)size.height);
+    SDL_SetWindowSize(_window, (int)size.w, (int)size.h);
 
     if (_isFullScreen)
         SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
     auto a = SDL_Event();
-    a.window.data1 = size.width;
-    a.window.data2 = size.height;
+    a.window.data1 = (uint)size.w;
+    a.window.data2 = (uint)size.h;
 
     onResize(a);
 }

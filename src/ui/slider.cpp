@@ -1,16 +1,16 @@
 #include "phi/ui/slider.h"
 #include "phi/ui/colorAnimator.h"
 
-#include <glm\glm.hpp>
 #include <GLM\gtc\type_precision.hpp>
 #include <GLM\gtc\type_ptr.hpp>
+
 namespace phi
 {
-    slider::slider(size<GLuint> viewportSize) : control(viewportSize)
+    slider::slider(sizef viewportSize) : control(viewportSize)
     {
         _texture = uiRepository::repository->getResource<texture>("button.png");
-        _trackQuad = new quadRenderer2D(glm::vec2(0, 0), _zIndex, size<GLuint>(0, 0, 0), viewportSize);
-        _sliderQuad = new quadRenderer2D(glm::vec2(0, 0), _zIndex + 0.01f, size<GLuint>(0, 0, 0), viewportSize);
+        _trackQuad = new quadRenderer2D(vec2(0, 0), _zIndex, sizef(0, 0, 0), viewportSize);
+        _sliderQuad = new quadRenderer2D(vec2(0, 0), _zIndex + 0.01f, sizef(0, 0, 0), viewportSize);
         _valueChanged = new eventHandler<eventArgs>();
         _value = 0;
         _minValue = 0;
@@ -28,7 +28,7 @@ namespace phi
     void slider::setX(int value)
     {
         _x = value;
-        _trackQuad->setLocation(glm::vec2(_x, _trackQuad->getLocation().y));
+        _trackQuad->setLocation(vec2(_x, _trackQuad->getLocation().y));
         _trackQuad->update();
         updateSlider();
     }
@@ -36,21 +36,21 @@ namespace phi
     void slider::setY(int value)
     {
         _y = value;
-        _trackQuad->setLocation(glm::vec2(_trackQuad->getLocation().x, _y));
+        _trackQuad->setLocation(vec2(_trackQuad->getLocation().x, _y));
         _trackQuad->update();
         updateSlider();
     }
 
-    void slider::setSize(size<GLuint> value)
+    void slider::setSize(sizef value)
     {
         _size = value;
-        _trackQuad->setLocation(glm::vec2(_trackQuad->getLocation().x, _y));
-        _trackQuad->setSize(size<GLuint>(_size.width, _size.height));
+        _trackQuad->setLocation(vec2(_trackQuad->getLocation().x, _y));
+        _trackQuad->setSize(sizef(_size.w, _size.h));
         _trackQuad->update();
         updateSlider();
     }
 
-    void slider::setViewportSize(size<GLuint> value)
+    void slider::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
         _trackQuad->setViewportSize(getViewportSize());
@@ -132,20 +132,20 @@ namespace phi
         auto percent = (_value - _minValue) / (_maxValue - _minValue);
 
         auto y = _y + 1;
-        _sliderQuad->setLocation(glm::vec2(_trackQuad->getLocation().x, (float)y));
-        _sliderQuad->setSize(size<GLuint>((unsigned int)(percent * _size.width), _size.height - 2));
+        _sliderQuad->setLocation(vec2(_trackQuad->getLocation().x, (float)y));
+        _sliderQuad->setSize(sizef((unsigned int)(percent * _size.w), _size.h - 2));
         _sliderQuad->update();
     }
 
-    void slider::changeValue(glm::vec2 screenPos)
+    void slider::changeValue(vec2 screenPos)
     {
         float totalValue = _maxValue - _minValue;
         float totalSteps = totalValue / _stepValue;
 
         float diffDistance = (float)(screenPos.x - _x);
-        float percent = diffDistance / (float)_size.width;
+        float percent = diffDistance / (float)_size.w;
 
-        int steps = (int)glm::round(totalSteps * percent);
+        int steps = (int)round(totalSteps * percent);
         steps = glm::max(glm::min(steps, (int)totalSteps), 0);
         setValue(_minValue + steps * _stepValue);
     }
@@ -164,7 +164,7 @@ namespace phi
         if (getIsMouseOver() && e->leftButtonPressed && !_isDragginTrack)
         {
             _isDragginTrack = true;
-            changeValue(glm::vec2(e->x, e->y));
+            changeValue(vec2(e->x, e->y));
             e->handled = true;
         }
     }
@@ -181,7 +181,7 @@ namespace phi
     void slider::onMouseMove(mouseEventArgs* e)
     {
         if (_isDragginTrack)
-            changeValue(glm::vec2(e->x, e->y));
+            changeValue(vec2(e->x, e->y));
     }
 
     void slider::onKeyDown(keyboardEventArgs e)

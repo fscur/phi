@@ -32,6 +32,8 @@ namespace phi
         bool _isEmissive;
 
     public:
+        RENDERING_API static material* default;
+    public:
         RENDERING_API material(
             std::string name,
             std::string path,

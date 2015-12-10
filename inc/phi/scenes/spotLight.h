@@ -10,8 +10,8 @@ namespace phi
         public light
     {
     private:
-        glm::mat4 _projectionMatrix;
-        glm::mat4 _viewMatrix;
+        mat4 _projectionMatrix;
+        mat4 _viewMatrix;
 
         float _range;
         float _oneOverRangeSqr;
@@ -25,8 +25,7 @@ namespace phi
         void updateProjectionMatrix();
 
     public:
-        SCENES_API spotLight();
-        SCENES_API spotLight(glm::vec3 position, color color, float intensity, float range, glm::vec3 direction, float cutoff);
+        SCENES_API spotLight(vec3 position, color color, float intensity, float range, vec3 direction, float cutoff);
         SCENES_API ~spotLight();
     
         SCENES_API float getCutoff() const { return _cutoff; }

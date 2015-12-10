@@ -2,7 +2,7 @@
 
 namespace phi
 {
-    pickingFrameBuffer::pickingFrameBuffer(size<GLuint> size) : frameBuffer("picking", size, color::transparent)
+    pickingFrameBuffer::pickingFrameBuffer(sizef size) : frameBuffer("picking", size, color::transparent)
     {
     }
 
@@ -16,7 +16,7 @@ namespace phi
 
         bind();
 
-        texture* t = texture::create(_size, GL_RGBA);
+        texture* t = texture::create((uint)_size.w, (uint)_size.h, GL_RGBA);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -36,13 +36,13 @@ namespace phi
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    GLuint pickingFrameBuffer::pick(glm::vec2 mousePos)
+    GLuint pickingFrameBuffer::pick(vec2 mousePos)
     {
         bindForReading();
 
         std::vector<unsigned char> pixels(4);
 
-        glReadPixels((GLint)mousePos.x, (GLint)(_size.height - mousePos.y), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+        glReadPixels((GLint)mousePos.x, (GLint)(_size.h - mousePos.y), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
 
         GLuint r = (GLuint)pixels[0];
         GLuint g = (GLuint)pixels[1];

@@ -1,21 +1,16 @@
 #include <phi/core/globals.h>
 #include <phi/io/path.h>
 #include <phi/loader/importer.h>
+#include <phi/rendering/geometry.h>
 #include <phi/rendering/model.h>
-
+#include <phi/rendering/mesh.h>
 #include <fstream>
 #include <iostream>
 
 namespace phi
 {
-    model::model(std::string name, std::string path) :
-        resource(name, path)
+    model::model(std::string name) : object3D(name, objectType::MODEL)
     {
-    }
-
-    void model::addMesh(mesh* mesh)
-    {
-        _meshes.push_back(mesh);
     }
 
     model* model::fromFile(std::string fileName)
@@ -23,14 +18,14 @@ namespace phi
         auto modelName = path::getFileNameWithoutExtension(fileName);
         GLuint meshCount = 0;
 
-        std::vector<meshData*>* meshesData = new std::vector<meshData*>();
-        if (!importer::importMesh(fileName, meshesData))
+        std::vector<geometryData*>* geometriesData = new std::vector<geometryData*>();
+        if (!importer::importMesh(fileName, geometriesData))
         {
-            LOG("Failed to load mesh");
+            log("Failed to load mesh");
             return nullptr;
         }
 
-        model* md = new model(modelName, fileName);
+        model* md = new model(modelName);
 
         auto name = path::getFileNameWithoutExtension(fileName);
         auto dir = path::getDirectoryFullName(fileName);
@@ -39,14 +34,15 @@ namespace phi
         md->setThumbnail(thumbnail);
 
         auto i = 0;
-        for each (meshData* data in *meshesData)
+        for each (geometryData* data in *geometriesData)
         {
             auto meshName = modelName + "_mesh_" + std::to_string(meshCount++);
 
-            mesh* m = mesh::create(data->getVerticesSize(), data->getPositions(), data->getTextureCoords(), data->getNormals(), data->getIndicesSize(), data->getIndices(), data->getMaterialName());
-            m->setId(i++);
+            auto g = new geometry(data);
 
-            md->_meshes.push_back(m);
+            auto m = new mesh(meshName, g, material::default);
+
+            md->addChild(m);
         }
 
         return md;

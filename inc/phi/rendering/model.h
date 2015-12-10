@@ -1,25 +1,22 @@
 #ifndef _PHI_MODEL_H_
 #define _PHI_MODEL_H_
 
-#include "mesh.h"
+#include <phi/core/object3D.h>
+
+#include "rendering.h"
+#include "texture.h"
 
 namespace phi
 {
 	class model :
-        public resource
+        public object3D
 	{
     private:
-        std::vector<mesh*> _meshes;
         texture* _thumbnail;
     public:
-        RENDERING_API model(std::string name, std::string path);
-
-        RENDERING_API std::vector<mesh*> getMeshes() const { return _meshes; }
+        RENDERING_API model(std::string name);
         RENDERING_API texture* getThumbnail() const { return _thumbnail; }
-
         RENDERING_API void setThumbnail(texture* value) { _thumbnail = value; }
-
-        RENDERING_API void addMesh(mesh* mesh);
         RENDERING_API static model* fromFile(std::string fileName);
     };
 }

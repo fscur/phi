@@ -24,29 +24,29 @@ namespace phi
         color _xColor;
         color _yColor;
         color _zColor;
-        glm::mat4 _modelMatrix;
-        glm::mat4 _xModelMatrix;
-        glm::mat4 _yModelMatrix;
-        glm::mat4 _zModelMatrix;
-        std::vector<glm::vec3> _xPositions;
-        std::vector<glm::vec3> _yPositions;
-        std::vector<glm::vec3> _zPositions;
+        mat4 _modelMatrix;
+        mat4 _xModelMatrix;
+        mat4 _yModelMatrix;
+        mat4 _zModelMatrix;
+        std::vector<vec3> _xPositions;
+        std::vector<vec3> _yPositions;
+        std::vector<vec3> _zPositions;
         bool _mouseOverX;
         bool _mouseOverY;
         bool _mouseOverZ;
         bool _clickedOverX;
         bool _clickedOverY;
         bool _clickedOverZ;
-        glm::vec2 _mouseStartPos;
+        vec2 _mouseStartPos;
         float _currentAngle;
-        glm::quat _startOrientation;
+        quat _startOrientation;
         eventHandler<rotationEventArgs*>* _rotating;
         eventHandler<rotationEventArgs>* _rotationFinished;
 
     private:
         void createCircleMesh();
         void updateModelMatrix();
-        void renderCircle(color color, glm::mat4 modelMatrix);
+        void renderCircle(color color, mat4 modelMatrix);
 
         virtual void onMouseDown(mouseEventArgs* e) override;
         virtual void onMouseUp(mouseEventArgs* e) override;
@@ -54,8 +54,7 @@ namespace phi
         virtual void onMouseLeave(mouseEventArgs* e) override;
 
     public:
-        UI_API rotationControl(size<GLuint> viewportSize);
-        UI_API ~rotationControl();
+        UI_API rotationControl(sizef viewportSize);
 
         UI_API eventHandler<rotationEventArgs*>* getRotating() const { return _rotating; }
         UI_API eventHandler<rotationEventArgs>* getRotationFinished() { return _rotationFinished; }

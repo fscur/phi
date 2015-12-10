@@ -1,30 +1,34 @@
-#include "phi/loader/exporter.h"
+#include <phi/loader/exporter.h>
+
 #include <fstream>
 
 namespace phi
 {
-    int exporter::exportMesh(std::vector<meshData*>* data, char* fileName)
+    int exporter::exportMesh(std::vector<geometryData*>* data, char* fileName)
     {
+        char* mat = "Material is not used anymore.";
         std::ofstream stream;
         stream.open(fileName, std::ios::out | std::ios::binary);
 
         auto meshCount = (*data).size();
         for (unsigned int i = 0; i < meshCount; i++)
         {
-            meshData* itemData = (*data)[i];
-            stream.write(itemData->getMaterialName(), 256);
+            auto itemData = (*data)[i];
+            stream.write(mat, 256);
 
-            auto verticesSize = itemData->getVerticesSize();
-            stream.write((char*)&verticesSize, sizeof(unsigned int));
+            auto verticesCount = itemData->getVerticesCount();
+            stream.write((char*)&verticesCount, sizeof(unsigned int));
 
-            stream.write((char*)itemData->getPositions(), verticesSize * 3 * sizeof(float));
-            stream.write((char*)itemData->getTextureCoords(), verticesSize * 2 * sizeof(float));
-            stream.write((char*)itemData->getNormals(), verticesSize * 3 * sizeof(float));
+            stream.write((char*)itemData->getPositionsBuffer(), itemData->getPSize());
+            stream.write((char*)itemData->getTexCoordsBuffer(), itemData->getTSize());
+            stream.write((char*)itemData->getNormalsBuffer(), itemData->getNSize());
 
-            auto indicesSize = itemData->getIndicesSize();
-            stream.write((char*)&indicesSize, sizeof(unsigned int));
-            stream.write((char*)itemData->getIndices(), indicesSize * sizeof(unsigned int));
+            auto indicesCount = itemData->getIndicesCount();
+            stream.write((char*)&indicesCount, sizeof(unsigned int));
+            stream.write((char*)itemData->getIndices(), itemData->getISize());
         }
+
+        delete[] mat;
 
         stream.close();
 

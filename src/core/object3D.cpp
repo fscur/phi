@@ -2,33 +2,30 @@
 
 namespace phi
 {
-    object3D::object3D()
+    object3D::object3D(std::string name, objectType type) :
+        _name(name), 
+        _type(type),
+        _position(vec3()),
+        _right(vec3(1.0f, 0.0f, 0.0f)),
+        _up(vec3(0.0f, 1.0f, 0.0f)),
+        _direction(vec3(0.0f, 0.0f, 1.0f)),
+        _orientation(quat()),
+        _changedEvent(new eventHandler<object3DEventArgs>()),
+        _size(sizef(1.0f, 1.0f, 1.0f)),
+        _aabb(nullptr),
+        _parent(nullptr)
     {
-        _position = glm::vec3(0.0f, 0.0f, 0.0f);
-        _right = glm::vec3(1.0f, 0.0f, 0.0f);
-        _up = glm::vec3(0.0f, 1.0f, 0.0f);
-        _direction = glm::vec3(0.0f, 0.0f, 1.0f);
-        _orientation = mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), _direction);
-        _changedEvent = new eventHandler<object3DEventArgs>();
-
-        _yaw = 0;
-        _roll = 0;
-        _pitch = 0;
-
-        _size = size<float>(1.0f, 1.0f, 1.0f);
         setChanged();
-        _aabb = nullptr;
-        _parent = nullptr;
     }
 
     object3D::~object3D()
     {
         safeDelete(_aabb);
 
-        // Do I need to delete those, or should the scene?
-        //auto _childrenCount = _children.size();
-        //for (unsigned int i = 0; i < _childrenCount; i++)
-        //    DELETE(_children[i]);
+        // TODO: Do I need to delete those, or should the scene?
+        // auto _childrenCount = _children.size();
+        // for (unsigned int i = 0; i < _childrenCount; i++)
+        //     DELETE(_children[i]);
     }
 
     void object3D::setChanged()
@@ -47,21 +44,21 @@ namespace phi
             _changedEvent->invoke(object3DEventArgs(this));
     }
 
-    void object3D::setLocalPosition(glm::vec3 value)
+    void object3D::setLocalPosition(vec3 value)
     {
         _position = value;
         setChanged();
         onPositionChanged();
     }
 
-    void object3D::setOrientation(glm::quat value)
+    void object3D::setOrientation(quat value)
     {
         _orientation = value;
         setChanged();
         onDirectionChanged();
     }
 
-    void object3D::setDirection(glm::vec3 direction)
+    void object3D::setDirection(vec3 direction)
     {
         _orientation = mathUtils::rotationBetweenVectors(_direction, direction) * _orientation;
         setChanged();
@@ -69,62 +66,42 @@ namespace phi
         onDirectionChanged();
     }
 
-    void object3D::setSize(size<float> value)
+    void object3D::setSize(sizef value)
     {
         _size = value;
         setChanged();
     }
 
-    glm::vec3 object3D::getPosition()
+    vec3 object3D::getPosition()
     {
-        auto vec4 = getModelMatrix() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0);
-        return glm::vec3(vec4.x, vec4.y, vec4.z);
+        auto v = getModelMatrix() * vec4(0.0f, 0.0f, 0.0f, 1.0);
+        return vec3(v.x, v.y, v.z);
     }
 
-    glm::vec3 object3D::getLocalPosition()
+    mat4 object3D::getRotationMatrix()
     {
-        return _position;
+        return toMat4(_orientation);
     }
 
-    glm::vec3 object3D::getDirection()
+    mat4 object3D::getTranslationMatrix()
     {
-        return _direction;
-    }
-
-    glm::vec3 object3D::getRight()
-    {
-        return _right;
-    }
-
-    glm::vec3 object3D::getUp()
-    {
-        return _up;
-    }
-
-    glm::mat4 object3D::getRotationMatrix()
-    {
-        return glm::toMat4(_orientation);
-    }
-
-    glm::mat4 object3D::getTranslationMatrix()
-    {
-        return glm::mat4(
+        return mat4(
             1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f,
             _position.x, _position.y, _position.z, 1.0f);
     }
 
-    glm::mat4 object3D::getScaleMatrix()
+    mat4 object3D::getScaleMatrix()
     {
-        return glm::mat4(
-            _size.width, 0.0f, 0.0f, 0.0f,
-            0.0f, _size.height, 0.0f, 0.0f,
-            0.0f, 0.0f, _size.depth, 0.0f,
+        return mat4(
+            _size.w, 0.0f, 0.0f, 0.0f,
+            0.0f, _size.h, 0.0f, 0.0f,
+            0.0f, 0.0f, _size.d, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f);
     }
 
-    glm::mat4 object3D::getModelMatrix()
+    mat4 object3D::getModelMatrix()
     {
         if (_parent == nullptr)
             return _modelMatrix;
@@ -140,30 +117,32 @@ namespace phi
 
     void object3D::updateLocalModelMatrix()
     {
-        glm::mat4 localRotation = getRotationMatrix();
-        glm::mat4 localScale = getScaleMatrix();
-        glm::mat4 localTranslation = getTranslationMatrix();
+        auto localRotation = getRotationMatrix();
+        auto localScale = getScaleMatrix();
+        auto localTranslation = getTranslationMatrix();
 
         auto rotation = localRotation;
         auto obj = this->getParent();
+
         while (obj != nullptr)
         {
             rotation = obj->getRotationMatrix() * rotation;
             obj = obj->getParent();
         }
 
-        _direction = mathUtils::multiply(rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-        _right = mathUtils::multiply(rotation, glm::vec3(1.0f, 0.0f, 0.0f));
-        _up = mathUtils::multiply(rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+        _direction = mathUtils::multiply(rotation, vec3(0.0f, 0.0f, 1.0f));
+        _right = mathUtils::multiply(rotation, vec3(1.0f, 0.0f, 0.0f));
+        _up = mathUtils::multiply(rotation, vec3(0.0f, 1.0f, 0.0f));
 
         _modelMatrix = localTranslation  * localRotation * localScale;
 
-        glm::mat3 normalMatrix = glm::mat3(
+        auto normalMatrix = mat3(
             _modelMatrix[0][0], _modelMatrix[0][1], _modelMatrix[0][2],
             _modelMatrix[1][0], _modelMatrix[1][1], _modelMatrix[1][2],
             _modelMatrix[2][0], _modelMatrix[2][1], _modelMatrix[2][2]);
 
         auto childrenCount = _children.size();
+
         for (unsigned int i = 0; i < childrenCount; i++)
             _children[i]->updateLocalModelMatrix();
     }
@@ -177,39 +156,36 @@ namespace phi
         }
     }
 
-    void object3D::translate(glm::vec3 translation)
+    void object3D::translate(vec3 translation)
     {
         _position += translation;
         setChanged();
     }
 
-    void object3D::rotate(float angle, glm::vec3 axis)
+    void object3D::rotate(float angle, vec3 axis)
     {
-        _orientation = glm::angleAxis(angle, axis) * _orientation;
+        _orientation = angleAxis(angle, axis) * _orientation;
         setChanged();
         onDirectionChanged();
     }
 
     void object3D::pitch(float angle)
     {
-        _pitch += angle;
-        _orientation = glm::angleAxis(angle, glm::vec3(1.0f, 0.0f, 0.0f)) * _orientation;
+        _orientation = angleAxis(angle, vec3(1.0f, 0.0f, 0.0f)) * _orientation;
         setChanged();
         onDirectionChanged();
     }
 
     void object3D::yaw(float angle)
     {
-        _yaw += angle;
-        _orientation = glm::angleAxis(angle, glm::vec3(0.0f, 1.0f, 0.0f)) * _orientation;
+        _orientation = angleAxis(angle, vec3(0.0f, 1.0f, 0.0f)) * _orientation;
         setChanged();
         onDirectionChanged();
     }
 
     void object3D::roll(float angle)
     {
-        _roll += angle;
-        _orientation = glm::angleAxis(angle, glm::vec3(0.0f, 0.0f, 1.0f)) * _orientation;
+        _orientation = angleAxis(angle, vec3(0.0f, 0.0f, 1.0f)) * _orientation;
         setChanged();
         onDirectionChanged();
     }

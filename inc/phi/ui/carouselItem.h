@@ -14,7 +14,7 @@ namespace phi
         std::string _name;
 
     public:
-        UI_API carouselItem(std::string name, size<GLuint> viewportSize) : _name(name), button(viewportSize) {}
+        UI_API carouselItem(std::string name, sizef viewportSize) : _name(name), button(viewportSize) {}
 
         UI_API std::string getName() { return _name; }
     };

@@ -2,7 +2,7 @@
 
 namespace phi
 {
-    frameBuffer::frameBuffer(std::string name, size<GLuint> size, color clearColor)
+    frameBuffer::frameBuffer(std::string name, sizef size, color clearColor)
     {
         _name = name;
         _size = size;
@@ -47,7 +47,7 @@ namespace phi
         if (status != GL_FRAMEBUFFER_COMPLETE)
         {
             std::string msg = "FB error, status: " + std::to_string(status);
-            LOG(msg);
+            log(msg);
             return false;
         }
 
@@ -96,7 +96,7 @@ namespace phi
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void frameBuffer::setSize(size<GLuint> value)
+    void frameBuffer::setSize(sizef value)
     {
         _size = value;
     }
@@ -107,7 +107,7 @@ namespace phi
         glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
     }
 
-    void frameBuffer::setViewport(GLuint x, GLuint y, size<GLuint> size)
+    void frameBuffer::setViewport(GLuint x, GLuint y, sizef size)
     {	
         _x = x;
         _y = y;
@@ -133,8 +133,8 @@ namespace phi
         glBlitFramebuffer(
             0,
             0,
-            _size.width,
-            _size.height,
+            (GLuint)_size.w,
+            (GLuint)_size.h,
             x, 
             y, 
             x + width, 
@@ -148,8 +148,8 @@ namespace phi
         glBlitFramebuffer(
             0,
             0,
-            _size.width,
-            _size.height,
+            (GLuint)_size.w,
+            (GLuint)_size.h,
             x, 
             y, 
             x + width, 
@@ -217,10 +217,10 @@ namespace phi
         return r;
     }
 
-    GLfloat frameBuffer::getZBufferValue(glm::vec2 mousePos)
+    GLfloat frameBuffer::getZBufferValue(vec2 mousePos)
     {
         GLfloat zBufferValue;
-        glReadPixels((GLint)mousePos.x, (GLint)(_size.height - mousePos.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+        glReadPixels((GLint)mousePos.x, (GLint)(_size.h - mousePos.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
 
         return zBufferValue;
     }

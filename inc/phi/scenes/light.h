@@ -28,8 +28,8 @@ namespace phi
         transform* _transform;
 
     public:
-        SCENES_API light();
-        SCENES_API light(glm::vec3 position, color color, float intensity);
+        SCENES_API light(object3D::objectType type);
+        SCENES_API light(vec3 position, color color, float intensity, object3D::objectType type);
         virtual ~light();
 
         SCENES_API virtual transform* getTransform();

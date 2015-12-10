@@ -42,7 +42,7 @@ namespace phi
 
         if(!result)
         {
-            LOG(_name);
+            log(_name);
             return false;
         }
 
@@ -57,7 +57,7 @@ namespace phi
 
         //if(!result)
         //{
-        //    LOG(_name);
+        //    log(_name);
         //    return false;
         //}
 
@@ -100,7 +100,7 @@ namespace phi
 
         if (length > 0) // If we have any information to display
         {
-            LOG("Shader " << shader << " (" << (file.c_str()?file:"") << ") compile error: " << buffer); // Output the information
+            std::cout << "Shader " << shader << " (" << (file.c_str() ? file : "") << ") compile error: " << buffer << std::endl;
             return false;
         }
 
@@ -117,7 +117,7 @@ namespace phi
         glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the program
         if (length > 0) // If we have any information to display
         {
-            LOG("Program " << program << " link error: " << buffer); // Output the information
+            std::cout << "Program " << program << " link error: " << buffer << std::endl; // Output the information
             return false;
         }
 
@@ -127,7 +127,7 @@ namespace phi
         if (status == GL_FALSE) // If there was a problem validating
         {
             glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer);
-            LOG("Error validating shader " << program << buffer); // Output which program had the error
+            std::cout << "Error validating shader " << program << buffer << std::endl; // Output which program had the error
             return false;
         }
 
@@ -140,29 +140,29 @@ namespace phi
             glBindAttribLocation(_id, i, _attributes[i].c_str());
     }
 
-    void shader::addUniform(std::string name)
+    void shader::addUniform(uint location, std::string name)
     {
         if (!_initialized)
         {
-            LOG("Shader not initialized:" + _name);
+            log("Shader not initialized:" + _name);
             return;
         }
 
-        _uniforms[name] = glGetUniformLocation(_id, name.c_str());
+        _uniforms[location] = glGetUniformLocation(_id, name.c_str());
     }
 
-    void shader::setUniform(std::string name, texture* value, GLuint index)
+    void shader::setUniform(uint location, texture* value, GLuint index)
     {
         glActiveTexture(GL_TEXTURE0 + index);
         glBindTexture(value->getTextureType(), value->getId());
-        glUniform1i(_uniforms[name], index);
+        glUniform1i(_uniforms[location], index);
     }
 
     void shader::bind()
     {
         if (!_initialized)
         {
-            LOG("Shader not initialized:" + _name);
+            log("Shader not initialized:" + _name);
             return;
         }
 

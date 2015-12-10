@@ -23,21 +23,7 @@ public:
 };
 
 std::vector<commandLineCommand> commandLineCommands;
-phi::scenesManager* _scenesManager;
-phi::sceneRenderer* _renderer;
 std::string _resourcesPath;
-
-void rCommandFunction(std::vector<std::string> args)
-{
-    std::string r = args[0];
-
-    if (r == "0")
-       _renderer = phi::scenesManager::basicRenderer;
-    else if (r == "1")
-        _renderer = phi::scenesManager::fsRenderer;
-    else if (r == "2")
-        _renderer = phi::scenesManager::dsRenderer;
-}
 
 void rpCommandFunction(std::vector<std::string> args)
 {
@@ -48,13 +34,11 @@ void initCommandLineCommands()
 {
     /***********
 
-    /r <0..2>           Set renderer
     /rp <path>          Set resources path
 
     ***********/
-    commandLineCommands.push_back(commandLineCommand("/r", &rCommandFunction));
-    commandLineCommands.push_back(commandLineCommand("/rp", &rpCommandFunction));
 
+    commandLineCommands.push_back(commandLineCommand("/rp", &rpCommandFunction));
 }
 
 void processCommandLine(int argc, char* args[])
@@ -93,13 +77,13 @@ void executeCommands()
     {
         if (commandLineCommands[i].shouldExecute)
         {
-            LOG("command executed: " << commandLineCommands[i].name);
+            phi::log("command executed: " + commandLineCommands[i].name);
 
             commandLineCommands[i].func(commandLineCommands[i].args);
 
             for (unsigned int j = 0; j < commandLineCommands[i].args.size(); j++)
             {
-                LOG("arg[" << j << "]: " <<commandLineCommands[i].args[j]);
+                phi::log("arg[" + std::to_string(j) + "]: " + commandLineCommands[i].args[j]);
             }
         }
     }
@@ -122,8 +106,6 @@ int main(int argc, char* args[])
     application::path = path;
     application::exePath = exePath;
 
-    _scenesManager = phi::scenesManager::get();
-
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
@@ -136,9 +118,6 @@ int main(int argc, char* args[])
         mainScreen->setResourcesPath(path + "\\resources\\");
 
     mainScreen->initialize(path);
-
-    if (_renderer != nullptr)
-        _scenesManager->setSceneRenderer(_renderer);
 
     app->run(mainScreen);
 

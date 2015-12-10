@@ -1,7 +1,7 @@
 #ifndef _PHI_SCISSOR_H_
 #define _PHI_SCISSOR_H_
 
-#include <glm/glm.hpp>
+#include <phi/core/globals.h>
 
 namespace phi
 {
@@ -10,13 +10,13 @@ namespace phi
     public:
         float x;
         float y;
-        float width;
-        float height;
+        float w;
+        float h;
 
         scissor::scissor();
-        scissor(float x, float y, float width, float height);
+        scissor(float x, float y, float w, float h);
         scissor intersection(scissor b);
-        bool intersectsWith(glm::vec2 point);
+        bool intersectsWith(vec2 point);
     };
 }
 

@@ -1,16 +1,11 @@
-#include "phi/demo/fpsCameraController.h"
-
-#include "phi/core/globals.h"
-#include "phi/core/mathUtils.h"
-
-#include "phi/scenes/camera.h"
-#include "phi/scenes/scenesManager.h"
-
+#include <phi\demo\fpsCameraController.h>
+#include <phi\core\globals.h>
+#include <phi\core\mathUtils.h>
 #include <SDL\SDL.h>
-#include <glm/gtx/vector_angle.hpp>
+#include <glm\gtx\vector_angle.hpp>
 
-fpsCameraController::fpsCameraController(phi::size<unsigned int> viewportSize) :
-    cameraController(viewportSize)
+fpsCameraController::fpsCameraController(phi::camera* camera) :
+    cameraController(camera)
 {
     _walkForward = new phi::inputKey(PHI_SCANCODE_W, 0);
     _walkBackward = new phi::inputKey(PHI_SCANCODE_S, 0);
@@ -19,7 +14,7 @@ fpsCameraController::fpsCameraController(phi::size<unsigned int> viewportSize) :
 
     int x, y;
     SDL_GetMouseState(&x, &y);
-    _lastMousePos = glm::vec2(x, y);
+    _lastMousePos = phi::vec2(x, y);
 }
 
 bool fpsCameraController::onMouseDown(phi::mouseEventArgs* e, phi::inputKey key)
@@ -29,21 +24,20 @@ bool fpsCameraController::onMouseDown(phi::mouseEventArgs* e, phi::inputKey key)
 
 bool fpsCameraController::onMouseMove(phi::mouseEventArgs* e)
 {
-    auto mousePos = glm::vec2(e->x, e->y);
-    phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
+    auto mousePos = phi::vec2(e->x, e->y);
     auto diff = mousePos - _lastMousePos;
     //camera->yaw(diff.x * 0.001f);
-    camera->rotate(-diff.x * 0.001f, camera->getUp());
-    camera->rotate(diff.y * 0.001f, camera->getRight());
+    _camera->rotate(-diff.x * 0.001f, _camera->getUp());
+    _camera->rotate(diff.y * 0.001f, _camera->getRight());
     //camera->pitch(diff.y * 0.001f);
     //camera->update();
 
     //auto dir = camera->getDirection();
-    //auto right = glm::normalize(glm::cross(dir, glm::vec3(0.0f, -1.0f, 0.0f)));
+    //auto right = normalize(cross(dir, phi::vec3(0.0f, -1.0f, 0.0f)));
 
-    //auto q1 = phi::mathUtils::rotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), dir);
-    //auto angle = glm::orientedAngle(q1 * glm::vec3(1.0f, 0.0f, 0.0f), right, dir);
-    //auto q2 = glm::angleAxis(angle, dir);
+    //auto q1 = phi::mathUtils::rotationBetweenVectors(phi::vec3(0.0f, 0.0f, 1.0f), dir);
+    //auto angle = orientedAngle(q1 * phi::vec3(1.0f, 0.0f, 0.0f), right, dir);
+    //auto q2 = angleAxis(angle, dir);
 
     //camera->setOrientation(q2 * q1);
 
@@ -63,21 +57,21 @@ bool fpsCameraController::onMouseWheel(phi::mouseEventArgs* e, phi::inputKey key
 
 bool fpsCameraController::onKeyDown(phi::keyboardEventArgs* e, phi::inputKey key)
 {
-    glm::vec3 moveDir;
+    phi::vec3 moveDir;
     const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
-    phi::camera* camera = phi::scenesManager::get()->getScene()->getActiveCamera();
-    if (currentKeyStates[_walkForward->key])
-        moveDir += camera->getDirection();
-    if (currentKeyStates[_walkBackward->key])
-        moveDir += -camera->getDirection();
-    if (currentKeyStates[_walkLeft->key])
-        moveDir += camera->getRight();
-    if (currentKeyStates[_walkRight->key])
-        moveDir += -camera->getRight();
 
-    if (moveDir != glm::vec3())
+    if (currentKeyStates[_walkForward->key])
+        moveDir += _camera->getDirection();
+    if (currentKeyStates[_walkBackward->key])
+        moveDir += -_camera->getDirection();
+    if (currentKeyStates[_walkLeft->key])
+        moveDir += _camera->getRight();
+    if (currentKeyStates[_walkRight->key])
+        moveDir += -_camera->getRight();
+
+    if (moveDir != phi::vec3())
     {
-        camera->setLocalPosition(camera->getLocalPosition() + glm::normalize(moveDir) * 0.2f);
+        _camera->setLocalPosition(_camera->getLocalPosition() + normalize(moveDir) * 0.2f);
         return true;
     }
 

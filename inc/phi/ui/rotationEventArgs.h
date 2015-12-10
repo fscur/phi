@@ -3,21 +3,18 @@
 
 #include <phi/core/object3DEventArgs.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 namespace phi
 {
     class rotationEventArgs :
         public object3DEventArgs
     {
     public:
-        glm::quat startOrientation;
-        glm::quat endOrientation;
+        quat startOrientation;
+        quat endOrientation;
         bool cancel;
 
     public:
-        rotationEventArgs(object3D* sender, glm::quat start, glm::quat end)
+        rotationEventArgs(object3D* sender, quat start, quat end)
             : object3DEventArgs(sender), startOrientation(start), endOrientation(end), cancel(false)
         {
         }

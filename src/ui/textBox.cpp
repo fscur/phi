@@ -8,14 +8,14 @@
 
 namespace phi
 {
-    textBox::textBox(size<GLuint> viewportSize) : control(viewportSize)
+    textBox::textBox(sizef viewportSize) : control(viewportSize)
     {
         _text = "";
         _texture = uiRepository::repository->getResource<texture>("button.png");
         _font = uiRepository::repository->getResource<font>("Consola_18");
-        _backgroundRenderer = new quadRenderer2D(glm::vec2(), _zIndex, size<GLuint>(), viewportSize);
-        _cursorRenderer = new quadRenderer2D(glm::vec2(), _zIndex + 0.03f, size<GLuint>(CURSOR_WIDTH, _font->getLineHeight()), viewportSize);
-        _selectionRenderer = new quadRenderer2D(glm::vec2(), _zIndex + 0.01f, size<GLuint>(), viewportSize);
+        _backgroundRenderer = new quadRenderer2D(vec2(), _zIndex, sizef(), viewportSize);
+        _cursorRenderer = new quadRenderer2D(vec2(), _zIndex + 0.03f, sizef(CURSOR_WIDTH, _font->getLineHeight()), viewportSize);
+        _selectionRenderer = new quadRenderer2D(vec2(), _zIndex + 0.01f, sizef(), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
         _textX = 0;
         _textY = 0;
@@ -41,51 +41,51 @@ namespace phi
 
     void textBox::updateTextLocation()
     {
-        size<unsigned int> textSize = _textRenderer->measureSize(_text, _font);
+        sizef textSize = _textRenderer->measureSize(_text, _font);
 
         _textX = _x;
-        _textY = (int)(_y + _size.height * 0.5f - textSize.height * 0.5f);
+        _textY = (int)(_y + _size.h * 0.5f - textSize.h * 0.5f);
     }
 
     void textBox::updateCursorLocation()
     {
         std::string sub = _text.substr(0, _cursorIndex);
-        size<unsigned int> subTextSize = _textRenderer->measureSize(sub, _font);
+        sizef subTextSize = _textRenderer->measureSize(sub, _font);
 
-        float x = (float)_x + (float)subTextSize.width + (float)_textOffsetX; // Cast needed probably because of a float rounding problem (?)
-        float y = _y + _size.height * 0.5f - _cursorRenderer->getSize().height * 0.5f;
-        if (x > _x + _size.width - 1)
+        float x = (float)_x + (float)subTextSize.w + (float)_textOffsetX; // Cast needed probably because of a float rounding problem (?)
+        float y = _y + _size.h * 0.5f - _cursorRenderer->getSize().h * 0.5f;
+        if (x > _x + _size.w - 1)
         {
-            _textOffsetX += (int)glm::round(((_x + _size.width -1) - x));
-            x = (float)(_x + _size.width - 1.0f);
+            _textOffsetX += (int)round(((_x + _size.w -1) - x));
+            x = (float)(_x + _size.w - 1.0f);
         }
 
         if (x < _x)
         {
-            _textOffsetX -= (int)glm::round(x - _x);
+            _textOffsetX -= (int)round(x - _x);
             x = (float)_x;
         }
 
-        //size<unsigned int> textSize = _textRenderer->measureSize(_text, _font);
-        //if (textSize.width + _textOffsetX < _size.width && _textOffsetX < 0)
+        //sizef textSize = _textRenderer->measureSize(_text, _font);
+        //if (textSize.w + _textOffsetX < _size.w && _textOffsetX < 0)
         //{
-        //    _textOffsetX -= (textSize.width + _textOffsetX) - _size.width;
-        //    x = _x + _size.width - 1;
+        //    _textOffsetX -= (textSize.w + _textOffsetX) - _size.w;
+        //    x = _x + _size.w - 1;
         //}
 
-        size<unsigned int> textSize = _textRenderer->measureSize(_text, _font);
-        if (textSize.width < _size.width)
+        sizef textSize = _textRenderer->measureSize(_text, _font);
+        if (textSize.w < _size.w)
         {
             _textOffsetX = 0;
-            x = (float)(_x + subTextSize.width);
+            x = (float)(_x + subTextSize.w);
         }
-        else if (textSize.width + _textOffsetX < _size.width)
+        else if (textSize.w + _textOffsetX < _size.w)
         {
-            _textOffsetX -= (textSize.width + _textOffsetX) - _size.width;
-            x = (float)(_x + _size.width - 1.0f);
+            _textOffsetX -= (textSize.w + _textOffsetX) - _size.w;
+            x = (float)(_x + _size.w - 1.0f);
         }
 
-        _cursorRenderer->setLocation(glm::vec2(x, y));
+        _cursorRenderer->setLocation(vec2(x, y));
         _cursorRenderer->update();
     }
 
@@ -95,19 +95,19 @@ namespace phi
         unsigned int end = glm::max(_selectionStartIndex, _selectionEndIndex);
 
         std::string sub = _text.substr(start, end - start);
-        size<unsigned int> subTextSize = _textRenderer->measureSize(sub, _font);
+        sizef subTextSize = _textRenderer->measureSize(sub, _font);
         std::string pre = _text.substr(0, start);
-        size<unsigned int> preTextSize = _textRenderer->measureSize(pre, _font);
+        sizef preTextSize = _textRenderer->measureSize(pre, _font);
 
-        _selectionRenderer->setSize(size<GLuint>(subTextSize.width, _font->getLineHeight()));
-        _selectionRenderer->setLocation(glm::vec2(_x + preTextSize.width + _textOffsetX, _y + _size.height * 0.5f - _font->getLineHeight() * 0.5f));
+        _selectionRenderer->setSize(sizef(subTextSize.w, _font->getLineHeight()));
+        _selectionRenderer->setLocation(vec2(_x + preTextSize.w + _textOffsetX, _y + _size.h * 0.5f - _font->getLineHeight() * 0.5f));
         _selectionRenderer->update();
     }
 
     void textBox::setX(int value)
     {
         _x = value;
-        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->setLocation(vec2(_x, _y));
         _backgroundRenderer->setZIndex(_zIndex);
         _backgroundRenderer->update();
         updateTextLocation();
@@ -116,7 +116,7 @@ namespace phi
     void textBox::setY(int value)
     {
         _y = value;
-        _backgroundRenderer->setLocation(glm::vec2(_x, _y));
+        _backgroundRenderer->setLocation(vec2(_x, _y));
         _backgroundRenderer->update();
         updateTextLocation();
     }
@@ -131,7 +131,7 @@ namespace phi
         _cursorRenderer->update();
     }
 
-    void textBox::setSize(size<GLuint> value)
+    void textBox::setSize(sizef value)
     {
         _size = value;
         _backgroundRenderer->setSize(value);
@@ -149,7 +149,7 @@ namespace phi
     void textBox::setFont(font* value)
     {
         _font = value;
-        _cursorRenderer->setSize(size<GLuint>(CURSOR_WIDTH, _font->getLineHeight()));
+        _cursorRenderer->setSize(sizef(CURSOR_WIDTH, _font->getLineHeight()));
         updateTextLocation();
         updateCursorLocation();
     }
@@ -160,7 +160,7 @@ namespace phi
         _currentColor = _backgroundColor;
     }
 
-    void textBox::setViewportSize(size<GLuint> value)
+    void textBox::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
         _backgroundRenderer->setViewportSize(getViewportSize());
@@ -186,7 +186,7 @@ namespace phi
         if (e->clicks < 2)
         {
             _isClickingOver = true;
-            _cursorIndex = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e->x - _x - _textOffsetX, 0), _size.height));
+            _cursorIndex = _textRenderer->measureString(_text, _font, sizef(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
             updateCursorLocation();
             _selectionStartIndex = _cursorIndex;
             _selectionEndIndex = _cursorIndex;
@@ -194,7 +194,7 @@ namespace phi
         }
         else
         {
-            unsigned int index = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e->x - _x - _textOffsetX, 0), _size.height));
+            unsigned int index = _textRenderer->measureString(_text, _font, sizef(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
             std::vector<char> v(_text.begin(), _text.end());
             v.push_back('\0');
             char* str = &v[0];
@@ -251,7 +251,7 @@ namespace phi
     {
         if (_isClickingOver)
         {
-            _selectionEndIndex = _cursorIndex = _textRenderer->measureString(_text, _font, size<unsigned int>(glm::max(e->x - _x - _textOffsetX, 0), _size.height));
+            _selectionEndIndex = _cursorIndex = _textRenderer->measureString(_text, _font, sizef(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
             updateCursorLocation();
             updateSelectionRenderer();
         }
@@ -344,17 +344,17 @@ namespace phi
     void textBox::onRender()
     {
         //glEnable(GL_SCISSOR_TEST);
-        //glScissor(_x, (_viewportSize.height - _size.height - _y), _size.width, _size.height);
+        //glScissor(_x, (_viewportSize.h - _size.h - _y), _size.w, _size.h);
         //glEnable(GL_BLEND);
         //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.width, (float)_size.height);
+        control::controlsScissors->pushScissor((float)_x, (float)_y, (float)_size.w, (float)_size.h);
         control::controlsScissors->enable();
 
         _backgroundRenderer->render(_texture, _currentColor);
         if (getIsFocused())
             _selectionRenderer->render(_texture, color::fromRGBA(0.0f, 0.0f, 0.9f, 1.0f));
-        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, glm::vec2(_textX + _textOffsetX, _textY), _zIndex + 0.02f);
+        _textRenderer->render(_text, _font, _foregroundColor, color::transparent, vec2(_textX + _textOffsetX, _textY), _zIndex + 0.02f);
         if (getIsFocused())
             _cursorRenderer->render(_texture, color::fromRGBA(0.3f, 0.3f, 0.3f, 1.0f));
 

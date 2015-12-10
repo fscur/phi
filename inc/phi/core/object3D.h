@@ -15,20 +15,33 @@ namespace phi
 {
     class object3D
     {
+    public:
+        enum objectType
+        {
+            MODEL,
+            MESH,
+            CAMERA,
+            DIRECTIONAL_LIGHT,
+            SPOT_LIGHT,
+            POINT_LIGHT
+        };
+
     private:
-        float _roll;
-        float _pitch;
-        float _yaw;
-        glm::vec3 _right;
-        glm::vec3 _up;
-        glm::vec3 _direction;
-        glm::vec3 _position;
-        size<float> _size;
-        glm::quat _orientation;
-        glm::mat4 _modelMatrix;
+        std::string _name;
+        objectType _type;
+
+        vec3 _right;
+        vec3 _up;
+        vec3 _direction;
+        vec3 _position;
+        sizef _size;
+        quat _orientation;
+        mat4 _modelMatrix;
         aabb* _aabb;
-        std::vector<object3D*> _children;
+        
         object3D* _parent;
+        std::vector<object3D*> _children;
+
         eventHandler<object3DEventArgs>* _changedEvent;
         bool _changed;
     private:
@@ -41,40 +54,43 @@ namespace phi
         CORE_API void setChanged();
 
     public:
-        CORE_API glm::vec3 getPosition();
-        CORE_API glm::vec3 getLocalPosition();
-        CORE_API size<float> getSize() const { return _size ; }
-        CORE_API glm::quat getOrientation() const { return _orientation; }
-        CORE_API glm::mat4 getModelMatrix();
-        CORE_API glm::mat4 getLocalModelMatrix() const { return _modelMatrix; }
-        CORE_API glm::mat4 getRotationMatrix();
-        CORE_API glm::mat4 getTranslationMatrix();
-        CORE_API glm::mat4 getScaleMatrix();
+        CORE_API object3D(std::string name, objectType type);
+        CORE_API ~object3D();
+
+        CORE_API std::string getName() const { return _name; }
+        CORE_API objectType getType() const { return _type; }
+
+        CORE_API vec3 getPosition();
+        CORE_API vec3 getLocalPosition() const { return _position; }
+        CORE_API sizef getSize() const { return _size ; }
+        CORE_API quat getOrientation() const { return _orientation; }
+        CORE_API mat4 getModelMatrix();
+        CORE_API mat4 getLocalModelMatrix() const { return _modelMatrix; }
+        CORE_API mat4 getRotationMatrix();
+        CORE_API mat4 getTranslationMatrix();
+        CORE_API mat4 getScaleMatrix();
         CORE_API aabb* getAabb() const { return _aabb; }
         CORE_API object3D* getParent() const { return _parent; }
-        CORE_API glm::vec3 getDirection();
-        CORE_API glm::vec3 getRight();
-        CORE_API glm::vec3 getUp();
-        CORE_API std::vector<object3D*> getChildren() const { return _children; }
+        CORE_API vec3 getDirection() const { return _direction; }
+        CORE_API vec3 getRight() const { return _right; }
+        CORE_API vec3 getUp() const { return _up; }
+        CORE_API std::vector<object3D*>& getChildren() { return _children; }
         CORE_API bool getChanged() const { return _changed; }
         CORE_API eventHandler<object3DEventArgs>* getChangedEvent() { return _changedEvent; }
 
-        CORE_API void setOrientation(glm::quat value);
-        CORE_API void setLocalPosition(glm::vec3 value);
-        CORE_API void setSize(size<float> value);
-        CORE_API void setDirection(glm::vec3 direction);
+        CORE_API void setOrientation(quat value);
+        CORE_API void setLocalPosition(vec3 value);
+        CORE_API void setSize(sizef value);
+        CORE_API void setDirection(vec3 direction);
         CORE_API void setAabb(aabb* value) { _aabb = value; }
         CORE_API void setParent(object3D* value) { _parent = value; setChanged(); }
 
         CORE_API void addChild(object3D* child);
 
-        CORE_API object3D();
-        CORE_API ~object3D();
-
         CORE_API virtual void update();
 
-        CORE_API void translate(glm::vec3 translation);
-        CORE_API void rotate(float angle, glm::vec3 axis);
+        CORE_API void translate(vec3 translation);
+        CORE_API void rotate(float angle, vec3 axis);
         CORE_API void roll(float angle);
         CORE_API void pitch(float angle);
         CORE_API void yaw(float angle);

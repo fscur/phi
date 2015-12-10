@@ -3,7 +3,6 @@
 
 #include <phi/core/object3DEventArgs.h>
 
-#include <glm\glm.hpp>
 
 namespace phi
 {
@@ -11,12 +10,12 @@ namespace phi
         public object3DEventArgs
     {
     public:
-        glm::vec3 startPos;
-        glm::vec3 endPos;
+        vec3 startPos;
+        vec3 endPos;
         bool cancel;
 
     public:
-        translationEventArgs(object3D* sender, glm::vec3 start, glm::vec3 end)
+        translationEventArgs(object3D* sender, vec3 start, vec3 end)
             : object3DEventArgs(sender), startPos(start), endPos(end), cancel(false)
         {
         }

@@ -52,11 +52,11 @@ namespace phi
         void tabButtonCheckedChanging(controlCancelEventArgs* e);
         void subTabButtonCheckedChanging(controlCancelEventArgs* e);
         void subTabButtonCheckedChanged(controlEventArgs e);
-        toggleButton* createTabButton(std::string text, texture* image, int x, int y, size<GLuint> size);
+        toggleButton* createTabButton(std::string text, texture* image, int x, int y, sizef size);
         void changeCurrentSubTab(carouselTab* subTab);
 
     public:
-        UI_API carouselList(size<GLuint> viewportSize);
+        UI_API carouselList(sizef viewportSize);
         UI_API ~carouselList();
 
         UI_API bool getExpanded() { return _expanded; }
@@ -65,8 +65,8 @@ namespace phi
         UI_API void setX(int value) override;
         UI_API void setY(int value) override;
         UI_API void setZIndex(float value) override;
-        UI_API void setSize(size<GLuint> value) override;
-        UI_API void setViewportSize(size<GLuint> value) override;
+        UI_API void setSize(sizef value) override;
+        UI_API void setViewportSize(sizef value) override;
         UI_API void setBackgroundColor(color value);
         UI_API void setExpanded(bool value);
 

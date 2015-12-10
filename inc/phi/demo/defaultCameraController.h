@@ -1,10 +1,10 @@
 #ifndef _DEFAULT_CAMERA_CONTROLLER_H_
 #define _DEFAULT_CAMERA_CONTROLLER_H_
 
-#include "phi/demo/cameraController.h"
-#include "phi/demo/shortcuts.h"
+#include <phi/core/globals.h>
+#include "cameraController.h"
+#include "shortcuts.h"
 
-#include <glm/glm.hpp>
 #if WIN32
 #include <GL/glew.h>
 #else
@@ -16,27 +16,27 @@ class defaultCameraController :
 {
 private:
     shortcuts _shortcuts;
-    glm::vec2 _lastMousePos;
+    phi::vec2 _lastMousePos;
     bool _rotating;
     bool _panning;
     GLfloat _zBufferValue;
-    glm::vec3 _cameraPos;
-    glm::vec3 _cameraRight;
-    glm::vec3 _cameraUp;
-    glm::vec2 _startPos;
+    phi::vec3 _cameraPos;
+    phi::vec3 _cameraRight;
+    phi::vec3 _cameraUp;
+    phi::vec2 _startPos;
     float _eyeZ;
-    glm::vec3 _targetPos;
+    phi::vec3 _targetPos;
 
 private:
-    void executeInput(phi::inputKey key, glm::vec2 mousePos);
-    void initPan(glm::vec2 mousePos);
-    void initRotate(glm::vec2 mousePos);
-    void zoom(glm::vec2 mousePos, bool in);
-    void pan(glm::vec2 mousePos);
-    void rotate(glm::vec2 mousePos);
+    void executeInput(phi::inputKey key, phi::vec2 mousePos);
+    void initPan(phi::vec2 mousePos);
+    void initRotate(phi::vec2 mousePos);
+    void zoom(phi::vec2 mousePos, bool in);
+    void pan(phi::vec2 mousePos);
+    void rotate(phi::vec2 mousePos);
 
 public:
-    defaultCameraController(phi::size<unsigned int> viewportSize);
+    defaultCameraController(phi::camera* camera);
 
     virtual bool onMouseDown(phi::mouseEventArgs* e, phi::inputKey key) override;
     virtual bool onMouseMove(phi::mouseEventArgs* e) override;

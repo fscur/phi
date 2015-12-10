@@ -1,5 +1,5 @@
-#include "phi/ui/control.h"
-#include "phi/core/clock.h"
+#include <phi/ui/control.h>
+#include <phi/core/clock.h>
 
 #include <algorithm>
 
@@ -8,12 +8,12 @@ namespace phi
     toolTip* control::_toolTip = nullptr;
     scissorStack* control::controlsScissors = nullptr;
 
-    control::control(size<GLuint> viewportSize)
+    control::control(sizef viewportSize)
     {
         _x = 0;
         _y = 0;
         _zIndex = 0;
-        _size = size<GLuint>(0, 0);
+        _size = sizef(0, 0);
         _viewportSize = viewportSize;
         _isFocused = false;
         _isMouseOver = false;
@@ -36,7 +36,7 @@ namespace phi
         safeDelete(_mouseLeave);
     }
 
-    void control::init(size<GLuint> viewportSize)
+    void control::init(sizef viewportSize)
     {
         _toolTip = new toolTip(viewportSize);
         controlsScissors = new scissorStack(viewportSize);
@@ -71,7 +71,7 @@ namespace phi
 
     bool control::isPointInside(int x, int y)
     {
-        return x >= _x && x <= _x + (int)_size.width && y >= _y && y <= _y + (int)_size.height;
+        return x >= _x && x <= _x + (int)_size.w && y >= _y && y <= _y + (int)_size.h;
     }
 
     void control::notifyMouseDown(mouseEventArgs* e)
@@ -165,15 +165,15 @@ namespace phi
             {
                 //_toolTip->setText(_toolTipText);
                 //auto toolTipSize = _toolTip->getSize();
-                //auto x = glm::max(0.0f, _x + _size.width * 0.5f - toolTipSize.width * 0.5f);
-                //x = glm::min(x, (float)(_viewportSize.width - toolTipSize.width));
+                //auto x = max(0.0f, _x + _size.w * 0.5f - toolTipSize.w * 0.5f);
+                //x = min(x, (float)(_viewportSize.w - toolTipSize.w));
                 //float y;
-                //if (_y + _size.height + toolTipSize.height > _viewportSize.height)
-                //    y = _y - toolTipSize.height;
+                //if (_y + _size.h + toolTipSize.h > _viewportSize.h)
+                //    y = _y - toolTipSize.h;
                 //else
-                //    y = _y + _size.height;
+                //    y = _y + _size.h;
 
-                _toolTip->show(_toolTipText, glm::vec2(_x + _size.width * 0.5f, _y + _size.height), _size);
+                _toolTip->show(_toolTipText, vec2(_x + _size.w * 0.5f, _y + _size.h), _size);
 
                 _renderToolTip = true;
             }
