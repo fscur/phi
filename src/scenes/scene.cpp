@@ -23,7 +23,7 @@ namespace phi
     {
         if (object->getType() == object3D::objectType::MESH)
         {
-            auto m = dynamic_cast<mesh*>(object);
+            auto m = static_cast<mesh*>(object);
             auto mat = m->getMaterial();
             auto geom = m->getGeometry();
 

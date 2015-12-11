@@ -4,11 +4,12 @@ namespace phi
 {
     sceneRenderer::sceneRenderer()
     {
-        createShader();
+        _defaultFrameBuffer = new defaultFrameBuffer(color::black);
     }
 
     sceneRenderer::~sceneRenderer()
     {
+        safeDelete(_defaultFrameBuffer);
     }
 
     void sceneRenderer::createShader()
@@ -22,8 +23,12 @@ namespace phi
         _shader->addUniform(BASIC_SHADER::MVP, "mvp");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffuseMap");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_COLOR, "diffuseColor");
+    }
 
-        _shader->init();
+    void sceneRenderer::init()
+    {
+        _defaultFrameBuffer->init();
+        createShader();
     }
 
     void sceneRenderer::render(scene* scene)
@@ -33,11 +38,11 @@ namespace phi
 
         auto renderList = _scene->getRenderList();
 
-        renderingSystem::defaultFrameBuffer->clear();
-
+        _defaultFrameBuffer->clear();
+        
         auto p = _camera->getProjectionMatrix();
         auto v = _camera->getViewMatrix();
-        auto vp = v * p;
+        auto vp = p * v;
 
         _shader->bind();
 
@@ -53,15 +58,13 @@ namespace phi
                 auto mvp = vp * object->getModelMatrix();
                 _shader->setUniform(BASIC_SHADER::MVP, mvp);
 
-                object->getGeometry()->render();
+                auto geometry = object->getGeometry();
+                geometry->bind();
+                geometry->render(); 
+                geometry->unbind();
             }
         }
 
         _shader->unbind();
-    }
-
-    void sceneRenderer::resize(sizef size)
-    {
-        _viewportSize = size; 
     }
 }

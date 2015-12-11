@@ -6,24 +6,32 @@
 
 namespace phi
 {
-    material* material::default = new material(
-        "default",
-        "",
-        texture::defaultDiffuse,
-        texture::defaultNormal,
-        texture::defaultSpecular,
-        texture::defaultEmissive,
-        color::white,
-        color::white,
-        color::white,
-        color::white,
-        0.2f,
-        0.8f,
-        0.0f,
-        0.0f,
-        0.0f,
-        false,
-        nullptr);
+    material* material::defaultMaterial = nullptr;
+
+    material* material::getDefault()
+    {
+        if (defaultMaterial == nullptr)
+            defaultMaterial = new material(
+                "default",
+                "",
+                texture::getDefaultDiffuse(),
+                texture::getDefaultNormal(),
+                texture::getDefaultSpecular(),
+                texture::getDefaultEmissive(),
+                color::white,
+                color::white,
+                color::white,
+                color::white,
+                0.2f,
+                0.8f,
+                0.0f,
+                0.0f,
+                0.0f,
+                false,
+                nullptr);
+        
+        return defaultMaterial;
+    }
 
     material::material(
         std::string name,

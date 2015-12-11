@@ -11,7 +11,7 @@ namespace phi
     private:
         texture* _pickingTexture;
     public:
-        RENDERING_API pickingFrameBuffer(sizef size);
+        RENDERING_API pickingFrameBuffer();
         RENDERING_API ~pickingFrameBuffer();
 
         RENDERING_API texture* getPickingTexture() const { return _pickingTexture; }

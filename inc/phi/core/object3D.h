@@ -26,7 +26,7 @@ namespace phi
             POINT_LIGHT
         };
 
-    private:
+    protected:
         std::string _name;
         objectType _type;
 

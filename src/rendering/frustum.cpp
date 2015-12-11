@@ -86,6 +86,8 @@ namespace phi
     {
         //if (!_changed)
             //return;
+        _perspectiveMatrix = glm::perspective(_fov, _aspect, _near, _far);
+        //_changed = true;
 
         auto tanHalfFov = tan(_fov * 0.5f);
         auto zNearWidth = tanHalfFov * _near;

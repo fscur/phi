@@ -17,9 +17,9 @@ namespace phi
         if (getChanged())
             update();
 
-        auto diff = value - getPosition();
-        setDirection(normalize(diff));
-        _focus = length(diff);
+        auto diff = value - _position;
+        _direction = glm::normalize(diff);
+        _focus = glm::length(diff);
         setChanged();
     }
 
@@ -30,7 +30,11 @@ namespace phi
         object3D::update();
 
         if (changed)
-            _viewMatrix = lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp());
+        {
+            auto target = _position + _direction * _focus;
+            _viewMatrix = lookAt(_position, vec3(), _up);
+            _frustum->update();
+        }
     }
 
     void camera::moveTo(vec3 position)

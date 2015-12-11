@@ -98,7 +98,7 @@ void form::initWindow()
         SDL_WINDOWPOS_CENTERED,
         //r.w,
         //r.h,
-        1366,
+        1024,
         768,
         SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
         //SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
@@ -111,6 +111,7 @@ void form::initWindow()
     int width = 0;
     int height = 0;
     SDL_GetWindowSize(_window, &width, &height);
+    auto s = phi::sizef((float)width, (float)height);
     _size = phi::sizef((float)width, (float)height);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);

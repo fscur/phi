@@ -2,7 +2,7 @@
 
 namespace phi
 {
-    pickingFrameBuffer::pickingFrameBuffer(sizef size) : frameBuffer("picking", size, color::transparent)
+    pickingFrameBuffer::pickingFrameBuffer() : frameBuffer("picking", color::transparent)
     {
     }
 

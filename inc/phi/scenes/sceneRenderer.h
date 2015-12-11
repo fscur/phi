@@ -1,9 +1,11 @@
 #ifndef _PHI_SCENE_RENDERER_H_
 #define _PHI_SCENE_RENDERER_H_
 
-#include "phi/scenes/scenes.h"
-#include "phi/scenes/scene.h"
-#include "phi/rendering/renderingSystem.h"
+#include "scenes.h"
+#include "scene.h"
+
+#include <phi\rendering\defaultFrameBuffer.h>
+#include <phi\rendering\pickingFrameBuffer.h>
 
 namespace phi
 {
@@ -18,23 +20,22 @@ namespace phi
         };
 
     private:
+
+        defaultFrameBuffer* _defaultFrameBuffer;
         scene* _scene;
-        sizef _viewportSize;
         camera* _camera;
         shader* _shader;
 
     private:
         void createShader();
 
-    protected:
-        SCENES_API virtual void onRender() = 0;
-        SCENES_API virtual void init(sizef viewportSize) = 0;
-        SCENES_API virtual void initBuffers() = 0;
     public:
         SCENES_API sceneRenderer();
         SCENES_API ~sceneRenderer();
+        
+        SCENES_API defaultFrameBuffer* getDefaultFrameBuffer() const { return _defaultFrameBuffer; }
+        SCENES_API void init();
         SCENES_API void render(scene* scene);
-        SCENES_API void resize(sizef size);
     };
 }
 

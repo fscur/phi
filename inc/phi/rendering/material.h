@@ -30,9 +30,12 @@ namespace phi
         float _shininess;
         float _reflectivity;
         bool _isEmissive;
+    private:
+        static material* defaultMaterial;
 
     public:
-        RENDERING_API static material* default;
+        RENDERING_API static material* getDefault();
+
     public:
         RENDERING_API material(
             std::string name,

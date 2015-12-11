@@ -7,10 +7,42 @@
 
 namespace phi
 {
-    texture* texture::defaultDiffuse = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
-    texture* texture::defaultNormal = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
-    texture* texture::defaultSpecular = createDefault(new byte[4]{ 0xFF, 0x80, 0xFF, 0xFF });
-    texture* texture::defaultEmissive = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+    texture* texture::defaultDiffuse = nullptr;
+    texture* texture::defaultNormal = nullptr;
+    texture* texture::defaultSpecular = nullptr;
+    texture* texture::defaultEmissive = nullptr;
+
+    texture* texture::getDefaultDiffuse()
+    {
+        if (defaultDiffuse == nullptr)
+            defaultDiffuse = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+
+        return defaultDiffuse;
+    }
+
+    texture* texture::getDefaultNormal()
+    {
+        if (defaultNormal == nullptr)
+            defaultNormal = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+
+        return defaultNormal;
+    }
+
+    texture* texture::getDefaultSpecular()
+    {
+        if (defaultSpecular == nullptr)
+            defaultSpecular = createDefault(new byte[4]{ 0xFF, 0x80, 0xFF, 0xFF });
+
+        return defaultSpecular;
+    }
+
+    texture* texture::getDefaultEmissive()
+    {
+        if (defaultEmissive == nullptr)
+            defaultEmissive = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+
+        return defaultEmissive;
+    }
 
     texture* texture::createDefault(byte* data)
     {
