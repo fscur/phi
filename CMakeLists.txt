@@ -20,6 +20,7 @@ elseif (WIN32)
 
 endif (APPLE)
 
+add_subdirectory(src/diagnostics)
 add_subdirectory(src/core)
 add_subdirectory(src/io)
 add_subdirectory(src/loader)
@@ -29,6 +30,9 @@ add_subdirectory(src/demo)
 add_subdirectory(src/scenes)
 
 if ( WIN32 )
+    set_target_properties(diagnostics PROPERTIES RUNTIME_OUTPUT_DIRECTORY ../../)
+    set_target_properties(diagnostics PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ../../debug)
+    set_target_properties(diagnostics PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ../../release)
     set_target_properties(core PROPERTIES RUNTIME_OUTPUT_DIRECTORY ../../)
     set_target_properties(core PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ../../debug)
     set_target_properties(core PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ../../release)

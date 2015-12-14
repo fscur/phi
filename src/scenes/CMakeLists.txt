@@ -59,6 +59,7 @@ if (WIN32)
     target_link_libraries(scenes ${GLEW_LIBRARY})
 endif (WIN32)
 
+target_link_libraries(scenes diagnostics)
 target_link_libraries(scenes core)
 target_link_libraries(scenes rendering)
 target_link_libraries(scenes io)

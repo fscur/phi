@@ -58,6 +58,7 @@ if (WIN32)
     target_link_libraries(ui ${GLEW_LIBRARY})
 endif (WIN32)
 
+target_link_libraries(ui diagnostics)
 target_link_libraries(ui core)
 target_link_libraries(ui rendering)
 target_link_libraries(ui scenes)

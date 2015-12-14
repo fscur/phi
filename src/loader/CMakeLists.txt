@@ -11,6 +11,8 @@ file(GLOB source_files *.cpp)
 
 add_library(loader SHARED ${source_files} ${header_files})
 
+target_link_libraries(loader diagnostics)
+
 install(TARGETS loader 
     RUNTIME 
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}
