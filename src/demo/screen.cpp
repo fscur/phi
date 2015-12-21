@@ -54,7 +54,8 @@ void screen::initScene()
         return new phi::geometry(gd);
     };
 
-    auto text = phi::texture::fromFile("C:\\test.bmp");
+    phi::texture* text;
+    phi::importer::importTexture("C:\\test.bmp", text);
     auto textureIdx = text->getId();
 
     //GLuint64 handle = glGetTextureHandleARB(textureIdx);
@@ -63,9 +64,7 @@ void screen::initScene()
     auto red = phi::material::getLambert(phi::color::red);
     auto blue = phi::material::getLambert(phi::color::blue);
     auto textureMat = new phi::material(
-        "tex",
-        "",
-        phi::texture::fromFile("c:\\test.bmp"),
+        text,
         phi::texture::getDefaultNormal(),
         phi::texture::getDefaultSpecular(),
         phi::texture::getDefaultEmissive(),
@@ -78,8 +77,7 @@ void screen::initScene()
         0.0f,
         0.0f,
         0.0f,
-        false,
-        nullptr);
+        false);
 
     //textureMat->setDiffuseHandle(handle);
 

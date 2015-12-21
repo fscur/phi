@@ -43,7 +43,7 @@ namespace phi
 
             auto g = new geometry(data);
 
-            auto m = new mesh(meshName, g, material::default);
+            auto m = new mesh(meshName, g, material::getDefault());
 
             resultModel->addChild(m);
         }

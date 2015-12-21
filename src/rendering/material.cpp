@@ -12,8 +12,6 @@ namespace phi
     {
         if (defaultMaterial == nullptr)
             defaultMaterial = new material(
-                "default",
-                "",
                 texture::getDefaultDiffuse(),
                 texture::getDefaultNormal(),
                 texture::getDefaultSpecular(),
@@ -27,8 +25,7 @@ namespace phi
                 0.0f,
                 0.0f,
                 0.0f,
-                false,
-                nullptr);
+                false);
         
         return defaultMaterial;
     }
@@ -36,8 +33,6 @@ namespace phi
     material* material::getLambert(color color)
     {
         return new material(
-                "lambert",
-                "",
                 texture::getDefaultDiffuse(),
                 texture::getDefaultNormal(),
                 texture::getDefaultSpecular(),
@@ -51,8 +46,7 @@ namespace phi
                 0.0f,
                 0.0f,
                 0.0f,
-                false,
-                nullptr);
+                false);
     }
 
     material::material(
