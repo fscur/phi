@@ -1,4 +1,6 @@
 #include <phi\demo\screen.h>
+#include <phi\diagnostics\diagnostics.h>
+#include <phi\diagnostics\stopwatch.h>
 #include <phi\core\globals.h>
 #include <phi\rendering\model.h>
 

@@ -13,6 +13,7 @@ add_library(loader SHARED ${source_files} ${header_files})
 
 add_dependencies(loader core)
 target_link_libraries(loader core)
+target_link_libraries(loader diagnostics)
 
 install(TARGETS loader 
     RUNTIME 
