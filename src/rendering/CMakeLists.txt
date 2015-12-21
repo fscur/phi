@@ -53,7 +53,6 @@ add_library(rendering SHARED ${source_files} ${header_files})
 
 add_dependencies(rendering core)
 add_dependencies(rendering io)
-add_dependencies(rendering loader)
 
 target_link_libraries(rendering ${SDL_LIBRARY})
 target_link_libraries(rendering ${SDL_TTF_LIBRARY})
@@ -67,7 +66,6 @@ endif (WIN32)
 
 target_link_libraries(rendering core)
 target_link_libraries(rendering io)
-target_link_libraries(rendering loader)
 
 install(TARGETS rendering 
     RUNTIME 

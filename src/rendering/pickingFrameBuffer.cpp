@@ -16,7 +16,7 @@ namespace phi
 
         bind();
 
-        texture* t = texture::create((uint)_size.w, (uint)_size.h, GL_RGBA);
+        texture* t = new texture((uint)_size.w, (uint)_size.h, GL_RGBA);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);

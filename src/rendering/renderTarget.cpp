@@ -11,7 +11,7 @@ namespace phi
 
     renderTarget::~renderTarget()
     {
-        _texture->release();
+        _texture->releaseFromGpu();
         safeDelete(_texture);
     }
 }

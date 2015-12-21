@@ -104,6 +104,7 @@ target_link_libraries(demo rendering)
 #target_link_libraries(demo ui)
 target_link_libraries(demo scenes)
 target_link_libraries(demo io)
+target_link_libraries(demo loader)
 
 install(TARGETS demo 
     RUNTIME 

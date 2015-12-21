@@ -1,3 +1,4 @@
+#include <phi/loader/importer.h>
 #include <phi/demo/screen.h>
 
 screen::screen() : form()
@@ -9,6 +10,7 @@ screen::screen() : form()
     _translationSpeed = 1.0f;
     _rotationSpeed = 0.01f;
     _sceneRenderer = nullptr;
+    _library = new library("resources");
 }
 
 screen::~screen()
@@ -17,7 +19,14 @@ screen::~screen()
 
 void screen::initScene()
 {
+    _library->init();
+
     _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, getSize(), 0.78f));
+
+    phi::object3D* a;
+    if (phi::importer::importObject3D("E:\\Projetos\\C++\\phi\\resources2\\models\\Cabinets\\cabinet.model", a))
+    {
+    }
 }
 
 void screen::onInitialize()
@@ -47,4 +56,5 @@ void screen::onResize(SDL_Event e)
 void screen::onClosing()
 {
     //TODO: MessageBox asking if the user really wants to close the window
+    //TODO: Check if we really need the above TODO
 }

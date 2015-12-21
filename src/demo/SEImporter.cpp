@@ -8,6 +8,7 @@
 #include <tchar.h>
 #include <chrono>
 #include <limits>
+#include <objbase.h>
 
 BSTR ConvertMBSToBSTR(const std::string& str)
 {
@@ -419,20 +420,20 @@ SEImporter::FileReader::~FileReader()
 
 SEImporter::SEImporter()
 {
-    unsigned char* data = new unsigned char[4];
+    byte* data = new unsigned char[4];
     data[0] = 255;
     data[1] = 255;
     data[2] = 255;
     data[3] = 255;
 
     _defaultDiffuseTexture =
-        phi::texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        new phi::texture((uint)1, (uint)1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, data);
 
     _defaultSpecularTexture =
-        phi::texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        new phi::texture((uint)1, (uint)1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, data);
 
     _defaultEmissiveTexture =
-        phi::texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        new phi::texture((uint)1, (uint)1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, data);
 
     data[0] = 255;
     data[1] = 128;
@@ -440,7 +441,7 @@ SEImporter::SEImporter()
     data[3] = 255;
 
     _defaultNormalTexture =
-        phi::texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
+        new phi::texture((uint)1, (uint)1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, data);
 
     _defaultStyle = new SEStyle();
     _defaultStyle->ID = 0;
@@ -608,17 +609,19 @@ phi::material* SEImporter::createMaterialFromStyle(SEStyle* style)
 {
     auto diffuseTexture = _defaultDiffuseTexture;
 
-    if (!style->TextureFileName.empty() && phi::path::exists(style->TextureFileName))
-        diffuseTexture = phi::texture::fromFile(style->TextureFileName);
+    // TODO: if you are seeing these lines, and you are not Fernando, and you are not using Fernando PC's, Fernando did cagadinha
+    //if (!style->TextureFileName.empty() && phi::path::exists(style->TextureFileName))
+    //    diffuseTexture = phi::texture::fromFile(style->TextureFileName);
 
     auto normalTexture = _defaultNormalTexture;
 
-    if (!style->BumpFileName.empty() && phi::path::exists(style->BumpFileName))
-        normalTexture = phi::texture::fromFile(style->BumpFileName);
+    //if (!style->BumpFileName.empty() && phi::path::exists(style->BumpFileName))
+    //    normalTexture = phi::texture::fromFile(style->BumpFileName);
+
+    GUID guid;
+    CoCreateGuid(&guid);
 
     auto material = new phi::material(
-        style->Name,
-        "",
         diffuseTexture,
         normalTexture,
         _defaultSpecularTexture,
@@ -632,8 +635,7 @@ phi::material* SEImporter::createMaterialFromStyle(SEStyle* style)
         0.0f,
         0.0f,
         0.0f,
-        false,
-        nullptr
+        false
         );
 
     return material;

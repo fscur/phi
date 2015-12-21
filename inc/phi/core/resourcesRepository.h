@@ -9,26 +9,40 @@
 
 namespace phi
 {
+    template<typename T>
     class resourcesRepository
     {
     private:
-        std::vector<resource*> _resources;
+        std::vector<resource<T>*> _resources;
 
     public:
-        CORE_API resourcesRepository();
-        CORE_API ~resourcesRepository();
-        CORE_API void release();
-        CORE_API void addResource(resource* r);
+        resourcesRepository()
+        {
+        }
 
-        CORE_API std::vector<resource*> getAllResources()
+        ~resourcesRepository()
+        {
+        }
+
+        void release()
+        {
+            for (unsigned int i = 0; i < _resources.size(); i++)
+                safeDelete(_resources[i]);
+        }
+
+        void addResource(resource<T>* r)
+        {
+            _resources.push_back(r);
+        }
+
+        std::vector<resource<T>*> getAllResources()
         {
             return _resources;
         }
 
-        template<class T>
-        T* getResource(std::string name)
+        resource<T>* getResource(GUID guid)
         {
-            for (unsigned int i = 0; i < _resources.size(); i++)
+            for (auto resource : _resources)
             {
                 if (_resources[i]->getFullName() == name)
                     return (T*)_resources[i];
@@ -37,7 +51,7 @@ namespace phi
             return nullptr;
         }
 
-        std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
+        std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems)
         {
             std::stringstream ss(s);
             std::string item;
@@ -54,51 +68,6 @@ namespace phi
             std::vector<std::string> elems;
             split(s, delim, elems);
             return elems;
-        }
-
-        std::vector<std::string> getDirectoriesFromPath(std::string path)
-        {
-            auto directories = std::vector<std::string>();
-            auto nodes = split(path, '\\');
-            auto nodesSize = nodes.size();
-
-            for (unsigned int i = 0; i < _resources.size(); i++)
-            {
-                auto res = _resources[i];
-                auto resNodes = split(_resources[i]->getFullName(), '\\');
-                if (resNodes.size() > nodesSize + 2)
-                    continue;
-
-                unsigned int j;
-                for (j = 0; j < nodes.size() && resNodes[j] == nodes[j]; j++);
-                if (j == nodesSize && std::find(directories.begin(), directories.end(), resNodes[nodesSize]) == directories.end())
-                    directories.push_back(resNodes[nodesSize]);
-            }
-
-            return directories;
-        }
-
-        template<class T>
-        std::vector<T*> getResourcesFromPath(std::string path)
-        {
-            auto resources = std::vector<T*>();
-            auto nodes = split(path, '\\');
-            auto nodesSize = nodes.size();
-
-            for (unsigned int i = 0; i < _resources.size(); i++)
-            {
-                auto res = _resources[i];
-                auto resNodes = split(_resources[i]->getFullName(), '\\');
-                if (resNodes.size() != nodesSize + 1)
-                    continue;
-
-                unsigned int j;
-                for (j = 0; j < nodes.size() && resNodes[j] == nodes[j]; j++);
-                if (j == nodesSize)
-                    resources.push_back((T*)res);
-            }
-
-            return resources;
         }
     };
 }
