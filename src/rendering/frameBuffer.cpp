@@ -2,10 +2,9 @@
 
 namespace phi
 {
-    frameBuffer::frameBuffer(std::string name, sizef size, color clearColor)
+    frameBuffer::frameBuffer(std::string name, color clearColor)
     {
         _name = name;
-        _size = size;
         _clearColor = clearColor;
         _x = 0;
         _y = 0;

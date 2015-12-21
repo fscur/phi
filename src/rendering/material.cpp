@@ -6,21 +6,54 @@
 
 namespace phi
 {
-    material* material::default = new material(
-        texture::defaultDiffuse,
-        texture::defaultNormal,
-        texture::defaultSpecular,
-        texture::defaultEmissive,
-        color::white,
-        color::white,
-        color::white,
-        color::white,
-        0.2f,
-        0.8f,
-        0.0f,
-        0.0f,
-        0.0f,
-        false);
+    material* material::defaultMaterial = nullptr;
+
+    material* material::getDefault()
+    {
+        if (defaultMaterial == nullptr)
+            defaultMaterial = new material(
+                "default",
+                "",
+                texture::getDefaultDiffuse(),
+                texture::getDefaultNormal(),
+                texture::getDefaultSpecular(),
+                texture::getDefaultEmissive(),
+                color::white,
+                color::white,
+                color::white,
+                color::white,
+                0.2f,
+                0.8f,
+                0.0f,
+                0.0f,
+                0.0f,
+                false,
+                nullptr);
+        
+        return defaultMaterial;
+    }
+
+    material* material::getLambert(color color)
+    {
+        return new material(
+                "lambert",
+                "",
+                texture::getDefaultDiffuse(),
+                texture::getDefaultNormal(),
+                texture::getDefaultSpecular(),
+                texture::getDefaultEmissive(),
+                color,
+                color,
+                color,
+                color,
+                0.2f,
+                0.8f,
+                0.0f,
+                0.0f,
+                0.0f,
+                false,
+                nullptr);
+    }
 
     material::material(
         texture* diffuseTexture,

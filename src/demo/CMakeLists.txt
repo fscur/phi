@@ -99,6 +99,7 @@ if (WIN32)
     target_link_libraries(demo ${GLEW_LIBRARY})
 endif (WIN32)
 
+target_link_libraries(demo diagnostics)
 target_link_libraries(demo core)
 target_link_libraries(demo rendering)
 #target_link_libraries(demo ui)

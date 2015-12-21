@@ -32,7 +32,7 @@ namespace phi
         std::map<std::string, renderTarget*>* _renderTargets;
 
     public:
-        RENDERING_API frameBuffer(std::string name, sizef size, color backColor);
+        RENDERING_API frameBuffer(std::string name, color backColor);
         RENDERING_API virtual ~frameBuffer();
 
         RENDERING_API GLuint getId() const { return _id; }

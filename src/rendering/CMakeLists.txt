@@ -64,6 +64,7 @@ if (WIN32)
     target_link_libraries(rendering ${GLEW_LIBRARY})
 endif (WIN32)
 
+target_link_libraries(rendering diagnostics)
 target_link_libraries(rendering core)
 target_link_libraries(rendering io)
 

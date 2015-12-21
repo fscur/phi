@@ -36,13 +36,19 @@ namespace phi
         RENDERING_API texture::texture(uint w, uint h, GLint internalFormat, GLenum dataFormat, GLenum type, byte* data);
 
     private:
+        static texture* defaultDiffuse;
+        static texture* defaultNormal;
+        static texture* defaultSpecular;
+        static texture* defaultEmissive;
+
+    private:
         static texture* createDefault(byte* data);
 
     public:
-        RENDERING_API static texture* defaultDiffuse;
-        RENDERING_API static texture* defaultNormal;
-        RENDERING_API static texture* defaultSpecular;
-        RENDERING_API static texture* defaultEmissive;
+        RENDERING_API static texture* getDefaultDiffuse();
+        RENDERING_API static texture* getDefaultNormal();
+        RENDERING_API static texture* getDefaultSpecular();
+        RENDERING_API static texture* getDefaultEmissive();
 
     public:
         RENDERING_API ~texture();

@@ -17,10 +17,10 @@ namespace phi
             log("Could not init freetype library");
 
         renderingSystem::info = info;
-        defaultFrameBuffer = new phi::defaultFrameBuffer(info.size, color::white);
+        defaultFrameBuffer = new phi::defaultFrameBuffer(color::white);
         defaultFrameBuffer->init();
 
-        pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);
+        pickingFrameBuffer = new phi::pickingFrameBuffer();
         pickingFrameBuffer->init();
 
         shaderManagerInfo shaderInfo;
@@ -41,7 +41,7 @@ namespace phi
         defaultFrameBuffer->setSize(info.size);
         defaultFrameBuffer->setViewport(0, 0, info.size);
 
-        pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);
+        pickingFrameBuffer = new phi::pickingFrameBuffer();
         pickingFrameBuffer->init();
     }
 }

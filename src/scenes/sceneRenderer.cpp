@@ -4,11 +4,12 @@ namespace phi
 {
     sceneRenderer::sceneRenderer()
     {
-        createShader();
+        _defaultFrameBuffer = new defaultFrameBuffer(color::black);
     }
 
     sceneRenderer::~sceneRenderer()
     {
+        safeDelete(_defaultFrameBuffer);
     }
 
     void sceneRenderer::createShader()
@@ -21,9 +22,14 @@ namespace phi
 
         _shader->addUniform(BASIC_SHADER::MVP, "mvp");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffuseMap");
+        //_shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffHandle");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_COLOR, "diffuseColor");
+    }
 
-        _shader->init();
+    void sceneRenderer::init()
+    {
+        _defaultFrameBuffer->init();
+        createShader();
     }
 
     void sceneRenderer::render(scene* scene)
@@ -33,35 +39,38 @@ namespace phi
 
         auto renderList = _scene->getRenderList();
 
-        renderingSystem::defaultFrameBuffer->clear();
-
+        _defaultFrameBuffer->clear();
+        
         auto p = _camera->getProjectionMatrix();
         auto v = _camera->getViewMatrix();
-        auto vp = v * p;
+        auto vp = p * v;
 
         _shader->bind();
 
-        for (auto pair : renderList)
+        for (auto materials : renderList)
         {
-            auto material = pair.first;
+            auto material = materials.first;
 
             _shader->setUniform(BASIC_SHADER::DIFFUSE_MAP, material->getDiffuseTexture(), 0);
             _shader->setUniform(BASIC_SHADER::DIFFUSE_COLOR, material->getDiffuseColor());
 
-            for (auto object : pair.second)
+            for (auto geometries : materials.second)
             {
-                auto mvp = vp * object->getModelMatrix();
-                _shader->setUniform(BASIC_SHADER::MVP, mvp);
+                auto geometry = geometries.first;
+                geometry->bind();
+                
+                for (auto mesh : geometries.second)
+                {
+                    auto mvp = vp * mesh->getModelMatrix();
+                    _shader->setUniform(BASIC_SHADER::MVP, mvp);
 
-                object->getGeometry()->render();
+                    geometry->render();
+                }
+
+                geometry->unbind();
             }
         }
 
         _shader->unbind();
-    }
-
-    void sceneRenderer::resize(sizef size)
-    {
-        _viewportSize = size; 
     }
 }

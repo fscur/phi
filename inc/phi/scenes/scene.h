@@ -27,7 +27,7 @@ namespace phi
     private:
         camera *_camera;
         std::vector<object3D*> _objects;
-        std::map<material*, std::vector<mesh*>> _renderList;
+        std::map<material*, std::map<geometry*, std::vector<mesh*>>> _renderList;
     private:
         void addToRenderList(object3D* object);
 
@@ -37,7 +37,7 @@ namespace phi
         SCENES_API ~scene();
         
         SCENES_API std::vector<object3D*> getObjects() { return _objects; }
-        SCENES_API std::map<material*, std::vector<mesh*>>& getRenderList() { return _renderList; }
+        SCENES_API std::map<material*, std::map<geometry*, std::vector<mesh*>>>& getRenderList() { return _renderList; }
 
         SCENES_API camera* getCamera() const { return _camera; }
         SCENES_API void setCamera(camera* value) { _camera = value; }

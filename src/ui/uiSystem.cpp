@@ -331,6 +331,6 @@ namespace phi
 
     void uiSystem::renderCursor()
     {
-        _cursorRenderer->render(_cursor->getTexture(), color::white);
+        //_cursorRenderer->render(_cursor->getTexture(), color::white);
     }
 }

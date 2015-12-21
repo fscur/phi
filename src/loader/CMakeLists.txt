@@ -52,6 +52,7 @@ endif (WIN32)
 target_link_libraries(loader core)
 target_link_libraries(loader io)
 target_link_libraries(loader rendering)
+target_link_libraries(loader diagnostics)
 
 install(TARGETS loader 
     RUNTIME 
