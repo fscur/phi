@@ -15,7 +15,8 @@ namespace phi
     {   
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        //glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_CW);
         glEnable(GL_DEPTH_TEST);
     }
 

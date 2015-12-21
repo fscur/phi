@@ -27,7 +27,7 @@ namespace phi
             auto mat = m->getMaterial();
             auto geom = m->getGeometry();
 
-            _renderList[mat].push_back(m);
+            _renderList[mat][geom].push_back(m);
         }
 
         auto children = object->getChildren();

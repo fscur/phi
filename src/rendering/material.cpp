@@ -33,6 +33,28 @@ namespace phi
         return defaultMaterial;
     }
 
+    material* material::getLambert(color color)
+    {
+        return new material(
+                "lambert",
+                "",
+                texture::getDefaultDiffuse(),
+                texture::getDefaultNormal(),
+                texture::getDefaultSpecular(),
+                texture::getDefaultEmissive(),
+                color,
+                color,
+                color,
+                color,
+                0.2f,
+                0.8f,
+                0.0f,
+                0.0f,
+                0.0f,
+                false,
+                nullptr);
+    }
+
     material::material(
         std::string name,
         std::string path,
