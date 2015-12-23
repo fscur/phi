@@ -31,8 +31,9 @@ namespace phi
         geometryData* _data;
 
         bool _isBound;
+        bool _isLoadedOnGpu;
 
-    public:
+    private:
         void storeBuffers();
 
     public:
@@ -44,6 +45,8 @@ namespace phi
         RENDERING_API void bind();
         RENDERING_API void render();
         RENDERING_API void unbind();
+        RENDERING_API void loadToGpu();
+        RENDERING_API void releaseFromGpu();
     };
 }
 #endif

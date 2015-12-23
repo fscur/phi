@@ -1,4 +1,5 @@
-#include <phi/scenes/scene.h>
+#include <phi\rendering\model.h>
+#include <phi\scenes\scene.h>
 
 #include <algorithm>
 
@@ -36,9 +37,52 @@ namespace phi
             addToRenderList(child);
     }
 
+    void scene::traverseTree(object3D* node, std::function<void(object3D*)> callback)
+    {
+        callback(node);
+
+        for (auto child : node->getChildren())
+            traverseTree(child, callback);
+    }
+
+    void scene::traverseTreeMeshes(object3D* node, std::function<void(mesh*)> callback)
+    {
+        traverseTree(node, [&] (object3D* n)
+        {
+            if (n->getType() == phi::object3D::objectType::MESH)
+            {
+                auto m = static_cast<mesh*>(n);
+                callback(m);
+            }
+        });
+    }
+
     void scene::add(object3D* object)
     {
         _objects.push_back(object);
+
+        traverseTreeMeshes(object, [&] (mesh* m)
+        {
+            auto mat = m->getMaterial();
+
+            auto loadTex = [&](texture* tex)
+            {
+                if (tex)
+                {
+                    tex->loadOnGpu();
+                    _loadedTextures[tex]++;
+                }
+            };
+
+            loadTex(mat->getDiffuseTexture());
+            loadTex(mat->getNormalTexture());
+            loadTex(mat->getSpecularTexture());
+            loadTex(mat->getEmissiveTexture());
+
+            auto geometry = m->getGeometry();
+            geometry->loadToGpu();
+            _loadedGeometries[geometry]++;
+        });
 
         addToRenderList(object);
     }
@@ -47,7 +91,38 @@ namespace phi
     {
         auto position = std::find(_objects.begin(), _objects.end(), object);
 
+        traverseTreeMeshes(object, [&](mesh* m)
+        {
+            auto mat = m->getMaterial();
+
+            auto unloadTex = [&](texture* tex)
+            {
+                if (tex)
+                {
+                    _loadedTextures[tex]--;
+                    if (_loadedTextures[tex] <= 0)
+                    {
+                        tex->releaseFromGpu();
+                        _loadedTextures.erase(tex);
+                    }
+                }
+            };
+
+            unloadTex(mat->getDiffuseTexture());
+            unloadTex(mat->getNormalTexture());
+            unloadTex(mat->getSpecularTexture());
+            unloadTex(mat->getEmissiveTexture());
+
+            auto geometry = m->getGeometry();
+            _loadedGeometries[geometry]--;
+            if (_loadedGeometries[geometry] <= 0)
+            {
+                geometry->releaseFromGpu();
+                _loadedGeometries.erase(geometry);
+            }
+        });
+
         if (position != _objects.end())
-            _objects.erase(position--);
+            _objects.erase(position);
     }
 }

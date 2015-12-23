@@ -29,7 +29,7 @@ namespace phi
         GLint _internalFormat;
         uint _w;
         uint _h;
-        bool _loadedOnGpu;
+        bool _isLoadedOnGpu;
 
     public:
         RENDERING_API texture::texture(uint w, uint h, GLint internalFormat);

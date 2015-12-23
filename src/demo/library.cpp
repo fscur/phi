@@ -10,17 +10,32 @@ library::library(std::string resourcesPath)
 
 void library::init()
 {
+    _texturesRepository = new phi::resourcesRepository<phi::texture>();
     _materialsRepository = new phi::resourcesRepository<phi::material>();
+    _objectsRepository = new phi::resourcesRepository<phi::object3D>();
+
+    loadTextures(_resourcesPath);
     loadMaterials(_resourcesPath);
-    phi::log(std::to_string(_materialsRepository->getAllResources().size()));
+    loadObjects(_resourcesPath);
 }
 
-//void resourcesLoader::loadMaterials()
-//{
-//    _materialsRepository = new resourcesRepository();
-//    auto sourceDirectory = _resourcesPath + "\\" + _materialsPath;
-//    loadMaterials(sourceDirectory, sourceDirectory);
-//}
+void library::loadTextures(std::string directory)
+{
+    auto subDirs = phi::path::getDirectories(directory);
+    for (auto &dir : subDirs)
+        loadTextures(dir.path);
+
+    auto files = phi::path::getFiles(directory);
+    for (auto &file : files)
+    {
+        if (phi::path::getExtension(file.path) == ".texture")
+        {
+            phi::resource<phi::texture>* texRes;
+            if (phi::importer::importTexture(file.path, texRes))
+                _texturesRepository->addResource(texRes);
+        }
+    }
+}
 
 void library::loadMaterials(std::string directory)
 {
@@ -34,30 +49,26 @@ void library::loadMaterials(std::string directory)
         if (phi::path::getExtension(file.path) == ".material")
         {
             phi::resource<phi::material>* matRes;
-            if (phi::importer::importMaterial(file.path, matRes))
-            {
+            if (phi::importer::importMaterial(file.path, matRes, _texturesRepository))
                 _materialsRepository->addResource(matRes);
-            }
         }
     }
 }
 
-void library::loadTextures(std::string directory)
+void library::loadObjects(std::string directory)
 {
     auto subDirs = phi::path::getDirectories(directory);
     for (auto &dir : subDirs)
-        loadMaterials(dir.path);
+        loadObjects(dir.path);
 
     auto files = phi::path::getFiles(directory);
     for (auto &file : files)
     {
-        if (phi::path::getExtension(file.path) == ".material")
+        if (phi::path::getExtension(file.path) == ".model")
         {
-            phi::resource<phi::material>* matRes;
-            if (phi::importer::importMaterial(file.path, matRes))
-            {
-                _materialsRepository->addResource(matRes);
-            }
+            phi::resource<phi::object3D>* objRes;
+            if (phi::importer::importObject3D(file.path, objRes, _materialsRepository))
+                _objectsRepository->addResource(objRes);
         }
     }
 }

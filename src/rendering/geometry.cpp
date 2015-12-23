@@ -12,29 +12,22 @@
 
 namespace phi
 {
-    geometry::geometry(geometryData* data)
+    geometry::geometry(geometryData* data) :
+        _vao(0),
+        _positionsVbo(0),
+        _texCoordsVbo(0),
+        _normalsVbo(0),
+        _tangentsVbo(0),
+        _indicesVbo(0),
+        _isBound(false),
+        _data(data),
+        _isLoadedOnGpu(false)
     {
-        _vao = 0;
-
-        _positionsVbo = 0;
-        _texCoordsVbo = 0;
-        _normalsVbo = 0;
-        _tangentsVbo = 0;
-        _indicesVbo = 0;
-        _isBound = false;
-        _data = data;
-
-        storeBuffers();
     }
 
     geometry::~geometry()
     {
-        glDeleteBuffers(1, &_positionsVbo);
-        glDeleteBuffers(1, &_texCoordsVbo);
-        glDeleteBuffers(1, &_normalsVbo);
-        glDeleteBuffers(1, &_tangentsVbo);
-        glDeleteBuffers(1, &_indicesVbo);
-        glDeleteVertexArrays(1, &_vao);
+        releaseFromGpu();
     }
 
     void geometry::storeBuffers()
@@ -75,9 +68,11 @@ namespace phi
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesVbo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &(*indices)[0], GL_STATIC_DRAW);
         //glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &_indices[0], GL_STATIC_DRAW); // Ativar arte abstrata
+
+        _isLoadedOnGpu = true;
     }
 
-   void geometry::bind()
+    void geometry::bind()
     {
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, _positionsVbo);
@@ -111,5 +106,28 @@ namespace phi
         glDisableVertexAttribArray(2);
         glDisableVertexAttribArray(3);
         _isBound = false;
+    }
+
+    void geometry::loadToGpu()
+    {
+        if (_isLoadedOnGpu)
+            return;
+
+        storeBuffers();
+    }
+
+    void geometry::releaseFromGpu()
+    {
+        if (!_isLoadedOnGpu)
+            return;
+
+        glDeleteBuffers(1, &_positionsVbo);
+        glDeleteBuffers(1, &_texCoordsVbo);
+        glDeleteBuffers(1, &_normalsVbo);
+        glDeleteBuffers(1, &_tangentsVbo);
+        glDeleteBuffers(1, &_indicesVbo);
+        glDeleteVertexArrays(1, &_vao);
+
+        _isLoadedOnGpu = false;
     }
 }

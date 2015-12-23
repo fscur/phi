@@ -29,155 +29,12 @@ void screen::initScene()
 {
     _library->init();
 
-    _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, getSize(), 0.78f));
     _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, getSize(), glm::half_pi<float>()));
     auto camera = _scene->getCamera();
 
-    camera->setLocalPosition(phi::vec3(5.0f, -5.0f, 5.0f));
+    camera->setLocalPosition(phi::vec3(0.0f, 3.0f, 5.0f));
     camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
     camera->update();
-
-    auto newTriangle = [](phi::vertex A, phi::vertex B, phi::vertex C)
-    {
-        auto vertices = std::vector<phi::vertex>();
-
-        vertices.push_back(A);
-        vertices.push_back(B);
-        vertices.push_back(C);
-
-        auto indices = new std::vector<uint>();
-        indices->push_back(0);
-        indices->push_back(1);
-        indices->push_back(2);
-
-        auto gd = phi::geometryData::create(vertices, indices);
-        return new phi::geometry(gd);
-    };
-
-    phi::texture* text;
-    phi::importer::importTexture("C:\\test.bmp", text);
-    auto textureIdx = text->getId();
-
-    //GLuint64 handle = glGetTextureHandleARB(textureIdx);
-    //glMakeTextureHandleResidentARB(handle);
-
-    auto red = phi::material::getLambert(phi::color::red);
-    auto blue = phi::material::getLambert(phi::color::blue);
-    auto textureMat = new phi::material(
-        text,
-        phi::texture::getDefaultNormal(),
-        phi::texture::getDefaultSpecular(),
-        phi::texture::getDefaultEmissive(),
-        phi::color::white,
-        phi::color::white,
-        phi::color::white,
-        phi::color::white,
-        0.2f,
-        0.8f,
-        0.0f,
-        0.0f,
-        0.0f,
-        false);
-
-    //textureMat->setDiffuseHandle(handle);
-
-    auto v0 = phi::vec3(+0.5f, +0.5f, +0.5f);
-    auto v1 = phi::vec3(+0.5f, +0.5f, -0.5f);
-    auto v2 = phi::vec3(+0.5f, -0.5f, +0.5f);
-    auto v3 = phi::vec3(+0.5f, -0.5f, -0.5f);
-    auto v4 = phi::vec3(-0.5f, +0.5f, +0.5f);
-    auto v5 = phi::vec3(-0.5f, +0.5f, -0.5f);
-    auto v6 = phi::vec3(-0.5f, -0.5f, +0.5f);
-    auto v7 = phi::vec3(-0.5f, -0.5f, -0.5f);
-
-    auto t0 = phi::vec2(0.0f, 0.0f);
-    auto t1 = phi::vec2(1.0f, 0.0f);
-    auto t2 = phi::vec2(1.0f, 1.0f);
-    auto t3 = phi::vec2(0.0f, 1.0f);
-
-    auto n0 = phi::vec3(+1.0f, +0.0f, +0.0f);
-    auto n1 = phi::vec3(+0.0f, +1.0f, +0.0f);
-    auto n2 = phi::vec3(+0.0f, +0.0f, +1.0f);
-    auto n3 = phi::vec3(-1.0f, +0.0f, +0.0f);
-    auto n4 = phi::vec3(+0.0f, -1.0f, +0.0f);
-    auto n5 = phi::vec3(+0.0f, +0.0f, -1.0f);
-
-    auto tri0 = newTriangle(phi::vertex(v3, t0, n5), phi::vertex(v7, t1, n5), phi::vertex(v5, t2, n5));
-    auto tri1 = newTriangle(phi::vertex(v5, t2, n5), phi::vertex(v1, t3, n5), phi::vertex(v3, t0, n5));
-    auto tri2 = newTriangle(phi::vertex(v7, t0, n3), phi::vertex(v6, t1, n3), phi::vertex(v4, t2, n3));
-    auto tri3 = newTriangle(phi::vertex(v4, t2, n3), phi::vertex(v5, t3, n3), phi::vertex(v7, t0, n3));
-    auto tri4 = newTriangle(phi::vertex(v6, t0, n2), phi::vertex(v2, t1, n2), phi::vertex(v0, t2, n2));
-    auto tri5 = newTriangle(phi::vertex(v0, t2, n2), phi::vertex(v4, t3, n2), phi::vertex(v6, t0, n2));
-    auto tri6 = newTriangle(phi::vertex(v2, t0, n0), phi::vertex(v3, t1, n0), phi::vertex(v1, t2, n0));
-    auto tri7 = newTriangle(phi::vertex(v1, t2, n0), phi::vertex(v0, t3, n0), phi::vertex(v2, t0, n0));
-    auto tri8 = newTriangle(phi::vertex(v4, t0, n2), phi::vertex(v0, t1, n2), phi::vertex(v1, t2, n2));
-    auto tri9 = newTriangle(phi::vertex(v1, t2, n2), phi::vertex(v5, t3, n2), phi::vertex(v4, t0, n2));
-    auto tri10 = newTriangle(phi::vertex(v7, t0, n0), phi::vertex(v3, t1, n0), phi::vertex(v2, t2, n0));
-    auto tri11 = newTriangle(phi::vertex(v2, t2, n0), phi::vertex(v6, t3, n0), phi::vertex(v7, t0, n0));
-
-    auto n = 10;
-
-    for (auto x = 0; x < 10; x++)
-    {
-        for (auto y = 0; y < 10; y++)
-        {
-            for (auto z = 0; z < 10; z++)
-            {
-                auto face0 = new phi::model("face0");
-                face0->addChild(new phi::mesh("tri0", tri0, textureMat));
-                face0->addChild(new phi::mesh("tri1", tri1, textureMat));
-
-                auto face1 = new phi::model("face1");
-                face1->addChild(new phi::mesh("tri2", tri2, textureMat));
-                face1->addChild(new phi::mesh("tri3", tri3, textureMat));
-
-                auto face2 = new phi::model("face2");
-                face2->addChild(new phi::mesh("tri4", tri4, textureMat));
-                face2->addChild(new phi::mesh("tri5", tri5, textureMat));
-
-                auto face3 = new phi::model("face3");
-                face3->addChild(new phi::mesh("tri6", tri6, textureMat));
-                face3->addChild(new phi::mesh("tri7", tri7, textureMat));
-
-                auto face4 = new phi::model("face4");
-                face4->addChild(new phi::mesh("tri8", tri8, textureMat));
-                face4->addChild(new phi::mesh("tri9", tri9, textureMat));
-
-                auto face5 = new phi::model("face5");
-                face5->addChild(new phi::mesh("tri10", tri10, textureMat));
-                face5->addChild(new phi::mesh("tri11", tri11, textureMat));
-
-                auto model = new phi::model("cube");
-                model->addChild(face0);
-                model->addChild(face1);
-                model->addChild(face2);
-                model->addChild(face3);
-                model->addChild(face4);
-                model->addChild(face5);
-
-                _scene->add(model);
-
-                auto faces = model->getChildren();
-                auto facesSize = faces.size();
-
-                for (auto i = 0; i < facesSize; i++)
-                {
-                    auto face = faces[i];
-
-                    auto meshes = face->getChildren();
-                    auto meshesSize = meshes.size();
-
-                    for (auto j = 0; j < meshesSize; j++)
-                    {
-                        auto mesh = static_cast<phi::mesh*>(meshes[j]);
-
-                        mesh->setLocalPosition(phi::vec3(x, y, z));
-                        mesh->update();
-                    }
-                }
-            }
-        }
-    }
 
     auto info = phi::shaderManagerInfo();
     info.path = _resourcesPath;
@@ -186,10 +43,8 @@ void screen::initScene()
     _sceneRenderer = new phi::sceneRenderer();
     _sceneRenderer->init();
 
-    phi::object3D* a;
-    if (phi::importer::importObject3D("E:\\Projetos\\C++\\phi\\resources2\\models\\Cabinets\\cabinet.model", a))
-    {
-    }
+    auto objectRes = _library->getObjectsRepository()->getAllResources()[2];
+    _scene->add(objectRes->getObject());
 }
 
 void screen::onInitialize()
@@ -203,8 +58,8 @@ float t = 0.0f;
 
 void screen::update()
 {
-    t += 0.1f;
-    _scene->getCamera()->setLocalPosition(phi::vec3(glm::cos(t), -1.0f, glm::sin(t)) * 5.0f);
+    t += 0.001f;
+    _scene->getCamera()->setLocalPosition(phi::vec3(glm::cos(t), 1.0f, glm::sin(t)) * 1.0f);
     _scene->getCamera()->update();
     _scene->update();
 }

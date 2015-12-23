@@ -6,6 +6,8 @@
 
 namespace phi
 {
+    int countQuemMeTem = 0;
+
     texture* texture::defaultDiffuse = nullptr;
     texture* texture::defaultNormal = nullptr;
     texture* texture::defaultSpecular = nullptr;
@@ -54,7 +56,14 @@ namespace phi
     }
 
     texture::texture(uint w, uint h, GLint internalFormat, GLenum dataFormat, GLenum dataType, byte* data) :
-        _w(w), _h(h), _internalFormat(internalFormat), _dataFormat(dataFormat), _dataType(dataType), _data(data)
+        _w(w),
+        _h(h),
+        _internalFormat(internalFormat),
+        _dataFormat(dataFormat),
+        _dataType(dataType),
+        _data(data),
+        _isLoadedOnGpu(false),
+        _textureType(GL_TEXTURE_2D)
     {
     }
 
@@ -75,11 +84,13 @@ namespace phi
 
     void texture::loadOnGpu()
     {
-        GLuint id;
-        glGenTextures(1, &id);
+        if (_isLoadedOnGpu)
+            return;
+
+        glGenTextures(1, &_id);
 
         // "Bind" the newly created texture : all future texture functions will modify this texture
-        glBindTexture(GL_TEXTURE_2D, id);
+        glBindTexture(GL_TEXTURE_2D, _id);
 
         // Give the image to OpenGL
         glTexImage2D(GL_TEXTURE_2D, 0, _internalFormat, _w, _h, 0, _dataFormat, _dataType, _data);
@@ -90,12 +101,15 @@ namespace phi
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        _loadedOnGpu = true;
+        _isLoadedOnGpu = true;
     }
 
     void texture::releaseFromGpu()
     {
+        if (!_isLoadedOnGpu)
+            return;
+
         glDeleteTextures(1, &_id);
-        _loadedOnGpu = false;
+        _isLoadedOnGpu = false;
     }
 }

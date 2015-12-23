@@ -22,7 +22,7 @@ namespace phi
         {
         }
 
-        std::string getGuid() const { return _guid; }
+        GUID getGuid() const { return _guid; }
         std::string getName() const { return _name; }
         T* getObject() const { return _object; }
     };

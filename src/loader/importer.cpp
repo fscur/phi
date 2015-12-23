@@ -13,6 +13,58 @@
 
 namespace phi
 {
+    object3D* importer::readNode(const rapidjson::Value& node, std::string currentFolder, resourcesRepository<material>* materialsRepo)
+    {
+        auto type = node["Type"].GetInt();
+        object3D* objectNode = nullptr;
+
+        switch (type)
+        {
+            case 0:
+            {
+                auto model = new phi::model(node["Name"].GetString());
+                objectNode = model;
+                break;
+            }
+            case 1:
+            {
+                geometryData* geometryData = nullptr;
+                importGeometryData(currentFolder + "\\" + node["GeometryDataPath"].GetString(), geometryData);
+
+                auto materialGuid = convertToGuid(node["MaterialGuid"].GetString());
+                auto matRes = materialsRepo->getResource(materialGuid);
+
+                material* mat;
+                if (matRes == nullptr)
+                    mat = material::getDefault();
+                else
+                    mat = matRes->getObject();
+
+                auto mesh = new phi::mesh(node["Name"].GetString(), new geometry(geometryData), mat);
+                objectNode = mesh;
+                break;
+            }
+        }
+
+        if (!node.HasMember("Children"))
+            return objectNode;
+
+        const rapidjson::Value& children = node["Children"];
+        for (rapidjson::SizeType i = 0; i < children.Size(); i++)
+        {
+            auto child = readNode(children[i], currentFolder, materialsRepo);
+            objectNode->addChild(child);
+        }
+
+        return objectNode;
+    }
+
+    GUID importer::convertToGuid(const char* bytesGuid)
+    {
+        auto guidBytes = base64::decode(bytesGuid);
+        return *reinterpret_cast<GUID*>(guidBytes.data());
+    }
+
     int importer::importModel(std::string fileName, model*& resultModel)
     {
         auto modelName = path::getFileNameWithoutExtension(fileName);
@@ -100,7 +152,7 @@ namespace phi
         return 1;
     }
 
-    int importer::importObject3D(std::string fileName, object3D*& rootNode)
+    int importer::importObject3D(std::string fileName, resource<object3D>*& objectResource, resourcesRepository<material>* materialsRepo)
     {
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
@@ -110,7 +162,11 @@ namespace phi
         d.ParseStream(is);
 
         auto currentFolder = path::getDirectoryFullName(fileName);
-        rootNode = readNode(d, currentFolder);
+        auto rootNode = readNode(d, currentFolder, materialsRepo);
+
+        auto guid = convertToGuid(d["Guid"].GetString());
+
+        objectResource = new resource<object3D>(guid, path::getFileNameWithoutExtension(fileName), rootNode);
 
         fclose(fp);
 
@@ -199,10 +255,8 @@ namespace phi
         rapidjson::Document d;
         d.ParseStream(is);
 
-        auto guidBase64 = d["Guid"].GetString();
-        auto guidBytes = base64::decode(guidBase64);
-        auto guid = *reinterpret_cast<GUID*>(guidBytes.data());
-        auto imageFileName = d["ImageFileName"].GetString();
+        auto guid = convertToGuid(d["Guid"].GetString());
+        auto imageFileName = path::getDirectoryFullName(fileName) + "\\" + d["ImageFileName"].GetString();
 
         fclose(fp);
 
@@ -220,66 +274,48 @@ namespace phi
         return 1;
     }
 
-    int importer::importMaterial(std::string filename, resource<material>*& materialResource)
+    int importer::importMaterial(std::string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo)
     {
-        std::ifstream iFile(filename, std::ios::in | std::ios::binary);
+        FILE* fp;
+        fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
+        char readBuffer[65536];
+        rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
+        rapidjson::Document d;
+        d.ParseStream(is);
 
-        if (!iFile.is_open())
-        {
-            materialResource = nullptr;
-            return 0;
-        }
+        auto guid = convertToGuid(d["Guid"].GetString());
+        auto diffuseTextureGuid = convertToGuid(d["DiffuseTextureGuid"].GetString());
+        auto normalTextureGuid = convertToGuid(d["NormalTextureGuid"].GetString());
+        auto specularTextureGuid = convertToGuid(d["SpecularTextureGuid"].GetString());
+        auto emissiveTextureGuid = convertToGuid(d["EmissiveTextureGuid"].GetString());
+        auto diffuseTexture = texturesRepo->getResource(diffuseTextureGuid);
+        auto normalTexture = texturesRepo->getResource(normalTextureGuid);
+        auto specularTexture = texturesRepo->getResource(specularTextureGuid);
+        auto emissiveTexture = texturesRepo->getResource(emissiveTextureGuid);
 
-        iFile.seekg(0);
+        const rapidjson::Value& ambientColorNode = d["AmbientColor"];
+        const rapidjson::Value& diffuseColorNode = d["DiffuseColor"];
+        const rapidjson::Value& specularColorNode = d["SpecularColor"];
+        const rapidjson::Value& emissiveColorNode = d["EmissiveColor"];
+        auto ambientColor = color((float)ambientColorNode["R"].GetDouble(), (float)ambientColorNode["G"].GetDouble(), (float)ambientColorNode["B"].GetDouble(), (float)ambientColorNode["A"].GetDouble());
+        auto diffuseColor = color((float)diffuseColorNode["R"].GetDouble(), (float)diffuseColorNode["G"].GetDouble(), (float)diffuseColorNode["B"].GetDouble(), (float)diffuseColorNode["A"].GetDouble());
+        auto specularColor = color((float)specularColorNode["R"].GetDouble(), (float)specularColorNode["G"].GetDouble(), (float)specularColorNode["B"].GetDouble(), (float)specularColorNode["A"].GetDouble());
+        auto emissiveColor = color((float)emissiveColorNode["R"].GetDouble(), (float)emissiveColorNode["G"].GetDouble(), (float)emissiveColorNode["B"].GetDouble(), (float)emissiveColorNode["A"].GetDouble());
 
-        GUID guid; // To create a new GUID use HRESULT hCreateGuid = CoCreateGuid(&gidReference);
-        char* diffuseTextureName = new char[256];
-        char* normalTextureName = new char[256];
-        char* specularTextureName = new char[256];
-        char* emissiveTextureName = new char[256];
-        color ambientColor;
-        color diffuseColor;
-        color specularColor;
-        color emissiveColor;
-        float ka;
-        float kd;
-        float ks;
-        float shininess;
-        float reflectivity;
-        bool isEmissive;
+        auto shininess = (float)d["Shininess"].GetDouble();
+        auto reflectivity = (float)d["Reflectivity"].GetDouble();
+        auto ka = (float)d["Ka"].GetDouble();
+        auto kd = (float)d["Kd"].GetDouble();
+        auto ks = (float)d["Ks"].GetDouble();
+        auto isEmissive = d["IsEmissive"].GetBool();
 
-        iFile.read(reinterpret_cast<char*>(&guid), 16);
-        iFile.read(diffuseTextureName, 256);
-        iFile.read(normalTextureName, 256);
-        iFile.read(specularTextureName, 256);
-        iFile.read(emissiveTextureName, 256);
-        iFile.read(reinterpret_cast<char*>(&ambientColor), sizeof(color));
-        iFile.read(reinterpret_cast<char*>(&diffuseColor), sizeof(color));
-        iFile.read(reinterpret_cast<char*>(&specularColor), sizeof(color));
-        iFile.read(reinterpret_cast<char*>(&emissiveColor), sizeof(color));
-        iFile.read(reinterpret_cast<char*>(&shininess), sizeof(float));
-        iFile.read(reinterpret_cast<char*>(&reflectivity), sizeof(float));
-        iFile.read(reinterpret_cast<char*>(&ka), sizeof(float));
-        iFile.read(reinterpret_cast<char*>(&kd), sizeof(float));
-        iFile.read(reinterpret_cast<char*>(&ks), sizeof(float));
-        iFile.read(reinterpret_cast<char*>(&isEmissive), sizeof(bool));
-
-        iFile.close();
-        auto name = path::getFileNameWithoutExtension(filename);
-        auto dir = path::getDirectoryFullName(filename);
-        auto thumbnailPath = dir + "\\" + name + ".th";
-
-        texture* thumbnailRes;
-        if (importTexture(thumbnailPath, thumbnailRes))
-        {
-
-        }
+        fclose(fp);
 
         auto mat = new material(
-            std::string(diffuseTextureName),
-            std::string(normalTextureName),
-            std::string(specularTextureName),
-            std::string(emissiveTextureName),
+            diffuseTexture == nullptr ? texture::getDefaultDiffuse() : diffuseTexture->getObject(),
+            normalTexture == nullptr ? texture::getDefaultNormal() : normalTexture->getObject(),
+            specularTexture == nullptr ? texture::getDefaultSpecular() : specularTexture->getObject(),
+            emissiveTexture == nullptr ? texture::getDefaultEmissive() : emissiveTexture->getObject(),
             ambientColor,
             diffuseColor,
             specularColor,
@@ -291,49 +327,8 @@ namespace phi
             reflectivity,
             isEmissive);
 
-        materialResource = new resource<material>(guid, name, mat);
+        materialResource = new resource<material>(guid, path::getFileNameWithoutExtension(fileName), mat);
 
         return 1;
-    }
-
-    object3D* importer::readNode(const rapidjson::Value& node, std::string currentFolder)
-    {
-        auto type = node["Type"].GetInt();
-        object3D* objectNode = nullptr;
-
-        switch (type)
-        {
-            case 0:
-            {
-                auto model = new phi::model(node["Name"].GetString());
-                objectNode = model;
-                break;
-            }
-            case 1:
-            {
-                geometryData* geometryData = nullptr;
-                importGeometryData(currentFolder + "\\" + node["GeometryDataPath"].GetString(), geometryData);
-
-                auto guidBase64 = node["MaterialGuid"].GetString();
-                auto guidBytes = base64::decode(guidBase64);
-                auto materialGuid = *reinterpret_cast<GUID*>(guidBytes.data());
-
-                auto mesh = new phi::mesh(node["Name"].GetString(), new geometry(geometryData), nullptr);
-                objectNode = mesh;
-                break;
-            }
-        }
-
-        if (!node.HasMember("Children"))
-            return objectNode;
-
-        const rapidjson::Value& children = node["Children"];
-        for (rapidjson::SizeType i = 0; i < children.Size(); i++)
-        {
-            auto child = readNode(children[i], currentFolder);
-            objectNode->addChild(child);
-        }
-
-        return objectNode;
     }
 }

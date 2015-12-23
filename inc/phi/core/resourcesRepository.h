@@ -44,8 +44,8 @@ namespace phi
         {
             for (auto resource : _resources)
             {
-                if (_resources[i]->getFullName() == name)
-                    return (T*)_resources[i];
+                if (resource->getGuid() == guid)
+                    return resource;
             }
 
             return nullptr;
