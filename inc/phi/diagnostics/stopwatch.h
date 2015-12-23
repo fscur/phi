@@ -1,8 +1,8 @@
 #ifndef _PHI_STOPWATCH_H_
 #define _PHI_STOPWATCH_H_
 
-#include <phi/diagnostics/diagnostics.h>
-#include <phi/diagnostics/console.h>
+#include "diagnostics.h"
+#include "console.h"
 
 #include <chrono>
 #include <functional>

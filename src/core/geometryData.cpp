@@ -25,9 +25,9 @@ namespace phi
 
     geometryData* geometryData::create(std::vector<vertex> &vertices, std::vector<uint>* indices)
     {
-        geometryData* m = new geometryData();
-        m->addVertices(vertices, indices);
-        return m;
+        auto data = new geometryData();
+        data->addVertices(vertices, indices);
+        return data;
     }
 
     geometryData* geometryData::create(
@@ -45,64 +45,62 @@ namespace phi
 
         std::vector<vertex> vertices;
 
-        for (uint i = 0; i < verticesCount; i++)
+        for (auto i = 0; i < verticesCount; i++)
         {
-            float x = positionsBuffer[i * 3 + 0];
-            float y = positionsBuffer[i * 3 + 1];
-            float z = positionsBuffer[i * 3 + 2];
+            auto x = positionsBuffer[i * 3 + 0];
+            auto y = positionsBuffer[i * 3 + 1];
+            auto z = positionsBuffer[i * 3 + 2];
 
-            vec3 position = vec3(x, y, z);
+            auto position = vec3(x, y, z);
 
-            float u = texCoordsBuffer[i * 2 + 0];
-            float v = texCoordsBuffer[i * 2 + 1];
+            auto u = texCoordsBuffer[i * 2 + 0];
+            auto v = texCoordsBuffer[i * 2 + 1];
 
-            vec2 texCoord = vec2(u, v);
+            auto texCoord = vec2(u, v);
 
-            float r = normalsBuffer[i * 3 + 0];
-            float s = normalsBuffer[i * 3 + 1];
-            float t = normalsBuffer[i * 3 + 2];
+            auto r = normalsBuffer[i * 3 + 0];
+            auto s = normalsBuffer[i * 3 + 1];
+            auto t = normalsBuffer[i * 3 + 2];
 
-            vec3 normal = vec3(r, s, t);
+            auto normal = vec3(r, s, t);
 
-            vertex vert = vertex(position, texCoord, normal);
-
-            vertices.push_back(vert);
+            vertices.push_back(vertex(position, texCoord, normal));
         }
 
-        geometryData::calcTangents(vertices, *indices);
+        calcTangents(vertices, *indices);
 
         unsigned int tgIndex = 0;
-        float* tangentsBuffer = new float[verticesCount * 3];
+        auto tangentsBuffer = new float[verticesCount * 3];
 
-        for (uint i = 0; i < verticesCount; i++)
+        for (auto i = 0; i < verticesCount; i++)
         {
-            vertex vertex = vertices[i];
+            auto vertex = vertices[i];
 
-            float r1 = vertex.getTangent().x;
-            float s1 = vertex.getTangent().y;
-            float t1 = vertex.getTangent().z;
+            auto r1 = vertex.getTangent().x;
+            auto s1 = vertex.getTangent().y;
+            auto t1 = vertex.getTangent().z;
 
             tangentsBuffer[tgIndex++] = r1;
             tangentsBuffer[tgIndex++] = s1;
             tangentsBuffer[tgIndex++] = t1;
         }
 
-        geometryData* g = new geometryData();
+        auto data = new geometryData();
         auto floatSize = (uint)sizeof(float);
 
-        g->_indices = indices;
-        g->_vertices = vertices;
-        g->_indicesCount = indicesCount;
-        g->_positionsBuffer = positionsBuffer;
-        g->_texCoordsBuffer = texCoordsBuffer;
-        g->_normalsBuffer = normalsBuffer;
-        g->_tangentsBuffer = tangentsBuffer;
-        g->_pSize = verticesCount * 3u * floatSize;
-        g->_tSize = verticesCount * 2u * floatSize;
-        g->_nSize = verticesCount * 3u * floatSize;
-        g->_tgSize = verticesCount * 3u * floatSize;
+        data->_indices = indices;
+        data->_vertices = vertices;
+        data->_indicesCount = indicesCount;
+        data->_positionsBuffer = positionsBuffer;
+        data->_texCoordsBuffer = texCoordsBuffer;
+        data->_normalsBuffer = normalsBuffer;
+        data->_tangentsBuffer = tangentsBuffer;
+        data->_pSize = verticesCount * 3u * floatSize;
+        data->_tSize = verticesCount * 2u * floatSize;
+        data->_nSize = verticesCount * 3u * floatSize;
+        data->_tgSize = verticesCount * 3u * floatSize;
 
-        return g;
+        return data;
     }
 
     void geometryData::addVertices(std::vector<vertex> vertices, std::vector<uint>* indices)
@@ -144,20 +142,20 @@ namespace phi
         {
             vertex vertex = *i;
 
-            float x = vertex.getPosition().x;
-            float y = vertex.getPosition().y;
-            float z = vertex.getPosition().z;
+            auto x = vertex.getPosition().x;
+            auto y = vertex.getPosition().y;
+            auto z = vertex.getPosition().z;
 
-            float u = vertex.getTexCoord().x;
-            float v = vertex.getTexCoord().y;
+            auto u = vertex.getTexCoord().x;
+            auto v = vertex.getTexCoord().y;
 
-            float r0 = vertex.getNormal().x;
-            float s0 = vertex.getNormal().y;
-            float t0 = vertex.getNormal().z;
+            auto r0 = vertex.getNormal().x;
+            auto s0 = vertex.getNormal().y;
+            auto t0 = vertex.getNormal().z;
 
-            float r1 = vertex.getTangent().x;
-            float s1 = vertex.getTangent().y;
-            float t1 = vertex.getTangent().z;
+            auto r1 = vertex.getTangent().x;
+            auto s1 = vertex.getTangent().y;
+            auto t1 = vertex.getTangent().z;
 
             positionsBuffer[pIndex++] = x;
             positionsBuffer[pIndex++] = y;

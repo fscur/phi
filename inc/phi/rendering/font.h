@@ -55,7 +55,7 @@ namespace phi
         RENDERING_API font(std::string name, std::string path, int size, FT_Library library);
         RENDERING_API ~font();
 
-        RENDERING_API static font* fromFile(std::string fileName);
+        RENDERING_API static font* fromFile(std::string fileName);//TODO: unimplemented method
 
         RENDERING_API int getTexWidth() { return _texWidth; }
         RENDERING_API int getTexHeight() { return _texHeight; }

@@ -5,8 +5,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <glm/glm.hpp>
-#include <GLM/gtc/quaternion.hpp>
+#include <glm\glm.hpp>
+#include <GLM\gtc\quaternion.hpp>
 
 using uint = unsigned int;
 using byte = unsigned char;
@@ -26,21 +26,21 @@ namespace phi
     static const float PI_OVER_4 = 0.7853981634f;
 
     template<class T> 
-    void safeDelete(T value)
+    inline void safeDelete(T value)
     {
         delete value;
-        value = NULL;
+        value = nullptr;
     }
 
     template<class T> 
-    void safeDeleteArray(T value)
+    inline void safeDeleteArray(T value)
     {
         delete[] value;
-        value = NULL;
+        value = nullptr;
     }
 
     template<class T> 
-    void log(T& value)
+    inline void log(T& value)
     {
         std::cout << value << std::endl;
     }

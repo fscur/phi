@@ -1,4 +1,4 @@
-#include "phi/io/path.h"
+#include <phi/io/path.h>
 
 #include <algorithm>
 #include <vector>
@@ -7,7 +7,7 @@
 
 namespace phi
 {
-    bool path::exists(std::string path)
+    bool path::exists(const std::string& path)
     {
         FILE *file;
         fopen_s(&file, path.c_str(), "r");
@@ -58,7 +58,7 @@ namespace phi
         return path.substr(dotIndex, path.length() - dotIndex);
     }
 
-    std::vector<fileInfo> path::getFiles(const std::string directory)
+    std::vector<fileInfo> path::getFiles(const std::string& directory)
     {
 #ifdef WIN32
         std::vector<fileInfo> out;
@@ -117,7 +117,7 @@ namespace phi
 #endif
     }
 
-    std::vector<directoryInfo> path::getDirectories(const std::string directory)
+    std::vector<directoryInfo> path::getDirectories(const std::string& directory)
     {
 #ifdef WIN32
         std::vector<directoryInfo> out;
@@ -178,8 +178,15 @@ namespace phi
 #endif
     }
 
-    std::string path::combine(const std::string path0, const std::string path1)
+    std::string path::combine(const std::string& path0, const std::string& path1, std::initializer_list<std::string> args)
     {
-        return path0 + "/" + path1; 
+        auto combined = path0 + path1;
+
+        for(auto arg : args)
+        {
+            combined += arg;
+        }
+
+        return combined;
     }
 }

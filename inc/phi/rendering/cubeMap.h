@@ -18,6 +18,7 @@
 
 namespace phi
 {
+    //TODO: check this shit
     class cubeMap :
         public resource
     {

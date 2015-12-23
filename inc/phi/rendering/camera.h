@@ -11,7 +11,7 @@ namespace phi
     {
     private:
         mat4 _viewMatrix;
-        frustum* _frustum;
+        frustum* _frustum; //TODO: pointer ?? Reference!
         float _focus;
 
     public:
@@ -21,11 +21,11 @@ namespace phi
             sizef resolution,
             float fov);
 
-        RENDERING_API mat4 getViewMatrix() const { return _viewMatrix; }
-        RENDERING_API mat4 getProjectionMatrix() const { return _frustum->getPerspectiveMatrix(); }
-        RENDERING_API sizef getResolution() const { return _frustum->getResolution(); }
-        RENDERING_API frustum* getFrustum() const { return _frustum; }
-        RENDERING_API float getFocus() const { return _focus; }
+        RENDERING_API inline mat4 getViewMatrix() const { return _viewMatrix; }
+        RENDERING_API inline mat4 getProjectionMatrix() const { return _frustum->getPerspectiveMatrix(); }
+        RENDERING_API inline sizef getResolution() const { return _frustum->getResolution(); }
+        RENDERING_API inline frustum* getFrustum() const { return _frustum; }
+        RENDERING_API inline float getFocus() const { return _focus; }
 
         RENDERING_API void setTarget(vec3 value);
         RENDERING_API void setResolution(sizef value) { _frustum->setResolution(value); }

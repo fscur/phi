@@ -1,15 +1,16 @@
-#include <phi/rendering/camera.h>
 #include <phi/core/globals.h>
+#include <phi/rendering/camera.h>
+
 #include <glm/gtx/vector_angle.hpp>
 
 namespace phi
 {
-    camera::camera(float nearDistance, float farDistance, sizef resolution, float fov) :
-        object3D("camera", object3D::objectType::CAMERA)
+    camera::camera(float nearDistance, float farDistance, sizef resolution, float fov) : object3D("camera", object3D::objectType::CAMERA),
+        _frustum(new frustum(vec3(), getDirection(), getUp(), nearDistance, farDistance, resolution, fov)),
+        _focus(1.0f),
+        _viewMatrix(lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp()))
+
     {
-        _frustum = new frustum(vec3(), getDirection(), getUp(), nearDistance, farDistance, resolution, fov);
-        _focus = 1.0f;
-        _viewMatrix = lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp());
     }
 
     void camera::setTarget(vec3 value)

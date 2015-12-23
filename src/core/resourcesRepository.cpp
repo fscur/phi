@@ -14,8 +14,12 @@ namespace phi
 
     void resourcesRepository::release()
     {
-        for (unsigned int i = 0; i < _resources.size(); i++)
-            safeDelete(_resources[i]);
+        for(auto &resource : _resources)
+            safeDelete(resource);
+        
+        //TODO: are those the same ?
+        // for (unsigned int i = 0; i < _resources.size(); i++)
+        //     safeDelete(_resources[i]);
     }
 
     void resourcesRepository::addResource(resource* r)

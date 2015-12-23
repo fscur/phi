@@ -20,7 +20,7 @@ namespace phi
         CORE_API void release();
         CORE_API void addResource(resource* r);
 
-        CORE_API std::vector<resource*> getAllResources()
+        CORE_API inline std::vector<resource*> getAllResources()
         {
             return _resources;
         }
@@ -28,18 +28,25 @@ namespace phi
         template<class T>
         T* getResource(std::string name)
         {
-            for (unsigned int i = 0; i < _resources.size(); i++)
+            for(auto &resource : _resources)
             {
-                if (_resources[i]->getFullName() == name)
-                    return (T*)_resources[i];
+                if (resource.getFullName() == name)
+                    return *resource;
             }
+            
+            //TODO: are those the same?
+            // for (unsigned int i = 0; i < _resources.size(); i++)
+            // {
+            //     if (_resources[i]->getFullName() == name)
+            //         return (T*)_resources[i];
+            // }
 
             return nullptr;
         }
 
-        std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
+        std::vector<std::string>& split(const std::string &string, char delim, std::vector<std::string> &elems)
         {
-            std::stringstream ss(s);
+            std::stringstream ss(string);
             std::string item;
             while (std::getline(ss, item, delim))
             {
@@ -49,10 +56,10 @@ namespace phi
             return elems;
         }
 
-        std::vector<std::string> split(const std::string &s, char delim)
+        std::vector<std::string> split(const std::string &string, char delim)
         {
             std::vector<std::string> elems;
-            split(s, delim, elems);
+            split(string, delim, elems);
             return elems;
         }
 
@@ -61,7 +68,8 @@ namespace phi
             auto directories = std::vector<std::string>();
             auto nodes = split(path, '\\');
             auto nodesSize = nodes.size();
-
+            
+            //TODO: replace fors
             for (unsigned int i = 0; i < _resources.size(); i++)
             {
                 auto res = _resources[i];
@@ -85,6 +93,7 @@ namespace phi
             auto nodes = split(path, '\\');
             auto nodesSize = nodes.size();
 
+            ///replace fors
             for (unsigned int i = 0; i < _resources.size(); i++)
             {
                 auto res = _resources[i];

@@ -52,16 +52,16 @@ namespace phi
 
         RENDERING_API ~frustum();
 
-        RENDERING_API vec3 getPosition() const { return _position; }
-        RENDERING_API vec3 getDirection() const { return _direction; }
-        RENDERING_API vec3 getUp() const { return _up; }
-        RENDERING_API float getZNear() const { return _near; }
-        RENDERING_API float getZFar() const { return _far; }
-        RENDERING_API float getAspect() const { return _aspect; }
-        RENDERING_API sizef getResolution() const { return _resolution; }
-        RENDERING_API float getFov() const { return _fov; }
-        RENDERING_API bool getChanged() const { return _changed; }
-        RENDERING_API mat4 getPerspectiveMatrix() const { return _perspectiveMatrix; }
+        RENDERING_API inline vec3 getPosition() const { return _position; }
+        RENDERING_API inline vec3 getDirection() const { return _direction; }
+        RENDERING_API inline vec3 getUp() const { return _up; }
+        RENDERING_API inline float getZNear() const { return _near; }
+        RENDERING_API inline float getZFar() const { return _far; }
+        RENDERING_API inline float getAspect() const { return _aspect; }
+        RENDERING_API inline sizef getResolution() const { return _resolution; }
+        RENDERING_API inline float getFov() const { return _fov; }
+        RENDERING_API inline bool getChanged() const { return _changed; }
+        RENDERING_API inline mat4 getPerspectiveMatrix() const { return _perspectiveMatrix; }
 
         RENDERING_API void setPosition(vec3 position);
         RENDERING_API void setDirection(vec3 direction);

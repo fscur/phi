@@ -1,9 +1,9 @@
-#include <phi/core/object3D.h>
+#include <phi\core\object3D.h>
 
 namespace phi
 {
     object3D::object3D(std::string name, objectType type) :
-        _name(name), 
+        _name(name),
         _type(type),
         _position(vec3()),
         _right(vec3(1.0f, 0.0f, 0.0f)),
@@ -30,17 +30,20 @@ namespace phi
 
     void object3D::setChanged()
     {
-        if (_changed)
+        if(_changed)
             return;
 
         _changed = true;
 
-        auto childrenCount = _children.size();
-        for (unsigned int i = 0; i < childrenCount; i++)
-            _children[i]->setChanged();
+        //auto childrenCount = _children.size();
+        //for (unsigned int i = 0; i < childrenCount; i++)
+        //    _children[i]->setChanged();
+        //TODO: are those the same ?
+        for(auto& child : _children)
+            child->setChanged();
 
         onChanged();
-        if (_changedEvent->isBound())
+        if(_changedEvent->isBound())
             _changedEvent->invoke(object3DEventArgs(this));
     }
 
@@ -62,7 +65,6 @@ namespace phi
     {
         _orientation = mathUtils::rotationBetweenVectors(_direction, direction) * _orientation;
         setChanged();
-
         onDirectionChanged();
     }
 
@@ -103,7 +105,7 @@ namespace phi
 
     mat4 object3D::getModelMatrix()
     {
-        if (_parent == nullptr)
+        if(_parent == nullptr)
             return _modelMatrix;
         else
             return _parent->getModelMatrix() * _modelMatrix;
@@ -124,7 +126,7 @@ namespace phi
         auto rotation = localRotation;
         auto obj = this->getParent();
 
-        while (obj != nullptr)
+        while(obj != nullptr)
         {
             rotation = obj->getRotationMatrix() * rotation;
             obj = obj->getParent();
@@ -141,15 +143,18 @@ namespace phi
             _modelMatrix[1][0], _modelMatrix[1][1], _modelMatrix[1][2],
             _modelMatrix[2][0], _modelMatrix[2][1], _modelMatrix[2][2]);
 
-        auto childrenCount = _children.size();
+        for(auto child : _children)
+            child->updateLocalModelMatrix();
 
-        for (unsigned int i = 0; i < childrenCount; i++)
-            _children[i]->updateLocalModelMatrix();
+        //TODO: are those the same ?
+        //auto childrenCount = _children.size();
+        // for (unsigned int i = 0; i < childrenCount; i++)
+        //     _children[i]->updateLocalModelMatrix();
     }
 
     void object3D::update()
     {
-        if (_changed)
+        if(_changed)
         {
             updateLocalModelMatrix();
             _changed = false;

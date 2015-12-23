@@ -5,15 +5,15 @@
 
 namespace phi
 {
-	class defaultFrameBuffer :
-		public frameBuffer
-	{
-	public:
-		RENDERING_API defaultFrameBuffer(color clearColor);
-		RENDERING_API ~defaultFrameBuffer();
-		RENDERING_API void init() override;
-		RENDERING_API void clear() override;
-	};
+    class defaultFrameBuffer :
+        public frameBuffer
+    {
+    public:
+        RENDERING_API defaultFrameBuffer(color clearColor);
+        RENDERING_API ~defaultFrameBuffer();
+        RENDERING_API void init() override;
+        RENDERING_API void clear() override;
+    };
 }
 
 #endif

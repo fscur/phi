@@ -1,4 +1,5 @@
 #include <phi/demo/defaultCameraController.h>
+
 #include <phi/core/inputKey.h>
 #include <phi/core/globals.h>
 #include <phi/rendering/renderingSystem.h>

@@ -2,20 +2,18 @@
 
 namespace phi
 {
-	defaultFrameBuffer::defaultFrameBuffer(color clearColor) : frameBuffer("default", clearColor)
-	{
-	}
+    defaultFrameBuffer::defaultFrameBuffer(color clearColor) : frameBuffer("default", clearColor)
+    {
+    }
 
-	defaultFrameBuffer::~defaultFrameBuffer()
-	{
+    defaultFrameBuffer::~defaultFrameBuffer()
+    {
         frameBuffer::~frameBuffer();
-	}
+    }
 
-	void defaultFrameBuffer::init()
-    {   
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        //glEnable(GL_CULL_FACE);
+    void defaultFrameBuffer::init()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glEnable(GL_DEPTH_TEST);
     }
 

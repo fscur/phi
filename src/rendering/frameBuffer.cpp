@@ -1,24 +1,24 @@
-#include <phi/rendering/frameBuffer.h>
+#include <phi\rendering\frameBuffer.h>
 
 namespace phi
 {
-    frameBuffer::frameBuffer(std::string name, color clearColor)
+    frameBuffer::frameBuffer(std::string name, color clearColor) :
+        _name(name),
+        _clearColor(clearColor),
+        _x(0),
+        _y(0),
+        _isBound(false),
+        _isInitialized(false),
+        _id(0),
+        _renderTargets(new std::map<std::string, renderTarget*>())
     {
-        _name = name;
-        _clearColor = clearColor;
-        _x = 0;
-        _y = 0;
-        _isBound = false;
-        _isInitialized = false;
-        _id = 0;
-        _renderTargets = new std::map<std::string, renderTarget*>();
     }
 
     frameBuffer::~frameBuffer()
     {
         if (_renderTargets)
         {
-            for(std::map<std::string, renderTarget*>::iterator i = _renderTargets->begin(); i != _renderTargets->end(); i++) 
+            for(auto i = _renderTargets->begin(); i != _renderTargets->end(); i++) 
             {
                 safeDelete(i->second);
             }
@@ -39,7 +39,7 @@ namespace phi
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    bool frameBuffer::isComplete(GLenum target)
+    bool frameBuffer::isComplete(const GLenum& target)//TODO: test const reference in opengl functions
     {
         GLenum status = glCheckFramebufferStatus(target);
 
@@ -95,11 +95,6 @@ namespace phi
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void frameBuffer::setSize(sizef value)
-    {
-        _size = value;
-    }
-
     void frameBuffer::setClearColor(color value)
     {
         _clearColor = value; 
@@ -125,7 +120,7 @@ namespace phi
 
     void frameBuffer::blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask, GLenum filter)
     {
-        renderTarget* renderTarget = (*_renderTargets)[renderTargetName];
+        auto renderTarget = (*_renderTargets)[renderTargetName];
 
         glReadBuffer(renderTarget->getAttachment());
 
@@ -206,7 +201,7 @@ namespace phi
         GLenum texTarget,
         GLuint level)
     {
-        renderTarget* r = new renderTarget(name, texture);
+        auto r = new renderTarget(name, texture);
 
         r->setTarget(target);
         r->setAttachment(attachment);

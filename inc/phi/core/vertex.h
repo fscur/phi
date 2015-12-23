@@ -18,19 +18,19 @@ namespace phi
     public:
         CORE_API vertex();
         CORE_API vertex(vec3 position, vec2 texCoord = vec2(0.0f), vec3 normal = vec3(0.0f), vec3 tangent = vec3(0.0f));
-        CORE_API ~vertex();
+        CORE_API ~vertex() { };
 
-        CORE_API vec3 getPosition() { return _position; }
-        CORE_API vec2 getTexCoord() { return _texCoord; }
-        CORE_API vec3 getNormal() { return _normal; }
-        CORE_API vec3 getTangent() { return _tangent; }
-        CORE_API vec3 getBitangent() { return _bitangent; }
+        CORE_API inline vec3 getPosition() { return _position; }
+        CORE_API inline vec2 getTexCoord() { return _texCoord; }
+        CORE_API inline vec3 getNormal() { return _normal; }
+        CORE_API inline vec3 getTangent() { return _tangent; }
+        CORE_API inline vec3 getBitangent() { return _bitangent; }
 
-        CORE_API void setPosition(vec3 position) { _position = position; }
-        CORE_API void setTexCoord(vec2 texCoord) { _texCoord = texCoord; }
-        CORE_API void setNormal(vec3 normal) { _normal = normal; }
-        CORE_API void setTangent(vec3 tangent) { _tangent = tangent; }
-        CORE_API void setBitangent(vec3 bitangent) { _bitangent = bitangent; }
+        CORE_API inline void setPosition(vec3 position) { _position = position; }
+        CORE_API inline void setTexCoord(vec2 texCoord) { _texCoord = texCoord; }
+        CORE_API inline void setNormal(vec3 normal) { _normal = normal; }
+        CORE_API inline void setTangent(vec3 tangent) { _tangent = tangent; }
+        CORE_API inline void setBitangent(vec3 bitangent) { _bitangent = bitangent; }
 
         CORE_API friend bool operator==(const vertex& a, const vertex& b)
         {

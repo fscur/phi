@@ -18,10 +18,10 @@ namespace phi
     public:
         CORE_API color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f);
 
-    public :
+    public:
         CORE_API static color fromRGBA(long rgba)
         {
-            int rgbaInt = (int)rgba;
+            int rgbaInt = (int) rgba;
 
             unsigned char r = rgbaInt & 255;
             rgbaInt = rgbaInt >> 8;
@@ -31,10 +31,10 @@ namespace phi
             rgbaInt = rgbaInt >> 8;
             unsigned  a = rgbaInt & 255;
 
-            auto rf = std::max<float>(std::min<float>(std::abs((float)r / 255.0f), 1.0f), 0.0f);
-            auto gf = std::max<float>(std::min<float>(std::abs((float)g / 255.0f), 1.0f), 0.0f);
-            auto bf = std::max<float>(std::min<float>(std::abs((float)b / 255.0f), 1.0f), 0.0f);
-            auto af = std::max<float>(std::min<float>(std::abs((float)a / 255.0f), 1.0f), 0.0f);
+            auto rf = std::max<float>(std::min<float>(std::abs((float) r / 255.0f), 1.0f), 0.0f);
+            auto gf = std::max<float>(std::min<float>(std::abs((float) g / 255.0f), 1.0f), 0.0f);
+            auto bf = std::max<float>(std::min<float>(std::abs((float) b / 255.0f), 1.0f), 0.0f);
+            auto af = std::max<float>(std::min<float>(std::abs((float) a / 255.0f), 1.0f), 0.0f);
 
             return color(rf, gf, bf, af);
         }
@@ -46,11 +46,11 @@ namespace phi
 
         CORE_API friend bool operator==(const color& a, const color& b)
         {
-            return 
-                a.r == b.r && 
+            return
+                a.r == b.r &&
                 a.g == b.g &&
                 a.b == b.g &&
-				a.a == b.a;
+                a.a == b.a;
         }
 
         CORE_API friend bool operator!=(const color& a, const color& b)
