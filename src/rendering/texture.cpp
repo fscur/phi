@@ -3,10 +3,11 @@
 #include <phi/rendering/texture.h>
 
 #include <stdio.h>
-#include <SDL/SDL_image.h>
 
 namespace phi
 {
+    int countQuemMeTem = 0;
+
     texture* texture::defaultDiffuse = nullptr;
     texture* texture::defaultNormal = nullptr;
     texture* texture::defaultSpecular = nullptr;
@@ -46,16 +47,24 @@ namespace phi
 
     texture* texture::createDefault(byte* data)
     {
-        auto t = texture::create(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, 0, data);
-        safeDeleteArray(data);
-        return t;
+        return new texture(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, data);
     }
 
-    texture::texture(GLuint id, uint w, uint h)
+    texture::texture(uint w, uint h, GLint internalFormat) :
+        texture::texture(w, h, internalFormat, GL_RGBA, GL_UNSIGNED_BYTE, nullptr)
     {
-        _id = id;
-        _w = w;
-        _h = h;
+    }
+
+    texture::texture(uint w, uint h, GLint internalFormat, GLenum dataFormat, GLenum dataType, byte* data) :
+        _w(w),
+        _h(h),
+        _internalFormat(internalFormat),
+        _dataFormat(dataFormat),
+        _dataType(dataType),
+        _data(data),
+        _isLoadedOnGpu(false),
+        _textureType(GL_TEXTURE_2D)
+    {
     }
 
     texture::~texture()
@@ -73,91 +82,34 @@ namespace phi
         glTexParameteri(_textureType, name, value);		
     }
 
-    void texture::release()
+    void texture::loadOnGpu()
     {
-        glDeleteTextures(1, &_id);
-    }
+        if (_isLoadedOnGpu)
+            return;
 
-    texture* texture::fromFile(std::string fileName)
-    {
-        SDL_Surface* surface = IMG_Load(fileName.c_str());
-
-        SDL_InvertSurface(surface);
-
-        GLuint id, width, height;
-        glGenTextures(1, &id);
-
-        width = surface->w;
-        height = surface->h;
+        glGenTextures(1, &_id);
 
         // "Bind" the newly created texture : all future texture functions will modify this texture
-        glBindTexture(GL_TEXTURE_2D, id);
-
-        GLuint format = 0;
-        switch (surface->format->BitsPerPixel)
-        {
-        case 24:
-            if (surface->format->Rmask == 255)
-                format = GL_RGB;
-            else 
-                format = GL_BGR;
-            break;
-        case 32:
-            if (surface->format->Rmask == 255)
-                format = GL_RGBA;
-            else
-                format = GL_BGRA;
-            break;
-        default:
-            break;
-        }
+        glBindTexture(GL_TEXTURE_2D, _id);
 
         // Give the image to OpenGL
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, surface->pixels);
-
-        // Give the image to OpenGL
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, surface->pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, _internalFormat, _w, _h, 0, _dataFormat, _dataType, _data);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        SDL_FreeSurface(surface);
-
-        auto t =  new texture(id, width, height);
-        t->_textureType = GL_TEXTURE_2D;
-
-        return t;
+        _isLoadedOnGpu = true;
     }
 
-    texture* texture::create(uint w, uint h, GLint internalFormat, GLint format, GLint type, GLuint level, GLvoid* data)
+    void texture::releaseFromGpu()
     {
-        GLuint id = 0;
-        glGenTextures(1, &id);
-        glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D(GL_TEXTURE_2D, level, internalFormat, w, h, 0, format, type, data);
-        auto t = new texture(id, w, h);
+        if (!_isLoadedOnGpu)
+            return;
 
-        t->_textureType = GL_TEXTURE_2D;
-
-        return t;
-    }
-
-    texture* texture::createCubeMap(uint w, uint h, GLint internalFormat, GLint format, GLint type, GLuint level, const std::vector<GLvoid*> data)
-    {
-        GLuint id = 0;
-        glGenTextures(1, &id);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-
-        bool hasData = data.size() > 0;
-
-        for (unsigned int i = 0 ; i < 6 ; i++) 
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, internalFormat, w, h, 0, format, type, hasData ? data[i] : 0);
-
-        auto t = new texture(id, w, h);
-        t->_textureType = GL_TEXTURE_CUBE_MAP;
-        return t;
+        glDeleteTextures(1, &_id);
+        _isLoadedOnGpu = false;
     }
 }

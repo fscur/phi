@@ -6,7 +6,6 @@
 #include <phi/core/resource.h>
 
 #include "rendering.h"
-#include "SDL_Extensions.h"
 
 #include <string>
 #include <vector>
@@ -24,13 +23,17 @@ namespace phi
     private:
         GLuint _id;
         GLuint _textureType;
-
-    protected:
+        byte* _data;
+        GLenum _dataType;
+        GLenum _dataFormat;
+        GLint _internalFormat;
         uint _w;
         uint _h;
+        bool _isLoadedOnGpu;
 
-    private:
-        texture(uint id, uint w, uint h);
+    public:
+        RENDERING_API texture::texture(uint w, uint h, GLint internalFormat);
+        RENDERING_API texture::texture(uint w, uint h, GLint internalFormat, GLenum dataFormat, GLenum type, byte* data);
 
     private:
         static texture* defaultDiffuse;
@@ -57,11 +60,8 @@ namespace phi
 
         RENDERING_API void bind(GLuint level = 0);
         RENDERING_API void setParam(GLenum name, GLint value);
-        RENDERING_API void release();
-
-        RENDERING_API static texture* fromFile(std::string fileName);
-        RENDERING_API static texture* create(uint w, uint h, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, GLvoid* data = 0);
-        RENDERING_API static texture* createCubeMap(uint w, uint h, GLint internalFormat = GL_RGB32F, GLint format = GL_RGBA, GLint type = GL_FLOAT, GLuint level = 0, const std::vector<GLvoid*> data = std::vector<GLvoid*>());
+        RENDERING_API void loadOnGpu();
+        RENDERING_API void releaseFromGpu();
     };
 }
 #endif

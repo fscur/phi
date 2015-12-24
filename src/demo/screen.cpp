@@ -1,3 +1,5 @@
+#include <phi/loader/importer.h>
+#include <phi/demo/screen.h>
 #include <phi\demo\screen.h>
 #include <phi\diagnostics\diagnostics.h>
 #include <phi\diagnostics\stopwatch.h>
@@ -16,6 +18,7 @@ screen::screen() : form()
     _translationSpeed = 1.0f;
     _rotationSpeed = 0.01f;
     _sceneRenderer = nullptr;
+    _library = new library("resources");
 }
 
 screen::~screen()
@@ -24,33 +27,14 @@ screen::~screen()
 
 void screen::initScene()
 {
+    _library->init();
+
     _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, getSize(), glm::half_pi<float>()));
     auto camera = _scene->getCamera();
 
-    camera->setLocalPosition(phi::vec3(0.0f, 5.0f, 5.0f));
+    camera->setLocalPosition(phi::vec3(0.0f, 3.0f, 5.0f));
     camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
     camera->update();
-
-    auto vertices = std::vector<phi::vertex>();
-    
-    vertices.push_back(phi::vertex(phi::vec3(-0.5f, -0.5f, -0.5f), phi::vec2(0.0f, 0.0f), phi::vec3(0.0f, 0.0f, -1.0f)));
-    vertices.push_back(phi::vertex(phi::vec3(+0.5f, -0.5f, -0.5f), phi::vec2(1.0f, 0.0f), phi::vec3(0.0f, 0.0f, -1.0f)));
-    vertices.push_back(phi::vertex(phi::vec3(+0.5f, +0.5f, -0.5f), phi::vec2(1.0f, 1.0f), phi::vec3(0.0f, 0.0f, -1.0f)));
-
-    auto indices = new std::vector<uint>();
-    indices->push_back(0);
-    indices->push_back(1);
-    indices->push_back(2);
-
-    auto gd = phi::geometryData::create(vertices, indices);
-    auto g = new phi::geometry(gd);
-
-    auto triangle0 = new phi::mesh("triangle", g, phi::material::getDefault());
-
-    auto model = new phi::model("cube");
-    model->addChild(triangle0);
-
-    _scene->add(model);
 
     auto info = phi::shaderManagerInfo();
     info.path = _resourcesPath;
@@ -58,6 +42,9 @@ void screen::initScene()
 
     _sceneRenderer = new phi::sceneRenderer();
     _sceneRenderer->init();
+
+    auto objectRes = _library->getObjectsRepository()->getAllResources()[2];
+    _scene->add(objectRes->getObject());
 }
 
 void screen::onInitialize()
@@ -67,8 +54,13 @@ void screen::onInitialize()
     initScene();
 }
 
+float t = 0.0f;
+
 void screen::update()
 {
+    t += 0.001f;
+    _scene->getCamera()->setLocalPosition(phi::vec3(glm::cos(t), 1.0f, glm::sin(t)) * 1.0f);
+    _scene->getCamera()->update();
     _scene->update();
 }
 
@@ -87,4 +79,5 @@ void screen::onResize(SDL_Event e)
 void screen::onClosing()
 {
     //TODO: MessageBox asking if the user really wants to close the window
+    //TODO: Check if we really need the above TODO
 }

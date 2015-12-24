@@ -1,9 +1,9 @@
 #ifndef _PHI_CONE_H_
 #define _PHI_CONE_H_
 
-#include "scenes.h"
-
 #include <phi/rendering/mesh.h>
+
+#include "scenes.h"
 
 namespace phi
 {

@@ -1,11 +1,11 @@
 #ifndef _PHI_SCENE_RENDERER_H_
 #define _PHI_SCENE_RENDERER_H_
 
-#include "scenes.h"
-#include "scene.h"
-
 #include <phi\rendering\defaultFrameBuffer.h>
 #include <phi\rendering\pickingFrameBuffer.h>
+
+#include "scenes.h"
+#include "scene.h"
 
 namespace phi
 {

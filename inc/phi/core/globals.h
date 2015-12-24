@@ -9,6 +9,7 @@
 #include <GLM\gtc\quaternion.hpp>
 
 using uint = unsigned int;
+using uint64 = unsigned long long;
 using byte = unsigned char;
 
 namespace phi

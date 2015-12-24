@@ -22,6 +22,7 @@ namespace phi
 
         _shader->addUniform(BASIC_SHADER::MVP, "mvp");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffuseMap");
+        //_shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffHandle");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_COLOR, "diffuseColor");
     }
 
@@ -46,21 +47,26 @@ namespace phi
 
         _shader->bind();
 
-        for (auto pair : renderList)
+        for (auto materials : renderList)
         {
-            auto material = pair.first;
+            auto material = materials.first;
 
             _shader->setUniform(BASIC_SHADER::DIFFUSE_MAP, material->getDiffuseTexture(), 0);
             _shader->setUniform(BASIC_SHADER::DIFFUSE_COLOR, material->getDiffuseColor());
 
-            for (auto object : pair.second)
+            for (auto geometries : materials.second)
             {
-                auto mvp = vp * object->getModelMatrix();
-                _shader->setUniform(BASIC_SHADER::MVP, mvp);
-
-                auto geometry = object->getGeometry();
+                auto geometry = geometries.first;
                 geometry->bind();
-                geometry->render(); 
+                
+                for (auto mesh : geometries.second)
+                {
+                    auto mvp = vp * mesh->getModelMatrix();
+                    _shader->setUniform(BASIC_SHADER::MVP, mvp);
+
+                    geometry->render();
+                }
+
                 geometry->unbind();
             }
         }

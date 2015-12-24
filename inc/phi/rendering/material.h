@@ -5,12 +5,14 @@
 
 #include "texture.h"
 
+#include <objbase.h>
+
 namespace phi
 {
-    class material :
-        public resource
+    class material
     {
     private:
+        GLuint64 _diffuseHandle;
         std::string _diffuseTextureName;
         std::string _normalTextureName;
         std::string _specularTextureName;
@@ -30,50 +32,46 @@ namespace phi
         float _shininess;
         float _reflectivity;
         bool _isEmissive;
+
     private:
         static material* defaultMaterial;
 
     public:
         RENDERING_API static material* getDefault();
+        RENDERING_API static material* getLambert(color color);
 
     public:
         RENDERING_API material(
-            std::string name,
-            std::string path,
             texture* diffuseTexture,
             texture* normalTexture,
-            texture* specularTexture, 
-            texture* emissiveTexture, 
+            texture* specularTexture,
+            texture* emissiveTexture,
             color ambientColor = color::white,
-            color diffuseColor = color::white, 
-            color specularColor = color::white, 
+            color diffuseColor = color::white,
+            color specularColor = color::white,
             color emissiveColor = color::white,
             float ka = 0.0f,
             float kd = 0.0f,
             float ks = 0.0f,
             float shininess = 0.0f,
             float reflectivity = 0.0f,
-            bool isEmissive = false,
-            texture* thumbnail = nullptr);
+            bool isEmissive = false);
 
         RENDERING_API material(
-            std::string name,
-            std::string path,
             std::string diffuseTextureName,
             std::string normalTextureName,
-            std::string specularTextureName, 
-            std::string emissiveTextureName, 
+            std::string specularTextureName,
+            std::string emissiveTextureName,
             color ambientColor = color::white,
-            color diffuseColor = color::white, 
-            color specularColor = color::white, 
-            color emissiveColor = color::white, 
+            color diffuseColor = color::white,
+            color specularColor = color::white,
+            color emissiveColor = color::white,
             float ka = 0.0f,
             float kd = 0.0f,
             float ks = 0.0f,
             float shininess = 0.0f,
             float reflectivity = 0.0f,
-            bool isEmissive = false,
-            texture* thumbnail = nullptr);
+            bool isEmissive = false);
 
         RENDERING_API ~material();
         RENDERING_API std::string getDiffuseTextureName() const { return _diffuseTextureName; }
@@ -94,8 +92,10 @@ namespace phi
         RENDERING_API float getShininess() const { return _shininess; }
         RENDERING_API float getReflectivity() const { return _reflectivity; }
         RENDERING_API bool getIsEmissive() const { return _isEmissive; }
-        RENDERING_API texture* getThumbnail() const { return _thumbnail; }
+        RENDERING_API GLuint64 getDiffuseHandle() const { return _diffuseHandle; }
 
+
+        RENDERING_API void setDiffuseHandle(GLuint64 value) { _diffuseHandle = value; }
         RENDERING_API void setDiffuseTextureName(std::string value) { _diffuseTextureName = value; }
         RENDERING_API void setNormalTextureName(std::string value) { _normalTextureName = value; }
         RENDERING_API void setSpecularTextureName(std::string value) { _specularTextureName = value; }
@@ -114,11 +114,6 @@ namespace phi
         RENDERING_API void setShininess(float value) { _shininess = value; }
         RENDERING_API void setReflectivity(float value) { _reflectivity = value; }
         RENDERING_API void setIsEmissive(bool value) { _isEmissive = value; }
-        RENDERING_API void setThumbnail(texture* value) { _thumbnail = value; }
-
-        RENDERING_API void save(std::string filename);
-
-        RENDERING_API static material* fromFile(std::string filename);
     };
 }
 #endif

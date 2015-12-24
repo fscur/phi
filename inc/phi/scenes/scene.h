@@ -27,17 +27,21 @@ namespace phi
     private:
         camera *_camera;
         std::vector<object3D*> _objects;
-        std::map<material*, std::vector<mesh*>> _renderList;
+        std::map<material*, std::map<geometry*, std::vector<mesh*>>> _renderList;
+        std::map<texture*, int> _loadedTextures;
+        std::map<geometry*, int> _loadedGeometries;
+
     private:
         void addToRenderList(object3D* object);
-
+        void traverseTree(object3D* node, std::function<void(object3D*)> callback);
+        void traverseTreeMeshes(object3D* node, std::function<void(mesh*)> callback);
 
     public:
         SCENES_API scene(camera* camera);
         SCENES_API ~scene();
         
         SCENES_API std::vector<object3D*> getObjects() { return _objects; }
-        SCENES_API std::map<material*, std::vector<mesh*>>& getRenderList() { return _renderList; }
+        SCENES_API std::map<material*, std::map<geometry*, std::vector<mesh*>>>& getRenderList() { return _renderList; }
 
         SCENES_API camera* getCamera() const { return _camera; }
         SCENES_API void setCamera(camera* value) { _camera = value; }

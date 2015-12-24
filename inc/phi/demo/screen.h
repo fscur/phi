@@ -6,6 +6,7 @@
 #include "form.h"
 #include "fpsCameraController.h"
 #include "defaultCameraController.h"
+#include "library.h"
 
 #include <phi\scenes\sceneRenderer.h>
 
@@ -29,6 +30,8 @@ private:
     phi::scene* _scene;
     phi::sceneRenderer* _sceneRenderer;
     std::string _resourcesPath;
+
+    library* _library;
 
 private:
     void initScene();
