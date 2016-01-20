@@ -43,14 +43,25 @@ void screen::initScene()
     _sceneRenderer = new phi::sceneRenderer();
     _sceneRenderer->init();
 
-    auto objectRes = _library->getObjectsRepository()->getAllResources()[2];
-    _scene->add(objectRes->getObject());
+    auto chair = _library->getObjectsRepository()->getAllResources()[2]->getObject();
+    chair->setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    auto cabinet = _library->getObjectsRepository()->getAllResources()[0]->getObject();
+    cabinet->setLocalPosition(glm::vec3(0.0f, 0.0f, 1.5f));
+
+    auto cabinet2 = _library->getObjectsRepository()->getAllResources()[1]->getObject();
+    cabinet2->setLocalPosition(glm::vec3(0.0f, 0.0f, -1.5f));
+
+    _scene->add(chair);
+    _scene->add(cabinet);
+    _scene->add(cabinet2);
 }
 
 void screen::onInitialize()
 {
     setTitle("Teste");
     centerScreen();
+
     initScene();
 }
 
@@ -66,7 +77,12 @@ void screen::update()
 
 void screen::render()
 {
-    _sceneRenderer->render(_scene);
+    auto sec = phi::stopwatch::measure([&]
+    {
+        for (int i = 0; i < 10; i++)
+            _sceneRenderer->render(_scene);
+    });
+    std::cout << std::to_string(sec * 1000.0f) << std::endl;
 }
 
 void screen::onResize(SDL_Event e)

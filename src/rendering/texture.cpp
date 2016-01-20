@@ -6,8 +6,6 @@
 
 namespace phi
 {
-    int countQuemMeTem = 0;
-
     texture* texture::defaultDiffuse = nullptr;
     texture* texture::defaultNormal = nullptr;
     texture* texture::defaultSpecular = nullptr;
