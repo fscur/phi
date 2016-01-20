@@ -15,8 +15,9 @@ namespace phi
         enum BASIC_SHADER
         {
             MVP,
-            DIFFUSE_MAP,
+            TEXTURES,
             DIFFUSE_COLOR,
+            DIFFUSE_TEXTURE_INDEX
         };
 
     private:

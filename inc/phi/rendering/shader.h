@@ -4,6 +4,7 @@
 #include <phi/core/color.h>
 
 #include "texture.h"
+#include "textureArray.h"
 
 #include <map>
 #include <string>
@@ -67,6 +68,7 @@ namespace phi
         RENDERING_API void setUniform(uint location, bool value) { glUniform1f(_uniforms[location], value ? 1.0f : 0.0f); }
         RENDERING_API void setUniform(uint location, int value) { glUniform1i(_uniforms[location], value); }
         RENDERING_API void setUniform(uint location, texture* value, GLuint index);
+        RENDERING_API void setUniform(uint location, GLuint id, GLuint index);
         RENDERING_API void setUniform(uint location, GLuint64 value) { glUniform1ui64NV(_uniforms[location], value); }
 
         RENDERING_API void initAttribs();

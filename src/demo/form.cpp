@@ -116,7 +116,7 @@ void form::initWindow()
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -279,36 +279,34 @@ void form::input()
 
 bool form::loop()
 {
-    _now = SDL_GetTicks();
-    phi::clock::millisecondsElapsed = _now - phi::clock::totalMillisecondsElapsed;
-    phi::clock::totalMillisecondsElapsed = _now;
+    //_now = SDL_GetTicks();
+    //phi::clock::millisecondsElapsed = _now - phi::clock::totalMillisecondsElapsed;
+    //phi::clock::totalMillisecondsElapsed = _now;
 
-    _inputCost0 = SDL_GetTicks();
-    input();
-    _inputCost = SDL_GetTicks() - _inputCost0;
+    //_inputCost0 = SDL_GetTicks();
+    //input();
+    //_inputCost = SDL_GetTicks() - _inputCost0;
 
-    _updateCost0 = SDL_GetTicks(); 
+    //_updateCost0 = SDL_GetTicks(); 
     update();
-    _updateCost = SDL_GetTicks() - _updateCost0;
+    //_updateCost = SDL_GetTicks() - _updateCost0;
 
     //Uncomment both lines to run with a single thread:
-#ifndef THREADS_ON
     render();
     SDL_GL_SwapWindow(_window);
-#endif
 
-    _frames++;
-    _processedTime += _now - _lastTime;
+    //_frames++;
+    //_processedTime += _now - _lastTime;
 
-    if (_processedTime > 1000.0f)
-    {
-        _fps = _frames;
-        _frames = 0;
-        _processedTime -= 1000.0f;
-        //log(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
-    }
+    //if (_processedTime > 1000.0f)
+    //{
+    //    _fps = _frames;
+    //    _frames = 0;
+    //    _processedTime -= 1000.0f;
+    //    //log(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
+    //}
 
-    _lastTime = _now;
+    //_lastTime = _now;
 
     return !_isClosed;
 }

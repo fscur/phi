@@ -12,12 +12,14 @@ namespace phi
 
     scene::~scene()
     {
-        for(auto object : _objects)
+        for (auto object : _objects)
             safeDelete(object);
     }
 
     void scene::update()
     {
+        for (auto obj : _objects)
+            obj->update();
     }
 
     void scene::addToRenderList(object3D* object)
@@ -28,7 +30,18 @@ namespace phi
             auto mat = m->getMaterial();
             auto geom = m->getGeometry();
 
-            _renderList[mat][geom].push_back(m);
+            textureArray* ar = nullptr;
+            for (auto texArray : _textureArrays)
+            {
+                if (texArray->getSize().w == mat->getDiffuseTexture()->getWidth() &&
+                    texArray->getSize().h == mat->getDiffuseTexture()->getHeight())
+                {
+                    ar = texArray;
+                    break;
+                }
+            }
+
+            _renderList[ar][mat][geom].push_back(m);
         }
 
         auto children = object->getChildren();
@@ -47,7 +60,7 @@ namespace phi
 
     void scene::traverseTreeMeshes(object3D* node, std::function<void(mesh*)> callback)
     {
-        traverseTree(node, [&] (object3D* n)
+        traverseTree(node, [&](object3D* n)
         {
             if (n->getType() == phi::object3D::objectType::MESH)
             {
@@ -57,11 +70,35 @@ namespace phi
         });
     }
 
+    void scene::addTextureToArray(texture* tex)
+    {
+        auto texWidth = tex->getWidth();
+        auto texHeight = tex->getHeight();
+        auto it = find_if(_textureArrays.begin(), _textureArrays.end(), [&](textureArray* texArray)
+        {
+            auto arraySize = texArray->getSize();
+            return texWidth == arraySize.w &&
+                texHeight == arraySize.h;
+        });
+
+        textureArray* sameSizeArray = nullptr;
+        if (it != _textureArrays.end())
+            sameSizeArray = it[0];
+        else
+        {
+            sameSizeArray = new textureArray(sizeui(texWidth, texHeight, TEXTURE_ARRAY_DEPTH));
+            _textureArrays.push_back(sameSizeArray);
+            sameSizeArray->loadOnGpu();
+        }
+
+        sameSizeArray->add(tex);
+    }
+
     void scene::add(object3D* object)
     {
         _objects.push_back(object);
 
-        traverseTreeMeshes(object, [&] (mesh* m)
+        traverseTreeMeshes(object, [&](mesh* m)
         {
             auto mat = m->getMaterial();
 
@@ -69,8 +106,9 @@ namespace phi
             {
                 if (tex)
                 {
-                    tex->loadOnGpu();
-                    _loadedTextures[tex]++;
+                    //tex->loadOnGpu();
+                    //_loadedTextures[tex]++;
+                    addTextureToArray(tex);
                 }
             };
 

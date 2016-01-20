@@ -158,6 +158,12 @@ namespace phi
         glUniform1i(_uniforms[location], index);
     }
 
+    void shader::setUniform(uint location, GLuint id, GLuint index)
+    {
+        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+        glUniform1i(_uniforms[location], index);
+    }
+
     void shader::bind()
     {
         if (!_initialized)

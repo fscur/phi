@@ -57,6 +57,9 @@ namespace phi
         RENDERING_API uint getWidth() const { return _w; }
         RENDERING_API uint getHeight() const { return _h; }
         RENDERING_API uint getTextureType() const { return _textureType; }
+        RENDERING_API byte* getData() const { return _data; }
+        RENDERING_API GLenum getDataFormat() const { return _dataFormat; }
+        RENDERING_API GLenum getDataType() const { return _dataType; }
 
         RENDERING_API void bind(GLuint level = 0);
         RENDERING_API void setParam(GLenum name, GLint value);

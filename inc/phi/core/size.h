@@ -4,26 +4,18 @@
 namespace phi
 {
     template <typename T>
-    class tsize
+    struct tsize
     {
-    private:
-        T _width;
-        T _height;
-        T _depth;
+    public:
+        T w;
+        T h;
+        T d;
 
     public:
-        const T &w;
-        const T &h;
-        const T &d;
-
-    public:
-        tsize(T width = (T)0, T height = (T)0, T depth = (T)0) :
-            _width(width),
-            _height(height),
-            _depth(depth),
-            w(_width),
-            h(_height),
-            d(_depth)
+        tsize(T w = (T)0, T h = (T)0, T d = (T)0) :
+            w(w),
+            h(h),
+            d(d)
         {
         }
 
@@ -31,9 +23,9 @@ namespace phi
 
         void operator=(const tsize<T> &s)
         {
-            _width = s.w;
-            _height = s.h;
-            _depth = s.d;
+            w = s.w;
+            h = s.h;
+            d = s.d;
         }
     };
 

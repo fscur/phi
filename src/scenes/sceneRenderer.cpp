@@ -21,8 +21,10 @@ namespace phi
         _shader = shaderManager::get()->loadShader("BASIC_GEOM_PASS", "basic_geom_pass.vert", "basic_geom_pass.frag", attribs);
 
         _shader->addUniform(BASIC_SHADER::MVP, "mvp");
-        _shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffuseMap");
+        //_shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffuseMap");
         //_shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffHandle");
+        _shader->addUniform(BASIC_SHADER::DIFFUSE_TEXTURE_INDEX, "diffuseTextureIndex");
+        _shader->addUniform(BASIC_SHADER::TEXTURES, "textures");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_COLOR, "diffuseColor");
     }
 
@@ -47,27 +49,35 @@ namespace phi
 
         _shader->bind();
 
-        for (auto materials : renderList)
+        for (auto textureArray : renderList)
         {
-            auto material = materials.first;
+            _shader->setUniform(BASIC_SHADER::TEXTURES, textureArray.first->getId(), 0);
 
-            _shader->setUniform(BASIC_SHADER::DIFFUSE_MAP, material->getDiffuseTexture(), 0);
-            _shader->setUniform(BASIC_SHADER::DIFFUSE_COLOR, material->getDiffuseColor());
-
-            for (auto geometries : materials.second)
+            for (auto materials : textureArray.second)
             {
-                auto geometry = geometries.first;
-                geometry->bind();
-                
-                for (auto mesh : geometries.second)
+                auto material = materials.first;
+
+                //_shader->setUniform(BASIC_SHADER::DIFFUSE_MAP, material->getDiffuseTexture(), 0);
+                auto tex = material->getDiffuseTexture();
+
+                _shader->setUniform(BASIC_SHADER::DIFFUSE_TEXTURE_INDEX, textureArray.first->getTextureIndex(tex));
+                _shader->setUniform(BASIC_SHADER::DIFFUSE_COLOR, material->getDiffuseColor());
+
+                for (auto geometries : materials.second)
                 {
-                    auto mvp = vp * mesh->getModelMatrix();
-                    _shader->setUniform(BASIC_SHADER::MVP, mvp);
+                    auto geometry = geometries.first;
+                    geometry->bind();
 
-                    geometry->render();
+                    for (auto mesh : geometries.second)
+                    {
+                        auto mvp = vp * mesh->getModelMatrix();
+                        _shader->setUniform(BASIC_SHADER::MVP, mvp);
+
+                        geometry->render();
+                    }
+
+                    geometry->unbind();
                 }
-
-                geometry->unbind();
             }
         }
 
