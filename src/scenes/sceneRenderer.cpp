@@ -24,7 +24,7 @@ namespace phi
         //_shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffuseMap");
         //_shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffHandle");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_TEXTURE_INDEX, "diffuseTextureIndex");
-        _shader->addUniform(BASIC_SHADER::TEXTURES, "textures");
+        _shader->addUniform(BASIC_SHADER::TEXTURES, "textureArray");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_COLOR, "diffuseColor");
     }
 
@@ -51,7 +51,7 @@ namespace phi
 
         for (auto textureArray : renderList)
         {
-            _shader->setUniform(BASIC_SHADER::TEXTURES, textureArray.first->getId(), 0);
+            _shader->setUniform(BASIC_SHADER::TEXTURES, textureArray.first);
 
             for (auto materials : textureArray.second)
             {

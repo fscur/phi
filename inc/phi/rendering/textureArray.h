@@ -19,12 +19,14 @@ namespace phi
         std::map<texture*, int> _textures;
         bool _isLoadedOnGpu;
         GLuint _id;
+        GLuint64 _handle;
 
     public:
         RENDERING_API textureArray(sizeui size);
 
         RENDERING_API inline GLuint getId() const { return _id; }
         RENDERING_API inline sizeui getSize() const { return _size; }
+        RENDERING_API inline GLuint64 getHandle() const { return _handle; }
 
         RENDERING_API void add(texture* tex);
         RENDERING_API int getTextureIndex(texture* tex);

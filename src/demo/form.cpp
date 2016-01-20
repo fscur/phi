@@ -31,6 +31,7 @@ form::form()
     _inputCost = 0;
     _updateCost = 0;
     _renderCost = 0;
+    _renderSecondSum = 0.0f;
 
     initWindow();
 }
@@ -279,9 +280,9 @@ void form::input()
 
 bool form::loop()
 {
-    //_now = SDL_GetTicks();
-    //phi::clock::millisecondsElapsed = _now - phi::clock::totalMillisecondsElapsed;
-    //phi::clock::totalMillisecondsElapsed = _now;
+    _now = SDL_GetTicks();
+    phi::clock::millisecondsElapsed = _now - phi::clock::totalMillisecondsElapsed;
+    phi::clock::totalMillisecondsElapsed = _now;
 
     //_inputCost0 = SDL_GetTicks();
     //input();
@@ -291,22 +292,26 @@ bool form::loop()
     update();
     //_updateCost = SDL_GetTicks() - _updateCost0;
 
-    //Uncomment both lines to run with a single thread:
+    _renderCost0 = SDL_GetTicks();
     render();
+    _renderCost = SDL_GetTicks() - _renderCost0;
+    _renderSecondSum += _renderCost;
     SDL_GL_SwapWindow(_window);
 
-    //_frames++;
-    //_processedTime += _now - _lastTime;
+    _frames++;
+    _processedTime += _now - _lastTime;
 
-    //if (_processedTime > 1000.0f)
-    //{
-    //    _fps = _frames;
-    //    _frames = 0;
-    //    _processedTime -= 1000.0f;
-    //    //log(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
-    //}
+    if (_processedTime > 1000.0f)
+    {
+        _fps = _frames;
+        _frames = 0;
+        _processedTime -= 1000.0f;
+        //log(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
+        phi::log(std::to_string(_renderSecondSum / (float)_fps));
+        _renderSecondSum = 0.0f;
+    }
 
-    //_lastTime = _now;
+    _lastTime = _now;
 
     return !_isClosed;
 }
@@ -329,9 +334,10 @@ int form::renderLoop()
         //Uint32 now = SDL_GetTicks();
         //_dt = ((double)(now - _lastTime)) * 1e-3;
 
-        //_renderCost0 = SDL_GetTicks();
+        _renderCost0 = SDL_GetTicks();
         render();
-        //_renderCost = SDL_GetTicks() - _renderCost0;
+        _renderCost = SDL_GetTicks() - _renderCost0;
+        _renderSecondSum += _renderCost;
         SDL_GL_SwapWindow(_window);
 
         _frames++;
@@ -342,6 +348,8 @@ int form::renderLoop()
             _fps = _frames;
             _frames = 0;
             _processedTime -= 1.0;
+            phi::log(std::to_string(_renderSecondSum / (float)_frames));
+            _renderSecondSum = 0.0f;
         }
 
         //_lastTime = now;

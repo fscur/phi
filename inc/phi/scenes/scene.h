@@ -27,7 +27,7 @@ namespace phi
         };
 
     private:
-        const uint TEXTURE_ARRAY_DEPTH = 10;
+        const uint TEXTURE_ARRAY_DEPTH = 11;
 
         camera *_camera;
         std::vector<object3D*> _objects;

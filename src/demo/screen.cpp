@@ -1,4 +1,4 @@
-#include <phi/loader/importer.h>
+﻿#include <phi/loader/importer.h>
 #include <phi/demo/screen.h>
 #include <phi\demo\screen.h>
 #include <phi\diagnostics\diagnostics.h>
@@ -18,7 +18,7 @@ screen::screen() : form()
     _translationSpeed = 1.0f;
     _rotationSpeed = 0.01f;
     _sceneRenderer = nullptr;
-    _library = new library("resources");
+    _library = new library("C:\\Users\\Patrick\\Workspaces\\phi\\resources");
 }
 
 screen::~screen()
@@ -43,23 +43,33 @@ void screen::initScene()
     _sceneRenderer = new phi::sceneRenderer();
     _sceneRenderer->init();
 
-    auto chair = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-    chair->setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    //auto chair = _library->getObjectsRepository()->getAllResources()[2]->getObject();
+    //chair->setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
-    auto cabinet = _library->getObjectsRepository()->getAllResources()[0]->getObject();
-    cabinet->setLocalPosition(glm::vec3(0.0f, 0.0f, 1.5f));
+    //auto cabinet = _library->getObjectsRepository()->getAllResources()[0]->getObject();
+    //cabinet->setLocalPosition(glm::vec3(0.0f, 0.0f, 1.5f));
 
-    auto cabinet2 = _library->getObjectsRepository()->getAllResources()[1]->getObject();
-    cabinet2->setLocalPosition(glm::vec3(0.0f, 0.0f, -1.5f));
+    //auto cabinet2 = _library->getObjectsRepository()->getAllResources()[1]->getObject();
+    //cabinet2->setLocalPosition(glm::vec3(0.0f, 0.0f, -1.5f));
 
-    _scene->add(chair);
-    _scene->add(cabinet);
-    _scene->add(cabinet2);
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 5; j++)
+        {
+            auto obj = _library->getObjectsRepository()->getAllResources()[i * 4 + j]->getObject();
+            obj->setLocalPosition(glm::vec3(i - 2.0f, 0.0f, j - 2.5f));
+            _scene->add(obj);
+        }
+    }
+
+    //_scene->add(chair);
+    //_scene->add(cabinet);
+    //_scene->add(cabinet2);
 }
 
 void screen::onInitialize()
 {
-    setTitle("Teste");
+    setTitle("Φ");
     centerScreen();
 
     initScene();
@@ -79,10 +89,9 @@ void screen::render()
 {
     auto sec = phi::stopwatch::measure([&]
     {
-        for (int i = 0; i < 10; i++)
-            _sceneRenderer->render(_scene);
+        _sceneRenderer->render(_scene);
     });
-    std::cout << std::to_string(sec * 1000.0f) << std::endl;
+    //std::cout << std::to_string(sec * 1000.0f) << std::endl;
 }
 
 void screen::onResize(SDL_Event e)

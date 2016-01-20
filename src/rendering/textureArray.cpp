@@ -16,11 +16,11 @@ namespace phi
         auto maxLevels = glm::floor(glm::log2(biggestTextureSize)) + 1.0f;
         auto mipmapLevels = glm::min((uint)maxLevels, MAX_MIPMAP_LEVELS_ALLOWED);
 
-        glGenTextures(1, &_id);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        //glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_id);
-        glTexStorage3D(GL_TEXTURE_2D_ARRAY,
-            //glTextureStorage3D(_id,
+        glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_id);
+        //_handle = glGetTextureHandleARB(_id);
+        //glMakeTextureHandleResidentARB(_handle);
+
+        glTextureStorage3D(_id,
             mipmapLevels,
             GL_RGBA8,
             _size.w,
@@ -53,6 +53,12 @@ namespace phi
             tex->getDataType(),
             tex->getData());
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
+        if(index == 0)
+        {
+            _handle = glGetTextureHandleARB(_id);
+            glMakeTextureHandleResidentARB(_handle);
+        }
     }
 
     int textureArray::getTextureIndex(texture* tex)
@@ -65,6 +71,7 @@ namespace phi
         if (!_isLoadedOnGpu)
             return;
 
+        glMakeTextureHandleNonResidentARB(_handle); //TODO: check if this shit releases the handle from gpu!!!
         glDeleteTextures(1, &_id);
         _isLoadedOnGpu = false;
     }

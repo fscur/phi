@@ -38,6 +38,7 @@ private:
     Uint32 _inputCost;
     Uint32 _updateCost;
     Uint32 _renderCost;
+    float _renderSecondSum;
     unsigned int _fps;
 
     std::string _applicationPath;

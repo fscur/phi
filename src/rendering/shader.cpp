@@ -158,10 +158,14 @@ namespace phi
         glUniform1i(_uniforms[location], index);
     }
 
-    void shader::setUniform(uint location, GLuint id, GLuint index)
+    void shader::setUniform(uint location, textureArray* textureArray)
     {
-        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
-        glUniform1i(_uniforms[location], index);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray->getId());
+        glUniform1i(_uniforms[location], 0);
+
+        //glUniformHandleui64ARB(_uniforms[location], textureArray->getHandle());
+        //glUniform1ui64vARB(_uniforms[location], 1, textureArray->getHandle());
+        //glProgramUniformHandleui64ARB(_id, 4, textureArray->getHandle());
     }
 
     void shader::bind()
