@@ -48,8 +48,10 @@ endif(WIN32)
 
 file(GLOB header_files ../../inc/phi/rendering/*.h)
 file(GLOB source_files *.cpp)
+file(GLOB shader_files ../../resources/shaders/*)
 
-add_library(rendering SHARED ${source_files} ${header_files})
+add_library(rendering SHARED ${source_files} ${header_files} ${shader_files})
+source_group(Shaders FILES ${shader_files})
 
 add_dependencies(rendering core)
 add_dependencies(rendering io)
