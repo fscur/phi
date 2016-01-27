@@ -18,7 +18,6 @@ screen::screen() : form()
     _translationSpeed = 1.0f;
     _rotationSpeed = 0.01f;
     _sceneRenderer = nullptr;
-    _library = new library("C:\\Users\\Patrick\\Workspaces\\phi\\resources");
 }
 
 screen::~screen()
@@ -27,12 +26,13 @@ screen::~screen()
 
 void screen::initScene()
 {
+    _library = new library(_resourcesPath);
     _library->init();
 
     _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, getSize(), glm::half_pi<float>()));
     auto camera = _scene->getCamera();
 
-    camera->setLocalPosition(phi::vec3(0.0f, 3.0f, 5.0f));
+    camera->setLocalPosition(phi::vec3(0.0f, 0.0f, 3.0f));
     camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
     camera->update();
 
@@ -52,15 +52,25 @@ void screen::initScene()
     //auto cabinet2 = _library->getObjectsRepository()->getAllResources()[1]->getObject();
     //cabinet2->setLocalPosition(glm::vec3(0.0f, 0.0f, -1.5f));
 
-    for(int i = 0; i < 4; i++)
-    {
-        for(int j = 0; j < 5; j++)
-        {
-            auto obj = _library->getObjectsRepository()->getAllResources()[i * 4 + j]->getObject();
-            obj->setLocalPosition(glm::vec3(i - 2.0f, 0.0f, j - 2.5f));
-            _scene->add(obj);
-        }
-    }
+    //for(int i = 0; i < 1; i++)
+    //{
+    //    for(int j = 0; j < 5; j++)
+    //    {
+    //        auto obj = _library->getObjectsRepository()->getAllResources()[i * 4 + j]->getObject();
+    //        obj->setLocalPosition(glm::vec3(i - 2.0f, 0.0f, j - 2.5f));
+    //        _scene->add(obj);
+    //    }
+    //}
+
+    auto obj = _library->getObjectsRepository()->getAllResources()[4]->getObject();
+    _scene->add(obj);
+
+    //obj = _library->getObjectsRepository()->getAllResources()[6]->getObject();
+    //_scene->add(obj);
+
+    //obj = _library->getObjectsRepository()->getAllResources()[6]->getObject();
+    //obj->setLocalPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
+    //_scene->add(obj);
 
     //_scene->add(chair);
     //_scene->add(cabinet);
@@ -80,7 +90,7 @@ float t = 0.0f;
 void screen::update()
 {
     t += 0.001f;
-    _scene->getCamera()->setLocalPosition(phi::vec3(glm::cos(t), 1.0f, glm::sin(t)) * 1.0f);
+    _scene->getCamera()->setLocalPosition(phi::vec3(glm::cos(t), 0.5f, glm::sin(t)) * 2.0f);
     _scene->getCamera()->update();
     _scene->update();
 }

@@ -30,18 +30,7 @@ namespace phi
             auto mat = m->getMaterial();
             auto geom = m->getGeometry();
 
-            textureArray* ar = nullptr;
-            for (auto texArray : _textureArrays)
-            {
-                if (texArray->getSize().w == mat->getDiffuseTexture()->getWidth() &&
-                    texArray->getSize().h == mat->getDiffuseTexture()->getHeight())
-                {
-                    ar = texArray;
-                    break;
-                }
-            }
-
-            _renderList[ar][mat][geom].push_back(m);
+            _renderList[mat][geom].push_back(m);
         }
 
         auto children = object->getChildren();
@@ -86,12 +75,21 @@ namespace phi
             sameSizeArray = it[0];
         else
         {
-            sameSizeArray = new textureArray(sizeui(texWidth, texHeight, TEXTURE_ARRAY_DEPTH));
+            auto textureUnit = (GLint)_textureArrays.size();
+            _textureArrayUnits.push_back(textureUnit);
+
+            sameSizeArray = new textureArray(sizeui(texWidth, texHeight, TEXTURE_ARRAY_DEPTH), textureUnit);
             _textureArrays.push_back(sameSizeArray);
             sameSizeArray->loadOnGpu();
         }
 
-        sameSizeArray->add(tex);
+        if (!sameSizeArray->hasTexture(tex))
+        {
+            sameSizeArray->add(tex);
+            auto page = sameSizeArray->getTextureIndex(tex);
+            _textureStorageDatas[tex].arrayIndex = (GLint)(find(_textureArrays.begin(), _textureArrays.end(), sameSizeArray) - _textureArrays.begin());
+            _textureStorageDatas[tex].pageIndex = page;
+        }
     }
 
     void scene::add(object3D* object)
@@ -105,11 +103,7 @@ namespace phi
             auto loadTex = [&](texture* tex)
             {
                 if (tex)
-                {
-                    //tex->loadOnGpu();
-                    //_loadedTextures[tex]++;
                     addTextureToArray(tex);
-                }
             };
 
             loadTex(mat->getDiffuseTexture());
@@ -137,11 +131,13 @@ namespace phi
             {
                 if (tex)
                 {
-                    _loadedTextures[tex]--;
-                    if (_loadedTextures[tex] <= 0)
+                    for (auto texArray : _textureArrays)
                     {
-                        tex->releaseFromGpu();
-                        _loadedTextures.erase(tex);
+                        if (texArray->hasTexture(tex))
+                        {
+                            texArray->remove(tex);
+                            break;
+                        }
                     }
                 }
             };

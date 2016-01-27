@@ -15,9 +15,10 @@ namespace phi
         enum BASIC_SHADER
         {
             MVP,
-            TEXTURES,
+            TEXTURE_ARRAYS,
             DIFFUSE_COLOR,
-            DIFFUSE_TEXTURE_INDEX
+            DIFFUSE_TEXTURE_ARRAY_INDEX,
+            DIFFUSE_TEXTURE_PAGE_INDEX
         };
 
     private:
@@ -26,6 +27,7 @@ namespace phi
         scene* _scene;
         camera* _camera;
         shader* _shader;
+        bool _hasBindlessTextures;
 
     private:
         void createShader();
@@ -36,6 +38,7 @@ namespace phi
         
         SCENES_API defaultFrameBuffer* getDefaultFrameBuffer() const { return _defaultFrameBuffer; }
         SCENES_API void init();
+        SCENES_API void initExtensions();
         SCENES_API void render(scene* scene);
     };
 }

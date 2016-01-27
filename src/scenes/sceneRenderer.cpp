@@ -1,15 +1,50 @@
 #include "phi/scenes/sceneRenderer.h"
 
-namespace phi
+namespace phi 
 {
     sceneRenderer::sceneRenderer()
     {
         _defaultFrameBuffer = new defaultFrameBuffer(color::black);
+        _hasBindlessTextures = false;
     }
 
     sceneRenderer::~sceneRenderer()
     {
         safeDelete(_defaultFrameBuffer);
+    }
+
+    void sceneRenderer::init()
+    {
+        initExtensions();
+        _defaultFrameBuffer->init();
+        createShader();
+    }
+
+    void sceneRenderer::initExtensions()
+    {
+        const GLubyte* extension = nullptr;
+        auto i = 0;
+        extension = glGetStringi(GL_EXTENSIONS, i++);
+
+        auto extensionsAvailable = std::vector<GLubyte*>();
+        auto bindless = false;
+        while (extension != NULL)
+        {
+            auto ex = std::string((char*)extension);
+
+            if (ex == "GL_ARB_bindless_texture")
+            {
+                _hasBindlessTextures = true;
+                break;
+            }
+
+            extension = glGetStringi(GL_EXTENSIONS, i++);
+        }
+
+        if (_hasBindlessTextures)
+            phi::log("BINDLESS SHIT RIGHT HERE WOOOOOOWWWW C:");
+        else
+            phi::log("DOES NOT HAVE BINDLESS SHIT :C");
     }
 
     void sceneRenderer::createShader()
@@ -21,17 +56,10 @@ namespace phi
         _shader = shaderManager::get()->loadShader("BASIC_GEOM_PASS", "basic_geom_pass.vert", "basic_geom_pass.frag", attribs);
 
         _shader->addUniform(BASIC_SHADER::MVP, "mvp");
-        //_shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffuseMap");
-        //_shader->addUniform(BASIC_SHADER::DIFFUSE_MAP, "diffHandle");
-        _shader->addUniform(BASIC_SHADER::DIFFUSE_TEXTURE_INDEX, "diffuseTextureIndex");
-        _shader->addUniform(BASIC_SHADER::TEXTURES, "textureArray");
+        _shader->addUniform(BASIC_SHADER::DIFFUSE_TEXTURE_ARRAY_INDEX, "diffuseTextureArrayIndex");
+        _shader->addUniform(BASIC_SHADER::DIFFUSE_TEXTURE_PAGE_INDEX, "diffuseTexturePageIndex");
+        _shader->addUniform(BASIC_SHADER::TEXTURE_ARRAYS, "textureArrays");
         _shader->addUniform(BASIC_SHADER::DIFFUSE_COLOR, "diffuseColor");
-    }
-
-    void sceneRenderer::init()
-    {
-        _defaultFrameBuffer->init();
-        createShader();
     }
 
     void sceneRenderer::render(scene* scene)
@@ -40,44 +68,43 @@ namespace phi
         _camera = _scene->getCamera();
 
         auto renderList = _scene->getRenderList();
+        auto textureStorageDatas = _scene->getTextureStorageDatas();
 
         _defaultFrameBuffer->clear();
-        
+
         auto p = _camera->getProjectionMatrix();
         auto v = _camera->getViewMatrix();
         auto vp = p * v;
 
         _shader->bind();
 
-        for (auto textureArray : renderList)
+        auto units = _scene->getTextureArrayUnits();
+        _shader->setUniform(BASIC_SHADER::TEXTURE_ARRAYS, units);
+
+        for (auto materials : renderList)
         {
-            _shader->setUniform(BASIC_SHADER::TEXTURES, textureArray.first);
+            auto material = materials.first;
+            auto tex = material->getDiffuseTexture();
+            auto texStorageData = textureStorageDatas[tex];
 
-            for (auto materials : textureArray.second)
+            _shader->setUniform(BASIC_SHADER::DIFFUSE_TEXTURE_ARRAY_INDEX, texStorageData.arrayIndex);
+            _shader->setUniform(BASIC_SHADER::DIFFUSE_TEXTURE_PAGE_INDEX, (GLfloat)texStorageData.pageIndex);
+            _shader->setUniform(BASIC_SHADER::DIFFUSE_COLOR, material->getDiffuseColor());
+
+            for (auto geometries : materials.second)
             {
-                auto material = materials.first;
+                auto geometry = geometries.first;
+                geometry->bind();
 
-                //_shader->setUniform(BASIC_SHADER::DIFFUSE_MAP, material->getDiffuseTexture(), 0);
-                auto tex = material->getDiffuseTexture();
-
-                _shader->setUniform(BASIC_SHADER::DIFFUSE_TEXTURE_INDEX, textureArray.first->getTextureIndex(tex));
-                _shader->setUniform(BASIC_SHADER::DIFFUSE_COLOR, material->getDiffuseColor());
-
-                for (auto geometries : materials.second)
+                for (auto mesh : geometries.second)
                 {
-                    auto geometry = geometries.first;
-                    geometry->bind();
+                    auto mvp = vp * mesh->getModelMatrix();
+                    _shader->setUniform(BASIC_SHADER::MVP, mvp);
 
-                    for (auto mesh : geometries.second)
-                    {
-                        auto mvp = vp * mesh->getModelMatrix();
-                        _shader->setUniform(BASIC_SHADER::MVP, mvp);
-
-                        geometry->render();
-                    }
-
-                    geometry->unbind();
+                    geometry->render();
                 }
+
+                geometry->unbind();
             }
         }
 

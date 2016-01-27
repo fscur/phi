@@ -2,8 +2,8 @@
 
 namespace phi
 {
-    textureArray::textureArray(sizeui size) :
-        _size(size), _isLoadedOnGpu(false)
+    textureArray::textureArray(sizeui size, GLint textureUnit) :
+        _size(size), _textureUnit(textureUnit), _isLoadedOnGpu(false)
     {
     }
 
@@ -17,8 +17,6 @@ namespace phi
         auto mipmapLevels = glm::min((uint)maxLevels, MAX_MIPMAP_LEVELS_ALLOWED);
 
         glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_id);
-        //_handle = glGetTextureHandleARB(_id);
-        //glMakeTextureHandleResidentARB(_handle);
 
         glTextureStorage3D(_id,
             mipmapLevels,
@@ -31,34 +29,51 @@ namespace phi
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
+        glActiveTexture(GL_TEXTURE0 + _textureUnit);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
+
         _isLoadedOnGpu = true;
     }
 
     void textureArray::add(texture* tex)
     {
-        if (_textures.find(tex) != _textures.end())
+        if (hasTexture(tex))
             return;
 
-        auto index = _textures.size();
+        auto index = (int)_textures.size();
         _textures[tex] = index;
 
+        glActiveTexture(GL_TEXTURE0 + _textureUnit);
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
             0,
             0, 0,
             index,
-            _size.w, _size.h,
+            tex->getWidth(), tex->getHeight(),
             1,
             tex->getDataFormat(),
             tex->getDataType(),
             tex->getData());
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
-        if(index == 0)
-        {
-            _handle = glGetTextureHandleARB(_id);
-            glMakeTextureHandleResidentARB(_handle);
-        }
+        //BINDLESS:
+        //if(index == 0)
+        //{
+        //    _handle = glGetTextureHandleARB(_id);
+        //    glMakeTextureHandleResidentARB(_handle);
+        //}
+
+        return;
+    }
+
+    void textureArray::remove(texture* tex)
+    {
+        _textures.erase(tex);
+    }
+
+    bool textureArray::hasTexture(texture* tex)
+    {
+        return _textures.find(tex) != _textures.end();
     }
 
     int textureArray::getTextureIndex(texture* tex)

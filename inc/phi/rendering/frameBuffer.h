@@ -42,7 +42,7 @@ namespace phi
         RENDERING_API bool getIsBound() const { return _isBound; }
 
         RENDERING_API inline void setSize(sizef value) { _size = value; };
-        RENDERING_API inline inline void setClearColor(color value);
+        RENDERING_API inline void setClearColor(color value);
 
         RENDERING_API virtual void init();
 

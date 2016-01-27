@@ -20,15 +20,19 @@ namespace phi
         bool _isLoadedOnGpu;
         GLuint _id;
         GLuint64 _handle;
+        GLint _textureUnit;
 
     public:
-        RENDERING_API textureArray(sizeui size);
+        RENDERING_API textureArray(sizeui size, GLint textureUnit);
 
         RENDERING_API inline GLuint getId() const { return _id; }
         RENDERING_API inline sizeui getSize() const { return _size; }
         RENDERING_API inline GLuint64 getHandle() const { return _handle; }
+        RENDERING_API inline GLint getTextureUnit() const { return _textureUnit; }
 
         RENDERING_API void add(texture* tex);
+        RENDERING_API void remove(texture* tex);
+        RENDERING_API bool hasTexture(texture* tex);
         RENDERING_API int getTextureIndex(texture* tex);
         RENDERING_API void loadOnGpu();
         RENDERING_API void releaseFromGpu();

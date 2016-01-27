@@ -28,8 +28,9 @@ namespace phi
             }
             case 1:
             {
+                auto geomDataPath = node["GeometryDataPath"].GetString();
                 geometryData* geometryData = nullptr;
-                importGeometryData(currentFolder + "\\" + node["GeometryDataPath"].GetString(), geometryData);
+                importGeometryData(currentFolder + "\\" + geomDataPath, geometryData);
 
                 auto materialGuid = convertToGuid(node["MaterialGuid"].GetString());
                 auto matRes = materialsRepo->getResource(materialGuid);

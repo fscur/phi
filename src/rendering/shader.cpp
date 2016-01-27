@@ -53,13 +53,13 @@ namespace phi
         initAttribs();
 
         glLinkProgram(_id); // Link the vertex and fragment shaders in the program
-        //result = validateProgram(_id); // Validate the shader program
+        result = validateProgram(_id); // Validate the shader program
 
-        //if(!result)
-        //{
-        //    log(_name);
-        //    return false;
-        //}
+        if(!result)
+        {
+            log(_name);
+            return false;
+        }
 
         _initialized = true;
         return true;
@@ -158,10 +158,12 @@ namespace phi
         glUniform1i(_uniforms[location], index);
     }
 
-    void shader::setUniform(uint location, textureArray* textureArray)
+    void shader::setUniform(uint location, std::vector<GLint> textureArrayIds)
     {
-        glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray->getId());
-        glUniform1i(_uniforms[location], 0);
+        //glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray->getId());
+        //glUniform1i(_uniforms[location], 0);
+
+        glUniform1iv(_uniforms[location], (GLint)textureArrayIds.size(), textureArrayIds.data());
 
         //glUniformHandleui64ARB(_uniforms[location], textureArray->getHandle());
         //glUniform1ui64vARB(_uniforms[location], 1, textureArray->getHandle());
