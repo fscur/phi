@@ -1,12 +1,12 @@
 #ifndef _PHI_TEXT_RENDERER_H_
 #define _PHI_TEXT_RENDERER_H_
 
-#include <phi/core/size.h>
+#include <phi\core\size.h>
+#include <phi\core\geometry.h>
 
 #include "rendering.h"
 #include "shaderManager.h"
 #include "shader.h"
-#include "quad.h"
 #include "font.h"
 
 namespace phi
@@ -14,8 +14,7 @@ namespace phi
     class textRenderer2D
     {
     private:
-        quad* _quad;
-        geometry* _quadGeometry;
+        geometry* _quad;
         shader* _shader;
         sizef _viewportSize;
         mat4 _viewMatrix;

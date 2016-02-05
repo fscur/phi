@@ -6,41 +6,58 @@
 
 namespace phi
 {
-    texture* texture::defaultDiffuse = nullptr;
-    texture* texture::defaultNormal = nullptr;
-    texture* texture::defaultSpecular = nullptr;
-    texture* texture::defaultEmissive = nullptr;
+    texture* texture::_defaultAlbedo = nullptr;
+    texture* texture::_defaultNormal = nullptr;
+    texture* texture::_defaultSpecular = nullptr;
+    texture* texture::_defaultEmissive = nullptr;
 
-    texture* texture::getDefaultDiffuse()
+    GLuint64 texture::_defaultAlbedoHandle = 0;
+    GLuint64 texture::_defaultNormalHandle = 0;
+    GLuint64 texture::_defaultSpecularHandle = 0;
+    GLuint64 texture::_defaultEmissiveHandle = 0;
+
+    texture* texture::defaultAlbedo()
     {
-        if (defaultDiffuse == nullptr)
-            defaultDiffuse = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+        if (_defaultAlbedo == nullptr)
+        {
+            _defaultAlbedo = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+            _defaultAlbedoHandle = _defaultAlbedo->handle;
+        }
 
-        return defaultDiffuse;
+        return _defaultAlbedo;
     }
 
-    texture* texture::getDefaultNormal()
+    texture* texture::defaultNormal()
     {
-        if (defaultNormal == nullptr)
-            defaultNormal = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+        if (_defaultNormal == nullptr)
+        {
+            _defaultNormal = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+            _defaultNormalHandle = _defaultNormal->handle;
+        }
 
-        return defaultNormal;
+        return _defaultNormal;
     }
 
-    texture* texture::getDefaultSpecular()
+    texture* texture::defaultSpecular()
     {
-        if (defaultSpecular == nullptr)
-            defaultSpecular = createDefault(new byte[4]{ 0xFF, 0x80, 0xFF, 0xFF });
+        if (_defaultSpecular == nullptr)
+        {
+            _defaultSpecular = createDefault(new byte[4]{ 0xFF, 0x80, 0xFF, 0xFF });
+            _defaultSpecularHandle = _defaultSpecular->handle;
+        }
 
-        return defaultSpecular;
+        return _defaultSpecular;
     }
 
-    texture* texture::getDefaultEmissive()
+    texture* texture::defaultEmissive()
     {
-        if (defaultEmissive == nullptr)
-            defaultEmissive = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+        if (_defaultEmissive == nullptr)
+        {
+            _defaultEmissive = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
+            _defaultEmissiveHandle = _defaultEmissive->handle;
+        }
 
-        return defaultEmissive;
+        return _defaultEmissive;
     }
 
     texture* texture::createDefault(byte* data)
@@ -48,36 +65,15 @@ namespace phi
         return new texture(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, data);
     }
 
-    texture::texture(uint w, uint h, GLint internalFormat) :
-        texture::texture(w, h, internalFormat, GL_RGBA, GL_UNSIGNED_BYTE, nullptr)
-    {
-    }
-
-    texture::texture(uint w, uint h, GLint internalFormat, GLenum dataFormat, GLenum dataType, byte* data) :
-        _w(w),
-        _h(h),
-        _internalFormat(internalFormat),
-        _dataFormat(dataFormat),
-        _dataType(dataType),
-        _data(data),
-        _isLoadedOnGpu(false),
-        _textureType(GL_TEXTURE_2D)
-    {
-    }
-
-    texture::~texture()
-    {
-    }
-
     void texture::bind(GLuint level)
     {
         glActiveTexture(GL_TEXTURE0 + level);
-        glBindTexture(_textureType, _id);
+        glBindTexture(type, id);
     }
 
     void texture::setParam(GLenum name, GLint value)
     {
-        glTexParameteri(_textureType, name, value);		
+        glTexParameteri(type, name, value);
     }
 
     void texture::loadOnGpu()
@@ -85,19 +81,22 @@ namespace phi
         if (_isLoadedOnGpu)
             return;
 
-        glGenTextures(1, &_id);
+        glGenTextures(1, &id);
 
         // "Bind" the newly created texture : all future texture functions will modify this texture
-        glBindTexture(GL_TEXTURE_2D, _id);
+        glBindTexture(GL_TEXTURE_2D, id);
 
         // Give the image to OpenGL
-        glTexImage2D(GL_TEXTURE_2D, 0, _internalFormat, _w, _h, 0, _dataFormat, _dataType, _data);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, dataFormat, dataType, data);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        handle = glGetTextureHandleARB(id);
+        glMakeTextureHandleResidentARB(handle);
 
         _isLoadedOnGpu = true;
     }
@@ -107,7 +106,8 @@ namespace phi
         if (!_isLoadedOnGpu)
             return;
 
-        glDeleteTextures(1, &_id);
+        glMakeTextureHandleNonResidentARB(handle);
+        glDeleteTextures(1, &id);
         _isLoadedOnGpu = false;
     }
 }

@@ -1,7 +1,5 @@
 #include <phi\core\base64.h>
 #include <phi\io\path.h>
-#include <phi\rendering\model.h>
-#include <phi\rendering\mesh.h>
 #include <phi\loader\importer.h>
 #include <phi\loader\SDL_extensions.h>
 
@@ -28,20 +26,20 @@ namespace phi
             }
             case 1:
             {
-                auto geomDataPath = node["GeometryDataPath"].GetString();
-                geometryData* geometryData = nullptr;
-                importGeometryData(currentFolder + "\\" + geomDataPath, geometryData);
+                auto geometryPath = node["GeometryPath"].GetString();
+                phi::geometry* geometry = nullptr;
+                importGeometry(currentFolder + "\\" + geometryPath, geometry);
 
                 auto materialGuid = convertToGuid(node["MaterialGuid"].GetString());
                 auto matRes = materialsRepo->getResource(materialGuid);
 
                 material* mat;
                 if (matRes == nullptr)
-                    mat = material::getDefault();
+                    mat = material::default();
                 else
                     mat = matRes->getObject();
 
-                auto mesh = new phi::mesh(node["Name"].GetString(), new geometry(geometryData), mat);
+                auto mesh = new phi::mesh(node["Name"].GetString(), geometry, mat);
                 objectNode = mesh;
                 break;
             }
@@ -71,10 +69,10 @@ namespace phi
         auto modelName = path::getFileNameWithoutExtension(fileName);
         GLuint meshCount = 0;
 
-        std::vector<geometryData*>* geometriesData = new std::vector<geometryData*>();
-        if (!importer::importMesh(fileName, geometriesData))
+        std::vector<geometry*>* geometries = new std::vector<geometry*>();
+        if (!importer::importMesh(fileName, geometries))
         {
-            log("Failed to load mesh");
+            log("Failed to load mesh:" + modelName);
             return 0;
         }
 
@@ -86,17 +84,15 @@ namespace phi
         resource<texture>* thumbnailRes;
         if (importTexture(thumbnailPath, thumbnailRes))
         {
-
+            //TODO: badass if!
         }
 
         auto i = 0;
-        for each (geometryData* data in *geometriesData)
+        for (auto geometry : *geometries)
         {
             auto meshName = modelName + "_mesh_" + std::to_string(meshCount++);
 
-            auto g = new geometry(data);
-
-            auto m = new mesh(meshName, g, material::getDefault());
+            auto m = new mesh(meshName, geometry, material::default());
 
             resultModel->addChild(m);
         }
@@ -104,7 +100,7 @@ namespace phi
         return 1;
     }
 
-    int importer::importMesh(std::string fileName, std::vector<geometryData*>* data)
+    int importer::importMesh(std::string fileName, std::vector<geometry*>* data)
     {
         std::ifstream iFile;
         iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
@@ -117,7 +113,7 @@ namespace phi
 
         auto uintSize = sizeof(unsigned int);
         auto floatSize = (unsigned int)sizeof(float);
-        *data = std::vector<geometryData*>();
+        *data = std::vector<geometry*>();
 
         while (iFile.peek() != -1)
         {
@@ -145,7 +141,7 @@ namespace phi
             unsigned int* indicesBuffer = new unsigned int[indicesCount];
             iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * uintSize);
 
-            auto geometry = geometryData::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
+            auto geometry = geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
 
             data->push_back(geometry);
         }
@@ -174,7 +170,7 @@ namespace phi
         return 1;
     }
 
-    int importer::importGeometryData(std::string fileName, geometryData*& data)
+    int importer::importGeometry(std::string fileName, geometry*& data)
     {
         std::ifstream iFile;
         iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
@@ -209,7 +205,7 @@ namespace phi
         unsigned int* indicesBuffer = new unsigned int[indicesCount];
         iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * intSize);
 
-        data = geometryData::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
+        data = geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
 
         return 1;
     }
@@ -285,11 +281,11 @@ namespace phi
         d.ParseStream(is);
 
         auto guid = convertToGuid(d["Guid"].GetString());
-        auto diffuseTextureGuid = convertToGuid(d["DiffuseTextureGuid"].GetString());
+        auto albedoTextureGuid = convertToGuid(d["DiffuseTextureGuid"].GetString());
         auto normalTextureGuid = convertToGuid(d["NormalTextureGuid"].GetString());
         auto specularTextureGuid = convertToGuid(d["SpecularTextureGuid"].GetString());
         auto emissiveTextureGuid = convertToGuid(d["EmissiveTextureGuid"].GetString());
-        auto diffuseTexture = texturesRepo->getResource(diffuseTextureGuid);
+        auto albedoTexture = texturesRepo->getResource(albedoTextureGuid);
         auto normalTexture = texturesRepo->getResource(normalTextureGuid);
         auto specularTexture = texturesRepo->getResource(specularTextureGuid);
         auto emissiveTexture = texturesRepo->getResource(emissiveTextureGuid);
@@ -298,10 +294,10 @@ namespace phi
         const rapidjson::Value& diffuseColorNode = d["DiffuseColor"];
         const rapidjson::Value& specularColorNode = d["SpecularColor"];
         const rapidjson::Value& emissiveColorNode = d["EmissiveColor"];
-        auto ambientColor = color((float)ambientColorNode["R"].GetDouble(), (float)ambientColorNode["G"].GetDouble(), (float)ambientColorNode["B"].GetDouble(), (float)ambientColorNode["A"].GetDouble());
-        auto diffuseColor = color((float)diffuseColorNode["R"].GetDouble(), (float)diffuseColorNode["G"].GetDouble(), (float)diffuseColorNode["B"].GetDouble(), (float)diffuseColorNode["A"].GetDouble());
-        auto specularColor = color((float)specularColorNode["R"].GetDouble(), (float)specularColorNode["G"].GetDouble(), (float)specularColorNode["B"].GetDouble(), (float)specularColorNode["A"].GetDouble());
-        auto emissiveColor = color((float)emissiveColorNode["R"].GetDouble(), (float)emissiveColorNode["G"].GetDouble(), (float)emissiveColorNode["B"].GetDouble(), (float)emissiveColorNode["A"].GetDouble());
+        auto ambientColor = vec3((float)ambientColorNode["R"].GetDouble(), (float)ambientColorNode["G"].GetDouble(), (float)ambientColorNode["B"].GetDouble());
+        auto albedoColor = vec3((float)diffuseColorNode["R"].GetDouble(), (float)diffuseColorNode["G"].GetDouble(), (float)diffuseColorNode["B"].GetDouble());
+        auto specularColor = vec3((float)specularColorNode["R"].GetDouble(), (float)specularColorNode["G"].GetDouble(), (float)specularColorNode["B"].GetDouble());
+        auto emissiveColor = vec3((float)emissiveColorNode["R"].GetDouble(), (float)emissiveColorNode["G"].GetDouble(), (float)emissiveColorNode["B"].GetDouble());
 
         auto shininess = (float)d["Shininess"].GetDouble();
         auto reflectivity = (float)d["Reflectivity"].GetDouble();
@@ -313,20 +309,17 @@ namespace phi
         fclose(fp);
 
         auto mat = new material(
-            diffuseTexture == nullptr ? texture::getDefaultDiffuse() : diffuseTexture->getObject(),
-            normalTexture == nullptr ? texture::getDefaultNormal() : normalTexture->getObject(),
-            specularTexture == nullptr ? texture::getDefaultSpecular() : specularTexture->getObject(),
-            emissiveTexture == nullptr ? texture::getDefaultEmissive() : emissiveTexture->getObject(),
-            ambientColor,
-            diffuseColor,
+            albedoTexture == nullptr ? texture::defaultAlbedo() : albedoTexture->getObject(),
+            normalTexture == nullptr ? texture::defaultNormal() : normalTexture->getObject(),
+            specularTexture == nullptr ? texture::defaultSpecular() : specularTexture->getObject(),
+            emissiveTexture == nullptr ? texture::defaultEmissive() : emissiveTexture->getObject(),
+            albedoColor,
             specularColor,
             emissiveColor,
-            ka,
-            kd,
-            ks,
             shininess,
             reflectivity,
-            isEmissive);
+            isEmissive,
+            1.0f);
 
         materialResource = new resource<material>(guid, path::getFileNameWithoutExtension(fileName), mat);
 

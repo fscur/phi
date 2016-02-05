@@ -2,35 +2,31 @@
 
 namespace phi
 {
-    textureArray::textureArray(sizeui size, GLint textureUnit) :
-        _size(size), _textureUnit(textureUnit), _isLoadedOnGpu(false)
-    {
-    }
-
     void textureArray::loadOnGpu()
     {
         if (_isLoadedOnGpu)
             return;
 
-        auto biggestTextureSize = (float)glm::max(_size.w, _size.h);
+        auto biggestTextureSize = (float)glm::max(w, h);
         auto maxLevels = glm::floor(glm::log2(biggestTextureSize)) + 1.0f;
         auto mipmapLevels = glm::min((uint)maxLevels, MAX_MIPMAP_LEVELS_ALLOWED);
 
-        glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_id);
+        glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &id);
 
-        glTextureStorage3D(_id,
+        glTextureStorage3D(id,
             mipmapLevels,
             GL_RGBA8,
-            _size.w,
-            _size.h,
-            _size.d);
+            w,
+            h,
+            texCount);
+
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-        glActiveTexture(GL_TEXTURE0 + _textureUnit);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
 
         _isLoadedOnGpu = true;
     }
@@ -43,25 +39,25 @@ namespace phi
         auto index = (int)_textures.size();
         _textures[tex] = index;
 
-        glActiveTexture(GL_TEXTURE0 + _textureUnit);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
             0,
             0, 0,
             index,
-            tex->getWidth(), tex->getHeight(),
+            tex->w, tex->h,
             1,
-            tex->getDataFormat(),
-            tex->getDataType(),
-            tex->getData());
+            tex->dataFormat,
+            tex->dataType,
+            tex->data);
+
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
-        //BINDLESS:
-        //if(index == 0)
-        //{
-        //    _handle = glGetTextureHandleARB(_id);
-        //    glMakeTextureHandleResidentARB(_handle);
-        //}
+        if(index == 0)
+        {
+            handle = glGetTextureHandleARB(id);
+            glMakeTextureHandleResidentARB(handle);
+        }
 
         return;
     }
@@ -86,8 +82,8 @@ namespace phi
         if (!_isLoadedOnGpu)
             return;
 
-        glMakeTextureHandleNonResidentARB(_handle); //TODO: check if this shit releases the handle from gpu!!!
-        glDeleteTextures(1, &_id);
+        glMakeTextureHandleNonResidentARB(handle); //TODO: check if this shit releases the handle from gpu!!!
+        glDeleteTextures(1, &id);
         _isLoadedOnGpu = false;
     }
 }

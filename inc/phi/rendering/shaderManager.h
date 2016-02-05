@@ -23,17 +23,10 @@ namespace phi
     {
     private:
         static shaderManager* _instance;
-        std::map<std::string, shader*>* _shaders;
+        std::map<GLuint, shader*> _shaders;
         shaderManagerInfo _info;
     private: 
         shaderManager();
-
-        void addRenderToQuadShader();
-        void addHudTextShader();
-        void addHudQuadShader();
-        void addUIMeshShader();
-
-        void addPostSelectedObjectsShader();
 
     public:
         RENDERING_API ~shaderManager();
@@ -42,9 +35,9 @@ namespace phi
 
         RENDERING_API void init(shaderManagerInfo info);
 
-        RENDERING_API void addShader(std::string name, shader* shader);
-        RENDERING_API shader* getShader(std::string name);
-        RENDERING_API shader* loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
+        RENDERING_API void addShader(shader* shader);
+        RENDERING_API shader* getShader(GLuint id);
+        RENDERING_API shader* loadShader(std::string vertFile, std::string fragFile, std::vector<std::string> attributes);
 
         RENDERING_API void release();
     };

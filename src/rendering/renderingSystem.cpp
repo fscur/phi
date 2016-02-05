@@ -5,8 +5,6 @@
 namespace phi
 {
     renderingSystemInfo renderingSystem::info;
-    defaultFrameBuffer* renderingSystem::defaultFrameBuffer = nullptr;
-    pickingFrameBuffer* renderingSystem::pickingFrameBuffer = nullptr;
     FT_Library renderingSystem::freeTypeLibrary = nullptr;
 
     bool renderingSystem::initialized = false;
@@ -17,11 +15,6 @@ namespace phi
             log("Could not init freetype library");
 
         renderingSystem::info = info;
-        defaultFrameBuffer = new phi::defaultFrameBuffer(color::white);
-        defaultFrameBuffer->init();
-
-        pickingFrameBuffer = new phi::pickingFrameBuffer();
-        pickingFrameBuffer->init();
 
         shaderManagerInfo shaderInfo;
         shaderInfo.path = info.resourcesPath;
@@ -32,16 +25,10 @@ namespace phi
 
     void renderingSystem::release()
     {
-        safeDelete(defaultFrameBuffer);
     }
 
     void renderingSystem::resize(sizef viewportSize)
     {
         info.size = viewportSize;
-        defaultFrameBuffer->setSize(info.size);
-        defaultFrameBuffer->setViewport(0, 0, info.size);
-
-        pickingFrameBuffer = new phi::pickingFrameBuffer();
-        pickingFrameBuffer->init();
     }
 }

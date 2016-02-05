@@ -13,13 +13,13 @@ namespace phi
     private:
         float _radius;
     private:
-        sphere(float radius, geometry* geometry, material* material);
+        sphere(float radius, phi::geometry* geometry, phi::material* material);
 
     private:
-        static geometry* createSphereGeometry(uint rings, uint sectors);
+        static phi::geometry* createSphereGeometry(uint rings, uint sectors);
 
     public:
-        SCENES_API static sphere* create(float radius, uint rings, uint sectors, material* material);
+        SCENES_API static sphere* create(float radius, uint rings, uint sectors, phi::material* material);
 
     public:
         SCENES_API ~sphere();

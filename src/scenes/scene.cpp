@@ -27,10 +27,10 @@ namespace phi
         if (object->getType() == object3D::objectType::MESH)
         {
             auto m = static_cast<mesh*>(object);
-            auto mat = m->getMaterial();
-            auto geom = m->getGeometry();
+            auto mat = m->material;
+            auto geom = m->geometry;
 
-            _renderList[mat][geom].push_back(m);
+            _renderList[geom].push_back(m);
         }
 
         auto children = object->getChildren();
@@ -61,13 +61,13 @@ namespace phi
 
     void scene::addTextureToArray(texture* tex)
     {
-        auto texWidth = tex->getWidth();
-        auto texHeight = tex->getHeight();
+        auto texWidth = tex->w;
+        auto texHeight = tex->h;
         auto it = find_if(_textureArrays.begin(), _textureArrays.end(), [&](textureArray* texArray)
         {
-            auto arraySize = texArray->getSize();
-            return texWidth == arraySize.w &&
-                texHeight == arraySize.h;
+            auto arraySize = texArray->texCount;
+            return texWidth == texArray->w &&
+                texHeight == texArray->h;
         });
 
         textureArray* sameSizeArray = nullptr;
@@ -78,7 +78,7 @@ namespace phi
             auto textureUnit = (GLint)_textureArrays.size();
             _textureArrayUnits.push_back(textureUnit);
 
-            sameSizeArray = new textureArray(sizeui(texWidth, texHeight, TEXTURE_ARRAY_DEPTH), textureUnit);
+            sameSizeArray = new textureArray(texWidth, texHeight, MAX_TEXTURE_ARRAY_TEXTURES_COUNT, textureUnit);
             _textureArrays.push_back(sameSizeArray);
             sameSizeArray->loadOnGpu();
         }
@@ -98,7 +98,7 @@ namespace phi
 
         traverseTreeMeshes(object, [&](mesh* m)
         {
-            auto mat = m->getMaterial();
+            auto mat = m->material;
 
             auto loadTex = [&](texture* tex)
             {
@@ -106,13 +106,12 @@ namespace phi
                     addTextureToArray(tex);
             };
 
-            loadTex(mat->getDiffuseTexture());
-            loadTex(mat->getNormalTexture());
-            loadTex(mat->getSpecularTexture());
-            loadTex(mat->getEmissiveTexture());
+            loadTex(mat->albedoTexture);
+            loadTex(mat->normalTexture);
+            loadTex(mat->specularTexture);
+            loadTex(mat->emissiveTexture);
 
-            auto geometry = m->getGeometry();
-            geometry->loadToGpu();
+            auto geometry = m->geometry;
             _loadedGeometries[geometry]++;
         });
 
@@ -125,7 +124,7 @@ namespace phi
 
         traverseTreeMeshes(object, [&](mesh* m)
         {
-            auto mat = m->getMaterial();
+            auto mat = m->material;
 
             auto unloadTex = [&](texture* tex)
             {
@@ -142,16 +141,15 @@ namespace phi
                 }
             };
 
-            unloadTex(mat->getDiffuseTexture());
-            unloadTex(mat->getNormalTexture());
-            unloadTex(mat->getSpecularTexture());
-            unloadTex(mat->getEmissiveTexture());
+            unloadTex(mat->albedoTexture);
+            unloadTex(mat->normalTexture);
+            unloadTex(mat->specularTexture);
+            unloadTex(mat->emissiveTexture);
 
-            auto geometry = m->getGeometry();
+            auto geometry = m->geometry;
             _loadedGeometries[geometry]--;
             if (_loadedGeometries[geometry] <= 0)
             {
-                geometry->releaseFromGpu();
                 _loadedGeometries.erase(geometry);
             }
         });

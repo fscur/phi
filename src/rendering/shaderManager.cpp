@@ -6,7 +6,6 @@ namespace phi
 
     shaderManager::shaderManager()
     {
-        _shaders = new std::map<std::string, shader*>();
     }
 
     shaderManager::~shaderManager()
@@ -24,124 +23,37 @@ namespace phi
     void shaderManager::init(shaderManagerInfo info)
     {
         _info = info;
-
-        addRenderToQuadShader();
-        addHudTextShader();
-        addHudQuadShader();
-        addUIMeshShader();
-
-        addPostSelectedObjectsShader();
     }
 
-    void shaderManager::addShader(std::string name, shader* shader)
+    void shaderManager::addShader(shader* shader)
     {
-        if (_shaders->find(name) != _shaders->end())
+        if (_shaders.find(shader->getId()) != _shaders.end())
             return;
 
-        (*_shaders)[name] = shader;
+        _shaders[shader->getId()] = shader;
     }
 
-    shader* shaderManager::loadShader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes)
+    shader* shaderManager::loadShader(std::string vertFile, std::string fragFile, std::vector<std::string> attributes)
     {
-        shader* s = new shader(name, _info.path + SHADERS_PATH + vertFile, _info.path + SHADERS_PATH + fragFile, attributes);
+        shader* s = new shader(_info.path + SHADERS_PATH + vertFile, _info.path + SHADERS_PATH + fragFile, attributes);
         s->init();
         return s;
     }
 
-    void shaderManager::addRenderToQuadShader()
+    shader* shaderManager::getShader(GLuint id)
     {
-        /*std::vector<std::string> attribs;
-        attribs.push_back("inPosition");
-        attribs.push_back("inTexCoord");
-
-        shader* s = loadShader("RENDER_TO_QUAD", "render_to_quad.vert", "render_to_quad.frag", attribs);
-
-        s->addUniform(SHADER_CONSTANTS::TEXTURE_0, "quadTexture");
-
-        addShader(s->getName(), s);*/
-    }
-
-    void shaderManager::addHudQuadShader()
-    {
-        /*std::vector<std::string> attribs;
-        attribs.push_back("inPosition");
-        attribs.push_back("inTexCoord");
-
-        shader* s = loadShader("HUD_QUAD", "hud_quad.vert", "hud_quad.frag", attribs);
-
-        s->addUniform(SHADER_CONSTANTS::MVP, "mvp");
-        s->addUniform(SHADER_CONSTANTS::TEXTURE_0, "quadTexture");
-        s->addUniform(SHADER_CONSTANTS::BACK_COLOR, "backColor");
-
-        addShader(s->getName(), s);*/
-    }
-
-    void shaderManager::addHudTextShader()
-    {
-        /*std::vector<std::string> attribs;
-        attribs.push_back("inPosition");
-        attribs.push_back("inTexCoord");
-
-        shader* s = loadShader("HUD_TEXT", "hud_text.vert", "hud_text.frag", attribs);
-
-        s->addUniform(SHADER_CONSTANTS::MVP, "mvp");
-        s->addUniform(SHADER_CONSTANTS::RES, "res");
-        s->addUniform(SHADER_CONSTANTS::TEXTURE_0, "texture");
-        s->addUniform(SHADER_CONSTANTS::COLOR, "color");
-        s->addUniform(SHADER_CONSTANTS::MVP, "texCoordOrigin");
-        s->addUniform(SHADER_CONSTANTS::MVP, "texCoordQuadSize");
-        s->addUniform(SHADER_CONSTANTS::MVP, "texSize");
-
-        addShader(s->getName(), s);*/
-    }
-
-    void shaderManager::addUIMeshShader()
-    {
-        /*std::vector<std::string> attribs;
-        attribs.push_back("inPosition");
-
-        shader* s = loadShader("UI_MESH", "ui_mesh.vert", "ui_mesh.frag", attribs);
-
-        s->addUniform("mvp");
-        s->addUniform("color");
-
-        addShader(s->getName(), s);*/
-    }
-
-    void shaderManager::addPostSelectedObjectsShader()
-    {
-        /*std::vector<std::string> attribs;
-        attribs.push_back("inPosition");
-        attribs.push_back("inTexCoord");
-
-        shader* s = loadShader("POST_SELECTED_OBJECTS", "post_selected_objects.vert", "post_selected_objects.frag", attribs);
-
-        s->addUniform("m");
-        s->addUniform("res");
-        s->addUniform("selectionMap");
-
-        addShader(s->getName(), s);*/
-    }
-
-    shader* shaderManager::getShader(std::string name)
-    {
-        if (_shaders->find(name) == _shaders->end())
-            return NULL;
+        if (_shaders.find(id) == _shaders.end())
+            return nullptr;
         else
-            return (*_shaders)[name];
+            return _shaders[id];
     }
 
     void shaderManager::release()
     {
-        if (_shaders)
+        for(auto pair : _shaders) 
         {
-            for(std::map<std::string, shader*>::iterator i = _shaders->begin(); i != _shaders->end(); i++) 
-            {
-                (i->second)->release();
-                safeDelete(i->second);
-            }
-
-            safeDelete(_shaders);
+            pair.second->release();
+            safeDelete(pair.second);
         }
 
         if (_instance)

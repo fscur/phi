@@ -17,7 +17,6 @@ screen::screen() : form()
     _shadowMap = false;
     _translationSpeed = 1.0f;
     _rotationSpeed = 0.01f;
-    _sceneRenderer = nullptr;
 }
 
 screen::~screen()
@@ -40,8 +39,6 @@ void screen::initScene()
     info.path = _resourcesPath;
     phi::shaderManager::get()->init(info);
 
-    _sceneRenderer = new phi::sceneRenderer();
-    _sceneRenderer->init();
 
     //auto chair = _library->getObjectsRepository()->getAllResources()[2]->getObject();
     //chair->setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -83,6 +80,21 @@ void screen::onInitialize()
     centerScreen();
 
     initScene();
+
+    _renderer = new phi::renderer();
+
+    auto staticDrawData = phi::staticDrawData();
+    auto camera = _scene->getCamera();
+    staticDrawData.projectionMatrix = camera->getViewMatrix();
+    staticDrawData.projectionMatrix = camera->getViewMatrix();
+
+    auto renderInfo = phi::renderInfo();
+    renderInfo.materials = _library->getMaterialsRepository()->getAllObjects();
+    renderInfo.renderList = _scene->getRenderList();
+
+    renderInfo.staticDrawData = staticDrawData;
+
+    _renderer->init(renderInfo);
 }
 
 float t = 0.0f;
@@ -99,7 +111,7 @@ void screen::render()
 {
     auto sec = phi::stopwatch::measure([&]
     {
-        _sceneRenderer->render(_scene);
+        _renderer->render();
     });
     //std::cout << std::to_string(sec * 1000.0f) << std::endl;
 }

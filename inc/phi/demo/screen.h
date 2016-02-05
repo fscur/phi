@@ -4,11 +4,10 @@
 #include "phi/core/size.h"
 
 #include "form.h"
-#include "fpsCameraController.h"
-#include "defaultCameraController.h"
 #include "library.h"
 
-#include <phi\scenes\sceneRenderer.h>
+#include <phi\rendering\renderer.h>
+#include <phi\scenes\scene.h>
 
 #include <SDL/SDL.h>
 
@@ -28,7 +27,7 @@ private:
     float _temp;
 
     phi::scene* _scene;
-    phi::sceneRenderer* _sceneRenderer;
+    phi::renderer* _renderer;
     std::string _resourcesPath;
 
     library* _library;
@@ -47,7 +46,6 @@ public:
     void update() override;
     void render() override;
 
-    void setSceneRenderer(phi::sceneRenderer* value) { _sceneRenderer = value; }
     void setResourcesPath(std::string value) { _resourcesPath = value; }
 };
 

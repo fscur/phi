@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.0.2)
 project(phi)
 
 add_definitions(-DNOMINMAX)
-
 if (APPLE)
     add_definitions(-DAPPLE)
     set(os osx)
@@ -17,7 +16,7 @@ elseif (WIN32)
     else()
         set (os win32)
     endif()
-
+    
 endif (APPLE)
 
 add_subdirectory(src/diagnostics)

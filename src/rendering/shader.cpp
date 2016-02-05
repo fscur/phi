@@ -6,22 +6,12 @@
 
 namespace phi
 {
-    shader::shader(std::string name, std::string vertFile, std::string fragFile, std::vector<std::string> attributes) 
-    {
-        _name = name;
-        _vertFile = vertFile;
-        _fragFile = fragFile;
-        _initialized = false;
-        _attributes = attributes;
-    }
-
-    shader::~shader()
-    {}
-
     bool shader::init()
     {
         if (_initialized)
             return true;
+
+        bool result = true;
 
         _vertexShader = glCreateShader(GL_VERTEX_SHADER);
         _fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -34,17 +24,19 @@ namespace phi
 
         glShaderSource(_vertexShader, 1, &vertexText, 0); // Set the source for the vertex shader to the loaded text
         glCompileShader(_vertexShader); // Compile the vertex shader
-        validateShader(_vertexShader, _vertFile.c_str()); // Validate the vertex shader
 
+#if _DEBUG
+        result = validateShader(_vertexShader, _vertFile.c_str()); // Validate the vertex shader
+#endif
         glShaderSource(_fragmentShader, 1, &fragmentText, 0); // Set the source for the fragment shader to the loaded text
         glCompileShader(_fragmentShader); // Compile the fragment shader
-        bool result = validateShader(_fragmentShader, _fragFile.c_str()); // Validate the fragment shader
+
+#if _DEBUG
+        result = validateShader(_fragmentShader, _fragFile.c_str()); // Validate the fragment shader
+#endif
 
         if(!result)
-        {
-            log(_name);
             return false;
-        }
 
         _id = glCreateProgram(); // Create a GLSL program
         glAttachShader(_id, _vertexShader); // Attach a vertex shader to the program
@@ -53,15 +45,16 @@ namespace phi
         initAttribs();
 
         glLinkProgram(_id); // Link the vertex and fragment shaders in the program
+
+#if _DEBUG
         result = validateProgram(_id); // Validate the shader program
+#endif
 
         if(!result)
-        {
-            log(_name);
             return false;
-        }
 
         _initialized = true;
+
         return true;
     }
 
@@ -143,10 +136,7 @@ namespace phi
     void shader::addUniform(uint location, std::string name)
     {
         if (!_initialized)
-        {
-            log("Shader not initialized:" + _name);
             return;
-        }
 
         _uniforms[location] = glGetUniformLocation(_id, name.c_str());
     }
@@ -154,7 +144,7 @@ namespace phi
     void shader::setUniform(uint location, texture* value, GLuint index)
     {
         glActiveTexture(GL_TEXTURE0 + index);
-        glBindTexture(value->getTextureType(), value->getId());
+        glBindTexture(value->type, value->id);
         glUniform1i(_uniforms[location], index);
     }
 
@@ -173,10 +163,7 @@ namespace phi
     void shader::bind()
     {
         if (!_initialized)
-        {
-            log("Shader not initialized:" + _name);
             return;
-        }
 
         _textureCount = 0;
         glUseProgram(_id);

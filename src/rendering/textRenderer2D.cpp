@@ -1,8 +1,7 @@
-#include <phi/core/globals.h>
-#include <phi/rendering/geometryRenderer.h>
-#include <phi/rendering/texture.h>
-#include <phi/rendering/textRenderer2D.h>
-#include <glm/gtc/matrix_transform.hpp>
+#include <phi\core\globals.h>
+#include <phi\rendering\texture.h>
+#include <phi\rendering\textRenderer2D.h>
+#include <glm\gtc\matrix_transform.hpp>
 
 namespace phi
 {
@@ -25,15 +24,12 @@ namespace phi
         updateProjMatrix();
         _modelMatrix = mat4(1.0f);
 
-        _shader = shaderManager::get()->getShader("HUD_TEXT");
-        _quad = new quad();
-        _quadGeometry = new geometry(_quad);
+        //_shader = shaderManager::get()->getShader("HUD_TEXT");
+        _quad = geometry::quad();
     }
 
     textRenderer2D::~textRenderer2D()
     {
-        safeDelete(_quad);
-        safeDelete(_quadGeometry);
     }
 
     void textRenderer2D::update()

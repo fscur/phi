@@ -8,7 +8,6 @@
 #include <phi\rendering\shaderManager.h>
 #include <phi\rendering\material.h>
 #include <phi\rendering\mesh.h>
-#include <phi\rendering\geometryRenderer.h>
 #include <phi\rendering\camera.h>
 #include <phi\rendering\textureArray.h>
 
@@ -33,11 +32,11 @@ namespace phi
         };
 
     private:
-        const uint TEXTURE_ARRAY_DEPTH = 10;
+        const uint MAX_TEXTURE_ARRAY_TEXTURES_COUNT = 10;
 
         camera *_camera;
         std::vector<object3D*> _objects;
-        std::map<material*, std::map<geometry*, std::vector<mesh*>>> _renderList;
+        std::map<geometry*, std::vector<mesh*>> _renderList;
         std::map<geometry*, int> _loadedGeometries;
         std::vector<textureArray*> _textureArrays;
         std::vector<GLint> _textureArrayUnits;
@@ -54,7 +53,7 @@ namespace phi
         SCENES_API ~scene();
         
         SCENES_API std::vector<object3D*> getObjects() { return _objects; }
-        SCENES_API std::map<material*, std::map<geometry*, std::vector<mesh*>>>& getRenderList() { return _renderList; }
+        SCENES_API std::map<geometry*, std::vector<mesh*>>& getRenderList() { return _renderList; }
         SCENES_API std::vector<GLint> getTextureArrayUnits() const { return _textureArrayUnits; }
         SCENES_API std::map<texture*, textureStorageData> getTextureStorageDatas() const { return _textureStorageDatas; }
 

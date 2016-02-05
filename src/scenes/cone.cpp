@@ -1,8 +1,8 @@
-#include <phi/scenes/cone.h>
+#include <phi\scenes\cone.h>
 
 namespace phi
 {
-    cone::cone(geometry* geometry, material* material) :
+    cone::cone(phi::geometry* geometry, phi::material* material) :
         mesh("cone", geometry, material)
     {}
 
@@ -14,7 +14,6 @@ namespace phi
     {
         //TODO: bug-> When creating a cone with 100 sides or more, the geometry is fucked up!!!!!
         std::vector<vertex> tempVertices;
-        auto indices = new std::vector<GLuint>();
 
         vec3 top = vec3(0.0f, 0.0f, 0.0f);
         vec3 bot = vec3(0.0f, 0.0f, 1.0f);
@@ -72,8 +71,8 @@ namespace phi
             vertex* v0 = &tempVertices[i];
             vertex* v1 = &tempVertices[j];
 
-            vec3 n0 = v0->getNormal();
-            vec3 n1 = v1->getNormal();
+            vec3 n0 = v0->normal;
+            vec3 n1 = v1->normal;
             vec3 n = normalize(n0 + n1);
 
             normals.push_back(n);
@@ -85,16 +84,17 @@ namespace phi
             int k = i / verts;
 
             vertex* v = &tempVertices[i];
-            v->setNormal(normals[k]);
+            v->normal = normals[k];
 
             v = &tempVertices[i + 1];
-            v->setNormal(normals[k]);
+            v->normal = normals[k];
 
             v = &tempVertices[j + 2];
-            v->setNormal(normals[k]);
+            v->normal = normals[k];
         }
 
         //select vertices and create indices
+        std::vector<GLuint> indices;
         std::vector<vertex> vertices;
         unsigned int vSize = (unsigned int)tempVertices.size();
 
@@ -128,16 +128,15 @@ namespace phi
                 vertices.push_back(vertex);
             }
 
-            indices->push_back(index);
+            indices.push_back(index);
         }
         
-        geometryData::calcTangents(vertices, *indices);
+        phi::geometry::calcTangents(vertices, indices);
 
-        auto data = geometryData::create(vertices, indices);
-        return new geometry(data);
+        return phi::geometry::create(vertices, indices);
     }
 
-    cone* cone::create(uint sectors, material* material)
+    cone* cone::create(uint sectors, phi::material* material)
     {
         auto geometry = createConeGeometry(sectors);
         return new cone(geometry, material);
