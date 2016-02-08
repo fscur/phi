@@ -18,17 +18,17 @@ namespace phi
         _up(up),
         _near(near),
         _far(far),
+        _resolution(resolution),
         _aspect(resolution.w / resolution.h),
         _fov(fov),
-        _perspectiveMatrix(glm::perspective(fov, _aspect, near, far))
+        _perspectiveMatrix(glm::perspective(fov, _aspect, near, far)),
+        _changed(true)
     {
         for (int i = 0; i < 6; i++)
         {
             _planeNormals[i] = vec3(0.0f, 1.0f, 0.0f);
             _planePositions[i] = vec3(0.0f);
         }
-
-        _changed = true;
     }
 
     frustum::~frustum()
@@ -64,6 +64,13 @@ namespace phi
     {
         _far = far;
         _perspectiveMatrix = glm::perspective(_fov, _aspect, _near, _far);
+        _changed = true;
+    }
+
+    void frustum::setAspect(float aspect)
+    {
+        _aspect = aspect;
+        _perspMatrix = glm::perspective(_fov, _aspect, _near, _far);
         _changed = true;
     }
 

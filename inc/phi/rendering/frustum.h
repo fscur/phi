@@ -23,6 +23,7 @@ namespace phi
         float _far;
         float _aspect;
         float _fov;
+        mat4 _perspMatrix;
         sizef _resolution;
         mat4 _perspectiveMatrix;
         bool _changed;
@@ -68,6 +69,7 @@ namespace phi
         RENDERING_API void setUp(vec3 up);
         RENDERING_API void setZNear(float zNear);
         RENDERING_API void setZFar(float zFar);
+        RENDERING_API void setAspect(float aspect);
         RENDERING_API void setResolution(sizef resolution);
         RENDERING_API void setFov(float fov);
 

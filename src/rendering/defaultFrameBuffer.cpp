@@ -2,7 +2,7 @@
 
 namespace phi
 {
-	defaultFrameBuffer::defaultFrameBuffer(color clearColor) : frameBuffer("default", clearColor)
+	defaultFrameBuffer::defaultFrameBuffer(sizef size, color clearColor) : frameBuffer("default", size, clearColor)
 	{
 	}
 

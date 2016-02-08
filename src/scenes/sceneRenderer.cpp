@@ -2,9 +2,9 @@
 
 namespace phi 
 {
-    sceneRenderer::sceneRenderer()
+    sceneRenderer::sceneRenderer(sizef size)
     {
-        _defaultFrameBuffer = new defaultFrameBuffer(color::black);
+        _defaultFrameBuffer = new defaultFrameBuffer(size, color::black);
         _hasBindlessTextures = false;
     }
 

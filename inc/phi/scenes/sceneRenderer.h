@@ -33,7 +33,7 @@ namespace phi
         void createShader();
 
     public:
-        SCENES_API sceneRenderer();
+        SCENES_API sceneRenderer(sizef size);
         SCENES_API ~sceneRenderer();
         
         SCENES_API defaultFrameBuffer* getDefaultFrameBuffer() const { return _defaultFrameBuffer; }

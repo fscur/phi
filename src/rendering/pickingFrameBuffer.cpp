@@ -2,7 +2,7 @@
 
 namespace phi
 {
-    pickingFrameBuffer::pickingFrameBuffer() : frameBuffer("picking", color::transparent)
+    pickingFrameBuffer::pickingFrameBuffer(sizef size) : frameBuffer("picking", size, color::transparent)
     {
     }
 
@@ -16,11 +16,12 @@ namespace phi
 
         bind();
 
-        texture* t = new texture((uint)_size.w, (uint)_size.h, GL_RGBA);
+        texture* t = new texture((uint)_size.w, (uint)_size.h, GL_RGB32F);
         t->setParam(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         t->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         t->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        t->loadOnGpu();
 
         _pickingTexture = t;
 

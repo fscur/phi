@@ -1,14 +1,15 @@
 #ifndef _SCREEN_H_
 #define _SCREEN_H_
 
-#include "phi/core/size.h"
+#include "phi\core\size.h"
+
+#include <phi\scenes\sceneRenderer.h>
 
 #include "form.h"
 #include "fpsCameraController.h"
 #include "defaultCameraController.h"
 #include "library.h"
-
-#include <phi\scenes\sceneRenderer.h>
+#include "inputManager.h"
 
 #include <SDL/SDL.h>
 
@@ -33,7 +34,11 @@ private:
 
     library* _library;
 
+    commandsManager* _commandsManager;
+    inputManager* _inputManager;
+    defaultCameraController* _defaultController;
 private:
+    void initScenesManager();
     void initScene();
 
 public:
@@ -43,6 +48,13 @@ public:
     void onInitialize() override;
     void onResize(SDL_Event e) override;
     void onClosing() override;
+
+    void onMouseDown(phi::mouseEventArgs* e) override;
+    void onMouseMove(phi::mouseEventArgs* e) override;
+    void onMouseUp(phi::mouseEventArgs* e) override;
+    void onMouseWheel(phi::mouseEventArgs* e) override;
+    void onKeyDown(phi::keyboardEventArgs* e) override;
+    void onKeyUp(phi::keyboardEventArgs* e) override;
 
     void update() override;
     void render() override;

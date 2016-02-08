@@ -22,6 +22,12 @@ namespace phi
             obj->update();
     }
 
+    void scene::setSize(sizef size)
+    {
+        _size = size;
+        _activeCamera->getFrustum()->setAspect((float) _size.w / (float) _size.h);
+    }
+
     void scene::addToRenderList(object3D* object)
     {
         if (object->getType() == object3D::objectType::MESH)
