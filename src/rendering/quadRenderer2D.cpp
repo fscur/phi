@@ -1,7 +1,5 @@
-#include <phi/rendering/geometryRenderer.h>
-#include <phi/rendering/quadRenderer2D.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
+#include <phi\rendering\quadRenderer2D.h>
+#include <glm\gtc\matrix_transform.hpp>
 
 namespace phi
 {
@@ -11,19 +9,14 @@ namespace phi
         _zIndex = zIndex;
         _size = quadSize;
         _viewportSize = viewportSize;
-        _shader = shaderManager::get()->getShader("HUD_QUAD");
-
         _transform = new transform();
-        _quad = new quad();
-        _quadGeometry = new geometry(_quad);
+        _quad = geometry::quad();
         update();
     }
 
     quadRenderer2D::~quadRenderer2D()
     {
         safeDelete(_transform);
-        safeDelete(_quad);
-        safeDelete(_quadGeometry);
     }
 
     void quadRenderer2D::update()

@@ -22,7 +22,6 @@ screen::screen() : form()
     _shadowMap = false;
     _translationSpeed = 1.0f;
     _rotationSpeed = 0.01f;
-    _sceneRenderer = nullptr;
     _commandsManager = new commandsManager();
     _inputManager = new inputManager(_commandsManager);
 }
@@ -43,16 +42,9 @@ void screen::initScene()
     camera->setTarget(phi::vec3(0.0f, 0.5f, 0.0f));
     camera->update();
 
-    auto direction = camera->getDirection();
-    auto right = camera->getRight();
-    auto up = camera->getUp();
-
     auto info = phi::shaderManagerInfo();
     info.path = _resourcesPath;
     phi::shaderManager::get()->init(info);
-
-    _sceneRenderer = new phi::sceneRenderer(_size);
-    _sceneRenderer->init();
 
     auto obj = _library->getObjectsRepository()->getAllResources()[4]->getObject();
     _scene->add(obj);
@@ -60,7 +52,7 @@ void screen::initScene()
 
 void screen::onInitialize()
 {
-    setTitle("Φ");
+    setTitle("phi");
     centerScreen();
 
     initScenesManager();
@@ -69,6 +61,19 @@ void screen::onInitialize()
     auto camera = _scene->getCamera();
     _defaultController = new defaultCameraController(camera);
     _inputManager->setCurrentCameraController(_defaultController);
+    _renderer = new phi::renderer();
+
+    auto staticDrawData = phi::staticDrawData();
+    staticDrawData.projectionMatrix = camera->getViewMatrix();
+    staticDrawData.projectionMatrix = camera->getViewMatrix();
+
+    auto renderInfo = phi::renderInfo();
+    renderInfo.materials = _library->getMaterialsRepository()->getAllObjects();
+    renderInfo.renderList = _scene->getRenderList();
+
+    renderInfo.staticDrawData = staticDrawData;
+
+    _renderer->init(renderInfo);
 }
 
 void screen::initScenesManager()
@@ -91,7 +96,7 @@ void screen::render()
 {
     auto sec = phi::stopwatch::measure([&]
     {
-        _sceneRenderer->render(_scene);
+        _renderer->render();
     });
     //std::cout << std::to_string(sec * 1000.0f) << std::endl;
 }

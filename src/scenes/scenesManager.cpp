@@ -51,7 +51,7 @@ namespace phi
 
     void scenesManager::render()
     {
-        _sceneRenderer->render(_scene);
+        _renderer->render();
     }
 
     void scenesManager::release()

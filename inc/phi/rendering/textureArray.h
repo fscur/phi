@@ -15,20 +15,25 @@ namespace phi
     private:
         const uint MAX_MIPMAP_LEVELS_ALLOWED = 8;
 
-        sizeui _size;
         std::map<texture*, int> _textures;
         bool _isLoadedOnGpu;
-        GLuint _id;
-        GLuint64 _handle;
-        GLint _textureUnit;
 
     public:
-        RENDERING_API textureArray(sizeui size, GLint textureUnit);
+        GLuint id;
+        GLuint64 handle;
+        GLint textureUnit;
+        GLuint w;
+        GLuint h;
+        GLuint texCount;
 
-        RENDERING_API inline GLuint getId() const { return _id; }
-        RENDERING_API inline sizeui getSize() const { return _size; }
-        RENDERING_API inline GLuint64 getHandle() const { return _handle; }
-        RENDERING_API inline GLint getTextureUnit() const { return _textureUnit; }
+    public:
+        RENDERING_API textureArray(GLuint w, GLuint h, GLuint texCount, GLint textureUnit) :
+            w(w), 
+            h(h),
+            texCount(texCount),
+            textureUnit(textureUnit), 
+            _isLoadedOnGpu(false) 
+        {}
 
         RENDERING_API void add(texture* tex);
         RENDERING_API void remove(texture* tex);

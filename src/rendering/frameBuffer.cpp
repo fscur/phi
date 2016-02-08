@@ -73,8 +73,8 @@ namespace phi
     void frameBuffer::bindForDrawing(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace)
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->getId(), 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFace, cubeMapRenderTarget->getTexture()->getId() +1, 0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->id, 0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFace, cubeMapRenderTarget->getTexture()->id +1, 0);
         glDrawBuffer(cubeMapRenderTarget->getAttachment());
     }
 
@@ -86,8 +86,8 @@ namespace phi
     void frameBuffer::bindForReading(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace)
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->getId(), 0);
-        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFace, cubeMapRenderTarget->getTexture()->getId() +1, 0);
+        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->id, 0);
+        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFace, cubeMapRenderTarget->getTexture()->id +1, 0);
         glReadBuffer(cubeMapRenderTarget->getAttachment());
     }
 
@@ -160,23 +160,23 @@ namespace phi
 
         (*_renderTargets)[renderTarget->getName()] = renderTarget;
 
-        if (renderTarget->getTexture()->getTextureType() == GL_TEXTURE_2D)
+        if (renderTarget->getTexture()->type == GL_TEXTURE_2D)
         {
             glFramebufferTexture2D(
                 renderTarget->getTarget(), 
                 renderTarget->getAttachment(), 
                 renderTarget->getTexTarget(),
-                renderTarget->getTexture()->getId(),
+                renderTarget->getTexture()->id,
                 renderTarget->getLevel());
         }
-        else  if (renderTarget->getTexture()->getTextureType() == GL_TEXTURE_CUBE_MAP)
+        else  if (renderTarget->getTexture()->type == GL_TEXTURE_CUBE_MAP)
         {
             for (GLuint i = 0; i < 6; i++)
             {
                 //glFramebufferTextureARB(GL_FRAMEBUFFER, renderTarget->getAttachment(), renderTarget->getTexture()->getId(), 0);
                 //glFramebufferTextureARB(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, tColorCubeMap, 0);
                 
-                glFramebufferTexture2D(GL_FRAMEBUFFER, renderTarget->getAttachment(), GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, renderTarget->getTexture()->getId(), renderTarget->getLevel());
+                glFramebufferTexture2D(GL_FRAMEBUFFER, renderTarget->getAttachment(), GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, renderTarget->getTexture()->id, renderTarget->getLevel());
             }
         }
 

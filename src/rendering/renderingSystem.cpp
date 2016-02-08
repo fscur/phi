@@ -38,8 +38,8 @@ namespace phi
     void renderingSystem::resize(sizef viewportSize)
     {
         info.size = viewportSize;
-        defaultFrameBuffer->setSize(info.size);
-        defaultFrameBuffer->setViewport(0, 0, info.size);
+        defaultFrameBuffer->setSize(viewportSize);
+        defaultFrameBuffer->setViewport(0, 0, viewportSize);
 
         pickingFrameBuffer = new phi::pickingFrameBuffer(viewportSize);
         pickingFrameBuffer->init();

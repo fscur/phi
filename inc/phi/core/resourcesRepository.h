@@ -14,6 +14,7 @@ namespace phi
     {
     private:
         std::vector<resource<T>*> _resources;
+        std::vector<T*> _objects;
 
     public:
         resourcesRepository()
@@ -33,11 +34,17 @@ namespace phi
         void addResource(resource<T>* r)
         {
             _resources.push_back(r);
+            _objects.push_back((T*)r->getObject());
         }
 
         std::vector<resource<T>*> getAllResources()
         {
             return _resources;
+        }
+        
+        std::vector<T*> getAllObjects()
+        {
+            return _objects;
         }
 
         resource<T>* getResource(GUID guid)

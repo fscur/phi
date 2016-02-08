@@ -1,9 +1,8 @@
 #ifndef _PHI_SCENES_MANAGER_H
 #define _PHI_SCENES_MANAGER_H
 
-#include <phi/scenes/scene.h>
-
-#include <phi\scenes\sceneRenderer.h>
+#include <phi\scenes\scene.h>
+#include <phi\rendering\renderer.h>
 #include <phi\core\resourcesRepository.h>
 
 namespace phi
@@ -25,7 +24,7 @@ namespace phi
         static scenesManager* _instance;
         std::vector<scene*> _scenes;
         scene* _scene;
-        sceneRenderer* _sceneRenderer;
+        renderer* _renderer;
         scenesManagerInfo _info;
         bool _isShadowMapEnabled;
         bool _debugMode;
@@ -38,8 +37,8 @@ namespace phi
 
         SCENES_API scene* getScene() const { return _scene; }
         SCENES_API scenesManagerInfo getInfo() const { return _info; }
-        SCENES_API sceneRenderer* getSceneRenderer() const { return _sceneRenderer; }
-        SCENES_API void setSceneRenderer(sceneRenderer* value) { _sceneRenderer = value; }
+        SCENES_API renderer* getRenderer() const { return _renderer; }
+        SCENES_API void setSceneRenderer(renderer* value) { _renderer = value; }
 
         SCENES_API bool init(scenesManagerInfo info);
         SCENES_API void update();

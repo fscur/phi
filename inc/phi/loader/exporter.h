@@ -3,7 +3,7 @@
 
 #include "loader.h"
 
-#include <phi/core/geometryData.h>
+#include <phi\core\geometry.h>
 
 #include <string>
 #include <vector>
@@ -13,7 +13,7 @@ namespace phi
     class exporter
     {
     public:
-        LOADER_API static int exportMesh(std::vector<geometryData*>* data, char* fileName);
+        LOADER_API static int exportMesh(std::vector<geometry*>* geometry, char* fileName);
     };
 }
 

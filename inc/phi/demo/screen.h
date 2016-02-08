@@ -1,12 +1,11 @@
 #ifndef _SCREEN_H_
 #define _SCREEN_H_
 
-#include "phi\core\size.h"
-
-#include <phi\scenes\sceneRenderer.h>
+#include <phi\core\size.h>
+#include <phi\rendering\renderer.h>
+#include <phi\scenes\scene.h>
 
 #include "form.h"
-#include "fpsCameraController.h"
 #include "defaultCameraController.h"
 #include "library.h"
 #include "inputManager.h"
@@ -29,7 +28,7 @@ private:
     float _temp;
 
     phi::scene* _scene;
-    phi::sceneRenderer* _sceneRenderer;
+    phi::renderer* _renderer;
     std::string _resourcesPath;
 
     library* _library;
@@ -59,7 +58,7 @@ public:
     void update() override;
     void render() override;
 
-    void setSceneRenderer(phi::sceneRenderer* value) { _sceneRenderer = value; }
+    void setSceneRenderer(phi::renderer* value) { _renderer = value; }
     void setResourcesPath(std::string value) { _resourcesPath = value; }
 };
 

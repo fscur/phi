@@ -2,7 +2,7 @@
 
 namespace phi
 {
-    sphere::sphere(float radius, geometry* geometry, material* material) :
+    sphere::sphere(float radius, phi::geometry* geometry, phi::material* material) :
         _radius(radius), mesh("sphere", geometry, material)
     {
     }
@@ -12,7 +12,7 @@ namespace phi
         float piOver2 = PI * 0.5f;
 
         std::vector<vertex> vertices;
-        auto indices = new std::vector<uint>();
+        std::vector<uint> indices;
 
         float const R = 1.0f / (float)(rings - 1.0f);
         float const S = 1.0f / (float)(sectors - 1.0f);
@@ -42,22 +42,21 @@ namespace phi
                 int c = (r + 1) * sectors + (s + 1);
                 int d = r * sectors + (s + 1);
 
-                indices->push_back(a);
-                indices->push_back(b);
-                indices->push_back(c);
-                indices->push_back(c);
-                indices->push_back(d);
-                indices->push_back(a);
+                indices.push_back(a);
+                indices.push_back(b);
+                indices.push_back(c);
+                indices.push_back(c);
+                indices.push_back(d);
+                indices.push_back(a);
             }
         }
 
-        geometryData::calcTangents(vertices, *indices);
+        geometry::calcTangents(vertices, indices);
 
-        auto data = geometryData::create(vertices, indices);
-        return new geometry(data);
+        return geometry::create(vertices, indices);
     }
 
-    sphere* sphere::create(float radius, uint rings, uint sectors, material* material)
+    sphere* sphere::create(float radius, uint rings, uint sectors, phi::material* material)
     {
         auto geometry = createSphereGeometry(rings, sectors);
         return new sphere(radius, geometry, material);
