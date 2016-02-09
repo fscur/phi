@@ -13,7 +13,6 @@ layout (std140, binding = 1) uniform FrameUniformsBufferData
     mat4 v;
 
 }frameUniforms;
-uniform mat4 vp;
 
 out vec3 fragPosition;
 out vec2 fragTexCoord;

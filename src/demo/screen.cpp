@@ -38,7 +38,7 @@ void screen::initScene()
     _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, _size, glm::half_pi<float>()));
     auto camera = _scene->getCamera();
 
-    camera->setLocalPosition(phi::vec3(0.0f, 0.0f, 3.0f));
+    camera->setLocalPosition(phi::vec3(3.0f, 3.0f, 0.0f));
     camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
     camera->update();
 
@@ -46,39 +46,8 @@ void screen::initScene()
     info.path = _resourcesPath;
     phi::shaderManager::get()->init(info);
 
-
-    //auto chair = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-    //chair->setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-
-    //auto cabinet = _library->getObjectsRepository()->getAllResources()[0]->getObject();
-    //cabinet->setLocalPosition(glm::vec3(0.0f, 0.0f, 1.5f));
-
-    //auto cabinet2 = _library->getObjectsRepository()->getAllResources()[1]->getObject();
-    //cabinet2->setLocalPosition(glm::vec3(0.0f, 0.0f, -1.5f));
-
-    //for(int i = 0; i < 1; i++)
-    //{
-    //    for(int j = 0; j < 5; j++)
-    //    {
-    //        auto obj = _library->getObjectsRepository()->getAllResources()[i * 4 + j]->getObject();
-    //        obj->setLocalPosition(glm::vec3(i - 2.0f, 0.0f, j - 2.5f));
-    //        _scene->add(obj);
-    //    }
-    //}
-
-    auto obj = _library->getObjectsRepository()->getAllResources()[4]->getObject();
-    _scene->add(obj);
-
-    //obj = _library->getObjectsRepository()->getAllResources()[6]->getObject();
-    //_scene->add(obj);
-
-    //obj = _library->getObjectsRepository()->getAllResources()[6]->getObject();
-    //obj->setLocalPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
-    //_scene->add(obj);
-
-    //_scene->add(chair);
-    //_scene->add(cabinet);
-    //_scene->add(cabinet2);
+    auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
+    _scene->add(obj->clone());
 }
 
 void screen::onInitialize()
@@ -92,18 +61,17 @@ void screen::onInitialize()
     auto camera = _scene->getCamera();
     _defaultController = new defaultCameraController(camera);
     _inputManager->setCurrentCameraController(_defaultController);
+
     _renderer = new phi::renderer();
 
-    auto staticDrawData = phi::staticDrawData();
-    auto camera = _scene->getCamera();
-    staticDrawData.projectionMatrix = camera->getViewMatrix();
-    staticDrawData.projectionMatrix = camera->getViewMatrix();
+    auto frameUniforms = phi::frameUniformsBufferData();
+    frameUniforms.projectionMatrix = camera->getProjectionMatrix();
+    frameUniforms.viewMatrix = camera->getViewMatrix();
 
     auto renderInfo = phi::renderInfo();
     renderInfo.materials = _library->getMaterialsRepository()->getAllObjects();
     renderInfo.renderList = _scene->getRenderList();
-
-    renderInfo.frameUniformsBufferData = staticDrawData;
+    renderInfo.frameUniformsBufferData = frameUniforms;
 
     _renderer->init(renderInfo);
 }
@@ -120,16 +88,15 @@ void screen::initScenesManager()
 
 void screen::update()
 {
-    t += 0.001f;
-    _scene->getCamera()->setLocalPosition(phi::vec3(glm::cos(t), 0.5f, glm::sin(t)) * 2.0f);
+    _inputManager->update();
+    //_scene->getCamera()->setLocalPosition(phi::vec3(glm::cos(t), 0.5f, glm::sin(t)) * 2.0f);
     _scene->getCamera()->update();
-    _scene->update();*/
+    _scene->update();
 }
 
 void screen::render()
 {
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        _renderer->render();
+    _renderer->render();
 }
 
 void screen::onResize(SDL_Event e)

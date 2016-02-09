@@ -10,13 +10,12 @@ namespace phi
         _frustum(new frustum(vec3(), getDirection(), getUp(), nearDistance, farDistance, resolution, fov)),
         _focus(1.0f),
         _viewMatrix(lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp()))
-
     {
     }
 
     void camera::setTarget(vec3 value)
     {
-        if (getChanged())
+        //if (getChanged())
             update();
 
         auto diff = value - _position;
@@ -31,12 +30,12 @@ namespace phi
 
         object3D::update();
 
-        if (changed)
-        {
+        //if (changed)
+        //{
             auto target = _position + _direction * _focus;
-            _viewMatrix = lookAt(_position, target, _up);
+            _viewMatrix = lookAt(_position, target, vec3(0.0, 1.0, 0.0));
             _frustum->update();
-        }
+        //}
     }
 
     void camera::moveTo(vec3 position)

@@ -11,12 +11,12 @@
 
 commandsManager::commandsManager()
 {
-    //_shortcuts.add("Select", phi::inputKey(PHI_MOUSE_LEFT, PHI_NONE));
-    //_shortcuts.add("DeselectAll", phi::inputKey(PHI_SCANCODE_ESCAPE, PHI_NONE));
-    //_shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, PHI_CTRL_PRESSED));
-    //_shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, PHI_CTRL_PRESSED));
-    //_shortcuts.add("ZoomToFit", phi::inputKey(PHI_SCANCODE_F, PHI_CTRL_PRESSED));
-    //_shortcuts.add("DeleteSceneObject", phi::inputKey(PHI_SCANCODE_DELETE, PHI_NONE));
+    /*_shortcuts.add("Select", phi::inputKey(PHI_MOUSE_LEFT, PHI_NONE));
+    _shortcuts.add("DeselectAll", phi::inputKey(PHI_SCANCODE_ESCAPE, PHI_NONE));
+    _shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, PHI_CTRL_PRESSED));
+    _shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, PHI_CTRL_PRESSED));
+    _shortcuts.add("ZoomToFit", phi::inputKey(PHI_SCANCODE_F, PHI_CTRL_PRESSED));
+    _shortcuts.add("DeleteSceneObject", phi::inputKey(PHI_SCANCODE_DELETE, PHI_NONE));*/
 
     //_commands["Select"] = [] () -> command*
     //{
