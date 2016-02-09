@@ -12,16 +12,44 @@ namespace phi
         _orientation(quat()),
         _changedEvent(new eventHandler<object3DEventArgs>()),
         _size(sizef(1.0f, 1.0f, 1.0f)),
-        _aabb(nullptr),
+        _aabb(aabb()),
         _parent(nullptr)
     {
         setChanged();
     }
+    
+    object3D::object3D(const object3D& clone) :
+        _name(clone._name),
+        _type(clone._type),
+        _position(clone._position),
+        _size(clone._size),
+        _aabb(clone._aabb),
+        _orientation(clone._orientation),
+        _right(clone._right),
+        _up(clone._up),
+        _direction(clone._direction),
+        _changedEvent(new eventHandler<object3DEventArgs>()),
+        _parent(nullptr)
+    {
+        auto clonedChildren = std::vector<object3D*>();
+
+        for (auto& child : clone._children)
+        {
+            auto clonedChild = child->clone();
+            clonedChild->_parent = this;
+            clonedChildren.push_back(clonedChild);
+        }
+
+        _children = std::move(clonedChildren);
+    }
+
+    object3D* object3D::clone()
+    {
+        return new object3D(*this);
+    }
 
     object3D::~object3D()
     {
-        safeDelete(_aabb);
-
         // TODO: Do I need to delete those, or should the scene?
         // auto _childrenCount = _children.size();
         // for (unsigned int i = 0; i < _childrenCount; i++)
@@ -124,12 +152,12 @@ namespace phi
         auto localTranslation = getTranslationMatrix();
 
         auto rotation = localRotation;
-        auto obj = this->getParent();
+        auto obj = _parent;
 
         while(obj != nullptr)
         {
             rotation = obj->getRotationMatrix() * rotation;
-            obj = obj->getParent();
+            obj = obj->_parent;
         }
 
         _direction = mathUtils::multiply(rotation, vec3(0.0f, 0.0f, 1.0f));
@@ -138,12 +166,7 @@ namespace phi
 
         _modelMatrix = localTranslation  * localRotation * localScale;
 
-        auto normalMatrix = mat3(
-            _modelMatrix[0][0], _modelMatrix[0][1], _modelMatrix[0][2],
-            _modelMatrix[1][0], _modelMatrix[1][1], _modelMatrix[1][2],
-            _modelMatrix[2][0], _modelMatrix[2][1], _modelMatrix[2][2]);
-
-        for(auto child : _children)
+        for(auto& child : _children)
             child->updateLocalModelMatrix();
 
         //TODO: are those the same ?
@@ -154,11 +177,11 @@ namespace phi
 
     void object3D::update()
     {
-        if(_changed)
-        {
+        //if(_changed)
+        //{
             updateLocalModelMatrix();
-            _changed = false;
-        }
+            //_changed = false;
+        //}
     }
 
     void object3D::translate(vec3 translation)

@@ -1,5 +1,6 @@
 #include <phi\core\geometry.h>
 #include <phi\io\path.h>
+#include <iterator>
 
 namespace phi
 {
@@ -17,6 +18,10 @@ namespace phi
         data->indicesCount = indicesCount;
         data->vboSize = verticesCount * sizeof(vertex);
         data->eboSize = data->indicesCount * sizeof(uint);
+        
+        data->vboData = new vertex[verticesCount];
+        data->eboData = new uint[indicesCount];
+
         memcpy(data->vboData, &vertices[0], data->vboSize);
         memcpy(data->eboData, &indices[0], data->eboSize);
 
@@ -31,8 +36,7 @@ namespace phi
         uint indicesCount,
         uint* indicesBuffer)
     {
-        std::vector<uint> indices(indicesCount, *indicesBuffer);
-
+        std::vector<uint> indices (indicesBuffer, indicesBuffer + indicesCount);
         std::vector<vertex> vertices;
 
         for (auto i = 0; i < verticesCount; i++)
@@ -55,24 +59,6 @@ namespace phi
             auto normal = vec3(r, s, t);
 
             vertices.push_back(vertex(position, texCoord, normal));
-        }
-
-        calcTangents(vertices, indices);
-
-        unsigned int tgIndex = 0;
-        auto tangentsBuffer = new float[verticesCount * 3];
-
-        for (auto i = 0; i < verticesCount; i++)
-        {
-            auto vertex = vertices[i];
-
-            auto r1 = vertex.tangent.x;
-            auto s1 = vertex.tangent.y;
-            auto t1 = vertex.tangent.z;
-
-            tangentsBuffer[tgIndex++] = r1;
-            tangentsBuffer[tgIndex++] = s1;
-            tangentsBuffer[tgIndex++] = t1;
         }
 
         return geometry::create(vertices, indices);
@@ -115,10 +101,10 @@ namespace phi
 
     void geometry::calcTangents(std::vector<vertex> &vertices, std::vector<uint> &indices)
     {
-        std::vector<vec3> bitangents;
-        bitangents.reserve(vertices.size());
-
+        auto verticesCount = vertices.size();
         auto indicesCount = indices.size();
+
+        vec3* bitangents = new vec3[verticesCount];
 
         for (uint i = 0; i < indicesCount; i += 3)
         {
@@ -153,7 +139,7 @@ namespace phi
             bitangents[i2] = bitangent;
         }
 
-        for (uint i = 0; i < vertices.size(); i++)
+        for (uint i = 0; i < verticesCount; i++)
         {
             vec3 n = vertices[i].normal;
             vec3 t = vertices[i].tangent;
@@ -167,6 +153,8 @@ namespace phi
 
             vertices[i].tangent = t;
         }
+
+        delete[] bitangents;
     }
 
     geometry* geometry::quad()

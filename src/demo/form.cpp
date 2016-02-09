@@ -1,8 +1,9 @@
-#include "phi/demo/form.h"
+#include <phi\demo\form.h>
 
-#include "phi/core/input.h"
-#include "phi/core/globals.h"
-#include "phi/core/clock.h"
+#include <phi\core\input.h>
+#include <phi\core\globals.h>
+#include <phi\core\clock.h>
+#include <phi\diagnostics\stopwatch.h>
 
 #include <string>
 #include <locale>
@@ -84,6 +85,9 @@ void form::initialize(std::string applicationPath)
     while (SDL_PollEvent(&e) != 0);
     _applicationPath = applicationPath;
     onInitialize();
+
+    auto msg = "error:" + glGetError();
+    phi::log(msg);
 }
 
 void form::initWindow()
@@ -132,6 +136,9 @@ void form::initWindow()
     if (!_glContext)
         phi::log("Could not create context: " + std::string(SDL_GetError()));
 
+
+    //SDL_GL_SetSwapInterval(0);
+
 #ifdef WIN32
     glewExperimental = GL_TRUE;
 
@@ -146,6 +153,8 @@ void form::initWindow()
     _hwnd = wmInfo.info.win.window;
 
 #endif
+
+    std::cout << glGetError() << std::endl;
 }
 
 void form::show()
@@ -159,7 +168,7 @@ void form::show()
 
 void form::input()
 {
-//    onBeginInput();
+    //onBeginInput();
     SDL_Event e;
 
     while (SDL_PollEvent(&e) != 0)
@@ -284,19 +293,15 @@ bool form::loop()
     phi::clock::millisecondsElapsed = _now - phi::clock::totalMillisecondsElapsed;
     phi::clock::totalMillisecondsElapsed = _now;
 
-    //_inputCost0 = SDL_GetTicks();
-    //input();
-    //_inputCost = SDL_GetTicks() - _inputCost0;
-
-    //_updateCost0 = SDL_GetTicks(); 
+    input();
     update();
-    //_updateCost = SDL_GetTicks() - _updateCost0;
 
-    _renderCost0 = SDL_GetTicks();
-    render();
-    _renderCost = SDL_GetTicks() - _renderCost0;
-    _renderSecondSum += _renderCost;
-    SDL_GL_SwapWindow(_window);
+    auto s = phi::stopwatch::measure([&] {
+        render();
+        SDL_GL_SwapWindow(_window);
+    });
+    
+    phi::log(std::to_string(s * 1000));
 
     _frames++;
     _processedTime += _now - _lastTime;
@@ -306,9 +311,6 @@ bool form::loop()
         _fps = _frames;
         _frames = 0;
         _processedTime -= 1000.0f;
-        //log(std::string(_fps, '+') + "[" + std::to_string(_fps) + "]");
-        phi::log(std::to_string(_renderSecondSum / (float)_fps));
-        _renderSecondSum = 0.0f;
     }
 
     _lastTime = _now;

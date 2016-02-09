@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <GL\glew.h>
+#include "rendering.h"
 
 struct bufferRange
 {
@@ -30,10 +31,10 @@ private:
     void wait(GLsync* _syncObject);
     void cleanup(bufferLock* _bufferLock);
 public:
-    bufferLockManager(bool _cpuUpdates);
-    ~bufferLockManager();
-    void waitForLockedRange(size_t _lockBeginBytes, size_t _lockLength);
-    void lockRange(size_t _lockBeginBytes, size_t _lockLength);
+    RENDERING_API bufferLockManager(bool _cpuUpdates);
+    RENDERING_API ~bufferLockManager();
+    RENDERING_API void waitForLockedRange(size_t _lockBeginBytes, size_t _lockLength);
+    RENDERING_API void lockRange(size_t _lockBeginBytes, size_t _lockLength);
 };
 
 #endif _PHI_BUFFER_LOCK_H_

@@ -42,7 +42,9 @@ namespace phi
     template<class T> 
     inline void log(T& value)
     {
+#if _DEBUG
         std::cout << value << std::endl;
+#endif
     }
 
     inline void log(vec3 value)

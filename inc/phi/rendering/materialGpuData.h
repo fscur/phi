@@ -13,10 +13,10 @@ namespace phi
         GLuint64 specularTexture;
         GLuint64 emissiveTexture;
         vec3 albedoColor;
-        vec3 specularColor;
-        vec3 emissiveColor;
         float shininess;
+        vec3 specularColor;
         float reflectivity;
+        vec3 emissiveColor;
         float emission;
         float opacity;
         float pad0;

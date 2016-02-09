@@ -49,7 +49,8 @@ namespace phi
             return objectNode;
 
         const rapidjson::Value& children = node["Children"];
-        for (rapidjson::SizeType i = 0; i < children.Size(); i++)
+        auto childrenCount = children.Size();
+        for (rapidjson::SizeType i = 0; i < childrenCount; i++)
         {
             auto child = readNode(children[i], currentFolder, materialsRepo);
             objectNode->addChild(child);
@@ -281,7 +282,7 @@ namespace phi
         d.ParseStream(is);
 
         auto guid = convertToGuid(d["Guid"].GetString());
-        auto albedoTextureGuid = convertToGuid(d["DiffuseTextureGuid"].GetString());
+        auto albedoTextureGuid = convertToGuid(d["AlbedoTextureGuid"].GetString());
         auto normalTextureGuid = convertToGuid(d["NormalTextureGuid"].GetString());
         auto specularTextureGuid = convertToGuid(d["SpecularTextureGuid"].GetString());
         auto emissiveTextureGuid = convertToGuid(d["EmissiveTextureGuid"].GetString());
@@ -290,21 +291,17 @@ namespace phi
         auto specularTexture = texturesRepo->getResource(specularTextureGuid);
         auto emissiveTexture = texturesRepo->getResource(emissiveTextureGuid);
 
-        const rapidjson::Value& ambientColorNode = d["AmbientColor"];
-        const rapidjson::Value& diffuseColorNode = d["DiffuseColor"];
+        const rapidjson::Value& albedoColorNode = d["AlbedoColor"];
         const rapidjson::Value& specularColorNode = d["SpecularColor"];
         const rapidjson::Value& emissiveColorNode = d["EmissiveColor"];
-        auto ambientColor = vec3((float)ambientColorNode["R"].GetDouble(), (float)ambientColorNode["G"].GetDouble(), (float)ambientColorNode["B"].GetDouble());
-        auto albedoColor = vec3((float)diffuseColorNode["R"].GetDouble(), (float)diffuseColorNode["G"].GetDouble(), (float)diffuseColorNode["B"].GetDouble());
+        auto albedoColor = vec3((float)albedoColorNode["R"].GetDouble(), (float)albedoColorNode["G"].GetDouble(), (float)albedoColorNode["B"].GetDouble());
         auto specularColor = vec3((float)specularColorNode["R"].GetDouble(), (float)specularColorNode["G"].GetDouble(), (float)specularColorNode["B"].GetDouble());
         auto emissiveColor = vec3((float)emissiveColorNode["R"].GetDouble(), (float)emissiveColorNode["G"].GetDouble(), (float)emissiveColorNode["B"].GetDouble());
 
         auto shininess = (float)d["Shininess"].GetDouble();
         auto reflectivity = (float)d["Reflectivity"].GetDouble();
-        auto ka = (float)d["Ka"].GetDouble();
-        auto kd = (float)d["Kd"].GetDouble();
-        auto ks = (float)d["Ks"].GetDouble();
-        auto isEmissive = d["IsEmissive"].GetBool();
+        auto emission = d["Emission"].GetDouble();
+        auto opacity = (float)d["Opacity"].GetDouble();
 
         fclose(fp);
 
@@ -318,8 +315,8 @@ namespace phi
             emissiveColor,
             shininess,
             reflectivity,
-            isEmissive,
-            1.0f);
+            emission,
+            opacity);
 
         materialResource = new resource<material>(guid, path::getFileNameWithoutExtension(fileName), mat);
 

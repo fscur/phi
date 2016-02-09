@@ -5,10 +5,12 @@ namespace phi
 {
     bool renderer::init(renderInfo info)
     {
+        _frameUniformsBufferData = info.frameUniformsBufferData;
         createShader();
         populateBuffersData(info);
         createBuffers();
-
+        createDefaultOpenGLStates();
+        //_bufferLockManager = new bufferLockManager(true);
         return true;
     }
 
@@ -26,25 +28,32 @@ namespace phi
             materialsGpu.push_back(materialGpuData::fromMaterial(*material));
         }
 
-        auto renderList = info.renderList;
+        _materialsBufferSize = materialsCount * sizeof(materialGpuData);
+        _materialsBufferData = new materialGpuData[materialsCount];
+        memcpy(_materialsBufferData, &materialsGpu[0], _materialsBufferSize);
 
-        for (auto pair : renderList)
+        auto renderList = info.renderList;
+        
+        for (auto &pair : renderList)
         {
             _vboSize += pair.first->vboSize;
             _eboSize += pair.first->eboSize;
-            _modelMatricesBufferSize += pair.second.size() * sizeof(mat4);
+            _drawCount += pair.second.size();
             ++_objectCount;
         }
         
         auto verticesCount = _vboSize / sizeof(vertex);
         auto indicesCount = _eboSize / sizeof(uint);
-        auto modelMatricesCount = _modelMatricesBufferSize / sizeof(mat4);
+        _modelMatricesBufferSize = _drawCount * sizeof(mat4);
 
         _vboData = new vertex[verticesCount];
         _eboData = new uint[indicesCount];
-        _modelMatricesBufferData = new mat4[modelMatricesCount];
-        _materialsIdsBufferData = new uint[materialsCount];
+        _modelMatricesBufferData = new mat4[_drawCount];
+        _materialsIdsBufferData = new uint[_drawCount];
         _drawCmdsBuffersData = new drawElementsIndirectCmd*[BUFFER_SIZE];
+        
+        for (auto i = 0; i < BUFFER_SIZE; i++)
+            _drawCmdsBuffersData[i] = new drawElementsIndirectCmd[_objectCount];
 
         auto vboOffset = 0;
         auto eboOffset = 0;
@@ -56,14 +65,14 @@ namespace phi
 
         for (auto &pair : renderList)
         {
-            auto geometry = *pair.first;
-            auto vboSize = geometry.vboSize;
-            memcpy(_vboData + vboOffset, geometry.vboData, vboSize);
-            vboOffset += vboSize;
+            auto geometry = pair.first;
+            auto vboSize = geometry->vboSize;
+            memcpy(_vboData + vboOffset, geometry->vboData, vboSize);
+            vboOffset += (vboSize / sizeof(vertex));
 
-            auto eboSize = geometry.eboSize;
-            memcpy(_eboData + vboOffset, geometry.eboData, eboSize);
-            eboOffset += eboSize;
+            auto eboSize = geometry->eboSize;
+            memcpy(_eboData + eboOffset, geometry->eboData, eboSize);
+            eboOffset += (eboSize / sizeof(uint));
 
             auto meshes = pair.second;
             auto meshsSize = meshes.size();
@@ -71,37 +80,35 @@ namespace phi
 
             for (auto i = 0; i < meshsSize; i++)
             {
-                auto mesh = *(meshes[i]);
-                _modelMatricesBufferData[++drawIndex] = mesh.getLocalModelMatrix();
-                _materialsIdsBufferData[drawIndex] = materialsMaterialsGpu[mesh.material];
+                auto mesh = meshes[i];
+                auto modelMatrix = mesh->getModelMatrix();
+                _modelMatricesBufferData[++drawIndex] = modelMatrix;
+                _materialsIdsBufferData[drawIndex] = materialsMaterialsGpu[mesh->material];
 
                 instanceCount++;
             }
 
             auto drawCmd = drawElementsIndirectCmd();
-            drawCmd.indicesCount = geometry.indicesCount;
+            drawCmd.indicesCount = geometry->indicesCount;
             drawCmd.instanceCount = instanceCount;
             drawCmd.firstIndex = indicesOffset;
             drawCmd.baseVertex = verticesOffset;
             drawCmd.baseInstance = instancesOffset;
 
-            indicesOffset += geometry.indicesCount;
-            verticesOffset += geometry.verticesCount;
+            indicesOffset += geometry->indicesCount;
+            verticesOffset += geometry->verticesCount;
             instancesOffset += instanceCount;
 
-            _drawCmdsBuffersData[0][++objectIndex] = drawCmd;
+            ++objectIndex;
+
+            for (auto i = 0; i < BUFFER_SIZE; i++)
+            {
+                _drawCmdsBuffersData[i][objectIndex] = drawCmd;
+            }
         }
 
-        _materialsBufferData = &materialsGpu[0];
-
-        populateStaticDrawDataBuffer(info.staticDrawData);
-    }
-
-    void renderer::populateStaticDrawDataBuffer(staticDrawData data)
-    {
-        _staticDrawDataBufferSize = sizeof(staticDrawData);
-        _staticDrawDataBufferData = new staticDrawData[1];
-        _staticDrawDataBufferData[0] = data;
+        _materialsIdsBufferSize = instancesOffset * sizeof(uint);
+        _drawCmdsBuffersSize = _objectCount * sizeof(drawElementsIndirectCmd);
     }
 
     void renderer::createShader()
@@ -114,7 +121,9 @@ namespace phi
         attribs.push_back("inMaterialId");
         attribs.push_back("inModelMatrix");
 
-        _shader = shaderManager::get()->loadShader("shader.vert", "shader.frag", attribs);
+        _shader = shaderManager::get()->loadShader("basic.vert", "basic.frag", attribs);
+        //_shader->addUniform(0, "vp");
+        _shader->bind();
     }
 
     void renderer::createBuffers()
@@ -125,13 +134,14 @@ namespace phi
         createModelMatricesBuffer();
         createEbo();
         createMaterialsBuffer();
+        createFrameUniformsBuffer();
         createDrawCmdsBuffers();
-        createStaticDrawDataBuffer();
     }
 
     void renderer::createVao()
     {
         glCreateVertexArrays(1, &_vaoId);
+        glBindVertexArray(_vaoId);
     }
 
     void renderer::createVbo()
@@ -153,7 +163,7 @@ namespace phi
     void renderer::createMaterialsIdsBuffer()
     {
         std::vector<vertexAttrib> attribs;
-        attribs.push_back(vertexAttrib(4, 1, GL_UNSIGNED_INT, sizeof(GLuint), 0, 1));
+        attribs.push_back(vertexAttrib(4, 1, GL_UNSIGNED_INT, 0, 0, 1));
 
         vertexBufferDataInfo info;
         info.data = _materialsIdsBufferData;
@@ -168,7 +178,7 @@ namespace phi
         std::vector<vertexAttrib> attribs;
 
         for (uint i = 0; i < 4; i++)
-            attribs.push_back(vertexAttrib(5 + i, 4, sizeof(glm::mat4), sizeof(GLfloat) * i * 4, 1));
+            attribs.push_back(vertexAttrib(5 + i, 4, GL_FLOAT, sizeof(glm::mat4), sizeof(GLfloat) * i * 4, 1));
 
         vertexBufferDataInfo info;
         info.data = _modelMatricesBufferData;
@@ -188,7 +198,7 @@ namespace phi
     {
         auto info = bufferDataInfo(_materialsBufferData, GL_SHADER_STORAGE_BUFFER, _materialsBufferSize, GL_STATIC_DRAW);
         _materialsBuffer = new buffer(info);
-        _materialsBuffer->BindBufferBase(0);
+        _materialsBuffer->bindBufferBase(0);
     }
 
     void renderer::createDrawCmdsBuffers()
@@ -197,34 +207,43 @@ namespace phi
 
         for (uint i = 0; i < BUFFER_SIZE; i++)
         {
+            for (auto j = 0; j < _objectCount; j++)
+            {
+                auto bufferData = _drawCmdsBuffersData[i][j];
+                bufferData.firstIndex = bufferData.firstIndex * (i + 1);
+            };
+
             auto info = bufferDataInfo(_drawCmdsBuffersData[i], GL_DRAW_INDIRECT_BUFFER, _drawCmdsBuffersSize, GL_STATIC_DRAW);
             _drawCmdsBuffers[i] = new buffer(info);
         }
     }
 
-    void renderer::createStaticDrawDataBuffer()
+    void renderer::createFrameUniformsBuffer()
     {
-        auto info = bufferDataInfo(_staticDrawDataBufferData, GL_UNIFORM_BUFFER, _staticDrawDataBufferSize, GL_STATIC_DRAW);
-        _staticDrawDataBuffer = new buffer(info);
-        _staticDrawDataBuffer->BindBufferBase(1);
+        auto info = bufferDataInfo(&_frameUniformsBufferData, GL_UNIFORM_BUFFER, sizeof(frameUniformsBufferData), GL_STATIC_DRAW);
+        _frameUniformsBuffer = new buffer(info);
+        _frameUniformsBuffer->bindBufferBase(1);
     }
 
     void renderer::createDefaultOpenGLStates()
     {
-        glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
+        glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
     }
 
     void renderer::render()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, _drawCmdsBuffersIds[_drawRange]);
+        auto drawCmdsBuffer = _drawCmdsBuffers[0];
+        drawCmdsBuffer->bind();
+        //glDrawElements(GL_TRIANGLES, _eboSize / sizeof(uint), GL_UNSIGNED_INT, 0);
         glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, _objectCount, 0);
-        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+        drawCmdsBuffer->unbind();
 
-        _lastDrawRange = _drawRange;
-        _drawRange = ++_drawRange % BUFFER_SIZE;
+        //_bufferLockManager.lockRange(_drawRange, 1);
+
+        //_drawRange = ++_drawRange % BUFFER_SIZE;
     }
 }

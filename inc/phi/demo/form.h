@@ -52,8 +52,8 @@ private:
     static int renderLoopWrapper(void *data);
     int renderLoop();
 protected:
-    /*virtual void onBeginInput() = 0;
-    virtual void onEndInput() = 0;*/
+    //virtual void onBeginInput() = 0;
+    //virtual void onEndInput() = 0;
     virtual void update() = 0;
     virtual void render() = 0;
 

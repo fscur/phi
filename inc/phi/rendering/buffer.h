@@ -50,9 +50,19 @@ public:
         glDeleteBuffers(1, &_id);
     }
 
-    inline void BindBufferBase(GLuint location)
+    inline void bind()
     {
-        glBindBufferBase(_info.target, 0, _id);
+        glBindBuffer(_info.target, _id);
+    }
+    
+    inline void unbind()
+    {
+        glBindBuffer(_info.target, 0);
+    }
+
+    inline void bindBufferBase(GLuint location)
+    {
+        glBindBufferBase(_info.target, location, _id);
     }
 };
 

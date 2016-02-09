@@ -2,7 +2,7 @@
 #define _PHI_RENDERER_H_
 
 #include <phi\core\geometry.h>
-
+#include "bufferLockManager.h"
 #include "drawElementsIndirectCmd.h"
 #include "shader.h"
 #include "shaderManager.h"
@@ -19,24 +19,24 @@
 
 namespace phi
 {
-    struct staticDrawData
+    struct frameUniformsBufferData
     {
-        mat4 viewMatrix;
         mat4 projectionMatrix;
+        mat4 viewMatrix;
     };
 
     struct renderInfo
     {
         std::vector<material*> materials;
         std::map<geometry*, std::vector<mesh*>> renderList;
-        phi::staticDrawData staticDrawData;
+        phi::frameUniformsBufferData frameUniformsBufferData;
     };
 
     class renderer
     {
     private:
 
-        const uint BUFFER_SIZE = 3;
+        const uint BUFFER_SIZE = 1;
 
         GLuint _vboSize;
         GLuint _eboSize;
@@ -44,16 +44,15 @@ namespace phi
         GLuint _modelMatricesBufferSize;
         GLuint _materialsBufferSize;
         GLuint _drawCmdsBuffersSize;
-        GLuint _staticDrawDataBufferSize;
+        GLuint _frameUniformsBufferSize;
 
         vertex* _vboData;
         GLuint* _eboData;
         materialGpuData* _materialsBufferData;
-        GLuint* _materialsIdsBufferData;
+        uint* _materialsIdsBufferData;
         mat4* _modelMatricesBufferData;
         drawElementsIndirectCmd** _drawCmdsBuffersData;
-        staticDrawData* _staticDrawDataBufferData;
-        GLuint* _drawCmdsBuffersIds;
+        frameUniformsBufferData _frameUniformsBufferData;
 
         shader* _shader;
 
@@ -63,20 +62,25 @@ namespace phi
         uint _drawRange;
 
         GLsizei _objectCount;
+        uint _drawCount;
 
         vertexBuffer* _vbo;
         vertexBuffer* _modelMatricesBuffer;
         vertexBuffer* _materialsIdsBuffer;
         elementBuffer* _ebo;
-        buffer* _staticDrawDataBuffer;
+        buffer* _frameUniformsBuffer;
         buffer* _materialsBuffer;
         buffer** _drawCmdsBuffers;
+        bufferLockManager _bufferLockManager;
+
+        std::map<material*, uint> _materialsMaterialsGpu;
 
     private:
         void createShader();
         void createDefaultOpenGLStates();
         void populateBuffersData(renderInfo info);
-        void populateStaticDrawDataBuffer(staticDrawData data);
+        void populateMaterialsBufferData(std::vector<material*> materials);
+        void populateMaterialsIdsBufferData(renderInfo info);
         void createBuffers();
         void createVao();
         void createVbo();
@@ -85,7 +89,7 @@ namespace phi
         void createEbo();
         void createMaterialsBuffer();
         void createDrawCmdsBuffers();
-        void createStaticDrawDataBuffer();
+        void createFrameUniformsBuffer();
 
     public:
         renderer() :
@@ -95,10 +99,12 @@ namespace phi
             _modelMatricesBufferSize(0),
             _materialsBufferSize(0),
             _drawCmdsBuffersSize(0),
-            _staticDrawDataBufferSize(0),
+            _frameUniformsBufferSize(0),
             _lastDrawRange(0),
             _drawRange(0),
-            _objectCount(-1)
+            _objectCount(0),
+            _drawCount(0),
+            _bufferLockManager(true)
         {}
 
         ~renderer()
@@ -113,15 +119,12 @@ namespace phi
                 delete[] _drawCmdsBuffersData[i];
 
             delete[] _drawCmdsBuffersData;
-            delete[] _staticDrawDataBufferData;
-
-            delete[] _drawCmdsBuffersIds;
-
+            
             delete _vbo;
             delete  _modelMatricesBuffer;
             delete  _materialsIdsBuffer;
             delete  _ebo;
-            delete  _staticDrawDataBuffer;
+            delete  _frameUniformsBuffer;
             delete  _materialsBuffer;
 
             for (auto i = 0; i < BUFFER_SIZE; i++)

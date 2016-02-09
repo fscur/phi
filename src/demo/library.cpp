@@ -67,6 +67,7 @@ void library::loadObjects(std::string directory)
         if (phi::path::getExtension(file.path) == ".model")
         {
             phi::resource<phi::object3D>* objRes;
+
             if (phi::importer::importObject3D(file.path, objRes, _materialsRepository))
                 _objectsRepository->addResource(objRes);
         }

@@ -14,6 +14,11 @@ namespace phi
         RENDERING_API model(std::string name) :
             object3D(name, objectType::MODEL)
         {}
+
+        RENDERING_API model(const model& clone) :
+            object3D(clone)
+        {
+        }
     };
 }
 #endif

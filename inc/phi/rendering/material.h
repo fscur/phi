@@ -53,7 +53,7 @@ namespace phi
             texture* normalTexture,
             texture* specularTexture,
             texture* emissiveTexture,
-            vec3 diffuseColor = vec3(1.0f),
+            vec3 albedoColor = vec3(1.0f),
             vec3 specularColor = vec3(1.0f),
             vec3 emissiveColor = vec3(1.0f),
             float shininess = 0.0f,

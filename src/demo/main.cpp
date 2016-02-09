@@ -117,8 +117,10 @@ int main(int argc, char* args[])
     else
         mainScreen->setResourcesPath(path + "\\resources\\");
 
+    phi::log("initialize");
     mainScreen->initialize(path);
 
+    phi::log("run");
     app->run(mainScreen);
 
     phi::safeDelete(mainScreen);
