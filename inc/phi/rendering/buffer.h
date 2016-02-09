@@ -64,6 +64,12 @@ public:
     {
         glBindBufferBase(_info.target, location, _id);
     }
+
+    inline void bufferSubData(void* data)
+    {
+        _info.data = data;
+        glNamedBufferSubData(_id, 0, _info.size, data);
+    }
 };
 
 #endif

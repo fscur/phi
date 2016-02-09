@@ -128,7 +128,7 @@ void form::initWindow()
         phi::log("Could not create context: " + std::string(SDL_GetError()));
 
 
-    //SDL_GL_SetSwapInterval(0);
+    SDL_GL_SetSwapInterval(0);
 
 #ifdef WIN32
     glewExperimental = GL_TRUE;
@@ -288,7 +288,7 @@ bool form::loop()
         SDL_GL_SwapWindow(_window);
     });
 
-    phi::log(s);
+    phi::log(std::to_string(s * 1000.0));
 
     return !_isClosed;
 }
