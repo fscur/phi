@@ -42,6 +42,9 @@ namespace phi
         std::vector<GLint> _textureArrayUnits;
         std::map<texture*, textureStorageData> _textureStorageDatas;
 
+        sizef _size;
+        camera *_activeCamera;
+
     private:
         void addToRenderList(object3D* object);
         void traverseTree(object3D* node, std::function<void(object3D*)> callback);
@@ -57,10 +60,14 @@ namespace phi
         SCENES_API std::vector<GLint> getTextureArrayUnits() const { return _textureArrayUnits; }
         SCENES_API std::map<texture*, textureStorageData> getTextureStorageDatas() const { return _textureStorageDatas; }
 
-        SCENES_API camera* getCamera() const { return _camera; }
-        SCENES_API void setCamera(camera* value) { _camera = value; }
+        SCENES_API inline camera* getCamera() const { return _camera; }
+        SCENES_API inline void setCamera(camera* value) { _camera = value; }
+
+        SCENES_API inline void setSize(sizef size);
+        SCENES_API inline void setActiveCamera(camera* value) { _activeCamera = value; }
 
         SCENES_API void update();
+
         SCENES_API void add(object3D* object);
         SCENES_API void remove(object3D* object);
     };

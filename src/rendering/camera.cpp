@@ -5,7 +5,8 @@
 
 namespace phi
 {
-    camera::camera(float nearDistance, float farDistance, sizef resolution, float fov) : object3D("camera", object3D::objectType::CAMERA),
+    camera::camera(float nearDistance, float farDistance, sizef resolution, float fov) : 
+        object3D("camera", object3D::objectType::CAMERA),
         _frustum(new frustum(vec3(), getDirection(), getUp(), nearDistance, farDistance, resolution, fov)),
         _focus(1.0f),
         _viewMatrix(lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp()))
@@ -19,7 +20,7 @@ namespace phi
             update();
 
         auto diff = value - _position;
-        _direction = glm::normalize(diff);
+        setDirection(glm::normalize(diff));
         _focus = glm::length(diff);
         setChanged();
     }
@@ -33,7 +34,7 @@ namespace phi
         if (changed)
         {
             auto target = _position + _direction * _focus;
-            _viewMatrix = lookAt(_position, vec3(), _up);
+            _viewMatrix = lookAt(_position, target, _up);
             _frustum->update();
         }
     }

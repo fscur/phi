@@ -5,6 +5,8 @@
 #include <phi/core/size.h>
 
 #include "rendering.h"
+#include "defaultFrameBuffer.h"
+#include "pickingFrameBuffer.h"
 
 #if WIN32
 #include <GL/glew.h>
@@ -34,6 +36,8 @@ namespace phi
 
     public:
         RENDERING_API static renderingSystemInfo info;
+        RENDERING_API static defaultFrameBuffer* defaultFrameBuffer;
+        RENDERING_API static pickingFrameBuffer* pickingFrameBuffer;
         RENDERING_API static FT_Library freeTypeLibrary;
         RENDERING_API static bool initialized;
 
