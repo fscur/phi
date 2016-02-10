@@ -1,11 +1,11 @@
-#include <phi\scenes\scenesManager.h>
+#include "scenesManager.h"
 
-#include <phi\core\globals.h>
+#include <core\globals.h>
 
-#include <phi\io\path.h>
+#include <io\path.h>
 
-#include <phi\rendering\renderingSystem.h>
-#include <phi\rendering\shaderManager.h>
+#include <rendering\renderingSystem.h>
+#include <rendering\shaderManager.h>
 
 namespace phi
 {

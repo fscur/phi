@@ -1,9 +1,9 @@
-#include <phi\demo\commandsManager.h>
-//#include <phi\demo\selectAtPositionCommand.h>
-//#include <phi\demo\undoCommand.h>
-//#include <phi\demo\redoCommand.h>
-//#include <phi\demo\zoomToFitCommand.h>
-//#include <phi\demo\deleteSceneObjectCommand.h>
+#include "commandsManager.h"
+//#include "selectAtPositionCommand.h"
+//#include "undoCommand.h"
+//#include "redoCommand.h"
+//#include "zoomToFitCommand.h"
+//#include "deleteSceneObjectCommand.h"
 
 #include <SDL\SDL.h>
 

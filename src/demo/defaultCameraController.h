@@ -1,7 +1,7 @@
 #ifndef _DEFAULT_CAMERA_CONTROLLER_H_
 #define _DEFAULT_CAMERA_CONTROLLER_H_
 
-#include <phi/core/globals.h>
+#include <core/globals.h>
 #include "cameraController.h"
 #include "shortcuts.h"
 

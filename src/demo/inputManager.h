@@ -1,9 +1,9 @@
 #ifndef _INPUT_MANAGER_H_
 #define _INPUT_MANAGER_H_
 
-#include <phi/core/mouseEventArgs.h>
-#include <phi/core/keyboardEventArgs.h>
-#include <phi/core/inputKey.h>
+#include <core/mouseEventArgs.h>
+#include <core/keyboardEventArgs.h>
+#include <core/inputKey.h>
 
 #include "cameraController.h"
 #include "commandsManager.h"

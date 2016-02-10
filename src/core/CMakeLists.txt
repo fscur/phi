@@ -5,6 +5,7 @@ project(core)
 add_definitions(-DCORE_EXPORTS)
 
 include_directories(${INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS})
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)

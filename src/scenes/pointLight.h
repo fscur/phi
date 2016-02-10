@@ -1,9 +1,10 @@
 #ifndef _PHI_POINT_LIGHT_H_
 #define _PHI_POINT_LIGHT_H_
 
-#include "phi/rendering/attenuation.h"
-#include "phi/scenes/light.h"
-#include "phi/scenes/sphere.h"
+#include <rendering/attenuation.h>
+
+#include "light.h"
+#include "sphere.h"
 
 namespace phi
 {

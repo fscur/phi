@@ -1,9 +1,9 @@
-#include <phi/demo/defaultCameraController.h>
+#include "defaultCameraController.h"
 
-#include <phi/core/inputKey.h>
-#include <phi/core/globals.h>
-#include <phi/rendering/renderingSystem.h>
-#include <phi/rendering/camera.h>
+#include <core/inputKey.h>
+#include <core/globals.h>
+#include <rendering/renderingSystem.h>
+#include <rendering/camera.h>
 
 defaultCameraController::defaultCameraController(phi::camera* camera) : 
     cameraController(camera)

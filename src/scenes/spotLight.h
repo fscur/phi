@@ -1,8 +1,8 @@
 #ifndef _PHI_SPOT_LIGHT_H_
 #define _PHI_SPOT_LIGHT_H_
 
-#include "phi/scenes/pointLight.h"
-#include "phi/scenes/cone.h"
+#include "pointLight.h"
+#include "cone.h"
 
 namespace phi
 {

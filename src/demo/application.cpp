@@ -1,6 +1,6 @@
-#include "phi/demo/application.h"
+#include "application.h"
 
-#include "phi/core/globals.h"
+#include <core\globals.h>
 
 #include <SDL\SDL_ttf.h>
 

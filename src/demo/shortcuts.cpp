@@ -1,4 +1,4 @@
-#include "phi/demo/shortcuts.h"
+#include "shortcuts.h"
 
 bool shortcuts::add(std::string name, phi::inputKey key)
 {

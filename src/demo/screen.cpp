@@ -1,16 +1,16 @@
-﻿#include <phi\demo\screen.h>
+﻿#include "screen.h"
 
-#include <phi\diagnostics\diagnostics.h>
-#include <phi\diagnostics\stopwatch.h>
+#include <diagnostics\diagnostics.h>
+#include <diagnostics\stopwatch.h>
 
-#include <phi\core\globals.h>
+#include <core\globals.h>
 
-#include <phi\loader\importer.h>
+#include <loader\importer.h>
 
-#include <phi\rendering\model.h>
-#include <phi\rendering\shaderManager.h>
+#include <rendering\model.h>
+#include <rendering\shaderManager.h>
 
-#include <phi\scenes\scenesManager.h>
+#include <scenes\scenesManager.h>
 
 #include <GLM\gtc\constants.hpp>
 

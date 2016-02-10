@@ -1,4 +1,4 @@
-#include <phi/scenes/sphere.h>
+#include "sphere.h"
 
 namespace phi
 {

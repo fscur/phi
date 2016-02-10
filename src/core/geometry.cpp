@@ -1,5 +1,6 @@
-#include <phi\core\geometry.h>
-#include <phi\io\path.h>
+#include "geometry.h"
+#include <io\path.h>
+
 #include <iterator>
 
 namespace phi

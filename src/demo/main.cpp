@@ -1,7 +1,7 @@
-#include <phi/core/globals.h>
+#include <core/globals.h>
 
-#include <phi/demo/screen.h>
-#include <phi/demo/application.h>
+#include "screen.h"
+#include "application.h"
 
 #include <vector>
 

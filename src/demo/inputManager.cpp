@@ -1,8 +1,8 @@
-#include <phi\demo\inputManager.h>
+#include "inputManager.h"
 
-#include <phi\core\globals.h>
+#include <core\globals.h>
 
-#include <phi\demo\shortcuts.h>
+#include "shortcuts.h"
 
 inputManager::inputManager(commandsManager* commandsManager)
 {

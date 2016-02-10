@@ -1,11 +1,11 @@
 #ifndef _CAMERA_CONTROLLER_H_
 #define _CAMERA_CONTROLLER_H_
 
-#include <phi\core\mouseEventArgs.h>
-#include <phi\core\keyboardEventArgs.h>
-#include <phi\core\inputKey.h>
-#include <phi\core\size.h>
-#include <phi\rendering\camera.h>
+#include <core\mouseEventArgs.h>
+#include <core\keyboardEventArgs.h>
+#include <core\inputKey.h>
+#include <core\size.h>
+#include <rendering\camera.h>
 
 class cameraController
 {

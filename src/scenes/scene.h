@@ -3,13 +3,13 @@
 
 #include "scenes.h"
 
-#include <phi\core\globals.h>
-#include <phi\core\mathUtils.h>
-#include <phi\rendering\shaderManager.h>
-#include <phi\rendering\material.h>
-#include <phi\rendering\mesh.h>
-#include <phi\rendering\camera.h>
-#include <phi\rendering\textureArray.h>
+#include <core\globals.h>
+#include <core\mathUtils.h>
+#include <rendering\shaderManager.h>
+#include <rendering\material.h>
+#include <rendering\mesh.h>
+#include <rendering\camera.h>
+#include <rendering\textureArray.h>
 
 #include <typeinfo>
 #include <mutex>

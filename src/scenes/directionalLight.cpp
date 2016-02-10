@@ -1,6 +1,6 @@
-#include "phi/scenes/directionalLight.h"
+#include "directionalLight.h"
 
-#include "phi/rendering/shaderManager.h"
+#include <rendering/shaderManager.h>
 
 namespace phi
 {

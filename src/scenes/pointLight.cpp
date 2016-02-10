@@ -1,7 +1,7 @@
-#include "phi/scenes/pointLight.h"
+#include "pointLight.h"
 
-#include "phi/core/mathUtils.h"
-#include "phi/rendering/shaderManager.h"
+#include <core/mathUtils.h>
+#include <rendering/shaderManager.h>
 
 namespace phi
 {

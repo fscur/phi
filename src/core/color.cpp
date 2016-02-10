@@ -1,4 +1,4 @@
-#include <phi/core/color.h>
+#include "color.h"
 
 namespace phi
 {

@@ -1,13 +1,13 @@
 #ifndef _PHI_LIGHT_H_
 #define _PHI_LIGHT_H_
 
-#include <phi\core\object3D.h>
-#include <phi\core\color.h>
+#include <core\object3D.h>
+#include <core\color.h>
 
-#include <phi\rendering\attenuation.h>
-#include <phi\rendering\shader.h>
-#include <phi\rendering\texture.h>
-#include <phi\rendering\transform.h>
+#include <rendering\attenuation.h>
+#include <rendering\shader.h>
+#include <rendering\texture.h>
+#include <rendering\transform.h>
 
 #include "scenes.h"
 

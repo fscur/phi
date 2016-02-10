@@ -3,10 +3,10 @@
 
 #include "demo.h"
 
-#include <phi/core/globals.h>
-#include <phi/core/size.h>
-#include <phi/core/mouseEventArgs.h>
-#include <phi/core/keyboardEventArgs.h>
+#include <core/globals.h>
+#include <core/size.h>
+#include <core/mouseEventArgs.h>
+#include <core/keyboardEventArgs.h>
 
 #include <SDL/SDL.h>
 

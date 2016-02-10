@@ -1,7 +1,7 @@
 #ifndef _SHORTCUTS_H_
 #define _SHORTCUTS_H_
 
-#include "phi/core/inputKey.h"
+#include <core/inputKey.h>
 
 #include <unordered_map>
 #include <string>

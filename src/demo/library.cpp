@@ -1,7 +1,7 @@
-#include <phi\core\globals.h>
-#include <phi\demo\library.h>
-#include <phi\loader\importer.h>
-#include <phi\io\path.h>
+#include <core\globals.h>
+#include <demo\library.h>
+#include <loader\importer.h>
+#include <io\path.h>
 
 library::library(std::string resourcesPath)
     : _resourcesPath(resourcesPath)

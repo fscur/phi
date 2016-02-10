@@ -1,7 +1,7 @@
 #ifndef _PHI_DIRECTIONAL_LIGHT_H_
 #define _PHI_DIRECTIONAL_LIGHT_H_
 
-#include "phi/scenes/light.h"
+#include "light.h"
 
 namespace phi
 {

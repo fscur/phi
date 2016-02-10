@@ -1,5 +1,5 @@
-#include "phi/scenes/light.h"
-#include "phi/core/globals.h"
+#include "light.h"
+#include <core/globals.h>
 
 namespace phi
 {

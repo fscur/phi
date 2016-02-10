@@ -1,7 +1,7 @@
 #ifndef _PHI_COMMAND_H_
 #define _PHI_COMMAND_H_
 
-#include <phi\core\size.h>
+#include <core\size.h>
 
 #include <glm\glm.hpp>
 #include <functional>

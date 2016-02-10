@@ -1,9 +1,9 @@
 #ifndef _SCREEN_H_
 #define _SCREEN_H_
 
-#include <phi\core\size.h>
-#include <phi\rendering\renderer.h>
-#include <phi\scenes\scene.h>
+#include <core\size.h>
+#include <rendering\renderer.h>
+#include <scenes\scene.h>
 
 #include "form.h"
 #include "defaultCameraController.h"

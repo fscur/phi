@@ -1,9 +1,10 @@
 #ifndef _PHI_SCENES_MANAGER_H
 #define _PHI_SCENES_MANAGER_H
 
-#include <phi\scenes\scene.h>
-#include <phi\rendering\renderer.h>
-#include <phi\core\resourcesRepository.h>
+#include <core\resourcesRepository.h>
+#include <rendering\renderer.h>
+
+#include "scene.h"
 
 namespace phi
 {

@@ -1,9 +1,9 @@
-#include <phi\demo\form.h>
+#include "form.h"
 
-#include <phi\core\input.h>
-#include <phi\core\globals.h>
-#include <phi\core\clock.h>
-#include <phi\diagnostics\stopwatch.h>
+#include <core\input.h>
+#include <core\globals.h>
+#include <core\clock.h>
+#include <diagnostics\stopwatch.h>
 
 #include <string>
 #include <locale>

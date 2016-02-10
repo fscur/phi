@@ -1,9 +1,9 @@
 #ifndef _LIBRARY_H_
 #define _LIBRARY_H_
 
-#include <phi\core\resourcesRepository.h>
-#include <phi\core\object3D.h>
-#include <phi\rendering\material.h>
+#include <core\resourcesRepository.h>
+#include <core\object3D.h>
+#include <rendering\material.h>
 
 class library
 {

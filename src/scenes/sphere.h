@@ -3,7 +3,7 @@
 
 #include "scenes.h"
 
-#include <phi/rendering/mesh.h>
+#include <rendering/mesh.h>
 
 namespace phi
 {

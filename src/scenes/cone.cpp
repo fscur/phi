@@ -1,4 +1,4 @@
-#include <phi\scenes\cone.h>
+#include "cone.h"
 
 namespace phi
 {

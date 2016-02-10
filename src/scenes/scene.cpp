@@ -1,5 +1,6 @@
-#include <phi\rendering\model.h>
-#include <phi\scenes\scene.h>
+#include "scene.h"
+
+#include <rendering\model.h>
 
 #include <algorithm>
 
