@@ -1,31 +1,41 @@
-#ifndef _PHI_OPENGL_H_
-#define _PHI_OPENGL_H_
+#ifndef _PHI_GL_H_
+#define _PHI_GL_H_
 
 #include <core\globals.h>
 
+#include <vector>
+#include <map>
+#include <string>
+
+#include <GL\glew.h>
+
 namespace phi
 {
-    enum frontFace
+    namespace gl
     {
-        cw,
-        ccw
-    };
+        static std::map<std::string, bool> extensions;
 
-    enum cullFace
-    {
-        front,
-        back
-    };
+        static void initExtensions()
+        {
+            const GLubyte* extension = nullptr;
+            auto i = 0;
 
-    struct glConfig
-    {
-        vec4 clearColor;
-        bool culling;
-        bool depthTest;
-        bool depthMask;
-        frontFace frontFace;
-        cullFace cullFace;
-    };
+            extension = glGetStringi(GL_EXTENSIONS, i++);
+            std::vector<std::string> glExtensions;
+
+            while (extension != NULL)
+            {
+                glExtensions.push_back(std::string((char*)extension));
+                extension = glGetStringi(GL_EXTENSIONS, i++);
+            }
+
+            std::vector<std::string> phiExtensions;
+            phiExtensions.push_back("GL_ARB_bindless_texture");
+
+            for (auto &extension : phiExtensions)
+                extensions[extension] = phi::contains(glExtensions, extension);
+        }
+    }
 }
 
 #endif

@@ -5,6 +5,19 @@
 
 namespace phi
 {
+    void pipeline::init(pipelineInfo info)
+    {
+        createShader();
+
+        createMaterialsBuffer(info.materials);
+        createDrawCmdsBuffer(info.renderList);
+        createFrameUniformsBuffer(info.frameUniformBlock);
+
+        createVao(info.renderList);
+
+        setDefaultOpenGLStates(info.config);
+    }
+
     void pipeline::createShader()
     {
         std::vector<std::string> attribs;
@@ -144,23 +157,23 @@ namespace phi
         vao->createEbo(eboData, eboSize);
     }
 
-    void pipeline::setDefaultOpenGLStates(phi::glConfig glConfig)
+    void pipeline::setDefaultOpenGLStates(phi::gl::config config)
     {
-        glClearColor(glConfig.clearColor.r, glConfig.clearColor.g, glConfig.clearColor.b, glConfig.clearColor.a);
+        glClearColor(config.clearColor.r, config.clearColor.g, config.clearColor.b, config.clearColor.a);
 
-        if (glConfig.culling)
+        if (config.culling)
             glEnable(GL_CULL_FACE);
 
-        auto cullBackFace = glConfig.cullFace == phi::cullFace::back;
+        auto cullBackFace = config.cullFace == phi::gl::cullFace::back;
         glCullFace(cullBackFace ? GL_BACK: GL_FRONT);
 
-        auto frontFaceCCW = glConfig.frontFace == phi::frontFace::ccw;
+        auto frontFaceCCW = config.frontFace == phi::gl::frontFace::ccw;
         glFrontFace(frontFaceCCW ? GL_CCW : GL_CW);
 
-        if (glConfig.depthTest)
+        if (config.depthTest)
             glEnable(GL_DEPTH_TEST);
 
-        auto depthMask = glConfig.depthMask ? GL_TRUE : GL_FALSE;
+        auto depthMask = config.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
     }
 

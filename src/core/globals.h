@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
+
 #include <glm\glm.hpp>
 #include <GLM\gtc\quaternion.hpp>
 
@@ -25,21 +27,21 @@ namespace phi
     static const float PI_OVER_2 = 1.5707963268f;
     static const float PI_OVER_4 = 0.7853981634f;
 
-    template<class T> 
+    template<typename T>
     inline void safeDelete(T value)
     {
         delete value;
         value = nullptr;
     }
 
-    template<class T> 
+    template<typename T>
     inline void safeDeleteArray(T value)
     {
         delete[] value;
         value = nullptr;
     }
 
-    template<class T> 
+    template<typename T>
     inline void log(T& value)
     {
 #if _DEBUG
@@ -50,6 +52,14 @@ namespace phi
     inline void log(vec3 value)
     {
         std::cout << value.x << "; " << value.y << "; " << value.z << std::endl;
+    }
+
+    template<typename T>
+    inline bool contains(std::vector<T> vector, T value)
+    {
+        auto it = std::find(vector.begin(), vector.end(), value);
+
+        return it != vector.end();
     }
 }
 

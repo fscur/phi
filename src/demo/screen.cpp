@@ -9,6 +9,7 @@
 
 #include <rendering\model.h>
 #include <rendering\shaderManager.h>
+#include <rendering\renderingSystem.h>
 
 #include <scenes\scenesManager.h>
 
@@ -28,6 +29,37 @@ screen::screen() : form()
 
 screen::~screen()
 {
+}
+
+void screen::onInitialize()
+{
+    setTitle("phi");
+    centerScreen();
+
+    initRenderingSystem();
+    initScenesManager();
+    initScene();
+    initInput();
+    initPipeline();
+}
+
+void screen::initRenderingSystem()
+{
+    auto renderingInfo = phi::renderingSystemInfo();
+    renderingInfo.applicationPath = getApplicationPath();
+    renderingInfo.resourcesPath = _resourcesPath;
+    renderingInfo.size = getSize();
+    phi::renderingSystem::init(renderingInfo);
+}
+
+void screen::initScenesManager()
+{
+    phi::scenesManagerInfo info;
+    info.applicationPath = getApplicationPath();
+    info.resourcesPath = _resourcesPath;
+    info.size = getSize();
+
+    phi::scenesManager::get()->init(info);
 }
 
 void screen::initScene()
@@ -56,49 +88,39 @@ void screen::initScene()
     }
 }
 
-void screen::onInitialize()
+void screen::initInput()
 {
-    setTitle("phi");
-    centerScreen();
-
-    initScenesManager();
-    initScene();
-
     auto camera = _scene->getCamera();
     _defaultController = new defaultCameraController(camera);
     _inputManager->setCurrentCameraController(_defaultController);
+}
 
+void screen::initPipeline()
+{
+    auto camera = _scene->getCamera();
     auto frameUniformBlock = phi::frameUniformBlock();
     frameUniformBlock.p = camera->getProjectionMatrix();
     frameUniformBlock.v = camera->getViewMatrix();
     frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
 
-    auto openGlConfig = phi::glConfig();
-    openGlConfig.clearColor = phi::vec4(1.0f);
-    openGlConfig.frontFace = phi::frontFace::ccw;
-    openGlConfig.culling = true;
-    openGlConfig.cullFace = phi::cullFace::back;
-    openGlConfig.depthMask = true;
-    openGlConfig.depthTest = true;
+    auto glConfig = phi::gl::config();
+    glConfig.clearColor = phi::vec4(1.0f);
+    glConfig.frontFace = phi::gl::frontFace::ccw;
+    glConfig.culling = true;
+    glConfig.cullFace = phi::gl::cullFace::back;
+    glConfig.depthMask = true;
+    glConfig.depthTest = true;
 
     auto pipelineInfo = phi::pipelineInfo();
     pipelineInfo.materials = _library->getMaterialsRepository()->getAllObjects();
     pipelineInfo.renderList = _scene->getRenderList();
     pipelineInfo.frameUniformBlock = frameUniformBlock;
-    pipelineInfo.glConfig = openGlConfig;
+    pipelineInfo.config = glConfig;
 
-    _pipeline = new phi::pipeline(pipelineInfo);
-    _renderer = new phi::renderer(_pipeline);
-}
+    phi::renderingSystem::pipeline.init(pipelineInfo);
 
-void screen::initScenesManager()
-{
-    phi::scenesManagerInfo info;
-    info.applicationPath = getApplicationPath();
-    info.resourcesPath = _resourcesPath;
-    info.size = getSize();
-
-    phi::scenesManager::get()->init(info);
+    _pipeline = &phi::renderingSystem::pipeline;
+    _renderer = new phi::renderer();
 }
 
 void screen::update()

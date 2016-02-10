@@ -3,6 +3,7 @@
 
 #include "rendering.h"
 #include "gl.h"
+#include "glConfig.h"
 #include "mesh.h"
 #include "buffer.h"
 #include "vertexArrayObject.h"
@@ -25,7 +26,7 @@ namespace phi
         std::vector<material*> materials;
         std::map<geometry*, std::vector<mesh*>> renderList;
         phi::frameUniformBlock frameUniformBlock;
-        phi::glConfig glConfig;
+        phi::gl::config config;
     };
 
     class pipeline
@@ -36,6 +37,7 @@ namespace phi
         std::map<material*, uint> _materialsMaterialsGpu;
     public:
         vertexArrayObject* vao;
+
     private:
         void createShader();
 
@@ -45,21 +47,10 @@ namespace phi
 
         void createVao(std::map<geometry*, std::vector<mesh*>> renderList);
 
-        void setDefaultOpenGLStates(phi::glConfig glConfig);
+        void setDefaultOpenGLStates(phi::gl::config config);
 
     public:
-        RENDERING_API pipeline(phi::pipelineInfo pipelineInfo)
-        {
-            createShader();
-
-            createMaterialsBuffer(pipelineInfo.materials);
-            createDrawCmdsBuffer(pipelineInfo.renderList);
-            createFrameUniformsBuffer(pipelineInfo.frameUniformBlock);
-
-            createVao(pipelineInfo.renderList);
-
-            setDefaultOpenGLStates(pipelineInfo.glConfig);
-        }
+        RENDERING_API pipeline() {}
 
         RENDERING_API ~pipeline()
         {
@@ -70,6 +61,8 @@ namespace phi
             for (auto i = 0; i < buffersCount; i++)
                 delete _buffers[i];
         }
+
+        RENDERING_API void init(phi::pipelineInfo pipelineInfo);
 
         RENDERING_API void updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock);
 

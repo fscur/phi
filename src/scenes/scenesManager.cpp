@@ -29,15 +29,6 @@ namespace phi
 
         _info = info;
 
-        if(!renderingSystem::initialized)
-        {
-            renderingSystemInfo renderingInfo = renderingSystemInfo();
-            renderingInfo.applicationPath = _info.applicationPath;
-            renderingInfo.resourcesPath = _info.resourcesPath;
-            renderingInfo.size = info.size;
-            renderingSystem::init(renderingInfo);
-        }
-
         if(!result)
             return false;
 

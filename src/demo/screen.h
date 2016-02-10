@@ -40,8 +40,11 @@ private:
     defaultCameraController* _defaultController;
 
 private:
+    void initRenderingSystem();
     void initScenesManager();
     void initScene();
+    void initInput();
+    void initPipeline();
 
 public:
     screen();

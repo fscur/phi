@@ -1,26 +1,22 @@
 #ifndef _PHI_RENDERER_H_
 #define _PHI_RENDERER_H_
 
-#include "pipeline.h"
+#include "renderingSystem.h"
 
 namespace phi
 {
     class renderer
     {
     private:
-
-        phi::pipeline* _pipeline;
+        pipeline* _pipeline;
 
     public:
-        renderer(phi::pipeline* pipeline) :
-            _pipeline(pipeline)
-        {}
-
-        ~renderer()
+        RENDERING_API renderer() 
         {
-            delete _pipeline;
+            _pipeline = &phi::renderingSystem::pipeline;
         }
 
+        RENDERING_API ~renderer() {}
         RENDERING_API void render();
     };
 }

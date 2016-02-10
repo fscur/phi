@@ -4,6 +4,7 @@
 namespace phi
 {
     renderingSystemInfo renderingSystem::info;
+    phi::pipeline renderingSystem::pipeline;
     defaultFrameBuffer* renderingSystem::defaultFrameBuffer = nullptr;
     pickingFrameBuffer* renderingSystem::pickingFrameBuffer = nullptr;
     FT_Library renderingSystem::freeTypeLibrary = nullptr;
@@ -16,6 +17,9 @@ namespace phi
             log("Could not init freetype library");
 
         renderingSystem::info = info;
+
+        phi::gl::initExtensions();
+
         defaultFrameBuffer = new phi::defaultFrameBuffer(info.size, color::white);
         defaultFrameBuffer->init();
 

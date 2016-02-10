@@ -5,6 +5,7 @@
 #include <core/size.h>
 
 #include "rendering.h"
+#include "pipeline.h"
 #include "defaultFrameBuffer.h"
 #include "pickingFrameBuffer.h"
 
@@ -35,6 +36,7 @@ namespace phi
     {
 
     public:
+        RENDERING_API static phi::pipeline pipeline;
         RENDERING_API static renderingSystemInfo info;
         RENDERING_API static defaultFrameBuffer* defaultFrameBuffer;
         RENDERING_API static pickingFrameBuffer* pickingFrameBuffer;
