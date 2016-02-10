@@ -9,6 +9,7 @@ add_definitions(-DSCENES_EXPORTS)
 #includes
 
 include_directories(${INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS})
 
 #libs
 link_directories(${LIBS_DIRS})

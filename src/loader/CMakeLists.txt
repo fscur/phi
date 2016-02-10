@@ -5,6 +5,7 @@ project(loader)
 add_definitions(-DLOADER_EXPORTS)
 
 include_directories(${INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS})
 
 link_directories(${LIBS_DIRS})
 

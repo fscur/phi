@@ -1,4 +1,5 @@
 set(SOLUTION_PLATFORM "x64" CACHE PATH "")
+set(PHI_INCLUDE_DIRS "../../src/" CACHE PATH "")
 set(INCLUDE_DIRS "../../inc/" CACHE PATH "")
 set(LIBS_DIRS "../../libs/x64" CACHE PATH "")
 set(SDL_INCLUDE_DIR "../../inc/SDL" CACHE PATH "")
