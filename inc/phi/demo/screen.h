@@ -28,6 +28,7 @@ private:
     float _temp;
 
     phi::scene* _scene;
+    phi::pipeline* _pipeline;
     phi::renderer* _renderer;
     std::string _resourcesPath;
 

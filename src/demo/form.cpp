@@ -144,8 +144,6 @@ void form::initWindow()
     _hwnd = wmInfo.info.win.window;
 
 #endif
-
-    std::cout << glGetError() << std::endl;
 }
 
 void form::show()
@@ -288,7 +286,7 @@ bool form::loop()
         SDL_GL_SwapWindow(_window);
     });
 
-    phi::log(std::to_string(s * 1000.0));
+    std::cout << std::to_string(s * 1000.0) << std::endl;
 
     return !_isClosed;
 }

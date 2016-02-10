@@ -68,19 +68,27 @@ void screen::onInitialize()
     _defaultController = new defaultCameraController(camera);
     _inputManager->setCurrentCameraController(_defaultController);
 
-    _renderer = new phi::renderer();
-
     auto frameUniformBlock = phi::frameUniformBlock();
     frameUniformBlock.p = camera->getProjectionMatrix();
     frameUniformBlock.v = camera->getViewMatrix();
     frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
 
-    auto renderInfo = phi::renderInfo();
-    renderInfo.materials = _library->getMaterialsRepository()->getAllObjects();
-    renderInfo.renderList = _scene->getRenderList();
-    renderInfo.frameUniformBlock = frameUniformBlock;
+    auto openGlConfig = phi::glConfig();
+    openGlConfig.clearColor = phi::vec4(1.0f);
+    openGlConfig.frontFace = phi::frontFace::ccw;
+    openGlConfig.culling = true;
+    openGlConfig.cullFace = phi::cullFace::back;
+    openGlConfig.depthMask = true;
+    openGlConfig.depthTest = true;
 
-    _renderer->init(renderInfo);
+    auto pipelineInfo = phi::pipelineInfo();
+    pipelineInfo.materials = _library->getMaterialsRepository()->getAllObjects();
+    pipelineInfo.renderList = _scene->getRenderList();
+    pipelineInfo.frameUniformBlock = frameUniformBlock;
+    pipelineInfo.glConfig = openGlConfig;
+
+    _pipeline = new phi::pipeline(pipelineInfo);
+    _renderer = new phi::renderer(_pipeline);
 }
 
 void screen::initScenesManager()
@@ -106,7 +114,8 @@ void screen::update()
     frameUniformBlock.p = camera->getProjectionMatrix();
     frameUniformBlock.v = camera->getViewMatrix();
     frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
-    _renderer->updateFrameUniformsBuffer(frameUniformBlock);
+
+    _pipeline->updateFrameUniformBlock(frameUniformBlock);
 }
 
 void screen::render()
