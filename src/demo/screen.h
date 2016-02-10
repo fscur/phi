@@ -31,12 +31,14 @@ private:
     phi::pipeline* _pipeline;
     phi::renderer* _renderer;
     std::string _resourcesPath;
+    std::string _libraryPath;
 
     library* _library;
 
     commandsManager* _commandsManager;
     inputManager* _inputManager;
     defaultCameraController* _defaultController;
+
 private:
     void initScenesManager();
     void initScene();
@@ -61,6 +63,7 @@ public:
 
     void setSceneRenderer(phi::renderer* value) { _renderer = value; }
     void setResourcesPath(std::string value) { _resourcesPath = value; }
+    void setLibraryPath(std::string value) { _libraryPath = value; }
 };
 
 #endif

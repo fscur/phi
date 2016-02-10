@@ -8,8 +8,8 @@
 
 struct bufferRange
 {
-    unsigned int startOffset;
-    unsigned int length;
+    size_t startOffset;
+    size_t length;
 
     bool Overlaps(const bufferRange& _rhs) const {
         return startOffset < (_rhs.startOffset + _rhs.length)

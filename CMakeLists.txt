@@ -64,8 +64,10 @@ elseif(APPLE)
     file(GLOB dll_files ${dlls_dir}/*.*)
 endif()
 
+set (library_dir ${CMAKE_CURRENT_SOURCE_DIR}/library)
 set (resources_dir ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set (image_dir ${CMAKE_CURRENT_SOURCE_DIR}/images)
+
 file(GLOB image_files ${image_dir}/*.*)
 
  file(GLOB HOOK_SCRIPTS ./git_hooks/*) 
@@ -77,6 +79,7 @@ foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
         string( TOLOWER ${OUTPUTCONFIG} OUTPUTCONFIG )
         set (dir ${CMAKE_CURRENT_SOURCE_DIR}/build${SOLUTION_PLATFORM}/${OUTPUTCONFIG})
         #install(DIRECTORY ${resources_dir} DESTINATION ${dir})
+        #install(DIRECTORY ${library_dir} DESTINATION ${dir})
         install(FILES ${image_files} DESTINATION ${dir})
         install(FILES ${dll_files} DESTINATION ${dir})
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)

@@ -32,7 +32,7 @@ screen::~screen()
 
 void screen::initScene()
 {
-    _library = new library(_resourcesPath);
+    _library = new library(_libraryPath);
     _library->init();
 
     _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, _size, glm::half_pi<float>()));

@@ -24,10 +24,16 @@ public:
 
 std::vector<commandLineCommand> commandLineCommands;
 std::string _resourcesPath;
+std::string _libraryPath;
 
 void rpCommandFunction(std::vector<std::string> args)
 {
     _resourcesPath = args[0];
+}
+
+void lpCommandFunction(std::vector<std::string> args)
+{
+    _libraryPath = args[0];
 }
 
 void initCommandLineCommands()
@@ -35,10 +41,11 @@ void initCommandLineCommands()
     /***********
 
     /rp <path>          Set resources path
-
+    /lp <path>          Set library path
     ***********/
 
     commandLineCommands.push_back(commandLineCommand("/rp", &rpCommandFunction));
+    commandLineCommands.push_back(commandLineCommand("/lp", &lpCommandFunction));
 }
 
 void processCommandLine(int argc, char* args[])
@@ -116,6 +123,11 @@ int main(int argc, char* args[])
         mainScreen->setResourcesPath(_resourcesPath);
     else
         mainScreen->setResourcesPath(path + "\\resources\\");
+
+    if (!_libraryPath.empty())
+        mainScreen->setLibraryPath(_libraryPath);
+    else
+        mainScreen->setLibraryPath(path + "\\library\\");
 
     phi::log("initialize");
     mainScreen->initialize(path);
