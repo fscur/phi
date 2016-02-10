@@ -51,8 +51,8 @@ namespace phi
         for (auto &pair : renderList)
         {
             auto geometry = pair.first;
-            auto instanceCount = pair.second.size();
-            auto indicesCount = geometry->indicesCount;
+            GLuint instanceCount = static_cast<GLuint>(pair.second.size());
+            GLuint indicesCount = geometry->indicesCount;
 
             auto drawCmd = drawElementsIndirectCmd();
             drawCmd.indicesCount = indicesCount;
@@ -97,7 +97,7 @@ namespace phi
         {
             vboSize += pair.first->vboSize;
             eboSize += pair.first->eboSize;
-            drawCount += pair.second.size();
+            drawCount += (uint)pair.second.size();
             ++objectsCount;
         }
 

@@ -15,10 +15,10 @@ namespace phi
         auto verticesCount = vertices.size();
         auto indicesCount = indices.size();
 
-        data->verticesCount = verticesCount;
-        data->indicesCount = indicesCount;
-        data->vboSize = verticesCount * sizeof(vertex);
-        data->eboSize = data->indicesCount * sizeof(uint);
+        data->verticesCount = (uint)verticesCount;
+        data->indicesCount = (uint)indicesCount;
+        data->vboSize = (uint)(verticesCount * sizeof(vertex));
+        data->eboSize = (uint)(data->indicesCount * sizeof(uint));
         
         data->vboData = new vertex[verticesCount];
         data->eboData = new uint[indicesCount];
@@ -40,7 +40,7 @@ namespace phi
         std::vector<uint> indices (indicesBuffer, indicesBuffer + indicesCount);
         std::vector<vertex> vertices;
 
-        for (auto i = 0; i < verticesCount; i++)
+        for (uint i = 0; i < verticesCount; i++)
         {
             auto x = positionsBuffer[i * 3 + 0];
             auto y = positionsBuffer[i * 3 + 1];

@@ -33,7 +33,7 @@ public:
     GLuint size;
     GLenum type;
     GLsizei stride;
-    GLsizei offset;
+    const void* offset;
     GLuint divisor;
 public:
 
@@ -42,7 +42,7 @@ public:
         GLuint size = 0,
         GLenum type = GL_NONE,
         GLsizei stride = 0,
-        GLsizei offset = 0,
+        const void* offset = (const void*)0,
         GLuint divisor = 0) :
         location(location),
         size(size),
@@ -75,9 +75,9 @@ public:
             glEnableVertexAttribArray(location);
 
             if (attribs[i].type == GL_UNSIGNED_INT || attribs[i].type == GL_INT)
-                glVertexAttribIPointer(location, attribs[i].size, attribs[i].type, attribs[i].stride, (void*)attribs[i].offset);
+                glVertexAttribIPointer(location, attribs[i].size, attribs[i].type, attribs[i].stride, attribs[i].offset);
             else if (attribs[i].type == GL_FLOAT)
-                glVertexAttribPointer(location, attribs[i].size, attribs[i].type, GL_FALSE, attribs[i].stride, (void*)attribs[i].offset);
+                glVertexAttribPointer(location, attribs[i].size, attribs[i].type, GL_FALSE, attribs[i].stride, attribs[i].offset);
 
             glVertexAttribDivisor(location, attribs[i].divisor);
         }

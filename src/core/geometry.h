@@ -17,8 +17,8 @@ namespace phi
         static geometry* _quad;
 
     public:
-        size_t verticesCount;
-        size_t indicesCount;
+        uint verticesCount;
+        uint indicesCount;
         vertex* vboData;
         uint* eboData;
         uint vboSize;
