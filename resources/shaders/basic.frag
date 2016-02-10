@@ -28,13 +28,16 @@ in vec3 fragPosition;
 in vec2 fragTexCoord;
 in vec3 fragNormal;
 in vec3 fragTangent;
-flat in uint fragMaterialId;
+in flat uint materialId;
 
 out vec4 fragColor;
 
 void main(void)
 {
-   materialGpuData material = materials.items[fragMaterialId];
-   fragColor = vec4(material.albedoColor, 1.0);
-   //fragColor = vec4(1.0, 0.0, 0.0, 1.0f);
+    vec3 sunPos = vec3(1.0);
+    
+    materialGpuData material = materials.items[materialId];
+
+    float f = clamp(dot(sunPos, normalize(fragNormal)), 0.0, 1.0);
+    fragColor = texture(material.albedoTexture, fragTexCoord) * vec4(material.albedoColor, 1.0) * f;
 }

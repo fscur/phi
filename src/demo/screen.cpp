@@ -71,8 +71,9 @@ void screen::onInitialize()
     _renderer = new phi::renderer();
 
     auto frameUniformBlock = phi::frameUniformBlock();
-    frameUniformBlock.projectionMatrix = camera->getProjectionMatrix();
-    frameUniformBlock.viewMatrix = camera->getViewMatrix();
+    frameUniformBlock.p = camera->getProjectionMatrix();
+    frameUniformBlock.v = camera->getViewMatrix();
+    frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
 
     auto renderInfo = phi::renderInfo();
     renderInfo.materials = _library->getMaterialsRepository()->getAllObjects();
@@ -102,8 +103,9 @@ void screen::update()
     _scene->update();
 
     auto frameUniformBlock = phi::frameUniformBlock();
-    frameUniformBlock.projectionMatrix = camera->getProjectionMatrix();
-    frameUniformBlock.viewMatrix = camera->getViewMatrix();
+    frameUniformBlock.p = camera->getProjectionMatrix();
+    frameUniformBlock.v = camera->getViewMatrix();
+    frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
     _renderer->updateFrameUniformsBuffer(frameUniformBlock);
 }
 

@@ -11,25 +11,22 @@ layout (std140, binding = 1) uniform FrameUniformsBufferData
 {
     mat4 p;
     mat4 v;
-
-}frameUniforms;
+    mat4 vp;
+} frameUniforms;
 
 out vec3 fragPosition;
 out vec2 fragTexCoord;
 out vec3 fragNormal;
 out vec3 fragTangent;
-flat out uint fragMaterialId;
+out flat uint materialId;
 
 void main()
 {
-    mat4 p = frameUniforms.p;
-    mat4 v = frameUniforms.v;
+    gl_Position = frameUniforms.vp * inModelMatrix * vec4(inPosition, 1.0);
 
     fragPosition = inPosition;
     fragTexCoord = inTexCoord;
     fragNormal = inNormal;
     fragTangent = inTangent;
-    fragMaterialId = inMaterialId;
-
-    gl_Position = p * v * inModelMatrix * vec4(inPosition, 1.0);
+    materialId = inMaterialId;
 }

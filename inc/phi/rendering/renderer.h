@@ -30,8 +30,9 @@ namespace phi
 
     struct frameUniformBlock
     {
-        mat4 projectionMatrix;
-        mat4 viewMatrix;
+        mat4 p;
+        mat4 v;
+        mat4 vp;
     };
 
     class pipeline

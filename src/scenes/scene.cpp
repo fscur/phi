@@ -106,16 +106,16 @@ namespace phi
         {
             auto mat = m->material;
 
-            auto loadTex = [&](texture* tex)
+            /*auto loadTex = [&](texture* tex)
             {
                 if (tex)
                     addTextureToArray(tex);
-            };
+            };*/
 
-            loadTex(mat->albedoTexture);
-            loadTex(mat->normalTexture);
-            loadTex(mat->specularTexture);
-            loadTex(mat->emissiveTexture);
+            mat->albedoTexture->loadOnGpu();
+            mat->normalTexture->loadOnGpu();
+            mat->specularTexture->loadOnGpu();
+            mat->emissiveTexture->loadOnGpu();
 
             auto geometry = m->geometry;
             _loadedGeometries[geometry]++;
