@@ -1,8 +1,8 @@
 #ifndef _PHI_MESH_H_
 #define _PHI_MESH_H_
 
-#include <phi\core\geometry.h>
-#include <phi\core\object3D.h>
+#include <core\geometry.h>
+#include <core\object3D.h>
 
 #include "material.h"
 

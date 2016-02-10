@@ -1,4 +1,4 @@
-#include <phi/rendering/ray.h>
+#include "ray.h"
 
 namespace phi
 {

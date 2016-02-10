@@ -1,9 +1,9 @@
 #ifndef _PHI_FRAME_BUFFER_H_
 #define _PHI_FRAME_BUFFER_H_
 
-#include <phi\core\globals.h>
-#include <phi\core\color.h>
-#include <phi\core\size.h>
+#include <core\globals.h>
+#include <core\color.h>
+#include <core\size.h>
 
 #include "rendering.h"
 #include "renderTarget.h"

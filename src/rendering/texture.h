@@ -1,9 +1,8 @@
 #ifndef _PHI_TEXTURE_H_
 #define _PHI_TEXTURE_H_
 
-#include <phi/core/globals.h>
-#include <phi/core/size.h>
-#include <phi/core/resource.h>
+#include <core/globals.h>
+#include <core/resource.h>
 
 #include "rendering.h"
 

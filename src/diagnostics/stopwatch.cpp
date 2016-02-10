@@ -1,4 +1,4 @@
-#include <phi\diagnostics\stopwatch.h>
+#include "stopwatch.h"
 
 namespace phi
 {

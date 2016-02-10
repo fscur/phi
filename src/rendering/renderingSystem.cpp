@@ -1,6 +1,5 @@
-#include <phi/core/globals.h>
-#include <phi/rendering/renderingSystem.h>
-#include <phi/rendering/shaderManager.h>
+#include "renderingSystem.h"
+#include "shaderManager.h"
 
 namespace phi
 {

@@ -1,4 +1,4 @@
-#include <phi\rendering\material.h>
+#include "material.h"
 
 namespace phi
 {

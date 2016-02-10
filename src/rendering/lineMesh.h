@@ -1,7 +1,7 @@
 #ifndef _PHI_LINE_MESH_H_
 #define _PHI_LINE_MESH_H_
 
-#include <phi/core/globals.h>
+#include <core/globals.h>
 
 #include "rendering.h"
 

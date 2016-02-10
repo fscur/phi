@@ -1,4 +1,4 @@
-#include <phi/rendering/pickingFrameBuffer.h>
+#include "pickingFrameBuffer.h"
 
 namespace phi
 {

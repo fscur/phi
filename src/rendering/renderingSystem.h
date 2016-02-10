@@ -1,8 +1,8 @@
 #ifndef _PHI_RENDERING_SYSTEM_H_
 #define _PHI_RENDERING_SYSTEM_H_
 
-#include <phi/core/resourcesRepository.h>
-#include <phi/core/size.h>
+#include <core/resourcesRepository.h>
+#include <core/size.h>
 
 #include "rendering.h"
 #include "defaultFrameBuffer.h"

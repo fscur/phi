@@ -1,9 +1,9 @@
 #ifndef _PHI_FRUSTUM_H_
 #define _PHI_FRUSTUM_H_
 
-#include <phi/core/globals.h>
-#include <phi/core/size.h>
-#include <phi/core/eventHandler.h>
+#include <core/globals.h>
+#include <core/size.h>
+#include <core/eventHandler.h>
 
 #include "rendering.h"
 

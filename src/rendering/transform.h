@@ -3,7 +3,7 @@
 
 #include "rendering.h"
 
-#include <phi/core/globals.h>
+#include <core/globals.h>
 
 namespace phi
 {

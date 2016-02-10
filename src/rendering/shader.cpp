@@ -1,5 +1,6 @@
-#include <phi/core/globals.h>
-#include <phi/rendering/shader.h>
+#include "shader.h"
+
+#include <core/globals.h>
 
 #include <fstream>
 #include <iostream>

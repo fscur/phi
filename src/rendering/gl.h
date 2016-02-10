@@ -1,7 +1,7 @@
 #ifndef _PHI_OPENGL_H_
 #define _PHI_OPENGL_H_
 
-#include <phi\core\globals.h>
+#include <core\globals.h>
 
 namespace phi
 {

@@ -1,7 +1,8 @@
-#include <phi\core\base64.h>
-#include <phi\io\path.h>
-#include <phi\loader\importer.h>
-#include <phi\loader\SDL_extensions.h>
+#include "importer.h"
+
+#include <core\base64.h>
+#include <io\path.h>
+#include <loader\SDL_extensions.h>
 
 #include <rapidjson\filereadstream.h>
 #include <iostream>

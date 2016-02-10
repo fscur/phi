@@ -1,8 +1,8 @@
 #ifndef _PHI_CUBE_MAP_H_
 #define _PHI_CUBE_MAP_H_
 
-#include <phi/core/size.h>
-#include <phi/core/resource.h>
+#include <core/size.h>
+#include <core/resource.h>
 
 #include "rendering.h"
 #include "SDL_Extensions.h"

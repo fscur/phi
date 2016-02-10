@@ -1,7 +1,7 @@
 #ifndef _PHI_SHADER_MANAGER_H_
 #define _PHI_SHADER_MANAGER_H_
 
-#include <phi/core/globals.h>
+#include <core/globals.h>
 
 #include "rendering.h"
 #include "shader.h"

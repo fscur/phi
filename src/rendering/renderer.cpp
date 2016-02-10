@@ -1,5 +1,4 @@
-#include <phi\rendering\renderer.h>
-#include <phi\rendering\materialGpuData.h>
+#include "renderer.h"
 
 namespace phi
 {

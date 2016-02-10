@@ -1,7 +1,7 @@
 #ifndef _PHI_RAY_H_
 #define _PHI_RAY_H_
 
-#include <phi/core/aabb.h>
+#include <core/aabb.h>
 
 #include "rendering.h"
 

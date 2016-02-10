@@ -1,7 +1,7 @@
-#include <phi\rendering\pipeline.h>
-#include <phi\rendering\shaderManager.h>
-#include <phi\rendering\materialGpuData.h>
-#include <phi\rendering\drawElementsIndirectCmd.h>
+#include "pipeline.h"
+#include "shaderManager.h"
+#include "materialGpuData.h"
+#include "drawElementsIndirectCmd.h"
 
 namespace phi
 {

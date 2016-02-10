@@ -3,9 +3,9 @@
 
 #include "loader.h"
 
-#include <phi\core\resourcesRepository.h>
-#include <phi\rendering\model.h>
-#include <phi\rendering\mesh.h>
+#include <core\resourcesRepository.h>
+#include <rendering\model.h>
+#include <rendering\mesh.h>
 
 #include <rapidjson\document.h>
 

@@ -1,8 +1,8 @@
 #ifndef _PHI_TEXT_RENDERER_H_
 #define _PHI_TEXT_RENDERER_H_
 
-#include <phi\core\size.h>
-#include <phi\core\geometry.h>
+#include <core\size.h>
+#include <core\geometry.h>
 
 #include "rendering.h"
 #include "shaderManager.h"

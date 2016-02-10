@@ -1,9 +1,10 @@
 #ifndef _PHI_BUFFER_LOCK_H_
 #define _PHI_BUFFER_LOCK_H_
 
-#include <vector>
-#include <GL\glew.h>
 #include "rendering.h"
+
+#include <GL\glew.h>
+#include <vector>
 
 struct bufferRange
 {

@@ -1,7 +1,8 @@
 #ifndef _PHI_SHADER_H_
 #define _PHI_SHADER_H_
 
-#include <phi/core/color.h>
+#include <core\color.h>
+#include <core\size.h>
 
 #include "texture.h"
 #include "textureArray.h"
@@ -64,7 +65,7 @@ namespace phi
         RENDERING_API inline void setUniform(uint location, GLuint value) { glUniform1i(_uniforms[location], value); }
         RENDERING_API inline void setUniform(uint location, GLfloat value) { glUniform1f(_uniforms[location], value); }
         RENDERING_API inline void setUniform(uint location, color value) { glUniform4f(_uniforms[location], value.r, value.g, value.b, value.a); }
-        RENDERING_API inline void setUniform(uint location, tsize<GLfloat> value) { glUniform3f(_uniforms[location], value.w, value.h, value.d); }
+        RENDERING_API inline void setUniform(uint location, sizef value) { glUniform3f(_uniforms[location], value.w, value.h, value.d); }
         RENDERING_API inline void setUniform(uint location, mat3 value) { glUniformMatrix3fv(_uniforms[location], 1, GL_FALSE, &value[0][0]); }
         RENDERING_API inline void setUniform(uint location, mat4 value) { glUniformMatrix4fv(_uniforms[location], 1, GL_FALSE, &value[0][0]); }
         RENDERING_API inline void setUniform(uint location, vec2 value) { glUniform2f(_uniforms[location], value.x, value.y); }

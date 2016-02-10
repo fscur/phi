@@ -1,7 +1,7 @@
 #ifndef _PHI_VERTEX_BUFFER_H_
 #define _PHI_VERTEX_BUFFER_H_
 
-#include <phi\core\vertex.h>
+#include <core\vertex.h>
 
 #include <vector>
 

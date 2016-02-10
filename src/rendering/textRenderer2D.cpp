@@ -1,6 +1,9 @@
-#include <phi\core\globals.h>
-#include <phi\rendering\texture.h>
-#include <phi\rendering\textRenderer2D.h>
+#include "textRenderer2D.h"
+
+#include "texture.h"
+
+#include <core\globals.h>
+
 #include <glm\gtc\matrix_transform.hpp>
 
 namespace phi

@@ -1,5 +1,6 @@
-#include <phi/core/resource.h>
-#include <phi/rendering/font.h>
+#include "font.h"
+
+#include <core/resource.h>
 
 #include <algorithm>
 

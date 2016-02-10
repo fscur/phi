@@ -1,8 +1,6 @@
 #ifndef _PHI_TEXTURE_ARRAY_H_
 #define _PHI_TEXTURE_ARRAY_H_
 
-#include <phi\core\size.h>
-
 #include "rendering.h"
 #include "texture.h"
 

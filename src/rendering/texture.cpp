@@ -1,6 +1,7 @@
-#include <phi/core/globals.h>
-#include <phi/io/path.h>
-#include <phi/rendering/texture.h>
+#include "texture.h"
+
+#include <core/globals.h>
+#include <io/path.h>
 
 #include <stdio.h>
 

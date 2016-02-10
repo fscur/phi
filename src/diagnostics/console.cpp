@@ -1,4 +1,4 @@
-#include <phi\diagnostics\console.h>
+#include "console.h"
 
 void console::write(std::string message)
 {

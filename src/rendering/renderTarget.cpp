@@ -1,5 +1,6 @@
-#include <phi/core/globals.h>
-#include <phi/rendering/renderTarget.h>
+#include "renderTarget.h"
+
+#include <core/globals.h>
 
 namespace phi
 {

@@ -3,7 +3,7 @@
 
 #include "loader.h"
 
-#include <phi\core\geometry.h>
+#include <core\geometry.h>
 
 #include <string>
 #include <vector>

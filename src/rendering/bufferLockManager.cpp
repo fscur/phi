@@ -1,4 +1,4 @@
-#include <phi\rendering\bufferLockManager.h>
+#include "bufferLockManager.h"
 
 const GLuint64 ONE_SECOND_IN_NANOSECONDS = 1000000000;
 

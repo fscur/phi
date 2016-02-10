@@ -1,4 +1,4 @@
-#include <phi\rendering\textureArray.h>
+#include "textureArray.h"
 
 namespace phi
 {

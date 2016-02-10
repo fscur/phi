@@ -1,5 +1,4 @@
-#include <phi/core/globals.h>
-#include <phi/rendering/camera.h>
+#include "camera.h"
 
 #include <glm/gtx/vector_angle.hpp>
 

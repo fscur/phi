@@ -1,4 +1,4 @@
-#include <phi\rendering\vertexArrayObject.h>
+#include "vertexArrayObject.h"
 
 namespace phi
 {
