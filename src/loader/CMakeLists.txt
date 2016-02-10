@@ -30,7 +30,7 @@ if(NOT OPENGL_FOUND)
     message(OPENGL not found!)
 endif(NOT OPENGL_FOUND)
 
-file(GLOB header_files ../../inc/phi/loader/*.h)
+file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
 add_library(loader SHARED ${source_files} ${header_files})

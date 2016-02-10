@@ -42,7 +42,7 @@ if (WIN32)
     endif(NOT GLEW_FOUND)
 endif(WIN32)
 
-file(GLOB header_files ../../inc/phi/demo/*.h)
+file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
 set (resources_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../resources)

@@ -6,7 +6,7 @@ add_definitions(-DCORE_EXPORTS)
 
 include_directories(${INCLUDE_DIRS})
 
-file(GLOB header_files ../../inc/phi/core/*.h)
+file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
 add_library(core SHARED ${source_files} ${header_files})

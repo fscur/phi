@@ -41,7 +41,7 @@ if (WIN32)
     endif(NOT GLEW_FOUND)
 endif(WIN32)
 
-file(GLOB header_files ../../inc/phi/scenes/*.h)
+file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
 add_library(scenes SHARED ${source_files} ${header_files})

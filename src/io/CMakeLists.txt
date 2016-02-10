@@ -6,7 +6,7 @@ add_definitions(-DIO_EXPORTS)
 
 include_directories(${INCLUDE_DIRS})
 
-file(GLOB header_files ../../inc/phi/io/*.h)
+file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
 add_library(io SHARED ${source_files} ${header_files})
