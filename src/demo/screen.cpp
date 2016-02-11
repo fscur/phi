@@ -38,6 +38,7 @@ void screen::onInitialize()
 
     initRenderingSystem();
     initScenesManager();
+    initLibrary();
     initScene();
     initInput();
     initPipeline();
@@ -50,6 +51,16 @@ void screen::initRenderingSystem()
     renderingInfo.resourcesPath = _resourcesPath;
     renderingInfo.size = getSize();
     phi::renderingSystem::init(renderingInfo);
+
+    auto info = phi::shaderManagerInfo();
+    info.path = _resourcesPath;
+    phi::shaderManager::get()->init(info);
+}
+
+void screen::initLibrary()
+{
+    _library = new library(_libraryPath);
+    _library->init();
 }
 
 void screen::initScenesManager()
@@ -64,9 +75,6 @@ void screen::initScenesManager()
 
 void screen::initScene()
 {
-    _library = new library(_libraryPath);
-    _library->init();
-
     _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, _size, glm::half_pi<float>()));
     auto camera = _scene->getCamera();
 
@@ -74,11 +82,7 @@ void screen::initScene()
     camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
     camera->update();
 
-    auto info = phi::shaderManagerInfo();
-    info.path = _resourcesPath;
-    phi::shaderManager::get()->init(info);
-
-    auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
+    auto obj = _library->getObjectsRepository()->getAllResources()[1]->getObject();
     for (size_t i = 0; i < 10; i++)
     {
         auto cloned = obj->clone();
@@ -103,19 +107,19 @@ void screen::initPipeline()
     frameUniformBlock.v = camera->getViewMatrix();
     frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
 
-    auto glConfig = phi::gl::config();
-    glConfig.clearColor = phi::vec4(1.0f);
-    glConfig.frontFace = phi::gl::frontFace::ccw;
-    glConfig.culling = true;
-    glConfig.cullFace = phi::gl::cullFace::back;
-    glConfig.depthMask = true;
-    glConfig.depthTest = true;
+    auto openGLconfig = phi::gl::config();
+    openGLconfig.clearColor = phi::vec4(1.0f);
+    openGLconfig.frontFace = phi::gl::frontFace::ccw;
+    openGLconfig.culling = true;
+    openGLconfig.cullFace = phi::gl::cullFace::back;
+    openGLconfig.depthMask = true;
+    openGLconfig.depthTest = true;
 
     auto pipelineInfo = phi::pipelineInfo();
     pipelineInfo.materials = _library->getMaterialsRepository()->getAllObjects();
     pipelineInfo.renderList = _scene->getRenderList();
     pipelineInfo.frameUniformBlock = frameUniformBlock;
-    pipelineInfo.config = glConfig;
+    pipelineInfo.openGLconfig = openGLconfig;
 
     phi::renderingSystem::pipeline.init(pipelineInfo);
 

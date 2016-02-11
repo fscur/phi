@@ -3,10 +3,14 @@
 
 struct materialGpuData
 {
-    sampler2D albedoTexture;
-    sampler2D normalTexture;
-    sampler2D specularTexture;
-    sampler2D emissiveTexture;
+    int albedoTextureArrayIndex;
+    int normalTextureArrayIndex;
+    int specularTextureArrayIndex;
+    int emissiveTextureArrayIndex;
+    float albedoTexturePageIndex;
+    float normalTexturePageIndex;
+    float specularTexturePageIndex;
+    float emissiveTexturePageIndex;
     vec3 albedoColor;
     float shininess;
     vec3 specularColor;
@@ -19,10 +23,15 @@ struct materialGpuData
     float pad2;
 };
 
-layout (std140, binding = 0) buffer Materials
+layout (std140, binding = 1) buffer Materials
 {
     materialGpuData items[];
 } materials;
+
+layout (std140, binding = 2) buffer Textures
+{
+    sampler2DArray items[];
+}textureArrays;
 
 in vec3 fragPosition;
 in vec2 fragTexCoord;
@@ -32,12 +41,19 @@ in flat uint materialId;
 
 out vec4 fragColor;
 
+vec4 albedo(materialGpuData material)
+{
+    int array = material.albedoTextureArrayIndex;
+    float page = material.albedoTexturePageIndex;
+    vec4 color = vec4(material.albedoColor, 1.0);
+    return texture(textureArrays.items[array], vec3(fragTexCoord, page)) * color;
+}
+
 void main(void)
 {
-    vec3 sunPos = vec3(1.0);
-    
     materialGpuData material = materials.items[materialId];
 
-    float f = clamp(dot(sunPos, normalize(fragNormal)), 0.0, 1.0);
-    fragColor = texture(material.albedoTexture, fragTexCoord) * vec4(material.albedoColor, 1.0) * f;
+    vec3 sunPos = normalize(vec3(4.0, 3.0, 2.0));
+    float f = clamp(dot(sunPos, normalize(fragNormal)), 0.4, 1.0);
+    fragColor = albedo(material) * f;
 }

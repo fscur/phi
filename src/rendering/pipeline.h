@@ -26,31 +26,52 @@ namespace phi
         std::vector<material*> materials;
         std::map<geometry*, std::vector<mesh*>> renderList;
         phi::frameUniformBlock frameUniformBlock;
-        phi::gl::config config;
+        phi::gl::config openGLconfig;
+    };
+
+    struct textureAddress
+    {
+        GLint arrayIndex;
+        GLfloat pageIndex;
     };
 
     class pipeline
     {
     private:
+        std::map<std::string, bool> _openGLextensions;
+
+        uint _maxTexturesPerTextureArray;
         shader* _shader;
         std::vector<buffer*> _buffers;
         std::map<material*, uint> _materialsMaterialsGpu;
+
+        std::vector<textureArray*> _textureArrays;
+        std::vector<GLint> _textureArrayUnits;
+        std::map<texture*, textureAddress> _textureStorageData;
+
+        bool _hasBindlessExtension;
     public:
         vertexArrayObject* vao;
 
     private:
+        void initOpenGLExtensions();
+        textureAddress addTextureToArray(texture* tex);
+
         void createShader();
 
+        void createFrameUniformBlockBuffer(phi::frameUniformBlock frameUniformBlock);
         void createMaterialsBuffer(std::vector<material*> materials);
+        void createTextureArraysBuffer();
         void createDrawCmdsBuffer(std::map<geometry*, std::vector<mesh*>> renderList);
-        void createFrameUniformsBuffer(phi::frameUniformBlock frameUniformBlock);
 
         void createVao(std::map<geometry*, std::vector<mesh*>> renderList);
 
         void setDefaultOpenGLStates(phi::gl::config config);
 
     public:
-        RENDERING_API pipeline() {}
+        RENDERING_API pipeline() :
+            _maxTexturesPerTextureArray(0),
+            _hasBindlessExtension(false){}
 
         RENDERING_API ~pipeline()
         {
@@ -60,6 +81,12 @@ namespace phi
 
             for (auto i = 0; i < buffersCount; i++)
                 delete _buffers[i];
+
+            for (auto &textureArray : _textureArrays)
+            {
+                textureArray->releaseFromGpu();
+                delete textureArray;
+            }
         }
 
         RENDERING_API void init(phi::pipelineInfo pipelineInfo);

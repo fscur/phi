@@ -1,4 +1,5 @@
 #include "textureArray.h"
+#include "gl.h"
 
 namespace phi
 {
@@ -12,6 +13,9 @@ namespace phi
         auto mipmapLevels = glm::min((uint)maxLevels, MAX_MIPMAP_LEVELS_ALLOWED);
 
         glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &id);
+        
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
 
         glTextureStorage3D(id,
             mipmapLevels,
@@ -25,8 +29,7 @@ namespace phi
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-        glActiveTexture(GL_TEXTURE0 + textureUnit);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+
 
         _isLoadedOnGpu = true;
     }
@@ -41,6 +44,7 @@ namespace phi
 
         glActiveTexture(GL_TEXTURE0 + textureUnit);
         glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
             0,
             0, 0,
@@ -53,13 +57,11 @@ namespace phi
 
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
-        if(index == 0)
+        if(index == 0 && bindless)
         {
             handle = glGetTextureHandleARB(id);
             glMakeTextureHandleResidentARB(handle);
         }
-
-        return;
     }
 
     void textureArray::remove(texture* tex)
@@ -82,7 +84,9 @@ namespace phi
         if (!_isLoadedOnGpu)
             return;
 
-        glMakeTextureHandleNonResidentARB(handle); //TODO: check if this shit releases the handle from gpu!!!
+        if (bindless)
+            glMakeTextureHandleNonResidentARB(handle); //TODO: check if this shit releases the handle from gpu!!!
+
         glDeleteTextures(1, &id);
         _isLoadedOnGpu = false;
     }

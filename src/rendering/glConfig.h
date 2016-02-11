@@ -21,12 +21,31 @@ namespace phi
 
         struct config
         {
+        public:
             vec4 clearColor;
             bool culling;
             bool depthTest;
             bool depthMask;
             frontFace frontFace;
             cullFace cullFace;
+            uint maxTexturePerTextureArray;
+        public:
+            config(
+                vec4 clearColor = vec4(0.0f),
+                bool culling = true,
+                bool depthTest = true,
+                bool depthMask = true,
+                gl::frontFace frontFace = gl::frontFace::ccw,
+                gl::cullFace cullFace = gl::cullFace::back,
+                uint maxTexturePerTextureArray = 10) :
+                clearColor(clearColor),
+                culling(culling),
+                depthTest(depthTest),
+                depthMask(depthMask),
+                frontFace(frontFace),
+                cullFace(cullFace),
+                maxTexturePerTextureArray(maxTexturePerTextureArray)
+            {}
         };
     }
 }

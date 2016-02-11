@@ -23,14 +23,21 @@ namespace phi
         GLuint w;
         GLuint h;
         GLuint texCount;
+        bool bindless;
 
     public:
-        RENDERING_API textureArray(GLuint w, GLuint h, GLuint texCount, GLint textureUnit) :
-            w(w), 
+        RENDERING_API textureArray(
+            GLuint w = 0,
+            GLuint h = 0,
+            GLuint texCount = 0,
+            GLint textureUnit = 0,
+            bool bindless = false) :
+            w(w),
             h(h),
             texCount(texCount),
-            textureUnit(textureUnit), 
-            _isLoadedOnGpu(false) 
+            textureUnit(textureUnit),
+            _isLoadedOnGpu(false),
+            bindless(bindless)
         {}
 
         RENDERING_API void add(texture* tex);

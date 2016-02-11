@@ -41,6 +41,7 @@ private:
 
 private:
     void initRenderingSystem();
+    void initLibrary();
     void initScenesManager();
     void initScene();
     void initInput();

@@ -22,7 +22,6 @@ namespace phi
         if (_defaultAlbedo == nullptr)
         {
             _defaultAlbedo = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
-            _defaultAlbedoHandle = _defaultAlbedo->handle;
         }
 
         return _defaultAlbedo;
@@ -33,7 +32,6 @@ namespace phi
         if (_defaultNormal == nullptr)
         {
             _defaultNormal = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
-            _defaultNormalHandle = _defaultNormal->handle;
         }
 
         return _defaultNormal;
@@ -44,7 +42,6 @@ namespace phi
         if (_defaultSpecular == nullptr)
         {
             _defaultSpecular = createDefault(new byte[4]{ 0xFF, 0x80, 0xFF, 0xFF });
-            _defaultSpecularHandle = _defaultSpecular->handle;
         }
 
         return _defaultSpecular;
@@ -55,7 +52,6 @@ namespace phi
         if (_defaultEmissive == nullptr)
         {
             _defaultEmissive = createDefault(new byte[4]{ 0xFF, 0xFF, 0xFF, 0xFF });
-            _defaultEmissiveHandle = _defaultEmissive->handle;
         }
 
         return _defaultEmissive;
@@ -63,7 +59,14 @@ namespace phi
 
     texture* texture::createDefault(byte* data)
     {
-        return new texture(1, 1, GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, data);
+        return new texture(
+            1, 
+            1, 
+            GL_TEXTURE_2D,
+            GL_RGBA, 
+            GL_BGRA, 
+            GL_UNSIGNED_BYTE, 
+            data);
     }
 
     void texture::bind(GLuint level)
@@ -82,7 +85,7 @@ namespace phi
         if (_isLoadedOnGpu)
             return;
 
-        glGenTextures(1, &id);
+        //glGenTextures(1, &id);
 
         // "Bind" the newly created texture : all future texture functions will modify this texture
         glBindTexture(GL_TEXTURE_2D, id);
@@ -96,8 +99,11 @@ namespace phi
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        handle = glGetTextureHandleARB(id);
-        glMakeTextureHandleResidentARB(handle);
+        if (bindless)
+        {
+            handle = glGetTextureHandleARB(id);
+            glMakeTextureHandleResidentARB(handle);
+        }
 
         _isLoadedOnGpu = true;
     }

@@ -7,15 +7,46 @@ namespace phi
 {
     void pipeline::init(pipelineInfo info)
     {
+        initOpenGLExtensions();
+
+        //_maxTexturesPerTextureArray = info.openGLconfig.maxTexturePerTextureArray; 
+        _maxTexturesPerTextureArray = 20;
+        _hasBindlessExtension = _openGLextensions["GL_ARB_bindless_texture"];
+
+        setDefaultOpenGLStates(info.openGLconfig);
+
         createShader();
 
+        createFrameUniformBlockBuffer(info.frameUniformBlock);
         createMaterialsBuffer(info.materials);
+        createTextureArraysBuffer();
         createDrawCmdsBuffer(info.renderList);
-        createFrameUniformsBuffer(info.frameUniformBlock);
 
         createVao(info.renderList);
+    }
 
-        setDefaultOpenGLStates(info.config);
+    void pipeline::initOpenGLExtensions()
+    {
+        const GLubyte* glExtension = nullptr;
+        auto i = 0;
+
+        glExtension = glGetStringi(GL_EXTENSIONS, i++);
+        std::vector<std::string> glExtensions;
+
+        while (glExtension != NULL)
+        {
+            glExtensions.push_back(std::string((char*)glExtension));
+            glExtension = glGetStringi(GL_EXTENSIONS, i++);
+        }
+
+        std::vector<std::string> phiExtensions;
+        phiExtensions.push_back("GL_ARB_bindless_texture");
+
+        for (auto phiExtension : phiExtensions)
+        {
+            auto found = phi::contains(glExtensions, phiExtension);
+            _openGLextensions[phiExtension] = found;
+        }
     }
 
     void pipeline::createShader()
@@ -33,6 +64,15 @@ namespace phi
         _shader->bind();
     }
 
+    void pipeline::createFrameUniformBlockBuffer(phi::frameUniformBlock frameUniformBlock)
+    {
+        auto info = bufferDataInfo(&frameUniformBlock, GL_UNIFORM_BUFFER, sizeof(phi::frameUniformBlock), GL_STATIC_DRAW);
+        auto frameUniformsBuffer = new buffer(info);
+        frameUniformsBuffer->bindBufferBase(0);
+
+        _buffers.push_back(frameUniformsBuffer);
+    }
+
     void pipeline::createMaterialsBuffer(std::vector<material*> materials)
     {
         auto materialsGpu = std::vector<materialGpuData>();
@@ -41,17 +81,103 @@ namespace phi
         for (auto i = 0; i < materialsCount; i++)
         {
             auto material = materials[i];
+
+            auto albedoTextureAddress = addTextureToArray(material->albedoTexture);
+            auto normalTextureAddress = addTextureToArray(material->normalTexture);
+            auto specularTextureAddress = addTextureToArray(material->specularTexture);
+            auto emissiveTextureAddress = addTextureToArray(material->emissiveTexture);
+
+            auto materialGpuData = phi::materialGpuData(
+                albedoTextureAddress, 
+                normalTextureAddress,
+                specularTextureAddress,
+                emissiveTextureAddress,
+                material->albedoColor,
+                material->specularColor,
+                material->emissiveColor,
+                material->shininess,
+                material->reflectivity,
+                material->emission,
+                material->opacity);
+
             _materialsMaterialsGpu[material] = i;
-            materialsGpu.push_back(materialGpuData::fromMaterial(*material));
+            materialsGpu.push_back(materialGpuData);
         }
 
         auto materialsBufferSize = materialsCount * sizeof(materialGpuData);
         auto info = bufferDataInfo(&materialsGpu[0], GL_SHADER_STORAGE_BUFFER, materialsBufferSize, GL_STATIC_DRAW);
 
         auto materialsBuffer = new buffer(info);
-        materialsBuffer->bindBufferBase(0);
+        materialsBuffer->bindBufferBase(1);
 
         _buffers.push_back(materialsBuffer);
+    }
+
+    textureAddress pipeline::addTextureToArray(texture* tex)
+    {
+        auto texWidth = tex->w;
+        auto texHeight = tex->h;
+        auto it = find_if(_textureArrays.begin(), _textureArrays.end(), [&](textureArray* texArray)
+        {
+            auto arraySize = texArray->texCount;
+            return texWidth == texArray->w &&
+                texHeight == texArray->h;
+        });
+
+        textureArray* sameSizeArray = nullptr;
+
+        if (it != _textureArrays.end())
+            sameSizeArray = it[0];
+        else
+        {
+            auto textureUnit = (GLint)_textureArrays.size();
+            _textureArrayUnits.push_back(textureUnit);
+
+            sameSizeArray = new textureArray(texWidth, texHeight, 44, textureUnit, _hasBindlessExtension);
+            _textureArrays.push_back(sameSizeArray);
+            sameSizeArray->loadOnGpu();
+        }
+
+        if (!sameSizeArray->hasTexture(tex))
+        {
+            sameSizeArray->add(tex);
+            auto page = sameSizeArray->getTextureIndex(tex);
+            _textureStorageData[tex].arrayIndex = (GLint)(find(_textureArrays.begin(), _textureArrays.end(), sameSizeArray) - _textureArrays.begin());
+            _textureStorageData[tex].pageIndex = (GLfloat)page;
+            return _textureStorageData[tex];
+        }
+
+        return _textureStorageData[tex];
+    }
+
+    void pipeline::createTextureArraysBuffer()
+    {
+        auto textureArraysCount = _textureArrays.size();
+
+        if (_hasBindlessExtension)
+        {
+            GLuint64* textureArraysBufferData = new GLuint64[textureArraysCount];
+
+            for (uint i = 0; i < textureArraysCount; i++)
+                textureArraysBufferData[i] = _textureArrays[i]->handle;
+
+            auto info = bufferDataInfo(textureArraysBufferData, GL_SHADER_STORAGE_BUFFER, textureArraysCount * sizeof(GLuint64), GL_STATIC_DRAW);
+            auto textureArrayBuffer = new buffer(info);
+            textureArrayBuffer->bindBufferBase(2);
+            _buffers.push_back(textureArrayBuffer);
+        }
+        else
+        {
+            GLint* textureArraysBufferData = new GLint[textureArraysCount];
+
+            for (uint i = 0; i < textureArraysCount; i++)
+                textureArraysBufferData[i] = _textureArrayUnits[i];
+
+            auto info = bufferDataInfo(textureArraysBufferData, GL_SHADER_STORAGE_BUFFER, textureArraysCount * sizeof(GLuint64), GL_STATIC_DRAW);
+            auto textureArrayBuffer = new buffer(info);
+            textureArrayBuffer->bindBufferBase(2);
+            _buffers.push_back(textureArrayBuffer);
+        }
     }
 
     void pipeline::createDrawCmdsBuffer(std::map<geometry*, std::vector<mesh*>> renderList)
@@ -86,15 +212,6 @@ namespace phi
         drawCmdsBuffer->bind();
 
         _buffers.push_back(drawCmdsBuffer);
-    }
-
-    void pipeline::createFrameUniformsBuffer(phi::frameUniformBlock frameUniformBlock)
-    {
-        auto info = bufferDataInfo(&frameUniformBlock, GL_UNIFORM_BUFFER, sizeof(phi::frameUniformBlock), GL_STATIC_DRAW);
-        auto frameUniformsBuffer = new buffer(info);
-        frameUniformsBuffer->bindBufferBase(1);
-
-        _buffers.push_back(frameUniformsBuffer);
     }
 
     void pipeline::createVao(std::map<geometry*, std::vector<mesh*>> renderList)
@@ -179,6 +296,6 @@ namespace phi
 
     void pipeline::updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock)
     {
-        _buffers[2]->bufferSubData(&frameUniformBlock);
+        _buffers[0]->bufferSubData(&frameUniformBlock);
     }
 }

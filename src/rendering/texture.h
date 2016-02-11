@@ -44,36 +44,34 @@ namespace phi
     public:
         GLuint id;
         GLuint64 handle;
-        GLuint type;
-        byte* data;
-        GLenum dataType;
-        GLenum dataFormat;
-        GLint internalFormat;
         GLuint w;
         GLuint h;
+        GLuint type;
+        GLint internalFormat;
+        GLenum dataFormat;
+        GLenum dataType;
+        byte* data;
+        bool bindless;
 
     public:
-        RENDERING_API texture(uint w, uint h, GLint internalFormat) :
-            w(w), 
-            h(h), 
-            internalFormat(internalFormat), 
-            dataFormat(GL_RGBA), 
-            dataType(GL_UNSIGNED_BYTE),
-            data(nullptr),
-            _isLoadedOnGpu(false),
-            type(GL_TEXTURE_2D)
-        {
-        }
-
-        RENDERING_API texture::texture(uint w, uint h, GLint internalFormat, GLenum dataFormat, GLenum dataType, byte* data) :
+        RENDERING_API texture::texture(
+            uint w, 
+            uint h, 
+            GLuint type = GL_TEXTURE_2D,
+            GLint internalFormat = 0, 
+            GLenum dataFormat = GL_RGBA,
+            GLenum dataType = GL_UNSIGNED_BYTE,
+            byte* data = nullptr,
+            bool bindless = false) :
             w(w),
             h(h),
+            type(type),
             internalFormat(internalFormat),
             dataFormat(dataFormat),
             dataType(dataType),
             data(data),
-            _isLoadedOnGpu(false),
-            type(GL_TEXTURE_2D)
+            bindless(bindless),
+            _isLoadedOnGpu(false)
         {
         }
 

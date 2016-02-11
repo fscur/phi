@@ -7,7 +7,7 @@ layout (location = 3) in vec3 inTangent;
 layout (location = 4) in uint inMaterialId;
 layout (location = 5) in mat4 inModelMatrix;
 
-layout (std140, binding = 1) uniform FrameUniformsBufferData
+layout (std140, binding = 0) uniform FrameUniformsBufferData
 {
     mat4 p;
     mat4 v;

@@ -1,5 +1,7 @@
 #include "path.h"
 
+#include <core\globals.h>
+
 #include <algorithm>
 #include <vector>
 #include <string>
@@ -50,7 +52,7 @@ namespace phi
 
     std::string path::getExtension(std::string path)
     {
-        auto dotIndex = path.find_last_of('.');
+        int dotIndex = path.find_last_of('.');
 
         if (dotIndex < 0)
             return "";
@@ -58,7 +60,9 @@ namespace phi
         return path.substr(dotIndex, path.length() - dotIndex);
     }
 
-    std::vector<fileInfo> path::getFiles(const std::string& directory)
+    std::vector<fileInfo> path::getFiles(
+        const std::string& directory, 
+        std::vector<std::string> filters)
     {
 #ifdef WIN32
         std::vector<fileInfo> out;
@@ -68,11 +72,18 @@ namespace phi
         if ((dir = FindFirstFile((directory + "/*").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
             return out; /* No files found */
 
+        bool filterByExtension = filters.size() > 0;
+
         do 
         {
             const std::string file_name = file_data.cFileName;
             const std::string full_file_name = directory + "\\" + file_name;
             const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+            auto fileExtension = getExtension(file_name);
+
+            if (filterByExtension && !phi::contains(filters, fileExtension))
+                continue;
 
             fileInfo info;
             info.name = file_name;

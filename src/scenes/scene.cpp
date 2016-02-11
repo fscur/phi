@@ -66,58 +66,12 @@ namespace phi
         });
     }
 
-    void scene::addTextureToArray(texture* tex)
-    {
-        auto texWidth = tex->w;
-        auto texHeight = tex->h;
-        auto it = find_if(_textureArrays.begin(), _textureArrays.end(), [&](textureArray* texArray)
-        {
-            auto arraySize = texArray->texCount;
-            return texWidth == texArray->w &&
-                texHeight == texArray->h;
-        });
-
-        textureArray* sameSizeArray = nullptr;
-        if (it != _textureArrays.end())
-            sameSizeArray = it[0];
-        else
-        {
-            auto textureUnit = (GLint)_textureArrays.size();
-            _textureArrayUnits.push_back(textureUnit);
-
-            sameSizeArray = new textureArray(texWidth, texHeight, MAX_TEXTURE_ARRAY_TEXTURES_COUNT, textureUnit);
-            _textureArrays.push_back(sameSizeArray);
-            sameSizeArray->loadOnGpu();
-        }
-
-        if (!sameSizeArray->hasTexture(tex))
-        {
-            sameSizeArray->add(tex);
-            auto page = sameSizeArray->getTextureIndex(tex);
-            _textureStorageDatas[tex].arrayIndex = (GLint)(find(_textureArrays.begin(), _textureArrays.end(), sameSizeArray) - _textureArrays.begin());
-            _textureStorageDatas[tex].pageIndex = page;
-        }
-    }
-
     void scene::add(object3D* object)
     {
         _objects.push_back(object);
 
         traverseTreeMeshes(object, [&](mesh* m)
         {
-            auto mat = m->material;
-
-            /*auto loadTex = [&](texture* tex)
-            {
-                if (tex)
-                    addTextureToArray(tex);
-            };*/
-
-            mat->albedoTexture->loadOnGpu();
-            mat->normalTexture->loadOnGpu();
-            mat->specularTexture->loadOnGpu();
-            mat->emissiveTexture->loadOnGpu();
-
             auto geometry = m->geometry;
             _loadedGeometries[geometry]++;
         });
@@ -131,28 +85,6 @@ namespace phi
 
         traverseTreeMeshes(object, [&](mesh* m)
         {
-            auto mat = m->material;
-
-            auto unloadTex = [&](texture* tex)
-            {
-                if (tex)
-                {
-                    for (auto texArray : _textureArrays)
-                    {
-                        if (texArray->hasTexture(tex))
-                        {
-                            texArray->remove(tex);
-                            break;
-                        }
-                    }
-                }
-            };
-
-            unloadTex(mat->albedoTexture);
-            unloadTex(mat->normalTexture);
-            unloadTex(mat->specularTexture);
-            unloadTex(mat->emissiveTexture);
-
             auto geometry = m->geometry;
             _loadedGeometries[geometry]--;
             if (_loadedGeometries[geometry] <= 0)

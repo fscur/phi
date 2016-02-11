@@ -238,7 +238,14 @@ namespace phi
         auto data = malloc(surface->w * surface->h * totalBytes);
         memcpy(data, surface->pixels, surface->w * surface->h * totalBytes);
 
-        tex = new texture((uint)surface->w, (uint)surface->h, GL_RGBA, format, GL_UNSIGNED_BYTE, (byte*)data);
+        tex = new texture(
+            (uint)surface->w, 
+            (uint)surface->h, 
+            GL_TEXTURE_2D, 
+            GL_RGBA, 
+            format, 
+            GL_UNSIGNED_BYTE, 
+            (byte*)data);
 
         SDL_FreeSurface(surface);
 
