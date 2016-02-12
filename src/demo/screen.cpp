@@ -37,11 +37,12 @@ void screen::onInitialize()
     centerScreen();
 
     initRenderingSystem();
+    initGL();
     initScenesManager();
     initLibrary();
     initScene();
     initInput();
-    initPipeline();
+    initRenderer();
 }
 
 void screen::initRenderingSystem()
@@ -55,6 +56,20 @@ void screen::initRenderingSystem()
     auto info = phi::shaderManagerInfo();
     info.path = _resourcesPath;
     phi::shaderManager::get()->init(info);
+}
+
+void screen::initGL()
+{
+    auto initState = phi::gl::state();
+    initState.clearColor = phi::vec4(1.0f);
+    initState.frontFace = phi::gl::frontFace::ccw;
+    initState.culling = true;
+    initState.cullFace = phi::gl::cullFace::back;
+    initState.depthMask = true;
+    initState.depthTest = true;
+    initState.useBindlessTextures = false;
+    initState.useSparseTextures = false;
+    phi::gl::init(initState);
 }
 
 void screen::initLibrary()
@@ -82,7 +97,7 @@ void screen::initScene()
     camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
     camera->update();
 
-    auto obj = _library->getObjectsRepository()->getAllResources()[1]->getObject();
+    auto obj = _library->getObjectsRepository()->getAllResources()[0]->getObject();
     for (size_t i = 0; i < 10; i++)
     {
         auto cloned = obj->clone();
@@ -99,7 +114,7 @@ void screen::initInput()
     _inputManager->setCurrentCameraController(_defaultController);
 }
 
-void screen::initPipeline()
+void screen::initRenderer()
 {
     auto camera = _scene->getCamera();
     auto frameUniformBlock = phi::frameUniformBlock();
@@ -107,24 +122,17 @@ void screen::initPipeline()
     frameUniformBlock.v = camera->getViewMatrix();
     frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
 
-    auto openGLconfig = phi::gl::config();
-    openGLconfig.clearColor = phi::vec4(1.0f);
-    openGLconfig.frontFace = phi::gl::frontFace::ccw;
-    openGLconfig.culling = true;
-    openGLconfig.cullFace = phi::gl::cullFace::back;
-    openGLconfig.depthMask = true;
-    openGLconfig.depthTest = true;
+    auto libraryMaterials = _library->getMaterialsRepository()->getAllObjects();
 
     auto pipelineInfo = phi::pipelineInfo();
-    pipelineInfo.materials = _library->getMaterialsRepository()->getAllObjects();
+    pipelineInfo.materials.push_back(phi::material::default());
+    pipelineInfo.materials.insert(pipelineInfo.materials.end(), libraryMaterials.begin(), libraryMaterials.end());
     pipelineInfo.renderList = _scene->getRenderList();
     pipelineInfo.frameUniformBlock = frameUniformBlock;
-    pipelineInfo.openGLconfig = openGLconfig;
 
-    phi::renderingSystem::pipeline.init(pipelineInfo);
-
-    _pipeline = &phi::renderingSystem::pipeline;
-    _renderer = new phi::renderer();
+    _pipeline = new phi::pipeline();
+    _pipeline->init(pipelineInfo);
+    _renderer = new phi::renderer(_pipeline);
 }
 
 void screen::update()

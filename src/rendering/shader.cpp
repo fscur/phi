@@ -154,7 +154,7 @@ namespace phi
         //glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray->getId());
         //glUniform1i(_uniforms[location], 0);
 
-        glUniform1iv(_uniforms[location], (GLint)textureArrayIds.size(), textureArrayIds.data());
+        glUniform1iv(_uniforms[location], textureArrayIds.size(), textureArrayIds.data());
 
         //glUniformHandleui64ARB(_uniforms[location], textureArray->getHandle());
         //glUniform1ui64vARB(_uniforms[location], 1, textureArray->getHandle());

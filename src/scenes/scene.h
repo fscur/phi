@@ -5,12 +5,10 @@
 
 #include <core\globals.h>
 #include <core\mathUtils.h>
-#include <rendering\shaderManager.h>
-#include <rendering\material.h>
 #include <rendering\mesh.h>
 #include <rendering\camera.h>
-#include <rendering\textureArray.h>
 
+#include <map>
 #include <typeinfo>
 #include <mutex>
 

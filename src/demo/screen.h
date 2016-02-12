@@ -41,11 +41,12 @@ private:
 
 private:
     void initRenderingSystem();
+    void initGL();
     void initLibrary();
     void initScenesManager();
     void initScene();
     void initInput();
-    void initPipeline();
+    void initRenderer();
 
 public:
     screen();

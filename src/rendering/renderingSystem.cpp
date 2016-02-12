@@ -4,9 +4,7 @@
 namespace phi
 {
     renderingSystemInfo renderingSystem::info;
-    phi::pipeline renderingSystem::pipeline;
     defaultFrameBuffer* renderingSystem::defaultFrameBuffer = nullptr;
-    //pickingFrameBuffer* renderingSystem::pickingFrameBuffer = nullptr;
     FT_Library renderingSystem::freeTypeLibrary = nullptr;
     bool renderingSystem::initialized = false;
 
@@ -19,9 +17,6 @@ namespace phi
 
         defaultFrameBuffer = new phi::defaultFrameBuffer(info.size, color::white);
         defaultFrameBuffer->init();
-
-        //pickingFrameBuffer = new phi::pickingFrameBuffer(info.size);
-        //pickingFrameBuffer->init();
 
         shaderManagerInfo shaderInfo;
         shaderInfo.path = info.resourcesPath;
@@ -40,8 +35,5 @@ namespace phi
         info.size = viewportSize;
         defaultFrameBuffer->setSize(viewportSize);
         defaultFrameBuffer->setViewport(0, 0, viewportSize);
-
-        //pickingFrameBuffer = new phi::pickingFrameBuffer(viewportSize);
-        //pickingFrameBuffer->init();
     }
 }

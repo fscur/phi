@@ -5,7 +5,6 @@
 #include <core\size.h>
 
 #include "texture.h"
-#include "textureArray.h"
 
 #include <map>
 #include <string>
@@ -76,7 +75,7 @@ namespace phi
         RENDERING_API inline void setUniform(uint location, texture* value, GLuint index);
         RENDERING_API inline void setUniform(uint location, std::vector<GLint> textureArrayUnits);
         RENDERING_API inline void setUniform(uint location, GLuint64 value) { glUniform1ui64NV(_uniforms[location], value); }
-
+        RENDERING_API inline void setUniform(uint location, std::vector<GLuint64> value) { glUniform1ui64vNV(_uniforms[location], (GLsizei)value.size(), value.data()); }
         RENDERING_API void initAttribs();
 
         RENDERING_API void bind();

@@ -8,14 +8,14 @@ namespace phi
     struct materialGpuData
     {
     private:
-        int albedoTextureArrayIndex;
-        int normalTextureArrayIndex;
-        int specularTextureArrayIndex;
-        int emissiveTextureArrayIndex;
-        float albedoTexturePageIndex;
-        float normalTexturePageIndex;
-        float specularTexturePageIndex;
-        float emissiveTexturePageIndex;
+        int albedoTextureUnit;
+        int normalTextureUnit;
+        int specularTextureUnit;
+        int emissiveTextureUnit;
+        float albedoTexturePage;
+        float normalTexturePage;
+        float specularTexturePage;
+        float emissiveTexturePage;
         vec3 albedoColor;
         float shininess;
         vec3 specularColor;
@@ -40,14 +40,14 @@ namespace phi
             float reflectivity = 0.0f,
             float emission = 0.0f,
             float opacity = 1.0f) :
-            albedoTextureArrayIndex(albedoTexture.arrayIndex),
-            normalTextureArrayIndex(normalTexture.arrayIndex),
-            specularTextureArrayIndex(specularTexture.arrayIndex),
-            emissiveTextureArrayIndex(emissiveTexture.arrayIndex),
-            albedoTexturePageIndex(albedoTexture.pageIndex),
-            normalTexturePageIndex(normalTexture.pageIndex),
-            specularTexturePageIndex(specularTexture.pageIndex),
-            emissiveTexturePageIndex(emissiveTexture.pageIndex),
+            albedoTextureUnit(albedoTexture.unit),
+            normalTextureUnit(normalTexture.unit),
+            specularTextureUnit(specularTexture.unit),
+            emissiveTextureUnit(emissiveTexture.unit),
+            albedoTexturePage(albedoTexture.page),
+            normalTexturePage(normalTexture.page),
+            specularTexturePage(specularTexture.page),
+            emissiveTexturePage(emissiveTexture.page),
             albedoColor(albedoColor),
             specularColor(specularColor),
             emissiveColor(emissiveColor),

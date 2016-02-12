@@ -3,11 +3,11 @@
 
 #include "rendering.h"
 #include "gl.h"
-#include "glConfig.h"
 #include "mesh.h"
 #include "buffer.h"
 #include "vertexArrayObject.h"
 #include "shader.h"
+#include "textureManager.h"
 
 #include <map>
 #include <vector>
@@ -26,36 +26,23 @@ namespace phi
         std::vector<material*> materials;
         std::map<geometry*, std::vector<mesh*>> renderList;
         phi::frameUniformBlock frameUniformBlock;
-        phi::gl::config openGLconfig;
-    };
-
-    struct textureAddress
-    {
-        GLint arrayIndex;
-        GLfloat pageIndex;
     };
 
     class pipeline
     {
     private:
-        std::map<std::string, bool> _openGLextensions;
 
-        uint _maxTexturesPerTextureArray;
         shader* _shader;
         std::vector<buffer*> _buffers;
         std::map<material*, uint> _materialsMaterialsGpu;
-
-        std::vector<textureArray*> _textureArrays;
-        std::vector<GLint> _textureArrayUnits;
-        std::map<texture*, textureAddress> _textureStorageData;
+        textureManager* _textureManager;
 
         bool _hasBindlessExtension;
+
     public:
         vertexArrayObject* vao;
 
     private:
-        void initOpenGLExtensions();
-        textureAddress addTextureToArray(texture* tex);
 
         void createShader();
 
@@ -66,11 +53,8 @@ namespace phi
 
         void createVao(std::map<geometry*, std::vector<mesh*>> renderList);
 
-        void setDefaultOpenGLStates(phi::gl::config config);
-
     public:
         RENDERING_API pipeline() :
-            _maxTexturesPerTextureArray(0),
             _hasBindlessExtension(false){}
 
         RENDERING_API ~pipeline()
@@ -81,21 +65,11 @@ namespace phi
 
             for (auto i = 0; i < buffersCount; i++)
                 delete _buffers[i];
-
-            for (auto &textureArray : _textureArrays)
-            {
-                textureArray->releaseFromGpu();
-                delete textureArray;
-            }
         }
 
         RENDERING_API void init(phi::pipelineInfo pipelineInfo);
 
         RENDERING_API void updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock);
-
-        RENDERING_API void render() 
-        {
-        }
     };
 }
 

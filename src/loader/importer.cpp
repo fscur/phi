@@ -294,10 +294,10 @@ namespace phi
         auto normalTextureGuid = convertToGuid(d["NormalTextureGuid"].GetString());
         auto specularTextureGuid = convertToGuid(d["SpecularTextureGuid"].GetString());
         auto emissiveTextureGuid = convertToGuid(d["EmissiveTextureGuid"].GetString());
-        auto albedoTexture = texturesRepo->getResource(albedoTextureGuid);
-        auto normalTexture = texturesRepo->getResource(normalTextureGuid);
-        auto specularTexture = texturesRepo->getResource(specularTextureGuid);
-        auto emissiveTexture = texturesRepo->getResource(emissiveTextureGuid);
+        auto albedoTextureResource = texturesRepo->getResource(albedoTextureGuid);
+        auto normalTextureResource = texturesRepo->getResource(normalTextureGuid);
+        auto specularTextureResource = texturesRepo->getResource(specularTextureGuid);
+        auto emissiveTextureResource = texturesRepo->getResource(emissiveTextureGuid);
 
         const rapidjson::Value& albedoColorNode = d["AlbedoColor"];
         const rapidjson::Value& specularColorNode = d["SpecularColor"];
@@ -313,11 +313,16 @@ namespace phi
 
         fclose(fp);
 
+        auto albedoTexture = albedoTextureResource == nullptr ? texture::defaultAlbedo() : albedoTextureResource->getObject();
+        auto normalTexture = normalTextureResource == nullptr ? texture::defaultNormal() : normalTextureResource->getObject();
+        auto specularTexture = specularTextureResource == nullptr ? texture::defaultSpecular() : specularTextureResource->getObject();
+        auto emissiveTexture = emissiveTextureResource == nullptr ? texture::defaultEmissive() : emissiveTextureResource->getObject();
+
         auto mat = new material(
-            albedoTexture == nullptr ? texture::defaultAlbedo() : albedoTexture->getObject(),
-            normalTexture == nullptr ? texture::defaultNormal() : normalTexture->getObject(),
-            specularTexture == nullptr ? texture::defaultSpecular() : specularTexture->getObject(),
-            emissiveTexture == nullptr ? texture::defaultEmissive() : emissiveTexture->getObject(),
+            albedoTexture,
+            normalTexture,
+            specularTexture,
+            emissiveTexture,
             albedoColor,
             specularColor,
             emissiveColor,

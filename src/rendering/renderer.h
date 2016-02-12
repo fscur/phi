@@ -11,9 +11,9 @@ namespace phi
         pipeline* _pipeline;
 
     public:
-        RENDERING_API renderer() 
+        RENDERING_API renderer(phi::pipeline* pipeline) :
+            _pipeline(pipeline)
         {
-            _pipeline = &phi::renderingSystem::pipeline;
         }
 
         RENDERING_API ~renderer() {}
