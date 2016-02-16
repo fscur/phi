@@ -34,7 +34,7 @@ namespace phi
         _shader->addUniform(0, "textureArrays");
         _shader->bind();
 
-        if (_hasBindlessExtension)
+        if (phi::gl::currentState->useBindlessTextures)
             _shader->setUniform(0, _textureManager->handles);
         else
             _shader->setUniform(0, _textureManager->units);

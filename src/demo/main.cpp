@@ -38,11 +38,12 @@ void lpCommandFunction(std::vector<std::string> args)
 
 void initCommandLineCommands()
 {
-    /***********
+    /*
 
-    /rp <path>          Set resources path
-    /lp <path>          Set library path
-    ***********/
+    /rp <path> resources path
+    /lp <path> library path
+
+    */
 
     commandLineCommands.push_back(commandLineCommand("/rp", &rpCommandFunction));
     commandLineCommands.push_back(commandLineCommand("/lp", &lpCommandFunction));
@@ -52,9 +53,17 @@ void processCommandLine(int argc, char* args[])
 {
     int curCommand = -1;
 
+#if _DEBUG
+    std::cout << "cmd line: ";
+#endif
+
     for (int i = 1; i < argc; i++)
     {
         std::string arg(args[i]);
+
+#if _DEBUG
+        std::cout << args[i] << " ";
+#endif
 
         std::vector<std::string>::iterator it;
 
@@ -74,26 +83,19 @@ void processCommandLine(int argc, char* args[])
         if (!foundCommand && curCommand > -1)
             commandLineCommands[curCommand].args.push_back(arg);
     }
-
+#if _DEBUG
+    std::cout << std::endl;
+#endif
     return;
 }
 
 void executeCommands()
 {
-    for (unsigned int i = 0; i < commandLineCommands.size(); i++)
-    {
+    auto count = commandLineCommands.size();
+
+    for (unsigned int i = 0; i < count; i++)
         if (commandLineCommands[i].shouldExecute)
-        {
-            phi::log("command executed: " + commandLineCommands[i].name);
-
             commandLineCommands[i].func(commandLineCommands[i].args);
-
-            for (unsigned int j = 0; j < commandLineCommands[i].args.size(); j++)
-            {
-                phi::log("arg[" + std::to_string(j) + "]: " + commandLineCommands[i].args[j]);
-            }
-        }
-    }
 }
 
 std::string getDirPath(std::string filePath)
@@ -113,6 +115,8 @@ int main(int argc, char* args[])
     application::path = path;
     application::exePath = exePath;
 
+    phi::log("application path: " + path + ".");
+
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
@@ -129,10 +133,9 @@ int main(int argc, char* args[])
     else
         mainScreen->setLibraryPath(path + "\\library\\");
 
-    phi::log("initialize");
     mainScreen->initialize(path);
 
-    phi::log("run");
+    phi::log("runnning.");
     app->run(mainScreen);
 
     phi::safeDelete(mainScreen);

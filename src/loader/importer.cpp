@@ -241,8 +241,8 @@ namespace phi
         tex = new texture(
             (uint)surface->w, 
             (uint)surface->h, 
-            GL_TEXTURE_2D, 
-            GL_RGBA, 
+            GL_TEXTURE_2D,
+            GL_RGBA8, 
             format, 
             GL_UNSIGNED_BYTE, 
             (byte*)data);

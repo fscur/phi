@@ -67,8 +67,8 @@ void screen::initGL()
     initState.cullFace = phi::gl::cullFace::back;
     initState.depthMask = true;
     initState.depthTest = true;
-    initState.useBindlessTextures = false;
-    initState.useSparseTextures = false;
+    initState.useBindlessTextures = true;
+    initState.useSparseTextures = true;
     phi::gl::init(initState);
 }
 

@@ -61,6 +61,9 @@ namespace phi
         };
     private:
         static bool _initialized;
+
+    private:
+        static void printOpenGLDetails();
         static void initOpenGLExtensions();
         static void initState();
     public:

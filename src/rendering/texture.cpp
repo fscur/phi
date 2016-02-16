@@ -46,13 +46,30 @@ namespace phi
 
     texture* texture::createDefault(byte* data)
     {
+        auto x = 128;
+        auto y = 128;
+        auto d = new byte[x * y * 4];
+
+        for (size_t i = 0; i < x; i++)
+        {
+            for (size_t j = 0; j < y * 4; j+=4)
+            {
+                auto index = (j + y * i * 4);
+
+                d[index + 0] = 0xFF;
+                d[index + 1] = 0xFF;
+                d[index + 2] = 0xFF;
+                d[index + 3] = 0xFF;
+            }
+        }
+
         return new texture(
-            1, 
-            1, 
+            x, 
+            y, 
             GL_TEXTURE_2D,
             GL_RGBA8, 
             GL_BGRA, 
             GL_UNSIGNED_BYTE, 
-            data);
+            d);
     }
 }
