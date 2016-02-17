@@ -1,16 +1,19 @@
-#ifndef _PHI_PIPELINE_H_
-#define _PHI_PIPELINE_H_
+#pragma once
 
+#include <core\object3D.h>
+
+#include "batch.h"
 #include "rendering.h"
 #include "gl.h"
 #include "mesh.h"
 #include "buffer.h"
-#include "vertexArrayObject.h"
 #include "shader.h"
 #include "textureManager.h"
 
 #include <map>
 #include <vector>
+#include <algorithm>
+#include <functional>
 
 namespace phi
 {
@@ -24,53 +27,51 @@ namespace phi
     struct pipelineInfo
     {
         std::vector<material*> materials;
-        std::map<geometry*, std::vector<mesh*>> renderList;
-        phi::frameUniformBlock frameUniformBlock;
     };
 
     class pipeline
     {
     private:
-
         shader* _shader;
-        std::vector<buffer*> _buffers;
         std::map<material*, uint> _materialsMaterialsGpu;
         textureManager* _textureManager;
-
-        bool _hasBindlessExtension;
+        batch* _currentBatch;
+        
+        buffer* _materialsBuffer;
+        buffer* _frameUniformBlockBuffer;
 
     public:
-        vertexArrayObject* vao;
+        std::vector<batch*> batches;
 
     private:
 
         void createShader();
 
-        void createFrameUniformBlockBuffer(phi::frameUniformBlock frameUniformBlock);
+        void createFrameUniformBlockBuffer();
         void createMaterialsBuffer(std::vector<material*> materials);
-        void createTextureArraysBuffer();
-        void createDrawCmdsBuffer(std::map<geometry*, std::vector<mesh*>> renderList);
 
-        void createVao(std::map<geometry*, std::vector<mesh*>> renderList);
+        void addToBatch(object3D* object);
 
     public:
-        RENDERING_API pipeline() :
-            _hasBindlessExtension(false){}
+        RENDERING_API pipeline() {}
 
         RENDERING_API ~pipeline()
         {
-            delete vao;
-            
-            auto buffersCount = _buffers.size();
+            delete _materialsBuffer;
+            delete _frameUniformBlockBuffer;
 
-            for (auto i = 0; i < buffersCount; i++)
-                delete _buffers[i];
+            auto batchesCount = batches.size();
+
+            for (auto i = 0; i < batchesCount; i++)
+                delete batches[i];
+
+            delete _textureManager;
         }
 
         RENDERING_API void init(phi::pipelineInfo pipelineInfo);
 
         RENDERING_API void updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock);
+
+        RENDERING_API void add(object3D* object);
     };
 }
-
-#endif

@@ -1,93 +1,68 @@
-#ifndef _PHI_VERTEX_BUFFER_H_
-#define _PHI_VERTEX_BUFFER_H_
+#pragma once
 
 #include <core\vertex.h>
+
+#include "buffer.h"
 
 #include <vector>
 
 #include <GL\glew.h>
 
-struct vertexBufferDataInfo
+namespace phi
 {
-public:
-    void* data;
-    GLsizeiptr size;
-    GLenum flags;
-
-public:
-    vertexBufferDataInfo(
-        void* data = nullptr,
-        GLsizeiptr size = 0,
-        GLenum flags = 0) :
-        data(data),
-        size(size),
-        flags(flags)
+    struct vertexAttrib
     {
-    }
-};
+    public:
+        GLuint location;
+        GLuint size;
+        GLenum type;
+        GLsizei stride;
+        const void* offset;
+        GLuint divisor;
+    public:
 
-struct vertexAttrib
-{
-public:
-    GLuint location;
-    GLuint size;
-    GLenum type;
-    GLsizei stride;
-    const void* offset;
-    GLuint divisor;
-public:
-
-    vertexAttrib(
-        GLuint location = -1,
-        GLuint size = 0,
-        GLenum type = GL_NONE,
-        GLsizei stride = 0,
-        const void* offset = (const void*)0,
-        GLuint divisor = 0) :
-        location(location),
-        size(size),
-        type(type),
-        stride(stride),
-        offset(offset),
-        divisor(divisor)
-    {
-    }
-};
-
-class vertexBuffer
-{
-private:
-    GLuint _id;
-    void* _data;
-public:
-    vertexBuffer(vertexBufferDataInfo info, std::vector<vertexAttrib> attribs) :
-        _data(info.data)
-    {
-        glCreateBuffers(1, &_id);
-        glBindBuffer(GL_ARRAY_BUFFER, _id);
-        glNamedBufferData(_id, info.size, info.data, info.flags);
-
-        auto s = attribs.size();
-
-        for (GLuint i = 0; i < s; i++)
+        vertexAttrib(
+            GLuint location = -1,
+            GLuint size = 0,
+            GLenum type = GL_NONE,
+            GLsizei stride = 0,
+            const void* offset = (const void*)0,
+            GLuint divisor = 0) :
+            location(location),
+            size(size),
+            type(type),
+            stride(stride),
+            offset(offset),
+            divisor(divisor)
         {
-            auto location = attribs[i].location;
-            glEnableVertexAttribArray(location);
-
-            if (attribs[i].type == GL_UNSIGNED_INT || attribs[i].type == GL_INT)
-                glVertexAttribIPointer(location, attribs[i].size, attribs[i].type, attribs[i].stride, attribs[i].offset);
-            else if (attribs[i].type == GL_FLOAT)
-                glVertexAttribPointer(location, attribs[i].size, attribs[i].type, GL_FALSE, attribs[i].stride, attribs[i].offset);
-
-            glVertexAttribDivisor(location, attribs[i].divisor);
         }
-    }
+    };
 
-    ~vertexBuffer()
+    class vertexBuffer :
+        public buffer
     {
-        glDeleteBuffers(1, &_id);
-    }
-};
+    public:
+        vertexBuffer(std::vector<vertexAttrib> attribs) : buffer(bufferTarget::array)
+        {
+            auto s = attribs.size();
 
-#endif
+            for (GLuint i = 0; i < s; i++)
+            {
+                auto location = attribs[i].location;
+                glEnableVertexAttribArray(location);
 
+                if (attribs[i].type == GL_UNSIGNED_INT || attribs[i].type == GL_INT)
+                    glVertexAttribIPointer(location, attribs[i].size, attribs[i].type, attribs[i].stride, attribs[i].offset);
+                else if (attribs[i].type == GL_FLOAT)
+                    glVertexAttribPointer(location, attribs[i].size, attribs[i].type, GL_FALSE, attribs[i].stride, attribs[i].offset);
+
+                glVertexAttribDivisor(location, attribs[i].divisor);
+            }
+        }
+
+        ~vertexBuffer()
+        {
+            buffer::~buffer();
+        }
+    };
+}

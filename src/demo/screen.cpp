@@ -35,14 +35,14 @@ void screen::onInitialize()
 {
     setTitle("phi");
     centerScreen();
-
     initRenderingSystem();
     initGL();
     initScenesManager();
     initLibrary();
+    initRenderer();
     initScene();
     initInput();
-    initRenderer();
+
 }
 
 void screen::initRenderingSystem()
@@ -104,6 +104,7 @@ void screen::initScene()
         cloned->setLocalPosition(phi::vec3(i, 0.0, 0.0));
         cloned->update();
         _scene->add(cloned);
+        _pipeline->add(cloned);
     }
 }
 
@@ -116,20 +117,12 @@ void screen::initInput()
 
 void screen::initRenderer()
 {
-    auto camera = _scene->getCamera();
-    auto frameUniformBlock = phi::frameUniformBlock();
-    frameUniformBlock.p = camera->getProjectionMatrix();
-    frameUniformBlock.v = camera->getViewMatrix();
-    frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
-
     auto libraryMaterials = _library->getMaterialsRepository()->getAllObjects();
 
     auto pipelineInfo = phi::pipelineInfo();
     pipelineInfo.materials.push_back(phi::material::default());
     pipelineInfo.materials.insert(pipelineInfo.materials.end(), libraryMaterials.begin(), libraryMaterials.end());
-    pipelineInfo.renderList = _scene->getRenderList();
-    pipelineInfo.frameUniformBlock = frameUniformBlock;
-
+ 
     _pipeline = new phi::pipeline();
     _pipeline->init(pipelineInfo);
     _renderer = new phi::renderer(_pipeline);

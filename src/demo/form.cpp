@@ -141,6 +141,9 @@ void form::initWindow()
     SDL_GetWindowWMInfo(_window, &wmInfo);
     _hwnd = wmInfo.info.win.window;
 #endif
+
+
+    std::cout << glGetError() << std::endl;
 }
 
 void form::show()

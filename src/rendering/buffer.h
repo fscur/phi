@@ -1,76 +1,105 @@
-#ifndef _PHI_BUFFER_H_
-#define _PHI_BUFFER_H_
+#pragma once
+#include <core\globals.h>
+#include "gl.h"
 
-#include <GL\glew.h>
-
-struct bufferDataInfo
+namespace phi
 {
-public:
-    void* data;
-    GLenum target;
-    GLsizeiptr size;
-    GLenum flags;
-
-public:
-    bufferDataInfo(
-        void* data = nullptr,
-        GLenum target = GL_NONE,
-        GLsizeiptr size = 0,
-        GLenum flags = 0) :
-        data(data),
-        target(target),
-        size(size),
-        flags(flags)
+    namespace bufferTarget
     {
-    }
-};
-
-class buffer
-{
-private:
-    GLuint _id;
-    bufferDataInfo _info;
-
-public:
-    buffer()
-    {
-        _id = -1;
+        enum bufferTarget
+        {
+            none = GL_NONE,
+            array = GL_ARRAY_BUFFER,
+            element = GL_ELEMENT_ARRAY_BUFFER,
+            uniform = GL_UNIFORM_BUFFER,
+            shader = GL_SHADER_STORAGE_BUFFER,
+            drawIndirect = GL_DRAW_INDIRECT_BUFFER
+        };
     }
 
-    buffer(bufferDataInfo info) : 
-        _info(info)
+    namespace bufferDataUsage
     {
-        glCreateBuffers(1, &_id); 
-        glBindBuffer(info.target, _id);
-        glNamedBufferData(_id, info.size, info.data, info.flags);
+        enum bufferDataUsage
+        {
+            streamDraw = GL_STREAM_DRAW,
+            streamRead = GL_STREAM_READ,
+            streamCopy = GL_STREAM_COPY,
+            staticDraw = GL_STATIC_DRAW,
+            staticRead = GL_STATIC_READ,
+            staticCopy = GL_STATIC_COPY,
+            dynamicDraw = GL_DYNAMIC_DRAW,
+            dynamicRead = GL_DYNAMIC_READ,
+            dynamicCopy = GL_DYNAMIC_COPY
+        };
     }
 
-    ~buffer()
+    namespace bufferStorageUsage
     {
-        glDeleteBuffers(1, &_id);
+        enum bufferStorageUsage
+        {
+            none = GL_NONE,
+            dynamic = GL_DYNAMIC_STORAGE_BIT,
+            read = GL_MAP_READ_BIT,
+            write = GL_MAP_WRITE_BIT,
+            persistent = GL_MAP_PERSISTENT_BIT,
+            coherent = GL_MAP_COHERENT_BIT,
+            client = GL_CLIENT_STORAGE_BIT
+        };
     }
 
-    inline void bind()
+    inline bufferStorageUsage::bufferStorageUsage operator|(bufferStorageUsage::bufferStorageUsage a, bufferStorageUsage::bufferStorageUsage b)
     {
-        glBindBuffer(_info.target, _id);
-    }
-    
-    inline void unbind()
-    {
-        glBindBuffer(_info.target, 0);
+        return static_cast<bufferStorageUsage::bufferStorageUsage>(static_cast<int>(a) | static_cast<int>(b));
     }
 
-    inline void bindBufferBase(GLuint location)
+    class buffer
     {
-        glBindBufferBase(_info.target, location, _id);
-    }
+    protected:
+        GLuint id;
+        bufferTarget::bufferTarget target;
 
-    inline void bufferSubData(void* data)
-    {
-        _info.data = data;
-        glNamedBufferSubData(_id, 0, _info.size, data);
-    }
-};
+    public:
+        buffer(bufferTarget::bufferTarget  target) :
+            target(target),
+            id(-1)
+        {
+            glCreateBuffers(1, &id);
+            bind();
+        }
 
-#endif
+        ~buffer()
+        {
+            glDeleteBuffers(1, &id);
+        }
 
+        inline void bind()
+        {
+            glBindBuffer(target, id);
+        }
+
+        inline void unbind()
+        {
+            glBindBuffer(target, 0);
+        }
+
+        inline void bindBufferBase(GLuint location)
+        {
+            glBindBufferBase(target, location, id);
+        }
+
+        inline void storage(GLsizeiptr size, void* data, bufferStorageUsage::bufferStorageUsage usage)
+        {
+            glNamedBufferStorage(id, size, data == nullptr ? NULL : data, usage);
+        }
+
+        inline void data(GLsizeiptr size, void* data, bufferDataUsage::bufferDataUsage usage)
+        {
+            glNamedBufferData(id, size, data == nullptr ? NULL : data, usage);
+        }
+
+        inline void subData(GLintptr offset, GLintptr size, void* data)
+        {
+            glNamedBufferSubData(id, offset, size, data);
+        }
+    };
+}

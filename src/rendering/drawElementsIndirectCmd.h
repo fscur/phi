@@ -1,16 +1,28 @@
-#ifndef _PHI_DRAW_ELEMENTS_INDIRECT_CMD_H_
-#define _PHI_DRAW_ELEMENTS_INDIRECT_CMD_H_
+#pragma once
 
 #include <GL\glew.h>
-
-struct drawElementsIndirectCmd
+namespace phi
 {
-    GLuint indicesCount;
-    GLuint instanceCount;
-    GLuint firstIndex;
-    GLuint baseVertex;
-    GLuint baseInstance;
-};
+    struct drawElementsIndirectCmd
+    {
+        GLuint indicesCount;
+        GLuint instanceCount;
+        GLuint firstIndex;
+        GLuint baseVertex;
+        GLuint baseInstance;
 
-#endif // !_PHI_DRAW_ELEMENTS_INDIRECT_CMD_H_
-
+        drawElementsIndirectCmd(
+            GLuint indicesCount,
+            GLuint instanceCount,
+            GLuint firstIndex,
+            GLuint baseVertex,
+            GLuint baseInstance) :
+            indicesCount(indicesCount),
+            instanceCount(instanceCount),
+            firstIndex(firstIndex),
+            baseVertex(baseVertex),
+            baseInstance(baseInstance)
+        {
+        }
+    };
+}

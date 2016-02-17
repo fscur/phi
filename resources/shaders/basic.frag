@@ -66,7 +66,7 @@ void main(void)
     vec3 sunPos = normalize(vec3(4.0, 3.0, 2.0));
     float f = clamp(dot(sunPos, normalize(fragNormal)), 0.4, 1.0);
     fragColor = albedo(material) * f;
-
+    //fragColor = vec4(1.0, 0.0, 0.0, 1.0);
     //fragColor = vec4(
     //float(material.albedoTexturePageIndex)/49.0, 
     //float(material.normalTexturePageIndex)/49.0, 

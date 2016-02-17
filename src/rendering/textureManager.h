@@ -40,6 +40,8 @@ namespace phi
                 glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &_maxContainerItems);
 
             glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB, &_maxTextureUnits);
+
+            phi::log("texture manager s" + std::to_string(glGetError()));
         }
 
         ~textureManager()

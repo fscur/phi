@@ -11,10 +11,13 @@ namespace phi
         if (_initialized)
             return;
 
-        phi::log("initializing OpenGL.");
+        phi::log("initializing OpenGL. " + std::to_string(glGetError()));
 
         printOpenGLDetails();
+        phi::log("printOpenGLDetails " + std::to_string(glGetError()));
+
         initOpenGLExtensions();
+        phi::log("initOpenGLExtensions " + std::to_string(glGetError()));
 
         auto hasBindlessTextures = extensions["GL_ARB_bindless_texture"];
         auto hasSparseTextures = extensions["GL_ARB_sparse_texture"];
@@ -30,6 +33,7 @@ namespace phi
             state.useSparseTextures && hasSparseTextures);
 
         initState();
+        phi::log("initState " + std::to_string(glGetError()));
 
         _initialized = true;
     }
@@ -51,12 +55,14 @@ namespace phi
         auto i = 0;
 
         glExtension = glGetStringi(GL_EXTENSIONS, i++);
+        phi::log("glGetStringi " + std::to_string(glGetError()) + std::to_string(i - 1));
         std::vector<std::string> glExtensions;
 
         while (glExtension != NULL)
         {
             glExtensions.push_back(std::string((char*)glExtension));
             glExtension = glGetStringi(GL_EXTENSIONS, i++);
+            phi::log("glGetStringi " + std::to_string(glGetError()) + std::to_string(i - 1));
         }
 
         std::vector<std::string> phiExtensions;
@@ -75,6 +81,7 @@ namespace phi
 
     void gl::initState()
     {
+
         auto state = *currentState;
 
         glClearColor(state.clearColor.r, state.clearColor.g, state.clearColor.b, state.clearColor.a);
@@ -93,5 +100,30 @@ namespace phi
 
         auto depthMask = state.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
+    }
+
+    std::string gl::getErrorString(GLenum error)
+    {
+        switch (error)
+        {
+        case GL_NO_ERROR: return "No error";
+            break;
+        case GL_INVALID_ENUM: return "Invalid enum";
+            break;
+        case GL_INVALID_VALUE: return "Invalid value";
+            break;
+        case GL_INVALID_OPERATION: return "Invalid operation";
+            break;
+        case GL_OUT_OF_MEMORY: return "Out of memory";
+            break;
+        default:
+            break;
+        }
+    }
+
+    void gl::printError(std::string msg)
+    {
+        auto error = glGetError();
+        phi::log(msg + " (" + getErrorString(error) + ")");
     }
 }

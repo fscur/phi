@@ -15,13 +15,13 @@ namespace phi
     class gl
     {
     public:
-        enum frontFace
+        enum class frontFace
         {
             cw,
             ccw
         };
 
-        enum cullFace
+        enum class cullFace
         {
             front,
             back
@@ -70,6 +70,8 @@ namespace phi
         RENDERING_API static gl:: state* currentState;
         RENDERING_API static std::map<std::string, bool> extensions;
         RENDERING_API static void init(gl::state state);
+        RENDERING_API static std::string getErrorString(GLenum error);
+        RENDERING_API static void printError(std::string msg);
     };
 }
 
