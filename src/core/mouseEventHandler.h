@@ -1,5 +1,4 @@
-#ifndef _PHI_MOUSE_EVENT_HANDLER_H_
-#define _PHI_MOUSE_EVENT_HANDLER_H_
+#pragma once
 
 #include "eventHandler.h"
 #include "mouseEventArgs.h"
@@ -11,5 +10,3 @@ namespace phi
     {
     };
 }
-
-#endif

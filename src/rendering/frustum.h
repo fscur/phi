@@ -1,5 +1,4 @@
-#ifndef _PHI_FRUSTUM_H_
-#define _PHI_FRUSTUM_H_
+#pragma once
 
 #include <core/globals.h>
 #include <core/size.h>
@@ -78,5 +77,3 @@ namespace phi
         RENDERING_API bool isInside(vec3 center, float radius);
     };
 }
-
-#endif

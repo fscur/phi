@@ -1,5 +1,4 @@
-#ifndef _PHI_SCENE_OBJECT_EVENT_ARGS_H_
-#define _PHI_SCENE_OBJECT_EVENT_ARGS_H_
+#pragma once
 
 namespace phi
 {
@@ -17,5 +16,3 @@ namespace phi
         }
     };
 }
-
-#endif

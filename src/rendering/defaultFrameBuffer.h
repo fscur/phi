@@ -1,5 +1,4 @@
-#ifndef _PHI_DEFAULT_FRAME_BUFFER_H_
-#define _PHI_DEFAULT_FRAME_BUFFER_H_
+#pragma once
 
 #include "frameBuffer.h"
 
@@ -15,5 +14,3 @@ namespace phi
         RENDERING_API void clear() override;
     };
 }
-
-#endif

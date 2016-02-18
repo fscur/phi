@@ -1,5 +1,4 @@
-#ifndef _PHI_TEXTURE_H_
-#define _PHI_TEXTURE_H_
+#pragma once
 
 #include <core/globals.h>
 #include <core/resource.h>
@@ -67,4 +66,3 @@ namespace phi
         RENDERING_API ~texture() {}
     };
 }
-#endif

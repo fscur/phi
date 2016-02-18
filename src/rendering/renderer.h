@@ -1,5 +1,4 @@
-#ifndef _PHI_RENDERER_H_
-#define _PHI_RENDERER_H_
+#pragma once
 
 #include "renderingSystem.h"
 
@@ -20,5 +19,3 @@ namespace phi
         RENDERING_API void render();
     };
 }
-
-#endif

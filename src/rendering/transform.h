@@ -1,5 +1,4 @@
-#ifndef _PHI_TRANSFORM_H_
-#define _PHI_TRANSFORM_H_
+#pragma once
 
 #include "rendering.h"
 
@@ -29,5 +28,3 @@ namespace phi
         RENDERING_API void setModelMatrix(mat4 value) { _m = value; }
     };
 }
-
-#endif

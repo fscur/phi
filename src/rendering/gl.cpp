@@ -11,13 +11,10 @@ namespace phi
         if (_initialized)
             return;
 
-        phi::log("initializing OpenGL. " + std::to_string(glGetError()));
+        phi::log("Initializing OpenGL.");
 
         printOpenGLDetails();
-        phi::log("printOpenGLDetails " + std::to_string(glGetError()));
-
         initOpenGLExtensions();
-        phi::log("initOpenGLExtensions " + std::to_string(glGetError()));
 
         auto hasBindlessTextures = extensions["GL_ARB_bindless_texture"];
         auto hasSparseTextures = extensions["GL_ARB_sparse_texture"];
@@ -33,7 +30,6 @@ namespace phi
             state.useSparseTextures && hasSparseTextures);
 
         initState();
-        phi::log("initState " + std::to_string(glGetError()));
 
         _initialized = true;
     }
@@ -44,9 +40,9 @@ namespace phi
             return std::string((char*)glGetString(s));
         };
 
-        phi::log("vendor: " + print(GL_VENDOR) + ".");
-        phi::log("renderer: " + print(GL_RENDERER) + ".");
-        phi::log("version: " + print(GL_VERSION) + ".");
+        phi::log("Vendor: " + print(GL_VENDOR) + ".");
+        phi::log("Renderer: " + print(GL_RENDERER) + ".");
+        phi::log("Version: " + print(GL_VERSION) + ".");
     }
 
     void gl::initOpenGLExtensions()
@@ -54,34 +50,34 @@ namespace phi
         const GLubyte* glExtension = nullptr;
         auto i = 0;
 
-        glExtension = glGetStringi(GL_EXTENSIONS, i++);
-        phi::log("glGetStringi " + std::to_string(glGetError()) + std::to_string(i - 1));
+        glExtension = glGetStringi(GL_EXTENSIONS, i);
         std::vector<std::string> glExtensions;
 
         while (glExtension != NULL)
         {
             glExtensions.push_back(std::string((char*)glExtension));
-            glExtension = glGetStringi(GL_EXTENSIONS, i++);
-            phi::log("glGetStringi " + std::to_string(glGetError()) + std::to_string(i - 1));
+            glExtension = glGetStringi(GL_EXTENSIONS, ++i);
         }
+
+        //cleaning error from loading the last (inexistent) extension
+        glGetError();
 
         std::vector<std::string> phiExtensions;
         phiExtensions.push_back("GL_ARB_bindless_texture");
         phiExtensions.push_back("GL_ARB_sparse_texture");
 
-        phi::log("extensions:");
+        phi::log("Extensions:");
 
         for (auto phiExtension : phiExtensions)
         {
             auto found = phi::contains(glExtensions, phiExtension);
             extensions[phiExtension] = found;
-            phi::log(phiExtension + (found ? "[true]" : "[false]"));
+            phi::log(phiExtension + (found ? "[Ok]" : "[Not Ok]"));
         }
     }
 
     void gl::initState()
     {
-
         auto state = *currentState;
 
         glClearColor(state.clearColor.r, state.clearColor.g, state.clearColor.b, state.clearColor.a);
@@ -89,11 +85,8 @@ namespace phi
         if (state.culling)
             glEnable(GL_CULL_FACE);
 
-        auto cullBackFace = state.cullFace == phi::gl::cullFace::back;
-        glCullFace(cullBackFace ? GL_BACK : GL_FRONT);
-
-        auto frontFaceCCW = state.frontFace == phi::gl::frontFace::ccw;
-        glFrontFace(frontFaceCCW ? GL_CCW : GL_CW);
+        glCullFace(state.cullFace);
+        glFrontFace(state.frontFace);
 
         if (state.depthTest)
             glEnable(GL_DEPTH_TEST);
@@ -119,6 +112,8 @@ namespace phi
         default:
             break;
         }
+
+        return std::string();
     }
 
     void gl::printError(std::string msg)

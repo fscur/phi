@@ -1,5 +1,4 @@
-#ifndef _PHI_RENDERING_SYSTEM_H_
-#define _PHI_RENDERING_SYSTEM_H_
+#pragma once
 
 #include <core/resourcesRepository.h>
 #include <core/size.h>
@@ -46,5 +45,3 @@ namespace phi
         RENDERING_API static void release();
     };
 }
-
-#endif

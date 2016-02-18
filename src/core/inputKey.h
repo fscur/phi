@@ -1,5 +1,4 @@
-#ifndef _PHI_INPUT_KEY_H_
-#define _PHI_INPUT_KEY_H_
+#pragma once
 
 #include <cstddef>
 #include <functional>
@@ -39,5 +38,3 @@ namespace phi
         }
     };
 }
-
-#endif

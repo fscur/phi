@@ -1,4 +1,5 @@
 #pragma once
+
 #include <core\globals.h>
 #include "gl.h"
 

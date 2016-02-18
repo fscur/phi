@@ -1,5 +1,4 @@
-#ifndef _PHI_ATTENUATION_H_
-#define _PHI_ATTENUATION_H_
+#pragma once
 
 #include "rendering.h"
 
@@ -19,4 +18,3 @@ namespace phi
         ~attenuation() {}
     };
 }
-#endif

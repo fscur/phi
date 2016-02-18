@@ -115,7 +115,7 @@ int main(int argc, char* args[])
     application::path = path;
     application::exePath = exePath;
 
-    phi::log("application path: " + path + ".");
+    phi::debug("application path: " + path + ".");
 
     initCommandLineCommands();
     processCommandLine(argc, args);
@@ -135,7 +135,7 @@ int main(int argc, char* args[])
 
     mainScreen->initialize(path);
 
-    phi::log("runnning.");
+    phi::debug("runnning.");
     app->run(mainScreen);
 
     phi::safeDelete(mainScreen);

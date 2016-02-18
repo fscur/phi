@@ -80,11 +80,11 @@ void form::initialize(std::string applicationPath)
 
 void form::initWindow()
 {
-    phi::log("initializing SDL.");
+    phi::debug("Initializing SDL.");
 
     SDL_Rect r;
     if (SDL_GetDisplayBounds(0, &r) != 0)
-        SDL_Log("SDL_GetDisplayBounds failed: %s", SDL_GetError());
+        phi::log("SDL_GetDisplayBounds failed: " +std::string(SDL_GetError()));
 
     //createGLWindow
     _window = SDL_CreateWindow(
@@ -134,7 +134,7 @@ void form::initWindow()
     GLenum glewInitStatus = glewInit();
 
     if(glewInitStatus != GLEW_OK)
-        std::cout << "Error: " << glewGetErrorString(glewInitStatus);
+        phi::log("Error: " + std::string(reinterpret_cast<const char*>(glewGetErrorString(glewInitStatus))));
 
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
@@ -142,8 +142,8 @@ void form::initWindow()
     _hwnd = wmInfo.info.win.window;
 #endif
 
-
-    std::cout << glGetError() << std::endl;
+    //cleaning error from glewInit()
+    glGetError();
 }
 
 void form::show()

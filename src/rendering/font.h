@@ -1,5 +1,4 @@
-#ifndef _PHI_FONT_H_
-#define _PHI_FONT_H_
+#pragma once
 
 #include <core/globals.h>
 #include <core/resource.h>
@@ -64,5 +63,3 @@ namespace phi
         RENDERING_API texture* getTexture() { return _texture; }
     };
 }
-
-#endif

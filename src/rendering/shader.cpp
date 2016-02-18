@@ -130,7 +130,7 @@ namespace phi
 
     void shader::initAttribs()
     {
-        for (unsigned int i = 0; i < _attributes.size(); i++)
+        for (uint i = 0; i < _attributes.size(); ++i)
             glBindAttribLocation(_id, i, _attributes[i].c_str());
     }
 

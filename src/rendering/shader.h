@@ -1,6 +1,4 @@
-#ifndef _PHI_SHADER_H_
-#define _PHI_SHADER_H_
-
+#pragma once
 #include <core\color.h>
 #include <core\size.h>
 
@@ -73,9 +71,18 @@ namespace phi
         RENDERING_API inline void setUniform(uint location, bool value) { glUniform1f(_uniforms[location], value ? 1.0f : 0.0f); }
         RENDERING_API inline void setUniform(uint location, int value) { glUniform1i(_uniforms[location], value); }
         RENDERING_API inline void setUniform(uint location, texture* value, GLuint index);
-        RENDERING_API inline void setUniform(uint location, std::vector<GLint> value) { glUniform1iv(_uniforms[location], value.size(), value.data()); }
+        RENDERING_API inline void setUniform(uint location, std::vector<GLint> value) 
+        {
+            glUniform1iv(_uniforms[location], static_cast<GLsizei>(value.size()), value.data()); 
+        }
+
         RENDERING_API inline void setUniform(uint location, GLuint64 value) { glUniformHandleui64ARB(_uniforms[location], value); }
-        RENDERING_API inline void setUniform(uint location, std::vector<GLuint64> value) { glUniformHandleui64vARB(_uniforms[location], (GLsizei)value.size(), value.data()); }
+
+        RENDERING_API inline void setUniform(uint location, std::vector<GLuint64> value) 
+        { 
+            glUniformHandleui64vARB(_uniforms[location], static_cast<GLsizei>(value.size()), value.data()); 
+        }
+
         RENDERING_API void initAttribs();
 
         RENDERING_API void bind();
@@ -84,5 +91,3 @@ namespace phi
         RENDERING_API void release();
     };
 }
-
-#endif

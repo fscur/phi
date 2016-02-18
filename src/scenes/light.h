@@ -1,5 +1,4 @@
-#ifndef _PHI_LIGHT_H_
-#define _PHI_LIGHT_H_
+#pragma once
 
 #include <core\object3D.h>
 #include <core\color.h>
@@ -47,4 +46,3 @@ namespace phi
         SCENES_API float calcRange(attenuation attenuation, color color);
     };
 }
-#endif

@@ -62,7 +62,7 @@ namespace phi
 
             auto batchesCount = batches.size();
 
-            for (auto i = 0; i < batchesCount; i++)
+            for (auto i = 0; i < batchesCount; ++i)
                 delete batches[i];
 
             delete _textureManager;

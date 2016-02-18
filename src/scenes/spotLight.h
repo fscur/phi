@@ -1,5 +1,4 @@
-#ifndef _PHI_SPOT_LIGHT_H_
-#define _PHI_SPOT_LIGHT_H_
+#pragma once
 
 #include "pointLight.h"
 #include "cone.h"
@@ -43,4 +42,3 @@ namespace phi
 		SCENES_API transform* getTransform() override;
     };
 }
-#endif

@@ -1,6 +1,7 @@
 #include "spotLight.h"
 
-#include <rendering/shaderManager.h>
+#include <rendering\shaderManager.h>
+#include <GLM\gtc\matrix_transform.hpp>
 
 namespace phi
 {
@@ -72,7 +73,7 @@ namespace phi
         vec3 J = vec3(0.0f, 1.0f, 0.0f);
         vec3 up = normalize(J - direction * dot(direction, J));
 
-        _viewMatrix = lookAt(getPosition(), getPosition() + direction, up);
+        _viewMatrix = glm::lookAt(getPosition(), getPosition() + direction, up);
         _transform->setViewMatrix(_viewMatrix);
     }
 

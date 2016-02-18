@@ -1,5 +1,4 @@
-#ifndef _PHI_POINT_LIGHT_H_
-#define _PHI_POINT_LIGHT_H_
+#pragma once
 
 #include <rendering/attenuation.h>
 
@@ -33,4 +32,3 @@ namespace phi
         SCENES_API void setRange(float value);
     };
 }
-#endif

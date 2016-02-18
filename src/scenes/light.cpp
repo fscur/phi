@@ -1,5 +1,7 @@
 #include "light.h"
-#include <core/globals.h>
+
+#include <core\globals.h>
+#include <algorithm>
 
 namespace phi
 {
@@ -67,7 +69,7 @@ namespace phi
 
     float light::calcRange(attenuation attenuation, color color)
     {
-        float maxColorChannel = mathUtils::max(mathUtils::max(color.r, color.g), color.b);
+        float maxColorChannel = std::max(std::max(color.r, color.g), color.b);
         float linear = attenuation.linear;
         float exp = attenuation.exponential;
         float constant = attenuation.constant;

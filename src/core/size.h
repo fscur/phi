@@ -1,5 +1,4 @@
-#ifndef _PHI_SIZE_H_
-#define _PHI_SIZE_H_
+#pragma once
 
 namespace phi
 {
@@ -34,5 +33,3 @@ namespace phi
     using sizef = tsize<float>;
     using sized = tsize<double>;
 }
-
-#endif 

@@ -1,5 +1,4 @@
-#ifndef _PHI_MESH_H_
-#define _PHI_MESH_H_
+#pragma once
 
 #include <core\geometry.h>
 #include <core\object3D.h>
@@ -36,4 +35,3 @@ namespace phi
         }
     };
 }
-#endif

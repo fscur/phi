@@ -1,5 +1,4 @@
-#ifndef _PHI_DIRECTORY_INFO_H_
-#define _PHI_DIRECTORY_INFO_H_
+#pragma once
 
 #include <string>
 
@@ -12,5 +11,3 @@ namespace phi
         std::string path;
     };
 }
-
-#endif

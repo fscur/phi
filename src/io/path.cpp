@@ -52,7 +52,7 @@ namespace phi
 
     std::string path::getExtension(std::string path)
     {
-        int dotIndex = path.find_last_of('.');
+        int dotIndex = static_cast<int>(path.find_last_of('.'));
 
         if (dotIndex < 0)
             return "";

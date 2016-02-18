@@ -1,5 +1,4 @@
-#ifndef _PHI_SPHERE_H_
-#define _PHI_SPHERE_H_
+#pragma once
 
 #include "scenes.h"
 
@@ -28,5 +27,3 @@ namespace phi
         SCENES_API void setRadius(float radius);
     };
 }
-
-#endif

@@ -1,15 +1,9 @@
-#ifndef _PHI_OBJECT_3D_H_
-#define _PHI_OBJECT_3D_H_
+#pragma once
 
-#include "globals.h"
-#include "core.h"
-#include "size.h"
-#include "mathUtils.h"
 #include "aabb.h"
 #include "eventHandler.h"
 #include "object3DEventArgs.h"
-
-#include <vector>
+#include "mathUtils.h"
 
 namespace phi
 {
@@ -101,5 +95,3 @@ namespace phi
         CORE_API void yaw(float angle);
     };
 }
-
-#endif

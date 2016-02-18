@@ -1,5 +1,4 @@
-#ifndef _PHI_FRAME_BUFFER_H_
-#define _PHI_FRAME_BUFFER_H_
+#pragma once
 
 #include <core\globals.h>
 #include <core\color.h>
@@ -77,5 +76,3 @@ namespace phi
         RENDERING_API inline GLfloat getZBufferValue(vec2 mousePos);
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PHI_RENDERING_H_
-#define _PHI_RENDERING_H_
+#pragma once
 
 #ifdef WIN32
     #ifdef RENDERING_EXPORTS
@@ -12,5 +11,3 @@
 #endif
 
 #define GLM_FORCE_RADIANS
-
-#endif

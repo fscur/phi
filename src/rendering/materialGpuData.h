@@ -1,5 +1,4 @@
-#ifndef _PHI_MATERIAL_GPU_DATA_H_
-#define _PHI_MATERIAL_GPU_DATA_H_
+#pragma once
 
 #include "material.h"
 
@@ -61,4 +60,3 @@ namespace phi
         {}
     };
 }
-#endif

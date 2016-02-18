@@ -1,5 +1,4 @@
-#ifndef _PHI_TEXTURE_MANAGER_H_
-#define _PHI_TEXTURE_MANAGER_H_
+#pragma once
 
 #include "textureContainer.h"
 #include "gl.h"
@@ -17,6 +16,7 @@ namespace phi
         GLint _currentTextureUnit;
         GLint _maxTextureUnits;
         GLint _maxContainerItems;
+
     public:
         std::vector<GLint> units;
         std::vector<GLuint64> handles;
@@ -40,8 +40,6 @@ namespace phi
                 glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &_maxContainerItems);
 
             glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB, &_maxTextureUnits);
-
-            phi::log("texture manager s" + std::to_string(glGetError()));
         }
 
         ~textureManager()
@@ -76,5 +74,3 @@ namespace phi
         }
     };
 }
-
-#endif

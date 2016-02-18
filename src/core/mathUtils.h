@@ -1,26 +1,12 @@
-#ifndef _PHI_MATH_UTILS_H_
-#define _PHI_MATH_UTILS_H_
+#pragma once
 
-#include "core.h"
 #include "globals.h"
-
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 namespace phi
 {
     class mathUtils
     {
     public:
-
-        static CORE_API float max(float a, float b)
-        {
-            if (a > b)
-                return a;
-            else
-                return b;
-        }
 
         static CORE_API float round(float value, int decimals)
         {
@@ -63,4 +49,3 @@ namespace phi
         }
     };
 }
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PHI_CONSOLE_H_
-#define _PHI_CONSOLE_H_
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -12,5 +11,3 @@ public:
     static void write(std::string message);
     static void writeLine(std::string message);
 };
-
-#endif

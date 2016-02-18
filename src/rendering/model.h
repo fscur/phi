@@ -1,5 +1,4 @@
-#ifndef _PHI_MODEL_H_
-#define _PHI_MODEL_H_
+#pragma once
 
 #include <core\object3D.h>
 
@@ -21,4 +20,3 @@ namespace phi
         }
     };
 }
-#endif

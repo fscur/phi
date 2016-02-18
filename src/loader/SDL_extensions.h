@@ -1,5 +1,4 @@
-#ifndef _PHI_SDL_EXTENSIONS_H_
-#define _PHI_SDL_EXTENSIONS_H_
+#pragma once
 
 #include <cstring>
 #include <cstdlib>
@@ -55,5 +54,3 @@ namespace phi
             image->pixels));
     }
 }
-
-#endif

@@ -1,6 +1,4 @@
-#ifndef _PHI_QUAD_RENDERER_H_
-#define _PHI_QUAD_RENDERER_H_
-
+#pragma once
 #include <core\size.h>
 #include <core\globals.h>
 #include <core\geometry.h>
@@ -27,18 +25,16 @@ namespace phi
         void updateProjMatrix();
         void updateModelMatrix();
     public:
-		RENDERING_API quadRenderer2D(vec2 location, float zIndex, sizef quadSize, sizef viewportSize);
+        RENDERING_API quadRenderer2D(vec2 location, float zIndex, sizef quadSize, sizef viewportSize);
         RENDERING_API ~quadRenderer2D();
         RENDERING_API void update();
         RENDERING_API vec2 getLocation() { return _location; }
         RENDERING_API float getZIndex() { return _zIndex; }
-		RENDERING_API sizef getSize() { return _size; }
+        RENDERING_API sizef getSize() { return _size; }
         RENDERING_API void setLocation(vec2 location) { _location = location; }
         RENDERING_API void setZIndex(float value) { _zIndex = value; }
-		RENDERING_API void setSize(sizef size) { _size = size; }
+        RENDERING_API void setSize(sizef size) { _size = size; }
         RENDERING_API void setViewportSize(sizef viewportSize) { _viewportSize = viewportSize; }
         RENDERING_API void render(texture* image, color backColor);
     };
 }
-
-#endif

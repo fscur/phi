@@ -1,5 +1,4 @@
-#ifndef _PHI_DIRECTIONAL_LIGHT_H_
-#define _PHI_DIRECTIONAL_LIGHT_H_
+#pragma once
 
 #include "light.h"
 
@@ -23,4 +22,3 @@ namespace phi
         SCENES_API mat4 getViewMatrix() { return _viewMatrix; }
     };
 }
-#endif

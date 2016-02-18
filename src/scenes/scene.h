@@ -1,5 +1,4 @@
-#ifndef _PHI_SCENE_H_
-#define _PHI_SCENE_H_
+#pragma once
 
 #include "scenes.h"
 
@@ -51,4 +50,3 @@ namespace phi
         SCENES_API void remove(object3D* object);
     };
 }
-#endif

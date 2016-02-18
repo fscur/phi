@@ -1,5 +1,7 @@
 #include "object3D.h"
 
+#include <GLM\gtx\quaternion.hpp>
+
 namespace phi
 {
     object3D::object3D(std::string name, objectType type) :
@@ -110,7 +112,7 @@ namespace phi
 
     mat4 object3D::getRotationMatrix()
     {
-        return toMat4(_orientation);
+        return glm::toMat4(_orientation);
     }
 
     mat4 object3D::getTranslationMatrix()

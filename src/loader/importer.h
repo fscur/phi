@@ -1,5 +1,4 @@
-#ifndef _PHI_IMPORTER_H_
-#define _PHI_IMPORTER_H_
+#pragma once
 
 #include "loader.h"
 
@@ -9,8 +8,6 @@
 
 #include <rapidjson\document.h>
 
-#include <string>
-#include <vector>
 
 namespace phi
 {
@@ -30,5 +27,3 @@ namespace phi
         LOADER_API static int importer::importMaterial(std::string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo);
     };
 }
-
-#endif

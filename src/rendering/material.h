@@ -1,5 +1,4 @@
-#ifndef _PHI_MATERIAL_H_
-#define _PHI_MATERIAL_H_
+#pragma once
 
 #include "texture.h"
 
@@ -93,4 +92,3 @@ namespace phi
         }
     };
 }
-#endif

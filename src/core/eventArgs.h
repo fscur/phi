@@ -1,5 +1,4 @@
-#ifndef _PHI_EVENTARGS_H
-#define _PHI_EVENTARGS_H
+#pragma once
 
 namespace phi
 {
@@ -9,5 +8,3 @@ namespace phi
         virtual ~eventArgs(){}
     };
 }
-
-#endif

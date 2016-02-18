@@ -1,5 +1,4 @@
-#ifndef _PHI_LINE_MESH_H_
-#define _PHI_LINE_MESH_H_
+#pragma once
 
 #include <core/globals.h>
 
@@ -55,5 +54,3 @@ namespace phi
         RENDERING_API void unbind();
     };
 }
-
-#endif

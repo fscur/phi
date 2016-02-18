@@ -1,5 +1,4 @@
-#ifndef _PHI_TEXTURE_CONTAINER_H_
-#define _PHI_TEXTURE_CONTAINER_H_
+#pragma once
 
 #include "texture.h"
 #include <map>
@@ -71,6 +70,4 @@ namespace phi
         void unload();
     };
 }
-
-#endif // !_PHI_TEXTURE_CONTAINER_H_
 

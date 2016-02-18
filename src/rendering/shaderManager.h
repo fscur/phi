@@ -1,5 +1,4 @@
-#ifndef _PHI_SHADER_MANAGER_H_
-#define _PHI_SHADER_MANAGER_H_
+#pragma once
 
 #include <core/globals.h>
 
@@ -42,5 +41,3 @@ namespace phi
         RENDERING_API void release();
     };
 }
-
-#endif

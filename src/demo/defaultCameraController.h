@@ -1,5 +1,4 @@
-#ifndef _DEFAULT_CAMERA_CONTROLLER_H_
-#define _DEFAULT_CAMERA_CONTROLLER_H_
+#pragma once
 
 #include <core/globals.h>
 #include "cameraController.h"
@@ -45,5 +44,3 @@ public:
 
     virtual void update() override;
 };
-
-#endif

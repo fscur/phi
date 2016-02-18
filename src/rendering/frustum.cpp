@@ -24,7 +24,7 @@ namespace phi
         _perspectiveMatrix(glm::perspective(fov, _aspect, near, far)),
         _changed(true)
     {
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 6; ++i)
         {
             _planeNormals[i] = vec3(0.0f, 1.0f, 0.0f);
             _planePositions[i] = vec3(0.0f);
@@ -188,7 +188,7 @@ namespace phi
         vec3 pos;
         float dist;
 
-        for (unsigned int i = 0; i < 6; i++)
+        for (unsigned int i = 0; i < 6; ++i)
         {
             //plane X bounding-sphere intersection
             //plane normal

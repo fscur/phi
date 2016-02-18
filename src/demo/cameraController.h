@@ -1,5 +1,4 @@
-#ifndef _CAMERA_CONTROLLER_H_
-#define _CAMERA_CONTROLLER_H_
+#pragma once
 
 #include <core\mouseEventArgs.h>
 #include <core\keyboardEventArgs.h>
@@ -23,5 +22,3 @@ public:
     virtual bool onKeyUp(phi::keyboardEventArgs* e, phi::inputKey key) { return false; }
     virtual void update() {}
 };
-
-#endif

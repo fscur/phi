@@ -1,5 +1,4 @@
-#ifndef _PHI_RENDER_TARGET_H_
-#define _PHI_RENDER_TARGET_H_
+#pragma once
 
 #include "rendering.h"
 #include "texture.h"
@@ -39,5 +38,3 @@ namespace phi
         RENDERING_API void setLevel(GLuint value) { _level = value; }
     };
 }
-
-#endif

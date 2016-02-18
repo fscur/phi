@@ -1,5 +1,4 @@
-#ifndef _PHI_TEXT_RENDERER_H_
-#define _PHI_TEXT_RENDERER_H_
+#pragma once
 
 #include <core\size.h>
 #include <core\geometry.h>
@@ -33,5 +32,3 @@ namespace phi
         RENDERING_API unsigned int measureString(std::string text, font* font, sizef size);
     };
 }
-
-#endif

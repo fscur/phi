@@ -1,5 +1,4 @@
-#ifndef _PHI_GL_H_
-#define _PHI_GL_H_
+#pragma once
 
 #include "rendering.h"
 #include <core\globals.h>
@@ -15,16 +14,16 @@ namespace phi
     class gl
     {
     public:
-        enum class frontFace
+        enum frontFace
         {
-            cw,
-            ccw
+            cw = GL_CW,
+            ccw = GL_CCW
         };
 
-        enum class cullFace
+        enum cullFace
         {
-            front,
-            back
+            front = GL_FRONT,
+            back = GL_BACK
         };
 
         struct state
@@ -74,5 +73,3 @@ namespace phi
         RENDERING_API static void printError(std::string msg);
     };
 }
-
-#endif

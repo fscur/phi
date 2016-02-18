@@ -1,5 +1,4 @@
-#ifndef _SCREEN_H_
-#define _SCREEN_H_
+#pragma once
 
 #include <core\size.h>
 #include <rendering\renderer.h>
@@ -70,5 +69,3 @@ public:
     void setResourcesPath(std::string value) { _resourcesPath = value; }
     void setLibraryPath(std::string value) { _libraryPath = value; }
 };
-
-#endif

@@ -9,7 +9,7 @@ std::string application::exePath = "";
 
 application::application()
 {
-    phi::log("starting application.");
+    phi::debug("Starting application.");
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
         phi::log("SDL could not initialize! SDL_Error: " + std::string(SDL_GetError()));
@@ -19,7 +19,7 @@ application::application()
 
 application::~application(void)
 {
-    phi::log("closing application.");
+    phi::debug("Closing application.");
     //TTF_Quit();
     SDL_Quit();
 }

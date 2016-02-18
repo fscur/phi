@@ -1,5 +1,4 @@
-#ifndef _PHI_CAMERA_H_
-#define _PHI_CAMERA_H_
+#pragma once
 
 #include <core/object3D.h>
 #include <rendering/frustum.h>
@@ -37,5 +36,3 @@ namespace phi
         RENDERING_API void orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY);
     };
 }
-
-#endif

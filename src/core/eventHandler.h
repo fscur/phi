@@ -1,15 +1,12 @@
-#ifndef _PHI_EVENTHANDLER_H
-#define _PHI_EVENTHANDLER_H
+#pragma once
 
 #include "delegate.h"
 
 namespace phi
 {
     template <typename T>
-    class eventHandler : 
+    class eventHandler :
         public delegate<void(T)>
-    {   
+    {
     };
 }
-
-#endif

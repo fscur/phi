@@ -6,7 +6,7 @@ namespace phi
     textureAddress textureManager::add(texture* texture)
     {
         auto biggestTextureSize = (float)glm::max(texture->w, texture->h);
-        auto maxLevels = (GLsizei)glm::floor(glm::log2(biggestTextureSize)) + 1.0f;
+        auto maxLevels = static_cast<GLsizei>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
 
         auto layout = textureContainerLayout();
         layout.w = texture->w;

@@ -17,7 +17,7 @@ namespace phi
         auto page = textures.size();
 
         textureAddress.unit = _unit;
-        textureAddress.page = page;
+        textureAddress.page = static_cast<float>(page);
 
         textures.push_back(texture);
         texturesAddresses[texture] = textureAddress;
@@ -79,16 +79,16 @@ namespace phi
             _layout.internalFormat,
             _layout.w,
             _layout.h,
-            textures.size());
+            static_cast<GLsizei>(textures.size()));
 
         glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTextureParameteri(id, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-        uint texturesCount = textures.size();
+        auto texturesCount = static_cast<uint>(textures.size());
 
-        for (uint arrayLayer = 0; arrayLayer < texturesCount; arrayLayer++)
+        for (auto arrayLayer = 0u; arrayLayer < texturesCount; ++arrayLayer)
         {
             auto texture = textures[arrayLayer];
 
@@ -97,7 +97,7 @@ namespace phi
                 GLsizei levelWidth = _layout.w;
                 GLsizei levelHeight = _layout.h;
 
-                for (size_t mipLevel = 0; mipLevel < _layout.levels; ++mipLevel)
+                for (auto mipLevel = 0; mipLevel < _layout.levels; ++mipLevel)
                 {
                     glTexturePageCommitmentEXT(
                         id,

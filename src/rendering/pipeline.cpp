@@ -17,7 +17,6 @@ namespace phi
 
         _currentBatch = new batch();
         batches.push_back(_currentBatch);
-        //createVao(info.renderList);
     }
 
     void pipeline::createShader()
@@ -57,7 +56,7 @@ namespace phi
         auto materialsGpu = std::vector<materialGpuData>();
 
         auto materialsCount = materials.size();
-        for (auto i = 0; i < materialsCount; i++)
+        for (auto i = 0; i < materialsCount; ++i)
         {
             auto material = materials[i];
 
@@ -101,8 +100,6 @@ namespace phi
             auto mesh = static_cast<phi::mesh*>(object);
             auto material = mesh->material;
             auto geometry = mesh->geometry;
-
-            phi::log(geometry);
 
             auto batchObject = phi::batchObject();
             batchObject.geometry = geometry;

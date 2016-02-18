@@ -19,7 +19,7 @@ namespace phi
     {
         if (_renderTargets)
         {
-            for(auto i = _renderTargets->begin(); i != _renderTargets->end(); i++) 
+            for(auto i = _renderTargets->begin(); i != _renderTargets->end(); ++i)
             {
                 safeDelete(i->second);
             }
@@ -171,7 +171,7 @@ namespace phi
         }
         else  if (renderTarget->getTexture()->type == GL_TEXTURE_CUBE_MAP)
         {
-            for (GLuint i = 0; i < 6; i++)
+            for (GLuint i = 0; i < 6; ++i)
             {
                 //glFramebufferTextureARB(GL_FRAMEBUFFER, renderTarget->getAttachment(), renderTarget->getTexture()->getId(), 0);
                 //glFramebufferTextureARB(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, tColorCubeMap, 0);

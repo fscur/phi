@@ -50,7 +50,7 @@ namespace phi
         auto y = 128;
         auto d = new byte[x * y * 4];
 
-        for (size_t i = 0; i < x; i++)
+        for (size_t i = 0; i < x; ++i)
         {
             for (size_t j = 0; j < y * 4; j+=4)
             {

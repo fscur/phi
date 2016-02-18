@@ -1,5 +1,4 @@
-#ifndef _PHI_SCENES_MANAGER_H
-#define _PHI_SCENES_MANAGER_H
+#pragma once
 
 #include <core\resourcesRepository.h>
 #include <rendering\renderer.h>
@@ -56,4 +55,3 @@ namespace phi
         SCENES_API void disable(GLuint flags);
     };
 }
-#endif
