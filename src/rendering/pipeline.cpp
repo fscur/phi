@@ -122,12 +122,11 @@ namespace phi
         _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
 
         if (phi::gl::currentState->useBindlessTextures)
-        {
             _shader->setUniform(0, _textureManager->handles);
-        }
         else
             _shader->setUniform(0, _textureManager->units);
-        
+
+        _loadedMaterials.push_back(material);
     }
 
     void pipeline::addToBatch(batchObject& batchObject)

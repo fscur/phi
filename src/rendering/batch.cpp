@@ -51,9 +51,7 @@ namespace phi
         glCreateVertexArrays(1, &_vao);
         glBindVertexArray(_vao);
         createVbo(nullptr, MAX_VBO_SIZE);
-        gl::printError("create vbo");
         createEbo(nullptr, MAX_VBO_SIZE);
-        gl::printError("create ebo");
         createMaterialsIdsBuffer(nullptr, sizeof(uint));
         createModelMatricesBuffer(nullptr, sizeof(mat4));
         createDrawCmdsBuffer(nullptr, sizeof(drawElementsIndirectCmd));
