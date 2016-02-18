@@ -34,8 +34,9 @@ namespace phi
     private:
         shader* _shader;
         std::map<material*, uint> _materialsMaterialsGpu;
+        std::vector<material*> _loadedMaterials;
+
         textureManager* _textureManager;
-        batch* _currentBatch;
         
         buffer* _materialsBuffer;
         buffer* _frameUniformBlockBuffer;
@@ -51,22 +52,13 @@ namespace phi
         void createMaterialsBuffer(std::vector<material*> materials);
 
         void addToBatch(object3D* object);
+        void addToBatch(batchObject& batchObject);
+        void uploadMaterial(material* material);
 
     public:
         RENDERING_API pipeline() {}
 
-        RENDERING_API ~pipeline()
-        {
-            delete _materialsBuffer;
-            delete _frameUniformBlockBuffer;
-
-            auto batchesCount = batches.size();
-
-            for (auto i = 0; i < batchesCount; ++i)
-                delete batches[i];
-
-            delete _textureManager;
-        }
+        RENDERING_API ~pipeline();
 
         RENDERING_API void init(phi::pipelineInfo pipelineInfo);
 

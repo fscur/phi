@@ -23,15 +23,62 @@ namespace phi
         texturesAddresses[texture] = textureAddress;
         --_freeSpace;
 
+        load(texture);
+
         return true;
     }
 
-    void textureContainer::load()
+    void textureContainer::load(texture* texture)
+    {
+        auto textureAddress = texturesAddresses[texture];
+
+        if (_sparse)
+        {
+            GLsizei levelWidth = _layout.w;
+            GLsizei levelHeight = _layout.h;
+
+            for (auto mipLevel = 0; mipLevel < _layout.levels; ++mipLevel)
+            {
+                glTexturePageCommitmentEXT(
+                    id,
+                    mipLevel,
+                    0,
+                    0,
+                    static_cast<GLint>(textureAddress.page),
+                    levelWidth,
+                    levelHeight,
+                    1,
+                    GL_TRUE);
+
+                levelWidth = std::max(levelWidth / 2, 1);
+                levelHeight = std::max(levelHeight / 2, 1);
+            }
+        }
+
+        glTextureSubImage3D(
+            id,
+            0,
+            0,
+            0,
+            static_cast<GLint>(textureAddress.page),
+            texture->w,
+            texture->h,
+            1,
+            texture->dataFormat,
+            texture->dataType,
+            texture->data);
+
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+    }
+
+    void textureContainer::create()
     {
         glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &id);
 
         if (!_bindless)
+        {
             glActiveTexture(GL_TEXTURE0 + _unit);
+        }
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, id);
 
@@ -79,70 +126,17 @@ namespace phi
             _layout.internalFormat,
             _layout.w,
             _layout.h,
-            static_cast<GLsizei>(textures.size()));
+            _maxTextures);
 
         glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTextureParameteri(id, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-        auto texturesCount = static_cast<uint>(textures.size());
-
-        for (auto arrayLayer = 0u; arrayLayer < texturesCount; ++arrayLayer)
-        {
-            auto texture = textures[arrayLayer];
-
-            if (_sparse)
-            {
-                GLsizei levelWidth = _layout.w;
-                GLsizei levelHeight = _layout.h;
-
-                for (auto mipLevel = 0; mipLevel < _layout.levels; ++mipLevel)
-                {
-                    glTexturePageCommitmentEXT(
-                        id,
-                        mipLevel,
-                        0,
-                        0,
-                        arrayLayer,
-                        levelWidth,
-                        levelHeight,
-                        1,
-                        GL_TRUE);
-
-                    levelWidth = std::max(levelWidth / 2, 1);
-                    levelHeight = std::max(levelHeight / 2, 1);
-                }
-            }
-
-            glTextureSubImage3D(
-                id,
-                0,
-                0,
-                0,
-                arrayLayer,
-                texture->w,
-                texture->h,
-                1,
-                texture->dataFormat,
-                texture->dataType,
-                texture->data);
-        }
-
-        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-
         if (_bindless)
         {
             handle = glGetTextureHandleARB(id);
             glMakeTextureHandleResidentARB(handle);
         }
-    }
-
-    void textureContainer::unload()
-    {
-        if (_bindless)
-            glMakeTextureHandleNonResidentARB(handle); //TODO: check if this shit releases the handle from gpu!!!
-
-        glDeleteTextures(1, &id);
     }
 }

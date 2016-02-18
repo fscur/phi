@@ -41,6 +41,10 @@ namespace phi
         bool _bindless;
         bool _sparse;
 
+    private:
+        void create();
+        void load(texture* texture);
+
     public:
         GLuint id;
         GLuint64 handle;
@@ -63,11 +67,18 @@ namespace phi
             handle(0),
             textures()
         {
+            create();
+        }
+
+        ~textureContainer()
+        {
+            if (_bindless)
+                glMakeTextureHandleNonResidentARB(handle); //TODO: check if this shit releases the handle from gpu!!!
+
+            glDeleteTextures(1, &id);
         }
 
         bool add(texture* texture, textureAddress& textureAddress);
-        void load();
-        void unload();
     };
 }
 

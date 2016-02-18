@@ -19,20 +19,26 @@ namespace phi
         phi::textureAddress textureAddress;
 
         auto it = _containers.find(key);
-        if (it == _containers.end())
-        {
-            auto container = new textureContainer(layout, _maxContainerItems, ++_currentTextureUnit, _bindless, _sparse);
-            container->add(texture, textureAddress);
-            _containers[key].push_back(container);
-
-            units.push_back(_currentTextureUnit);
-        }
-        else
+        if (it != _containers.end())
         {
             auto containers = _containers[key];
             uint i = 0;
-            while (!containers[i++]->add(texture, textureAddress)); //TODO: criar novo container quando nao puder add
+            bool added = false;
+            auto containersCount = containers.size();
+            while (!added && i < containersCount)
+            {
+                added = containers[i++]->add(texture, textureAddress);
+            }; //TODO: criar novo container quando nao puder add
+
+            if (added)
+                return textureAddress;
         }
+
+        auto container = new textureContainer(layout, _maxContainerItems, ++_currentTextureUnit, _bindless, _sparse);
+        container->add(texture, textureAddress);
+        _containers[key].push_back(container);
+        handles.push_back(container->handle);
+        units.push_back(_currentTextureUnit);
 
         return textureAddress;
     }

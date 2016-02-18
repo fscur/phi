@@ -4,6 +4,7 @@
 #include <io/path.h>
 
 #include <stdio.h>
+#include "gl.h"
 
 namespace phi
 {
@@ -46,30 +47,42 @@ namespace phi
 
     texture* texture::createDefault(byte* data)
     {
-        auto x = 128;
-        auto y = 128;
-        auto d = new byte[x * y * 4];
-
-        for (size_t i = 0; i < x; ++i)
+        if (phi::gl::currentState->useSparseTextures)
         {
-            for (size_t j = 0; j < y * 4; j+=4)
+            auto x = 128;
+            auto y = 128;
+            auto d = new byte[x * y * 4];
+
+            for (size_t i = 0; i < x; ++i)
             {
-                auto index = (j + y * i * 4);
+                for (size_t j = 0; j < y * 4; j += 4)
+                {
+                    auto index = (j + y * i * 4);
 
-                d[index + 0] = 0xFF;
-                d[index + 1] = 0xFF;
-                d[index + 2] = 0xFF;
-                d[index + 3] = 0xFF;
+                    d[index + 0] = data[0];
+                    d[index + 1] = data[1];
+                    d[index + 2] = data[2];
+                    d[index + 3] = data[3];
+                }
             }
-        }
 
-        return new texture(
-            x, 
-            y, 
-            GL_TEXTURE_2D,
-            GL_RGBA8, 
-            GL_BGRA, 
-            GL_UNSIGNED_BYTE, 
-            d);
+            return new texture(
+                x,
+                y,
+                GL_TEXTURE_2D,
+                GL_RGBA8,
+                GL_BGRA,
+                GL_UNSIGNED_BYTE,
+                d);
+        }
+        else
+            return new texture(
+                1,
+                1,
+                GL_TEXTURE_2D,
+                GL_RGBA8,
+                GL_BGRA,
+                GL_UNSIGNED_BYTE,
+                data);
     }
 }

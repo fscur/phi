@@ -42,7 +42,6 @@ void screen::onInitialize()
     initRenderer();
     initScene();
     initInput();
-
 }
 
 void screen::initRenderingSystem()
