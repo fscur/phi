@@ -35,11 +35,12 @@ namespace phi
         shader* _shader;
         std::map<material*, uint> _materialsMaterialsGpu;
         std::vector<material*> _loadedMaterials;
-
         textureManager* _textureManager;
-        
         buffer* _materialsBuffer;
         buffer* _frameUniformBlockBuffer;
+
+        std::map<mesh*, batch*> _meshesBatches;
+        std::map<batch*, std::vector<mesh*>> _meshesToUpdate;
 
     public:
         std::vector<batch*> batches;
@@ -51,8 +52,11 @@ namespace phi
         void createFrameUniformBlockBuffer();
         void createMaterialsBuffer(std::vector<material*> materials);
 
-        void addToBatch(object3D* object);
-        void addToBatch(batchObject& batchObject);
+        void addToBatches(object3D* object);
+        void addToBatches(batchObject& batchObject);
+
+        void pipeline::updateBatches(object3D* object);
+
         void uploadMaterial(material* material);
 
     public:
@@ -65,5 +69,7 @@ namespace phi
         RENDERING_API void updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock);
 
         RENDERING_API void add(object3D* object);
+
+        RENDERING_API void update(object3D* object);
     };
 }

@@ -10,6 +10,7 @@ namespace phi
 {
     struct batchObject
     {
+        mesh* mesh;
         geometry* geometry;
         uint materialId;
         mat4 modelMatrix;
@@ -20,18 +21,21 @@ namespace phi
     private:
         struct drawInstanceData
         {
+            GLint id;
             mat4 modelMatrix;
             GLuint materialId;
 
             drawInstanceData(
-                mat4 modelMatrix, 
-                GLuint materialId) :
+                GLuint id = 0,
+                mat4 modelMatrix = mat4(), 
+                GLuint materialId = 0) :
+                id(id),
                 modelMatrix(modelMatrix),
                 materialId(materialId)
             {
-
             }
         };
+
     private:
         const uint MAX_VBO_SIZE = 1 * 1024 * 1024;
         GLuint _vao;
@@ -45,6 +49,7 @@ namespace phi
         std::vector<mat4> _modelMatrices;
         std::vector<geometry*> _geometries;
         std::map<geometry*, std::vector<drawInstanceData>> _instances;
+        std::map<mesh*, drawInstanceData> _meshInstances;
 
         GLint _vboOffset;
         GLint _eboOffset;
@@ -71,6 +76,7 @@ namespace phi
         batch();
         ~batch();
         bool add(batchObject &batchObject);
+        void update(std::vector<batchObject> &batchObjects);
         void render();
     };
 }

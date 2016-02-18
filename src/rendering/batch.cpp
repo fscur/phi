@@ -135,20 +135,20 @@ namespace phi
     void batch::addNewGeometry(const batchObject& batchObject)
     {
         auto geometriesCount = _geometries.size();
-        auto geometry = *batchObject.geometry;
-        auto vboSize = geometry.vboSize;
-        auto eboSize = geometry.eboSize;
+        auto geometry = batchObject.geometry;
+        auto vboSize = geometry->vboSize;
+        auto eboSize = geometry->eboSize;
 
-        _vbo->subData(_vboOffset, vboSize, geometry.vboData);
+        _vbo->subData(_vboOffset, vboSize, geometry->vboData);
         _vboOffset += vboSize;
 
-        _ebo->subData(_eboOffset, eboSize, geometry.eboData);
+        _ebo->subData(_eboOffset, eboSize, geometry->eboData);
         _eboOffset += eboSize;
 
         _geometries.push_back(batchObject.geometry);
 
         ++_objectsCount;
-        _freeSpace -= std::max(geometry.vboSize, geometry.eboSize);
+        _freeSpace -= std::max(geometry->vboSize, geometry->eboSize);
 
         addNewInstance(batchObject);
     }
@@ -156,7 +156,8 @@ namespace phi
     void batch::addNewInstance(const batchObject& batchObject)
     {
         auto geometry = batchObject.geometry;
-        _instances[geometry].push_back(drawInstanceData(batchObject.modelMatrix, batchObject.materialId));
+        auto instance = drawInstanceData(0, batchObject.modelMatrix, batchObject.materialId);
+        _instances[geometry].push_back(instance);
 
         updateBuffers();
     }
@@ -169,6 +170,7 @@ namespace phi
         std::vector<drawElementsIndirectCmd> drawCmdsBufferData;
         std::vector<mat4> modelMatricesData;
         std::vector<GLuint> materialsIdsData;
+        uint instanceId = 0;
 
         for (auto geometry : _geometries)
         {
@@ -177,6 +179,7 @@ namespace phi
 
             for (auto instance : instances)
             {
+                instance.id = instanceId++;
                 modelMatricesData.push_back(instance.modelMatrix);
                 materialsIdsData.push_back(instance.materialId);
             }
@@ -200,6 +203,18 @@ namespace phi
         _drawCmdBuffer->data(sizeof(drawElementsIndirectCmd) * drawCmdsBufferData.size(), &drawCmdsBufferData[0], bufferDataUsage::dynamicDraw);
         _modelMatricesBuffer->data(sizeof(mat4) * modelMatricesData.size(), &modelMatricesData[0], bufferDataUsage::dynamicDraw);
         _materialsIdsBuffer->data(sizeof(uint) * materialsIdsData.size(), &materialsIdsData[0], bufferDataUsage::dynamicDraw);
+    }
+
+    void batch::update(std::vector<batchObject> &batchObjects)
+    {
+        for (auto &batchObject : batchObjects)
+        {
+            auto instance = _meshInstances[batchObject.mesh];
+            instance.materialId = batchObject.materialId;
+            instance.modelMatrix = batchObject.modelMatrix;
+        }
+        
+        updateBuffers();
     }
 
     void batch::render()
