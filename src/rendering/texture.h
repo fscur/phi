@@ -25,6 +25,10 @@ namespace phi
         GLenum dataFormat;
         GLenum dataType;
         byte* data;
+        GLint wrapMode;
+        GLint minFilter;
+        GLint magFilter;
+        bool generateMipmaps;
 
     public:
         RENDERING_API texture::texture(
@@ -34,14 +38,22 @@ namespace phi
             GLenum internalFormat = GL_RGBA8,
             GLenum dataFormat = GL_BGRA,
             GLenum dataType = GL_UNSIGNED_BYTE,
-            byte* data = nullptr) :
+            byte* data = nullptr,
+            GLint wrapMode = GL_REPEAT,
+            GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
+            GLint magFilter = GL_LINEAR,
+            bool generateMipmaps = true) :
             w(w),
             h(h),
             type(type),
             internalFormat(internalFormat),
             dataFormat(dataFormat),
             dataType(dataType),
-            data(data)
+            data(data),
+            wrapMode(wrapMode),
+            minFilter(minFilter),
+            magFilter(magFilter),
+            generateMipmaps(generateMipmaps)
         {
         }
 

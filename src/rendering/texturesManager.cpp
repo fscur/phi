@@ -4,11 +4,11 @@
 namespace phi
 {
 
-    textureAddress texturesManager::add(texture* texture, bool mipmaps)
+    textureAddress texturesManager::add(texture* texture)
     {
         GLsizei maxLevels = 1;
 
-        if (mipmaps)
+        if (texture->generateMipmaps)
         {
             auto biggestTextureSize = (float)glm::max(texture->w, texture->h);
             maxLevels = static_cast<GLsizei>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
@@ -19,8 +19,18 @@ namespace phi
         layout.h = texture->h;
         layout.levels = maxLevels;
         layout.internalFormat = texture->internalFormat;
+        layout.wrapMode = texture->wrapMode;
+        layout.minFilter = texture->minFilter;
+        layout.magFilter = texture->magFilter;
 
-        auto key = std::make_tuple(layout.w, layout.h, layout.levels, layout.internalFormat);
+        auto key = std::make_tuple(
+            layout.w,
+            layout.h,
+            layout.levels,
+            layout.internalFormat,
+            layout.wrapMode,
+            layout.minFilter,
+            layout.magFilter);
 
         phi::textureAddress textureAddress;
 

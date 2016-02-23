@@ -128,14 +128,14 @@ namespace phi
                 GLenum internalFormat, 
                 GLenum dataFormat)
             {
-                auto texture = new phi::texture(
-                    static_cast<uint>(w),
-                    static_cast<uint>(h),
-                    GL_TEXTURE_2D,
-                    internalFormat,
-                    dataFormat);
+                auto texture = new phi::texture(w, h);
+                texture->internalFormat = internalFormat;
+                texture->dataFormat = dataFormat;
+                texture->minFilter = GL_NEAREST;
+                texture->magFilter = GL_NEAREST;
+                texture->generateMipmaps = false;
 
-                auto rt = new phi::renderTarget(attachment, w, h, _gl->texturesManager->add(texture, false));
+                auto rt = new phi::renderTarget(attachment, w, h, _gl->texturesManager->add(texture));
                 targets.push_back(rt);
                 gBufferRenderPass::framebuffer->add(rt);
             };

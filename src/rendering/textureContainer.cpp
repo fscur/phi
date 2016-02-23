@@ -131,10 +131,10 @@ namespace phi
             _layout.h,
             _maxTextures);
 
-        glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTextureParameteri(id, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureParameteri(id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
+        glTextureParameteri(id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
+        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
+        glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
 
         if (_bindless)
         {

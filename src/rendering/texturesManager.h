@@ -8,7 +8,9 @@ namespace phi
     {
     private:
         const uint MAX_CONTAINER_ITEMS = 10u;
-        std::map<std::tuple<GLsizei, GLsizei, GLsizei, GLenum>, std::vector<textureContainer*>> _containers;
+        std::map<
+            std::tuple<GLsizei, GLsizei, GLsizei, GLenum, GLint, GLint, GLint>, 
+            std::vector<textureContainer*>> _containers;
 
         bool _bindless;
         bool _sparse;
@@ -51,6 +53,6 @@ namespace phi
             }
         }
 
-        textureAddress add(texture* texture, bool mipmaps = true);
+        textureAddress add(texture* texture);
     };
 }
