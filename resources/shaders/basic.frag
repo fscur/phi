@@ -41,7 +41,7 @@ in flat uint materialId;
 
 out vec4 fragColor;
 
-uniform sampler2DArray textureArrays[50];
+uniform sampler2DArray textureArrays[32];
 
 vec4 albedo(materialGpuData material)
 {
