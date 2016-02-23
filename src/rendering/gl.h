@@ -1,13 +1,10 @@
 #pragma once
 
-#include "rendering.h"
 #include <core\globals.h>
-
-#include <vector>
-#include <map>
-#include <string>
-
-#include <GL\glew.h>
+#include "rendering.h"
+#include "material.h"
+#include "texturesManager.h"
+#include "shadersManager.h"
 
 namespace phi
 {
@@ -58,18 +55,41 @@ namespace phi
                 useSparseTextures(useSparseTextures)
             {}
         };
+
+        struct glInfo
+        {
+            public:
+            gl::state state;
+            std::string shadersPath;
+        public:
+            glInfo() {}
+        };
+
     private:
         static bool _initialized;
 
     private:
-        static void printOpenGLDetails();
-        static void initOpenGLExtensions();
-        static void initState();
+        void printOpenGLDetails();
+        void initOpenGLExtensions();
+        void initState();
+        void initDefaultResources(bool sparse);
+        texture* createDefaultTexture(bool sparse, vec4 color);
+        void createDefaultMaterial();
+
     public:
-        RENDERING_API static gl:: state* currentState;
-        RENDERING_API static std::map<std::string, bool> extensions;
-        RENDERING_API static void init(gl::state state);
-        RENDERING_API static std::string getErrorString(GLenum error);
-        RENDERING_API static void printError(std::string msg);
+        phi::texturesManager* texturesManager;
+        phi::shadersManager* shadersManager;
+        gl:: state currentState;
+        std::map<std::string, bool> extensions;
+        material* defaultMaterial;
+        texture* defaultAlbedoTexture;
+        texture* defaultNormalTexture;
+        texture* defaultSpecularTexture;
+        texture* defaultEmissiveTexture;
+    public:
+        RENDERING_API gl(gl::glInfo initInfo);
+        RENDERING_API ~gl();
+        RENDERING_API std::string getErrorString(GLenum error);
+        RENDERING_API void printError(std::string msg);
     };
 }

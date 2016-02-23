@@ -1,6 +1,6 @@
 #include "spotLight.h"
 
-#include <rendering\shaderManager.h>
+#include <rendering\shadersManager.h>
 #include <GLM\gtc\matrix_transform.hpp>
 
 namespace phi

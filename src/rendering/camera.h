@@ -17,17 +17,17 @@ namespace phi
         RENDERING_API camera(
             float nearDistance,
             float farDistance,
-            sizef resolution,
+            vec2 resolution,
             float fov);
 
         RENDERING_API inline mat4 getViewMatrix() const { return _viewMatrix; }
         RENDERING_API inline mat4 getProjectionMatrix() const { return _frustum->getPerspectiveMatrix(); }
-        RENDERING_API inline sizef getResolution() const { return _frustum->getResolution(); }
+        RENDERING_API inline vec2 getResolution() const { return _frustum->getResolution(); }
         RENDERING_API inline frustum* getFrustum() const { return _frustum; }
         RENDERING_API inline float getFocus() const { return _focus; }
 
         RENDERING_API void setTarget(vec3 value);
-        RENDERING_API void setResolution(sizef value) { _frustum->setResolution(value); }
+        RENDERING_API void setResolution(vec2 value) { _frustum->setResolution(value); }
         RENDERING_API void update() override;
 
         RENDERING_API void moveTo(vec3 position);

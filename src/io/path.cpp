@@ -189,13 +189,20 @@ namespace phi
 #endif
     }
 
-    std::string path::combine(const std::string& path0, const std::string& path1, std::initializer_list<std::string> args)
+    std::string path::combine(const std::string& path0, const std::string& path1, const std::string& extension = std::string())
     {
-        auto combined = path0 + path1;
+        auto combined = path0 + "\\" + path1;
+
+        return combined + extension;
+    }
+
+    std::string path::combine(std::initializer_list<std::string> args)
+    {
+        auto combined = std::string();
 
         for(auto arg : args)
         {
-            combined += arg;
+            combined += "\\" + arg;
         }
 
         return combined;

@@ -14,13 +14,6 @@ namespace phi
         phi::geometry* geometry;
         phi::material* material;
 
-    //protected:
-        /*RENDERING_API mesh(const mesh& original) : object3D(original)
-        {
-            geometry = original.geometry;
-            material = original.material;
-        }*/
-
     public:
 
         RENDERING_API mesh(std::string name, phi::geometry* geometry, phi::material* material) :

@@ -5,9 +5,6 @@
 
 #include "rendering.h"
 
-#include <string>
-#include <vector>
-
 #if WIN32
 #include <GL/glew.h>
 #else
@@ -18,28 +15,13 @@ namespace phi
 {
     struct texture
     {
-    private:
-        static texture* _defaultAlbedo;
-        static texture* _defaultNormal;
-        static texture* _defaultSpecular;
-        static texture* _defaultEmissive;
-
-    public:
-        static texture* createDefault(byte* data);
-
-    public:
-        RENDERING_API static texture* defaultAlbedo();
-        RENDERING_API static texture* defaultNormal();
-        RENDERING_API static texture* defaultSpecular();
-        RENDERING_API static texture* defaultEmissive();
-
     public:
         GLuint id;
         GLuint64 handle;
         GLuint w;
         GLuint h;
-        GLuint type;
-        GLint internalFormat;
+        GLenum type;
+        GLenum internalFormat;
         GLenum dataFormat;
         GLenum dataType;
         byte* data;
@@ -48,8 +30,8 @@ namespace phi
         RENDERING_API texture::texture(
             uint w, 
             uint h, 
-            GLuint type = GL_TEXTURE_2D,
-            GLint internalFormat = GL_RGBA8,
+            GLenum type = GL_TEXTURE_2D,
+            GLenum internalFormat = GL_RGBA8,
             GLenum dataFormat = GL_BGRA,
             GLenum dataType = GL_UNSIGNED_BYTE,
             byte* data = nullptr) :

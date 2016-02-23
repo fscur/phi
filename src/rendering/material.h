@@ -18,33 +18,6 @@ namespace phi
         float reflectivity;
         float emission;
         float opacity;
-        float pad0;
-        float pad1;
-        float pad2;
-
-    private:
-        static material* _default;
-
-    public:
-        
-        RENDERING_API static material* material::default()
-        {
-            if (_default == nullptr)
-                _default = new material(
-                    texture::defaultAlbedo(),
-                    texture::defaultNormal(),
-                    texture::defaultSpecular(),
-                    texture::defaultEmissive(),
-                    vec3(1.0f),
-                    vec3(1.0f),
-                    vec3(1.0f),
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    1.0f);
-
-            return _default;
-        }
 
     public:
         RENDERING_API material(
@@ -69,26 +42,7 @@ namespace phi
             shininess(shininess),
             reflectivity(reflectivity),
             emission(emission),
-            opacity(1.0f),
-            pad0(0.0f),
-            pad1(0.0f),
-            pad2(0.0f)
+            opacity(1.0f)
         {}
-
-        static material* material::lambertian(vec3 color)
-        {
-            return new material(
-                texture::defaultAlbedo(),
-                texture::defaultNormal(),
-                texture::defaultSpecular(),
-                texture::defaultEmissive(),
-                vec3(color),
-                vec3(color),
-                vec3(color),
-                0.0f,
-                0.0f,
-                0.0f,
-                1.0f);
-        }
     };
 }

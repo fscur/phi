@@ -15,7 +15,7 @@ namespace phi
         }
 
         auto page = textures.size();
-
+        textureAddress.containerId = id;
         textureAddress.unit = _unit;
         textureAddress.page = static_cast<float>(page);
 
@@ -55,20 +55,23 @@ namespace phi
             }
         }
 
-        glTextureSubImage3D(
-            id,
-            0,
-            0,
-            0,
-            static_cast<GLint>(textureAddress.page),
-            texture->w,
-            texture->h,
-            1,
-            texture->dataFormat,
-            texture->dataType,
-            texture->data);
+        if (texture->data != nullptr)
+        {
+            glTextureSubImage3D(
+                id,
+                0,
+                0,
+                0,
+                static_cast<GLint>(textureAddress.page),
+                texture->w,
+                texture->h,
+                1,
+                texture->dataFormat,
+                texture->dataType,
+                texture->data);
 
-        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        }
     }
 
     void textureContainer::create()

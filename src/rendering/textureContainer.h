@@ -1,16 +1,11 @@
 #pragma once
 
 #include "texture.h"
+#include "textureAddress.h"
 #include <map>
 
 namespace phi
 {
-    struct textureAddress
-    {
-        GLint unit;
-        GLfloat page;
-    };
-
     struct textureContainerLayout
     {
         GLsizei w;
