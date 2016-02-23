@@ -26,9 +26,9 @@ private:
 
     float _temp;
 
+
+    phi::gl* _gl;
     phi::scene* _scene;
-    phi::pipeline* _pipeline;
-    phi::renderer* _renderer;
     std::string _resourcesPath;
     std::string _libraryPath;
 
@@ -39,13 +39,10 @@ private:
     defaultCameraController* _defaultController;
 
 private:
-    void initRenderingSystem();
     void initGL();
     void initLibrary();
-    void initScenesManager();
     void initScene();
     void initInput();
-    void initRenderer();
 
 public:
     screen();
@@ -65,7 +62,6 @@ public:
     void update() override;
     void render() override;
 
-    void setSceneRenderer(phi::renderer* value) { _renderer = value; }
     void setResourcesPath(std::string value) { _resourcesPath = value; }
     void setLibraryPath(std::string value) { _libraryPath = value; }
 };

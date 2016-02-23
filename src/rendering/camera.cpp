@@ -4,7 +4,7 @@
 
 namespace phi
 {
-    camera::camera(float nearDistance, float farDistance, sizef resolution, float fov) : 
+    camera::camera(float nearDistance, float farDistance, vec2 resolution, float fov) : 
         object3D("camera", object3D::objectType::CAMERA),
         _frustum(new frustum(vec3(), getDirection(), getUp(), nearDistance, farDistance, resolution, fov)),
         _focus(1.0f),

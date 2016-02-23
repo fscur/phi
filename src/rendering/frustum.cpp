@@ -12,14 +12,14 @@
 
 namespace phi
 {
-    frustum::frustum(vec3 position, vec3 direction, vec3 up, float near, float far, sizef resolution, float fov) :
+    frustum::frustum(vec3 position, vec3 direction, vec3 up, float near, float far, vec2 resolution, float fov) :
         _position(position),
         _direction(direction), 
         _up(up),
         _near(near),
         _far(far),
         _resolution(resolution),
-        _aspect(resolution.w / resolution.h),
+        _aspect(resolution.x / resolution.y),
         _fov(fov),
         _perspectiveMatrix(glm::perspective(fov, _aspect, near, far)),
         _changed(true)
@@ -74,10 +74,10 @@ namespace phi
         _changed = true;
     }
 
-    void frustum::setResolution(sizef resolution)
+    void frustum::setResolution(vec2 resolution)
     {
         _resolution = resolution;
-        _aspect = resolution.w/resolution.h;
+        _aspect = resolution.x/resolution.y;
         _perspectiveMatrix = glm::perspective(_fov, _aspect, _near, _far);
         _changed = true;
     }

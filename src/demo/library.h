@@ -3,11 +3,14 @@
 #include <core\resourcesRepository.h>
 #include <core\object3D.h>
 #include <rendering\material.h>
+#include <rendering\gl.h>
+
 #include <functional>
 
 class library
 {
 private:
+    phi::gl* _gl;
     std::string _libraryPath;
     phi::resourcesRepository<phi::texture>* _texturesRepository;
     phi::resourcesRepository<phi::material>* _materialsRepository;
@@ -50,7 +53,9 @@ private:
     }
 
 public:
-    library(std::string resourcesPath);
+
+    library(phi::gl* gl, std::string resourcesPath);
+
     void init();
 
     phi::resourcesRepository<phi::texture>* getTexturesRepository() const { return _texturesRepository; }

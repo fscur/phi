@@ -1,37 +1,47 @@
 #include "gl.h"
 
+#include <assert.h>
+
 namespace phi
 {
-    std::map<std::string, bool> gl::extensions = std::map<std::string, bool>();
-    gl::state* gl::currentState = nullptr;
     bool gl::_initialized = false;
 
-    void gl::init(gl::state state)
+    gl::gl(gl::glInfo info)
     {
-        if (_initialized)
-            return;
+        assert(!_initialized);
+
+        _initialized = true;
 
         phi::log("Initializing OpenGL.");
 
         printOpenGLDetails();
         initOpenGLExtensions();
 
-        auto hasBindlessTextures = extensions["GL_ARB_bindless_texture"];
-        auto hasSparseTextures = extensions["GL_ARB_sparse_texture"];
+        auto hasBindlessTextures = extensions["GL_ARB_bindless_texture"] && info.state.useBindlessTextures;
+        auto hasSparseTextures = extensions["GL_ARB_sparse_texture"] && info.state.useSparseTextures;
 
-        currentState = new gl::state(
-            state.clearColor,
-            state.culling,
-            state.depthTest,
-            state.depthMask,
-            state.frontFace,
-            state.cullFace,
-            state.useBindlessTextures && hasBindlessTextures,
-            state.useSparseTextures && hasSparseTextures);
+        currentState = gl::state(
+            info.state.clearColor,
+            info.state.culling,
+            info.state.depthTest,
+            info.state.depthMask,
+            info.state.frontFace,
+            info.state.cullFace,
+            hasBindlessTextures,
+            hasSparseTextures);
 
         initState();
 
-        _initialized = true;
+        texturesManager = new phi::texturesManager(hasBindlessTextures, hasSparseTextures);
+        shadersManager = new phi::shadersManager(info.shadersPath);
+
+        initDefaultResources(hasSparseTextures);
+    }
+
+    gl::~gl()
+    {
+        delete texturesManager;
+        delete shadersManager;
     }
 
     void gl::printOpenGLDetails()
@@ -78,21 +88,83 @@ namespace phi
 
     void gl::initState()
     {
-        auto state = *currentState;
+        glClearColor(currentState.clearColor.r, currentState.clearColor.g, currentState.clearColor.b, currentState.clearColor.a);
 
-        glClearColor(state.clearColor.r, state.clearColor.g, state.clearColor.b, state.clearColor.a);
-
-        if (state.culling)
+        if (currentState.culling)
             glEnable(GL_CULL_FACE);
 
-        glCullFace(state.cullFace);
-        glFrontFace(state.frontFace);
+        glCullFace(currentState.cullFace);
+        glFrontFace(currentState.frontFace);
 
-        if (state.depthTest)
+        if (currentState.depthTest)
             glEnable(GL_DEPTH_TEST);
 
-        auto depthMask = state.depthMask ? GL_TRUE : GL_FALSE;
+        auto depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
+    }
+
+    void gl::initDefaultResources(bool sparse)
+    {
+        defaultAlbedoTexture = createDefaultTexture(sparse, vec4(1.0f));
+        defaultNormalTexture = createDefaultTexture(sparse, vec4(0.5f, 0.5f, 1.0f, 1.0f));
+        defaultSpecularTexture = createDefaultTexture(sparse, vec4(1.0f));
+        defaultEmissiveTexture = createDefaultTexture(sparse, vec4(0.0f));
+
+        createDefaultMaterial();
+    }
+
+    void gl::createDefaultMaterial()
+    {
+        defaultMaterial = new material(
+            defaultAlbedoTexture,
+            defaultNormalTexture,
+            defaultSpecularTexture,
+            defaultEmissiveTexture,
+            vec3(1.0f),
+            vec3(1.0f),
+            vec3(1.0f),
+            0.1f,
+            0.0f,
+            0.0f,
+            1.0f);
+    }
+
+    texture* gl::createDefaultTexture(bool sparse, vec4 color)
+    {
+        auto x = 1; 
+        auto y = 1;
+        
+        if (sparse)
+        {
+            x = 128;
+            y = 128;
+        }
+
+        auto data = new byte[x * y * 4];
+
+        for (size_t i = 0; i < x; ++i)
+        {
+            for (size_t j = 0; j < y * 4; j += 4)
+            {
+                auto index = (j + y * i * 4);
+
+                data[index + 0] = static_cast<byte>(color.r * 255);
+                data[index + 1] = static_cast<byte>(color.g * 255);
+                data[index + 2] = static_cast<byte>(color.b * 255);
+                data[index + 3] = static_cast<byte>(color.a * 255);
+            }
+        }
+
+        auto texture = new phi::texture(
+            x,
+            y,
+            GL_TEXTURE_2D,
+            GL_RGBA8,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            data);
+
+        return texture;
     }
 
     std::string gl::getErrorString(GLenum error)

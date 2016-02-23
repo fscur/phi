@@ -1,7 +1,7 @@
 #include "pointLight.h"
 
-#include <core/mathUtils.h>
-#include <rendering/shaderManager.h>
+#include <core\mathUtils.h>
+#include <rendering\shadersManager.h>
 
 namespace phi
 {

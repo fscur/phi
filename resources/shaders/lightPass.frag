@@ -27,7 +27,7 @@ layout (std140, binding = 2) uniform RenderTargetAddresses
     float rt3Page;
 } rtAddresses;
 
-uniform sampler2DArray textureArrays[192];
+uniform sampler2DArray textureArrays[32];
 
 out vec4 fragColor;
 

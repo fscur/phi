@@ -1,11 +1,18 @@
 #include "pipeline.h"
-#include "shaderManager.h"
 #include "materialGpuData.h"
 #include "drawElementsIndirectCmd.h"
+
 #include <GL\glew.h>
 
 namespace phi
 {
+    pipeline::pipeline(phi::gl* gl) :
+        _gl(gl)
+    {
+        createFrameUniformBlockBuffer();
+        createMaterialsBuffer();
+    }
+
     pipeline::~pipeline()
     {
         delete _materialsBuffer;
@@ -15,53 +22,23 @@ namespace phi
 
         for (auto i = 0; i < batchesCount; ++i)
             delete batches[i];
-
-        delete _textureManager;
-    }
-
-    void pipeline::init(pipelineInfo info)
-    {
-        _textureManager = new textureManager();
-
-        createFrameUniformBlockBuffer();
-        createMaterialsBuffer(info.materials);
-        createShader();
-    }
-
-    void pipeline::createShader()
-    {
-        std::vector<std::string> attribs;
-        attribs.push_back("inPosition");
-        attribs.push_back("inTexCoord");
-        attribs.push_back("inNormal");
-        attribs.push_back("inTangent");
-        attribs.push_back("inMaterialId");
-        attribs.push_back("inModelMatrix");
-
-        _shader = shaderManager::get()->loadShader("basic.vert", "basic.frag", attribs);
-        _shader->addUniform(0, "textureArrays");
-        _shader->bind();
     }
 
     void pipeline::createFrameUniformBlockBuffer()
     {
         _frameUniformBlockBuffer = new buffer(bufferTarget::uniform);
-        
+
         _frameUniformBlockBuffer->storage(
-            sizeof(phi::frameUniformBlock), 
-            nullptr, 
+            sizeof(phi::frameUniformBlock),
+            nullptr,
             bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
         _frameUniformBlockBuffer->bindBufferBase(0);
     }
 
-    void pipeline::createMaterialsBuffer(std::vector<material*> materials)
+    void pipeline::createMaterialsBuffer()
     {
-        auto materialsCount = materials.size();
-        for (auto i = 0; i < materialsCount; ++i)
-            _materialsMaterialsGpu[materials[i]] = i;
-
-        auto materialsBufferSize = materialsCount * sizeof(materialGpuData);
+        auto materialsBufferSize = MAX_MATERIALS_COUNT * sizeof(materialGpuData);
         _materialsBuffer = new buffer(bufferTarget::shader);
         _materialsBuffer->storage(materialsBufferSize, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
         _materialsBuffer->bindBufferBase(1);
@@ -124,16 +101,25 @@ namespace phi
 
     void pipeline::uploadMaterial(material* material)
     {
-        auto albedoTextureAddress = _textureManager->add(material->albedoTexture);
-        auto normalTextureAddress = _textureManager->add(material->normalTexture);
-        auto specularTextureAddress = _textureManager->add(material->specularTexture);
-        auto emissiveTextureAddress = _textureManager->add(material->emissiveTexture);
+        if (_materialsMaterialsGpu.find(material) == _materialsMaterialsGpu.end())
+            _materialsMaterialsGpu[material] = static_cast<uint>(_materialsMaterialsGpu.size());
+
+        auto texturesManager = _gl->texturesManager;
+
+        auto albedoTextureAddress = texturesManager->add(material->albedoTexture);
+        auto normalTextureAddress = texturesManager->add(material->normalTexture);
+        auto specularTextureAddress = texturesManager->add(material->specularTexture);
+        auto emissiveTextureAddress = texturesManager->add(material->emissiveTexture);
 
         auto materialGpuData = phi::materialGpuData(
-            albedoTextureAddress,
-            normalTextureAddress,
-            specularTextureAddress,
-            emissiveTextureAddress,
+            albedoTextureAddress.unit,
+            normalTextureAddress.unit,
+            specularTextureAddress.unit,
+            emissiveTextureAddress.unit,
+            albedoTextureAddress.page,
+            normalTextureAddress.page,
+            specularTextureAddress.page,
+            emissiveTextureAddress.page,
             material->albedoColor,
             material->specularColor,
             material->emissiveColor,
@@ -145,11 +131,6 @@ namespace phi
         auto offset = _materialsMaterialsGpu[material] * sizeof(phi::materialGpuData);
 
         _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
-
-        if (phi::gl::currentState->useBindlessTextures)
-            _shader->setUniform(0, _textureManager->handles);
-        else
-            _shader->setUniform(0, _textureManager->units);
 
         _loadedMaterials.push_back(material);
     }

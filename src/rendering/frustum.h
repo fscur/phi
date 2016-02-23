@@ -23,7 +23,7 @@ namespace phi
         float _aspect;
         float _fov;
         mat4 _perspMatrix;
-        sizef _resolution;
+        vec2 _resolution;
         mat4 _perspectiveMatrix;
         bool _changed;
 
@@ -47,7 +47,7 @@ namespace phi
             vec3 up,
             float near,
             float far,
-            sizef resolution,
+            vec2 resolution,
             float fov);
 
         RENDERING_API ~frustum();
@@ -58,7 +58,7 @@ namespace phi
         RENDERING_API inline float getZNear() const { return _near; }
         RENDERING_API inline float getZFar() const { return _far; }
         RENDERING_API inline float getAspect() const { return _aspect; }
-        RENDERING_API inline sizef getResolution() const { return _resolution; }
+        RENDERING_API inline vec2 getResolution() const { return _resolution; }
         RENDERING_API inline float getFov() const { return _fov; }
         RENDERING_API inline bool getChanged() const { return _changed; }
         RENDERING_API inline mat4 getPerspectiveMatrix() const { return _perspectiveMatrix; }
@@ -69,7 +69,7 @@ namespace phi
         RENDERING_API void setZNear(float zNear);
         RENDERING_API void setZFar(float zFar);
         RENDERING_API void setAspect(float aspect);
-        RENDERING_API void setResolution(sizef resolution);
+        RENDERING_API void setResolution(vec2 resolution);
         RENDERING_API void setFov(float fov);
 
         RENDERING_API void update();

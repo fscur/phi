@@ -2,11 +2,11 @@
 
 #include <core/inputKey.h>
 #include <core/globals.h>
-#include <rendering/renderingSystem.h>
 #include <rendering/camera.h>
 
-defaultCameraController::defaultCameraController(phi::camera* camera) : 
-    cameraController(camera)
+defaultCameraController::defaultCameraController(phi::scene* scene) : 
+    _scene(scene),
+    cameraController(scene->camera)
 {
     _rotating = false;
     _panning = false;
@@ -16,7 +16,7 @@ defaultCameraController::defaultCameraController(phi::camera* camera) :
     _shortcuts.add("ZoomOut", phi::inputKey(PHI_MOUSE_WHEEL_DOWN, PHI_NONE));
 }
 
-void defaultCameraController::executeInput(phi::inputKey key, phi::vec2 mousePos)
+void defaultCameraController::executeInput(phi::inputKey key, phi::ivec2 mousePos)
 {
     auto cmd = _shortcuts.getCommand(key);
     if (cmd == "Pan")
@@ -29,9 +29,9 @@ void defaultCameraController::executeInput(phi::inputKey key, phi::vec2 mousePos
         zoom(mousePos, false);
 }
 
-void defaultCameraController::initPan(phi::vec2 mousePos)
+void defaultCameraController::initPan(phi::ivec2 mousePos)
 {
-    _zBufferValue = phi::renderingSystem::defaultFrameBuffer->getZBufferValue(mousePos);
+    _zBufferValue = _scene->getZBufferValue(mousePos);
     phi::mat4 proj = _camera->getProjectionMatrix();
 
     if (_zBufferValue == 1.0f)
@@ -46,9 +46,9 @@ void defaultCameraController::initPan(phi::vec2 mousePos)
     _panning = true;
 }
 
-void defaultCameraController::initRotate(phi::vec2 mousePos)
+void defaultCameraController::initRotate(phi::ivec2 mousePos)
 {
-    _zBufferValue = phi::renderingSystem::defaultFrameBuffer->getZBufferValue(mousePos);
+    _zBufferValue = _scene->getZBufferValue(mousePos);
 
     phi::mat4 proj = _camera->getProjectionMatrix();
 
@@ -70,8 +70,8 @@ void defaultCameraController::initRotate(phi::vec2 mousePos)
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto h = _camera->getResolution().h;
-        auto w = _camera->getResolution().w;
+        auto w = _camera->getResolution().x;
+        auto h = _camera->getResolution().y;
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
@@ -99,7 +99,7 @@ void defaultCameraController::initRotate(phi::vec2 mousePos)
     _rotating = true;
 }
 
-void defaultCameraController::pan(phi::vec2 mousePos)
+void defaultCameraController::pan(phi::ivec2 mousePos)
 {
     auto frustum = _camera->getFrustum();
 
@@ -111,8 +111,8 @@ void defaultCameraController::pan(phi::vec2 mousePos)
 
     auto tg = tan(fov * 0.5f) * zNear;
 
-    auto h = _camera->getResolution().h;
-    auto w = _camera->getResolution().w;
+    auto w = _camera->getResolution().x;
+    auto h = _camera->getResolution().y;
 
     auto hh = h * 0.5f;
     auto hw = w * 0.5f;
@@ -146,7 +146,7 @@ void defaultCameraController::pan(phi::vec2 mousePos)
     _camera->moveTo(pos);
 }
 
-void defaultCameraController::rotate(phi::vec2 mousePos)
+void defaultCameraController::rotate(phi::ivec2 mousePos)
 {
     auto camera = *_camera;
     auto frustum = _camera->getFrustum();
@@ -159,8 +159,8 @@ void defaultCameraController::rotate(phi::vec2 mousePos)
 
     auto tg = tan(fov * 0.5f) * zNear;
 
-    auto h = _camera->getResolution().h;
-    auto w = _camera->getResolution().w;
+    auto w = _camera->getResolution().x;
+    auto h = _camera->getResolution().y;
 
     auto dx = _lastMousePos.x - mousePos.x;
     auto dy = _lastMousePos.y - mousePos.y;
@@ -174,9 +174,9 @@ void defaultCameraController::rotate(phi::vec2 mousePos)
     _lastMousePos = mousePos;
 }
 
-void defaultCameraController::zoom(phi::vec2 mousePos, bool in)
+void defaultCameraController::zoom(phi::ivec2 mousePos, bool in)
 {
-    _zBufferValue = phi::renderingSystem::defaultFrameBuffer->getZBufferValue(mousePos);
+    _zBufferValue = _scene->getZBufferValue(mousePos);
 
     auto camera = *_camera;
     phi::mat4 proj = _camera->getProjectionMatrix();
@@ -197,8 +197,8 @@ void defaultCameraController::zoom(phi::vec2 mousePos, bool in)
 
     auto tg = tan(fov * 0.5f) * zNear;
 
-    auto h = _camera->getResolution().h;
-    auto w = _camera->getResolution().w;
+    auto w = _camera->getResolution().x;
+    auto h = _camera->getResolution().y;
 
     auto hh = h * 0.5f;
     auto hw = w * 0.5f;

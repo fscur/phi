@@ -3,9 +3,15 @@
 #include <loader\importer.h>
 #include <io\path.h>
 
-library::library(std::string resourcesPath)
-    : _libraryPath(resourcesPath)
+library::library(phi::gl* gl, std::string resourcesPath) :
+    _gl(gl),
+    _libraryPath(resourcesPath)
 {
+    phi::importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
+    phi::importer::defaultNormalTexture = _gl->defaultNormalTexture;
+    phi::importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
+    phi::importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
+    phi::importer::defaultMaterial = _gl->defaultMaterial;
 }
 
 void library::init()

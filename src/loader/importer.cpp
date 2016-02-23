@@ -12,6 +12,12 @@
 
 namespace phi
 {
+    material* importer::defaultMaterial = nullptr;
+    texture* importer::defaultAlbedoTexture = nullptr;
+    texture* importer::defaultNormalTexture = nullptr;
+    texture* importer::defaultSpecularTexture = nullptr;
+    texture* importer::defaultEmissiveTexture = nullptr;
+
     object3D* importer::readNode(const rapidjson::Value& node, std::string currentFolder, resourcesRepository<material>* materialsRepo)
     {
         auto type = node["Type"].GetInt();
@@ -36,7 +42,7 @@ namespace phi
 
                 material* mat;
                 if (matRes == nullptr)
-                    mat = material::default();
+                    mat = defaultMaterial;
                 else
                     mat = matRes->getObject();
 
@@ -94,7 +100,7 @@ namespace phi
         {
             auto meshName = modelName + "_mesh_" + std::to_string(meshCount++);
 
-            auto m = new mesh(meshName, geometry, material::default());
+            auto m = new mesh(meshName, geometry, defaultMaterial);
 
             resultModel->addChild(m);
         }
@@ -212,12 +218,13 @@ namespace phi
         return 1;
     }
 
-    int importer::importTexture(std::string fileName, texture*& tex)
+    int importer::importTexture(std::string fileName, texture*& texture)
     {
         SDL_Surface* surface = IMG_Load(fileName.c_str());
         SDL_InvertSurface(surface);
 
-        GLenum format = 0;
+        GLenum format = GL_BGRA;
+
         switch (surface->format->BitsPerPixel)
         {
             case 24:
@@ -228,7 +235,7 @@ namespace phi
                 break;
             case 32:
                 if (surface->format->Rmask == 255)
-                    format = GL_RGBA;
+                    format = GL_RGBA; 
                 else
                     format = GL_BGRA;
                 break;
@@ -238,17 +245,16 @@ namespace phi
         auto data = malloc(surface->w * surface->h * totalBytes);
         memcpy(data, surface->pixels, surface->w * surface->h * totalBytes);
 
-        tex = new texture(
+        texture = new phi::texture(
             (uint)surface->w, 
             (uint)surface->h, 
             GL_TEXTURE_2D,
-            GL_RGBA8, 
+            GL_RGBA8,
             format, 
-            GL_UNSIGNED_BYTE, 
+            GL_UNSIGNED_BYTE,
             (byte*)data);
 
         SDL_FreeSurface(surface);
-
         return 1;
     }
 
@@ -302,9 +308,9 @@ namespace phi
         const rapidjson::Value& albedoColorNode = d["AlbedoColor"];
         const rapidjson::Value& specularColorNode = d["SpecularColor"];
         const rapidjson::Value& emissiveColorNode = d["EmissiveColor"];
-        auto albedoColor = vec3((float)albedoColorNode["R"].GetDouble(), (float)albedoColorNode["G"].GetDouble(), (float)albedoColorNode["B"].GetDouble());
-        auto specularColor = vec3((float)specularColorNode["R"].GetDouble(), (float)specularColorNode["G"].GetDouble(), (float)specularColorNode["B"].GetDouble());
-        auto emissiveColor = vec3((float)emissiveColorNode["R"].GetDouble(), (float)emissiveColorNode["G"].GetDouble(), (float)emissiveColorNode["B"].GetDouble());
+        auto albedoColor = vec3((float)albedoColorNode[0].GetDouble(), (float)albedoColorNode[1].GetDouble(), (float)albedoColorNode[2].GetDouble());
+        auto specularColor = vec3((float)specularColorNode[0].GetDouble(), (float)specularColorNode[1].GetDouble(), (float)specularColorNode[2].GetDouble());
+        auto emissiveColor = vec3((float)emissiveColorNode[0].GetDouble(), (float)emissiveColorNode[1].GetDouble(), (float)emissiveColorNode[2].GetDouble());
 
         auto shininess = (float)d["Shininess"].GetDouble();
         auto reflectivity = (float)d["Reflectivity"].GetDouble();
@@ -313,10 +319,10 @@ namespace phi
 
         fclose(fp);
 
-        auto albedoTexture = albedoTextureResource == nullptr ? texture::defaultAlbedo() : albedoTextureResource->getObject();
-        auto normalTexture = normalTextureResource == nullptr ? texture::defaultNormal() : normalTextureResource->getObject();
-        auto specularTexture = specularTextureResource == nullptr ? texture::defaultSpecular() : specularTextureResource->getObject();
-        auto emissiveTexture = emissiveTextureResource == nullptr ? texture::defaultEmissive() : emissiveTextureResource->getObject();
+        auto albedoTexture = albedoTextureResource == nullptr ? defaultAlbedoTexture : albedoTextureResource->getObject();
+        auto normalTexture = normalTextureResource == nullptr ? defaultNormalTexture : normalTextureResource->getObject();
+        auto specularTexture = specularTextureResource == nullptr ? defaultSpecularTexture : specularTextureResource->getObject();
+        auto emissiveTexture = emissiveTextureResource == nullptr ? defaultEmissiveTexture : emissiveTextureResource->getObject();
 
         auto mat = new material(
             albedoTexture,
