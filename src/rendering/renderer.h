@@ -35,6 +35,17 @@ namespace phi
         {
             gBufferPass->render();
             lightingPass->render();
+            
+            /*
+            gBufferPass->framebuffer->bindForReading(gBufferPass->targets[0]);
+            glBlitFramebuffer(0, 0, w, h, 0, 192 * 0, 256, 192, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+            gBufferPass->framebuffer->bindForReading(gBufferPass->targets[1]);
+            glBlitFramebuffer(0, 0, w, h, 0, 192 * 1, 256, 192 * 2, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+            gBufferPass->framebuffer->bindForReading(gBufferPass->targets[2]);
+            glBlitFramebuffer(0, 0, w, h, 0, 192 * 2, 256, 192 * 3, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+            */
         }
 
         RENDERING_API void update()

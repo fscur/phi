@@ -1,7 +1,7 @@
 #version 450
 
-const float ambientIntensity = 0.9;
-const vec3 lightDirection = vec3(0.0, 1.0, 0.0);
+const float ambientIntensity = 0.5;
+const vec3 lightDirection = vec3(-0.7, -0.3, -0.6);
 const float lightIntensity = 1.0;
 const vec4 lightColor = vec4(1.0);
 
@@ -88,17 +88,18 @@ void main()
     vec4 specularColor = vec4(c1.xyz, 1.0);
 
     vec3 lightDir = mat3(frameUniforms.v) * normalize(lightDirection);
-    vec3 s = normalize(lightDir);
+    vec3 s = normalize(-lightDir);
     vec3 fp = normalize(-fragPosition);
     vec3 h = normalize(fp+s);
     
     float diffuse = lightIntensity * max(0.0, dot(fragNormal, s));
     float spec = pow(max(0.0, dot(fragNormal, h)), shininess);
 
+    vec4 ambientComponent = diffuseColor * ambientIntensity;
     vec4 diffuseComponent = lightColor * diffuseColor * diffuse;
     vec4 specularComponent = lightColor * diffuseColor * spec;
 
-    fragColor = diffuseComponent;
+    fragColor = ambientComponent + diffuseComponent + specularComponent;
 
     //fragColor = vec4(fragNormal, 1.0);
 }

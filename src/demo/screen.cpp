@@ -38,7 +38,7 @@ void screen::onInitialize()
 void screen::initGL()
 {
     auto initState = phi::gl::state();
-    initState.clearColor = phi::vec4(1.0f);
+    initState.clearColor = phi::vec4(0.0f);
     initState.frontFace = phi::gl::frontFace::ccw;
     initState.culling = true;
     initState.cullFace = phi::gl::cullFace::back;
@@ -68,8 +68,13 @@ void screen::initScene()
     camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
     camera->update();
 
+    auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
+    auto clonedFloor = floor->clone();
+    clonedFloor->update();
+    _scene->add(clonedFloor);
+
     auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-    for (size_t i = 0; i < 1; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         auto cloned = obj->clone();
         cloned->setLocalPosition(phi::vec3(i+(0.1f*i), 0.0, 0.0));
