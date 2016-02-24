@@ -39,7 +39,7 @@ namespace phi
     {
     private:
         textureContainerLayout _layout;
-        uint _maxTextures;
+        size_t _maxTextures;
         uint _freeSpace;
         GLint _unit;
         bool _bindless;
@@ -52,12 +52,12 @@ namespace phi
     public:
         GLuint id;
         GLuint64 handle;
-        std::map<texture*, textureAddress> texturesAddresses;
+        std::map<texture*, phi::textureAddress> texturesAddresses;
         std::vector<texture*> textures;
 
         textureContainer(
             textureContainerLayout layout,
-            uint maxTextures,
+            size_t maxTextures,
             GLint unit,
             bool bindless = false,
             bool sparse = false) :

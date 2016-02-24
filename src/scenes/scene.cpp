@@ -37,7 +37,6 @@ namespace phi
 
         _pipeline->updateFrameUniformBlock(frameUniformBlock);
 
-        _renderer->gBufferPass->update();
         _renderer->gBufferPass->batches = _pipeline->batches;
         _renderer->update();
     }

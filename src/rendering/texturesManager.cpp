@@ -3,6 +3,22 @@
 
 namespace phi
 {
+    void texturesManager::reserveContainer(textureContainerLayout layout, size_t size)
+    {
+        auto key = std::make_tuple(
+            layout.w,
+            layout.h,
+            layout.levels,
+            layout.internalFormat,
+            layout.wrapMode,
+            layout.minFilter,
+            layout.magFilter);
+
+        auto container = new textureContainer(layout, std::min(_maxContainerSize, size), ++_currentTextureUnit, _bindless, _sparse);
+        _containers[key].push_back(container);
+        handles.push_back(container->handle);
+        units.push_back(_currentTextureUnit);
+    }
 
     textureAddress texturesManager::add(texture* texture)
     {
@@ -49,7 +65,7 @@ namespace phi
                 return textureAddress;
         }
 
-        auto container = new textureContainer(layout, _maxContainerItems, ++_currentTextureUnit, _bindless, _sparse);
+        auto container = new textureContainer(layout, _maxContainerSize, ++_currentTextureUnit, _bindless, _sparse);
         container->add(texture, textureAddress);
         _containers[key].push_back(container);
         handles.push_back(container->handle);

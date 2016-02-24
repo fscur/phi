@@ -11,8 +11,6 @@ namespace phi
         GLint _maxColorAttachments;
         GLint _currentAttachment;
         std::vector<GLenum> _drawBuffers;
-    public:
-        std::map<renderTarget*, GLenum> renderTargetsAttachments;
 
     public:
         framebuffer(bool isDefaultFramebuffer = false) :

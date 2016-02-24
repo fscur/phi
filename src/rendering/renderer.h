@@ -50,6 +50,8 @@ namespace phi
 
         RENDERING_API void update()
         {
+            gBufferPass->update();
+            lightingPass->update();
         }
     };
 }
