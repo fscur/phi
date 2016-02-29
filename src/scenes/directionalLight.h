@@ -10,15 +10,15 @@ namespace phi
     private:
         mat4 _projectionMatrix;
         mat4 _viewMatrix;
+        bool _changed;
+
     private:
         void updateViewMatrix();
 
     public:
-        SCENES_API directionalLight(vec3 position, color color, float intensity, vec3 direction);
+        SCENES_API directionalLight(std::string name, color color, float intensity, transform* transform);
         SCENES_API ~directionalLight();
 
-        SCENES_API void update() override;
-
-        SCENES_API mat4 getViewMatrix() { return _viewMatrix; }
+        SCENES_API mat4 getViewMatrix();
     };
 }

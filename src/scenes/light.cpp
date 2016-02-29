@@ -5,36 +5,18 @@
 
 namespace phi
 {
-    light::light(object3D::objectType type) :
-        object3D("light", type)
+    light::light(component::componentType type, std::string name, color color, float intensity, transform* transform) :
+        component(type, name),
+        _color(color),
+        _intensity(intensity),
+        _shadowMap(nullptr),
+        _transform(transform)
     {
-        _color = color::black;
-        _intensity = 0.0f;
-        _shadowMap = nullptr;
-        _transform = new transform();
-    }
-
-    light::light(vec3 position, color color, float intensity, object3D::objectType type) :
-        object3D("light", type)
-    {
-        setLocalPosition(position);
-        _color = color;
-        _intensity = intensity;
-        _shadowMap = nullptr;
-        _transform = new transform();
     }
 
     light::~light()
     {
         safeDelete(_transform);
-    }
-
-    transform* light::getTransform()
-    {
-        if (!_transform)
-            _transform = new transform();
-
-        return _transform;
     }
 
     color light::getColor()

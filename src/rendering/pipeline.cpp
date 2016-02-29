@@ -49,11 +49,12 @@ namespace phi
         _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
     }
 
-    void pipeline::addToBatches(object3D* object)
+    void pipeline::addToBatches(node* n)
     {
-        if (object->getType() == object3D::objectType::MESH)
+        auto component = n->getComponent(component::componentType::MESH);
+        if (component)
         {
-            auto mesh = static_cast<phi::mesh*>(object);
+            auto mesh = static_cast<phi::mesh*>(component);
             auto material = mesh->material;
 
             if (!phi::contains(_loadedMaterials, material))
@@ -64,12 +65,12 @@ namespace phi
             batchObject.mesh = mesh;
             batchObject.geometry = geometry;
             batchObject.materialId = _materialsMaterialsGpu[material];
-            batchObject.modelMatrix = mesh->getModelMatrix();
+            batchObject.modelMatrix = n->getTransform()->getModelMatrix();
 
             addToBatches(batchObject);
         }
 
-        auto children = object->getChildren();
+        auto children = n->getChildren();
 
         for (auto child : children)
             addToBatches(child);
@@ -135,47 +136,48 @@ namespace phi
         _loadedMaterials.push_back(material);
     }
 
-    void pipeline::add(object3D* object)
+    void pipeline::add(node* n)
     {
-        addToBatches(object);
+        addToBatches(n);
     }
 
-    void pipeline::updateBatches(object3D* object)
+    void pipeline::updateBatches(node* n)
     {
-        if (object->getType() == object3D::objectType::MESH)
+        auto component = n->getComponent(component::componentType::MESH);
+        if (component)
         {
-            auto mesh = static_cast<phi::mesh*>(object);
+            auto mesh = static_cast<phi::mesh*>(component);
             auto batch = _meshesBatches[mesh];
-            _meshesToUpdate[batch].push_back(mesh);
+            _nodesToUpdate[batch].push_back(n);
         }
 
-        auto children = object->getChildren();
-
+        auto children = n->getChildren();
         for (auto child : children)
             updateBatches(child);
     }
 
-    void pipeline::update(object3D* object)
+    void pipeline::update(node* n)
     {
-        updateBatches(object);
+        updateBatches(n);
 
         for (auto batch : batches)
         {
             std::vector<batchObject> bacthObjectsToUpdade;
 
-            for (auto mesh : _meshesToUpdate[batch])
+            for (auto n : _nodesToUpdate[batch])
             {
+                auto mesh = static_cast<phi::mesh*>(n->getComponent(component::componentType::MESH));
                 auto batchObject = phi::batchObject();
                 batchObject.mesh = mesh;
                 batchObject.geometry = mesh->geometry;
                 batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-                batchObject.modelMatrix = mesh->getModelMatrix();
+                batchObject.modelMatrix = n->getTransform()->getModelMatrix();
                 bacthObjectsToUpdade.push_back(batchObject);
             }
 
             batch->update(bacthObjectsToUpdade);
 
-            _meshesToUpdate[batch].clear();
+            _nodesToUpdate[batch].clear();
         }
     }
 }

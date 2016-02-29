@@ -31,10 +31,10 @@ void library::init()
 
     _materialsRepository = load<phi::material>(_libraryPath + "/materials", ".material", importMaterialFunction);
 
-    auto importModelFunction = [&](std::string filePath, phi::resource<phi::object3D>*& resource)
+    auto importModelFunction = [&](std::string filePath, phi::resource<phi::node>*& resource)
     {
-        return phi::importer::importObject3D(filePath, resource, _materialsRepository);
+        return phi::importer::importNode(filePath, resource, _materialsRepository);
     };
 
-    _objectsRepository = load<phi::object3D>(_libraryPath + "/models", ".model", importModelFunction);
+    _nodesRepository = load<phi::node>(_libraryPath + "/models", ".model", importModelFunction);
 }

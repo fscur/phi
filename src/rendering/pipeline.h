@@ -1,5 +1,7 @@
 #pragma once
 
+#include <core\node.h>
+
 #include "rendering.h"
 #include "frameUniformBlock.h"
 #include "batch.h"
@@ -17,7 +19,7 @@ namespace phi
         buffer* _materialsBuffer;
         buffer* _frameUniformBlockBuffer;
         std::map<mesh*, batch*> _meshesBatches;
-        std::map<batch*, std::vector<mesh*>> _meshesToUpdate;
+        std::map<batch*, std::vector<node*>> _nodesToUpdate;
         phi::gl* _gl;
 
     public:
@@ -27,18 +29,18 @@ namespace phi
         void createFrameUniformBlockBuffer();
         void createMaterialsBuffer();
 
-        void addToBatches(object3D* object);
+        void addToBatches(node* n);
         void addToBatches(batchObject& batchObject);
 
-        void updateBatches(object3D* object);
+        void updateBatches(node* n);
         void uploadMaterial(material* material);
 
     public:
         RENDERING_API pipeline(phi::gl* gl);
         RENDERING_API ~pipeline();
 
-        RENDERING_API void add(object3D* object);
-        RENDERING_API void update(object3D* object);
+        RENDERING_API void add(node* n);
+        RENDERING_API void update(node* n);
         RENDERING_API void updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock);
     };
 }

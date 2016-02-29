@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core\resourcesRepository.h>
-#include <core\object3D.h>
+#include <core\node.h>
 #include <rendering\material.h>
 #include <rendering\gl.h>
 
@@ -14,7 +14,7 @@ private:
     std::string _libraryPath;
     phi::resourcesRepository<phi::texture>* _texturesRepository;
     phi::resourcesRepository<phi::material>* _materialsRepository;
-    phi::resourcesRepository<phi::object3D>* _objectsRepository;
+    phi::resourcesRepository<phi::node>* _nodesRepository;
 
 private:
 
@@ -60,5 +60,5 @@ public:
 
     phi::resourcesRepository<phi::texture>* getTexturesRepository() const { return _texturesRepository; }
     phi::resourcesRepository<phi::material>* getMaterialsRepository() const { return _materialsRepository; }
-    phi::resourcesRepository<phi::object3D>* getObjectsRepository() const { return _objectsRepository; }
+    phi::resourcesRepository<phi::node>* getObjectsRepository() const { return _nodesRepository; }
 };

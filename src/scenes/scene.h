@@ -4,6 +4,7 @@
 
 #include <core\globals.h>
 #include <core\mathUtils.h>
+#include <core\node.h>
 #include <rendering\mesh.h>
 #include <rendering\camera.h>
 #include <rendering\pipeline.h>
@@ -21,7 +22,7 @@ namespace phi
     private:
         phi::gl* _gl;
 
-        std::vector<object3D*> _objects;
+        std::vector<node*> _objects;
 
         phi::renderer* _renderer;
         phi::pipeline* _pipeline;
@@ -39,8 +40,8 @@ namespace phi
         SCENES_API void render();
         SCENES_API void resize(size_t w, size_t h);
 
-        SCENES_API void add(object3D* object);
-        SCENES_API void remove(object3D* object);
+        SCENES_API void add(node* n);
+        SCENES_API void remove(node* n);
         SCENES_API float getZBufferValue(phi::ivec2 mousePos) 
         {
             auto pos = phi::ivec2(mousePos.x, h - mousePos.y);

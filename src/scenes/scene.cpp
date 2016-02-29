@@ -9,11 +9,15 @@ namespace phi
     scene::scene(phi::gl* gl, size_t w, size_t h) :
         w(w),
         h(h),
-        _gl(gl),
-        camera(new phi::camera(0.1f, 1000.0f, vec2(w, h), glm::half_pi<float>()))
+        _gl(gl)
     {
         _pipeline = new phi::pipeline(gl);
         _renderer = new phi::renderer(gl, w, h);
+
+        auto cameraNode = new node();
+        camera = new phi::camera("mainCamera", 0.1f, 1000.0f, vec2(w, h), glm::half_pi<float>(), cameraNode->getTransform());
+        cameraNode->addComponent(camera);
+        add(cameraNode);
     }
 
     scene::~scene()
@@ -24,11 +28,6 @@ namespace phi
 
     void scene::update()
     {
-        for (auto obj : _objects)
-            obj->update();
-
-        camera->update();
-
         auto frameUniformBlock = phi::frameUniformBlock();
         frameUniformBlock.p = camera->getProjectionMatrix();
         frameUniformBlock.v = camera->getViewMatrix();
@@ -39,6 +38,8 @@ namespace phi
 
         _renderer->gBufferPass->batches = _pipeline->batches;
         _renderer->update();
+
+        camera->update();
     }
 
     void scene::render()
@@ -51,15 +52,15 @@ namespace phi
         camera->setResolution(vec2(w, h));
     }
 
-    void scene::add(object3D* object)
+    void scene::add(node* n)
     {
-        _objects.push_back(object);
-        _pipeline->add(object);
+        _objects.push_back(n);
+        _pipeline->add(n);
     }
 
-    void scene::remove(object3D* object)
+    void scene::remove(node* n)
     {
-        auto position = std::find(_objects.begin(), _objects.end(), object);
+        auto position = std::find(_objects.begin(), _objects.end(), n);
 
         if (position != _objects.end())
             _objects.erase(position);

@@ -39,9 +39,9 @@ void defaultCameraController::initPan(phi::ivec2 mousePos)
     else
         _eyeZ = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
 
-    _cameraPos = _camera->getPosition();
-    _cameraRight = _camera->getRight();
-    _cameraUp = _camera->getUp();
+    _cameraPos = _camera->getTransform()->getPosition();
+    _cameraRight = _camera->getTransform()->getRight();
+    _cameraUp = _camera->getTransform()->getUp();
     _startPos = mousePos;
     _panning = true;
 }
@@ -60,13 +60,11 @@ void defaultCameraController::initRotate(phi::ivec2 mousePos)
         _targetPos = glm::vec3();
     else
     {
-        phi::frustum* frustum = _camera->getFrustum();
-
-        auto zNear = frustum->getZNear();
+        auto zNear = _camera->getZNear();
         auto iez = 1.0f / zNear;
-        auto zFar = frustum->getZFar();
-        auto aspect = frustum->getAspect();
-        auto fov = frustum->getFov();
+        auto zFar = _camera->getZFar();
+        auto aspect = _camera->getAspect();
+        auto fov = _camera->getFov();
 
         auto tg = tan(fov * 0.5f) * zNear;
 
@@ -87,10 +85,11 @@ void defaultCameraController::initRotate(phi::ivec2 mousePos)
         auto x = (xm0 / zNear) * (z);
         auto y = (ym0 / zNear) * (z);
 
-        auto camPos = _camera->getPosition();
-        auto camDir = _camera->getDirection();
-        auto camRight = _camera->getRight();
-        auto camUp = _camera->getUp();
+        auto transform = _camera->getTransform();
+        auto camPos = transform->getPosition();
+        auto camDir = transform->getDirection();
+        auto camRight = transform->getRight();
+        auto camUp = transform->getUp();
 
         _targetPos = camPos + camDir * z + -camRight * x + camUp * y;
     }
@@ -101,13 +100,11 @@ void defaultCameraController::initRotate(phi::ivec2 mousePos)
 
 void defaultCameraController::pan(phi::ivec2 mousePos)
 {
-    auto frustum = _camera->getFrustum();
-
-    auto zNear = frustum->getZNear();
+    auto zNear = _camera->getZNear();
     auto iez = 1.0f / zNear;
-    auto zFar = frustum->getZFar();
-    auto aspect = frustum->getAspect();
-    auto fov = frustum->getFov();
+    auto zFar = _camera->getZFar();
+    auto aspect = _camera->getAspect();
+    auto fov = _camera->getFov();
 
     auto tg = tan(fov * 0.5f) * zNear;
 
@@ -148,14 +145,11 @@ void defaultCameraController::pan(phi::ivec2 mousePos)
 
 void defaultCameraController::rotate(phi::ivec2 mousePos)
 {
-    auto camera = *_camera;
-    auto frustum = _camera->getFrustum();
-
-    auto zNear = frustum->getZNear();
+    auto zNear = _camera->getZNear();
     auto iez = 1.0f / zNear;
-    auto zFar = frustum->getZFar();
-    auto aspect = frustum->getAspect();
-    auto fov = frustum->getFov();
+    auto zFar = _camera->getZFar();
+    auto aspect = _camera->getAspect();
+    auto fov = _camera->getFov();
 
     auto tg = tan(fov * 0.5f) * zNear;
 
@@ -168,8 +162,7 @@ void defaultCameraController::rotate(phi::ivec2 mousePos)
     auto x = (dx/w) * 3 * phi::PI;
     auto y = (dy/h) * 3 * phi::PI;
 
-    _camera->orbit(_targetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getRight(), x, y);
-    _camera->update();
+    _camera->orbit(_targetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), x, y);
 
     _lastMousePos = mousePos;
 }
@@ -187,13 +180,11 @@ void defaultCameraController::zoom(phi::ivec2 mousePos, bool in)
     else
         z = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
 
-    phi::frustum* frustum = _camera->getFrustum();
-
-    auto zNear = frustum->getZNear();
+    auto zNear = _camera->getZNear();
     auto iez = 1.0f / zNear;
-    auto zFar = frustum->getZFar();
-    auto aspect = frustum->getAspect();
-    auto fov = frustum->getFov();
+    auto zFar = _camera->getZFar();
+    auto aspect = _camera->getAspect();
+    auto fov = _camera->getFov();
 
     auto tg = tan(fov * 0.5f) * zNear;
 
@@ -214,10 +205,11 @@ void defaultCameraController::zoom(phi::ivec2 mousePos, bool in)
     auto x = (xm0/zNear) * z;
     auto y = (ym0/zNear) * z;
 
-    phi::vec3 camPos = _camera->getPosition();
-    phi::vec3 camDir = _camera->getDirection();
-    phi::vec3 camRight = _camera->getRight();
-    phi::vec3 camUp = _camera->getUp();
+    auto transform = _camera->getTransform();
+    phi::vec3 camPos = transform->getPosition();
+    phi::vec3 camDir = transform->getDirection();
+    phi::vec3 camRight = transform->getRight();
+    phi::vec3 camUp = transform->getUp();
 
     phi::vec3 targetPos = camPos + camDir * z + -camRight * x + camUp * y;
 

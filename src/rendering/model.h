@@ -1,21 +1,24 @@
 #pragma once
 
-#include <core\object3D.h>
+#include <core\component.h>
 
 #include "rendering.h"
+
+#include <string>
 
 namespace phi
 {
     class model :
-        public object3D
+        public component
     {
     public:
-        RENDERING_API model(std::string name) :
-            object3D(name, objectType::MODEL)
-        {}
+        model(std::string name) :
+            component(componentType::MODEL, name)
+        {
+        }
 
-        RENDERING_API model(const model& clone) :
-            object3D(clone)
+        model(const model& clone) :
+            component(clone)
         {
         }
     };

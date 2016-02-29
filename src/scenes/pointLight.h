@@ -21,7 +21,7 @@ namespace phi
 
     public:
 
-        SCENES_API pointLight(vec3 position, color color, float intensity, float range);
+        SCENES_API pointLight(std::string name, color color, float intensity, float range, transform* transform);
         SCENES_API ~pointLight();
 
         SCENES_API sphere* getBoundingVolume() const { return _boundingVolume; }

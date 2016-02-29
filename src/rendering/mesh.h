@@ -1,14 +1,14 @@
 #pragma once
 
 #include <core\geometry.h>
-#include <core\object3D.h>
+#include <core\component.h>
 
 #include "material.h"
 
 namespace phi
 {
     class mesh :
-        public object3D
+        public component
     {
     public:
         phi::geometry* geometry;
@@ -17,11 +17,11 @@ namespace phi
     public:
 
         RENDERING_API mesh(std::string name, phi::geometry* geometry, phi::material* material) :
-            object3D(name, objectType::MESH),
+            component(componentType::MESH, name),
             geometry(geometry),
-            material(material){}
+            material(material) {}
 
-        RENDERING_API object3D* clone() override
+        RENDERING_API component* clone() override
         {
             auto m = dynamic_cast<mesh*>(this);
             return new mesh(*m);

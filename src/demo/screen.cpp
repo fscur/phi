@@ -64,21 +64,20 @@ void screen::initScene()
     _scene = new phi::scene(_gl, _size.w, _size.h);
     auto camera = _scene->camera;
 
-    camera->setLocalPosition(phi::vec3(0.0f, 1.0f, 2.0f));
-    camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
-    camera->update();
+    auto cameraTransform = camera->getTransform();
+    auto cameraPos = phi::vec3(0.0f, 0.0f, 2.0f);
+    cameraTransform->setLocalPosition(cameraPos);
+    cameraTransform->setDirection(-cameraPos);
 
     auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
     auto clonedFloor = floor->clone();
-    clonedFloor->update();
     _scene->add(clonedFloor);
 
     auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
     for (size_t i = 0; i < 10; i++)
     {
         auto cloned = obj->clone();
-        cloned->setLocalPosition(phi::vec3(i+(0.1f*i), 0.0, 0.0));
-        cloned->update();
+        cloned->getTransform()->setLocalPosition(phi::vec3(i+(0.1f*i), 0.0, 0.0));
         _scene->add(cloned);
     }
 }
