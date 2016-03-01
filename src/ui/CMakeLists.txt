@@ -8,6 +8,7 @@ add_definitions(-DUI_EXPORTS)
 
 #includes
 include_directories(${INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS})
 
 #libs
 link_directories(${LIBS_DIRS})
@@ -39,13 +40,13 @@ if (WIN32)
     endif(NOT GLEW_FOUND)
 endif(WIN32)
 
-file(GLOB header_files ../../inc/phi/ui/*.h)
+file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
-
 
 add_library(ui SHARED ${source_files} ${header_files})
 
 add_dependencies(ui rendering)
+add_dependencies(ui loader)
 
 target_link_libraries(ui ${OPENGL_LIBRARY})
 target_link_libraries(ui ${FREETYPE_LIBRARY})
@@ -59,6 +60,7 @@ if (WIN32)
 endif (WIN32)
 
 target_link_libraries(ui diagnostics)
+target_link_libraries(ui loader)
 target_link_libraries(ui core)
 target_link_libraries(ui rendering)
 target_link_libraries(ui scenes)

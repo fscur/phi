@@ -1,5 +1,6 @@
-#include "phi/ui/textBox.h"
-#include "phi/ui/uiSystem.h"
+#include "textBox.h"
+
+#include "uiSystem.h"
 
 #include <iostream>
 #include <iostream>
@@ -11,8 +12,8 @@ namespace phi
     textBox::textBox(sizef viewportSize) : control(viewportSize)
     {
         _text = "";
-        _texture = uiRepository::repository->getResource<texture>("button.png");
-        _font = uiRepository::repository->getResource<font>("Consola_18");
+        //_texture = uiRepository::texturesRepository->getResource("button.png");
+        //_font = uiRepository::fontsRepository->getResource("Consola_18");
         _backgroundRenderer = new quadRenderer2D(vec2(), _zIndex, sizef(), viewportSize);
         _cursorRenderer = new quadRenderer2D(vec2(), _zIndex + 0.03f, sizef(CURSOR_WIDTH, _font->getLineHeight()), viewportSize);
         _selectionRenderer = new quadRenderer2D(vec2(), _zIndex + 0.01f, sizef(), viewportSize);
@@ -259,7 +260,7 @@ namespace phi
 
     void textBox::onMouseEnter(mouseEventArgs* e)
     {
-        uiSystem::get()->setCursor(uiRepository::repository->getResource<cursor>("TextCursor"));
+        //uiSystem::get()->setCursor(uiRepository::cursorsRepository->getResource("TextCursor"));
     }
 
     void textBox::onKeyDown(keyboardEventArgs e)

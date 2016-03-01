@@ -41,10 +41,10 @@ private:
 
 private:
     void initRenderingSystem();
-    void initScenesManager();
     void initScene();
     void initInput();
     void initPipeline();
+    void initUI();
 
 public:
     screen();
@@ -60,6 +60,8 @@ public:
     void onMouseWheel(phi::mouseEventArgs* e) override;
     void onKeyDown(phi::keyboardEventArgs* e) override;
     void onKeyUp(phi::keyboardEventArgs* e) override;
+
+    void closeButtonClick(phi::mouseEventArgs* e) { close(); };
 
     void update() override;
     void render() override;

@@ -1,8 +1,8 @@
 #ifndef _PHI_TOGGLE_BUTTON_H_
 #define _PHI_TOGGLE_BUTTON_H_
 
-#include "phi/ui/button.h"
-#include "phi/ui/controlCancelEventArgs.h"
+#include "button.h"
+#include "controlCancelEventArgs.h"
 
 namespace phi
 {

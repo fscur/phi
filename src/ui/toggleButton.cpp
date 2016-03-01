@@ -1,5 +1,6 @@
-#include "phi/ui/toggleButton.h"
-#include "phi/ui/colorAnimator.h"
+#include "toggleButton.h"
+
+#include "colorAnimator.h"
 
 namespace phi
 {

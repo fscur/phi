@@ -1,14 +1,16 @@
 #ifndef _PHI_TOOL_TIP_H_
 #define _PHI_TOOL_TIP_H_
 
+#include <core\size.h>
+
+#include <rendering\quadRenderer2D.h>
+#include <rendering\textRenderer2D.h>
+
 #if WIN32
-    #include <GL/glew.h>
+#include <GL/glew.h>
 #else
-    #include <OpenGL/gl3.h>
+#include <OpenGL/gl3.h>
 #endif
-#include "phi/core/size.h"
-#include "phi/rendering/quadRenderer2D.h"
-#include "phi/rendering/textRenderer2D.h"
 
 namespace phi
 {

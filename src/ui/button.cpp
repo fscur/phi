@@ -1,5 +1,6 @@
-#include "phi/ui/button.h"
-#include "phi/ui/colorAnimator.h"
+#include "button.h"
+
+#include "colorAnimator.h"
 
 namespace phi
 {
@@ -7,13 +8,13 @@ namespace phi
     {
         _text = "";
         _image = nullptr;
-        _backgroundTexture = uiRepository::repository->getResource<texture>("button.png");
+        _backgroundTexture = uiRepository::textureButton;
         _backgroundRenderer = new quadRenderer2D(vec2(0, 0), _zIndex, sizef(0, 0, 0), viewportSize);
         _overlayRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.02f, sizef(0, 0, 0), viewportSize);
         _overlayColor = color::fromRGBA(1.0f, 1.0f, 1.0f, 0.0f);
         _imageRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.01f, sizef(0, 0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
-        _font = uiRepository::repository->getResource<font>("Consola_14");
+        _font = uiRepository::fontConsolas14;
         _textX = 0;
         _textY = 0;
         _clickedOver = false;
@@ -42,9 +43,9 @@ namespace phi
     {
         if (_image == nullptr)
             return;
-
-        auto width = _image->getWidth();
-        auto height = _image->getHeight();
+        
+        auto width = _image->w;
+        auto height = _image->h;
 
         if (width < _size.w &&
             height < _size.h)

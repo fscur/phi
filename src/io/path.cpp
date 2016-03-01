@@ -180,11 +180,12 @@ namespace phi
 
     std::string path::combine(const std::string& path0, const std::string& path1, std::initializer_list<std::string> args)
     {
-        auto combined = path0 + path1;
+        const auto separator = "\\";
+        auto combined = path0 + separator + path1;
 
         for(auto arg : args)
         {
-            combined += arg;
+            combined += separator + arg;
         }
 
         return combined;

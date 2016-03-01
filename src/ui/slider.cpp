@@ -1,5 +1,6 @@
-#include "phi/ui/slider.h"
-#include "phi/ui/colorAnimator.h"
+#include "slider.h"
+
+#include "colorAnimator.h"
 
 #include <GLM\gtc\type_precision.hpp>
 #include <GLM\gtc\type_ptr.hpp>
@@ -8,7 +9,7 @@ namespace phi
 {
     slider::slider(sizef viewportSize) : control(viewportSize)
     {
-        _texture = uiRepository::repository->getResource<texture>("button.png");
+        //_texture = uiRepository::texturesRepository->getResource("button.png");
         _trackQuad = new quadRenderer2D(vec2(0, 0), _zIndex, sizef(0, 0, 0), viewportSize);
         _sliderQuad = new quadRenderer2D(vec2(0, 0), _zIndex + 0.01f, sizef(0, 0, 0), viewportSize);
         _valueChanged = new eventHandler<eventArgs>();

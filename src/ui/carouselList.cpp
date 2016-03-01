@@ -1,12 +1,13 @@
-#include "phi/ui/carouselList.h"
-#include "phi/ui/floatAnimator.h"
+#include "carouselList.h"
+
+#include "floatAnimator.h"
 
 namespace phi
 {
     carouselList::carouselList(sizef viewportSize) : control(viewportSize)
     {
-        _arrowDownTexture = uiRepository::repository->getResource<texture>("arrow_down.png");
-        _arrowUpTexture = uiRepository::repository->getResource<texture>("arrow_up.png");
+        //_arrowDownTexture = uiRepository::texturesRepository->getResource("arrow_down.png");
+        //_arrowUpTexture = uiRepository::texturesRepository->getResource("arrow_up.png");
         _expanded = true;
         _expandButton = new button(viewportSize);
         _expandButton->setToolTipText("Hide");

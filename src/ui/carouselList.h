@@ -1,13 +1,13 @@
 #ifndef _PHI_CAROUSEL_LIST_H_
 #define _PHI_CAROUSEL_LIST_H_
 
-#include "phi/rendering/quadRenderer2D.h"
+#include <rendering\quadRenderer2D.h>
 
-#include "phi/ui/control.h"
-#include "phi/ui/carouselItem.h"
-#include "phi/ui/carouselItemEventArgs.h"
-#include "phi/ui/carouselTab.h"
-#include "phi/ui/toggleButton.h"
+#include "control.h"
+#include "carouselItem.h"
+#include "carouselItemEventArgs.h"
+#include "carouselTab.h"
+#include "toggleButton.h"
 
 #include <vector>
 

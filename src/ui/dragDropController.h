@@ -1,20 +1,20 @@
 #ifndef _PHI_DRAG_DROP_CONTROLLER_H_
 #define _PHI_DRAG_DROP_CONTROLLER_H_
 
-#include "phi/core/size.h"
-#include "phi/core/mouseEventArgs.h"
-#include "phi/core/eventHandler.h"
+#include <core\size.h>
+#include <core\mouseEventArgs.h>
+#include <core\eventHandler.h>
 
-#include "phi/rendering/texture.h"
-#include "phi/rendering/quadRenderer2D.h"
+#include <rendering\texture.h>
+#include <rendering\quadRenderer2D.h>
 
-#include "phi/ui/ui.h"
-#include "phi/ui/dragDropEventArgs.h"
+#include "ui.h"
+#include "dragDropEventArgs.h"
 
 #if WIN32
-#include <GL/glew.h>
+#include <GL\glew.h>
 #else
-#include <OpenGL/gl3.h>
+#include <OpenGL\gl3.h>
 #endif
 #include <string>
 

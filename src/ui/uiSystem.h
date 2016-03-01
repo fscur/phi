@@ -1,10 +1,12 @@
 #ifndef _PHI_UI_SYSTEM_H_
 #define _PHI_UI_SYSTEM_H_
 
-#include "phi/ui/control.h"
-#include "phi/core/size.h"
-#include "phi/ui/cursor.h"
-#include "phi/rendering/quadRenderer2D.h"
+#include <core\size.h>
+
+#include <rendering\quadRenderer2D.h>
+
+#include "cursor.h"
+#include "control.h"
 
 namespace phi
 {

@@ -1,5 +1,6 @@
-#include "phi/ui/dragDropController.h"
-#include "phi/core/input.h"
+#include "dragDropController.h"
+
+#include <core\input.h>
 
 namespace phi
 {

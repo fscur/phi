@@ -52,11 +52,11 @@ namespace phi
 
     void quadRenderer2D::render(texture* image, color backColor)
     {
-        /*_shader->bind();
-        _shader->setUniform("mvp", _transform->getMvp());
-        _shader->setUniform("quadTexture", image, 0);
-        _shader->setUniform("backColor", backColor);
-        geometryRenderer::render(_quadGeometry);
-        _shader->unbind();*/
+        //_shader->bind();
+        //_shader->setUniform("mvp", _transform->getMvp());
+        //_shader->setUniform("quadTexture", image, 0);
+        //_shader->setUniform("backColor", backColor);
+        //geometryRenderer::render(_quadGeometry);
+        //_shader->unbind();
     }
 }

@@ -1,11 +1,12 @@
-#include "phi/ui/carouselTab.h"
-#include "phi/ui/floatAnimator.h"
+#include "carouselTab.h"
+
+#include "floatAnimator.h"
 
 namespace phi
 {
     carouselTab::carouselTab(sizef viewportSize) : control(viewportSize)
     {
-        _backgroundTexture = uiRepository::repository->getResource<texture>("button.png");
+        //_backgroundTexture = uiRepository::texturesRepository->getResource("button.png");
         _backgroundRenderer = new quadRenderer2D(vec2(0, 0), 0.0f, sizef(0, 0, 0), viewportSize);
         _scrollOffset = 0.0f;
         _targetScrollOffset = 0.0f;

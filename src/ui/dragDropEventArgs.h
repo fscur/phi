@@ -1,7 +1,7 @@
 #ifndef _PHI_DRAG_DROP_EVENT_ARGS_H_
 #define _PHI_DRAG_DROP_EVENT_ARGS_H_
 
-#include "phi/core/eventArgs.h"
+#include <core\eventArgs.h>
 
 #include <string>
 

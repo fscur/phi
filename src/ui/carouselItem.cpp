@@ -1,4 +1,4 @@
-#include "phi/ui/carouselItem.h"
+#include "carouselItem.h"
 
 namespace phi
 {

@@ -19,8 +19,10 @@ namespace phi
 
     void scene::update()
     {
-        for (auto obj : _objects)
-            obj->update();
+        _camera->update();
+
+        /*for (auto obj : _objects)
+            obj->update();*/
     }
 
     void scene::setSize(sizef size)

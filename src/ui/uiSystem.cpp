@@ -1,8 +1,8 @@
-#include "phi/ui/uiSystem.h"
+#include "uiSystem.h"
 
-#include "phi/rendering/renderingSystem.h"
+#include <rendering\renderingSystem.h>
 
-#include "phi/ui/floatAnimator.h"
+#include "floatAnimator.h"
 
 #include <algorithm>
 
@@ -34,15 +34,6 @@ namespace phi
 
     void uiSystem::init(uiSystemInfo info)
     {
-        if (!renderingSystem::initialized)
-        {
-            renderingSystemInfo renderingInfo = renderingSystemInfo();
-            renderingInfo.applicationPath = info.applicationPath;
-            renderingInfo.resourcesPath = info.resourcesPath;
-            renderingInfo.size = info.size;
-            renderingSystem::init(renderingInfo);
-        }
-
         if (!uiRepository::initialized)
         {
             phi::uiRepositoryInfo repositoryInfo = phi::uiRepositoryInfo();
@@ -55,7 +46,7 @@ namespace phi
         control::init(info.size);
         input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
         _cursorRenderer = new quadRenderer2D(vec2(), 1.0f, sizef(), sizef());
-        setCursor(phi::uiRepository::repository->getResource<cursor>("DefaultCursor"));
+        setCursor(phi::uiRepository::cursorDefault);
         _cursorRenderer->setViewportSize(info.size);
         dragDropController::get()->init(info.size);
         dragDropController::get()->getDradDropEnded()->bind<uiSystem, &uiSystem::dragDropEnded>(this);
@@ -63,22 +54,23 @@ namespace phi
 
     void uiSystem::setCursor(cursor* value)
     {
-        /*vec2 mousePos;
-
-
+        vec2 mousePos;
 
         if (_cursor != nullptr)
-            mousePos = _cursorRenderer->getLocation() + vec2(_cursor->getTexture()->getSize().w * _cursor->getHotPoint().x, _cursor->getTexture()->getSize().h * _cursor->getHotPoint().y);
+            mousePos = _cursorRenderer->getLocation() + vec2(_cursor->getTexture()->w * _cursor->getHotPoint().x, _cursor->getTexture()->h * _cursor->getHotPoint().y);
         else
             mousePos = vec2();
 
         _cursor = value;
-        sizef size = _cursor->getTexture()->getSize();
+
+        auto textureWitdh = _cursor->getTexture()->w;
+        auto textureHeight = _cursor->getTexture()->h;
+
         vec2 hotPoint = _cursor->getHotPoint();
-        _cursorRenderer->setLocation(vec2(mousePos.x - size.w * hotPoint.x, mousePos.y - size.h * hotPoint.y));
+        _cursorRenderer->setLocation(vec2(mousePos.x - textureWitdh * hotPoint.x, mousePos.y - textureHeight * hotPoint.y));
         _cursorRenderer->setZIndex(50.0f);
-        _cursorRenderer->setSize(_cursor->getTexture()->getSize());
-        _cursorRenderer->update();*/
+        _cursorRenderer->setSize(sizef((float)textureWitdh, (float)textureHeight));
+        _cursorRenderer->update();
     }
 
     void uiSystem::inputMouseDown(mouseEventArgs* e)
@@ -105,8 +97,8 @@ namespace phi
 
     void uiSystem::inputMouseMove(mouseEventArgs* e)
     {
-        auto w = _cursor->getTexture()->getWidth();
-        auto h = _cursor->getTexture()->getHeight();
+        auto w = _cursor->getTexture()->w;
+        auto h = _cursor->getTexture()->h;
 
         vec2 hotPoint = _cursor->getHotPoint();
         _cursorRenderer->setLocation(vec2(e->x - w * hotPoint.x, e->y - h * hotPoint.y));
@@ -263,7 +255,7 @@ namespace phi
 
     void uiSystem::controlMouseLeave(mouseEventArgs* e)
     {
-        setCursor(phi::uiRepository::repository->getResource<cursor>("DefaultCursor"));
+        //setCursor(phi::uiRepository::cursorsRepository->getResource("DefaultCursor"));
     }
 
     void uiSystem::controlAddedChild(controlEventArgs e)

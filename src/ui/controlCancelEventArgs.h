@@ -1,7 +1,7 @@
 #ifndef _PHI_CONTROL_CANCEL_EVENT_ARGS_H_
 #define _PHI_CONTROL_CANCEL_EVENT_ARGS_H_
 
-#include "phi/ui/controlEventArgs.h"
+#include "controlEventArgs.h"
 
 namespace phi
 {

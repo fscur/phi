@@ -1,7 +1,7 @@
 #ifndef _PHI_FLOAT_ANIMATION_H_
 #define _PHI_FLOAT_ANIMATION_H_
 
-#include "phi/ui/easingFunctions.h"
+#include "easingFunctions.h"
 
 #include <functional>
 

@@ -1,5 +1,6 @@
-#include <phi/ui/control.h>
-#include <phi/core/clock.h>
+#include "control.h"
+
+#include <core\clock.h>
 
 #include <algorithm>
 

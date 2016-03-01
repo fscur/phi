@@ -1,7 +1,8 @@
-#include "phi/ui/toolTip.h"
-#include "phi/ui/uiRepository.h"
-#include "phi/ui/floatAnimator.h"
-#include "phi/ui/colorAnimator.h"
+#include "toolTip.h"
+
+#include "uiRepository.h"
+#include "floatAnimator.h"
+#include "colorAnimator.h"
 
 namespace phi
 {
@@ -10,10 +11,10 @@ namespace phi
         _viewportSize = viewportSize;
 
         _backgroundRenderer = new quadRenderer2D(vec2(), 30.0f, sizef(), viewportSize);
-        _backgroundTexture = uiRepository::repository->getResource<texture>("button.png");
+        //_backgroundTexture = uiRepository::texturesRepository->getResource("button.png");
 
         _foregroundRenderer = new textRenderer2D(viewportSize);
-        _font = uiRepository::repository->getResource<font>("Consola_14");
+        //_font = uiRepository::texturesRepository->getResource("Consola_14");
         _textColor = color::white;
     }
 

@@ -1,8 +1,7 @@
 #ifndef _PHI_TRANSLATION_EVENT_ARGS_H_
 #define _PHI_TRANSLATION_EVENT_ARGS_H_
 
-#include <phi/core/object3DEventArgs.h>
-
+#include <core\object3DEventArgs.h>
 
 namespace phi
 {

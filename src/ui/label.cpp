@@ -1,14 +1,14 @@
-#include "phi/ui/label.h"
+#include "label.h"
 
 namespace phi
 {
     label::label(sizef viewportSize) : control(viewportSize)
     {
         _text = "";
-        _texture = uiRepository::repository->getResource<texture>("button.png");
+        //_texture = uiRepository::texturesRepository->getResource("button.png");
         _backgroundRenderer = new quadRenderer2D(vec2(), 0.0f, phi::sizef(0, 0), viewportSize);
         _textRenderer = new textRenderer2D(viewportSize);
-        _font = uiRepository::repository->getResource<font>("Consola_14");
+        //_font = uiRepository::fontsRepository->getResource("Consola_14");
         _textX = 0;
         _textY = 0;
     }

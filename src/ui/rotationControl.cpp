@@ -1,14 +1,15 @@
-#include <phi/rendering/shaderManager.h>
-#include <phi/ui/rotationControl.h>
-#include <phi/ui/colorAnimator.h>
+#include "rotationControl.h"
 
+#include <rendering\shaderManager.h>
+
+#include "colorAnimator.h"
 
 namespace phi
 {
     rotationControl::rotationControl(sizef viewportSize) :
         control(viewportSize)
     {
-        _shader = shaderManager::get()->getShader("UI_MESH");
+        //_shader = shaderManager::get()->getShader("UI_MESH");
         _object = nullptr;
         _xModelMatrix = glm::rotate(glm::pi<float>() * 0.5f, vec3(0.0f, 1.0f, 0.0f));
         _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, vec3(1.0f, 0.0f, 0.0f));
@@ -283,7 +284,7 @@ namespace phi
 
         auto worldToScreen = [&] (const vec3 worldPos)
         {
-            auto vp = _camera->getPerspProjMatrix() * _camera->getViewMatrix();
+            auto vp = _camera->getProjectionMatrix() * _camera->getViewMatrix();
             auto vw = _viewportSize.w * 0.5f;
             auto vh = _viewportSize.h * 0.5f;
             auto v = vec2(vw, vh);
@@ -434,10 +435,10 @@ namespace phi
 
     void rotationControl::renderCircle(color color, mat4 modelMatrix)
     {
-        auto mvp = _camera->getPerspProjMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
+        auto mvp = _camera->getProjectionMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
         _shader->bind();
-        _shader->setUniform("mvp", mvp);
-        _shader->setUniform("color", color);
+        //_shader->setUniform("mvp", mvp);
+        //_shader->setUniform("color", color);
         _circleMesh->bind();
         _circleMesh->render();
         _circleMesh->unbind();

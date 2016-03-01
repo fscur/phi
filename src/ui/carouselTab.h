@@ -1,8 +1,8 @@
 #ifndef _PHI_CAROUSEL_TAB_H_
 #define _PHI_CAROUSEL_TAB_H_
 
-#include "phi/ui/carouselItem.h"
-#include "phi/ui/button.h"
+#include "carouselItem.h"
+#include "button.h"
 
 namespace phi
 {

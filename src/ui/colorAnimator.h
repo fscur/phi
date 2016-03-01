@@ -1,12 +1,12 @@
 #ifndef _PHI_COLOR_ANIMATOR_H_
 #define _PHI_COLOR_ANIMATOR_H_
 
-#include "phi/core/globals.h"
-#include "phi/core/color.h"
-#include "phi/core/mathUtils.h"
+#include <core\globals.h>
+#include <core\color.h>
+#include <core\mathUtils.h>
 
-#include "phi/ui/colorAnimation.h"
-#include "phi/ui/ui.h"
+#include "colorAnimation.h"
+#include "ui.h"
 
 #include <unordered_map>
 

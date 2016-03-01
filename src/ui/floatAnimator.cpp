@@ -1,6 +1,7 @@
-#include "phi/ui/floatAnimator.h"
-#include "phi/core/clock.h"
-#include "phi/core/globals.h"
+#include "floatAnimator.h"
+
+#include <core\clock.h>
+#include <core\globals.h>
 
 #include <string>
 

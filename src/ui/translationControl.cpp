@@ -1,11 +1,12 @@
-#include <phi/rendering/shaderManager.h>
-#include <phi/rendering/geometryRenderer.h>
-#include <phi/rendering/lineMesh.h>
+#include "translationControl.h"
 
-#include <phi/ui/translationControl.h>
-#include <phi/ui/colorAnimator.h>
+#include <rendering\shaderManager.h>
+//#include <rendering\geometryRenderer.h>
+#include <rendering\lineMesh.h>
 
-#include <bullet/btBulletDynamicsCommon.h>
+#include "colorAnimator.h"
+
+#include <bullet\btBulletDynamicsCommon.h>
 #include <GLM\gtc\constants.hpp>
 
 namespace phi
@@ -14,7 +15,7 @@ namespace phi
         control(viewportSize)
     {
         _arrowGeometry = createArrowGeometry();
-        _shader = shaderManager::get()->getShader("UI_MESH");
+        //_shader = shaderManager::get()->getShader("UI_MESH");
         _object = nullptr;
         _xAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
         _yAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
@@ -112,7 +113,8 @@ namespace phi
         //        max.z = pos.z;
         //}
 
-        return geometry::create("arrow", vertices, indices);
+        //return geometry::create("arrow", vertices, indices);
+        return nullptr;
     }
 
     void translationControl::updateModelMatrix()
@@ -171,7 +173,7 @@ namespace phi
         float x = (2 * screenCoords.x) / w - 1.0f;
         float y = 1.0f - (2 * screenCoords.y) / h;
 
-        mat4 invPersp = inverse(_camera->getPerspProjMatrix());
+        mat4 invPersp = inverse(_camera->getProjectionMatrix());
         mat4 invView = inverse(_camera->getViewMatrix());
 
         vec4 ray_clip = vec4(x, y, -1.0f, 1.0f);
@@ -240,7 +242,7 @@ namespace phi
 
     vec2 translationControl::worldToScreen(vec3 worldPos)
     {
-        auto vp = _camera->getPerspProjMatrix() * _camera->getViewMatrix();
+        auto vp = _camera->getProjectionMatrix() * _camera->getViewMatrix();
         auto vw = _viewportSize.w * 0.5f;
         auto vh = _viewportSize.h * 0.5f;
         auto v = vec2(vw, vh);
@@ -423,12 +425,12 @@ namespace phi
 
     void translationControl::renderArrow(geometry* geometry, color color, mat4 modelMatrix)
     {
-        auto mvp = _camera->getPerspProjMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
+        auto mvp = _camera->getProjectionMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
 
         _shader->bind();
-        _shader->setUniform("mvp", mvp);
-        _shader->setUniform("color", color);
-        geometryRenderer::render(geometry);
+        //_shader->setUniform("mvp", mvp);
+        //_shader->setUniform("color", color);
+        //geometryRenderer::render(geometry);
         _shader->unbind();
     }
 

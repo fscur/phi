@@ -1,7 +1,7 @@
 #ifndef _PHI_SCISSOR_H_
 #define _PHI_SCISSOR_H_
 
-#include <phi/core/globals.h>
+#include <core\globals.h>
 
 namespace phi
 {

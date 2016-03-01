@@ -11,7 +11,8 @@
 #include <rendering\shaderManager.h>
 #include <rendering\renderingSystem.h>
 
-#include <scenes\scenesManager.h>
+#include <ui\button.h>
+#include <ui\uiSystem.h>
 
 #include <GLM\gtc\constants.hpp>
 
@@ -37,8 +38,8 @@ void screen::onInitialize()
     centerScreen();
 
     initRenderingSystem();
-    initScenesManager();
     initScene();
+    initUI();
     initInput();
     initPipeline();
 }
@@ -50,16 +51,6 @@ void screen::initRenderingSystem()
     renderingInfo.resourcesPath = _resourcesPath;
     renderingInfo.size = getSize();
     phi::renderingSystem::init(renderingInfo);
-}
-
-void screen::initScenesManager()
-{
-    phi::scenesManagerInfo info;
-    info.applicationPath = getApplicationPath();
-    info.resourcesPath = _resourcesPath;
-    info.size = getSize();
-
-    phi::scenesManager::get()->init(info);
 }
 
 void screen::initScene()
@@ -123,15 +114,41 @@ void screen::initPipeline()
     _renderer = new phi::renderer();
 }
 
+void screen::initUI()
+{
+    phi::uiSystemInfo info = phi::uiSystemInfo();
+    info.applicationPath = getApplicationPath();
+    info.resourcesPath = _resourcesPath;
+    info.size = getSize();
+    phi::uiSystem::get()->init(info);
+
+    phi::color labelBackground = phi::color::transparent;
+    phi::color labelForeground = phi::color::white;
+
+    phi::button* closeButton = new phi::button(getSize());
+    closeButton->setText("X");
+    closeButton->setToolTipText("Close");
+    closeButton->setBackgroundColor(phi::color::fromRGBA(0.7f, 0.7f, 0.7f, 0.5f));
+    closeButton->setForegroundColor(phi::color::white);
+    closeButton->setSize(phi::sizef(30, 30));
+    closeButton->setX(getSize().w - 30);
+    closeButton->setY(0);
+    closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
+    phi::uiSystem::get()->addControl(closeButton);
+
+    phi::uiSystem::get()->resize(getSize());
+}
+
 void screen::update()
 {
     _inputManager->update();
-
-    auto camera = _scene->getCamera();
-    camera->update();
-
+    _commandsManager->update();
+    _inputManager->update();
+    //phi::colorAnimator::update(); <- fazer update na ui
+    phi::uiSystem::get()->update();
     _scene->update();
 
+    auto camera = _scene->getCamera();
     auto frameUniformBlock = phi::frameUniformBlock();
     frameUniformBlock.p = camera->getProjectionMatrix();
     frameUniformBlock.v = camera->getViewMatrix();
@@ -142,14 +159,17 @@ void screen::update()
 
 void screen::render()
 {
+    phi::uiSystem::get()->render();
     _renderer->render();
 }
 
 void screen::onResize(SDL_Event e)
 {
-    auto sz = phi::sizef((float)e.window.data1, (float)e.window.data2);
-    setSize(sz);
-    _scene->getCamera()->setResolution(sz);
+    auto size = phi::sizef((float)e.window.data1, (float)e.window.data2);
+
+    setSize(size);
+    _scene->getCamera()->setResolution(size);
+    phi::uiSystem::get()->resize(size);
 }
 
 void screen::onMouseDown(phi::mouseEventArgs* e)

@@ -1,19 +1,18 @@
 #ifndef _PHI_TRANSLATION_CONTROL_H_
 #define _PHI_TRANSLATION_CONTROL_H_
 
-#include "control.h"
+#include <core\object3D.h>
+#include <core\geometry.h>
+#include <core\aabb.h>
+
+#include <rendering\transform.h>
+#include <rendering\ray.h>
+#include <rendering\frustum.h>
+#include <rendering\shader.h>
+#include <rendering\camera.h>
+
 #include "translationEventArgs.h"
-
-#include <phi/core/object3D.h>
-#include <phi/core/aabb.h>
-
-#include <phi/rendering/geometry.h>
-#include <phi/rendering/transform.h>
-#include <phi/rendering/ray.h>
-#include <phi/rendering/frustum.h>
-#include <phi/rendering/shader.h>
-
-#include <phi/rendering/camera.h>
+#include "control.h"
 
 namespace phi
 {

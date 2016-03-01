@@ -82,7 +82,7 @@ add_executable(demo
     #${cursors_files}
     )
 
-#add_dependencies(demo ui)
+add_dependencies(demo ui)
 add_dependencies(demo scenes)
 
 target_link_libraries(demo ${ASSIMP_LIBRARY})
@@ -103,7 +103,7 @@ endif (WIN32)
 target_link_libraries(demo diagnostics)
 target_link_libraries(demo core)
 target_link_libraries(demo rendering)
-#target_link_libraries(demo ui)
+target_link_libraries(demo ui)
 target_link_libraries(demo scenes)
 target_link_libraries(demo io)
 target_link_libraries(demo loader)

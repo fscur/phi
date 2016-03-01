@@ -51,7 +51,7 @@ namespace phi
         } c[128];
 
     public:
-        RENDERING_API font(int size, FT_Library library);
+        RENDERING_API font(std::string name, std::string path, int size, FT_Library library);
         RENDERING_API ~font();
 
         RENDERING_API static font* fromFile(std::string fileName);//TODO: unimplemented method

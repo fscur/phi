@@ -1,8 +1,8 @@
 #ifndef _PHI_FLOAT_ANIMATOR_H_
 #define _PHI_FLOAT_ANIMATOR_H_
 
-#include "phi/ui/ui.h"
-#include "phi/ui/floatAnimation.h"
+#include "ui.h"
+#include "floatAnimation.h"
 
 #include <unordered_map>
 

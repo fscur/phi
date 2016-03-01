@@ -1,8 +1,9 @@
 #ifndef _PHI_COLOR_ANIMATION_H_
 #define _PHI_COLOR_ANIMATION_H_
 
-#include "phi/core/color.h"
-#include "phi/ui/easingFunctions.h"
+#include <core\color.h>
+
+#include "easingFunctions.h"
 
 #include <functional>
 

@@ -1,5 +1,6 @@
-#include "phi/ui/colorAnimator.h"
-#include "phi/core/clock.h"
+#include "colorAnimator.h"
+
+#include <core/clock.h>
 
 namespace phi
 {
