@@ -13,8 +13,6 @@ file(GLOB source_files *.cpp)
 
 add_library(diagnostics SHARED ${source_files} ${header_files})
 
-add_dependencies(diagnostics precompiled)
-
 target_link_libraries(diagnostics precompiled)
 
 install(TARGETS diagnostics 

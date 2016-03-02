@@ -13,9 +13,6 @@ file(GLOB source_files *.cpp)
 
 add_library(io SHARED ${source_files} ${header_files})
 
-add_dependencies(io precompiled)
-
-target_link_libraries(io precompiled)
 target_link_libraries(io diagnostics)
 
 install(TARGETS io 

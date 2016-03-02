@@ -13,10 +13,7 @@ file(GLOB source_files *.cpp)
 
 add_library(core SHARED ${source_files} ${header_files})
 
-add_dependencies(core diagnostics)
-add_dependencies(core precompiled)
 target_link_libraries(core diagnostics)
-target_link_libraries(core precompiled)
 
 install(TARGETS core 
     RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os})

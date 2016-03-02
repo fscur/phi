@@ -12,6 +12,7 @@ namespace phi
         std::chrono::nanoseconds _currentNanoSeconds = std::chrono::nanoseconds::zero();
         bool _isRunning = false;
     public:
+
         DIAGNOSTICS_API stopwatch() { };
         DIAGNOSTICS_API ~stopwatch() { };
         DIAGNOSTICS_API void start();
