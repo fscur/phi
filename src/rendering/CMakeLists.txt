@@ -37,11 +37,9 @@ source_group(Shaders FILES ${shader_files})
 target_link_libraries(rendering core)
 target_link_libraries(rendering io)
 
-
-#target_link_libraries(rendering ${SDL_TTF_LIBRARY})
-
 #freetype package
 find_package(FREETYPE REQUIRED)
+link_directories(${FREETYPE_LIBRARIES})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(rendering ${FREETYPE_LIBRARY})
 

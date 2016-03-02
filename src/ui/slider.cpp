@@ -1,16 +1,16 @@
-#include "phi/ui/slider.h"
-#include "phi/ui/colorAnimator.h"
+#include <precompiled.h>
+#include "slider.h"
 
-#include <GLM\gtc\type_precision.hpp>
-#include <GLM\gtc\type_ptr.hpp>
+#include "colorAnimator.h"
 
 namespace phi
 {
     slider::slider(sizef viewportSize) : control(viewportSize)
     {
-        _texture = uiRepository::repository->getResource<texture>("button.png");
-        _trackQuad = new quadRenderer2D(vec2(0, 0), _zIndex, sizef(0, 0, 0), viewportSize);
-        _sliderQuad = new quadRenderer2D(vec2(0, 0), _zIndex + 0.01f, sizef(0, 0, 0), viewportSize);
+        _texture = uiRepository::textureButton;
+        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
+        _trackQuad = new quadRenderer2D(vec2(0, 0), _zIndex, sizeui(0, 0, 0), size);
+        _sliderQuad = new quadRenderer2D(vec2(0, 0), _zIndex + 0.01f, sizeui(0, 0, 0), size);
         _valueChanged = new eventHandler<eventArgs>();
         _value = 0;
         _minValue = 0;
@@ -45,7 +45,7 @@ namespace phi
     {
         _size = value;
         _trackQuad->setLocation(vec2(_trackQuad->getLocation().x, _y));
-        _trackQuad->setSize(sizef(_size.w, _size.h));
+        _trackQuad->setSize(sizeui(_size.w, _size.h));
         _trackQuad->update();
         updateSlider();
     }
@@ -53,9 +53,10 @@ namespace phi
     void slider::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
-        _trackQuad->setViewportSize(getViewportSize());
+        auto size = sizeui(value.w, value.h, value.d);
+        _trackQuad->setViewportSize(size);
         _trackQuad->update();
-        _sliderQuad->setViewportSize(getViewportSize());
+        _sliderQuad->setViewportSize(size);
         _sliderQuad->update();
     }
 
@@ -133,7 +134,7 @@ namespace phi
 
         auto y = _y + 1;
         _sliderQuad->setLocation(vec2(_trackQuad->getLocation().x, (float)y));
-        _sliderQuad->setSize(sizef((unsigned int)(percent * _size.w), _size.h - 2));
+        _sliderQuad->setSize(sizeui((unsigned int)(percent * _size.w), _size.h - 2));
         _sliderQuad->update();
     }
 

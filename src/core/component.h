@@ -2,6 +2,8 @@
 #include <precompiled.h>
 #include "transform.h"
 
+#include <string>
+
 namespace phi
 {
     class node;

@@ -1,5 +1,4 @@
-#ifndef _PHI_UI_
-#define _PHI_UI_
+#pragma once
 
 #ifdef WIN32
 #ifdef UI_EXPORTS
@@ -9,8 +8,4 @@
 #endif
 #else
 #define UI_API
-#endif
-
-#define GLM_FORCE_RADIANS
-
 #endif

@@ -1,20 +1,15 @@
-#ifndef _PHI_CONTROL_H_
-#define _PHI_CONTROL_H_
+#pragma once
+#include <precompiled.h>
 
-#if WIN32
-    #include <GL/glew.h>
-#else
-    #include <OpenGL/gl3.h>
-#endif
-#include "phi/ui/ui.h"
-#include "phi/core/input.h"
-#include "phi/core/globals.h"
-#include "phi/core/size.h"
-#include "phi/ui/uiRepository.h"
-#include "phi/ui/controlEventArgs.h"
-#include "phi/ui/toolTip.h"
-#include "phi/ui/scissorStack.h"
-#include "phi/ui/dragDropController.h"
+#include <core\input.h>
+#include <core\size.h>
+
+#include "ui.h"
+#include "uiRepository.h"
+#include "controlEventArgs.h"
+#include "toolTip.h"
+#include "scissorStack.h"
+#include "dragDropController.h"
 
 namespace phi
 {
@@ -115,5 +110,3 @@ namespace phi
         void notifyKeyUp(keyboardEventArgs e);
     };
 }
-
-#endif

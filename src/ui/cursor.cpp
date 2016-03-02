@@ -1,19 +1,22 @@
-#include "phi/ui/cursor.h"
-#include "phi/core/globals.h"
+#include <precompiled.h>
+#include "cursor.h"
+
+#include <loader\importer.h>
 
 namespace phi
 {
-    cursor::cursor(std::string name, std::string path, vec2 hotPoint) :
-        resource(name, path)
+    cursor::cursor(std::string path, vec2 hotPoint)
     {
-        _fullName = name;
-        _texture = texture::fromFile(path);
+        phi::resource<texture>* textRes = nullptr;
+        phi::importer::importTexture(path, textRes);
+
+        _texture = textRes->getObject();
         _hotPoint = hotPoint;
     }
 
     cursor::~cursor()
     {
-        _texture->release();
+        //_texture->releaseFromGpu();
         safeDelete(_texture);
     }
 }

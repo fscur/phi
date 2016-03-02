@@ -335,8 +335,8 @@ void form::resize(phi::sizef size)
         SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
 
     auto a = SDL_Event();
-    a.window.data1 = (uint)size.w;
-    a.window.data2 = (uint)size.h;
+    a.window.data1 = static_cast<uint>(size.w);
+    a.window.data2 = static_cast<uint>(size.h);
 
     onResize(a);
 }

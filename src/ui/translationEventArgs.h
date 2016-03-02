@@ -1,13 +1,13 @@
-#ifndef _PHI_TRANSLATION_EVENT_ARGS_H_
-#define _PHI_TRANSLATION_EVENT_ARGS_H_
+#pragma once
+#include <precompiled.h>
 
-#include <phi/core/object3DEventArgs.h>
-
+//#include <core\object3DEventArgs.h>
+#include <core\transform.h>
 
 namespace phi
 {
-    class translationEventArgs :
-        public object3DEventArgs
+    class translationEventArgs /*:
+        public object3DEventArgs*/
     {
     public:
         vec3 startPos;
@@ -15,11 +15,9 @@ namespace phi
         bool cancel;
 
     public:
-        translationEventArgs(object3D* sender, vec3 start, vec3 end)
-            : object3DEventArgs(sender), startPos(start), endPos(end), cancel(false)
+        translationEventArgs(transform* sender, vec3 start, vec3 end)
+            //: object3DEventArgs(sender), startPos(start), endPos(end), cancel(false)
         {
         }
     };
 }
-
-#endif

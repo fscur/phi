@@ -1,5 +1,8 @@
 #include <precompiled.h>
 #include "geometry.h"
+#include <io\path.h>
+
+#include <iterator>
 
 namespace phi
 {

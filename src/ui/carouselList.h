@@ -1,15 +1,13 @@
-#ifndef _PHI_CAROUSEL_LIST_H_
-#define _PHI_CAROUSEL_LIST_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/rendering/quadRenderer2D.h"
+#include <rendering\quadRenderer2D.h>
 
-#include "phi/ui/control.h"
-#include "phi/ui/carouselItem.h"
-#include "phi/ui/carouselItemEventArgs.h"
-#include "phi/ui/carouselTab.h"
-#include "phi/ui/toggleButton.h"
-
-#include <vector>
+#include "control.h"
+#include "carouselItem.h"
+#include "carouselItemEventArgs.h"
+#include "carouselTab.h"
+#include "toggleButton.h"
 
 namespace phi
 {
@@ -78,5 +76,3 @@ namespace phi
         void onRender() override;
     };
 }
-
-#endif

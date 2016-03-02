@@ -1,5 +1,5 @@
-#include <phi/ui/scissor.h>
-#include <phi/core/globals.h>
+#include <precompiled.h>
+#include "scissor.h"
 
 namespace phi
 {

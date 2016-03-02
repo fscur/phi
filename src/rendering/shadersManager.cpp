@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "shadersManager.h"
+
 #include <io\path.h>
 
 namespace phi

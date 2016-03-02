@@ -1,8 +1,8 @@
-#include "phi/ui/floatAnimator.h"
-#include "phi/core/clock.h"
-#include "phi/core/globals.h"
+#include <precompiled.h>
 
-#include <string>
+#include <core\clock.h>
+
+#include "floatAnimator.h"
 
 namespace phi
 {

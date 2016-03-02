@@ -102,8 +102,8 @@ namespace phi
 
         dir = opendir(directory);
         while ((ent = readdir(dir)) != NULL) {
-            const string file_name = ent->d_name;
-            const string full_file_name = directory + "/" + file_name;
+            const std::string file_name = ent->d_name;
+            const std::string full_file_name = directory + "/" + file_name;
 
             if (file_name[0] == '.')
                 continue;
@@ -183,7 +183,7 @@ namespace phi
 #endif
     }
 
-    string path::combine(const string& path0, const string& path1, const string& extension = string())
+    string path::combine(const string& path0, const string& path1, const string& extension)
     {
         auto combined = path0 + "\\" + path1;
 

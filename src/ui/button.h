@@ -1,14 +1,10 @@
-#ifndef _PHI_BUTTON_H_
-#define _PHI_BUTTON_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/core/globals.h"
+#include <rendering\quadRenderer2D.h>
+#include <rendering\textRenderer2D.h>
 
-#include "phi/rendering/quadRenderer2D.h"
-#include "phi/rendering/textRenderer2D.h"
-
-#include "phi/ui/control.h"
-
-#include <string>
+#include "control.h"
 
 namespace phi
 {
@@ -82,5 +78,3 @@ namespace phi
         UI_API void onRender() override;
     };
 }
-
-#endif

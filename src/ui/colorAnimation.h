@@ -1,10 +1,9 @@
-#ifndef _PHI_COLOR_ANIMATION_H_
-#define _PHI_COLOR_ANIMATION_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/core/color.h"
-#include "phi/ui/easingFunctions.h"
+#include <core\color.h>
 
-#include <functional>
+#include "easingFunctions.h"
 
 namespace phi
 {
@@ -39,5 +38,3 @@ namespace phi
         void setElapsed(int value) { _elapsed = value; }
     };
 }
-
-#endif

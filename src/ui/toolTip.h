@@ -1,14 +1,10 @@
-#ifndef _PHI_TOOL_TIP_H_
-#define _PHI_TOOL_TIP_H_
+#pragma once
+#include <precompiled.h>
 
-#if WIN32
-    #include <GL/glew.h>
-#else
-    #include <OpenGL/gl3.h>
-#endif
-#include "phi/core/size.h"
-#include "phi/rendering/quadRenderer2D.h"
-#include "phi/rendering/textRenderer2D.h"
+#include <core\size.h>
+
+#include <rendering\quadRenderer2D.h>
+#include <rendering\textRenderer2D.h>
 
 namespace phi
 {
@@ -18,8 +14,8 @@ namespace phi
         static const unsigned int TEXT_MARGIN = 6;
 
         quadRenderer2D* _backgroundRenderer;
-        texture* _backgroundTexture;
         textRenderer2D* _foregroundRenderer;
+        texture* _backgroundTexture;
         sizef _viewportSize;
         font* _font;
         std::string _text;
@@ -41,5 +37,3 @@ namespace phi
         void render();
     };
 }
-
-#endif

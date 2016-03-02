@@ -1,10 +1,8 @@
-#ifndef _PHI_FLOAT_ANIMATOR_H_
-#define _PHI_FLOAT_ANIMATOR_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/ui/ui.h"
-#include "phi/ui/floatAnimation.h"
-
-#include <unordered_map>
+#include "ui.h"
+#include "floatAnimation.h"
 
 namespace phi
 {
@@ -20,5 +18,3 @@ namespace phi
         UI_API static void update();
     };
 }
-
-#endif

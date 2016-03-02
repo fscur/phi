@@ -1,12 +1,11 @@
-#ifndef _PHI_TEXT_BOX_H_
-#define _PHI_TEXT_BOX_H_
+#pragma once
+#include <precompiled.h>
 
-#include <string>
-#include "phi/core/globals.h"
-#include "phi/ui/control.h"
-#include "phi/rendering/quadRenderer2D.h"
-#include "phi/rendering/textRenderer2D.h"
-#include "phi/core/eventArgs.h"
+#include "core\eventArgs.h"
+#include "rendering\quadRenderer2D.h"
+#include "rendering\textRenderer2D.h"
+
+#include "control.h"
 
 namespace phi
 {
@@ -74,5 +73,3 @@ namespace phi
         UI_API void onRender() override;
     };
 }
-
-#endif

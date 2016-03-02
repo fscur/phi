@@ -1,11 +1,13 @@
-#ifndef _PHI_SLIDER_H_
-#define _PHI_SLIDER_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/rendering/quadRenderer2D.h"
-#include "phi/ui/control.h"
-#include "phi/core/color.h"
-#include "phi/core/eventHandler.h"
-#include "phi/core/eventArgs.h"
+#include "core\color.h"
+#include "core\eventHandler.h"
+#include "core\eventArgs.h"
+
+#include "rendering\quadRenderer2D.h"
+
+#include "control.h"
 
 namespace phi
 {
@@ -67,5 +69,3 @@ namespace phi
         UI_API void onRender() override;
     };
 }
-
-#endif

@@ -1,5 +1,7 @@
-#include "phi/ui/toggleButton.h"
-#include "phi/ui/colorAnimator.h"
+#include <precompiled.h>
+#include "toggleButton.h"
+
+#include "colorAnimator.h"
 
 namespace phi
 {
@@ -10,7 +12,7 @@ namespace phi
         _checkedCurrentColor = color::fromRGBA(0.0f, 0.0f, 0.0f, 0.0f);
         _checkedChanging = new eventHandler<controlCancelEventArgs*>();
         _checkedChanged = new eventHandler<controlEventArgs>();
-        _checkedBackgroundRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.001f, sizef(0, 0, 0), viewportSize);
+        _checkedBackgroundRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.001f, sizeui(0, 0, 0), sizeui(viewportSize.w, viewportSize.h, viewportSize.d));
     }
 
     void toggleButton::setX(int value)
@@ -37,14 +39,14 @@ namespace phi
     void toggleButton::setSize(sizef value)
     {
         button::setSize(value);
-        _checkedBackgroundRenderer->setSize(value);
+        _checkedBackgroundRenderer->setSize(sizeui(value.w, value.h, value.d));
         _checkedBackgroundRenderer->update();
     }
 
     void toggleButton::setViewportSize(sizef value)
     {
         button::setViewportSize(value);
-        _checkedBackgroundRenderer->setViewportSize(getViewportSize());
+        _checkedBackgroundRenderer->setViewportSize(sizeui(value.w, value.h, value.d));
         _checkedBackgroundRenderer->update();
     }
 

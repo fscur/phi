@@ -1,15 +1,15 @@
-#ifndef PHI_ROTATION_CONTROL_H_
-#define PHI_ROTATION_CONTROL_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/ui/control.h"
-#include "phi/ui/rotationEventArgs.h"
+#include <core\transform.h>
 
-#include <phi/core/object3D.h>
+#include <rendering\lineMesh.h>
+#include <rendering\shader.h>
+#include <rendering\camera.h>
 
-#include <phi/rendering/lineMesh.h>
-#include <phi/rendering/shader.h>
 
-#include <phi/scenes/camera.h>
+#include "control.h"
+#include "rotationEventArgs.h"
 
 namespace phi
 {
@@ -17,7 +17,7 @@ namespace phi
         public control
     {
     private:
-        object3D* _object;
+        transform* _transform;
         lineMesh* _circleMesh;
         shader* _shader;
         camera* _camera;
@@ -61,11 +61,9 @@ namespace phi
 
         UI_API void setCamera(camera* value) { _camera = value; }
 
-        UI_API void attachTo(object3D* object);
+        UI_API void attachTo(transform* transform);
 
         UI_API virtual bool isPointInside(int x, int y) override;
         UI_API void onRender() override;
     };
 }
-
-#endif

@@ -1,5 +1,7 @@
-#include "phi/ui/dragDropController.h"
-#include "phi/core/input.h"
+#include <precompiled.h>
+#include "dragDropController.h"
+
+#include <core\input.h>
 
 namespace phi
 {
@@ -10,7 +12,7 @@ namespace phi
         _isDragging = false;
         _dragDropEnded = new eventHandler<dragDropEventArgs*>();
         _dragTexture = nullptr;
-        _dragTextureRenderer = new quadRenderer2D(vec2(), 10.0f, sizef((GLuint)0.0f, (GLuint)0.0f), sizef((GLuint)0.0f, (GLuint)0.0f));
+        _dragTextureRenderer = new quadRenderer2D(vec2(), 10.0f, sizeui(0, 0), sizeui(0, 0));
         input::mouseUp->bind<dragDropController, &dragDropController::inputMouseUp>(this);
         input::mouseMove->bind<dragDropController, &dragDropController::inputMouseMove>(this);
     }
@@ -26,8 +28,8 @@ namespace phi
     void dragDropController::init(sizef viewportSize)
     {
         _viewportSize = viewportSize;
-        _dragTextureRenderer->setViewportSize(_viewportSize);
-        _dragTextureRenderer->setSize(sizef((GLuint)128.0f, (GLuint)128.0f));
+        _dragTextureRenderer->setViewportSize(sizeui(_viewportSize.w, viewportSize.h, viewportSize.d));
+        _dragTextureRenderer->setSize(sizeui((GLuint)128.0f, (GLuint)128.0f));
         _dragTextureRenderer->update();
     }
     

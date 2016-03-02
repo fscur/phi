@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "transform.h"
 
+#include <GLM\gtx\quaternion.hpp>
+
 namespace phi
 {
     void transform::updateData()
@@ -30,6 +32,7 @@ namespace phi
     {
         if (_changed)
             updateData();
+
         return _localModelMatrix;
     }
 
@@ -68,6 +71,7 @@ namespace phi
     {
         if (_changed)
             updateData();
+
         return _position;
     }
 
@@ -83,6 +87,7 @@ namespace phi
     {
         if (_changed)
             updateData();
+        
         return _up;
     }
 

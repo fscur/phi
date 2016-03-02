@@ -1,8 +1,8 @@
-#ifndef _PHI_CAROUSEL_TAB_H_
-#define _PHI_CAROUSEL_TAB_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/ui/carouselItem.h"
-#include "phi/ui/button.h"
+#include "carouselItem.h"
+#include "button.h"
 
 namespace phi
 {
@@ -48,5 +48,3 @@ namespace phi
         UI_API void onRender() override;
     };
 }
-
-#endif

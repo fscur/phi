@@ -37,7 +37,7 @@ source_group("resources\\cursors" FILES ${cursors_files})
 add_executable(demo ${source_files} ${header_files})
 
 target_link_libraries(demo scenes)
-target_link_libraries(demo loader)
+target_link_libraries(demo ui)
 
 #sdl
 find_package(SDL REQUIRED)
@@ -46,6 +46,11 @@ if(NOT SDL_FOUND)
 endif(NOT SDL_FOUND)
 target_link_libraries(demo ${SDLMAIN_LIBRARY})
 target_link_libraries(demo ${SDL_LIBRARY})
+
+find_package(FREETYPE REQUIRED)
+link_directories(${FREETYPE_LIBRARIES})
+include_directories(${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(demo ${FREETYPE_LIBRARY})
 
 install(TARGETS demo 
     RUNTIME 

@@ -1,7 +1,9 @@
-#include "phi/ui/toolTip.h"
-#include "phi/ui/uiRepository.h"
-#include "phi/ui/floatAnimator.h"
-#include "phi/ui/colorAnimator.h"
+#include <precompiled.h>
+#include "toolTip.h"
+
+#include "uiRepository.h"
+#include "floatAnimator.h"
+#include "colorAnimator.h"
 
 namespace phi
 {
@@ -9,11 +11,12 @@ namespace phi
     {
         _viewportSize = viewportSize;
 
-        _backgroundRenderer = new quadRenderer2D(vec2(), 30.0f, sizef(), viewportSize);
-        _backgroundTexture = uiRepository::repository->getResource<texture>("button.png");
+        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
+        _backgroundRenderer = new quadRenderer2D(vec2(), 30.0f, sizeui(), size);
+        _backgroundTexture = uiRepository::textureButton;
 
-        _foregroundRenderer = new textRenderer2D(viewportSize);
-        _font = uiRepository::repository->getResource<font>("Consola_14");
+        _foregroundRenderer = new textRenderer2D(size);
+        _font = uiRepository::fontConsolas14;
         _textColor = color::white;
     }
 
@@ -42,7 +45,7 @@ namespace phi
         auto textX = glm::max(0.0f, _location.x - (_size.w - glm::min(_size.w * 0.5f, _viewportSize.w - _location.x))) + TEXT_MARGIN;
         _textLocation = vec2(textX, textY);
 
-        _backgroundRenderer->setSize(sizef((GLuint)3.0f, (GLuint)0.0f));
+        _backgroundRenderer->setSize(sizeui((GLuint)3.0f, (GLuint)0.0f));
         _backgroundRenderer->setLocation(_location);
         _backgroundRenderer->update();
 
@@ -50,7 +53,7 @@ namespace phi
         floatAnimator::animateFloat(new phi::floatAnimation(w, (float)_size.w, 150, [&](float w) -> void
         {
             auto s = _backgroundRenderer->getSize();
-            _backgroundRenderer->setSize(sizef((GLuint)w, s.h));
+            _backgroundRenderer->setSize(sizeui((GLuint)w, s.h));
             auto l = _backgroundRenderer->getLocation();
             auto x = glm::max(0.0f, _location.x - (w - glm::min(w * 0.5f, _viewportSize.w - _location.x)));
             _backgroundRenderer->setLocation(vec2(x, l.y));
@@ -61,7 +64,7 @@ namespace phi
         floatAnimator::animateFloat(new phi::floatAnimation(h, targetHeight, 100, [&](float h) -> void
         {
             auto s = _backgroundRenderer->getSize();
-            _backgroundRenderer->setSize(sizef(s.w, (GLuint)abs(h)));
+            _backgroundRenderer->setSize(sizeui(s.w, (GLuint)abs(h)));
 
             if (h < 0.0f)
             {

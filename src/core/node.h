@@ -3,6 +3,8 @@
 #include "component.h"
 #include "transform.h"
 
+#include <vector>
+
 namespace phi
 {
     class node

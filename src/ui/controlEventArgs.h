@@ -1,7 +1,7 @@
-#ifndef _PHI_CONTROL_EVENT_ARGS_H_
-#define _PHI_CONTROL_EVENT_ARGS_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/core/eventSender.h"
+#include <core\eventSender.h>
 
 namespace phi
 {
@@ -17,5 +17,3 @@ namespace phi
         }
     };
 }
-
-#endif

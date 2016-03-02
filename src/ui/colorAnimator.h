@@ -1,14 +1,11 @@
-#ifndef _PHI_COLOR_ANIMATOR_H_
-#define _PHI_COLOR_ANIMATOR_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/core/globals.h"
-#include "phi/core/color.h"
-#include "phi/core/mathUtils.h"
+#include <core\color.h>
+#include <core\mathUtils.h>
 
-#include "phi/ui/colorAnimation.h"
-#include "phi/ui/ui.h"
-
-#include <unordered_map>
+#include "colorAnimation.h"
+#include "ui.h"
 
 namespace phi
 {
@@ -24,5 +21,3 @@ namespace phi
         UI_API static void update();
     };
 }
-
-#endif

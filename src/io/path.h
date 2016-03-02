@@ -16,7 +16,7 @@ namespace phi
         IO_API static string getExtension(string path);
         IO_API static vector<fileInfo> getFiles(const string& directory, vector<string> filters = vector<string>());
         IO_API static vector<directoryInfo> getDirectories(const string& directory);
-        IO_API static string combine(const string& path0, const string& path1, const string& extension);
+        IO_API static string combine(const string& path0, const string& path1, const string& extension = string());
         IO_API static string combine(std::initializer_list<string> args = std::initializer_list<string>());
     };
 }

@@ -1,7 +1,7 @@
-#ifndef _PHI_CONTROL_CANCEL_EVENT_ARGS_H_
-#define _PHI_CONTROL_CANCEL_EVENT_ARGS_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/ui/controlEventArgs.h"
+#include "controlEventArgs.h"
 
 namespace phi
 {
@@ -17,5 +17,3 @@ namespace phi
         }
     };
 }
-
-#endif

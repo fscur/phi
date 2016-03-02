@@ -2,12 +2,7 @@
 #include <precompiled.h>
 #include "rendering.h"
 #include <core\resource.h>
-#include <precompiled.h>
 #include "texture.h"
-
-#include <SDL\SDL_ttf.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 namespace phi
 {
@@ -41,7 +36,7 @@ namespace phi
         } c[128];
 
     public:
-        RENDERING_API font(int size, FT_Library library);
+        RENDERING_API font(std::string name, std::string path, int size, FT_Library library);
         RENDERING_API ~font();
 
         RENDERING_API static font* fromFile(string fileName);//TODO: unimplemented method

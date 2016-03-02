@@ -1,10 +1,10 @@
-#ifndef _PHI_CAROUSEL_ITEM_H_
-#define _PHI_CAROUSEL_ITEM_H_
+#pragma once
+#include <precompiled.h>
 
-#include "phi/rendering/quadRenderer2D.h"
+#include <rendering\quadRenderer2D.h>
 
-#include "phi/ui/button.h"
-#include "phi/ui/carouselItemEventArgs.h"
+#include "button.h"
+#include "carouselItemEventArgs.h"
 
 namespace phi
 {
@@ -19,5 +19,3 @@ namespace phi
         UI_API std::string getName() { return _name; }
     };
 }
-
-#endif

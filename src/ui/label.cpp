@@ -1,14 +1,16 @@
-#include "phi/ui/label.h"
+#include <precompiled.h>
+#include "label.h"
 
 namespace phi
 {
     label::label(sizef viewportSize) : control(viewportSize)
     {
         _text = "";
-        _texture = uiRepository::repository->getResource<texture>("button.png");
-        _backgroundRenderer = new quadRenderer2D(vec2(), 0.0f, phi::sizef(0, 0), viewportSize);
-        _textRenderer = new textRenderer2D(viewportSize);
-        _font = uiRepository::repository->getResource<font>("Consola_14");
+        //_texture = uiRepository::texturesRepository->getResource("button.png");
+        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
+        _backgroundRenderer = new quadRenderer2D(vec2(), 0.0f, phi::sizeui(0, 0), size);
+        _textRenderer = new textRenderer2D(size);
+        //_font = uiRepository::fontsRepository->getResource("Consola_14");
         _textX = 0;
         _textY = 0;
     }
@@ -45,10 +47,11 @@ namespace phi
         updateTextLocation();
     }
 
-	void label::setSize(sizef size)
+    void label::setSize(sizef size)
     {
         _size = size;
-        _backgroundRenderer->setSize(size);
+        auto sizeu = sizeui(size.w, size.h, size.d);
+        _backgroundRenderer->setSize(sizeu);
         _backgroundRenderer->update();
         updateTextLocation();
     }
@@ -59,10 +62,11 @@ namespace phi
         updateTextLocation();
     }
 
-	void label::setViewportSize(sizef value)
+    void label::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
-        _textRenderer->setViewportSize(getViewportSize());
+        auto size = sizeui(value.w, value.h, value.d);
+        _textRenderer->setViewportSize(size);
         _textRenderer->update();
     }
 
