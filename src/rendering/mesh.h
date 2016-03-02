@@ -20,10 +20,12 @@ namespace phi
             geometry(geometry),
             material(material) {}
 
-        component* clone() override
+        component* clone() const override
         {
-            auto m = dynamic_cast<mesh*>(this);
+            auto m = static_cast<const mesh*>(this);
             return new mesh(*m);
         }
+
+        static componentType getComponentType() { return componentType::MESH; }
     };
 }

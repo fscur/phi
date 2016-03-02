@@ -39,9 +39,10 @@ void defaultCameraController::initPan(phi::ivec2 mousePos)
     else
         _eyeZ = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
 
-    _cameraPos = _camera->getTransform()->getPosition();
-    _cameraRight = _camera->getTransform()->getRight();
-    _cameraUp = _camera->getTransform()->getUp();
+    auto cameraTransform = _camera->getTransform();
+    _cameraPos = cameraTransform->getPosition();
+    _cameraRight = cameraTransform->getRight();
+    _cameraUp = cameraTransform->getUp();
     _startPos = mousePos;
     _panning = true;
 }

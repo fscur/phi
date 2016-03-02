@@ -13,8 +13,8 @@ namespace phi
         _pipeline = new phi::pipeline(gl);
         _renderer = new phi::renderer(gl, w, h);
 
+        camera = new phi::camera("mainCamera", 0.1f, 1000.0f, vec2(w, h), glm::half_pi<float>());
         auto cameraNode = new node();
-        camera = new phi::camera("mainCamera", 0.1f, 1000.0f, vec2(w, h), glm::half_pi<float>(), cameraNode->getTransform());
         cameraNode->addComponent(camera);
         add(cameraNode);
     }
