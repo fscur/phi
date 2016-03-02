@@ -1,5 +1,4 @@
-#ifndef _SCREEN_H_
-#define _SCREEN_H_
+#pragma once
 
 #include <core\size.h>
 #include <rendering\renderer.h>
@@ -27,9 +26,9 @@ private:
 
     float _temp;
 
+
+    phi::gl* _gl;
     phi::scene* _scene;
-    phi::pipeline* _pipeline;
-    phi::renderer* _renderer;
     std::string _resourcesPath;
     std::string _libraryPath;
 
@@ -40,11 +39,10 @@ private:
     defaultCameraController* _defaultController;
 
 private:
-    void initRenderingSystem();
+    void initGL();
+    void initLibrary();
     void initScene();
     void initInput();
-    void initPipeline();
-    void initUI();
 
 public:
     screen();
@@ -61,14 +59,9 @@ public:
     void onKeyDown(phi::keyboardEventArgs* e) override;
     void onKeyUp(phi::keyboardEventArgs* e) override;
 
-    void closeButtonClick(phi::mouseEventArgs* e) { close(); };
-
     void update() override;
     void render() override;
 
-    void setSceneRenderer(phi::renderer* value) { _renderer = value; }
     void setResourcesPath(std::string value) { _resourcesPath = value; }
     void setLibraryPath(std::string value) { _libraryPath = value; }
 };
-
-#endif

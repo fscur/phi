@@ -1,10 +1,6 @@
-#ifndef _PHI_BASE64_H_
-#define _PHI_BASE64_H_
+#pragma once
 
 #include "globals.h"
-
-#include <vector>
-#include <string>
 
 namespace phi
 {
@@ -15,5 +11,3 @@ namespace phi
         CORE_API static std::vector<byte> decode(std::string const&);
     };
 }
-
-#endif

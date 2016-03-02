@@ -16,7 +16,7 @@ namespace phi
 
     cursor::~cursor()
     {
-        _texture->releaseFromGpu();
+        //_texture->releaseFromGpu();
         safeDelete(_texture);
     }
 }

@@ -4,105 +4,119 @@
 
 namespace phi
 {
-    camera::camera(float nearDistance, float farDistance, sizef resolution, float fov) : 
-        object3D("camera", object3D::objectType::CAMERA),
-        _frustum(new frustum(vec3(), getDirection(), getUp(), nearDistance, farDistance, resolution, fov)),
+    camera::camera(std::string name, float nearDistance, float farDistance, vec2 resolution, float fov, transform* transform) : 
+        component(component::componentType::CAMERA, name),
+        _near(nearDistance),
+        _far(farDistance),
+        _resolution(resolution),
+        _fov(fov),
+        _transform(transform),
         _focus(1.0f),
-        _viewMatrix(lookAt(getPosition(), getPosition() + getDirection() * _focus, getUp()))
+        _aspect(resolution.x / resolution.y),
+        _changedView(false),
+        _changedProjection(false)
     {
+        updateViewMatrix();
+        updateProjectionMatrix();
     }
 
-    void camera::setTarget(vec3 value)
+    mat4 camera::getViewMatrix()
     {
-        //if (getChanged())
-            update();
+        if (_changedView)
+            updateViewMatrix();
 
-        auto diff = value - _position;
-        setDirection(glm::normalize(diff));
-        _focus = glm::length(diff);
-        setChanged();
+        return _viewMatrix;
     }
 
-    void camera::update()
+    mat4 camera::getProjectionMatrix()
     {
-        auto changed = getChanged();
+        if (_changedProjection)
+            updateProjectionMatrix();
 
-        object3D::update();
+        return _projectionMatrix;
+    }
 
-        //if (changed)
-        //{
-            auto target = _position + _direction * _focus;
-            _viewMatrix = lookAt(_position, target, vec3(0.0, 1.0, 0.0));
-            _frustum->update();
-        //}
+    void camera::updateViewMatrix()
+    {
+        auto position = _transform->getPosition();
+        auto target = position + _transform->getDirection() * _focus;
+        _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
+        _changedView = false;
+    }
+
+    void camera::updateProjectionMatrix()
+    {
+        _projectionMatrix = glm::perspective(_fov, _aspect, _near, _far);
+        _changedProjection = false;
     }
 
     void camera::moveTo(vec3 position)
     {
-        setLocalPosition(position);
+        _transform->setLocalPosition(position);
     }
 
     void camera::zoomIn(vec3 targetPos)
     {
-        auto zFar = _frustum->getZFar();
-        auto zNear = _frustum->getZNear();
-        float dist = mathUtils::distance(targetPos, getPosition()) - zNear;
-        vec3 direction = normalize(targetPos - getPosition());
+        auto position = _transform->getPosition();
+        auto dist = mathUtils::distance(targetPos, position) - _near;
+        vec3 direction = normalize(targetPos - position);
 
-        float factor = 0.5f;
+        auto factor = 0.5f;
 
         if (dist < 1.0)
             factor = 1 - (1 / (pow(2.0f, dist)));
 
         dist *= factor;
 
-        vec3 offset = direction * dist;
+        auto offset = direction * dist;
 
-        vec3 position = getPosition() + offset;
+        auto newPosition = position + offset;
 
-        _focus = glm::max(_focus - dist, _frustum->getZNear());
-        setLocalPosition(position);
-        setChanged();
+        _focus = glm::max(_focus - dist, _near);
+        _transform->setLocalPosition(newPosition);
 
-        if (dist - zNear < 0.2f)
+        if (dist - _near < 0.2f)
         {
-            _frustum->setZFar(100.01f);
-            _frustum->setZNear(0.01f);
+            _far = 100.01f;
+            _near = 0.01f;
+            _changedProjection = true;
         }
+
+        _changedView = true;
     }
 
     void camera::zoomOut(vec3 targetPos)
     {
-        auto zFar = _frustum->getZFar();
-        auto zNear = _frustum->getZNear();
-        float dist = mathUtils::distance(targetPos, getPosition());
-        vec3 direction = normalize(targetPos - getPosition());
+        auto position = _transform->getPosition();
+        auto dist = mathUtils::distance(targetPos, position);
+        vec3 direction = normalize(targetPos - position);
 
         dist *= -0.5f / (1 - 0.5f);
 
         vec3 offset = direction * dist;
 
-        vec3 position = getPosition() + offset;
+        vec3 newPosition = position + offset;
 
         _focus -= dist;
-        setLocalPosition(position);
+        _transform->setLocalPosition(newPosition);
 
-        if (dist - zNear > 0.2f)
+        if (dist - _near > 0.2f)
         {
-            _frustum->setZFar(1000.0f);
-            _frustum->setZNear(0.1f);
+            _far = 1000.0f;
+            _near = 0.1f;
+            _changedProjection = true;
         }
 
-        setChanged();
+        _changedView = true;
     }
 
     void camera::orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY)
     {
-        vec3 position = getPosition();
+        auto position = _transform->getPosition();
         position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
         position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
 
-        vec3 target = getPosition() + getDirection() * _focus;
+        auto target = _transform->getPosition() + _transform->getDirection() * _focus;
         target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
         target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
 
@@ -121,9 +135,15 @@ namespace phi
         auto angle = orientedAngle(q1 * vec3(1.0f, 0.0f, 0.0f), right, dir);
         auto q2 = angleAxis(angle, dir);
 
-        setLocalPosition(position);
-        setOrientation(q2 * q1);
+        _transform->setLocalPosition(position);
+        _transform->setLocalOrientation(q2 * q1);
 
-        setChanged();
+        _changedView = true;
+    }
+
+    void camera::update()
+    {
+        // TODO: when the new event system is done, change this to update only when the transform changes
+        updateViewMatrix();
     }
 }

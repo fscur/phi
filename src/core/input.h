@@ -1,5 +1,4 @@
-#ifndef _PHI_INPUT_H_
-#define _PHI_INPUT_H_
+#pragma once
 
 #include "core.h"
 #include "mouseEventHandler.h"
@@ -26,5 +25,3 @@ namespace phi
     };
 
 }
-
-#endif

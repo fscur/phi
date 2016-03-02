@@ -50,18 +50,18 @@ namespace phi
 
         //_texture = texture::create(_texWidth, _texHeight, GL_RGBA, GL_RED, GL_UNSIGNED_BYTE);
         _texture = new texture(_texWidth, _texHeight, GL_RGBA);
-        _texture->bind(0);
+        //_texture->bind(0);
 
         // We require 1 byte alignment when uploading texture data
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
         // Clamping to edges is important to prevent artifacts when scaling
-        _texture->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        _texture->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        //_texture->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        //_texture->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         // Linear filtering usually looks best for text
-        _texture->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        _texture->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        //_texture->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        //_texture->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // Paste all glyph bitmaps into the texture, remembering the offset
         int ox = 0;

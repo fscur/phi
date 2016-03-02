@@ -6,9 +6,18 @@
 
 namespace phi
 {
-    scene::scene(camera* camera) :
-        _camera(camera)
+    scene::scene(phi::gl* gl, size_t w, size_t h) :
+        w(w),
+        h(h),
+        _gl(gl)
     {
+        _pipeline = new phi::pipeline(gl);
+        _renderer = new phi::renderer(gl, w, h);
+
+        auto cameraNode = new node();
+        camera = new phi::camera("mainCamera", 0.1f, 1000.0f, vec2(w, h), glm::half_pi<float>(), cameraNode->getTransform());
+        cameraNode->addComponent(camera);
+        add(cameraNode);
     }
 
     scene::~scene()
@@ -19,149 +28,39 @@ namespace phi
 
     void scene::update()
     {
-        _camera->update();
+        auto frameUniformBlock = phi::frameUniformBlock();
+        frameUniformBlock.p = camera->getProjectionMatrix();
+        frameUniformBlock.v = camera->getViewMatrix();
+        frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
+        frameUniformBlock.ip = glm::inverse(frameUniformBlock.p);
 
-        /*for (auto obj : _objects)
-            obj->update();*/
+        _pipeline->updateFrameUniformBlock(frameUniformBlock);
+
+        _renderer->gBufferPass->batches = _pipeline->batches;
+        _renderer->update();
+
+        camera->update();
     }
 
-    void scene::setSize(sizef size)
+    void scene::render()
     {
-        _size = size;
-        _activeCamera->getFrustum()->setAspect((float) _size.w / (float) _size.h);
+        _renderer->render();
     }
 
-    void scene::addToRenderList(object3D* object)
+    void scene::resize(size_t w, size_t h)
     {
-        if (object->getType() == object3D::objectType::MESH)
-        {
-            auto m = static_cast<mesh*>(object);
-            auto mat = m->material;
-            auto geom = m->geometry;
-
-            _renderList[geom].push_back(m);
-        }
-
-        auto children = object->getChildren();
-
-        for (object3D* child : children)
-            addToRenderList(child);
+        camera->setResolution(vec2(w, h));
     }
 
-    void scene::traverseTree(object3D* node, std::function<void(object3D*)> callback)
+    void scene::add(node* n)
     {
-        callback(node);
-
-        for (auto child : node->getChildren())
-            traverseTree(child, callback);
+        _objects.push_back(n);
+        _pipeline->add(n);
     }
 
-    void scene::traverseTreeMeshes(object3D* node, std::function<void(mesh*)> callback)
+    void scene::remove(node* n)
     {
-        traverseTree(node, [&](object3D* n)
-        {
-            if (n->getType() == phi::object3D::objectType::MESH)
-            {
-                auto m = static_cast<mesh*>(n);
-                callback(m);
-            }
-        });
-    }
-
-    void scene::addTextureToArray(texture* tex)
-    {
-        auto texWidth = tex->w;
-        auto texHeight = tex->h;
-        auto it = find_if(_textureArrays.begin(), _textureArrays.end(), [&](textureArray* texArray)
-        {
-            auto arraySize = texArray->texCount;
-            return texWidth == texArray->w &&
-                texHeight == texArray->h;
-        });
-
-        textureArray* sameSizeArray = nullptr;
-        if (it != _textureArrays.end())
-            sameSizeArray = it[0];
-        else
-        {
-            auto textureUnit = (GLint)_textureArrays.size();
-            _textureArrayUnits.push_back(textureUnit);
-
-            sameSizeArray = new textureArray(texWidth, texHeight, MAX_TEXTURE_ARRAY_TEXTURES_COUNT, textureUnit);
-            _textureArrays.push_back(sameSizeArray);
-            sameSizeArray->loadOnGpu();
-        }
-
-        if (!sameSizeArray->hasTexture(tex))
-        {
-            sameSizeArray->add(tex);
-            auto page = sameSizeArray->getTextureIndex(tex);
-            _textureStorageDatas[tex].arrayIndex = (GLint)(find(_textureArrays.begin(), _textureArrays.end(), sameSizeArray) - _textureArrays.begin());
-            _textureStorageDatas[tex].pageIndex = page;
-        }
-    }
-
-    void scene::add(object3D* object)
-    {
-        _objects.push_back(object);
-
-        traverseTreeMeshes(object, [&](mesh* m)
-        {
-            auto mat = m->material;
-
-            /*auto loadTex = [&](texture* tex)
-            {
-                if (tex)
-                    addTextureToArray(tex);
-            };*/
-
-            mat->albedoTexture->loadOnGpu();
-            mat->normalTexture->loadOnGpu();
-            mat->specularTexture->loadOnGpu();
-            mat->emissiveTexture->loadOnGpu();
-
-            auto geometry = m->geometry;
-            _loadedGeometries[geometry]++;
-        });
-
-        addToRenderList(object);
-    }
-
-    void scene::remove(object3D* object)
-    {
-        auto position = std::find(_objects.begin(), _objects.end(), object);
-
-        traverseTreeMeshes(object, [&](mesh* m)
-        {
-            auto mat = m->material;
-
-            auto unloadTex = [&](texture* tex)
-            {
-                if (tex)
-                {
-                    for (auto texArray : _textureArrays)
-                    {
-                        if (texArray->hasTexture(tex))
-                        {
-                            texArray->remove(tex);
-                            break;
-                        }
-                    }
-                }
-            };
-
-            unloadTex(mat->albedoTexture);
-            unloadTex(mat->normalTexture);
-            unloadTex(mat->specularTexture);
-            unloadTex(mat->emissiveTexture);
-
-            auto geometry = m->geometry;
-            _loadedGeometries[geometry]--;
-            if (_loadedGeometries[geometry] <= 0)
-            {
-                _loadedGeometries.erase(geometry);
-            }
-        });
+        auto position = std::find(_objects.begin(), _objects.end(), n);
 
         if (position != _objects.end())
             _objects.erase(position);

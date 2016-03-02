@@ -1,5 +1,4 @@
-#ifndef _SHORTCUTS_H_
-#define _SHORTCUTS_H_
+#pragma once
 
 #include <core/inputKey.h>
 
@@ -33,5 +32,3 @@ public:
     std::string operator[](phi::inputKey key);
     std::unordered_map<phi::inputKey, std::string, phi::inputKeyHasher> getCommands() { return _commands; }
 };
-
-#endif

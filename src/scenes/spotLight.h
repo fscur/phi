@@ -1,5 +1,4 @@
-#ifndef _PHI_SPOT_LIGHT_H_
-#define _PHI_SPOT_LIGHT_H_
+#pragma once
 
 #include "pointLight.h"
 #include "cone.h"
@@ -25,7 +24,7 @@ namespace phi
         void updateProjectionMatrix();
 
     public:
-        SCENES_API spotLight(vec3 position, color color, float intensity, float range, vec3 direction, float cutoff);
+        SCENES_API spotLight(std::string name, color color, float intensity, float range, float cutoff, transform* transform);
         SCENES_API ~spotLight();
     
         SCENES_API float getCutoff() const { return _cutoff; }
@@ -37,10 +36,5 @@ namespace phi
         SCENES_API void setRange(float value);
         SCENES_API void setCutoff(float value);
         SCENES_API void setIntensity(float value) override;
-
-        SCENES_API void update() override;
-        
-		SCENES_API transform* getTransform() override;
     };
 }
-#endif

@@ -1,5 +1,4 @@
-#ifndef _SCENES_H_
-#define _SCENES_H_
+#pragma once
 
 #ifdef WIN32
     #ifdef SCENES_EXPORTS
@@ -9,6 +8,4 @@
     #endif
 #else
     #define SCENES_API
-#endif
-
 #endif

@@ -28,16 +28,17 @@ namespace phi
 
 #if _DEBUG
         result = validateShader(_vertexShader, _vertFile.c_str()); // Validate the vertex shader
+        if (!result)
+            return false;
 #endif
         glShaderSource(_fragmentShader, 1, &fragmentText, 0); // Set the source for the fragment shader to the loaded text
         glCompileShader(_fragmentShader); // Compile the fragment shader
 
 #if _DEBUG
         result = validateShader(_fragmentShader, _fragFile.c_str()); // Validate the fragment shader
-#endif
-
-        if(!result)
+        if (!result)
             return false;
+#endif
 
         _id = glCreateProgram(); // Create a GLSL program
         glAttachShader(_id, _vertexShader); // Attach a vertex shader to the program
@@ -49,10 +50,9 @@ namespace phi
 
 #if _DEBUG
         result = validateProgram(_id); // Validate the shader program
-#endif
-
-        if(!result)
+        if (!result)
             return false;
+#endif
 
         _initialized = true;
 
@@ -83,9 +83,12 @@ namespace phi
         return fileString;
     }
 
-    bool shader::validateShader(GLuint shader, const std::string file) 
+    bool shader::validateShader(GLuint shader, const std::string file)
     {
-        const GLuint BUFFER_SIZE = 512;
+        GLint success = 0;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+        const unsigned int BUFFER_SIZE = 512;
         char buffer[BUFFER_SIZE];
         memset(buffer, 0, BUFFER_SIZE);
         GLsizei length = 0;
@@ -93,44 +96,41 @@ namespace phi
         glGetShaderInfoLog(shader, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the shader
 
         if (length > 0) // If we have any information to display
-        {
-            std::cout << "Shader " << shader << " (" << (file.c_str() ? file : "") << ") compile error: " << buffer << std::endl;
-            return false;
-        }
+            std::cout << "shader " << shader << " (" << (file.c_str() ? file : "") << ") compile info:\n" << buffer << std::endl; // Output the information
 
-        return true;
+        return success == GL_TRUE;
     }
 
-    bool shader::validateProgram(GLuint program) 
+    bool shader::validateProgram(GLuint program)
     {
-        const GLuint BUFFER_SIZE = 512;
+        const unsigned int BUFFER_SIZE = 512;
         char buffer[BUFFER_SIZE];
         memset(buffer, 0, BUFFER_SIZE);
         GLsizei length = 0;
 
         glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the program
         if (length > 0) // If we have any information to display
-        {
-            std::cout << "Program " << program << " link error: " << buffer << std::endl; // Output the information
-            return false;
-        }
+            std::cout << "Program " << program << " link info:\n" << buffer << std::endl; // Output the information
 
-        glValidateProgram(program); // Get OpenGL to try validating the program
-        GLint status;
-        glGetProgramiv(program, GL_VALIDATE_STATUS, &status); // Find out if the shader program validated correctly
-        if (status == GL_FALSE) // If there was a problem validating
-        {
-            glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer);
-            std::cout << "Error validating shader " << program << buffer << std::endl; // Output which program had the error
-            return false;
-        }
+        //This should be called before drawing to see if the current OpenGL state is correct for this shader (also, should be only called when debugging):
+        //glValidateProgram(program); // Get OpenGL to try validating the program
+        //GLint status;
+        //glGetProgramiv(program, GL_VALIDATE_STATUS, &status); // Find out if the shader program validated correctly
+        //if (status == GL_FALSE) // If there was a problem validating
+        //{
+        //    std::cout << "Error validating shader " << program << std::endl; // Output which program had the error
+        //    return false;
+        //}
 
-        return true;
+        GLint isLinked = 0;
+        glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+
+        return isLinked == GL_TRUE;
     }
 
     void shader::initAttribs()
     {
-        for (unsigned int i = 0; i < _attributes.size(); i++)
+        for (uint i = 0; i < _attributes.size(); ++i)
             glBindAttribLocation(_id, i, _attributes[i].c_str());
     }
 
@@ -147,18 +147,6 @@ namespace phi
         glActiveTexture(GL_TEXTURE0 + index);
         glBindTexture(value->type, value->id);
         glUniform1i(_uniforms[location], index);
-    }
-
-    void shader::setUniform(uint location, std::vector<GLint> textureArrayIds)
-    {
-        //glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray->getId());
-        //glUniform1i(_uniforms[location], 0);
-
-        glUniform1iv(_uniforms[location], (GLint)textureArrayIds.size(), textureArrayIds.data());
-
-        //glUniformHandleui64ARB(_uniforms[location], textureArray->getHandle());
-        //glUniform1ui64vARB(_uniforms[location], 1, textureArray->getHandle());
-        //glProgramUniformHandleui64ARB(_id, 4, textureArray->getHandle());
     }
 
     void shader::bind()

@@ -4,8 +4,7 @@
 	From Sam Lantinga <slouken@libsdl.org>
 */
 
-#ifndef _PHI_SCANCODE_H_
-#define _PHI_SCANCODE_H_
+#pragma once
 
 typedef enum
 {
@@ -355,5 +354,3 @@ typedef enum
     PHI_NUM_SCANCODES = 512 /**< not a key, just marks the number of scancodes
                                  for array bounds */
 } scancode;
-
-#endif

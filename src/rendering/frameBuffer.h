@@ -1,81 +1,125 @@
-#ifndef _PHI_FRAME_BUFFER_H_
-#define _PHI_FRAME_BUFFER_H_
+#pragma once
 
-#include <core\globals.h>
-#include <core\color.h>
-#include <core\size.h>
-
-#include "rendering.h"
 #include "renderTarget.h"
-
-#if WIN32
-#include <GL/glew.h>
-#else
-#include <OpenGL/gl3.h>
-#endif
-
-#include <glm/glm.hpp>
-#include <map>
 
 namespace phi
 {
-    class frameBuffer
+    class framebuffer
     {
-    protected:
-        std::string _name;
-        bool _isInitialized;
+    private:
         GLuint _id;
-        GLuint _x;
-        GLuint _y;
-        sizef _size;
-        bool _isBound;
-        color _clearColor;
-        std::map<std::string, renderTarget*>* _renderTargets; //TODO: rendertargets should be value ?
+        GLint _maxColorAttachments;
+        GLint _currentAttachment;
+        std::vector<GLenum> _drawBuffers;
 
     public:
-        RENDERING_API frameBuffer(std::string name, sizef size, color backColor);
-        RENDERING_API virtual ~frameBuffer();
+        framebuffer(bool isDefaultFramebuffer = false) :
+            _id(0),
+            _currentAttachment(0)
+        {
+            if (!isDefaultFramebuffer)
+                glCreateFramebuffers(1, &_id);
 
-        RENDERING_API GLuint getId() const { return _id; }
-        RENDERING_API sizef getSize() const { return _size; }
-        RENDERING_API color getClearColor() const { return _clearColor; }
-        RENDERING_API bool getIsBound() const { return _isBound; }
+            glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_maxColorAttachments);
+        }
 
-        RENDERING_API inline void setSize(sizef value) { _size = value; };
-        RENDERING_API inline void setClearColor(color value);
+        ~framebuffer()
+        {
+            glDeleteFramebuffers(1, &_id);
+        }
 
-        RENDERING_API virtual void init();
+        void add(renderTarget* renderTarget)
+        {
+            if (_id == 0)
+            {
+                phi::debug("trying to add render target to default framebuffer!?");
+                return;
+            }
 
-        RENDERING_API bool isComplete(const GLenum& target = GL_FRAMEBUFFER);
+            auto att = renderTarget->attachment;
 
-        RENDERING_API inline void bind();
-        RENDERING_API inline void bindForDrawing();
-        RENDERING_API inline void bindForDrawing(renderTarget* renderTarget);
-        RENDERING_API inline void bindForDrawing(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace);//TODO: reference ?
-        RENDERING_API inline void bindForReading();
-        RENDERING_API inline void bindForReading(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace);
-        RENDERING_API inline void unbind();
+            if (!(att == GL_DEPTH_ATTACHMENT || 
+                att == GL_STENCIL_ATTACHMENT || 
+                att == GL_DEPTH_STENCIL_ATTACHMENT))
+                _drawBuffers.push_back(att);
 
-        RENDERING_API inline void enable(GLenum value);
+            glBindFramebuffer(GL_FRAMEBUFFER, _id);
 
-        RENDERING_API inline  void setViewport(GLuint x, GLuint y, sizef size);
-        RENDERING_API inline virtual void clear();
+            glNamedFramebufferTextureLayer(
+                _id,
+                att,
+                renderTarget->textureAddress.containerId,
+                0,
+                static_cast<GLint>(renderTarget->textureAddress.page));
 
-        RENDERING_API inline void blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask = GL_COLOR_BUFFER_BIT, GLenum filter = GL_LINEAR);
-        RENDERING_API inline void blita(GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask = GL_COLOR_BUFFER_BIT, GLenum filter = GL_LINEAR);
-        RENDERING_API bool addRenderTarget(renderTarget* renderTarget);
-        RENDERING_API inline renderTarget* getRenderTarget(std::string name);
+            auto status = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
 
-        RENDERING_API renderTarget* newRenderTarget(
-            std::string name,
-            texture* texture,
-            GLenum _target = GL_DRAW_FRAMEBUFFER,
-            GLenum _attachment = GL_COLOR_ATTACHMENT0,
-            GLenum _texTarget = GL_TEXTURE_2D,
-            GLuint _level = 0);
+            switch (status)
+            {
+            case GL_FRAMEBUFFER_COMPLETE:
+                phi::debug("complete");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                phi::debug("incomplete attachment");;
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                phi::debug("incomplete draw buffer");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+                phi::debug("incomplete layer targets");
+                break;
+            default:
+                break;
+            }
+        }
 
-        RENDERING_API inline GLfloat getZBufferValue(vec2 mousePos);
+        inline void bind(GLenum target)
+        {
+            glBindFramebuffer(target, _id);
+        }
+
+        inline void bindForDrawing()
+        {
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
+            glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
+        }
+
+        inline void bindForDrawing(GLenum* buffers, size_t buffersCount)
+        {
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
+            glDrawBuffers(buffersCount, buffers);
+        }
+
+        inline void bindForReading(renderTarget* sourceRenderTarget)
+        {
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
+            glReadBuffer(sourceRenderTarget->attachment);
+        }
+
+        inline void unbind(GLenum target)
+        {
+            glBindFramebuffer(target, 0);
+        }
+
+        inline void blitToDefault(renderTarget* renderTarget)
+        {
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+            bindForReading(renderTarget);
+            glBlitFramebuffer(0, 0, renderTarget->w, renderTarget->h, 0, 0, renderTarget->w, renderTarget->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        }
+
+        inline void blit(framebuffer* sourceFramebuffer, renderTarget* sourceRenderTarget, framebuffer* targetFramebuffer, renderTarget* targetRenderTarget)
+        {
+            sourceFramebuffer->bindForReading(sourceRenderTarget);
+            glBlitFramebuffer(0, 0, sourceRenderTarget->w, sourceRenderTarget->h, 0, 0, targetRenderTarget->w, targetRenderTarget->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        }
+
+        inline GLfloat getZBufferValue(ivec2 mousePos)
+        {
+            GLfloat zBufferValue;
+            glReadPixels(mousePos.x, mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+
+            return zBufferValue;
+        }
     };
 }
-
-#endif

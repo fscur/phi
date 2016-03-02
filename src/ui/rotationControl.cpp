@@ -1,8 +1,11 @@
 #include "rotationControl.h"
 
-#include <rendering\shaderManager.h>
+#include <rendering\shadersManager.h>
 
 #include "colorAnimator.h"
+
+#include <GLM\gtx\rotate_vector.hpp>
+#include <GLM\gtx\norm.hpp>
 
 namespace phi
 {
@@ -10,7 +13,7 @@ namespace phi
         control(viewportSize)
     {
         //_shader = shaderManager::get()->getShader("UI_MESH");
-        _object = nullptr;
+        _transform = nullptr;
         _xModelMatrix = glm::rotate(glm::pi<float>() * 0.5f, vec3(0.0f, 1.0f, 0.0f));
         _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, vec3(1.0f, 0.0f, 0.0f));
         _zModelMatrix = mat4();
@@ -50,10 +53,10 @@ namespace phi
 
     void rotationControl::updateModelMatrix()
     {
-        if (!_object)
+        if (!_transform)
             return;
 
-        auto viewModelFixed = _camera->getViewMatrix() * _object->getModelMatrix();
+        auto viewModelFixed = _camera->getViewMatrix() * _transform->getModelMatrix();
         auto x = viewModelFixed[3][0];
         auto y = viewModelFixed[3][1];
         auto z = viewModelFixed[3][2];
@@ -65,10 +68,10 @@ namespace phi
         auto pos = glm::inverse(_camera->getViewMatrix()) * viewModelFixed * vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
         auto rot = mat4();
-        auto obj = _object;
+        auto obj = _transform; // wtf?
         while (obj != nullptr)
         {
-            rot = obj->getRotationMatrix() * rot;
+            rot = obj->getLocalRotationMatrix() * rot;
             obj = obj->getParent();
         }
 
@@ -217,7 +220,7 @@ namespace phi
 
     void rotationControl::onMouseDown(mouseEventArgs* e)
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         if (e->leftButtonPressed && (_mouseOverX || _mouseOverY || _mouseOverZ))
@@ -227,14 +230,14 @@ namespace phi
             _clickedOverZ = _mouseOverZ;
             _mouseStartPos = vec2(e->x, e->y);
             _currentAngle = 0.0f;
-            _startOrientation = _object->getOrientation();
+            _startOrientation = _transform->getLocalOrientation();
             e->handled = true;
         }
     }
 
     void rotationControl::onMouseUp(mouseEventArgs* e)
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         if (e->leftButtonPressed && (_clickedOverX || _clickedOverY || _clickedOverZ))
@@ -245,7 +248,7 @@ namespace phi
             colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
 
             if (_rotationFinished->isBound())
-                _rotationFinished->invoke(phi::rotationEventArgs(_object, _startOrientation, _object->getOrientation()));
+                _rotationFinished->invoke(phi::rotationEventArgs(_transform, _startOrientation, _transform->getLocalOrientation()));
         }
     }
 
@@ -254,14 +257,14 @@ namespace phi
 
     void rotationControl::onMouseMove(mouseEventArgs* e)
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         auto screenToViewZNear = [&] (const vec2 vec)
         {
-            auto zNear = _camera->getFrustum()->getZNear();
-            auto aspect = _camera->getFrustum()->getAspect();
-            auto fov = _camera->getFrustum()->getFov();
+            auto zNear = _camera->getZNear();
+            auto aspect = _camera->getAspect();
+            auto fov = _camera->getFov();
 
             auto tg = tan(fov * 0.5f) * zNear;
 
@@ -307,10 +310,10 @@ namespace phi
         if (_clickedOverX || _clickedOverY || _clickedOverZ)
         {
             auto rot = mat4();
-            auto obj = _object;
+            auto obj = _transform;
             while (obj != nullptr)
             {
-                rot = obj->getRotationMatrix() * rot;
+                rot = obj->getLocalRotationMatrix() * rot;
                 obj = obj->getParent();
             }
 
@@ -318,23 +321,23 @@ namespace phi
             if (_clickedOverX)
             {
                 dir = glm::normalize(mathUtils::multiply(rot, vec3(1.0f, 0.0f, 0.0f)));
-                dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(1.0f, 0.0f, 0.0f)));
+                dirLocal = glm::normalize(mathUtils::multiply(_transform->getLocalRotationMatrix(), vec3(1.0f, 0.0f, 0.0f)));
             }
             if (_clickedOverY)
             {
                 dir = glm::normalize(mathUtils::multiply(rot, vec3(0.0f, 1.0f, 0.0f)));
-                dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(0.0f, 1.0f, 0.0f)));
+                dirLocal = glm::normalize(mathUtils::multiply(_transform->getLocalRotationMatrix(), vec3(0.0f, 1.0f, 0.0f)));
             }
             if (_clickedOverZ)
             {
                 dir = glm::normalize(mathUtils::multiply(rot, vec3(0.0f, 0.0f, 1.0f)));
-                dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(0.0f, 0.0f, 1.0f)));
+                dirLocal = glm::normalize(mathUtils::multiply(_transform->getLocalRotationMatrix(), vec3(0.0f, 0.0f, 1.0f)));
             }
 
-            auto objectPosition = mathUtils::multiply(_object->getModelMatrix(), vec3());
+            auto objectPosition = mathUtils::multiply(_transform->getModelMatrix(), vec3());
             auto planePoint = objectPosition;
             auto planeNormal = dir;
-            auto rayStart = _camera->getPosition();
+            auto rayStart = _camera->getTransform()->getLocalPosition();
             auto rayEnd = mathUtils::multiply(glm::inverse(_camera->getViewMatrix()), screenToViewZNear(vec2(e->x, e->y)));
             auto rayEndStart = mathUtils::multiply(glm::inverse(_camera->getViewMatrix()), screenToViewZNear(_mouseStartPos));
 
@@ -359,15 +362,15 @@ namespace phi
                 // angle in [-179,180]
                 angle = angle * sign;
 
-                auto currentRot = _object->getOrientation();
-                _object->rotate(angle - _currentAngle, dirLocal);
+                auto currentRot = _transform->getLocalOrientation();
+                _transform->rotate(angle - _currentAngle, dirLocal);
 
-                auto args = new rotationEventArgs(_object, currentRot, _object->getOrientation());
+                auto args = new rotationEventArgs(_transform, currentRot, _transform->getLocalOrientation());
                 if (_rotating->isBound())
                     _rotating->invoke(args);
 
                 if (args->cancel)
-                    _object->setOrientation(currentRot);
+                    _transform->setLocalOrientation(currentRot);
                 else
                     _currentAngle = angle;
 
@@ -378,7 +381,7 @@ namespace phi
 
     void rotationControl::onMouseLeave(mouseEventArgs* e)
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         //colorAnimator::animateColor(&_xColor, color(0.7f, 0.0f, 0.0f), 300);
@@ -386,14 +389,14 @@ namespace phi
         //colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 0.7f), 300);
     }
 
-    void rotationControl::attachTo(object3D* object)
+    void rotationControl::attachTo(transform* transform)
     {
-        _object = object;
+        _transform = transform;
     }
 
     void rotationControl::onRender()
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         //glEnable(GL_BLEND);

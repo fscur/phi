@@ -1,5 +1,4 @@
-#ifndef _PHI_CLOCK_H_
-#define _PHI_CLOCK_H_
+#pragma once
 
 #include "core.h"
 
@@ -12,5 +11,3 @@ namespace phi
         CORE_API static int millisecondsElapsed;
     };
 }
-
-#endif

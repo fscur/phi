@@ -1,13 +1,10 @@
-#ifndef _PHI_TRANSLATION_CONTROL_H_
-#define _PHI_TRANSLATION_CONTROL_H_
+#pragma once
 
-#include <core\object3D.h>
+#include <core\transform.h>
 #include <core\geometry.h>
 #include <core\aabb.h>
 
-#include <rendering\transform.h>
 #include <rendering\ray.h>
-#include <rendering\frustum.h>
 #include <rendering\shader.h>
 #include <rendering\camera.h>
 
@@ -36,7 +33,7 @@ namespace phi
         color _xColor;
         color _yColor;
         color _zColor;
-        object3D* _object;
+        transform* _transform;
         shader* _shader;
         vec3 _startPos;
         vec3 _startLocalPos;
@@ -71,10 +68,8 @@ namespace phi
 
         UI_API virtual bool isPointInside(int x, int y) override;
 
-        UI_API void attachTo(object3D* object);
+        UI_API void attachTo(transform* transform);
 
         UI_API void onRender() override;
     };
 }
-
-#endif

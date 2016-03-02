@@ -1,5 +1,4 @@
-#ifndef _INPUT_MANAGER_H_
-#define _INPUT_MANAGER_H_
+#pragma once
 
 #include <core/mouseEventArgs.h>
 #include <core/keyboardEventArgs.h>
@@ -36,5 +35,3 @@ public:
 
     void update();
 };
-
-#endif

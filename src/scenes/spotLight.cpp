@@ -1,24 +1,20 @@
 #include "spotLight.h"
 
-#include <rendering/shaderManager.h>
+#include <rendering\shadersManager.h>
+#include <GLM\gtc\matrix_transform.hpp>
 
 namespace phi
 {
-    spotLight::spotLight(vec3 position, color color, float intensity, float range, vec3 direction, float cutoff) :
-        light(position, color, intensity, objectType::SPOT_LIGHT)
+    spotLight::spotLight(std::string name, color color, float intensity, float range, float cutoff, transform* transform) :
+        light(componentType::SPOT_LIGHT, name, color, intensity, transform),
+        _cutoff(cutoff),
+        _range(range),
+        _oneOverRangeSqr(1.0f / (pow(_range, 2.0f))),
+        _radius(calcRadius(cutoff, _range)),
+        _boundingVolume(cone::create(5, nullptr))
     {
-        _cutoff = cutoff;
-        _range = range;
-        _oneOverRangeSqr = 1.0f / (pow(_range, 2.0f));
-        _radius = calcRadius(cutoff, _range);
-
-        _boundingVolume = cone::create(5, nullptr);
         auto diameter =  2.0f * _radius * 1.15f;
-        setSize(sizef(diameter, diameter, _range));
-
-        setLocalPosition(position);
-        setDirection(normalize(direction));
-        _transform = new transform();
+        transform->setLocalSize(vec3(diameter, diameter, _range));
         updateViewMatrix();
         updateProjectionMatrix();
     }
@@ -39,7 +35,7 @@ namespace phi
         _range = value;
         _oneOverRangeSqr = 1.0f / (pow(_range, 2.0f));
         _radius = calcRadius(_cutoff, _range);
-        setSize(sizef(_radius, _radius, _range));
+        _transform->setLocalSize(vec3(_radius, _radius, _range));
         updateProjectionMatrix();
     }
 
@@ -47,7 +43,7 @@ namespace phi
     {
         _cutoff = cutoff;
         _radius = calcRadius(_cutoff, _range);
-        setSize(sizef(_radius, _radius, _range));
+        _transform->setLocalSize(vec3(_radius, _radius, _range));
         updateProjectionMatrix();
     }
 
@@ -56,24 +52,14 @@ namespace phi
         _intensity = value;
     }
 
-    void spotLight::update()
-    {
-        auto changed = getChanged();
-
-        light::update();
-
-        if (changed)
-            updateViewMatrix();
-    }
-
     void spotLight::updateViewMatrix()
     {
-        auto direction = getDirection();
+        auto direction = _transform->getDirection();
         vec3 J = vec3(0.0f, 1.0f, 0.0f);
         vec3 up = normalize(J - direction * dot(direction, J));
 
-        _viewMatrix = lookAt(getPosition(), getPosition() + direction, up);
-        _transform->setViewMatrix(_viewMatrix);
+        auto position = _transform->getPosition();
+        _viewMatrix = glm::lookAt(position, position + direction, up);
     }
 
     void spotLight::updateProjectionMatrix()
@@ -82,18 +68,5 @@ namespace phi
         float nearPlane = 0.1f;
         float farPlane = _radius;
         _projectionMatrix = glm::perspective(angle, 1.0f, nearPlane, farPlane);
-        _transform->setProjectionMatrix(_projectionMatrix);
-    }
-
-    transform* spotLight::getTransform()
-    {
-        if (!_transform)
-        {
-            _transform = new transform();
-            updateViewMatrix();
-            updateProjectionMatrix();
-        }
-
-        return _transform;
     }
 }

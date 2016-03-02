@@ -1,5 +1,4 @@
-#ifndef _APPLICATION_H_
-#define _APPLICATION_H_
+#pragma once
 
 #include "form.h"
 
@@ -16,5 +15,3 @@ public:
 
     void run(form* form);
 };
-
-#endif

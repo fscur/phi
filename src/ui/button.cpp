@@ -6,14 +6,15 @@ namespace phi
 {
     button::button(sizef viewportSize) : control(viewportSize)
     {
+        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
         _text = "";
         _image = nullptr;
         _backgroundTexture = uiRepository::textureButton;
-        _backgroundRenderer = new quadRenderer2D(vec2(0, 0), _zIndex, sizef(0, 0, 0), viewportSize);
-        _overlayRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.02f, sizef(0, 0, 0), viewportSize);
+        _backgroundRenderer = new quadRenderer2D(vec2(0, 0), _zIndex, sizeui(0, 0, 0), size);
+        _overlayRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.02f, sizeui(0, 0, 0), size);
         _overlayColor = color::fromRGBA(1.0f, 1.0f, 1.0f, 0.0f);
-        _imageRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.01f, sizef(0, 0, 0), viewportSize);
-        _textRenderer = new textRenderer2D(viewportSize);
+        _imageRenderer = new quadRenderer2D(vec2(0, 0), _zIndex + 0.01f, sizeui(0, 0, 0), size);
+        _textRenderer = new textRenderer2D(size);
         _font = uiRepository::fontConsolas14;
         _textX = 0;
         _textY = 0;
@@ -50,16 +51,16 @@ namespace phi
         if (width < _size.w &&
             height < _size.h)
         {
-            _imageRenderer->setSize(sizef(width, height));
+            _imageRenderer->setSize(sizeui(width, height));
             return;
         }
 
         auto imageRatio = width / height;
 
         if (_size.w >= _size.h)
-            _imageRenderer->setSize(sizef(_size.h, _size.h * imageRatio));
+            _imageRenderer->setSize(sizeui(_size.h, _size.h * imageRatio));
         else
-            _imageRenderer->setSize(sizef(_size.w * (GLuint)(1.0f / imageRatio), _size.w));
+            _imageRenderer->setSize(sizeui(_size.w * (GLuint)(1.0f / imageRatio), _size.w));
     }
 
     void button::updateImageLocation()
@@ -127,10 +128,11 @@ namespace phi
 
     void button::setSize(sizef value)
     {
+        auto size = sizeui(value.w, value.h, value.d);
         _size = value;
-        _backgroundRenderer->setSize(value);
+        _backgroundRenderer->setSize(size);
         _backgroundRenderer->update();
-        _overlayRenderer->setSize(value);
+        _overlayRenderer->setSize(size);
         _overlayRenderer->update();
         updateImageSize();
         updateImageLocation();
@@ -157,12 +159,15 @@ namespace phi
 
     void button::setViewportSize(sizef value)
     {
+        auto viewportSize = getViewportSize();
+        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
+
         control::setViewportSize(value);
-        _backgroundRenderer->setViewportSize(getViewportSize());
+        _backgroundRenderer->setViewportSize(size);
         _backgroundRenderer->update();
-        _overlayRenderer->setViewportSize(getViewportSize());
+        _overlayRenderer->setViewportSize(size);
         _overlayRenderer->update();
-        _textRenderer->setViewportSize(getViewportSize());
+        _textRenderer->setViewportSize(size);
         _textRenderer->update();
     }
 

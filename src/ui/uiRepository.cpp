@@ -4,7 +4,6 @@
 
 #include <loader\importer.h>
 
-#include <rendering\renderingSystem.h>
 #include <rendering\texture.h>
 #include <rendering\font.h>
 
@@ -67,12 +66,12 @@ namespace phi
         auto consolasPath = phi::path::combine(directory, "Consola.ttf");
         auto arialPath = phi::path::combine(directory, "Arial.ttf");
 
-        fontConsolas14 = new font("Consola_14", consolasPath, 14, renderingSystem::freeTypeLibrary);
-        fontConsolas16 = new font("Consola_16", consolasPath, 16, renderingSystem::freeTypeLibrary);
-        fontConsolas18 = new font("Consola_18", consolasPath, 18, renderingSystem::freeTypeLibrary);
-        fontConsolas24 = new font("Consola_24", consolasPath, 24, renderingSystem::freeTypeLibrary);
-        fontConsolas100 = new font("Consola_100", consolasPath, 100, renderingSystem::freeTypeLibrary);
-        fontArial72 = new font("Arial_72", arialPath, 72, renderingSystem::freeTypeLibrary);
+        //fontConsolas14 = new font("Consola_14", consolasPath, 14, renderingSystem::freeTypeLibrary);
+        //fontConsolas16 = new font("Consola_16", consolasPath, 16, renderingSystem::freeTypeLibrary);
+        //fontConsolas18 = new font("Consola_18", consolasPath, 18, renderingSystem::freeTypeLibrary);
+        //fontConsolas24 = new font("Consola_24", consolasPath, 24, renderingSystem::freeTypeLibrary);
+        //fontConsolas100 = new font("Consola_100", consolasPath, 100, renderingSystem::freeTypeLibrary);
+        //fontArial72 = new font("Arial_72", arialPath, 72, renderingSystem::freeTypeLibrary);
     }
 
     void uiRepository::loadCursors(std::string directory)

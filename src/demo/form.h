@@ -1,5 +1,4 @@
-#ifndef _FORM_H_
-#define _FORM_H_
+#pragma once
 
 #include "demo.h"
 
@@ -13,8 +12,6 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
-
-#include <string>
 
 class form
 {
@@ -79,5 +76,3 @@ public:
     void centerScreen();
     void close();
 };
-
-#endif

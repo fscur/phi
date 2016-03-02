@@ -1,5 +1,4 @@
-#ifndef _PHI_DELEGATE_H
-#define _PHI_DELEGATE_H
+#pragma once
 
 #ifdef WIN32
     #define FORCEINLINE __forceinline
@@ -215,4 +214,3 @@ namespace phi
         int _i;
     };
 }
-#endif

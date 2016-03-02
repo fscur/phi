@@ -1,5 +1,4 @@
-#ifndef _PHI_LOADER_H_
-#define _PHI_LOADER_H_
+#pragma once
 
 #ifdef WIN32
 #ifdef LOADER_EXPORTS
@@ -9,6 +8,4 @@
 #endif
 #else
 #define LOADER_API
-#endif
-
 #endif

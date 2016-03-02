@@ -1,12 +1,11 @@
-#ifndef _PHI_ROTATION_EVENT_ARGS_H_
-#define _PHI_ROTATION_EVENT_ARGS_H_
+#pragma once
 
-#include <core\object3DEventArgs.h>
+//#include <core\object3DEventArgs.h>
 
 namespace phi
 {
-    class rotationEventArgs :
-        public object3DEventArgs
+    class rotationEventArgs /*:
+        public object3DEventArgs*/
     {
     public:
         quat startOrientation;
@@ -14,11 +13,9 @@ namespace phi
         bool cancel;
 
     public:
-        rotationEventArgs(object3D* sender, quat start, quat end)
-            : object3DEventArgs(sender), startOrientation(start), endOrientation(end), cancel(false)
+        rotationEventArgs(transform* sender, quat start, quat end)
+            /*: object3DEventArgs(sender), startOrientation(start), endOrientation(end), cancel(false)*/
         {
         }
     };
 }
-
-#endif

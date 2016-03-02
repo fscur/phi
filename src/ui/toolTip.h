@@ -20,8 +20,8 @@ namespace phi
         static const unsigned int TEXT_MARGIN = 6;
 
         quadRenderer2D* _backgroundRenderer;
-        texture* _backgroundTexture;
         textRenderer2D* _foregroundRenderer;
+        texture* _backgroundTexture;
         sizef _viewportSize;
         font* _font;
         std::string _text;

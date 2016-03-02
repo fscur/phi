@@ -1,11 +1,7 @@
-#ifndef _PHI_AABB_H_
-#define _PHI_AABB_H_
+#pragma once
 
-#include "core.h"
 #include "globals.h"
 #include "size.h"
-
-#include <vector>
 
 namespace phi
 {
@@ -53,5 +49,3 @@ namespace phi
         CORE_API void update(const std::vector<vec3> &points);
     };
 }
-
-#endif

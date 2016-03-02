@@ -1,5 +1,4 @@
-#ifndef _PHI_GLOBALS_H
-#define _PHI_GLOBALS_H
+#pragma once
 
 #include "core.h"
 #include <iostream>
@@ -16,6 +15,8 @@ using byte = unsigned char;
 
 namespace phi
 {
+    using ivec2 = glm::ivec2;
+    using ivec3 = glm::ivec3;
     using vec2 = glm::vec2;
     using vec3 = glm::vec3;
     using vec4 = glm::vec4;
@@ -42,11 +43,17 @@ namespace phi
     }
 
     template<typename T>
-    inline void log(T& value)
+    inline void debug(T& value)
     {
 #if _DEBUG
         std::cout << value << std::endl;
 #endif
+    }
+
+    template<typename T>
+    inline void log(T& value)
+    {
+        std::cout << value << std::endl;
     }
 
     inline void log(vec3 value)
@@ -62,5 +69,3 @@ namespace phi
         return it != vector.end();
     }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PHI_IO_H_
-#define _PHI_IO_H_
+#pragma once
 
 #ifdef WIN32
 #ifdef IO_EXPORTS
@@ -9,8 +8,4 @@
 #endif
 #else
 #define IO_API
-#endif
-
-#define GLM_FORCE_RADIANS
-
 #endif

@@ -1,13 +1,6 @@
-#ifndef _PHI_GEOMETRY_H_
-#define _PHI_GEOMETRY_H_
-
-#include "core.h"
+#pragma once
 
 #include "vertex.h"
-
-#include <string>
-#include <list>
-#include <vector>
 
 namespace phi
 {
@@ -50,4 +43,3 @@ namespace phi
         CORE_API static void calcTangents(std::vector<vertex> &vertices, std::vector<uint> &indices);
     };
 }
-#endif

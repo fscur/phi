@@ -1,5 +1,4 @@
-#ifndef _PHI_RAY_H_
-#define _PHI_RAY_H_
+#pragma once
 
 #include <core/aabb.h>
 
@@ -24,4 +23,3 @@ namespace phi
         RENDERING_API bool intersects(vec3 bl, vec3 tl, vec3 tr, vec3 br, float* t);
     };
 }
-#endif

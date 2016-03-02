@@ -1,5 +1,4 @@
-#ifndef _PHI_POINT_LIGHT_H_
-#define _PHI_POINT_LIGHT_H_
+#pragma once
 
 #include <rendering/attenuation.h>
 
@@ -22,7 +21,7 @@ namespace phi
 
     public:
 
-        SCENES_API pointLight(vec3 position, color color, float intensity, float range);
+        SCENES_API pointLight(std::string name, color color, float intensity, float range, transform* transform);
         SCENES_API ~pointLight();
 
         SCENES_API sphere* getBoundingVolume() const { return _boundingVolume; }
@@ -33,4 +32,3 @@ namespace phi
         SCENES_API void setRange(float value);
     };
 }
-#endif

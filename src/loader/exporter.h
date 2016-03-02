@@ -1,12 +1,8 @@
-#ifndef _PHI_EXPORTER_H_
-#define _PHI_EXPORTER_H_
+#pragma once
 
 #include "loader.h"
 
 #include <core\geometry.h>
-
-#include <string>
-#include <vector>
 
 namespace phi
 {
@@ -16,5 +12,3 @@ namespace phi
         LOADER_API static int exportMesh(std::vector<geometry*>* geometry, char* fileName);
     };
 }
-
-#endif

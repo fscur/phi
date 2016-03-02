@@ -1,6 +1,6 @@
 #include "translationControl.h"
 
-#include <rendering\shaderManager.h>
+#include <rendering\shadersManager.h>
 //#include <rendering\geometryRenderer.h>
 #include <rendering\lineMesh.h>
 
@@ -8,6 +8,7 @@
 
 #include <bullet\btBulletDynamicsCommon.h>
 #include <GLM\gtc\constants.hpp>
+#include <GLM\gtx\rotate_vector.hpp>
 
 namespace phi
 {
@@ -16,7 +17,7 @@ namespace phi
     {
         _arrowGeometry = createArrowGeometry();
         //_shader = shaderManager::get()->getShader("UI_MESH");
-        _object = nullptr;
+        _transform = nullptr;
         _xAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
         _yAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
         _zAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
@@ -119,10 +120,10 @@ namespace phi
 
     void translationControl::updateModelMatrix()
     {
-        if (!_object)
+        if (!_transform)
             return;
 
-        auto viewModelFixed = _camera->getViewMatrix() * _object->getModelMatrix();
+        auto viewModelFixed = _camera->getViewMatrix() * _transform->getModelMatrix();
         auto x = viewModelFixed[3][0];
         auto y = viewModelFixed[3][1];
         auto z = viewModelFixed[3][2];
@@ -134,10 +135,10 @@ namespace phi
         auto pos = inverse(_camera->getViewMatrix()) * viewModelFixed * vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
         auto rot = mat4();
-        auto obj = _object;
+        auto obj = _transform;
         while (obj != nullptr)
         {
-            rot = obj->getRotationMatrix() * rot;
+            rot = obj->getLocalRotationMatrix() * rot;
             obj = obj->getParent();
         }
 
@@ -148,7 +149,7 @@ namespace phi
 
     void translationControl::updateAabbs()
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         auto min = vec4(-0.80901699437494742410229341718282f * 0.05f, -0.95105651629515357211643933337938f * 0.05f, 0.0f, 1.0f);
@@ -182,12 +183,12 @@ namespace phi
         vec3 ray_world = vec3(invView * ray_eye);
         ray_world = normalize(ray_world);
 
-        return ray(_camera->getPosition(), ray_world);
+        return ray(_camera->getTransform()->getLocalPosition(), ray_world);
     }
 
     bool translationControl::isPointInside(int x, int y)
     {
-        if (!_object)
+        if (!_transform)
             return false;
 
         auto ray = castRay(vec2(x, y), _viewportSize);
@@ -217,9 +218,9 @@ namespace phi
 
     vec3 translationControl::screenToViewZNear(vec2 mousePos)
     {
-        auto zNear = _camera->getFrustum()->getZNear();
-        auto aspect = _camera->getFrustum()->getAspect();
-        auto fov = _camera->getFrustum()->getFov();
+        auto zNear = _camera->getZNear();
+        auto aspect = _camera->getAspect();
+        auto fov = _camera->getFov();
 
         auto tg = tan(fov * 0.5f) * zNear;
 
@@ -300,7 +301,7 @@ namespace phi
 
     void translationControl::onMouseDown(mouseEventArgs* e)
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         if (e->leftButtonPressed && (_mouseOverX || _mouseOverY || _mouseOverZ))
@@ -308,8 +309,8 @@ namespace phi
             _clickedOverX = _mouseOverX;
             _clickedOverY = _mouseOverY;
             _clickedOverZ = _mouseOverZ;
-            _startPos = _object->getPosition();
-            _startLocalPos = _object->getLocalPosition();
+            _startPos = _transform->getPosition();
+            _startLocalPos = _transform->getLocalPosition();
             _mouseStartPos = vec2(e->x, e->y);
             e->handled = true;
         }
@@ -317,7 +318,7 @@ namespace phi
 
     void translationControl::onMouseUp(mouseEventArgs* e)
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         if (e->leftButtonPressed && (_clickedOverX || _clickedOverY || _clickedOverZ))
@@ -328,20 +329,20 @@ namespace phi
             colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
 
             if (_translationFinished->isBound())
-                _translationFinished->invoke(new phi::translationEventArgs(_object, _startLocalPos, _object->getLocalPosition()));
+                _translationFinished->invoke(new phi::translationEventArgs(_transform, _startLocalPos, _transform->getLocalPosition()));
         }
     }
 
     void translationControl::onMouseMove(mouseEventArgs* e)
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         auto rot = mat4();
-        auto obj = _object;
+        auto obj = _transform;
         while (obj != nullptr)
         {
-            rot = obj->getRotationMatrix() * rot;
+            rot = obj->getLocalRotationMatrix() * rot;
             obj = obj->getParent();
         }
 
@@ -349,17 +350,17 @@ namespace phi
         if (_clickedOverX)
         {
             dir = glm::normalize(mathUtils::multiply(rot, vec3(1.0f, 0.0f, 0.0f)));
-            dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(1.0f, 0.0f, 0.0f)));
+            dirLocal = glm::normalize(mathUtils::multiply(_transform->getLocalRotationMatrix(), vec3(1.0f, 0.0f, 0.0f)));
         }
         if (_clickedOverY)
         {
             dir = glm::normalize(mathUtils::multiply(rot, vec3(0.0f, 1.0f, 0.0f)));
-            dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(0.0f, 1.0f, 0.0f)));
+            dirLocal = glm::normalize(mathUtils::multiply(_transform->getLocalRotationMatrix(), vec3(0.0f, 1.0f, 0.0f)));
         }
         if (_clickedOverZ)
         {
             dir = glm::normalize(mathUtils::multiply(rot, vec3(0.0f, 0.0f, 1.0f)));
-            dirLocal = glm::normalize(mathUtils::multiply(_object->getRotationMatrix(), vec3(0.0f, 0.0f, 1.0f)));
+            dirLocal = glm::normalize(mathUtils::multiply(_transform->getLocalRotationMatrix(), vec3(0.0f, 0.0f, 1.0f)));
         }
 
         if (_clickedOverX || _clickedOverY || _clickedOverZ)
@@ -390,15 +391,15 @@ namespace phi
                 //auto localWorld = multMat3(world, inverse(model));
                 auto localWorld = _startPos + dir * t2;
 
-                auto currentPos = _object->getLocalPosition();
-                _object->setLocalPosition(localWorld);
+                auto currentPos = _transform->getLocalPosition();
+                _transform->setLocalPosition(localWorld);
 
-                auto args = new translationEventArgs(_object, currentPos, localWorld);
+                auto args = new translationEventArgs(_transform, currentPos, localWorld);
                 if (_translating->isBound())
                     _translating->invoke(args);
 
                 if (args->cancel)
-                    _object->setLocalPosition(currentPos);
+                    _transform->setLocalPosition(currentPos);
 
                 safeDelete(args);
             }
@@ -407,7 +408,7 @@ namespace phi
 
     void translationControl::onMouseLeave(mouseEventArgs* e)
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         //colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
@@ -415,9 +416,9 @@ namespace phi
         //colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
     }
 
-    void translationControl::attachTo(object3D* object)
+    void translationControl::attachTo(transform* transform)
     {
-        _object = object;
+        _transform = transform;
 
         updateModelMatrix();
         updateAabbs();
@@ -436,7 +437,7 @@ namespace phi
 
     void translationControl::onRender()
     {
-        if (!_object)
+        if (!_transform)
             return;
 
         //glEnable(GL_BLEND);

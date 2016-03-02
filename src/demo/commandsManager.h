@@ -1,5 +1,4 @@
-#ifndef _PHI_COMMANDS_MANAGER_H_
-#define _PHI_COMMANDS_MANAGER_H_
+#pragma once
 
 #include <core/mouseEventArgs.h>
 #include <core/keyboardEventArgs.h>
@@ -57,5 +56,3 @@ public:
     void update();
     bool onInput(phi::inputKey key);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PHI_DIAGNOSTICS_H_
-#define _PHI_DIAGNOSTICS_H_
+#pragma once
 
 #ifdef WIN32
     #ifdef DIAGNOSTICS_EXPORTS
@@ -9,6 +8,4 @@
     #endif
 #else
     #define DIAGNOSTICS_API
-#endif
-
 #endif

@@ -3,73 +3,38 @@
 #include <loader\importer.h>
 #include <io\path.h>
 
-library::library(std::string resourcesPath)
-    : _resourcesPath(resourcesPath)
+library::library(phi::gl* gl, std::string resourcesPath) :
+    _gl(gl),
+    _libraryPath(resourcesPath)
 {
+    phi::importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
+    phi::importer::defaultNormalTexture = _gl->defaultNormalTexture;
+    phi::importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
+    phi::importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
+    phi::importer::defaultMaterial = _gl->defaultMaterial;
 }
 
 void library::init()
 {
-    _texturesRepository = new phi::resourcesRepository<phi::texture>();
-    _materialsRepository = new phi::resourcesRepository<phi::material>();
-    _objectsRepository = new phi::resourcesRepository<phi::object3D>();
-
-    loadTextures(_resourcesPath);
-    loadMaterials(_resourcesPath);
-    loadObjects(_resourcesPath);
-}
-
-void library::loadTextures(std::string directory)
-{
-    auto subDirs = phi::path::getDirectories(directory);
-    for (auto &dir : subDirs)
-        loadTextures(dir.path);
-
-    auto files = phi::path::getFiles(directory);
-    for (auto &file : files)
+    auto importTextureFunction = [](std::string filePath, phi::resource<phi::texture>*& resource)
     {
-        if (phi::path::getExtension(file.path) == ".texture")
-        {
-            phi::resource<phi::texture>* texRes;
-            if (phi::importer::importTexture(file.path, texRes))
-                _texturesRepository->addResource(texRes);
-        }
-    }
-}
+        return phi::importer::importTexture(filePath, resource);
+    };
 
-void library::loadMaterials(std::string directory)
-{
-    auto subDirs = phi::path::getDirectories(directory);
-    for (auto &dir : subDirs)
-        loadMaterials(dir.path);
+    _texturesRepository =
+        load<phi::texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
 
-    auto files = phi::path::getFiles(directory);
-    for (auto &file : files)
+    auto importMaterialFunction = [&](std::string filePath, phi::resource<phi::material>*& resource)
     {
-        if (phi::path::getExtension(file.path) == ".material")
-        {
-            phi::resource<phi::material>* matRes;
-            if (phi::importer::importMaterial(file.path, matRes, _texturesRepository))
-                _materialsRepository->addResource(matRes);
-        }
-    }
-}
+        return phi::importer::importMaterial(filePath, resource, _texturesRepository);
+    };
 
-void library::loadObjects(std::string directory)
-{
-    auto subDirs = phi::path::getDirectories(directory);
-    for (auto &dir : subDirs)
-        loadObjects(dir.path);
+    _materialsRepository = load<phi::material>(_libraryPath + "/materials", ".material", importMaterialFunction);
 
-    auto files = phi::path::getFiles(directory);
-    for (auto &file : files)
+    auto importModelFunction = [&](std::string filePath, phi::resource<phi::node>*& resource)
     {
-        if (phi::path::getExtension(file.path) == ".model")
-        {
-            phi::resource<phi::object3D>* objRes;
+        return phi::importer::importNode(filePath, resource, _materialsRepository);
+    };
 
-            if (phi::importer::importObject3D(file.path, objRes, _materialsRepository))
-                _objectsRepository->addResource(objRes);
-        }
-    }
+    _nodesRepository = load<phi::node>(_libraryPath + "/models", ".model", importModelFunction);
 }

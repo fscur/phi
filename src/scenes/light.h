@@ -1,13 +1,11 @@
-#ifndef _PHI_LIGHT_H_
-#define _PHI_LIGHT_H_
+#pragma once
 
-#include <core\object3D.h>
 #include <core\color.h>
+#include <core\component.h>
 
 #include <rendering\attenuation.h>
 #include <rendering\shader.h>
 #include <rendering\texture.h>
-#include <rendering\transform.h>
 
 #include "scenes.h"
 
@@ -16,7 +14,7 @@
 namespace phi
 {
     class light :
-        public object3D
+        public component
     {
     private:
         texture* _shadowMap;
@@ -26,15 +24,16 @@ namespace phi
         float _intensity;
         transform* _transform;
 
+    protected:
+        SCENES_API light(component::componentType type, std::string name, color color, float intensity, transform* transform);
+
     public:
-        SCENES_API light(object3D::objectType type);
-        SCENES_API light(vec3 position, color color, float intensity, object3D::objectType type);
         virtual ~light();
 
-        SCENES_API virtual transform* getTransform();
         SCENES_API color getColor();
         SCENES_API float getIntensity();
         SCENES_API texture* getShadowMap();
+        SCENES_API transform* light::getTransform() { return _transform; }
 
         SCENES_API void setColor(color color);
         SCENES_API virtual void setIntensity(float intensity);
@@ -42,9 +41,6 @@ namespace phi
         SCENES_API void setShadowMapShader(shader* shadowMapShader);
         SCENES_API void setShadowMap(texture* shadowMap);
 
-        SCENES_API virtual void update() override { object3D::update(); };
-
         SCENES_API float calcRange(attenuation attenuation, color color);
     };
 }
-#endif

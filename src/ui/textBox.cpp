@@ -12,12 +12,13 @@ namespace phi
     textBox::textBox(sizef viewportSize) : control(viewportSize)
     {
         _text = "";
-        //_texture = uiRepository::texturesRepository->getResource("button.png");
-        //_font = uiRepository::fontsRepository->getResource("Consola_18");
-        _backgroundRenderer = new quadRenderer2D(vec2(), _zIndex, sizef(), viewportSize);
-        _cursorRenderer = new quadRenderer2D(vec2(), _zIndex + 0.03f, sizef(CURSOR_WIDTH, _font->getLineHeight()), viewportSize);
-        _selectionRenderer = new quadRenderer2D(vec2(), _zIndex + 0.01f, sizef(), viewportSize);
-        _textRenderer = new textRenderer2D(viewportSize);
+        _texture = uiRepository::textureButton;
+        _font = uiRepository::fontConsolas18;
+        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
+        _backgroundRenderer = new quadRenderer2D(vec2(), _zIndex, sizeui(), size);
+        _cursorRenderer = new quadRenderer2D(vec2(), _zIndex + 0.03f, sizeui(CURSOR_WIDTH, _font->getLineHeight()), size);
+        _selectionRenderer = new quadRenderer2D(vec2(), _zIndex + 0.01f, sizeui(), size);
+        _textRenderer = new textRenderer2D(size);
         _textX = 0;
         _textY = 0;
         _textOffsetX = 0;
@@ -100,7 +101,7 @@ namespace phi
         std::string pre = _text.substr(0, start);
         sizef preTextSize = _textRenderer->measureSize(pre, _font);
 
-        _selectionRenderer->setSize(sizef(subTextSize.w, _font->getLineHeight()));
+        _selectionRenderer->setSize(sizeui(subTextSize.w, _font->getLineHeight()));
         _selectionRenderer->setLocation(vec2(_x + preTextSize.w + _textOffsetX, _y + _size.h * 0.5f - _font->getLineHeight() * 0.5f));
         _selectionRenderer->update();
     }
@@ -135,7 +136,7 @@ namespace phi
     void textBox::setSize(sizef value)
     {
         _size = value;
-        _backgroundRenderer->setSize(value);
+        _backgroundRenderer->setSize(sizeui(value.w, value.h, value.d));
         _backgroundRenderer->update();
         updateTextLocation();
     }
@@ -150,7 +151,7 @@ namespace phi
     void textBox::setFont(font* value)
     {
         _font = value;
-        _cursorRenderer->setSize(sizef(CURSOR_WIDTH, _font->getLineHeight()));
+        _cursorRenderer->setSize(sizeui(CURSOR_WIDTH, _font->getLineHeight()));
         updateTextLocation();
         updateCursorLocation();
     }
@@ -164,13 +165,14 @@ namespace phi
     void textBox::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
-        _backgroundRenderer->setViewportSize(getViewportSize());
+        auto size = sizeui(value.w, value.h, value.d);
+        _backgroundRenderer->setViewportSize(size);
         _backgroundRenderer->update();
-        _cursorRenderer->setViewportSize(getViewportSize());
+        _cursorRenderer->setViewportSize(size);
         _cursorRenderer->update();
-        _selectionRenderer->setViewportSize(getViewportSize());
+        _selectionRenderer->setViewportSize(size);
         _selectionRenderer->update();
-        _textRenderer->setViewportSize(getViewportSize());
+        _textRenderer->setViewportSize(size);
         _textRenderer->update();
     }
 
@@ -187,7 +189,7 @@ namespace phi
         if (e->clicks < 2)
         {
             _isClickingOver = true;
-            _cursorIndex = _textRenderer->measureString(_text, _font, sizef(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
+            _cursorIndex = _textRenderer->measureString(_text, _font, sizeui(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
             updateCursorLocation();
             _selectionStartIndex = _cursorIndex;
             _selectionEndIndex = _cursorIndex;
@@ -195,7 +197,7 @@ namespace phi
         }
         else
         {
-            unsigned int index = _textRenderer->measureString(_text, _font, sizef(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
+            unsigned int index = _textRenderer->measureString(_text, _font, sizeui(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
             std::vector<char> v(_text.begin(), _text.end());
             v.push_back('\0');
             char* str = &v[0];
@@ -252,7 +254,7 @@ namespace phi
     {
         if (_isClickingOver)
         {
-            _selectionEndIndex = _cursorIndex = _textRenderer->measureString(_text, _font, sizef(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
+            _selectionEndIndex = _cursorIndex = _textRenderer->measureString(_text, _font, sizeui(glm::max(e->x - _x - _textOffsetX, 0), _size.h));
             updateCursorLocation();
             updateSelectionRenderer();
         }

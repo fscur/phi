@@ -1,5 +1,4 @@
-#ifndef _PHI_RESOURCE_H_
-#define _PHI_RESOURCE_H_
+#pragma once
 
 #include "core.h"
 
@@ -27,5 +26,3 @@ namespace phi
         T* getObject() const { return _object; }
     };
 }
-
-#endif

@@ -1,18 +1,11 @@
 ﻿#include "screen.h"
 
+#include <core\globals.h>
 #include <diagnostics\diagnostics.h>
 #include <diagnostics\stopwatch.h>
 
-#include <core\globals.h>
-
 #include <loader\importer.h>
-
 #include <rendering\model.h>
-#include <rendering\shaderManager.h>
-#include <rendering\renderingSystem.h>
-
-#include <ui\button.h>
-#include <ui\uiSystem.h>
 
 #include <GLM\gtc\constants.hpp>
 
@@ -36,140 +29,79 @@ void screen::onInitialize()
 {
     setTitle("phi");
     centerScreen();
-
-    initRenderingSystem();
+    initGL();
+    initLibrary();
     initScene();
-    initUI();
     initInput();
-    initPipeline();
 }
 
-void screen::initRenderingSystem()
+void screen::initGL()
 {
-    auto renderingInfo = phi::renderingSystemInfo();
-    renderingInfo.applicationPath = getApplicationPath();
-    renderingInfo.resourcesPath = _resourcesPath;
-    renderingInfo.size = getSize();
-    phi::renderingSystem::init(renderingInfo);
+    auto initState = phi::gl::state();
+    initState.clearColor = phi::vec4(0.0f);
+    initState.frontFace = phi::gl::frontFace::ccw;
+    initState.culling = true;
+    initState.cullFace = phi::gl::cullFace::back;
+    initState.depthMask = true;
+    initState.depthTest = true;
+    initState.useBindlessTextures = false;
+    initState.useSparseTextures = false;
+
+    auto info = phi::gl::glInfo();
+    info.state = initState;
+    info.shadersPath = _resourcesPath + "/shaders";
+    _gl = new phi::gl(info);
+}
+
+void screen::initLibrary()
+{
+    _library = new library(_gl, _libraryPath);
+    _library->init();
 }
 
 void screen::initScene()
 {
-    _library = new library(_libraryPath);
-    _library->init();
+    _scene = new phi::scene(_gl, _size.w, _size.h);
+    auto camera = _scene->camera;
 
-    _scene = new phi::scene(new phi::camera(0.1f, 1000.0f, _size, glm::half_pi<float>()));
-    auto camera = _scene->getCamera();
+    auto cameraTransform = camera->getTransform();
+    auto cameraPos = phi::vec3(0.0f, 0.0f, 2.0f);
+    cameraTransform->setLocalPosition(cameraPos);
+    cameraTransform->setDirection(-cameraPos);
 
-    camera->setLocalPosition(phi::vec3(7.0f, 3.0f, 5.0f));
-    camera->setTarget(phi::vec3(0.0f, 0.0f, 0.0f));
-    camera->update();
-
-    auto info = phi::shaderManagerInfo();
-    info.path = _resourcesPath;
-    phi::shaderManager::get()->init(info);
+    auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
+    auto clonedFloor = floor->clone();
+    _scene->add(clonedFloor);
 
     auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
     for (size_t i = 0; i < 10; i++)
     {
         auto cloned = obj->clone();
-        cloned->setLocalPosition(phi::vec3(i, 0.0, 0.0));
-        cloned->update();
+        cloned->getTransform()->setLocalPosition(phi::vec3(i + (0.1f*i), 0.0, 0.0));
         _scene->add(cloned);
     }
 }
 
 void screen::initInput()
 {
-    auto camera = _scene->getCamera();
-    _defaultController = new defaultCameraController(camera);
+    _defaultController = new defaultCameraController(_scene);
     _inputManager->setCurrentCameraController(_defaultController);
-}
-
-void screen::initPipeline()
-{
-    auto camera = _scene->getCamera();
-    auto frameUniformBlock = phi::frameUniformBlock();
-    frameUniformBlock.p = camera->getProjectionMatrix();
-    frameUniformBlock.v = camera->getViewMatrix();
-    frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
-
-    auto glConfig = phi::gl::config();
-    glConfig.clearColor = phi::vec4(1.0f);
-    glConfig.frontFace = phi::gl::frontFace::ccw;
-    glConfig.culling = true;
-    glConfig.cullFace = phi::gl::cullFace::back;
-    glConfig.depthMask = true;
-    glConfig.depthTest = true;
-
-    auto pipelineInfo = phi::pipelineInfo();
-    pipelineInfo.materials = _library->getMaterialsRepository()->getAllObjects();
-    pipelineInfo.renderList = _scene->getRenderList();
-    pipelineInfo.frameUniformBlock = frameUniformBlock;
-    pipelineInfo.config = glConfig;
-
-    phi::renderingSystem::pipeline.init(pipelineInfo);
-
-    _pipeline = &phi::renderingSystem::pipeline;
-    _renderer = new phi::renderer();
-}
-
-void screen::initUI()
-{
-    phi::uiSystemInfo info = phi::uiSystemInfo();
-    info.applicationPath = getApplicationPath();
-    info.resourcesPath = _resourcesPath;
-    info.size = getSize();
-    phi::uiSystem::get()->init(info);
-
-    phi::color labelBackground = phi::color::transparent;
-    phi::color labelForeground = phi::color::white;
-
-    phi::button* closeButton = new phi::button(getSize());
-    closeButton->setText("X");
-    closeButton->setToolTipText("Close");
-    closeButton->setBackgroundColor(phi::color::fromRGBA(0.7f, 0.7f, 0.7f, 0.5f));
-    closeButton->setForegroundColor(phi::color::white);
-    closeButton->setSize(phi::sizef(30, 30));
-    closeButton->setX(getSize().w - 30);
-    closeButton->setY(0);
-    closeButton->getClick()->bind<screen, &screen::closeButtonClick>(this);
-    phi::uiSystem::get()->addControl(closeButton);
-
-    phi::uiSystem::get()->resize(getSize());
 }
 
 void screen::update()
 {
     _inputManager->update();
-    _commandsManager->update();
-    _inputManager->update();
-    //phi::colorAnimator::update(); <- fazer update na ui
-    phi::uiSystem::get()->update();
     _scene->update();
-
-    auto camera = _scene->getCamera();
-    auto frameUniformBlock = phi::frameUniformBlock();
-    frameUniformBlock.p = camera->getProjectionMatrix();
-    frameUniformBlock.v = camera->getViewMatrix();
-    frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
-
-    _pipeline->updateFrameUniformBlock(frameUniformBlock);
 }
 
 void screen::render()
 {
-    phi::uiSystem::get()->render();
-    _renderer->render();
+    _scene->render();
 }
 
 void screen::onResize(SDL_Event e)
 {
-    auto size = phi::sizef((float)e.window.data1, (float)e.window.data2);
-
-    setSize(size);
-    _scene->getCamera()->setResolution(size);
-    phi::uiSystem::get()->resize(size);
+    _scene->camera->setResolution(phi::vec2((float)e.window.data1, (float)e.window.data2));
 }
 
 void screen::onMouseDown(phi::mouseEventArgs* e)
@@ -194,10 +126,10 @@ void screen::onMouseWheel(phi::mouseEventArgs* e)
 
 void screen::onKeyDown(phi::keyboardEventArgs* e)
 {
-    if(_inputManager->onKeyDown(e))
+    if (_inputManager->onKeyDown(e))
         return;
 
-    if(e->key == PHIK_ESCAPE)
+    if (e->key == PHIK_ESCAPE)
         close();
 }
 

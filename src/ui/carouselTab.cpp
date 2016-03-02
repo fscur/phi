@@ -7,7 +7,8 @@ namespace phi
     carouselTab::carouselTab(sizef viewportSize) : control(viewportSize)
     {
         //_backgroundTexture = uiRepository::texturesRepository->getResource("button.png");
-        _backgroundRenderer = new quadRenderer2D(vec2(0, 0), 0.0f, sizef(0, 0, 0), viewportSize);
+        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
+        _backgroundRenderer = new quadRenderer2D(vec2(0, 0), 0.0f, sizeui(0, 0, 0), size);
         _scrollOffset = 0.0f;
         _targetScrollOffset = 0.0f;
     }
@@ -43,7 +44,8 @@ namespace phi
     void carouselTab::setSize(sizef value)
     {
         control::setSize(value);
-        _backgroundRenderer->setSize(value);
+        auto size = sizeui(value.w, value.h, value.d);
+        _backgroundRenderer->setSize(size);
         _backgroundRenderer->update();
     }
 
@@ -55,7 +57,8 @@ namespace phi
     void carouselTab::setViewportSize(sizef value)
     {
         control::setViewportSize(value);
-        _backgroundRenderer->setViewportSize(getViewportSize());
+        auto size = sizeui(value.w, value.h, value.d);
+        _backgroundRenderer->setViewportSize(size);
         _backgroundRenderer->update();
     }
 

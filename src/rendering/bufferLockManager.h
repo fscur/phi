@@ -1,5 +1,4 @@
-#ifndef _PHI_BUFFER_LOCK_H_
-#define _PHI_BUFFER_LOCK_H_
+#pragma once
 
 #include "rendering.h"
 
@@ -37,5 +36,3 @@ public:
     RENDERING_API void waitForLockedRange(size_t _lockBeginBytes, size_t _lockLength);
     RENDERING_API void lockRange(size_t _lockBeginBytes, size_t _lockLength);
 };
-
-#endif _PHI_BUFFER_LOCK_H_

@@ -1,5 +1,4 @@
-#ifndef _PHI_CONE_H_
-#define _PHI_CONE_H_
+#pragma once
 
 #include "scenes.h"
 
@@ -23,5 +22,3 @@ namespace phi
         SCENES_API ~cone();
     };
 }
-
-#endif

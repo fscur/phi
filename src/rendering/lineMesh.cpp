@@ -35,12 +35,12 @@ namespace phi
     {
         auto indices = new std::vector<GLuint>();
 
-        for (GLuint i = 0; i < indicesCount; i++)
+        for (GLuint i = 0; i < indicesCount; ++i)
             indices->push_back(indicesBuffer[i]);
 
         std::vector<vec3> positions;
 
-        for (GLuint i = 0; i < positionsCount; i++)
+        for (GLuint i = 0; i < positionsCount; ++i)
         {
             float x = positionsBuffer[i * 3 + 0];
             float y = positionsBuffer[i * 3 + 1];
@@ -74,7 +74,7 @@ namespace phi
         std::vector<vec3>::iterator i;
         unsigned int pIndex = 0;
 
-        for (auto i = 0; i < positions.size(); i++)
+        for (auto i = 0; i < positions.size(); ++i)
         {
             _positionsBuffer[i * 3] = positions[i].x;
             _positionsBuffer[i * 3 + 1] = positions[i].y;

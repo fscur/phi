@@ -4,8 +4,7 @@
 	From Sam Lantinga <slouken@libsdl.org>
 */
 
-#ifndef _PHI_KEYCODE_H_
-#define _PHI_KEYCODE_H_
+#pragma once
 
 #include "scancode.h"
 
@@ -305,7 +304,3 @@ typedef enum
 #define KEYMOD_SHIFT  (KMOD_LSHIFT|KMOD_RSHIFT)
 #define KEYMOD_ALT    (KMOD_LALT|KMOD_RALT)
 #define KEYMOD_GUI    (KMOD_LGUI|KMOD_RGUI)
-
-#endif /* _PHI_keycode_h */
-
-/* vi: set ts=4 sw=4 expandtab: */

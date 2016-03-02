@@ -1,5 +1,4 @@
-#ifndef _PHI_VERTEX_H_
-#define _PHI_VERTEX_H_
+#pragma once
 
 #include "globals.h"
 
@@ -38,4 +37,3 @@ namespace phi
         }
     };
 }
-#endif

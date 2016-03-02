@@ -1,184 +1,183 @@
 #include "pipeline.h"
-#include "shaderManager.h"
 #include "materialGpuData.h"
 #include "drawElementsIndirectCmd.h"
 
+#include <GL\glew.h>
+
 namespace phi
 {
-    void pipeline::init(pipelineInfo info)
+    pipeline::pipeline(phi::gl* gl) :
+        _gl(gl)
     {
-        createShader();
-
-        createMaterialsBuffer(info.materials);
-        createDrawCmdsBuffer(info.renderList);
-        createFrameUniformsBuffer(info.frameUniformBlock);
-
-        createVao(info.renderList);
-
-        setDefaultOpenGLStates(info.config);
+        createFrameUniformBlockBuffer();
+        createMaterialsBuffer();
     }
 
-    void pipeline::createShader()
+    pipeline::~pipeline()
     {
-        std::vector<std::string> attribs;
-        attribs.push_back("inPosition");
-        attribs.push_back("inTexCoord");
-        attribs.push_back("inNormal");
-        attribs.push_back("inTangent");
-        attribs.push_back("inMaterialId");
-        attribs.push_back("inModelMatrix");
+        delete _materialsBuffer;
+        delete _frameUniformBlockBuffer;
 
-        _shader = shaderManager::get()->loadShader("basic.vert", "basic.frag", attribs);
-        //_shader->addUniform(0, "vp");
-        _shader->bind();
+        auto batchesCount = batches.size();
+
+        for (auto i = 0; i < batchesCount; ++i)
+            delete batches[i];
     }
 
-    void pipeline::createMaterialsBuffer(std::vector<material*> materials)
+    void pipeline::createFrameUniformBlockBuffer()
     {
-        auto materialsGpu = std::vector<materialGpuData>();
+        _frameUniformBlockBuffer = new buffer(bufferTarget::uniform);
 
-        auto materialsCount = materials.size();
-        for (auto i = 0; i < materialsCount; i++)
-        {
-            auto material = materials[i];
-            _materialsMaterialsGpu[material] = i;
-            materialsGpu.push_back(materialGpuData::fromMaterial(*material));
-        }
+        _frameUniformBlockBuffer->storage(
+            sizeof(phi::frameUniformBlock),
+            nullptr,
+            bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
-        auto materialsBufferSize = materialsCount * sizeof(materialGpuData);
-        auto info = bufferDataInfo(&materialsGpu[0], GL_SHADER_STORAGE_BUFFER, materialsBufferSize, GL_STATIC_DRAW);
-
-        auto materialsBuffer = new buffer(info);
-        materialsBuffer->bindBufferBase(0);
-
-        _buffers.push_back(materialsBuffer);
+        _frameUniformBlockBuffer->bindBufferBase(0);
     }
 
-    void pipeline::createDrawCmdsBuffer(std::map<geometry*, std::vector<mesh*>> renderList)
+    void pipeline::createMaterialsBuffer()
     {
-        auto indicesOffset = 0;
-        auto verticesOffset = 0;
-        auto instancesOffset = 0;
-        std::vector<drawElementsIndirectCmd> drawCmdsBufferData;
-
-        for (auto &pair : renderList)
-        {
-            auto geometry = pair.first;
-            GLuint instanceCount = static_cast<GLuint>(pair.second.size());
-            GLuint indicesCount = geometry->indicesCount;
-
-            auto drawCmd = drawElementsIndirectCmd();
-            drawCmd.indicesCount = indicesCount;
-            drawCmd.instanceCount = instanceCount;
-            drawCmd.firstIndex = indicesOffset;
-            drawCmd.baseVertex = verticesOffset;
-            drawCmd.baseInstance = instancesOffset;
-
-            indicesOffset += indicesCount;
-            verticesOffset += geometry->verticesCount;
-            instancesOffset += instanceCount;
-
-            drawCmdsBufferData.push_back(drawCmd);
-        }
-
-        auto info = bufferDataInfo(&drawCmdsBufferData[0], GL_DRAW_INDIRECT_BUFFER, drawCmdsBufferData.size() * sizeof(drawElementsIndirectCmd), GL_STATIC_DRAW);
-        auto drawCmdsBuffer = new buffer(info);
-        drawCmdsBuffer->bind();
-
-        _buffers.push_back(drawCmdsBuffer);
-    }
-
-    void pipeline::createFrameUniformsBuffer(phi::frameUniformBlock frameUniformBlock)
-    {
-        auto info = bufferDataInfo(&frameUniformBlock, GL_UNIFORM_BUFFER, sizeof(phi::frameUniformBlock), GL_STATIC_DRAW);
-        auto frameUniformsBuffer = new buffer(info);
-        frameUniformsBuffer->bindBufferBase(1);
-
-        _buffers.push_back(frameUniformsBuffer);
-    }
-
-    void pipeline::createVao(std::map<geometry*, std::vector<mesh*>> renderList)
-    {
-        GLuint vboSize = 0;
-        GLuint eboSize = 0;
-        std::vector<mat4> modelMatrices;
-        uint drawCount = 0;
-
-        uint objectsCount = 0;
-
-        for (auto &pair : renderList)
-        {
-            vboSize += pair.first->vboSize;
-            eboSize += pair.first->eboSize;
-            drawCount += (uint)pair.second.size();
-            ++objectsCount;
-        }
-
-        vao = new vertexArrayObject(objectsCount);
-        vao->bind();
-
-        auto verticesCount = vboSize / sizeof(vertex);
-        auto indicesCount = eboSize / sizeof(uint);
-
-        auto vboData = new vertex[verticesCount];
-        auto eboData = new uint[indicesCount];
-        auto materialsIdsBufferData = new uint[drawCount];
-
-        auto vboOffset = 0;
-        auto eboOffset = 0;
-        auto drawIndex = -1;
-
-        for (auto &pair : renderList)
-        {
-            auto geometry = pair.first;
-            auto vboSize = geometry->vboSize;
-            memcpy(vboData + vboOffset, geometry->vboData, vboSize);
-            vboOffset += (vboSize / sizeof(vertex));
-
-            auto eboSize = geometry->eboSize;
-            memcpy(eboData + eboOffset, geometry->eboData, eboSize);
-            eboOffset += (eboSize / sizeof(uint));
-
-            auto meshes = pair.second;
-            auto meshesCount = meshes.size();
-
-            for (auto i = 0; i < meshesCount; i++)
-            {
-                auto mesh = meshes[i];
-                auto modelMatrix = mesh->getModelMatrix();
-                modelMatrices.push_back(modelMatrix);
-                materialsIdsBufferData[++drawIndex] = _materialsMaterialsGpu[mesh->material];
-            }
-        }
-
-        vao->createVbo(vboData, vboSize);
-        vao->createMaterialsIdsBuffer(materialsIdsBufferData, drawCount * sizeof(uint));
-        vao->createModelMatricesBuffer(&modelMatrices[0], drawCount * sizeof(mat4));
-        vao->createEbo(eboData, eboSize);
-    }
-
-    void pipeline::setDefaultOpenGLStates(phi::gl::config config)
-    {
-        glClearColor(config.clearColor.r, config.clearColor.g, config.clearColor.b, config.clearColor.a);
-
-        if (config.culling)
-            glEnable(GL_CULL_FACE);
-
-        auto cullBackFace = config.cullFace == phi::gl::cullFace::back;
-        glCullFace(cullBackFace ? GL_BACK: GL_FRONT);
-
-        auto frontFaceCCW = config.frontFace == phi::gl::frontFace::ccw;
-        glFrontFace(frontFaceCCW ? GL_CCW : GL_CW);
-
-        if (config.depthTest)
-            glEnable(GL_DEPTH_TEST);
-
-        auto depthMask = config.depthMask ? GL_TRUE : GL_FALSE;
-        glDepthMask(depthMask);
+        auto materialsBufferSize = MAX_MATERIALS_COUNT * sizeof(materialGpuData);
+        _materialsBuffer = new buffer(bufferTarget::shader);
+        _materialsBuffer->storage(materialsBufferSize, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
+        _materialsBuffer->bindBufferBase(1);
     }
 
     void pipeline::updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock)
     {
-        _buffers[2]->bufferSubData(&frameUniformBlock);
+        _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
+    }
+
+    void pipeline::addToBatches(node* n)
+    {
+        auto component = n->getComponent(component::componentType::MESH);
+        if (component)
+        {
+            auto mesh = static_cast<phi::mesh*>(component);
+            auto material = mesh->material;
+
+            if (!phi::contains(_loadedMaterials, material))
+                uploadMaterial(material);
+
+            auto geometry = mesh->geometry;
+            auto batchObject = phi::batchObject();
+            batchObject.mesh = mesh;
+            batchObject.geometry = geometry;
+            batchObject.materialId = _materialsMaterialsGpu[material];
+            batchObject.modelMatrix = n->getTransform()->getModelMatrix();
+
+            addToBatches(batchObject);
+        }
+
+        auto children = n->getChildren();
+
+        for (auto child : children)
+            addToBatches(child);
+    }
+
+    void pipeline::addToBatches(batchObject& batchObject)
+    {
+        auto i = 0;
+        auto added = false;
+        auto batchesCount = batches.size();
+
+        phi::batch* batch;
+
+        while (!added && i < batchesCount)
+        {
+            batch = batches[i++];
+            added = batch->add(batchObject);
+        }
+
+        if (!added)
+        {
+            batch = new phi::batch();
+            batches.push_back(batch);
+            batch->add(batchObject);
+        }
+
+        _meshesBatches[batchObject.mesh] = batch;
+    }
+
+    void pipeline::uploadMaterial(material* material)
+    {
+        if (_materialsMaterialsGpu.find(material) == _materialsMaterialsGpu.end())
+            _materialsMaterialsGpu[material] = static_cast<uint>(_materialsMaterialsGpu.size());
+
+        auto texturesManager = _gl->texturesManager;
+
+        auto albedoTextureAddress = texturesManager->add(material->albedoTexture);
+        auto normalTextureAddress = texturesManager->add(material->normalTexture);
+        auto specularTextureAddress = texturesManager->add(material->specularTexture);
+        auto emissiveTextureAddress = texturesManager->add(material->emissiveTexture);
+
+        auto materialGpuData = phi::materialGpuData(
+            albedoTextureAddress.unit,
+            normalTextureAddress.unit,
+            specularTextureAddress.unit,
+            emissiveTextureAddress.unit,
+            albedoTextureAddress.page,
+            normalTextureAddress.page,
+            specularTextureAddress.page,
+            emissiveTextureAddress.page,
+            material->albedoColor,
+            material->specularColor,
+            material->emissiveColor,
+            material->shininess,
+            material->reflectivity,
+            material->emission,
+            material->opacity);
+
+        auto offset = _materialsMaterialsGpu[material] * sizeof(phi::materialGpuData);
+
+        _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
+
+        _loadedMaterials.push_back(material);
+    }
+
+    void pipeline::add(node* n)
+    {
+        addToBatches(n);
+    }
+
+    void pipeline::updateBatches(node* n)
+    {
+        auto component = n->getComponent(component::componentType::MESH);
+        if (component)
+        {
+            auto mesh = static_cast<phi::mesh*>(component);
+            auto batch = _meshesBatches[mesh];
+            _nodesToUpdate[batch].push_back(n);
+        }
+
+        auto children = n->getChildren();
+        for (auto child : children)
+            updateBatches(child);
+    }
+
+    void pipeline::update(node* n)
+    {
+        updateBatches(n);
+
+        for (auto batch : batches)
+        {
+            std::vector<batchObject> bacthObjectsToUpdade;
+
+            for (auto n : _nodesToUpdate[batch])
+            {
+                auto mesh = static_cast<phi::mesh*>(n->getComponent(component::componentType::MESH));
+                auto batchObject = phi::batchObject();
+                batchObject.mesh = mesh;
+                batchObject.geometry = mesh->geometry;
+                batchObject.materialId = _materialsMaterialsGpu[mesh->material];
+                batchObject.modelMatrix = n->getTransform()->getModelMatrix();
+                bacthObjectsToUpdade.push_back(batchObject);
+            }
+
+            batch->update(bacthObjectsToUpdade);
+
+            _nodesToUpdate[batch].clear();
+        }
     }
 }

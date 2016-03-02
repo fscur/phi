@@ -1,5 +1,4 @@
-#ifndef _PHI_EVENT_SENDER_H_
-#define _PHI_EVENT_SENDER_H_
+#pragma once
 
 namespace phi
 {
@@ -7,5 +6,3 @@ namespace phi
     {
     };
 }
-
-#endif

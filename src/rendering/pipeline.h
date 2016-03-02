@@ -1,75 +1,46 @@
-#ifndef _PHI_PIPELINE_H_
-#define _PHI_PIPELINE_H_
+#pragma once
+
+#include <core\node.h>
 
 #include "rendering.h"
+#include "frameUniformBlock.h"
+#include "batch.h"
 #include "gl.h"
-#include "glConfig.h"
-#include "mesh.h"
-#include "buffer.h"
-#include "vertexArrayObject.h"
-#include "shader.h"
-
-#include <map>
-#include <vector>
 
 namespace phi
 {
-    struct frameUniformBlock
-    {
-        mat4 p;
-        mat4 v;
-        mat4 vp;
-    };
-
-    struct pipelineInfo
-    {
-        std::vector<material*> materials;
-        std::map<geometry*, std::vector<mesh*>> renderList;
-        phi::frameUniformBlock frameUniformBlock;
-        phi::gl::config config;
-    };
-
     class pipeline
     {
     private:
-        shader* _shader;
-        std::vector<buffer*> _buffers;
+        const uint MAX_MATERIALS_COUNT = 512;
+
         std::map<material*, uint> _materialsMaterialsGpu;
+        std::vector<material*> _loadedMaterials;
+        buffer* _materialsBuffer;
+        buffer* _frameUniformBlockBuffer;
+        std::map<mesh*, batch*> _meshesBatches;
+        std::map<batch*, std::vector<node*>> _nodesToUpdate;
+        phi::gl* _gl;
+
     public:
-        vertexArrayObject* vao;
+        std::vector<batch*> batches;
 
     private:
-        void createShader();
+        void createFrameUniformBlockBuffer();
+        void createMaterialsBuffer();
 
-        void createMaterialsBuffer(std::vector<material*> materials);
-        void createDrawCmdsBuffer(std::map<geometry*, std::vector<mesh*>> renderList);
-        void createFrameUniformsBuffer(phi::frameUniformBlock frameUniformBlock);
+        void addToBatches(node* n);
+        void addToBatches(batchObject& batchObject);
 
-        void createVao(std::map<geometry*, std::vector<mesh*>> renderList);
-
-        void setDefaultOpenGLStates(phi::gl::config config);
+        void updateBatches(node* n);
+        void uploadMaterial(material* material);
 
     public:
-        RENDERING_API pipeline() {}
+        RENDERING_API pipeline(phi::gl* gl);
+        RENDERING_API ~pipeline();
 
-        RENDERING_API ~pipeline()
-        {
-            delete vao;
-            
-            auto buffersCount = _buffers.size();
-
-            for (auto i = 0; i < buffersCount; i++)
-                delete _buffers[i];
-        }
-
-        RENDERING_API void init(phi::pipelineInfo pipelineInfo);
-
+        RENDERING_API void add(node* n);
+        RENDERING_API void update(node* n);
         RENDERING_API void updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock);
-
-        RENDERING_API void render() 
-        {
-        }
     };
 }
-
-#endif

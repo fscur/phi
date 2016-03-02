@@ -1,20 +1,19 @@
 #include "pointLight.h"
 
-#include <core/mathUtils.h>
-#include <rendering/shaderManager.h>
+#include <core\mathUtils.h>
+#include <rendering\shadersManager.h>
 
 namespace phi
 {
-    pointLight::pointLight(vec3 position, color color, float intensity, float range) :
-        light(position, color, intensity, objectType::POINT_LIGHT)
+    pointLight::pointLight(std::string name, color color, float intensity, float range, transform* transform) :
+        light(componentType::POINT_LIGHT, name, color, intensity, transform),
+        _boundingVolumeSides(5),
+        _range(range),
+        _oneOverRangeSqr(1.0f / (pow(_range, 2.0f)))
     {
-        _boundingVolumeSides = 5;
-        _range = range;
-        _oneOverRangeSqr = 1.0f / (pow(_range, 2.0f));
         auto radius = calcRange(_range, _boundingVolumeSides);
         auto d = 2.0f * radius;
-        setLocalPosition(position);
-        setSize(sizef(d, d, d));
+        transform->setLocalSize(vec3(d, d, d));
         _boundingVolume = sphere::create(radius, _boundingVolumeSides, _boundingVolumeSides, nullptr);
     }
 
@@ -38,6 +37,6 @@ namespace phi
         _oneOverRangeSqr = 1.0f / (pow(_range, 2.0f));
         auto radius = calcRange(value, _boundingVolumeSides);
         _boundingVolume->setRadius(radius);
-        setSize(sizef(radius * 2.0f, radius * 2.0f, radius * 2.0f));
+        _transform->setLocalSize(vec3(radius * 2.0f, radius * 2.0f, radius * 2.0f));
     }
 }

@@ -1,5 +1,4 @@
-#ifndef _PHI_COLOR_H_
-#define _PHI_COLOR_H_
+#pragma once
 
 #include "core.h"
 
@@ -71,4 +70,3 @@ namespace phi
         CORE_API static color orange;
     };
 }
-#endif

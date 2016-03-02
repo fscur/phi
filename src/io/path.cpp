@@ -1,5 +1,7 @@
 #include "path.h"
 
+#include <core\globals.h>
+
 #include <algorithm>
 #include <vector>
 #include <string>
@@ -50,7 +52,7 @@ namespace phi
 
     std::string path::getExtension(std::string path)
     {
-        auto dotIndex = path.find_last_of('.');
+        int dotIndex = static_cast<int>(path.find_last_of('.'));
 
         if (dotIndex < 0)
             return "";
@@ -58,7 +60,9 @@ namespace phi
         return path.substr(dotIndex, path.length() - dotIndex);
     }
 
-    std::vector<fileInfo> path::getFiles(const std::string& directory)
+    std::vector<fileInfo> path::getFiles(
+        const std::string& directory, 
+        std::vector<std::string> filters)
     {
 #ifdef WIN32
         std::vector<fileInfo> out;
@@ -68,11 +72,18 @@ namespace phi
         if ((dir = FindFirstFile((directory + "/*").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
             return out; /* No files found */
 
+        bool filterByExtension = filters.size() > 0;
+
         do 
         {
             const std::string file_name = file_data.cFileName;
             const std::string full_file_name = directory + "\\" + file_name;
             const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+            auto fileExtension = getExtension(file_name);
+
+            if (filterByExtension && !phi::contains(filters, fileExtension))
+                continue;
 
             fileInfo info;
             info.name = file_name;
@@ -178,14 +189,20 @@ namespace phi
 #endif
     }
 
-    std::string path::combine(const std::string& path0, const std::string& path1, std::initializer_list<std::string> args)
+    std::string path::combine(const std::string& path0, const std::string& path1, const std::string& extension)
     {
-        const auto separator = "\\";
-        auto combined = path0 + separator + path1;
+        auto combined = path0 + "\\" + path1;
+
+        return combined + extension;
+    }
+
+    std::string path::combine(std::initializer_list<std::string> args)
+    {
+        auto combined = std::string();
 
         for(auto arg : args)
         {
-            combined += separator + arg;
+            combined += "\\" + arg;
         }
 
         return combined;

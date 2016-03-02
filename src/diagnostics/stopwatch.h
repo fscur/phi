@@ -1,5 +1,4 @@
-#ifndef _PHI_STOPWATCH_H_
-#define _PHI_STOPWATCH_H_
+#pragma once
 
 #include "diagnostics.h"
 #include "console.h"
@@ -30,5 +29,3 @@ namespace phi
         DIAGNOSTICS_API static const double measureAverage(const std::function<void(void)> &function, const std::string &functionName, int numSamples);
     };
 }
-
-#endif

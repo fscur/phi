@@ -1,41 +1,95 @@
-#ifndef _PHI_GL_H_
-#define _PHI_GL_H_
+#pragma once
 
 #include <core\globals.h>
-
-#include <vector>
-#include <map>
-#include <string>
-
-#include <GL\glew.h>
+#include "rendering.h"
+#include "material.h"
+#include "texturesManager.h"
+#include "shadersManager.h"
 
 namespace phi
 {
-    namespace gl
+    class gl
     {
-        static std::map<std::string, bool> extensions;
-
-        static void initExtensions()
+    public:
+        enum frontFace
         {
-            const GLubyte* extension = nullptr;
-            auto i = 0;
+            cw = GL_CW,
+            ccw = GL_CCW
+        };
 
-            extension = glGetStringi(GL_EXTENSIONS, i++);
-            std::vector<std::string> glExtensions;
+        enum cullFace
+        {
+            front = GL_FRONT,
+            back = GL_BACK
+        };
 
-            while (extension != NULL)
-            {
-                glExtensions.push_back(std::string((char*)extension));
-                extension = glGetStringi(GL_EXTENSIONS, i++);
-            }
+        struct state
+        {
+        public:
+            vec4 clearColor;
+            bool culling;
+            bool depthTest;
+            bool depthMask;
+            frontFace frontFace;
+            cullFace cullFace;
+            bool useBindlessTextures;
+            bool useSparseTextures;
 
-            std::vector<std::string> phiExtensions;
-            phiExtensions.push_back("GL_ARB_bindless_texture");
+        public:
+            state(
+                vec4 clearColor = vec4(0.0f),
+                bool culling = true,
+                bool depthTest = true,
+                bool depthMask = true,
+                gl::frontFace frontFace = gl::frontFace::ccw,
+                gl::cullFace cullFace = gl::cullFace::back,
+                bool useBindlessTextures = false,
+                bool useSparseTextures = false):
+                clearColor(clearColor),
+                culling(culling),
+                depthTest(depthTest),
+                depthMask(depthMask),
+                frontFace(frontFace),
+                cullFace(cullFace),
+                useBindlessTextures(useBindlessTextures),
+                useSparseTextures(useSparseTextures)
+            {}
+        };
 
-            for (auto &extension : phiExtensions)
-                extensions[extension] = phi::contains(glExtensions, extension);
-        }
-    }
+        struct glInfo
+        {
+            public:
+            gl::state state;
+            std::string shadersPath;
+        public:
+            glInfo() {}
+        };
+
+    private:
+        static bool _initialized;
+
+    private:
+        void printOpenGLDetails();
+        void initOpenGLExtensions();
+        void initState();
+        void initDefaultResources(bool sparse);
+        texture* createDefaultTexture(bool sparse, vec4 color);
+        void createDefaultMaterial();
+
+    public:
+        phi::texturesManager* texturesManager;
+        phi::shadersManager* shadersManager;
+        gl:: state currentState;
+        std::map<std::string, bool> extensions;
+        material* defaultMaterial;
+        texture* defaultAlbedoTexture;
+        texture* defaultNormalTexture;
+        texture* defaultSpecularTexture;
+        texture* defaultEmissiveTexture;
+    public:
+        RENDERING_API gl(gl::glInfo initInfo);
+        RENDERING_API ~gl();
+        RENDERING_API std::string getErrorString(GLenum error);
+        RENDERING_API void printError(std::string msg);
+    };
 }
-
-#endif

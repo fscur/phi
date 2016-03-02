@@ -1,7 +1,5 @@
 #include "uiSystem.h"
 
-#include <rendering\renderingSystem.h>
-
 #include "floatAnimator.h"
 
 #include <algorithm>
@@ -45,9 +43,9 @@ namespace phi
 
         control::init(info.size);
         input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
-        _cursorRenderer = new quadRenderer2D(vec2(), 1.0f, sizef(), sizef());
+        _cursorRenderer = new quadRenderer2D(vec2(), 1.0f, sizeui(), sizeui());
         setCursor(phi::uiRepository::cursorDefault);
-        _cursorRenderer->setViewportSize(info.size);
+        _cursorRenderer->setViewportSize(sizeui(info.size.w, info.size.h, info.size.d));
         dragDropController::get()->init(info.size);
         dragDropController::get()->getDradDropEnded()->bind<uiSystem, &uiSystem::dragDropEnded>(this);
     }
@@ -69,7 +67,7 @@ namespace phi
         vec2 hotPoint = _cursor->getHotPoint();
         _cursorRenderer->setLocation(vec2(mousePos.x - textureWitdh * hotPoint.x, mousePos.y - textureHeight * hotPoint.y));
         _cursorRenderer->setZIndex(50.0f);
-        _cursorRenderer->setSize(sizef((float)textureWitdh, (float)textureHeight));
+        _cursorRenderer->setSize(sizeui((float)textureWitdh, (float)textureHeight));
         _cursorRenderer->update();
     }
 
@@ -278,7 +276,7 @@ namespace phi
             control->setViewportSize(size);
         }
 
-        _cursorRenderer->setViewportSize(_info.size);
+        _cursorRenderer->setViewportSize(sizeui(_info.size.w, _info.size.h, _info.size.d));
         _cursorRenderer->update();
     }
 

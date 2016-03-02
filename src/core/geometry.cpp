@@ -128,8 +128,8 @@ namespace phi
             vec2 uv1 = tc2 - tc0;
 
             float r = 1.0f / (uv0.x * uv1.y - uv0.y * uv1.x);
-            vec3 tangent = normalize((v0 * uv1.y - v1 * uv0.y) * r);
-            vec3 bitangent = normalize((v1 * uv0.x - v0 * uv1.x) * r);
+            vec3 tangent = glm::normalize((v0 * uv1.y - v1 * uv0.y) * r);
+            vec3 bitangent = glm::normalize((v1 * uv0.x - v0 * uv1.x) * r);
 
             vertices[i0].tangent = tangent;
             vertices[i1].tangent = tangent;
@@ -147,7 +147,7 @@ namespace phi
             vec3 b = bitangents[i];
 
             // Gram-Schmidt orthogonalize
-            t = normalize(t - n * dot(n, t));
+            t = glm::normalize(t - n * dot(n, t));
 
             if (dot(cross(n, t), b) < 0.0f)
                 t = t * -1.0f;

@@ -12,50 +12,102 @@
 
 namespace phi
 {
-    object3D* importer::readNode(const rapidjson::Value& node, std::string currentFolder, resourcesRepository<material>* materialsRepo)
+    material* importer::defaultMaterial = nullptr;
+    texture* importer::defaultAlbedoTexture = nullptr;
+    texture* importer::defaultNormalTexture = nullptr;
+    texture* importer::defaultSpecularTexture = nullptr;
+    texture* importer::defaultEmissiveTexture = nullptr;
+
+    node* importer::readNode(const rapidjson::Value& jsonNode, std::string currentFolder, resourcesRepository<material>* materialsRepo)
     {
-        auto type = node["Type"].GetInt();
-        object3D* objectNode = nullptr;
+        auto objectNode = new node();
 
-        switch (type)
+        const rapidjson::Value& components = jsonNode["Components"];
+        auto componentsCount = components.Size();
+        for (rapidjson::SizeType i = 0; i < componentsCount; i++)
         {
-            case 0:
+            auto type = components[i]["Type"].GetInt();
+            component* component = nullptr;
+
+            switch (type)
             {
-                auto model = new phi::model(node["Name"].GetString());
-                objectNode = model;
-                break;
+                case 0:
+                {
+                    component = new phi::model(components[i]["Name"].GetString());
+                    break;
+                }
+                case 1:
+                {
+                    auto geometryPath = components[i]["GeometryPath"].GetString();
+                    phi::geometry* geometry = nullptr;
+                    importGeometry(currentFolder + "\\" + geometryPath, geometry);
+
+                    auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
+                    auto matRes = materialsRepo->getResource(materialGuid);
+
+                    material* mat;
+                    if (matRes == nullptr)
+                        mat = defaultMaterial;
+                    else
+                        mat = matRes->getObject();
+
+                    component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
+                    break;
+                }
             }
-            case 1:
-            {
-                auto geometryPath = node["GeometryPath"].GetString();
-                phi::geometry* geometry = nullptr;
-                importGeometry(currentFolder + "\\" + geometryPath, geometry);
-
-                auto materialGuid = convertToGuid(node["MaterialGuid"].GetString());
-                auto matRes = materialsRepo->getResource(materialGuid);
-
-                material* mat;
-                if (matRes == nullptr)
-                    mat = material::default();
-                else
-                    mat = matRes->getObject();
-
-                auto mesh = new phi::mesh(node["Name"].GetString(), geometry, mat);
-                objectNode = mesh;
-                break;
-            }
+            objectNode->addComponent(component);
         }
 
-        if (!node.HasMember("Children"))
-            return objectNode;
-
-        const rapidjson::Value& children = node["Children"];
+        const rapidjson::Value& children = jsonNode["Children"];
         auto childrenCount = children.Size();
         for (rapidjson::SizeType i = 0; i < childrenCount; i++)
         {
             auto child = readNode(children[i], currentFolder, materialsRepo);
             objectNode->addChild(child);
         }
+
+        //auto type = node["Type"].GetInt();
+        //object3D* objectNode = nullptr;
+
+        //switch (type)
+        //{
+        //    case 0:
+        //    {
+        //        auto model = new phi::model(node["Name"].GetString());
+        //        objectNode = model;
+        //        break;
+        //    }
+        //    case 1:
+        //    {
+        //        auto geometryPath = node["GeometryPath"].GetString();
+        //        phi::geometry* geometry = nullptr;
+        //        importGeometry(currentFolder + "\\" + geometryPath, geometry);
+
+        //        auto materialGuid = convertToGuid(node["MaterialGuid"].GetString());
+        //        auto matRes = materialsRepo->getResource(materialGuid);
+
+        //        material* mat;
+        //        if (matRes == nullptr)
+        //            mat = defaultMaterial;
+        //        else
+        //            mat = matRes->getObject();
+
+        //        auto mesh = new phi::mesh(node["Name"].GetString(), geometry, mat);
+        //        objectNode = mesh;
+        //        break;
+        //    }
+        //}
+
+        //if (!node.HasMember("Children"))
+        //    return objectNode;
+
+        //const rapidjson::Value& children = node["Children"];
+        //auto childrenCount = children.Size();
+        //for (rapidjson::SizeType i = 0; i < childrenCount; i++)
+        //{
+        //    auto child = readNode(children[i], currentFolder, materialsRepo);
+        //    objectNode->addChild(child);
+        //}
 
         return objectNode;
     }
@@ -66,106 +118,21 @@ namespace phi
         return *reinterpret_cast<GUID*>(guidBytes.data());
     }
 
-    int importer::importModel(std::string fileName, model*& resultModel)
-    {
-        auto modelName = path::getFileNameWithoutExtension(fileName);
-        GLuint meshCount = 0;
-
-        std::vector<geometry*>* geometries = new std::vector<geometry*>();
-        if (!importer::importMesh(fileName, geometries))
-        {
-            log("Failed to load mesh:" + modelName);
-            return 0;
-        }
-
-        resultModel = new model(modelName);
-
-        auto name = path::getFileNameWithoutExtension(fileName);
-        auto dir = path::getDirectoryFullName(fileName);
-        auto thumbnailPath = dir + "\\" + name + ".th";
-        resource<texture>* thumbnailRes;
-        if (importTexture(thumbnailPath, thumbnailRes))
-        {
-            //TODO: badass if!
-        }
-
-        auto i = 0;
-        for (auto geometry : *geometries)
-        {
-            auto meshName = modelName + "_mesh_" + std::to_string(meshCount++);
-
-            auto m = new mesh(meshName, geometry, material::default());
-
-            resultModel->addChild(m);
-        }
-
-        return 1;
-    }
-
-    int importer::importMesh(std::string fileName, std::vector<geometry*>* data)
-    {
-        std::ifstream iFile;
-        iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
-
-        if (!iFile.is_open())
-        {
-            std::cout << "ERROR: File " << fileName << "coult not be loaded." << std::endl;
-            return 0;
-        }
-
-        auto uintSize = sizeof(unsigned int);
-        auto floatSize = (unsigned int)sizeof(float);
-        *data = std::vector<geometry*>();
-
-        while (iFile.peek() != -1)
-        {
-            char* materialName = new char[256];
-            iFile.read(materialName, 256);
-
-            unsigned int verticesCount = -1;
-            iFile.read(reinterpret_cast<char*>(&verticesCount), uintSize);
-
-            unsigned int positionsSize = verticesCount * 3 * floatSize;
-            unsigned int texCoordsSize = verticesCount * 2 * floatSize;
-            unsigned int normalsSize = verticesCount * 3 * floatSize;
-
-            float* positionsBuffer = new float[verticesCount * 3];
-            float* texCoordsBuffer = new float[verticesCount * 2];
-            float* normalsBuffer = new float[verticesCount * 3];
-
-            iFile.read(reinterpret_cast<char*>(positionsBuffer), positionsSize);
-            iFile.read(reinterpret_cast<char*>(texCoordsBuffer), texCoordsSize);
-            iFile.read(reinterpret_cast<char*>(normalsBuffer), normalsSize);
-
-            unsigned int indicesCount = -1;
-            iFile.read(reinterpret_cast<char*>(&indicesCount), uintSize);
-
-            unsigned int* indicesBuffer = new unsigned int[indicesCount];
-            iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * uintSize);
-
-            auto geometry = geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
-
-            data->push_back(geometry);
-        }
-
-        return 1;
-    }
-
-    int importer::importObject3D(std::string fileName, resource<object3D>*& objectResource, resourcesRepository<material>* materialsRepo)
+    int importer::importNode(std::string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo)
     {
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
         char readBuffer[65536];
         rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
-        rapidjson::Document d;
-        d.ParseStream(is);
+        rapidjson::Document doc;
+        doc.ParseStream(is);
 
         auto currentFolder = path::getDirectoryFullName(fileName);
-        auto rootNode = readNode(d, currentFolder, materialsRepo);
 
-        auto guid = convertToGuid(d["Guid"].GetString());
+        auto rootNode = readNode(doc["Node"], currentFolder, materialsRepo);
+        auto guid = convertToGuid(doc["Guid"].GetString());
 
-        objectResource = new resource<object3D>(guid, path::getFileNameWithoutExtension(fileName), rootNode);
+        objectResource = new resource<node>(guid, path::getFileNameWithoutExtension(fileName), rootNode);
 
         fclose(fp);
 
@@ -212,12 +179,13 @@ namespace phi
         return 1;
     }
 
-    int importer::importTexture(std::string fileName, texture*& tex)
+    int importer::importTexture(std::string fileName, texture*& texture)
     {
         SDL_Surface* surface = IMG_Load(fileName.c_str());
         SDL_InvertSurface(surface);
 
-        GLenum format = 0;
+        GLenum format = GL_BGRA;
+
         switch (surface->format->BitsPerPixel)
         {
             case 24:
@@ -228,7 +196,7 @@ namespace phi
                 break;
             case 32:
                 if (surface->format->Rmask == 255)
-                    format = GL_RGBA;
+                    format = GL_RGBA; 
                 else
                     format = GL_BGRA;
                 break;
@@ -238,10 +206,16 @@ namespace phi
         auto data = malloc(surface->w * surface->h * totalBytes);
         memcpy(data, surface->pixels, surface->w * surface->h * totalBytes);
 
-        tex = new texture((uint)surface->w, (uint)surface->h, GL_RGBA, format, GL_UNSIGNED_BYTE, (byte*)data);
+        texture = new phi::texture(
+            (uint)surface->w, 
+            (uint)surface->h, 
+            GL_TEXTURE_2D,
+            GL_RGBA8,
+            format, 
+            GL_UNSIGNED_BYTE,
+            (byte*)data);
 
         SDL_FreeSurface(surface);
-
         return 1;
     }
 
@@ -287,17 +261,17 @@ namespace phi
         auto normalTextureGuid = convertToGuid(d["NormalTextureGuid"].GetString());
         auto specularTextureGuid = convertToGuid(d["SpecularTextureGuid"].GetString());
         auto emissiveTextureGuid = convertToGuid(d["EmissiveTextureGuid"].GetString());
-        auto albedoTexture = texturesRepo->getResource(albedoTextureGuid);
-        auto normalTexture = texturesRepo->getResource(normalTextureGuid);
-        auto specularTexture = texturesRepo->getResource(specularTextureGuid);
-        auto emissiveTexture = texturesRepo->getResource(emissiveTextureGuid);
+        auto albedoTextureResource = texturesRepo->getResource(albedoTextureGuid);
+        auto normalTextureResource = texturesRepo->getResource(normalTextureGuid);
+        auto specularTextureResource = texturesRepo->getResource(specularTextureGuid);
+        auto emissiveTextureResource = texturesRepo->getResource(emissiveTextureGuid);
 
         const rapidjson::Value& albedoColorNode = d["AlbedoColor"];
         const rapidjson::Value& specularColorNode = d["SpecularColor"];
         const rapidjson::Value& emissiveColorNode = d["EmissiveColor"];
-        auto albedoColor = vec3((float)albedoColorNode["R"].GetDouble(), (float)albedoColorNode["G"].GetDouble(), (float)albedoColorNode["B"].GetDouble());
-        auto specularColor = vec3((float)specularColorNode["R"].GetDouble(), (float)specularColorNode["G"].GetDouble(), (float)specularColorNode["B"].GetDouble());
-        auto emissiveColor = vec3((float)emissiveColorNode["R"].GetDouble(), (float)emissiveColorNode["G"].GetDouble(), (float)emissiveColorNode["B"].GetDouble());
+        auto albedoColor = vec3((float)albedoColorNode[0].GetDouble(), (float)albedoColorNode[1].GetDouble(), (float)albedoColorNode[2].GetDouble());
+        auto specularColor = vec3((float)specularColorNode[0].GetDouble(), (float)specularColorNode[1].GetDouble(), (float)specularColorNode[2].GetDouble());
+        auto emissiveColor = vec3((float)emissiveColorNode[0].GetDouble(), (float)emissiveColorNode[1].GetDouble(), (float)emissiveColorNode[2].GetDouble());
 
         auto shininess = (float)d["Shininess"].GetDouble();
         auto reflectivity = (float)d["Reflectivity"].GetDouble();
@@ -306,11 +280,16 @@ namespace phi
 
         fclose(fp);
 
+        auto albedoTexture = albedoTextureResource == nullptr ? defaultAlbedoTexture : albedoTextureResource->getObject();
+        auto normalTexture = normalTextureResource == nullptr ? defaultNormalTexture : normalTextureResource->getObject();
+        auto specularTexture = specularTextureResource == nullptr ? defaultSpecularTexture : specularTextureResource->getObject();
+        auto emissiveTexture = emissiveTextureResource == nullptr ? defaultEmissiveTexture : emissiveTextureResource->getObject();
+
         auto mat = new material(
-            albedoTexture == nullptr ? texture::defaultAlbedo() : albedoTexture->getObject(),
-            normalTexture == nullptr ? texture::defaultNormal() : normalTexture->getObject(),
-            specularTexture == nullptr ? texture::defaultSpecular() : specularTexture->getObject(),
-            emissiveTexture == nullptr ? texture::defaultEmissive() : emissiveTexture->getObject(),
+            albedoTexture,
+            normalTexture,
+            specularTexture,
+            emissiveTexture,
             albedoColor,
             specularColor,
             emissiveColor,

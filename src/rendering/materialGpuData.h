@@ -1,5 +1,4 @@
-#ifndef _PHI_MATERIAL_GPU_DATA_H_
-#define _PHI_MATERIAL_GPU_DATA_H_
+#pragma once
 
 #include "material.h"
 
@@ -8,10 +7,14 @@ namespace phi
     struct materialGpuData
     {
     private:
-        GLuint64 albedoTexture;
-        GLuint64 normalTexture;
-        GLuint64 specularTexture;
-        GLuint64 emissiveTexture;
+        int albedoTextureUnit;
+        int normalTextureUnit;
+        int specularTextureUnit;
+        int emissiveTextureUnit;
+        float albedoTexturePage;
+        float normalTexturePage;
+        float specularTexturePage;
+        float emissiveTexturePage;
         vec3 albedoColor;
         float shininess;
         vec3 specularColor;
@@ -25,10 +28,14 @@ namespace phi
 
     public:
         materialGpuData(
-            GLuint64 albedoTexture = 0,
-            GLuint64 normalTexture = 0,
-            GLuint64 specularTexture = 0,
-            GLuint64 emissiveTexture = 0,
+            int albedoTextureUnit = 0,
+            int normalTextureUnit = 0,
+            int specularTextureUnit = 0,
+            int emissiveTextureUnit = 0,
+            float albedoTexturePage = 0.0f,
+            float normalTexturePage = 0.0f,
+            float specularTexturePage = 0.0f,
+            float emissiveTexturePage = 0.0f,
             vec3 albedoColor = vec3(1.0f),
             vec3 specularColor = vec3(1.0f),
             vec3 emissiveColor = vec3(1.0f),
@@ -36,10 +43,14 @@ namespace phi
             float reflectivity = 0.0f,
             float emission = 0.0f,
             float opacity = 1.0f) :
-            albedoTexture(albedoTexture),
-            normalTexture(normalTexture),
-            specularTexture(specularTexture),
-            emissiveTexture(emissiveTexture),
+            albedoTextureUnit(albedoTextureUnit),
+            normalTextureUnit(normalTextureUnit),
+            specularTextureUnit(specularTextureUnit),
+            emissiveTextureUnit(emissiveTextureUnit),
+            albedoTexturePage(albedoTexturePage),
+            normalTexturePage(normalTexturePage),
+            specularTexturePage(specularTexturePage),
+            emissiveTexturePage(emissiveTexturePage),
             albedoColor(albedoColor),
             specularColor(specularColor),
             emissiveColor(emissiveColor),
@@ -51,22 +62,5 @@ namespace phi
             pad1(0.0f),
             pad2(0.0f)
         {}
-
-        static materialGpuData fromMaterial(phi::material material)
-        {
-            return materialGpuData(
-                material.albedoTexture->handle,
-                material.normalTexture->handle,
-                material.specularTexture->handle,
-                material.emissiveTexture->handle,
-                material.albedoColor,
-                material.specularColor,
-                material.emissiveColor,
-                material.shininess,
-                material.reflectivity,
-                material.emission,
-                material.opacity);
-        }
     };
 }
-#endif

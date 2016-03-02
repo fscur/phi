@@ -1,5 +1,4 @@
-#ifndef _PHI_COMMAND_H_
-#define _PHI_COMMAND_H_
+#pragma once
 
 #include <core\size.h>
 
@@ -42,5 +41,3 @@ public:
     void startAsync(std::function<void(command*)> finishedCallback);
     void startUndoAsync(std::function<void(command*)> finishedCallback);
 };
-
-#endif
