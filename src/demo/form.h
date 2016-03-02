@@ -1,29 +1,22 @@
 #pragma once
+#include <precompiled.h>
 
-#include "demo.h"
-
-#include <core/globals.h>
 #include <core/size.h>
 #include <core/mouseEventArgs.h>
 #include <core/keyboardEventArgs.h>
 
-#include <SDL/SDL.h>
-
-#ifdef WIN32
-#include <windows.h>
-#endif
 
 class form
 {
 private:
-    std::string _title;
+    phi::string _title;
     bool _isClosed;
     bool _isFullScreen;
     SDL_Window* _window;
     SDL_GLContext _glContext;
     SDL_Thread* _renderThread;
 
-    std::string _applicationPath;
+    phi::string _applicationPath;
     phi::vec2 _lastMousePos;
 
     HWND _hwnd;
@@ -44,17 +37,17 @@ public:
     form();
     ~form();
 
-    std::string getTitle() const { return _title; }
+    phi::string getTitle() const { return _title; }
     phi::sizef getSize() const { return _size; }
     bool getIsFullScreen() const { return _isFullScreen; }
-    std::string getApplicationPath() const { return _applicationPath; }
+    phi::string getApplicationPath() const { return _applicationPath; }
     SDL_Window* getWindow() const { return _window; }
     SDL_GLContext getGlContext() const { return _glContext; }
 
 #ifdef WIN32
     HWND getHwnd() const { return _hwnd; }
 #endif
-    void setTitle(std::string value);
+    void setTitle(phi::string value);
     void setSize(phi::sizef value);
     void setIsFullScreen(bool value);
     void show();
@@ -71,7 +64,7 @@ public:
     virtual void onKeyDown(phi::keyboardEventArgs* e){}
     virtual void onKeyUp(phi::keyboardEventArgs* e){}
 
-    void initialize(std::string applicationPath);
+    void initialize(phi::string applicationPath);
     bool loop();
     void centerScreen();
     void close();

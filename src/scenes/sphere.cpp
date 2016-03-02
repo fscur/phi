@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "sphere.h"
 
 namespace phi
@@ -11,8 +12,8 @@ namespace phi
     {
         float piOver2 = PI * 0.5f;
 
-        std::vector<vertex> vertices;
-        std::vector<uint> indices;
+        vector<vertex> vertices;
+        vector<uint> indices;
 
         float const R = 1.0f / (float)(rings - 1.0f);
         float const S = 1.0f / (float)(sectors - 1.0f);

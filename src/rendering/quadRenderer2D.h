@@ -1,8 +1,8 @@
 #pragma once
+#include <precompiled.h>
 #include "rendering.h"
 
 #include <core\size.h>
-#include <core\globals.h>
 
 #include "shadersManager.h"
 #include "shader.h"

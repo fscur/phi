@@ -1,8 +1,7 @@
 #pragma once
-
+#include <precompiled.h>
 #include "texture.h"
 #include "textureAddress.h"
-#include <map>
 
 namespace phi
 {
@@ -53,7 +52,7 @@ namespace phi
         GLuint id;
         GLuint64 handle;
         std::map<texture*, phi::textureAddress> texturesAddresses;
-        std::vector<texture*> textures;
+        vector<texture*> textures;
 
         textureContainer(
             textureContainerLayout layout,

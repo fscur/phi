@@ -1,5 +1,5 @@
 #pragma once
-
+#include <precompiled.h>
 #include "texture.h"
 
 namespace phi
@@ -20,7 +20,7 @@ namespace phi
         float opacity;
 
     public:
-        RENDERING_API material(
+        material(
             texture* albedoTexture,
             texture* normalTexture,
             texture* specularTexture,

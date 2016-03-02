@@ -1,22 +1,10 @@
+#include <precompiled.h>
 #include "form.h"
 
 #include <core\input.h>
-#include <core\globals.h>
 #include <core\clock.h>
 #include <diagnostics\stopwatch.h>
 
-#include <string>
-#include <locale>
-#include <codecvt>
-
-#if WIN32
-#include <GL/glew.h>
-#include <SDL\SDL_syswm.h>
-#else
-#include <OpenGL/gl3.h>
-#endif
-
-#define THREADS_OFF
 
 form::form()
 {
@@ -37,7 +25,7 @@ form::~form()
     _window = nullptr;
 }
 
-void form::setTitle(std::string value)
+void form::setTitle(phi::string value)
 { 
     _title = value;
 
@@ -70,7 +58,7 @@ void form::setIsFullScreen(bool value)
     }
 }
 
-void form::initialize(std::string applicationPath)
+void form::initialize(phi::string applicationPath)
 {
     SDL_Event e;
     while (SDL_PollEvent(&e) != 0);
@@ -84,7 +72,7 @@ void form::initWindow()
 
     SDL_Rect r;
     if (SDL_GetDisplayBounds(0, &r) != 0)
-        phi::log("SDL_GetDisplayBounds failed: " +std::string(SDL_GetError()));
+        phi::log("SDL_GetDisplayBounds failed: " +phi::string(SDL_GetError()));
 
     //createGLWindow
     _window = SDL_CreateWindow(
@@ -101,7 +89,7 @@ void form::initWindow()
     _isFullScreen = false;
 
     if (_window == NULL)
-        phi::log("Window could not be created! SDL_Error: " + std::string(SDL_GetError()));
+        phi::log("Window could not be created! SDL_Error: " + phi::string(SDL_GetError()));
 
     int width = 0;
     int height = 0;
@@ -123,7 +111,7 @@ void form::initWindow()
     _glContext = SDL_GL_CreateContext(_window);
 
     if (!_glContext)
-        phi::log("Could not create context: " + std::string(SDL_GetError()));
+        phi::log("Could not create context: " + phi::string(SDL_GetError()));
 
 
     SDL_GL_SetSwapInterval(0);
@@ -134,7 +122,7 @@ void form::initWindow()
     GLenum glewInitStatus = glewInit();
 
     if(glewInitStatus != GLEW_OK)
-        phi::log("Error: " + std::string(reinterpret_cast<const char*>(glewGetErrorString(glewInitStatus))));
+        phi::log("Error: " + phi::string(reinterpret_cast<const char*>(glewGetErrorString(glewInitStatus))));
 
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
@@ -302,7 +290,7 @@ int form::renderLoop()
     int s = SDL_GL_MakeCurrent(_window, _glContext);
 
     if (s != 0)
-        phi::log(std::string(SDL_GetError()));
+        phi::log(phi::string(SDL_GetError()));
 
     while (!_isClosed)
     {

@@ -1,5 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
+#include "core.h"
 #include "vertex.h"
 
 namespace phi
@@ -30,7 +31,7 @@ namespace phi
             delete[] eboData;
         }
 
-        CORE_API static geometry* create(std::vector<vertex> vertices, std::vector<uint> indices);
+        CORE_API static geometry* create(vector<vertex> vertices, vector<uint> indices);
         CORE_API static geometry* create(
             uint verticesCount,
             float* positionsBuffer,
@@ -39,7 +40,7 @@ namespace phi
             uint indicesCount,
             uint* indicesBuffer);
 
-        CORE_API static void calcNormals(std::vector<vertex> &vertices, std::vector<uint> &indices);
-        CORE_API static void calcTangents(std::vector<vertex> &vertices, std::vector<uint> &indices);
+        CORE_API static void calcNormals(vector<vertex>& vertices, vector<uint>& indices);
+        CORE_API static void calcTangents(vector<vertex>& vertices, vector<uint>& indices);
     };
 }

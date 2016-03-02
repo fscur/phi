@@ -1,5 +1,5 @@
-#ifndef _PHI_CAROUSEL_ITEM_H_
-#define _PHI_CAROUSEL_ITEM_H_
+#pragma once
+#include <precompiled.h>
 
 #include <rendering\quadRenderer2D.h>
 
@@ -19,5 +19,3 @@ namespace phi
         UI_API std::string getName() { return _name; }
     };
 }
-
-#endif

@@ -1,14 +1,11 @@
-#ifndef _PHI_CURSOR_H_
-#define _PHI_CURSOR_H_
+#pragma once
+#include <precompiled.h>
 
-#include <core\globals.h>
 #include <core\resource.h>
 
 #include <rendering/texture.h>
 
 #include "ui.h"
-
-#include <string>
 
 namespace phi
 {
@@ -26,5 +23,3 @@ namespace phi
         vec2 getHotPoint() { return _hotPoint; }
     };
 }
-
-#endif

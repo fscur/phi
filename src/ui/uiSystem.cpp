@@ -1,8 +1,7 @@
+#include <precompiled.h>
 #include "uiSystem.h"
 
 #include "floatAnimator.h"
-
-#include <algorithm>
 
 namespace phi
 {

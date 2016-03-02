@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "translationControl.h"
 
 #include <rendering\shadersManager.h>
@@ -5,10 +6,6 @@
 #include <rendering\lineMesh.h>
 
 #include "colorAnimator.h"
-
-#include <bullet\btBulletDynamicsCommon.h>
-#include <GLM\gtc\constants.hpp>
-#include <GLM\gtx\rotate_vector.hpp>
 
 namespace phi
 {

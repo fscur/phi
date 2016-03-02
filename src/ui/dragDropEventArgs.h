@@ -1,9 +1,7 @@
-#ifndef _PHI_DRAG_DROP_EVENT_ARGS_H_
-#define _PHI_DRAG_DROP_EVENT_ARGS_H_
+#pragma once
+#include <precompiled.h>
 
 #include <core\eventArgs.h>
-
-#include <string>
 
 namespace phi
 {
@@ -22,5 +20,3 @@ namespace phi
         }
     };
 }
-
-#endif

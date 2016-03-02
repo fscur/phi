@@ -1,7 +1,6 @@
 #pragma once
-
-#include "globals.h"
-#include "size.h"
+#include <precompiled.h>
+#include "core.h"
 
 namespace phi
 {
@@ -22,9 +21,8 @@ namespace phi
     public:
 
         CORE_API aabb() { }
-        CORE_API aabb(vec3 position, sizef size);
         CORE_API aabb(vec3 min, vec3 max);
-        CORE_API aabb(const std::vector<vec3> &points);
+        CORE_API aabb(const vector<vec3> &points);
         CORE_API ~aabb() { };
 
         CORE_API inline vec3 getMin() const { return _min; }
@@ -46,6 +44,6 @@ namespace phi
 
         CORE_API bool contains(vec3 position) const;
 
-        CORE_API void update(const std::vector<vec3> &points);
+        CORE_API void update(const vector<vec3> &points);
     };
 }

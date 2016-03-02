@@ -1,5 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
+#include "scenes.h"
 #include <rendering/attenuation.h>
 
 #include "light.h"
@@ -21,7 +22,7 @@ namespace phi
 
     public:
 
-        SCENES_API pointLight(std::string name, color color, float intensity, float range, transform* transform);
+        SCENES_API pointLight(string name, color color, float intensity, float range, transform* transform);
         SCENES_API ~pointLight();
 
         SCENES_API sphere* getBoundingVolume() const { return _boundingVolume; }

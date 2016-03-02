@@ -1,5 +1,5 @@
 #pragma once
-#include <core\globals.h>
+#include <precompiled.h>
 
 namespace phi
 {

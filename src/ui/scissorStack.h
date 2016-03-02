@@ -1,16 +1,9 @@
-#ifndef _PHI_SCISSOR_STACK_H_
-#define _PHI_SCISSOR_STACK_H_
+#pragma once
+#include <precompiled.h>
 
 #include <core\size.h>
 
 #include "scissor.h"
-
-#include <vector>
-#if WIN32
-    #include <GL\glew.h>
-#else
-    #include <OpenGL\gl3.h>
-#endif
 
 namespace phi
 {
@@ -35,5 +28,3 @@ namespace phi
         void disable();
     };
 }
-
-#endif

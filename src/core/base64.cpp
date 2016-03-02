@@ -1,6 +1,5 @@
+#include <precompiled.h>
 #include "base64.h"
-
-#include <iostream>
 
 namespace phi
 {
@@ -14,9 +13,9 @@ namespace phi
         return (isalnum(c) || (c == '+') || (c == '/'));
     }
 
-    std::string base64::encode(byte const* buf, unsigned int bufLen)
+    string base64::encode(byte const* buf, uint bufLen)
     {
-        std::string ret;
+        string ret;
         int i = 0;
         int j = 0;
         byte charArray3[3];
@@ -58,14 +57,14 @@ namespace phi
         return ret;
     }
 
-    std::vector<byte> base64::decode(std::string const& encodedString)
+    vector<byte> base64::decode(string const& encodedString)
     {
         int in_len = (int)encodedString.size();
         int i = 0;
         int j = 0;
         int in_ = 0;
         byte charArray4[4], charArray3[3];
-        std::vector<byte> ret;
+        vector<byte> ret;
 
         while (in_len-- && (encodedString[in_] != '=') && isBase64(encodedString[in_]))
         {

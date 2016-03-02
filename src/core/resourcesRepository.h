@@ -1,8 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
 #include "resource.h"
-
-#include <vector>
 
 namespace phi
 {
@@ -10,8 +8,8 @@ namespace phi
     class resourcesRepository
     {
     private:
-        std::vector<resource<T>*> _resources;
-        std::vector<T*> _objects;
+        vector<resource<T>*> _resources;
+        vector<T*> _objects;
 
     public:
         resourcesRepository()
@@ -34,12 +32,12 @@ namespace phi
             _objects.push_back((T*)r->getObject());
         }
 
-        std::vector<resource<T>*> getAllResources()
+        vector<resource<T>*> getAllResources()
         {
             return _resources;
         }
         
-        std::vector<T*> getAllObjects()
+        vector<T*> getAllObjects()
         {
             return _objects;
         }

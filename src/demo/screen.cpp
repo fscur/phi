@@ -1,13 +1,11 @@
-﻿#include "screen.h"
-
-#include <core\globals.h>
+﻿#include <precompiled.h>
+#include "screen.h"
 #include <diagnostics\diagnostics.h>
 #include <diagnostics\stopwatch.h>
 
 #include <loader\importer.h>
 #include <rendering\model.h>
 
-#include <GLM\gtc\constants.hpp>
 
 screen::screen() : form()
 {
@@ -77,7 +75,7 @@ void screen::initScene()
     for (size_t i = 0; i < 10; i++)
     {
         auto cloned = obj->clone();
-        cloned->getTransform()->setLocalPosition(phi::vec3(i + (0.1f*i), 0.0, 0.0));
+        cloned->getTransform().setLocalPosition(phi::vec3(i+(0.1f*i), 0.0, 0.0));
         _scene->add(cloned);
     }
 }
@@ -126,10 +124,10 @@ void screen::onMouseWheel(phi::mouseEventArgs* e)
 
 void screen::onKeyDown(phi::keyboardEventArgs* e)
 {
-    if (_inputManager->onKeyDown(e))
+    if(_inputManager->onKeyDown(e))
         return;
 
-    if (e->key == PHIK_ESCAPE)
+    if(e->key == PHIK_ESCAPE)
         close();
 }
 

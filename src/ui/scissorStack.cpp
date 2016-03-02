@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "scissorStack.h"
 
 namespace phi

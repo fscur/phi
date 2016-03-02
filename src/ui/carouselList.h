@@ -1,5 +1,5 @@
-#ifndef _PHI_CAROUSEL_LIST_H_
-#define _PHI_CAROUSEL_LIST_H_
+#pragma once
+#include <precompiled.h>
 
 #include <rendering\quadRenderer2D.h>
 
@@ -8,8 +8,6 @@
 #include "carouselItemEventArgs.h"
 #include "carouselTab.h"
 #include "toggleButton.h"
-
-#include <vector>
 
 namespace phi
 {
@@ -78,5 +76,3 @@ namespace phi
         void onRender() override;
     };
 }
-
-#endif

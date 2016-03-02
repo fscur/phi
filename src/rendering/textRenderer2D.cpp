@@ -1,6 +1,5 @@
+#include <precompiled.h>
 #include "textRenderer2D.h"
-
-#include <core\globals.h>
 
 //#include <phi/rendering/meshRenderer.h>
 #include "texture.h"

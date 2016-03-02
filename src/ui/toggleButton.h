@@ -1,5 +1,5 @@
-#ifndef _PHI_TOGGLE_BUTTON_H_
-#define _PHI_TOGGLE_BUTTON_H_
+#pragma once
+#include <precompiled.h>
 
 #include "button.h"
 #include "controlCancelEventArgs.h"
@@ -38,5 +38,3 @@ namespace phi
         UI_API void onRender() override;
     };
 }
-
-#endif

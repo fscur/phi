@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "dragDropController.h"
 
 #include <core\input.h>

@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "toolTip.h"
 
 #include "uiRepository.h"

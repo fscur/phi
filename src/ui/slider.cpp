@@ -1,9 +1,7 @@
+#include <precompiled.h>
 #include "slider.h"
 
 #include "colorAnimator.h"
-
-#include <GLM\gtc\type_precision.hpp>
-#include <GLM\gtc\type_ptr.hpp>
 
 namespace phi
 {

@@ -1,6 +1,5 @@
+#include <precompiled.h>
 #include "exporter.h"
-
-#include <fstream>
 
 namespace phi
 {

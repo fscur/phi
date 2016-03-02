@@ -1,19 +1,11 @@
 #pragma once
-
+#include <precompiled.h>
 #include <core/mouseEventArgs.h>
 #include <core/keyboardEventArgs.h>
 #include <core/inputKey.h>
 
 #include "command.h"
 #include "shortcuts.h"
-
-#include <glm\glm.hpp>
-
-#include <unordered_map>
-#include <queue>
-#include <stack>
-#include <functional>
-#include <mutex>
 
 struct pendingCommand
 {
@@ -32,10 +24,10 @@ class commandsManager
 {
 private:
     //commandInfo* _commandInfo;
-    //std::vector<command*> _pendingCommands;
-    //std::vector<command*> _executingCommands;
+    //phi::vector<command*> _pendingCommands;
+    //phi::vector<command*> _executingCommands;
     shortcuts _shortcuts;
-    std::unordered_map<std::string, std::function<command*(void)>> _commands;
+    std::unordered_map<phi::string, std::function<command*(void)>> _commands;
     std::queue<pendingCommand*> _pendingCommands;
     std::stack<command*> _undo;
     std::stack<command*> _redo;

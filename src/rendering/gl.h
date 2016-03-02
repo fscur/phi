@@ -1,6 +1,5 @@
 #pragma once
-
-#include <core\globals.h>
+#include <precompiled.h>
 #include "rendering.h"
 #include "material.h"
 #include "texturesManager.h"
@@ -60,7 +59,7 @@ namespace phi
         {
             public:
             gl::state state;
-            std::string shadersPath;
+            string shadersPath;
         public:
             glInfo() {}
         };
@@ -80,7 +79,7 @@ namespace phi
         phi::texturesManager* texturesManager;
         phi::shadersManager* shadersManager;
         gl:: state currentState;
-        std::map<std::string, bool> extensions;
+        std::map<string, bool> extensions;
         material* defaultMaterial;
         texture* defaultAlbedoTexture;
         texture* defaultNormalTexture;
@@ -89,7 +88,7 @@ namespace phi
     public:
         RENDERING_API gl(gl::glInfo initInfo);
         RENDERING_API ~gl();
-        RENDERING_API std::string getErrorString(GLenum error);
-        RENDERING_API void printError(std::string msg);
+        RENDERING_API string getErrorString(GLenum error);
+        RENDERING_API void printError(string msg);
     };
 }

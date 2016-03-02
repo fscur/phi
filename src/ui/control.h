@@ -1,8 +1,7 @@
-#ifndef _PHI_CONTROL_H_
-#define _PHI_CONTROL_H_
+#pragma once
+#include <precompiled.h>
 
 #include <core\input.h>
-#include <core\globals.h>
 #include <core\size.h>
 
 #include "ui.h"
@@ -11,12 +10,6 @@
 #include "toolTip.h"
 #include "scissorStack.h"
 #include "dragDropController.h"
-
-#if WIN32
-    #include <GL/glew.h>
-#else
-    #include <OpenGL/gl3.h>
-#endif
 
 namespace phi
 {
@@ -117,5 +110,3 @@ namespace phi
         void notifyKeyUp(keyboardEventArgs e);
     };
 }
-
-#endif

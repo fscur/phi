@@ -1,5 +1,5 @@
 #pragma once
-
+#include <precompiled.h>
 #include "core.h"
 #include "mouseEventHandler.h"
 #include "keyboardEventHandler.h"

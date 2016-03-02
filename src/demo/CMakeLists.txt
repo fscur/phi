@@ -8,6 +8,7 @@ project(demo)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS}/precompiled)
 
 #libs
 link_directories(${LIBS_DIRS})
@@ -82,6 +83,7 @@ add_executable(demo
     #${cursors_files}
     )
 
+add_dependencies(demo precompiled)
 add_dependencies(demo ui)
 add_dependencies(demo scenes)
 
@@ -100,6 +102,7 @@ if (WIN32)
     target_link_libraries(demo ${GLEW_LIBRARY})
 endif (WIN32)
 
+target_link_libraries(demo precompiled)
 target_link_libraries(demo diagnostics)
 target_link_libraries(demo core)
 target_link_libraries(demo rendering)

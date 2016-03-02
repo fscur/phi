@@ -5,6 +5,7 @@
 */
 
 #pragma once
+#include <precompiled.h>
 
 typedef enum
 {

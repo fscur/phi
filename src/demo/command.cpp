@@ -1,6 +1,5 @@
+#include <precompiled.h>
 #include "command.h"
-
-#include <future>
 
 command::command()
 {

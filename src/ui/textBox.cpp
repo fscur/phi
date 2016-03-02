@@ -1,11 +1,7 @@
+#include <precompiled.h>
 #include "textBox.h"
 
 #include "uiSystem.h"
-
-#include <iostream>
-#include <iostream>
-#include <sstream>
-#include <cctype>
 
 namespace phi
 {

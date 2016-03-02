@@ -1,9 +1,8 @@
 #pragma once
-
+#include <precompiled.h>
+#include "material.h"
 #include <core\geometry.h>
 #include <core\component.h>
-
-#include "material.h"
 
 namespace phi
 {
@@ -16,15 +15,17 @@ namespace phi
 
     public:
 
-        RENDERING_API mesh(std::string name, phi::geometry* geometry, phi::material* material) :
+        mesh(string name, phi::geometry* geometry, phi::material* material) :
             component(componentType::MESH, name),
             geometry(geometry),
             material(material) {}
 
-        RENDERING_API component* clone() override
+        component* clone() const override
         {
-            auto m = dynamic_cast<mesh*>(this);
+            auto m = static_cast<const mesh*>(this);
             return new mesh(*m);
         }
+
+        static componentType getComponentType() { return componentType::MESH; }
     };
 }

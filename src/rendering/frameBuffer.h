@@ -1,5 +1,5 @@
 #pragma once
-
+#include <precompiled.h>
 #include "renderTarget.h"
 
 namespace phi
@@ -10,7 +10,7 @@ namespace phi
         GLuint _id;
         GLint _maxColorAttachments;
         GLint _currentAttachment;
-        std::vector<GLenum> _drawBuffers;
+        vector<GLenum> _drawBuffers;
 
     public:
         framebuffer(bool isDefaultFramebuffer = false) :

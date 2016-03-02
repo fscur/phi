@@ -1,7 +1,5 @@
-#ifndef _PHI_SCISSOR_H_
-#define _PHI_SCISSOR_H_
-
-#include <core\globals.h>
+#pragma once
+#include <precompiled.h>
 
 namespace phi
 {
@@ -19,5 +17,3 @@ namespace phi
         bool intersectsWith(vec2 point);
     };
 }
-
-#endif

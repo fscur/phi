@@ -21,6 +21,7 @@ elseif (WIN32)
     
 endif (APPLE)
 
+add_subdirectory(src/precompiled)
 add_subdirectory(src/diagnostics)
 add_subdirectory(src/core)
 add_subdirectory(src/io)
@@ -55,6 +56,7 @@ if ( WIN32 )
     set_target_properties(loader PROPERTIES RUNTIME_OUTPUT_DIRECTORY ../../)
     set_target_properties(loader PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ../../debug)
     set_target_properties(loader PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ../../release)
+    
 endif ( WIN32 )
 
 set (dlls_dir ${CMAKE_CURRENT_SOURCE_DIR}/libs/${SOLUTION_PLATFORM})

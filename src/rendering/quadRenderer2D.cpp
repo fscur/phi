@@ -1,6 +1,5 @@
+#include <precompiled.h>
 #include "quadRenderer2D.h"
-
-#include <glm\gtc\matrix_transform.hpp>
 
 namespace phi
 {

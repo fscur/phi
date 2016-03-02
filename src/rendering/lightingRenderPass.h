@@ -1,8 +1,13 @@
 #pragma once
-
+#include <precompiled.h>
+#include "rendering.h"
+#include "gl.h"
 #include "gBufferRenderPass.h"
-#include "framebuffer.h"
+#include "vertexBuffer.h"
+#include "buffer.h"
+#include "shader.h"
 #include "batch.h"
+#include <core\geometry.h>
 
 namespace phi
 {
@@ -25,7 +30,7 @@ namespace phi
         size_t _w;
         size_t _h;
         geometry* _quad;
-        GLuint _quadVao;
+        uint _quadVao;
         vertexBuffer* _quadVbo;
         buffer* _quadEbo;
         buffer* _rtsBuffer;
@@ -39,9 +44,9 @@ namespace phi
         std::vector<phi::batch*> batches;
 
     public:
-        lightingRenderPass(phi::gBufferRenderPass* gBufferPass, phi::gl* gl, size_t w, size_t h);
+        RENDERING_API lightingRenderPass(phi::gBufferRenderPass* gBufferPass, phi::gl* gl, size_t w, size_t h);
 
-        void update();
-        void render();
+        RENDERING_API void update();
+        RENDERING_API void render();
     };
 }

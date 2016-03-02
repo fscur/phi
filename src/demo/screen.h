@@ -1,5 +1,5 @@
 #pragma once
-
+#include <precompiled.h>
 #include <core\size.h>
 #include <rendering\renderer.h>
 #include <scenes\scene.h>
@@ -8,8 +8,6 @@
 #include "defaultCameraController.h"
 #include "library.h"
 #include "inputManager.h"
-
-#include <SDL/SDL.h>
 
 class screen :
     public form
@@ -29,8 +27,8 @@ private:
 
     phi::gl* _gl;
     phi::scene* _scene;
-    std::string _resourcesPath;
-    std::string _libraryPath;
+    phi::string _resourcesPath;
+    phi::string _libraryPath;
 
     library* _library;
 
@@ -62,6 +60,6 @@ public:
     void update() override;
     void render() override;
 
-    void setResourcesPath(std::string value) { _resourcesPath = value; }
-    void setLibraryPath(std::string value) { _libraryPath = value; }
+    void setResourcesPath(phi::string value) { _resourcesPath = value; }
+    void setLibraryPath(phi::string value) { _libraryPath = value; }
 };

@@ -1,3 +1,2 @@
 #pragma once
-#define GLM_FORCE_RADIANS
-
+#define THREADS_OFF

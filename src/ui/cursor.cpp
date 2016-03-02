@@ -1,5 +1,5 @@
+#include <precompiled.h>
 #include "cursor.h"
-#include <core\globals.h>
 
 #include <loader\importer.h>
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <precompiled.h>
 
 #include <core\transform.h>
 #include <core\geometry.h>

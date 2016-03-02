@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "uiRepository.h"
 
 #include <io\path.h>

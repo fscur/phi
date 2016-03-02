@@ -1,6 +1,5 @@
+#include <precompiled.h>
 #include "gl.h"
-
-#include <assert.h>
 
 namespace phi
 {
@@ -46,8 +45,8 @@ namespace phi
 
     void gl::printOpenGLDetails()
     {
-        auto print = [](GLenum s) -> std::string {
-            return std::string((char*)glGetString(s));
+        auto print = [](GLenum s) -> string {
+            return string((char*)glGetString(s));
         };
 
         phi::log("Vendor: " + print(GL_VENDOR) + ".");
@@ -61,18 +60,18 @@ namespace phi
         auto i = 0;
 
         glExtension = glGetStringi(GL_EXTENSIONS, i);
-        std::vector<std::string> glExtensions;
+        vector<string> glExtensions;
 
         while (glExtension != NULL)
         {
-            glExtensions.push_back(std::string((char*)glExtension));
+            glExtensions.push_back(string((char*)glExtension));
             glExtension = glGetStringi(GL_EXTENSIONS, ++i);
         }
 
         //cleaning error from loading the last (inexistent) extension
         glGetError();
 
-        std::vector<std::string> phiExtensions;
+        vector<string> phiExtensions;
         phiExtensions.push_back("GL_ARB_bindless_texture");
         phiExtensions.push_back("GL_ARB_sparse_texture");
 
@@ -167,7 +166,7 @@ namespace phi
         return texture;
     }
 
-    std::string gl::getErrorString(GLenum error)
+    string gl::getErrorString(GLenum error)
     {
         switch (error)
         {
@@ -185,10 +184,10 @@ namespace phi
             break;
         }
 
-        return std::string();
+        return string();
     }
 
-    void gl::printError(std::string msg)
+    void gl::printError(string msg)
     {
         auto error = glGetError();
         phi::log(msg + " (" + getErrorString(error) + ")");

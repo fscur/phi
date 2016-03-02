@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "color.h"
 
 namespace phi

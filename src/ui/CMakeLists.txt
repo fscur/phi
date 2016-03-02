@@ -9,6 +9,7 @@ add_definitions(-DUI_EXPORTS)
 #includes
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS}/precompiled)
 
 #libs
 link_directories(${LIBS_DIRS})
@@ -45,6 +46,7 @@ file(GLOB source_files *.cpp)
 
 add_library(ui SHARED ${source_files} ${header_files})
 
+add_dependencies(ui precompiled)
 add_dependencies(ui rendering)
 add_dependencies(ui loader)
 
@@ -59,6 +61,7 @@ if (WIN32)
     target_link_libraries(ui ${GLEW_LIBRARY})
 endif (WIN32)
 
+target_link_libraries(ui precompiled)
 target_link_libraries(ui diagnostics)
 target_link_libraries(ui loader)
 target_link_libraries(ui core)
@@ -69,3 +72,11 @@ install(TARGETS ui
     RUNTIME 
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}/ 
     CONFIGURATIONS ${CMAKE_BUILD_TYPE})
+    
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\precompiled\\precompiled.dir\\$(Configuration)\\precompiled.pch")
+
+add_custom_command(TARGET ui
+    PRE_BUILD
+    COMMAND xcopy /D /Y \"$(SolutionDir)src\\precompiled\\precompiled.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")

@@ -1,18 +1,15 @@
+#include <precompiled.h>
 #include "application.h"
 
-#include <core\globals.h>
-
-#include <SDL\SDL_ttf.h>
-
-std::string application::path = "";
-std::string application::exePath = "";
+phi::string application::path = "";
+phi::string application::exePath = "";
 
 application::application()
 {
     phi::debug("Starting application.");
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
-        phi::log("SDL could not initialize! SDL_Error: " + std::string(SDL_GetError()));
+        phi::log("SDL could not initialize! SDL_Error: " + phi::string(SDL_GetError()));
 
     //TTF_Init();
 }

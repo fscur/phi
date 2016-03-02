@@ -1,5 +1,5 @@
-#ifndef _PHI_DRAG_DROP_CONTROLLER_H_
-#define _PHI_DRAG_DROP_CONTROLLER_H_
+#pragma once
+#include <precompiled.h>
 
 #include <core\size.h>
 #include <core\mouseEventArgs.h>
@@ -10,13 +10,6 @@
 
 #include "ui.h"
 #include "dragDropEventArgs.h"
-
-#if WIN32
-#include <GL\glew.h>
-#else
-#include <OpenGL\gl3.h>
-#endif
-#include <string>
 
 namespace phi
 {
@@ -50,5 +43,3 @@ namespace phi
         UI_API void render();
     };
 }
-
-#endif

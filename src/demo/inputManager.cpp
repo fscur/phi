@@ -1,7 +1,5 @@
+#include <precompiled.h>
 #include "inputManager.h"
-
-#include <core\globals.h>
-
 #include "shortcuts.h"
 
 inputManager::inputManager(commandsManager* commandsManager)

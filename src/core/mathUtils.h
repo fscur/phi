@@ -1,6 +1,6 @@
 #pragma once
-
-#include "globals.h"
+#include <precompiled.h>
+#include "core.h"
 
 namespace phi
 {
@@ -34,8 +34,8 @@ namespace phi
         }
 
         static CORE_API float distance(vec3 v0, vec3 v1);
-        static CORE_API std::vector<vec3> rotateAboutAxis(std::vector<vec3>* points, vec3 origin, vec3 axis, float angle);
-        static CORE_API std::vector<vec3> rotateAboutAxis(std::vector<vec3>* points, vec3 axis, float angle);
+        static CORE_API vector<vec3> rotateAboutAxis(vector<vec3>* points, vec3 origin, vec3 axis, float angle);
+        static CORE_API vector<vec3> rotateAboutAxis(vector<vec3>* points, vec3 axis, float angle);
         static CORE_API vec3 rotateAboutAxis(vec3 point, vec3 origin, vec3 axis, float angle);
         static CORE_API vec3 rotateAboutAxis(vec3 point, vec3 axis, float angle);
         static CORE_API mat4 getRotationMatrixAboutAnArbitraryAxis(vec3 origin, vec3 axis, float angle);

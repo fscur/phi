@@ -1,14 +1,9 @@
+#include <precompiled.h>
 #include "importer.h"
 
 #include <core\base64.h>
 #include <io\path.h>
 #include <loader\SDL_extensions.h>
-
-#include <rapidjson\filereadstream.h>
-#include <iostream>
-#include <fstream>
-#include <objbase.h>
-#include <SDL/SDL_image.h>
 
 namespace phi
 {
@@ -18,7 +13,7 @@ namespace phi
     texture* importer::defaultSpecularTexture = nullptr;
     texture* importer::defaultEmissiveTexture = nullptr;
 
-    node* importer::readNode(const rapidjson::Value& jsonNode, std::string currentFolder, resourcesRepository<material>* materialsRepo)
+    node* importer::readNode(const rapidjson::Value& jsonNode, string currentFolder, resourcesRepository<material>* materialsRepo)
     {
         auto objectNode = new node();
 
@@ -118,7 +113,7 @@ namespace phi
         return *reinterpret_cast<GUID*>(guidBytes.data());
     }
 
-    int importer::importNode(std::string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo)
+    int importer::importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo)
     {
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
@@ -139,7 +134,7 @@ namespace phi
         return 1;
     }
 
-    int importer::importGeometry(std::string fileName, geometry*& data)
+    int importer::importGeometry(string fileName, geometry*& data)
     {
         std::ifstream iFile;
         iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
@@ -179,7 +174,7 @@ namespace phi
         return 1;
     }
 
-    int importer::importTexture(std::string fileName, texture*& texture)
+    int importer::importTexture(string fileName, texture*& texture)
     {
         SDL_Surface* surface = IMG_Load(fileName.c_str());
         SDL_InvertSurface(surface);
@@ -219,7 +214,7 @@ namespace phi
         return 1;
     }
 
-    int importer::importTexture(std::string fileName, resource<texture>*& textureResource)
+    int importer::importTexture(string fileName, resource<texture>*& textureResource)
     {
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
@@ -238,7 +233,7 @@ namespace phi
         texture* tex;
         if (!importTexture(imageFileName, tex))
         {
-            log("Image " + std::string(imageFileName) + " from texture " + name + " could not be loaded.");
+            log("Image " + string(imageFileName) + " from texture " + name + " could not be loaded.");
             return 0;
         }
 
@@ -247,7 +242,7 @@ namespace phi
         return 1;
     }
 
-    int importer::importMaterial(std::string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo)
+    int importer::importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo)
     {
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"

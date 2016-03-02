@@ -1,6 +1,6 @@
 #pragma once
-
-#include "globals.h"
+#include <precompiled.h>
+#include "core.h"
 
 namespace phi
 {

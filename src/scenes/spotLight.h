@@ -1,5 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
+#include "scenes.h"
 #include "pointLight.h"
 #include "cone.h"
 
@@ -24,7 +25,7 @@ namespace phi
         void updateProjectionMatrix();
 
     public:
-        SCENES_API spotLight(std::string name, color color, float intensity, float range, float cutoff, transform* transform);
+        SCENES_API spotLight(string name, color color, float intensity, float range, float cutoff, transform* transform);
         SCENES_API ~spotLight();
     
         SCENES_API float getCutoff() const { return _cutoff; }

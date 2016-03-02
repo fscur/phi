@@ -1,5 +1,5 @@
 #pragma once
-
+#include <precompiled.h>
 #include "pipeline.h"
 #include "batch.h"
 #include "gBufferRenderPass.h"
@@ -19,7 +19,7 @@ namespace phi
         phi::lightingRenderPass* lightingPass;
         framebuffer* defaultFramebuffer;
 
-        RENDERING_API renderer(phi::gl* gl, size_t w, size_t h) :
+        renderer(phi::gl* gl, size_t w, size_t h) :
             _gl(gl),
             w(w),
             h(h)
@@ -29,9 +29,9 @@ namespace phi
             lightingPass = new phi::lightingRenderPass(gBufferPass, gl, w, h);
         }
 
-        RENDERING_API ~renderer() {}
+        ~renderer() {}
 
-        RENDERING_API  void renderer::render()
+        void renderer::render()
         {
             gBufferPass->render();
             lightingPass->render();
@@ -48,7 +48,7 @@ namespace phi
             */
         }
 
-        RENDERING_API void update()
+        void update()
         {
             gBufferPass->update();
             lightingPass->update();

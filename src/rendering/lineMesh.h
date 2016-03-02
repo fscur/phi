@@ -1,15 +1,6 @@
 #pragma once
-
-#include <core/globals.h>
-
+#include <precompiled.h>
 #include "rendering.h"
-
-#if WIN32
-#include <GL/glew.h>
-#else
-#include <OpenGL/gl3.h>
-#endif
-#include <vector>
 
 namespace phi
 {
@@ -28,21 +19,21 @@ namespace phi
         GLuint _pSize;
         GLuint _iSize;
 
-        std::vector<vec3> _positions;
-        std::vector<GLuint>* _indices;
+        vector<vec3> _positions;
+        vector<GLuint>* _indices;
 
     private:
         void storeBuffers();
 
     protected:
         lineMesh();
-        void addData(std::vector<vec3> positions, std::vector<GLuint>* indices);
+        void addData(vector<vec3> positions, vector<GLuint>* indices);
 
     public:
 
         RENDERING_API ~lineMesh();
 
-        RENDERING_API static lineMesh* create(std::string name, std::vector<vec3> &positions, std::vector<GLuint>* indices);
+        RENDERING_API static lineMesh* create(string name, vector<vec3> &positions, vector<GLuint>* indices);
         RENDERING_API static lineMesh* create(
             GLuint positionsCount,
             GLfloat* positionsBuffer,

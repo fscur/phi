@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "mathUtils.h"
 
 namespace phi
@@ -15,13 +16,13 @@ namespace phi
         return (float)sqrt(x2 + y2 + z2);
     }
 
-    std::vector<vec3> mathUtils::rotateAboutAxis(std::vector<vec3>* points, vec3 origin, vec3 axis, float angle)
+    vector<vec3> mathUtils::rotateAboutAxis(vector<vec3>* points, vec3 origin, vec3 axis, float angle)
     {
         axis = normalize(axis);
 
         mat4 transform = getRotationMatrixAboutAnArbitraryAxis(origin, axis, angle);
 
-        std::vector<vec3> transformedPoints;
+        vector<vec3> transformedPoints;
 
         for (auto point : *points)
         {
@@ -34,7 +35,7 @@ namespace phi
         return transformedPoints;
     }
 
-    std::vector<vec3> mathUtils::rotateAboutAxis(std::vector<vec3>* points, vec3 axis, float angle)
+    vector<vec3> mathUtils::rotateAboutAxis(vector<vec3>* points, vec3 axis, float angle)
     {
         return rotateAboutAxis(points, vec3(0.0f), axis, angle);
     }

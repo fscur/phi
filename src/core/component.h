@@ -1,12 +1,13 @@
 #pragma once
-
-#include "core.h"
+#include <precompiled.h>
 #include "transform.h"
 
 #include <string>
 
 namespace phi
 {
+    class node;
+
     class component
     {
     public:
@@ -23,15 +24,18 @@ namespace phi
     protected:
         componentType _type;
         std::string _name;
+        node* _node;
 
     protected:
         component(componentType type, std::string name) :
-            _type(type), _name(name) {}
+            _type(type), _name(name), _node(nullptr) { }
 
     public:
-        virtual component* clone() { return new component(*this); }
+        virtual component* clone() const { return new component(*this); }
 
-        int getType() { return _type; }
-        std::string getName() { return _name; }
+        int getType() const { return _type; }
+        std::string getName() const { return _name; }
+
+        void setNode(node* value) { _node = value; }
     };
 }

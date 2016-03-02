@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "label.h"
 
 namespace phi

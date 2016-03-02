@@ -1,11 +1,9 @@
-#include "rotationControl.h"
+#include <precompiled.h>
 
 #include <rendering\shadersManager.h>
 
+#include "rotationControl.h"
 #include "colorAnimator.h"
-
-#include <GLM\gtx\rotate_vector.hpp>
-#include <GLM\gtx\norm.hpp>
 
 namespace phi
 {

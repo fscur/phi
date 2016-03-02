@@ -1,7 +1,5 @@
-#ifndef _PHI_EASING_FUNCTIONS_H_
-#define _PHI_EASING_FUNCTIONS_H_
-
-#include <cmath>
+#pragma once
+#include <precompiled.h>
 
 namespace phi
 {
@@ -81,5 +79,3 @@ namespace phi
         }
     };
 }
-
-#endif

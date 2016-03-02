@@ -1,6 +1,10 @@
 #pragma once
-
+#include <precompiled.h>
 #include "rendering.h"
+#include "gl.h"
+#include "batch.h"
+#include "shader.h"
+#include "renderTarget.h"
 #include "framebuffer.h"
 #include "batch.h"
 
@@ -15,8 +19,8 @@ namespace phi
 
     public:
         phi::shader* shader;
-        std::vector<renderTarget*> targets;
-        std::vector<phi::batch*> batches;
+        vector<renderTarget*> targets;
+        vector<phi::batch*> batches;
         phi::framebuffer* framebuffer;
 
     private:
@@ -24,10 +28,10 @@ namespace phi
         void initRenderTargets();
 
     public:
-        gBufferRenderPass(phi::gl* gl, size_t w, size_t h);
-        ~gBufferRenderPass();
+        RENDERING_API gBufferRenderPass(phi::gl* gl, size_t w, size_t h);
+        RENDERING_API ~gBufferRenderPass();
 
-        void update();
-        void render();
+        RENDERING_API void update();
+        RENDERING_API void render();
     };
 }

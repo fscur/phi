@@ -1,8 +1,7 @@
+#include <precompiled.h>
 #include "shadersManager.h"
 
 #include <io\path.h>
-
-#include <algorithm>
 
 namespace phi
 {
@@ -15,7 +14,7 @@ namespace phi
         }
     }
 
-    shader* shadersManager::load(std::string name, std::vector<std::string> attributes)
+    shader* shadersManager::load(string name, vector<string> attributes)
     {
         auto vertFile = path::combine(_path, name, ".vert");
         auto fragFile = path::combine(_path, name, ".frag");
@@ -27,7 +26,7 @@ namespace phi
         return s;
     }
 
-    shader* shadersManager::get(std::string name)
+    shader* shadersManager::get(string name)
     {
         if (_shaders.find(name) == _shaders.end())
             return nullptr;

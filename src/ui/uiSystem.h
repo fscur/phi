@@ -1,5 +1,5 @@
-#ifndef _PHI_UI_SYSTEM_H_
-#define _PHI_UI_SYSTEM_H_
+#pragma once
+#include <precompiled.h>
 
 #include <core\size.h>
 
@@ -68,5 +68,3 @@ namespace phi
         UI_API void render();
     };
 }
-
-#endif

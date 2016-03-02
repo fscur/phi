@@ -1,18 +1,13 @@
 #pragma once
-
+#include <precompiled.h>
 #include "scenes.h"
 
-#include <core\globals.h>
 #include <core\mathUtils.h>
 #include <core\node.h>
 #include <rendering\mesh.h>
 #include <rendering\camera.h>
 #include <rendering\pipeline.h>
 #include <rendering\renderer.h>
-
-#include <map>
-#include <typeinfo>
-#include <mutex>
 
 namespace phi
 {
@@ -22,7 +17,7 @@ namespace phi
     private:
         phi::gl* _gl;
 
-        std::vector<node*> _objects;
+        vector<node*> _objects;
 
         phi::renderer* _renderer;
         phi::pipeline* _pipeline;

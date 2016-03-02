@@ -1,5 +1,5 @@
-#ifndef _PHI_SLIDER_H_
-#define _PHI_SLIDER_H_
+#pragma once
+#include <precompiled.h>
 
 #include "core\color.h"
 #include "core\eventHandler.h"
@@ -69,5 +69,3 @@ namespace phi
         UI_API void onRender() override;
     };
 }
-
-#endif

@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "lightingRenderPass.h"
 
 namespace phi
@@ -9,7 +10,7 @@ namespace phi
         {
             createQuad();
 
-            std::vector<std::string> attribs;
+            vector<string> attribs;
             attribs.push_back("inPosition");
             attribs.push_back("inTexCoord");
 
@@ -44,7 +45,7 @@ namespace phi
             glCreateVertexArrays(1, &_quadVao);
             glBindVertexArray(_quadVao);
 
-            std::vector<vertexAttrib> attribs;
+            vector<vertexAttrib> attribs;
             attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
             attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
 

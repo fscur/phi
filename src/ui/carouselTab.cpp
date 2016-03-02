@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "carouselTab.h"
 
 #include "floatAnimator.h"

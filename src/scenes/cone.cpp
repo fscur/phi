@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "cone.h"
 
 namespace phi
@@ -13,7 +14,7 @@ namespace phi
     geometry* cone::createConeGeometry(uint sectors)
     {
         //TODO: bug-> When creating a cone with 100 sides or more, the geometry is fucked up!!!!!
-        std::vector<vertex> tempVertices;
+        vector<vertex> tempVertices;
 
         vec3 top = vec3(0.0f, 0.0f, 0.0f);
         vec3 bot = vec3(0.0f, 0.0f, 1.0f);
@@ -62,7 +63,7 @@ namespace phi
             tempVertices.push_back(vertex(b, vec2(v, 0.0f), normal));
         }
 
-        std::vector<vec3> normals;
+        vector<vec3> normals;
 
         for (int i = 0; i < t * verts; i += verts)
         {
@@ -94,8 +95,8 @@ namespace phi
         }
 
         //select vertices and create indices
-        std::vector<GLuint> indices;
-        std::vector<vertex> vertices;
+        vector<GLuint> indices;
+        vector<vertex> vertices;
         unsigned int vSize = (unsigned int)tempVertices.size();
 
         vertex vertex;

@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "colorAnimator.h"
 
 #include <core/clock.h>

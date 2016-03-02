@@ -1,8 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
 #include "core.h"
-
-#include <algorithm>
 
 namespace phi
 {
@@ -21,7 +19,7 @@ namespace phi
         CORE_API static color fromRGBA(long rgba)
         {
             int rgbaInt = (int) rgba;
-
+            
             unsigned char r = rgbaInt & 255;
             rgbaInt = rgbaInt >> 8;
             unsigned  g = rgbaInt & 255;

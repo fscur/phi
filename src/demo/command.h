@@ -1,10 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
 #include <core\size.h>
-
-#include <glm\glm.hpp>
-#include <functional>
-#include <thread>
 
 class commandInfo
 {

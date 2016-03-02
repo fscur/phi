@@ -1,6 +1,6 @@
 #pragma once
+#include <precompiled.h>
 
-#include <GL\glew.h>
 namespace phi
 {
     struct drawElementsIndirectCmd

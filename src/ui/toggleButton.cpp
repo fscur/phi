@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "toggleButton.h"
 
 #include "colorAnimator.h"

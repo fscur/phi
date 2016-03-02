@@ -1,8 +1,7 @@
+#include <precompiled.h>
 #include "control.h"
 
 #include <core\clock.h>
-
-#include <algorithm>
 
 namespace phi
 {

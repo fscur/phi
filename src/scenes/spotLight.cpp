@@ -1,11 +1,11 @@
+#include <precompiled.h>
 #include "spotLight.h"
 
 #include <rendering\shadersManager.h>
-#include <GLM\gtc\matrix_transform.hpp>
 
 namespace phi
 {
-    spotLight::spotLight(std::string name, color color, float intensity, float range, float cutoff, transform* transform) :
+    spotLight::spotLight(string name, color color, float intensity, float range, float cutoff, transform* transform) :
         light(componentType::SPOT_LIGHT, name, color, intensity, transform),
         _cutoff(cutoff),
         _range(range),
