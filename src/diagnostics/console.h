@@ -1,6 +1,6 @@
 #pragma once
 #include "diagnostics.h"
-#include <string>
+
 namespace phi
 {
     class console
@@ -8,7 +8,7 @@ namespace phi
     public:
         console() { };
         ~console() { };
-        static void write(std::string message);
-        static void writeLine(std::string message);
+        static void write(string message);
+        static void writeLine(string message);
     };
 }

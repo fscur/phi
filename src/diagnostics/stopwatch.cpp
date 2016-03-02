@@ -1,5 +1,7 @@
+#include <precompiled.h>
 #include "diagnostics.h"
 #include "stopwatch.h"
+#include "console.h"
 
 namespace phi
 {
@@ -48,7 +50,7 @@ namespace phi
         return watch.getElapsedSeconds();
     }
 
-    const double stopwatch::measure(const std::function<void(void)> &function, const std::string &functionName)
+    const double stopwatch::measure(const std::function<void(void)> &function, const string &functionName)
     {
         auto msg = functionName + " took: ";
         auto elapsedSeconds = stopwatch::measure(function);
@@ -73,7 +75,7 @@ namespace phi
         return average / samples;
     }
 
-    const double stopwatch::measureAverage(const std::function<void(void)> &function, const std::string &functionName, int samples)
+    const double stopwatch::measureAverage(const std::function<void(void)> &function, const string &functionName, int samples)
     {
         double average = stopwatch::measureAverage(function, samples);
 
