@@ -1,9 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
 #include <core/inputKey.h>
-
-#include <unordered_map>
-#include <string>
 
 static const unsigned int PHI_TOTAL_KEYS = 310;
 
@@ -24,11 +21,11 @@ static const unsigned long PHI_MOUSE_WHEEL_DOWN = 305;
 class shortcuts
 {
 private:
-    std::unordered_map<phi::inputKey, std::string, phi::inputKeyHasher> _commands;
+    std::unordered_map<phi::inputKey, phi::string, phi::inputKeyHasher> _commands;
 
 public:
-    bool add(std::string name, phi::inputKey key);
-    std::string getCommand(phi::inputKey key);
-    std::string operator[](phi::inputKey key);
-    std::unordered_map<phi::inputKey, std::string, phi::inputKeyHasher> getCommands() { return _commands; }
+    bool add(phi::string name, phi::inputKey key);
+    phi::string getCommand(phi::inputKey key);
+    phi::string operator[](phi::inputKey key);
+    std::unordered_map<phi::inputKey, phi::string, phi::inputKeyHasher> getCommands() { return _commands; }
 };

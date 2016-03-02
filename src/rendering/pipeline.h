@@ -1,8 +1,8 @@
 #pragma once
-
+#include <precompiled.h>
+#include "rendering.h"
 #include <core\node.h>
 
-#include "rendering.h"
 #include "frameUniformBlock.h"
 #include "batch.h"
 #include "gl.h"
@@ -15,15 +15,15 @@ namespace phi
         const uint MAX_MATERIALS_COUNT = 512;
 
         std::map<material*, uint> _materialsMaterialsGpu;
-        std::vector<material*> _loadedMaterials;
+        vector<material*> _loadedMaterials;
         buffer* _materialsBuffer;
         buffer* _frameUniformBlockBuffer;
         std::map<mesh*, batch*> _meshesBatches;
-        std::map<batch*, std::vector<node*>> _nodesToUpdate;
+        std::map<batch*, vector<node*>> _nodesToUpdate;
         phi::gl* _gl;
 
     public:
-        std::vector<batch*> batches;
+        vector<batch*> batches;
 
     private:
         void createFrameUniformBlockBuffer();

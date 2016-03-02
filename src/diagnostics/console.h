@@ -1,13 +1,14 @@
 #pragma once
-
+#include "diagnostics.h"
 #include <string>
-#include <iostream>
-
-class console
+namespace phi
 {
-public:
-    console() { };
-    ~console() { };
-    static void write(std::string message);
-    static void writeLine(std::string message);
-};
+    class console
+    {
+    public:
+        console() { };
+        ~console() { };
+        static void write(std::string message);
+        static void writeLine(std::string message);
+    };
+}

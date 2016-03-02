@@ -1,6 +1,5 @@
+#include <precompiled.h>
 #include "aabb.h"
-
-#include <algorithm>
 
 namespace phi
 {
@@ -18,22 +17,7 @@ namespace phi
     {
     }
 
-    aabb::aabb(vec3 position, sizef size)
-    {
-        vec3 halfSize = vec3(size.w, size.h, size.d) * 0.5f;
-        _min = position - halfSize;
-        _max = position + halfSize;
-        _width = _max.x - _min.x;
-        _height = _max.y - _min.y;
-        _depth = _max.z - _min.z;
-        _halfWidth = _width * 0.5f;
-        _halfHeight = _height * 0.5f;
-        _halfDepth = _depth * 0.5f;
-        _center = (_min + _max) / 2.0f;
-        _radius = length(_min - _center);
-    }
-
-    aabb::aabb(const std::vector<vec3> &points)
+    aabb::aabb(const vector<vec3> &points)
     {
         update(points);
     }
@@ -46,7 +30,7 @@ namespace phi
             _min.z <= pos.z && pos.z < _max.z;
     }
 
-    void aabb::update(const std::vector<vec3> &points)
+    void aabb::update(const vector<vec3> &points)
     {
         auto minX = std::numeric_limits<float>::max();
         auto minY = std::numeric_limits<float>::max();

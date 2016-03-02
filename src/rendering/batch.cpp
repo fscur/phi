@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "batch.h"
 #include "drawElementsIndirectCmd.h"
 #include "gl.h"
@@ -60,7 +61,7 @@ namespace phi
 
     void batch::createVbo(void* data, GLsizeiptr size)
     {
-        std::vector<vertexAttrib> attribs;
+        vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
         attribs.push_back(vertexAttrib(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
@@ -72,7 +73,7 @@ namespace phi
 
     void batch::createMaterialsIdsBuffer(void* data, GLsizeiptr size)
     {
-        std::vector<vertexAttrib> attribs;
+        vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(4, 1, GL_UNSIGNED_INT, 0, 0, 1));
 
         _materialsIdsBuffer = new vertexBuffer(attribs);
@@ -81,7 +82,7 @@ namespace phi
 
     void batch::createModelMatricesBuffer(void* data, GLsizeiptr size)
     {
-        std::vector<vertexAttrib> attribs;
+        vector<vertexAttrib> attribs;
 
         for (uint i = 0; i < 4; ++i)
             attribs.push_back(vertexAttrib(5 + i, 4, GL_FLOAT, sizeof(glm::mat4), (const void *)(sizeof(GLfloat) * i * 4), 1));
@@ -167,9 +168,9 @@ namespace phi
         auto indicesOffset = 0;
         auto verticesOffset = 0;
         auto instancesOffset = 0;
-        std::vector<drawElementsIndirectCmd> drawCmdsBufferData;
-        std::vector<mat4> modelMatricesData;
-        std::vector<GLuint> materialsIdsData;
+        vector<drawElementsIndirectCmd> drawCmdsBufferData;
+        vector<mat4> modelMatricesData;
+        vector<GLuint> materialsIdsData;
         uint instanceId = 0;
 
         for (auto geometry : _geometries)
@@ -205,7 +206,7 @@ namespace phi
         _materialsIdsBuffer->data(sizeof(uint) * materialsIdsData.size(), &materialsIdsData[0], bufferDataUsage::dynamicDraw);
     }
 
-    void batch::update(std::vector<batchObject> &batchObjects)
+    void batch::update(vector<batchObject> &batchObjects)
     {
         for (auto &batchObject : batchObjects)
         {

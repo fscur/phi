@@ -1,9 +1,7 @@
 #pragma once
-
-#include "globals.h"
+#include <precompiled.h>
+#include "core.h"
 #include "mathUtils.h"
-
-#include <GLM\glm.hpp>
 
 namespace phi
 {
@@ -45,10 +43,10 @@ namespace phi
 
         CORE_API transform* clone() { return new transform(*this); }
 
-        CORE_API transform* getParent() { return _parent; }
-        CORE_API vec3 getLocalPosition() { return _localPosition; }
-        CORE_API quat getLocalOrientation() { return _localOrientation; }
-        CORE_API vec3 getLocalSize() { return _localSize; }
+        CORE_API transform* getParent() const { return _parent; }
+        CORE_API vec3 getLocalPosition() const { return _localPosition; }
+        CORE_API vec3 getLocalSize() const { return _localSize; }
+        CORE_API quat getLocalOrientation() const { return _localOrientation; }
         CORE_API mat4 getLocalModelMatrix();
         CORE_API mat4 getLocalRotationMatrix();
         CORE_API mat4 getLocalTranslationMatrix();

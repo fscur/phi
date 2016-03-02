@@ -1,3 +1,4 @@
+#include "diagnostics.h"
 #include "stopwatch.h"
 
 namespace phi

@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "gBufferRenderPass.h"
 
 namespace phi
@@ -17,7 +18,7 @@ namespace phi
 
     void gBufferRenderPass::initShader()
     {
-        std::vector<std::string> attribs;
+        vector<string> attribs;
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
         attribs.push_back("inNormal");

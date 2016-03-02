@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "commandsManager.h"
 //#include "selectAtPositionCommand.h"
 //#include "undoCommand.h"
@@ -5,9 +6,8 @@
 //#include "zoomToFitCommand.h"
 //#include "deleteSceneObjectCommand.h"
 
-#include <SDL\SDL.h>
 
-#include <algorithm>
+
 
 commandsManager::commandsManager()
 {

@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "pointLight.h"
 
 #include <core\mathUtils.h>
@@ -5,7 +6,7 @@
 
 namespace phi
 {
-    pointLight::pointLight(std::string name, color color, float intensity, float range, transform* transform) :
+    pointLight::pointLight(string name, color color, float intensity, float range, transform* transform) :
         light(componentType::POINT_LIGHT, name, color, intensity, transform),
         _boundingVolumeSides(5),
         _range(range),

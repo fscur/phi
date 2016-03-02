@@ -1,8 +1,7 @@
+#include <precompiled.h>
 #include "pipeline.h"
 #include "materialGpuData.h"
 #include "drawElementsIndirectCmd.h"
-
-#include <GL\glew.h>
 
 namespace phi
 {
@@ -162,7 +161,7 @@ namespace phi
 
         for (auto batch : batches)
         {
-            std::vector<batchObject> bacthObjectsToUpdade;
+            vector<batchObject> bacthObjectsToUpdade;
 
             for (auto n : _nodesToUpdate[batch])
             {

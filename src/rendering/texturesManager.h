@@ -1,5 +1,5 @@
 #pragma once
-
+#include <precompiled.h>
 #include "textureContainer.h"
 
 namespace phi
@@ -10,7 +10,7 @@ namespace phi
         const size_t MAX_CONTAINER_ITEMS = 10;
         std::map<
             std::tuple<GLsizei, GLsizei, GLsizei, GLenum, GLint, GLint, GLint>, 
-            std::vector<textureContainer*>> _containers;
+            vector<textureContainer*>> _containers;
 
         bool _bindless;
         bool _sparse;
@@ -20,8 +20,8 @@ namespace phi
         size_t _maxContainerSize;
 
     public:
-        std::vector<GLint> units;
-        std::vector<GLuint64> handles;
+        vector<GLint> units;
+        vector<GLuint64> handles;
 
     public:
         texturesManager(bool bindless = false, bool sparse = false) :

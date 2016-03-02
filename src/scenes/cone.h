@@ -1,5 +1,5 @@
 #pragma once
-
+#include <precompiled.h>
 #include "scenes.h"
 
 #include <rendering\mesh.h>

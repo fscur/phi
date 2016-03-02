@@ -1,22 +1,13 @@
 #pragma once
-
-#include <core/globals.h>
-#include <core/resource.h>
-
+#include <precompiled.h>
 #include "rendering.h"
+#include <core\resource.h>
+#include <precompiled.h>
 #include "texture.h"
 
-#include <string>
-#include <glm\glm.hpp>
 #include <SDL\SDL_ttf.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
-
-#if WIN32
-#include <GL/glew.h>
-#else
-#include <OpenGL/gl3.h>
-#endif
 
 namespace phi
 {
@@ -53,7 +44,7 @@ namespace phi
         RENDERING_API font(int size, FT_Library library);
         RENDERING_API ~font();
 
-        RENDERING_API static font* fromFile(std::string fileName);//TODO: unimplemented method
+        RENDERING_API static font* fromFile(string fileName);//TODO: unimplemented method
 
         RENDERING_API int getTexWidth() { return _texWidth; }
         RENDERING_API int getTexHeight() { return _texHeight; }

@@ -1,8 +1,7 @@
 #pragma once
-
 #include "diagnostics.h"
 #include "console.h"
-
+#include <string>
 #include <chrono>
 #include <functional>
 

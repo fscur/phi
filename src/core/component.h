@@ -1,9 +1,6 @@
 #pragma once
-
-#include "core.h"
+#include <precompiled.h>
 #include "transform.h"
-
-#include <string>
 
 namespace phi
 {

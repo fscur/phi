@@ -1,10 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
 #include <core\component.h>
-
-#include "rendering.h"
-
-#include <string>
 
 namespace phi
 {
@@ -12,7 +8,7 @@ namespace phi
         public component
     {
     public:
-        model(std::string name) :
+        model(string name) :
             component(componentType::MODEL, name)
         {
         }

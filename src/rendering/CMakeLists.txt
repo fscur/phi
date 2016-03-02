@@ -8,6 +8,7 @@ add_definitions(-DRENDERING_EXPORTS)
 #includes
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS}/precompiled)
 
 #libs
 link_directories(${LIBS_DIRS})
@@ -54,6 +55,7 @@ file(GLOB shader_files ../../resources/shaders/*)
 add_library(rendering SHARED ${source_files} ${header_files} ${shader_files})
 source_group(Shaders FILES ${shader_files})
 
+add_dependencies(rendering precompiled)
 add_dependencies(rendering core)
 add_dependencies(rendering io)
 
@@ -67,6 +69,7 @@ if (WIN32)
     target_link_libraries(rendering ${GLEW_LIBRARY})
 endif (WIN32)
 
+target_link_libraries(rendering precompiled)
 target_link_libraries(rendering diagnostics)
 target_link_libraries(rendering core)
 target_link_libraries(rendering io)
@@ -75,3 +78,11 @@ install(TARGETS rendering
     RUNTIME 
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os} 
     CONFIGURATIONS ${CMAKE_BUILD_TYPE})
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\precompiled\\precompiled.dir\\$(Configuration)\\precompiled.pch")
+
+add_custom_command(TARGET rendering
+    PRE_BUILD
+    COMMAND xcopy /D /Y \"$(SolutionDir)src\\precompiled\\precompiled.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")

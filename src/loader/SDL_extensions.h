@@ -1,8 +1,5 @@
 #pragma once
-
-#include <cstring>
-#include <cstdlib>
-#include <SDL/SDL.h>
+#include <precompiled.h>
 
 namespace phi
 {

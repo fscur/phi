@@ -1,12 +1,7 @@
 #pragma once
-
-#include <core\vertex.h>
-
+#include <precompiled.h>
 #include "buffer.h"
-
-#include <vector>
-
-#include <GL\glew.h>
+#include <core\vertex.h>
 
 namespace phi
 {
@@ -42,7 +37,7 @@ namespace phi
         public buffer
     {
     public:
-        vertexBuffer(std::vector<vertexAttrib> attribs) : buffer(bufferTarget::array)
+        vertexBuffer(vector<vertexAttrib> attribs) : buffer(bufferTarget::array)
         {
             auto s = attribs.size();
 

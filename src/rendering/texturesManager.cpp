@@ -1,5 +1,5 @@
+#include <precompiled.h>
 #include "texturesManager.h"
-#include <algorithm>
 
 namespace phi
 {

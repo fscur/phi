@@ -1,5 +1,6 @@
 #pragma once
-
+#include <precompiled.h>
+#include "scenes.h"
 #include <core\color.h>
 #include <core\component.h>
 
@@ -8,8 +9,6 @@
 #include <rendering\texture.h>
 
 #include "scenes.h"
-
-#include <string>
 
 namespace phi
 {
@@ -25,7 +24,7 @@ namespace phi
         transform* _transform;
 
     protected:
-        SCENES_API light(component::componentType type, std::string name, color color, float intensity, transform* transform);
+        SCENES_API light(component::componentType type, string name, color color, float intensity, transform* transform);
 
     public:
         virtual ~light();

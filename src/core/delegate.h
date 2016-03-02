@@ -1,13 +1,11 @@
 #pragma once
+#include <precompiled.h>
 
 #ifdef WIN32
     #define FORCEINLINE __forceinline
 #else
     #define FORCEINLINE
 #endif
-
-#include <vector>
-#include <algorithm>
 
 //http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
 //or
@@ -153,7 +151,7 @@ namespace phi
         public:
         delegate(void)
         {   
-            _stubs = new std::vector<stub>();
+            _stubs = new vector<stub>();
         }
 
         ~delegate()
@@ -210,7 +208,7 @@ namespace phi
         }
 
     private:
-        std::vector<stub>* _stubs;
+        vector<stub>* _stubs;
         int _i;
     };
 }

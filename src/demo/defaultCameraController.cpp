@@ -1,7 +1,7 @@
+#include <precompiled.h>
 #include "defaultCameraController.h"
 
 #include <core/inputKey.h>
-#include <core/globals.h>
 #include <rendering/camera.h>
 
 defaultCameraController::defaultCameraController(phi::scene* scene) : 

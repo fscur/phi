@@ -1,6 +1,5 @@
 #pragma once
-
-#include <core\globals.h>
+#include <precompiled.h>
 #include <scenes\scene.h>
 
 #include "cameraController.h"

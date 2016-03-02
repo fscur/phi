@@ -1,9 +1,7 @@
 #pragma once
-
+#include <precompiled.h>
 #include "rendering.h"
-
 #include <core\component.h>
-#include <core\globals.h>
 
 namespace phi
 {
@@ -30,7 +28,7 @@ namespace phi
 
     public:
         RENDERING_API camera(
-            std::string name,
+            string name,
             float nearDistance,
             float farDistance,
             vec2 resolution,

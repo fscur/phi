@@ -1,17 +1,16 @@
 #pragma once
-
+#include <precompiled.h>
 #include <core\resourcesRepository.h>
 #include <core\node.h>
 #include <rendering\material.h>
 #include <rendering\gl.h>
 
-#include <functional>
 
 class library
 {
 private:
     phi::gl* _gl;
-    std::string _libraryPath;
+    phi::string _libraryPath;
     phi::resourcesRepository<phi::texture>* _texturesRepository;
     phi::resourcesRepository<phi::material>* _materialsRepository;
     phi::resourcesRepository<phi::node>* _nodesRepository;
@@ -20,12 +19,12 @@ private:
 
     template<typename T>
     phi::resourcesRepository<T>* load(
-        std::string directory, 
-        std::string filter, 
-        std::function<bool(std::string, phi::resource<T>*&)> importFunction)
+        phi::string directory, 
+        phi::string filter, 
+        std::function<bool(phi::string, phi::resource<T>*&)> importFunction)
     {
         auto repository = new phi::resourcesRepository<T>();
-        auto filters = std::vector<std::string>();
+        auto filters = phi::vector<phi::string>();
         filters.push_back(filter);
 
         load(directory, filters, repository, importFunction);
@@ -34,10 +33,10 @@ private:
     }
 
     template<typename T>
-    void load(std::string directory, 
-        std::vector<std::string> filters, 
+    void load(phi::string directory, 
+        phi::vector<phi::string> filters, 
         phi::resourcesRepository<T>* repository, 
-        std::function<bool(std::string, phi::resource<T>*&)> importFunction)
+        std::function<bool(phi::string, phi::resource<T>*&)> importFunction)
     {
         auto subDirs = phi::path::getDirectories(directory);
         for (auto &dir : subDirs)
@@ -54,7 +53,7 @@ private:
 
 public:
 
-    library(phi::gl* gl, std::string resourcesPath);
+    library(phi::gl* gl, phi::string resourcesPath);
 
     void init();
 

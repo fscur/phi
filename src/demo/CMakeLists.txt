@@ -8,6 +8,7 @@ project(demo)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS}/precompiled)
 
 #libs
 link_directories(${LIBS_DIRS})
@@ -82,6 +83,7 @@ add_executable(demo
     #${cursors_files}
     )
 
+add_dependencies(demo precompiled)
 #add_dependencies(demo ui)
 add_dependencies(demo scenes)
 
@@ -100,6 +102,7 @@ if (WIN32)
     target_link_libraries(demo ${GLEW_LIBRARY})
 endif (WIN32)
 
+target_link_libraries(demo precompiled)
 target_link_libraries(demo diagnostics)
 target_link_libraries(demo core)
 target_link_libraries(demo rendering)
@@ -132,3 +135,11 @@ install(FILES ${dll_files}
 
 install(DIRECTORY ${resources_dir}
         DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os})
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\precompiled\\precompiled.dir\\$(Configuration)\\precompiled.pch")
+
+add_custom_command(TARGET demo
+    PRE_BUILD
+    COMMAND xcopy /D /Y \"$(SolutionDir)src\\precompiled\\precompiled.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")

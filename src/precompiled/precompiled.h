@@ -1,13 +1,51 @@
 #pragma once
+#pragma message ("Compiling precompiled headers.\n")
 
-#include "core.h"
-#include <iostream>
-#include <string>
-#include <vector>
 #include <algorithm>
+#include <codecvt>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <future>
+#include <functional>
+#include <iostream>
+#include <locale>
+#include <map>
+#include <mutex>
+#include <queue>
+#include <stack>
+#include <string>
+#include <thread>
+#include <unordered_map>
+#include <vector>
+
+//TODO: create a cross platform guid class
+#include <assert.h>
+#include <objbase.h>
+#include <stdarg.h>
+
+#if WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <gl\glew.h>
+#include <sdl\sdl_syswm.h>
+#else
+#include <OpenGL\gl3.h>
+#endif
 
 #include <glm\glm.hpp>
-#include <GLM\gtc\quaternion.hpp>
+#include <glm\gtc\constants.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtx\quaternion.hpp>
+#include <glm\gtx\vector_angle.hpp>
+
+#include <rapidjson\document.h>
+#include <rapidjson\filereadstream.h>
+
+#include <sdl\sdl_image.h>
+#include <sdl\sdl_ttf.h>
+#include <sdl\sdl.h>
 
 using uint = unsigned int;
 using uint64 = unsigned long long;
@@ -20,9 +58,18 @@ namespace phi
     using vec2 = glm::vec2;
     using vec3 = glm::vec3;
     using vec4 = glm::vec4;
+    using dvec2 = glm::dvec2;
+    using dvec3 = glm::dvec3;
     using mat3 = glm::mat3;
     using mat4 = glm::mat4;
     using quat = glm::quat;
+    using string = std::string;
+
+    template<class T>
+    using vector = std::vector<T>;
+
+    template<class T, class R>
+    using map = std::map<T, R>;
 
     static const float PI = 3.1415926536f;
     static const float PI_OVER_2 = 1.5707963268f;
@@ -62,7 +109,7 @@ namespace phi
     }
 
     template<typename T>
-    inline bool contains(std::vector<T> vector, T value)
+    inline bool contains(vector<T> vector, T value)
     {
         auto it = std::find(vector.begin(), vector.end(), value);
 

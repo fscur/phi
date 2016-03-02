@@ -1,6 +1,5 @@
 #pragma once
-
-#include "rendering.h"
+#include <precompiled.h>
 
 namespace phi
 {

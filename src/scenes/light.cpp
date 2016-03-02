@@ -1,11 +1,9 @@
+#include <precompiled.h>
 #include "light.h"
-
-#include <core\globals.h>
-#include <algorithm>
 
 namespace phi
 {
-    light::light(component::componentType type, std::string name, color color, float intensity, transform* transform) :
+    light::light(component::componentType type, string name, color color, float intensity, transform* transform) :
         component(type, name),
         _color(color),
         _intensity(intensity),

@@ -1,9 +1,7 @@
 #pragma once
-
+#include <precompiled.h>
 #include "component.h"
 #include "transform.h"
-
-#include <vector>
 
 namespace phi
 {
@@ -11,9 +9,9 @@ namespace phi
     {
     private:
         transform* _transform;
-        std::vector<component*> _components;
+        vector<component*> _components;
         node* _parent;
-        std::vector<node*> _children;
+        vector<node*> _children;
 
     public:
         node() :
@@ -23,7 +21,7 @@ namespace phi
             _transform(original._transform->clone()),
             _parent(nullptr)
         {
-            auto clonedChildren = std::vector<node*>();
+            auto clonedChildren = vector<node*>();
             for (auto& child : original._children)
             {
                 auto clonedChild = child->clone();
@@ -33,7 +31,7 @@ namespace phi
             }
             _children = std::move(clonedChildren);
 
-            auto clonedComponents = std::vector<component*>();
+            auto clonedComponents = vector<component*>();
             for (auto& component : original._components)
             {
                 auto clonedComponent = component->clone();
@@ -45,7 +43,7 @@ namespace phi
         node* clone() { return new node(*this); }
         transform* getTransform() { return _transform; }
         node* getParent() { return _parent; }
-        std::vector<node*> getChildren() { return _children; }
+        vector<node*> getChildren() { return _children; }
 
         void setParent(node* value) { _parent = value; }
 

@@ -1,14 +1,12 @@
 #pragma once
-
+#include <precompiled.h>
 #include "form.h"
-
-#include <string>
 
 class application
 {
 public: 
-	static std::string path;
-	static std::string exePath;
+	static phi::string path;
+	static phi::string exePath;
 public:
     application();
     ~application(void);

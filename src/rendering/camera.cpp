@@ -1,10 +1,9 @@
+#include <precompiled.h>
 #include "camera.h"
-
-#include <glm/gtx/vector_angle.hpp>
 
 namespace phi
 {
-    camera::camera(std::string name, float nearDistance, float farDistance, vec2 resolution, float fov, transform* transform) : 
+    camera::camera(string name, float nearDistance, float farDistance, vec2 resolution, float fov, transform* transform) : 
         component(component::componentType::CAMERA, name),
         _near(nearDistance),
         _far(farDistance),

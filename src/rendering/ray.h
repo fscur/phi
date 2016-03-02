@@ -1,8 +1,7 @@
 #pragma once
-
-#include <core/aabb.h>
-
+#include <precompiled.h>
 #include "rendering.h"
+#include <core\aabb.h>
 
 namespace phi
 {

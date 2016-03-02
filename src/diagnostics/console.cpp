@@ -1,11 +1,16 @@
+#include "diagnostics.h"
 #include "console.h"
+#include <iostream>
 
-void console::write(std::string message)
+namespace phi
 {
-    std::cout << message;
-}
+    void console::write(std::string message)
+    {
+        std::cout << message;
+    }
 
-void console::writeLine(std::string message)
-{
-    std::cout << message << std::endl;
+    void console::writeLine(std::string message)
+    {
+        std::cout << message << std::endl;
+    }
 }

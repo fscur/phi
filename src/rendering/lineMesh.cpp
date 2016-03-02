@@ -1,3 +1,4 @@
+#include <precompiled.h>
 #include "lineMesh.h"
 
 namespace phi
@@ -20,7 +21,7 @@ namespace phi
         glDeleteVertexArrays(1, &_vao);
     }
 
-    lineMesh* lineMesh::create(std::string name, std::vector<vec3> &positions, std::vector<GLuint>* indices)
+    lineMesh* lineMesh::create(string name, vector<vec3> &positions, vector<GLuint>* indices)
     {
         lineMesh* m = new lineMesh();
         m->addData(positions, indices);
@@ -33,12 +34,12 @@ namespace phi
         GLuint indicesCount,
         GLuint* indicesBuffer)
     {
-        auto indices = new std::vector<GLuint>();
+        auto indices = new vector<GLuint>();
 
         for (GLuint i = 0; i < indicesCount; ++i)
             indices->push_back(indicesBuffer[i]);
 
-        std::vector<vec3> positions;
+        vector<vec3> positions;
 
         for (GLuint i = 0; i < positionsCount; ++i)
         {
@@ -61,7 +62,7 @@ namespace phi
         return m;
     }
 
-    void lineMesh::addData(std::vector<vec3> positions, std::vector<GLuint>* indices)
+    void lineMesh::addData(vector<vec3> positions, vector<GLuint>* indices)
     {
         _positions = positions;
         _indices = indices;
@@ -71,7 +72,7 @@ namespace phi
 
         _positionsBuffer = new GLfloat[positions.size() * 3];
 
-        std::vector<vec3>::iterator i;
+        vector<vec3>::iterator i;
         unsigned int pIndex = 0;
 
         for (auto i = 0; i < positions.size(); ++i)

@@ -1,20 +1,17 @@
-#include <core/globals.h>
-
+#include <precompiled.h>
 #include "screen.h"
 #include "application.h"
-
-#include <vector>
 
 struct commandLineCommand
 {
 public:
-    std::string name;
-    std::vector<std::string> args;
-    void (*func)(std::vector<std::string>);
+    phi::string name;
+    phi::vector<phi::string> args;
+    void (*func)(phi::vector<phi::string>);
     bool shouldExecute;
 
 public:
-    commandLineCommand(std::string name, void (*func)(std::vector<std::string>))
+    commandLineCommand(phi::string name, void (*func)(phi::vector<phi::string>))
     {
         this->name = name;
         shouldExecute = false;
@@ -22,16 +19,16 @@ public:
     }
 };
 
-std::vector<commandLineCommand> commandLineCommands;
-std::string _resourcesPath;
-std::string _libraryPath;
+phi::vector<commandLineCommand> commandLineCommands;
+phi::string _resourcesPath;
+phi::string _libraryPath;
 
-void rpCommandFunction(std::vector<std::string> args)
+void rpCommandFunction(phi::vector<phi::string> args)
 {
     _resourcesPath = args[0];
 }
 
-void lpCommandFunction(std::vector<std::string> args)
+void lpCommandFunction(phi::vector<phi::string> args)
 {
     _libraryPath = args[0];
 }
@@ -59,13 +56,13 @@ void processCommandLine(int argc, char* args[])
 
     for (int i = 1; i < argc; i++)
     {
-        std::string arg(args[i]);
+        phi::string arg(args[i]);
 
 #if _DEBUG
         std::cout << args[i] << " ";
 #endif
 
-        std::vector<std::string>::iterator it;
+        phi::vector<phi::string>::iterator it;
 
         bool foundCommand = false;
 
@@ -98,9 +95,9 @@ void executeCommands()
             commandLineCommands[i].func(commandLineCommands[i].args);
 }
 
-std::string getDirPath(std::string filePath)
+phi::string getDirPath(phi::string filePath)
 {
-    std::string exePath = filePath;
+    phi::string exePath = filePath;
 
     auto index = filePath.find_last_of('\\');
     return exePath.substr(0, index);
@@ -110,8 +107,8 @@ int main(int argc, char* args[])
 {
     application *app = new application();
 
-    std::string exePath = std::string(args[0]);
-    std::string path = getDirPath(exePath);
+    phi::string exePath = phi::string(args[0]);
+    phi::string path = getDirPath(exePath);
     application::path = path;
     application::exePath = exePath;
 

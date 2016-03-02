@@ -1,6 +1,7 @@
+#include <precompiled.h>
 #include "shortcuts.h"
 
-bool shortcuts::add(std::string name, phi::inputKey key)
+bool shortcuts::add(phi::string name, phi::inputKey key)
 {
     if (_commands.find(key) == _commands.end())
     {
@@ -11,7 +12,7 @@ bool shortcuts::add(std::string name, phi::inputKey key)
         return false;
 }
 
-std::string shortcuts::getCommand(phi::inputKey key)
+phi::string shortcuts::getCommand(phi::inputKey key)
 {
     if (_commands.find(key) == _commands.end())
         return "";
@@ -19,7 +20,7 @@ std::string shortcuts::getCommand(phi::inputKey key)
     return _commands[key];
 }
 
-std::string shortcuts::operator[](phi::inputKey key)
+phi::string shortcuts::operator[](phi::inputKey key)
 {
     return getCommand(key);
 }

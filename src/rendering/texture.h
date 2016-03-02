@@ -1,15 +1,6 @@
 #pragma once
-
-#include <core/globals.h>
-#include <core/resource.h>
-
-#include "rendering.h"
-
-#if WIN32
-#include <GL/glew.h>
-#else
-#include <OpenGL/gl3.h>
-#endif
+#include <precompiled.h>
+#include <core\resource.h>
 
 namespace phi
 {
@@ -31,7 +22,7 @@ namespace phi
         bool generateMipmaps;
 
     public:
-        RENDERING_API texture::texture(
+        texture::texture(
             uint w, 
             uint h, 
             GLenum type = GL_TEXTURE_2D,
@@ -57,6 +48,6 @@ namespace phi
         {
         }
 
-        RENDERING_API ~texture() {}
+        ~texture() {}
     };
 }

@@ -1,10 +1,10 @@
 #pragma once
-
-#include "vertexBuffer.h"
+#include <precompiled.h>
+#include <core\geometry.h>
 #include "mesh.h"
-
-#include <vector>
-#include <map>
+#include "vertexBuffer.h"
+#include "buffer.h"
+#include "mesh.h"
 
 namespace phi
 {
@@ -46,9 +46,9 @@ namespace phi
         buffer* _ebo;
         buffer* _drawCmdBuffer;
 
-        std::vector<mat4> _modelMatrices;
-        std::vector<geometry*> _geometries;
-        std::map<geometry*, std::vector<drawInstanceData>> _instances;
+        vector<mat4> _modelMatrices;
+        vector<geometry*> _geometries;
+        std::map<geometry*, vector<drawInstanceData>> _instances;
         std::map<mesh*, drawInstanceData> _meshInstances;
 
         GLint _vboOffset;
@@ -76,7 +76,7 @@ namespace phi
         batch();
         ~batch();
         bool add(batchObject &batchObject);
-        void update(std::vector<batchObject> &batchObjects);
+        void update(vector<batchObject> &batchObjects);
         void render();
     };
 }

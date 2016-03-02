@@ -1,9 +1,9 @@
-#include <core\globals.h>
+#include <precompiled.h>
 #include <demo\library.h>
 #include <loader\importer.h>
 #include <io\path.h>
 
-library::library(phi::gl* gl, std::string resourcesPath) :
+library::library(phi::gl* gl, phi::string resourcesPath) :
     _gl(gl),
     _libraryPath(resourcesPath)
 {
@@ -16,7 +16,7 @@ library::library(phi::gl* gl, std::string resourcesPath) :
 
 void library::init()
 {
-    auto importTextureFunction = [](std::string filePath, phi::resource<phi::texture>*& resource)
+    auto importTextureFunction = [](phi::string filePath, phi::resource<phi::texture>*& resource)
     {
         return phi::importer::importTexture(filePath, resource);
     };
@@ -24,14 +24,14 @@ void library::init()
     _texturesRepository =
         load<phi::texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
 
-    auto importMaterialFunction = [&](std::string filePath, phi::resource<phi::material>*& resource)
+    auto importMaterialFunction = [&](phi::string filePath, phi::resource<phi::material>*& resource)
     {
         return phi::importer::importMaterial(filePath, resource, _texturesRepository);
     };
 
     _materialsRepository = load<phi::material>(_libraryPath + "/materials", ".material", importMaterialFunction);
 
-    auto importModelFunction = [&](std::string filePath, phi::resource<phi::node>*& resource)
+    auto importModelFunction = [&](phi::string filePath, phi::resource<phi::node>*& resource)
     {
         return phi::importer::importNode(filePath, resource, _materialsRepository);
     };

@@ -1,13 +1,11 @@
-﻿#include "screen.h"
-
-#include <core\globals.h>
+﻿#include <precompiled.h>
+#include "screen.h"
 #include <diagnostics\diagnostics.h>
 #include <diagnostics\stopwatch.h>
 
 #include <loader\importer.h>
 #include <rendering\model.h>
 
-#include <GLM\gtc\constants.hpp>
 
 screen::screen() : form()
 {

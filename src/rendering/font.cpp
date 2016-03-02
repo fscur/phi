@@ -1,8 +1,7 @@
+#include <precompiled.h>
 #include "font.h"
 
 #include <core/resource.h>
-
-#include <algorithm>
 
 namespace phi
 {

@@ -1,13 +1,13 @@
 #pragma once
-
-#include <string>
+#include <precompiled.h>
+#include "io.h"
 
 namespace phi
 {
     struct fileInfo
     {
     public:
-        std::string name;
-        std::string path;
+        string name;
+        string path;
     };
 }

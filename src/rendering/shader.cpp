@@ -1,9 +1,5 @@
+#include <precompiled.h>
 #include "shader.h"
-
-#include <core/globals.h>
-
-#include <fstream>
-#include <iostream>
 
 namespace phi
 {
@@ -17,8 +13,8 @@ namespace phi
         _vertexShader = glCreateShader(GL_VERTEX_SHADER);
         _fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-        std::string vertText = loadShaderFile(_vertFile.c_str());
-        std::string fragText = loadShaderFile(_fragFile.c_str());
+        string vertText = loadShaderFile(_vertFile.c_str());
+        string fragText = loadShaderFile(_fragFile.c_str());
 
         const char *vertexText = vertText.c_str();
         const char *fragmentText = fragText.c_str();
@@ -59,12 +55,12 @@ namespace phi
         return true;
     }
 
-    std::string shader::loadShaderFile(const std::string fileName)
+    string shader::loadShaderFile(const string fileName)
     {
-        std::string filePath = fileName;
+        string filePath = fileName;
 
-        std::string fileString;
-        std::string line;
+        string fileString;
+        string line;
 
         std::ifstream file(filePath);
 
@@ -83,7 +79,7 @@ namespace phi
         return fileString;
     }
 
-    bool shader::validateShader(GLuint shader, const std::string file)
+    bool shader::validateShader(GLuint shader, const string file)
     {
         GLint success = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -134,7 +130,7 @@ namespace phi
             glBindAttribLocation(_id, i, _attributes[i].c_str());
     }
 
-    void shader::addUniform(uint location, std::string name)
+    void shader::addUniform(uint location, string name)
     {
         if (!_initialized)
             return;
