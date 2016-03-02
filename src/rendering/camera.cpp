@@ -4,13 +4,12 @@
 
 namespace phi
 {
-    camera::camera(std::string name, float nearDistance, float farDistance, vec2 resolution, float fov, transform* transform) : 
+    camera::camera(std::string name, float nearDistance, float farDistance, vec2 resolution, float fov) : 
         component(component::componentType::CAMERA, name),
         _near(nearDistance),
         _far(farDistance),
         _resolution(resolution),
         _fov(fov),
-        _transform(transform),
         _focus(1.0f),
         _aspect(resolution.x / resolution.y),
         _changedView(false),
@@ -20,7 +19,7 @@ namespace phi
         updateProjectionMatrix();
     }
 
-    mat4 camera::getViewMatrix()
+    inline mat4 camera::getViewMatrix()
     {
         if (_changedView)
             updateViewMatrix();
@@ -28,7 +27,7 @@ namespace phi
         return _viewMatrix;
     }
 
-    mat4 camera::getProjectionMatrix()
+    inline mat4 camera::getProjectionMatrix()
     {
         if (_changedProjection)
             updateProjectionMatrix();
@@ -36,28 +35,48 @@ namespace phi
         return _projectionMatrix;
     }
 
+    inline transform* camera::getTransform()
+    {
+        if (_node == nullptr)
+            return nullptr;
+
+        _node->getTransform();
+    }
+
+    inline void camera::setResolution(vec2 value)
+    {
+        _resolution = value;
+        _aspect = _resolution.x / _resolution.y;
+        _changedProjection = true;
+    }
+
     void camera::updateViewMatrix()
     {
-        auto position = _transform->getPosition();
-        auto target = position + _transform->getDirection() * _focus;
+        auto transform = getTransform();
+        if (transform == nullptr)
+            transform = new phi::transform();
+
+        auto position = transform->getPosition();
+        auto target = position + transform->getDirection() * _focus;
         _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
         _changedView = false;
     }
 
-    void camera::updateProjectionMatrix()
+    inline void camera::updateProjectionMatrix()
     {
         _projectionMatrix = glm::perspective(_fov, _aspect, _near, _far);
         _changedProjection = false;
     }
 
-    void camera::moveTo(vec3 position)
+    inline void camera::moveTo(vec3 position)
     {
-        _transform->setLocalPosition(position);
+        getTransform()->setLocalPosition(position);
     }
 
     void camera::zoomIn(vec3 targetPos)
     {
-        auto position = _transform->getPosition();
+        auto transform = getTransform();
+        auto position = transform->getPosition();
         auto dist = mathUtils::distance(targetPos, position) - _near;
         vec3 direction = normalize(targetPos - position);
 
@@ -73,7 +92,7 @@ namespace phi
         auto newPosition = position + offset;
 
         _focus = glm::max(_focus - dist, _near);
-        _transform->setLocalPosition(newPosition);
+        transform->setLocalPosition(newPosition);
 
         if (dist - _near < 0.2f)
         {
@@ -87,7 +106,8 @@ namespace phi
 
     void camera::zoomOut(vec3 targetPos)
     {
-        auto position = _transform->getPosition();
+        auto transform = getTransform();
+        auto position = transform->getPosition();
         auto dist = mathUtils::distance(targetPos, position);
         vec3 direction = normalize(targetPos - position);
 
@@ -98,7 +118,7 @@ namespace phi
         vec3 newPosition = position + offset;
 
         _focus -= dist;
-        _transform->setLocalPosition(newPosition);
+        transform->setLocalPosition(newPosition);
 
         if (dist - _near > 0.2f)
         {
@@ -112,11 +132,12 @@ namespace phi
 
     void camera::orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY)
     {
-        auto position = _transform->getPosition();
+        auto transform = getTransform();
+        auto position = transform->getPosition();
         position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
         position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
 
-        auto target = _transform->getPosition() + _transform->getDirection() * _focus;
+        auto target = transform->getPosition() + transform->getDirection() * _focus;
         target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
         target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
 
@@ -135,13 +156,13 @@ namespace phi
         auto angle = orientedAngle(q1 * vec3(1.0f, 0.0f, 0.0f), right, dir);
         auto q2 = angleAxis(angle, dir);
 
-        _transform->setLocalPosition(position);
-        _transform->setLocalOrientation(q2 * q1);
+        transform->setLocalPosition(position);
+        transform->setLocalOrientation(q2 * q1);
 
         _changedView = true;
     }
 
-    void camera::update()
+    inline void camera::update()
     {
         // TODO: when the new event system is done, change this to update only when the transform changes
         updateViewMatrix();

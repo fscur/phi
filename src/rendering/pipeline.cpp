@@ -51,10 +51,9 @@ namespace phi
 
     void pipeline::addToBatches(node* n)
     {
-        auto component = n->getComponent(component::componentType::MESH);
-        if (component)
+        auto mesh = n->getComponent<phi::mesh>();
+        if (mesh)
         {
-            auto mesh = static_cast<phi::mesh*>(component);
             auto material = mesh->material;
 
             if (!phi::contains(_loadedMaterials, material))
@@ -65,7 +64,7 @@ namespace phi
             batchObject.mesh = mesh;
             batchObject.geometry = geometry;
             batchObject.materialId = _materialsMaterialsGpu[material];
-            batchObject.modelMatrix = n->getTransform()->getModelMatrix();
+            batchObject.modelMatrix = n->getTransform().getModelMatrix();
 
             addToBatches(batchObject);
         }
@@ -143,10 +142,9 @@ namespace phi
 
     void pipeline::updateBatches(node* n)
     {
-        auto component = n->getComponent(component::componentType::MESH);
-        if (component)
+        auto mesh = n->getComponent<phi::mesh>();
+        if (mesh)
         {
-            auto mesh = static_cast<phi::mesh*>(component);
             auto batch = _meshesBatches[mesh];
             _nodesToUpdate[batch].push_back(n);
         }
@@ -166,12 +164,12 @@ namespace phi
 
             for (auto n : _nodesToUpdate[batch])
             {
-                auto mesh = static_cast<phi::mesh*>(n->getComponent(component::componentType::MESH));
+                auto mesh = n->getComponent<phi::mesh>();
                 auto batchObject = phi::batchObject();
                 batchObject.mesh = mesh;
                 batchObject.geometry = mesh->geometry;
                 batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-                batchObject.modelMatrix = n->getTransform()->getModelMatrix();
+                batchObject.modelMatrix = n->getTransform().getModelMatrix();
                 bacthObjectsToUpdade.push_back(batchObject);
             }
 

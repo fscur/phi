@@ -77,7 +77,7 @@ void screen::initScene()
     for (size_t i = 0; i < 10; i++)
     {
         auto cloned = obj->clone();
-        cloned->getTransform()->setLocalPosition(phi::vec3(i+(0.1f*i), 0.0, 0.0));
+        cloned->getTransform().setLocalPosition(phi::vec3(i+(0.1f*i), 0.0, 0.0));
         _scene->add(cloned);
     }
 }

@@ -21,10 +21,12 @@ namespace phi
             geometry(geometry),
             material(material) {}
 
-        RENDERING_API component* clone() override
+        RENDERING_API component* clone() const override
         {
-            auto m = dynamic_cast<mesh*>(this);
+            auto m = static_cast<const mesh*>(this);
             return new mesh(*m);
         }
+
+        RENDERING_API static componentType getComponentType() { return componentType::MESH; }
     };
 }
