@@ -1,5 +1,5 @@
 #pragma once
-#include <precompiled.h>
+#include <phi.h>
 #include "loader.h"
 #include <core\resourcesRepository.h>
 #include <core\node.h>

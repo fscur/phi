@@ -21,7 +21,10 @@ elseif (WIN32)
     
 endif (APPLE)
 
-add_subdirectory(src/precompiled)
+SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS TRUE)
+SET_PROPERTY(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER !CMake)
+
+add_subdirectory(src/phi)
 add_subdirectory(src/diagnostics)
 add_subdirectory(src/core)
 add_subdirectory(src/io)

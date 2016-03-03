@@ -1,5 +1,5 @@
 #pragma once
-#include <precompiled.h>
+#include <phi.h>
 #include <core/inputKey.h>
 
 static const unsigned int PHI_TOTAL_KEYS = 310;

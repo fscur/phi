@@ -1,5 +1,5 @@
 #pragma once
-#include <precompiled.h>
+#include <phi.h>
 #include "component.h"
 #include "transform.h"
 

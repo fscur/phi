@@ -5,7 +5,7 @@
 */
 
 #pragma once
-#include <precompiled.h>
+#include <phi.h>
 #include "scancode.h"
 
 typedef int keycode;

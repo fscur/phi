@@ -1,5 +1,5 @@
 #pragma once
-#include <precompiled.h>
+#include <phi.h>
 #include <scenes\scene.h>
 
 #include "cameraController.h"

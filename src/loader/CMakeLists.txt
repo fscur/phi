@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-project(loader)
+#project(loader)
 
 add_definitions(-DLOADER_EXPORTS)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
-include_directories(${PHI_INCLUDE_DIRS}/precompiled)
+include_directories(${PHI_INCLUDE_DIRS}/phi)
 
 link_directories(${LIBS_DIRS})
 
@@ -36,10 +36,15 @@ install(TARGETS loader
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}
     CONFIGURATIONS ${CMAKE_BUILD_TYPE})
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\precompiled\\precompiled.dir\\$(Configuration)\\precompiled.pch")
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
 
-add_custom_command(TARGET loader
-    PRE_BUILD
-    COMMAND xcopy /D /Y \"$(SolutionDir)src\\precompiled\\precompiled.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+    add_custom_command(
+        TARGET loader
+        PRE_BUILD
+        COMMAND xcopy /D /Y \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+endif(WIN32)
+
+set_target_properties(loader PROPERTIES FOLDER Engine)

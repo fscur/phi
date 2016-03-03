@@ -1,5 +1,5 @@
 #pragma once
-#include <precompiled.h>
+#include <phi.h>
 #include "material.h"
 #include <core\geometry.h>
 #include <core\component.h>
