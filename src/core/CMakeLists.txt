@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-#project(core)
-
 add_definitions(-DCORE_EXPORTS)
 
 include_directories(${INCLUDE_DIRS})
@@ -18,7 +16,7 @@ target_link_libraries(core diagnostics)
 install(TARGETS core 
     RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os})
 
-if (WIN32)
+if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
@@ -27,6 +25,6 @@ if (WIN32)
         TARGET core
         PRE_BUILD
         COMMAND xcopy /D /Y \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
-endif(WIN32)
+endif(MSVC)
 
 set_target_properties(core PROPERTIES FOLDER Engine)

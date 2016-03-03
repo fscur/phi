@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-#project(loader)
-
 add_definitions(-DLOADER_EXPORTS)
 
 include_directories(${INCLUDE_DIRS})
@@ -36,7 +34,7 @@ install(TARGETS loader
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}
     CONFIGURATIONS ${CMAKE_BUILD_TYPE})
 
-if (WIN32)
+if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
@@ -45,6 +43,6 @@ if (WIN32)
         TARGET loader
         PRE_BUILD
         COMMAND xcopy /D /Y \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
-endif(WIN32)
+endif(MSVC)
 
 set_target_properties(loader PROPERTIES FOLDER Engine)

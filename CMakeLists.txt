@@ -5,12 +5,13 @@ project(phi)
 set(CMAKE_SUPPRESS_REGENERATION TRUE)
 
 add_definitions(-DNOMINMAX)
+
 if (APPLE)
     add_definitions(-DAPPLE)
     set(os osx)
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x")
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-elseif (WIN32)
+elseif (MSVC)
     add_definitions(-DWIN32)
 
     if ("${SOLUTION_PLATFORM}" STREQUAL x64)
@@ -18,7 +19,8 @@ elseif (WIN32)
     else()
         set (os win32)
     endif()
-    
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+    add_compile_options(-Wall -Weffc++ -pedantic -std=c++11)
 endif (APPLE)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS TRUE)
@@ -34,7 +36,7 @@ add_subdirectory(src/ui)
 add_subdirectory(src/demo)
 add_subdirectory(src/scenes)
 
-if ( WIN32 )
+if (MSVC)
     set_target_properties(diagnostics PROPERTIES RUNTIME_OUTPUT_DIRECTORY ../../)
     set_target_properties(diagnostics PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ../../debug)
     set_target_properties(diagnostics PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ../../release)
@@ -60,22 +62,21 @@ if ( WIN32 )
     set_target_properties(loader PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ../../debug)
     set_target_properties(loader PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ../../release)
     
-endif ( WIN32 )
+endif (MSVC)
 
 set (dlls_dir ${CMAKE_CURRENT_SOURCE_DIR}/libs/${SOLUTION_PLATFORM})
 
-if (WIN32)
+if (MSVC)
     file(GLOB dll_files ${dlls_dir}/*.dll)
     file(GLOB tlb_files ${dlls_dir}/*.tlb)
 elseif(APPLE)
     file(GLOB dll_files ${dlls_dir}/*.*)
-endif()
+endif(MSVC)
 
 set (library_dir ${CMAKE_CURRENT_SOURCE_DIR}/library)
 set (resources_dir ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set (image_dir ${CMAKE_CURRENT_SOURCE_DIR}/images)
-set (build_folder build${SOLUTION_PLATFORM})
-set (src_dir ${CMAKE_SOURCE_DIR}/${build_folder}/src)
+set (src_dir ${CMAKE_BINARY_DIR}/src)
 
 file(GLOB image_files ${image_dir}/*.*)
 
@@ -83,6 +84,8 @@ file(GLOB image_files ${image_dir}/*.*)
  if (HOOK_SCRIPTS) 
     file(COPY ${HOOK_SCRIPTS} DESTINATION ${CMAKE_SOURCE_DIR}/.git/hooks) 
 endif (HOOK_SCRIPTS)
+
+if (MSVC)
 
 file(GLOB NUGET_PACKAGES ./nuget_packages/*)
 
@@ -95,10 +98,11 @@ file(COPY ${NUGET_PACKAGES} DESTINATION ${src_dir}/scenes)
 file(COPY ${NUGET_PACKAGES} DESTINATION ${src_dir}/ui)
 file(COPY ${NUGET_PACKAGES} DESTINATION ${src_dir}/demo)
 
+endif(MSVC)
 
 foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
         string( TOLOWER ${OUTPUTCONFIG} OUTPUTCONFIG )
-        set (dir ${CMAKE_CURRENT_SOURCE_DIR}/${build_folder}/${OUTPUTCONFIG})
+        set (dir ${CMAKE_BINARY_DIR}/${OUTPUTCONFIG})
         #install(DIRECTORY ${resources_dir} DESTINATION ${dir})
         #install(DIRECTORY ${library_dir} DESTINATION ${dir})
         install(FILES ${image_files} DESTINATION ${dir})

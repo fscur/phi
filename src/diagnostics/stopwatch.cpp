@@ -3,14 +3,30 @@
 #include "stopwatch.h"
 #include "console.h"
 
+using namespace std::chrono;
+
 namespace phi
 {
+    stopwatch::stopwatch() :
+        _initial(nanoseconds()),
+        _final(nanoseconds()),
+        _currentNanoSeconds(nanoseconds()),
+        _isRunning(false)
+    {
+    }
+    
+    stopwatch::~stopwatch()
+    {
+        
+    }
+    
     void stopwatch::start()
     {
         if(!_isRunning)
         {
             _isRunning = true;
-            _initial = std::chrono::high_resolution_clock::now();
+            auto now = high_resolution_clock::now();
+            _initial = duration_cast<nanoseconds>(now.time_since_epoch());
         }
     }
 
@@ -18,7 +34,8 @@ namespace phi
     {
         if(_isRunning)
         {
-            _final = std::chrono::high_resolution_clock::now();
+            auto now = high_resolution_clock::now();
+            _final = duration_cast<nanoseconds>(now.time_since_epoch());
             _currentNanoSeconds += _final - _initial;
             _isRunning = false;
         }
@@ -26,7 +43,7 @@ namespace phi
 
     void stopwatch::reset()
     {
-        _currentNanoSeconds = std::chrono::nanoseconds::zero();
+        _currentNanoSeconds = nanoseconds::zero();
     }
 
     void stopwatch::restart()
@@ -37,7 +54,7 @@ namespace phi
 
     const double stopwatch::getElapsedSeconds()
     {
-        return std::chrono::duration_cast<std::chrono::duration<double>>(_currentNanoSeconds).count();
+        return duration_cast<duration<double>>(_currentNanoSeconds).count();
     }
 
     const double stopwatch::measure(const std::function<void(void)> &function)

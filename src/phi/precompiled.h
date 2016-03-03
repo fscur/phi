@@ -1,9 +1,11 @@
 #pragma once
+#ifdef WIN32
 #pragma message ("Compiling precompiled headers.\n")
-
+#endif
+    
 #include <algorithm>
 #include <cmath>
-#include <codecvt>
+//#include <codecvt>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -28,7 +30,7 @@
 #include <objbase.h>
 #include <stdarg.h>
 
-#if WIN32
+#ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <gl\glew.h>
@@ -37,7 +39,7 @@
 #include <OpenGL\gl3.h>
 #endif
 
-#include <bullet\btBulletDynamicsCommon.h>
+//#include <bullet\btBulletDynamicsCommon.h>
 
 #define GLM_FORCE_RADIANS
 
@@ -57,5 +59,5 @@
 #include <sdl\sdl_image.h>
 #include <sdl\sdl.h>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
+//#include <ft2build.h>
+//#include FT_FREETYPE_H

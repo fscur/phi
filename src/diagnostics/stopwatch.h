@@ -7,14 +7,14 @@ namespace phi
     class stopwatch
     {
     private:
-        std::chrono::time_point<std::chrono::steady_clock> _initial;
-        std::chrono::time_point<std::chrono::steady_clock> _final;
+        std::chrono::nanoseconds _initial;
+        std::chrono::nanoseconds _final;
         std::chrono::nanoseconds _currentNanoSeconds = std::chrono::nanoseconds::zero();
         bool _isRunning = false;
+        
     public:
-
-        DIAGNOSTICS_API stopwatch() { };
-        DIAGNOSTICS_API ~stopwatch() { };
+        DIAGNOSTICS_API stopwatch();
+        DIAGNOSTICS_API ~stopwatch();
         DIAGNOSTICS_API void start();
         DIAGNOSTICS_API void stop();
         DIAGNOSTICS_API void reset();
