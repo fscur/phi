@@ -7,21 +7,25 @@ Description:
     Undo/Redo.
 
 Issues
+
+//patrick
 - Log system / Error handling / Exception
     - Throw exceptions
     - Trace log (optional) to console (automate?)
     - App handles exceptions
-     
 - OpenGL Error Check (CallGL)
 - Debug UI (FPS, GPU workload, CPU workload)
     - Improve diagnostics
     
+// filipe    
 - Crossplatform Input (mouse, keyboard, touch, ...)
 - Create Crossplatform Application Project Windowing System
-- Smooth camera controls (inertia)
+
+//nando
 - Event system / Callback system
 - Button / Slider / Textbox / Label
 - Commands system
+- Smooth camera controls (inertia)
 
 Render Demo 2.0
     Multi renderer (OpenGL 4.5, OpenGL 4.1, Open GL 3.3, Vulkan, DX11, DX12, GDI, Crazy WPF Graphics System)
