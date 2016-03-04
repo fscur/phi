@@ -22,9 +22,9 @@ namespace phi
         static GUID convertToGuid(const char* bytesGuid);
     public:
         LOADER_API static int importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo);
-        LOADER_API static int importer::importGeometry(string fileName, phi::geometry*& geometry);
-        LOADER_API static int importer::importTexture(string fileName, texture*& texture);
-        LOADER_API static int importer::importTexture(string fileName, resource<texture>*& textureResource);
-        LOADER_API static int importer::importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo);
+        LOADER_API static int importGeometry(string fileName, phi::geometry*& geometry);
+        LOADER_API static int importTexture(string fileName, texture*& texture);
+        LOADER_API static int importTexture(string fileName, resource<texture>*& textureResource);
+        LOADER_API static int importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo);
     };
 }

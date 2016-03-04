@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
-
-add_definitions(-DRENDERING_EXPORTS)
+if (MSVC)
+    add_definitions(-DRENDERING_EXPORTS)
+endif (MSVC)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
@@ -8,21 +9,26 @@ include_directories(${PHI_INCLUDE_DIRS}/phi)
 
 link_directories(${LIBS_DIRS})
 
+find_package(FREETYPE REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+#link_directories(${FREETYPE_LIBRARY})
+
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
+#link_directories(${GLEW_LIBRARY})
+
+if(NOT GLEW_FOUND)
+    message(GLEW not found!)
+endif(NOT GLEW_FOUND)
+
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 file(GLOB shader_files ../../resources/shaders/*)
 
 add_library(rendering SHARED ${source_files} ${header_files} ${shader_files})
 source_group(Shaders FILES ${shader_files})
-
 target_link_libraries(rendering core)
 target_link_libraries(rendering io)
-
-#freetype package
-find_package(FREETYPE REQUIRED)
-link_directories(${FREETYPE_LIBRARIES})
-include_directories(${FREETYPE_INCLUDE_DIRS})
-target_link_libraries(rendering ${FREETYPE_LIBRARY})
 
 #opengl
 if (WIN32)
@@ -30,19 +36,13 @@ if (WIN32)
     if(NOT OPENGL_FOUND)
         message(OPENGL not found!)
     endif(NOT OPENGL_FOUND)
-
     target_link_libraries(rendering ${OPENGL_LIBRARY})
-    
-    find_package(GLEW REQUIRED)
-    include_directories(${GLEW_INCLUDE_DIR})
-    link_directories(${GLEW_LIBRARY})
-
-    if(NOT GLEW_FOUND)
-        message(GLEW not found!)
-    endif(NOT GLEW_FOUND)
-    
-    target_link_libraries(rendering ${GLEW_LIBRARY})
 endif(WIN32)
+
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
+target_link_libraries(rendering ${GLEW_LIBRARY})
+target_link_libraries(rendering ${FREETYPE_LIBRARY})
 
 install(TARGETS rendering 
     RUNTIME 

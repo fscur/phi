@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
-
-add_definitions(-DCORE_EXPORTS)
+if (MSVC)
+    add_definitions(-DCORE_EXPORTS)
+endif(MSVC)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})

@@ -26,29 +26,29 @@ namespace phi
 
             switch (type)
             {
-                case 0:
-                {
-                    component = new phi::model(components[i]["Name"].GetString());
-                    break;
-                }
-                case 1:
-                {
-                    auto geometryPath = components[i]["GeometryPath"].GetString();
-                    phi::geometry* geometry = nullptr;
-                    importGeometry(currentFolder + "\\" + geometryPath, geometry);
+            case 0:
+            {
+                component = new phi::model(components[i]["Name"].GetString());
+                break;
+            }
+            case 1:
+            {
+                auto geometryPath = components[i]["GeometryPath"].GetString();
+                phi::geometry* geometry = nullptr;
+                importGeometry(currentFolder + "\\" + geometryPath, geometry);
 
-                    auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
-                    auto matRes = materialsRepo->getResource(materialGuid);
+                auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
+                auto matRes = materialsRepo->getResource(materialGuid);
 
-                    material* mat;
-                    if (matRes == nullptr)
-                        mat = defaultMaterial;
-                    else
-                        mat = matRes->getObject();
+                material* mat;
+                if (matRes == nullptr)
+                    mat = defaultMaterial;
+                else
+                    mat = matRes->getObject();
 
-                    component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
-                    break;
-                }
+                component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
+                break;
+            }
             }
             objectNode->addComponent(component);
         }
@@ -115,6 +115,8 @@ namespace phi
 
     int importer::importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo)
     {
+        //TODO:: create load file fuction in the io API
+#ifdef MSVC 
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
         char readBuffer[65536];
@@ -130,12 +132,14 @@ namespace phi
         objectResource = new resource<node>(guid, path::getFileNameWithoutExtension(fileName), rootNode);
 
         fclose(fp);
-
         return 1;
+#endif
+        return 0;
     }
 
     int importer::importGeometry(string fileName, geometry*& data)
     {
+#ifdef MSVC
         std::ifstream iFile;
         iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
 
@@ -170,19 +174,97 @@ namespace phi
         iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * intSize);
 
         data = geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
-
         return 1;
+#endif
+        return 0;
     }
 
     int importer::importTexture(string fileName, texture*& texture)
     {
-        SDL_Surface* surface = IMG_Load(fileName.c_str());
-        SDL_InvertSurface(surface);
-
-        GLenum format = GL_BGRA;
-
-        switch (surface->format->BitsPerPixel)
+        bool free = false;
+        if (free)
         {
+            auto cfileName = fileName.c_str();
+            //image format
+            FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+            //pointer to the image, once loaded
+            FIBITMAP *dib(0);
+            //pointer to the image data
+            BYTE* bits(0);
+            //image width and height
+            unsigned int width(0), height(0);
+            //OpenGL's image ID to map to
+            GLuint gl_texID;
+
+            //check the file signature and deduce its format
+            fif = FreeImage_GetFileType(cfileName, 0);
+            //if still unknown, try to guess the file format from the file extension
+            if (fif == FIF_UNKNOWN)
+                fif = FreeImage_GetFIFFromFilename(cfileName);
+            //if still unkown, return failure
+            if (fif == FIF_UNKNOWN)
+                return false;
+
+            //check that the plugin has reading capabilities and load the file
+            if (FreeImage_FIFSupportsReading(fif))
+                dib = FreeImage_Load(fif, cfileName);
+            //if the image failed to load, return failure
+            if (!dib)
+                return false;
+
+            //retrieve the image data
+            bits = FreeImage_GetBits(dib);
+            //get the image width and height
+            width = FreeImage_GetWidth(dib);
+            height = FreeImage_GetHeight(dib);
+            //if this somehow one of these failed (they shouldn't), return failure
+            if ((bits == 0) || (width == 0) || (height == 0))
+                return 0;
+
+            GLenum format = GL_BGRA;
+            auto bpp = FreeImage_GetBPP(dib);
+            auto redMask = FreeImage_GetRedMask(dib);
+
+            switch (bpp)
+            {
+            case 24:
+                if (redMask == 255)
+                    format = GL_RGB;
+                else
+                    format = GL_BGR;
+                break;
+            case 32:
+                if (redMask == 255)
+                    format = GL_RGBA;
+                else
+                    format = GL_BGRA;
+                break;
+            }
+
+            auto totalBytes = bpp / 8;
+            auto data = malloc(width * height * totalBytes);
+            memcpy(data, bits, width * height * totalBytes);
+
+            texture = new phi::texture(
+                width,
+                height,
+                GL_TEXTURE_2D,
+                GL_RGBA8,
+                format,
+                GL_UNSIGNED_BYTE,
+                (byte*)data);
+
+            return 1;
+        }
+        else
+        {
+            SDL_Surface* surface = IMG_Load(fileName.c_str());
+            SDL_InvertSurface(surface);
+
+            GLenum format = GL_BGRA;
+
+            switch (surface->format->BitsPerPixel)
+            {
             case 24:
                 if (surface->format->Rmask == 255)
                     format = GL_RGB;
@@ -191,31 +273,34 @@ namespace phi
                 break;
             case 32:
                 if (surface->format->Rmask == 255)
-                    format = GL_RGBA; 
+                    format = GL_RGBA;
                 else
                     format = GL_BGRA;
                 break;
+            }
+
+            auto totalBytes = surface->format->BitsPerPixel / 8;
+            auto data = malloc(surface->w * surface->h * totalBytes);
+            memcpy(data, surface->pixels, surface->w * surface->h * totalBytes);
+
+            texture = new phi::texture(
+                (uint)surface->w,
+                (uint)surface->h,
+                GL_TEXTURE_2D,
+                GL_RGBA8,
+                format,
+                GL_UNSIGNED_BYTE,
+                (byte*)data);
+
+            SDL_FreeSurface(surface);
+            return 1;
         }
-
-        auto totalBytes = surface->format->BitsPerPixel / 8;
-        auto data = malloc(surface->w * surface->h * totalBytes);
-        memcpy(data, surface->pixels, surface->w * surface->h * totalBytes);
-
-        texture = new phi::texture(
-            (uint)surface->w, 
-            (uint)surface->h, 
-            GL_TEXTURE_2D,
-            GL_RGBA8,
-            format, 
-            GL_UNSIGNED_BYTE,
-            (byte*)data);
-
-        SDL_FreeSurface(surface);
-        return 1;
+        return 0;
     }
 
     int importer::importTexture(string fileName, resource<texture>*& textureResource)
     {
+#ifdef MSVC
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
         char readBuffer[65536];
@@ -238,12 +323,14 @@ namespace phi
         }
 
         textureResource = new resource<texture>(guid, name, tex);
-
         return 1;
+#endif
+        return 0;
     }
 
     int importer::importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo)
     {
+#ifdef MSVC
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
         char readBuffer[65536];
@@ -294,7 +381,8 @@ namespace phi
             opacity);
 
         materialResource = new resource<material>(guid, path::getFileNameWithoutExtension(fileName), mat);
-
         return 1;
+#endif
+        return 0;
     }
 }

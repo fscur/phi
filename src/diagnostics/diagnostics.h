@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef WIN32
+#ifdef MSVC
     #ifdef DIAGNOSTICS_EXPORTS
         #define DIAGNOSTICS_API __declspec(dllexport)
     #else

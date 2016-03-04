@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef WIN32
+#ifdef MSVC
 #ifdef LOADER_EXPORTS
 #define LOADER_API __declspec(dllexport)
 #else

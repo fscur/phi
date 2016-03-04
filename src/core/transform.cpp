@@ -28,7 +28,7 @@ namespace phi
         _direction = mathUtils::multiply(rotation, vec3(0.0f, 0.0f, 1.0f));
     }
 
-    inline mat4 transform::getLocalModelMatrix()
+    mat4 transform::getLocalModelMatrix()
     {
         if (_changed)
             updateData();
@@ -36,12 +36,12 @@ namespace phi
         return _localModelMatrix;
     }
 
-    inline mat4 transform::getLocalRotationMatrix() const
+    mat4 transform::getLocalRotationMatrix() const
     {
         return glm::toMat4(_localOrientation);
     }
 
-    inline mat4 transform::getLocalTranslationMatrix() const
+    mat4 transform::getLocalTranslationMatrix() const
     {
         return mat4(
             1.0f, 0.0f, 0.0f, 0.0f,
@@ -50,7 +50,7 @@ namespace phi
             _localPosition.x, _localPosition.y, _localPosition.z, 1.0f);
     }
 
-    inline mat4 transform::getLocalScaleMatrix() const
+    mat4 transform::getLocalScaleMatrix() const
     {
         return mat4(
             _localSize.x, 0.0f, 0.0f, 0.0f,
@@ -67,7 +67,7 @@ namespace phi
             return _parent->getModelMatrix() * getLocalModelMatrix();
     }
 
-    inline vec3 transform::getPosition()
+    vec3 transform::getPosition()
     {
         if (_changed)
             updateData();
@@ -75,7 +75,7 @@ namespace phi
         return _position;
     }
 
-    inline vec3 transform::getRight()
+    vec3 transform::getRight()
     {
         if (_changed)
             updateData();
@@ -83,7 +83,7 @@ namespace phi
         return _right;
     }
 
-    inline vec3 transform::getUp()
+    vec3 transform::getUp()
     {
         if (_changed)
             updateData();
@@ -91,7 +91,7 @@ namespace phi
         return _up;
     }
 
-    inline vec3 transform::getDirection()
+    vec3 transform::getDirection()
     {
         if (_changed)
             updateData();
@@ -99,31 +99,31 @@ namespace phi
         return _direction;
     }
 
-    inline void transform::setParent(transform * value)
+    void transform::setParent(transform * value)
     {
         _parent = value;
         _changed = true;
     }
 
-    inline void transform::setLocalPosition(vec3 value)
+    void transform::setLocalPosition(vec3 value)
     {
         _localPosition = value;
         _changed = true;
     }
 
-    inline void transform::setLocalOrientation(quat value)
+    void transform::setLocalOrientation(quat value)
     {
         _localOrientation = value;
         _changed = true;
     }
 
-    inline void transform::setLocalSize(vec3 value)
+    void transform::setLocalSize(vec3 value)
     {
         _localSize = value;
         _changed = true;
     }
 
-    inline void transform::setDirection(vec3 direction)
+    void transform::setDirection(vec3 direction)
     {
         setLocalOrientation(mathUtils::rotationBetweenVectors(_direction, direction) * _localOrientation);
     }

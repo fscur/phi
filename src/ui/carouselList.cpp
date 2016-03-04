@@ -243,7 +243,7 @@ namespace phi
             {
                 if (!tabButton->getChecked())
                 {
-                    for each (auto subTabButton in (*_subTabsButtons[_currentTab]))
+                    for (auto subTabButton : (*_subTabsButtons[_currentTab]))
                         removeChild(subTabButton);
 
                     if (_currentSubTab != nullptr)
@@ -253,7 +253,7 @@ namespace phi
 
                     _currentTab = pos;
 
-                    for each (auto subTabButton in (*_subTabsButtons[_currentTab]))
+                    for (auto subTabButton : (*_subTabsButtons[_currentTab]))
                         addChild(subTabButton);
 
                     if (_tabs[pos]->size() > 0)
@@ -381,7 +381,7 @@ namespace phi
 
         control::controlsScissors->pushScissor(_tabsScissor);
         control::controlsScissors->enable();
-        for each (toggleButton* b in _tabsButtons)
+        for (toggleButton* b : _tabsButtons)
             b->render();
         control::controlsScissors->popScissor();
         control::controlsScissors->disable();

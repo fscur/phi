@@ -3,6 +3,7 @@
 
 #include <core\mathUtils.h>
 #include <rendering\shadersManager.h>
+#include <core\transform.h>
 
 namespace phi
 {

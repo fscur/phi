@@ -1,12 +1,6 @@
 #pragma once
 #include <phi.h>
 
-#ifdef WIN32
-    #define FORCEINLINE __forceinline
-#else
-    #define FORCEINLINE
-#endif
-
 //http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
 //or
 //http://www.codeproject.com/Articles/6197/Emulating-C-delegates-in-Standard-C
@@ -22,7 +16,7 @@ namespace phi
  
         // turns a free function into our internal function stub
         template <void (*function)()>
-        static FORCEINLINE void functionStub(instancePtr)
+        static void functionStub(instancePtr)
         {
             // we don't need the instance pointer because we're dealing with free functions
             return (function)();
@@ -30,7 +24,7 @@ namespace phi
  
         // turns a member function into our internal function stub
         template <class C, void (C::*function)()>
-        static FORCEINLINE void classMethodStub(instancePtr instance)
+        static void classMethodStub(instancePtr instance)
         {
             // cast the instance pointer back into the original class instance
             return (static_cast<C*>(instance)->*function)();
@@ -78,7 +72,7 @@ namespace phi
      
         // turns a free function into our internal function stub
         template <R (*function)()>
-        static FORCEINLINE R functionStub(instancePtr)
+        static R functionStub(instancePtr)
         {
         // we don't need the instance pointer because we're dealing with free functions
             return (function)();
@@ -86,7 +80,7 @@ namespace phi
      
         // turns a member function into our internal function stub
         template <class C, R (C::*function)()>
-        static FORCEINLINE R classMethodStub(instancePtr instance)
+        static R classMethodStub(instancePtr instance)
         {
             // cast the instance pointer back into the original class instance
             return (static_cast<C*>(instance)->*function)();
@@ -134,7 +128,7 @@ namespace phi
  
         // turns a free function into our internal function stub
         template <void (*function)(ARG0)>
-        static FORCEINLINE void functionStub(instancePtr, ARG0 arg0)
+        static void functionStub(instancePtr, ARG0 arg0)
         {
             // we don't need the instance pointer because we're dealing with free functions
             return (function)(arg0);
@@ -142,7 +136,7 @@ namespace phi
  
         // turns a member function into our internal function stub
         template <class C, void (C::*function)(ARG0)>
-        static FORCEINLINE void classMethodStub(instancePtr instance, ARG0 arg0)
+        static void classMethodStub(instancePtr instance, ARG0 arg0)
         {
             // cast the instance pointer back into the original class instance
             return (static_cast<C*>(instance)->*function)(arg0);

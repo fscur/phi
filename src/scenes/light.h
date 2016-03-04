@@ -8,10 +8,10 @@
 #include <rendering\shader.h>
 #include <rendering\texture.h>
 
-#include "scenes.h"
-
 namespace phi
 {
+    class transform;
+
     class light :
         public component
     {
@@ -32,7 +32,7 @@ namespace phi
         SCENES_API color getColor();
         SCENES_API float getIntensity();
         SCENES_API texture* getShadowMap();
-        SCENES_API transform* light::getTransform() { return _transform; }
+        SCENES_API transform* getTransform() { return _transform; }
 
         SCENES_API void setColor(color color);
         SCENES_API virtual void setIntensity(float intensity);

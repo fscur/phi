@@ -42,7 +42,7 @@ namespace phi
     }
 
     template<typename T>
-    inline void debug(T& value)
+    inline void debug(T value)
     {
 #if _DEBUG
         std::cout << value << std::endl;
@@ -50,7 +50,7 @@ namespace phi
     }
 
     template<typename T>
-    inline void log(T& value)
+    inline void log(T value)
     {
         std::cout << value << std::endl;
     }

@@ -55,9 +55,6 @@ namespace phi
             }
         }
 
-        ~vertexBuffer()
-        {
-            buffer::~buffer();
-        }
+        ~vertexBuffer(){}
     };
 }

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-add_definitions(-DUI_EXPORTS)
+if (MSVC)
+    add_definitions(-DUI_EXPORTS)
+endif (MSVC)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
@@ -12,6 +14,7 @@ file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
 add_library(ui SHARED ${source_files} ${header_files})
+target_link_libraries(ui scenes)
 target_link_libraries(ui loader)
 
 install(TARGETS ui 

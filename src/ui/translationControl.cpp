@@ -1,8 +1,8 @@
 #include <precompiled.h>
 #include "translationControl.h"
 
+#include <rendering\camera.h>
 #include <rendering\shadersManager.h>
-//#include <rendering\geometryRenderer.h>
 #include <rendering\lineMesh.h>
 
 #include "colorAnimator.h"

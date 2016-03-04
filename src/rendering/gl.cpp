@@ -189,7 +189,7 @@ namespace phi
 
     void gl::printError(string msg)
     {
-        auto error = glGetError();
-        phi::log(msg + " (" + getErrorString(error) + ")");
+        auto error = getErrorString(glGetError());
+        phi::log(msg + " (" + error + ")");
     }
 }

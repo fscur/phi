@@ -5,9 +5,10 @@
 
 #include "light.h"
 #include "sphere.h"
-
 namespace phi
 {
+    class transform;
+
     class pointLight :
         public light
     {

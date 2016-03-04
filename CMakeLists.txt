@@ -1,18 +1,14 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 project(phi)
-
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+message(${CMAKE_MODULE_PATH})
 set(CMAKE_SUPPRESS_REGENERATION TRUE)
 
 add_definitions(-DNOMINMAX)
 
-if (APPLE)
-    add_definitions(-DAPPLE)
-    set(os osx)
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++0x")
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-elseif (MSVC)
-    add_definitions(-DWIN32)
+if (MSVC)
+    add_definitions(-DMSVC)
 
     if ("${SOLUTION_PLATFORM}" STREQUAL x64)
         set (os win64)
@@ -20,8 +16,9 @@ elseif (MSVC)
         set (os win32)
     endif()
 elseif(CMAKE_COMPILER_IS_GNUCXX)
-    add_compile_options(-Wall -Weffc++ -pedantic -std=c++11)
-endif (APPLE)
+#add_compile_options(-Wall -Weffc++ -pedantic -std=c++11)
+    add_compile_options(-std=c++11)
+endif (MSVC)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS TRUE)
 SET_PROPERTY(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER !CMake)
@@ -63,7 +60,6 @@ if (MSVC)
     set_target_properties(loader PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ../../release)
     
 endif (MSVC)
-
 set (dlls_dir ${CMAKE_CURRENT_SOURCE_DIR}/libs/${SOLUTION_PLATFORM})
 
 if (MSVC)
@@ -77,7 +73,6 @@ set (library_dir ${CMAKE_CURRENT_SOURCE_DIR}/library)
 set (resources_dir ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set (image_dir ${CMAKE_CURRENT_SOURCE_DIR}/images)
 set (src_dir ${CMAKE_BINARY_DIR}/src)
-
 file(GLOB image_files ${image_dir}/*.*)
 
  file(GLOB HOOK_SCRIPTS ./git_hooks/*) 

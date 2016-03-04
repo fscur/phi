@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef WIN32
+#ifdef MSVC
     #ifdef RENDERING_EXPORTS
         #define RENDERING_API __declspec(dllexport)
     #else

@@ -23,7 +23,7 @@ namespace phi
         void updateData();
 
     public:
-        transform() :
+        CORE_API transform() :
             _parent(nullptr),
             _changed(false),
             _localSize(vec3(1.0f)),
@@ -34,7 +34,7 @@ namespace phi
         {
         }
 
-        transform(const transform& original) :
+        CORE_API transform(const transform& original) :
             _localPosition(original._localPosition),
             _localSize(original._localSize),
             _localOrientation(original._localOrientation),

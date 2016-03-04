@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-add_definitions(-DLOADER_EXPORTS)
+if (MSVC)
+    add_definitions(-DLOADER_EXPORTS)
+endif (MSVC)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS}/phi)
 
 link_directories(${LIBS_DIRS})
+find_package(FREEIMAGE REQUIRED)
+find_package(SDL REQUIRED)
+find_package(SDL_IMAGE REQUIRED)
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
@@ -14,20 +19,9 @@ file(GLOB source_files *.cpp)
 add_library(loader SHARED ${source_files} ${header_files})
 
 target_link_libraries(loader rendering)
-
-#sdl
-find_package(SDL REQUIRED)
-if(NOT SDL_FOUND)
-    message(SDL not found!)
-endif(NOT SDL_FOUND)
 target_link_libraries(loader ${SDL_LIBRARY})
-
-#sdl_image
-find_package(SDL_IMAGE REQUIRED)
-if(NOT SDL_IMAGE_FOUND)
-    message(SDL_IMAGE not found!)
-endif(NOT SDL_IMAGE_FOUND)
 target_link_libraries(loader ${SDL_IMAGE_LIBRARY})
+target_link_libraries(loader ${FREEIMAGE_LIBRARY})
 
 install(TARGETS loader 
     RUNTIME 

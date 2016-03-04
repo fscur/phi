@@ -22,7 +22,7 @@ namespace phi
         bool generateMipmaps;
 
     public:
-        texture::texture(
+        texture(
             uint w, 
             uint h, 
             GLenum type = GL_TEXTURE_2D,

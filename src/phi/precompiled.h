@@ -1,8 +1,11 @@
 #pragma once
-#ifdef WIN32
-#pragma message ("Compiling precompiled headers.\n")
+#ifdef MSVC
+#pragma message ("Compiling precompiled headers")
+#else
+#pragma message "Compiling precompiled headers"
 #endif
-    
+
+
 #include <algorithm>
 #include <cmath>
 //#include <codecvt>
@@ -30,14 +33,15 @@
 #include <objbase.h>
 #include <stdarg.h>
 
-#ifdef WIN32
+#ifdef MSVC
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <gl\glew.h>
 #include <sdl\sdl_syswm.h>
-#else
+#elif APPLE
 #include <OpenGL\gl3.h>
 #endif
+
+#include <gl\glew.h>
 
 //#include <bullet\btBulletDynamicsCommon.h>
 
@@ -56,8 +60,9 @@
 #include <rapidjson\document.h>
 #include <rapidjson\filereadstream.h>
 
+#include <freeimage\FreeImage.h>
 #include <sdl\sdl_image.h>
 #include <sdl\sdl.h>
 
-//#include <ft2build.h>
-//#include FT_FREETYPE_H
+#include <ft2build.h>
+#include FT_FREETYPE_H

@@ -1,6 +1,7 @@
 #include <precompiled.h>
 #include "directionalLight.h"
 #include <rendering\shadersManager.h>
+#include <core\transform.h>
 
 namespace phi
 {
