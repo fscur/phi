@@ -12,37 +12,31 @@ namespace phi
 
     void input::notifyMouseMove(mouseEventArgs* e)
     {
-        if (mouseMove->isBound())
-            mouseMove->invoke(e);
+        mouseMove->raise(e);
     }
 
     void input::notifyMouseDown(mouseEventArgs* e)
     {
-        if (mouseDown->isBound())
-            mouseDown->invoke(e);
+        mouseDown->raise(e);
     }
 
     void input::notifyMouseUp(mouseEventArgs* e)
     {
-        if (mouseUp->isBound())
-            mouseUp->invoke(e);
+        mouseUp->raise(e);
     }
 
     void input::notifyMouseWheel(mouseEventArgs* e)
     {
-        if (mouseWheel->isBound())
-            mouseWheel->invoke(e);
+        mouseWheel->raise(e);
     }
 
     void input::notifyKeyDown(keyboardEventArgs e)
     {
-        if (keyDown->isBound())
-            keyDown->invoke(e);
+        keyDown->raise(e);
     }
 
     void input::notifyKeyUp(keyboardEventArgs e)
     {
-        if (keyUp->isBound())
-            keyUp->invoke(e);
+        keyUp->raise(e);
     }
 }

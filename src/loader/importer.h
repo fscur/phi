@@ -19,7 +19,7 @@ namespace phi
 
     private:
         static node* readNode(const rapidjson::Value& node, string currentFolder, resourcesRepository<material>* materialsRepo);
-        static GUID convertToGuid(const char* bytesGuid);
+        static guid convertToGuid(const char* bytesGuid);
     public:
         LOADER_API static int importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo);
         LOADER_API static int importer::importGeometry(string fileName, phi::geometry*& geometry);

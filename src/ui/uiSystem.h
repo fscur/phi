@@ -18,12 +18,21 @@ namespace phi
         sizef size;
     };
 
+    struct controlEventTokens
+    {
+        eventToken gotFocus;
+        eventToken mouseLeave;
+        eventToken addedChild;
+        eventToken removedChild;
+    };
+
     class uiSystem
     {
     private:
         static uiSystem* _instance;
         std::vector<control*> _controls;
         std::vector<control*> _rootControls;
+        std::map<control*, controlEventTokens> _controlsEventTokens;
         uiSystemInfo _info;
         eventHandler<controlEventArgs>* _controlGotFocus;
         eventHandler<controlEventArgs>* _controlLostFocus;

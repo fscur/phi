@@ -52,18 +52,14 @@ namespace phi
 
     void toggleButton::setChecked(const bool value)
     {
-        if (_checkedChanging->isBound())
-        {
-            auto cancelArgs = new controlCancelEventArgs(this);
-            _checkedChanging->invoke(cancelArgs);
-            if (cancelArgs->cancel)
-                return;
-        }
+        auto cancelArgs = new controlCancelEventArgs(this);
+        _checkedChanging->raise(cancelArgs);
+        if (cancelArgs->cancel)
+            return;
 
         _checked = value;
 
-        if (_checkedChanged->isBound())
-            _checkedChanged->invoke(controlEventArgs(this));
+        _checkedChanged->raise(controlEventArgs(this));
 
         if (_checked)
         {

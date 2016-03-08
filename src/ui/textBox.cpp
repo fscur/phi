@@ -33,8 +33,7 @@ namespace phi
 
     void textBox::notifyTextChanged(eventArgs e)
     {
-        if (_textChanged->isBound())
-            _textChanged->invoke(e);
+        _textChanged->raise(e);
     }
 
     void textBox::updateTextLocation()
@@ -54,7 +53,7 @@ namespace phi
         float y = _y + _size.h * 0.5f - _cursorRenderer->getSize().h * 0.5f;
         if (x > _x + _size.w - 1)
         {
-            _textOffsetX += (int)round(((_x + _size.w -1) - x));
+            _textOffsetX += (int)round(((_x + _size.w - 1) - x));
             x = (float)(_x + _size.w - 1.0f);
         }
 
@@ -265,67 +264,67 @@ namespace phi
     {
         switch (e.key)
         {
-        case PHIK_LEFT:
-            if (!e.isShiftPressed)
-                _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::max((int)_cursorIndex - 1, 0);
-            else
-                _selectionEndIndex = _cursorIndex = glm::max((int)_cursorIndex - 1, 0);
-            updateCursorLocation();
-            updateSelectionRenderer();
-            break;
-        case PHIK_RIGHT:
-            if (!e.isShiftPressed)
-                _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, (unsigned int)_text.length());
-            else
-                _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, (unsigned int)_text.length());
-            updateCursorLocation();
-            updateSelectionRenderer();
-            break;
-        case PHIK_BACKSPACE:
-            if (_selectionStartIndex != _selectionEndIndex)
-                deleteSelection();
-            else if (_cursorIndex > 0)
-            {
-                setText(_text.erase(--_cursorIndex, 1));
-                _selectionStartIndex = _selectionEndIndex = _cursorIndex;
+            case PHIK_LEFT:
+                if (!e.isShiftPressed)
+                    _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::max((int)_cursorIndex - 1, 0);
+                else
+                    _selectionEndIndex = _cursorIndex = glm::max((int)_cursorIndex - 1, 0);
                 updateCursorLocation();
                 updateSelectionRenderer();
-            }
-            break;
-        case PHIK_DELETE:
-            if (_selectionStartIndex != _selectionEndIndex)
-                deleteSelection();
-            else if (_cursorIndex < _text.length())
-            {
-                setText(_text.erase(_cursorIndex, 1));
+                break;
+            case PHIK_RIGHT:
+                if (!e.isShiftPressed)
+                    _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, (unsigned int)_text.length());
+                else
+                    _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, (unsigned int)_text.length());
                 updateCursorLocation();
-            }
-            break;
-        case PHIK_HOME:
-            if (!e.isShiftPressed)
-                _selectionStartIndex = _selectionEndIndex = _cursorIndex = 0;
-            else
-                _selectionEndIndex = _cursorIndex = 0;
-            updateCursorLocation();
-            updateSelectionRenderer();
-            break;
-        case PHIK_END:
-            if (!e.isShiftPressed)
-                _selectionStartIndex = _selectionEndIndex = _cursorIndex = (unsigned int)_text.length();
-            else
-                _selectionEndIndex = _cursorIndex = (unsigned int)_text.length();
-            updateCursorLocation();
-            updateSelectionRenderer();
-            break;
-        default:
-            if (_selectionStartIndex != _selectionEndIndex)
-                deleteSelection();
+                updateSelectionRenderer();
+                break;
+            case PHIK_BACKSPACE:
+                if (_selectionStartIndex != _selectionEndIndex)
+                    deleteSelection();
+                else if (_cursorIndex > 0)
+                {
+                    setText(_text.erase(--_cursorIndex, 1));
+                    _selectionStartIndex = _selectionEndIndex = _cursorIndex;
+                    updateCursorLocation();
+                    updateSelectionRenderer();
+                }
+                break;
+            case PHIK_DELETE:
+                if (_selectionStartIndex != _selectionEndIndex)
+                    deleteSelection();
+                else if (_cursorIndex < _text.length())
+                {
+                    setText(_text.erase(_cursorIndex, 1));
+                    updateCursorLocation();
+                }
+                break;
+            case PHIK_HOME:
+                if (!e.isShiftPressed)
+                    _selectionStartIndex = _selectionEndIndex = _cursorIndex = 0;
+                else
+                    _selectionEndIndex = _cursorIndex = 0;
+                updateCursorLocation();
+                updateSelectionRenderer();
+                break;
+            case PHIK_END:
+                if (!e.isShiftPressed)
+                    _selectionStartIndex = _selectionEndIndex = _cursorIndex = (unsigned int)_text.length();
+                else
+                    _selectionEndIndex = _cursorIndex = (unsigned int)_text.length();
+                updateCursorLocation();
+                updateSelectionRenderer();
+                break;
+            default:
+                if (_selectionStartIndex != _selectionEndIndex)
+                    deleteSelection();
 
-            char c = (char)e.key;
-            setText(_text.insert(_cursorIndex++, 1, c));
-            _selectionStartIndex = _selectionEndIndex = _cursorIndex;
-            updateCursorLocation();
-            break;
+                char c = (char)e.key;
+                setText(_text.insert(_cursorIndex++, 1, c));
+                _selectionStartIndex = _selectionEndIndex = _cursorIndex;
+                updateCursorLocation();
+                break;
         }
     }
 
