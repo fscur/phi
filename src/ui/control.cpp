@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include "control.h"
 
-#include <core\clock.h>
+#include <core\time.h>
 
 namespace phi
 {
@@ -159,7 +159,7 @@ namespace phi
     {
         if (_isMouseOver && !_renderToolTip)
         {
-            _mouseStillTime += clock::millisecondsElapsed;
+            _mouseStillTime += time::deltaMilliseconds;
 
             if (_mouseStillTime > 1000.0f && _toolTipText != "")
             {

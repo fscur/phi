@@ -3,7 +3,6 @@
 
 #include <core\base64.h>
 #include <io\path.h>
-#include <loader\SDL_extensions.h>
 
 namespace phi
 {
@@ -181,10 +180,7 @@ namespace phi
 
     int importer::importTexture(string fileName, texture*& texture)
     {
-        bool free = false;
-        if (free)
-        {
-            auto cfileName = fileName.c_str();
+        auto cfileName = fileName.c_str();
             //image format
             FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
             //pointer to the image, once loaded
@@ -255,47 +251,6 @@ namespace phi
                 (byte*)data);
 
             return 1;
-        }
-        else
-        {
-            SDL_Surface* surface = IMG_Load(fileName.c_str());
-            SDL_InvertSurface(surface);
-
-            GLenum format = GL_BGRA;
-
-            switch (surface->format->BitsPerPixel)
-            {
-            case 24:
-                if (surface->format->Rmask == 255)
-                    format = GL_RGB;
-                else
-                    format = GL_BGR;
-                break;
-            case 32:
-                if (surface->format->Rmask == 255)
-                    format = GL_RGBA;
-                else
-                    format = GL_BGRA;
-                break;
-            }
-
-            auto totalBytes = surface->format->BitsPerPixel / 8;
-            auto data = malloc(surface->w * surface->h * totalBytes);
-            memcpy(data, surface->pixels, surface->w * surface->h * totalBytes);
-
-            texture = new phi::texture(
-                (uint)surface->w,
-                (uint)surface->h,
-                GL_TEXTURE_2D,
-                GL_RGBA8,
-                format,
-                GL_UNSIGNED_BYTE,
-                (byte*)data);
-
-            SDL_FreeSurface(surface);
-            return 1;
-        }
-        return 0;
     }
 
     int importer::importTexture(string fileName, resource<texture>*& textureResource)

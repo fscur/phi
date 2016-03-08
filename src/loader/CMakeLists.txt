@@ -10,8 +10,6 @@ include_directories(${PHI_INCLUDE_DIRS}/phi)
 
 link_directories(${LIBS_DIRS})
 find_package(FREEIMAGE REQUIRED)
-find_package(SDL REQUIRED)
-find_package(SDL_IMAGE REQUIRED)
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
@@ -19,8 +17,6 @@ file(GLOB source_files *.cpp)
 add_library(loader SHARED ${source_files} ${header_files})
 
 target_link_libraries(loader rendering)
-target_link_libraries(loader ${SDL_LIBRARY})
-target_link_libraries(loader ${SDL_IMAGE_LIBRARY})
 target_link_libraries(loader ${FREEIMAGE_LIBRARY})
 
 install(TARGETS loader 

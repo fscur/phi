@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include "colorAnimator.h"
 
-#include <core/clock.h>
+#include <core/time.h>
 
 namespace phi
 {
@@ -24,7 +24,7 @@ namespace phi
 
     void colorAnimator::update()
     {
-        int currentMilliseconds = clock::totalMillisecondsElapsed;
+        int currentMilliseconds = time::totalMilliseconds;
 
         std::unordered_map<color*, colorAnimation*>::iterator i = _animations.begin();
         while (i != _animations.end())

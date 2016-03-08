@@ -36,7 +36,7 @@
 #ifdef MSVC
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <sdl\sdl_syswm.h>
+#include <windowsx.h>
 #elif APPLE
 #include <OpenGL\gl3.h>
 #endif
@@ -61,8 +61,6 @@
 #include <rapidjson\filereadstream.h>
 
 #include <freeimage\FreeImage.h>
-#include <sdl\sdl_image.h>
-#include <sdl\sdl.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

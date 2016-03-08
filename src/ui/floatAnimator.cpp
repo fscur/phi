@@ -1,6 +1,6 @@
 #include <precompiled.h>
 
-#include <core\clock.h>
+#include <core\time.h>
 
 #include "floatAnimator.h"
 
@@ -21,7 +21,7 @@ namespace phi
 
     void floatAnimator::update()
     {
-        int currentMilliseconds = clock::totalMillisecondsElapsed;
+        int currentMilliseconds = time::totalMilliseconds;
 
         for (unsigned int i = 0; i < _animations.size(); i++)
         {

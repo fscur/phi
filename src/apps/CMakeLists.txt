@@ -1,21 +1,33 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 if (MSVC)
-    add_definitions(-DCORE_EXPORTS)
+    add_definitions(-DAPPS_EXPORTS)
 endif(MSVC)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS}/phi)
 
+link_directories(${LIBS_DIRS})
+
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
-add_library(core SHARED ${source_files} ${header_files})
+add_library(apps SHARED ${source_files} ${header_files})
 
-target_link_libraries(core diagnostics)
+#target_link_libraries(apps diagnostics)
+target_link_libraries(apps core)
 
-install(TARGETS core 
+if (MSVC)
+find_package(OPENGL REQUIRED)
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
+target_link_libraries(apps ${OPENGL_LIBRARY})
+target_link_libraries(apps ${GLEW_LIBRARY})
+endif (MSVC)
+
+install(
+    TARGETS apps 
     RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os})
 
 if (MSVC)
@@ -24,9 +36,9 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
 
     add_custom_command(
-        TARGET core
+        TARGET apps
         PRE_BUILD
         COMMAND xcopy /D /Y \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
 endif(MSVC)
 
-set_target_properties(core PROPERTIES FOLDER Engine)
+set_target_properties(apps PROPERTIES FOLDER Engine)

@@ -57,6 +57,11 @@ namespace phi
         return duration_cast<duration<double>>(_currentNanoSeconds).count();
     }
 
+    const double stopwatch::getElapsedMilliseconds()
+    {
+        return duration_cast<duration<double>>(_currentNanoSeconds).count() * 0.001;
+    }
+
     const double stopwatch::measure(const std::function<void(void)> &function)
     {
         auto watch = stopwatch();
