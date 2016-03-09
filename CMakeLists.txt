@@ -1,23 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 project(phi)
+
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_SUPPRESS_REGENERATION TRUE)
-
-add_definitions(-DNOMINMAX)
-
-if (MSVC)
-    add_definitions(-DMSVC)
-
-    if ("${SOLUTION_PLATFORM}" STREQUAL x64)
-        set (os win64)
-    else()
-        set (os win32)
-    endif()
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-#add_compile_options(-Wall -Weffc++ -pedantic -std=c++11)
-    add_compile_options(-std=c++11)
-endif (MSVC)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS TRUE)
 SET_PROPERTY(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER !CMake)

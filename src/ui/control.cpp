@@ -159,7 +159,7 @@ namespace phi
     {
         if (_isMouseOver && !_renderToolTip)
         {
-            _mouseStillTime += time::deltaMilliseconds;
+            _mouseStillTime += time::deltaSeconds * 1000.0;
 
             if (_mouseStillTime > 1000.0f && _toolTipText != "")
             {

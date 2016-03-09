@@ -5,7 +5,6 @@
 #pragma message "Compiling precompiled headers"
 #endif
 
-
 #include <algorithm>
 #include <cmath>
 //#include <codecvt>
@@ -33,7 +32,7 @@
 #include <objbase.h>
 #include <stdarg.h>
 
-#ifdef MSVC
+#ifdef WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>

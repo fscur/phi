@@ -9,8 +9,7 @@ namespace phi
 {
     stopwatch::stopwatch() :
         _initial(nanoseconds()),
-        _final(nanoseconds()),
-        _currentNanoSeconds(nanoseconds()),
+        _stop(nanoseconds()),
         _isRunning(false)
     {
     }
@@ -26,40 +25,40 @@ namespace phi
         {
             _isRunning = true;
             auto now = high_resolution_clock::now();
-            _initial = duration_cast<nanoseconds>(now.time_since_epoch());
+            _initial = _stop = duration_cast<nanoseconds>(now.time_since_epoch());
         }
     }
 
     void stopwatch::stop()
     {
-        if(_isRunning)
-        {
-            auto now = high_resolution_clock::now();
-            _final = duration_cast<nanoseconds>(now.time_since_epoch());
-            _currentNanoSeconds += _final - _initial;
-            _isRunning = false;
-        }
+        if (!_isRunning)
+            throw "idiot";
+
+        auto now = high_resolution_clock::now();
+        _stop = duration_cast<nanoseconds>(now.time_since_epoch());
+        _isRunning = false;
     }
 
-    void stopwatch::reset()
+    void stopwatch::resume()
     {
-        _currentNanoSeconds = nanoseconds::zero();
-    }
+        if (_isRunning)
+            throw "idiot";
 
-    void stopwatch::restart()
-    {
-        reset();
-        start();
+        auto now = high_resolution_clock::now().time_since_epoch();
+        _initial += now - _stop;
+        _isRunning = true;
     }
 
     const double stopwatch::getElapsedSeconds()
     {
-        return duration_cast<duration<double>>(_currentNanoSeconds).count();
+        auto now = high_resolution_clock::now().time_since_epoch();
+        return duration_cast<duration<double>>(now - _initial).count();
     }
 
     const double stopwatch::getElapsedMilliseconds()
     {
-        return duration_cast<duration<double>>(_currentNanoSeconds).count() * 0.001;
+        auto now = high_resolution_clock::now().time_since_epoch();
+        return duration_cast<duration<double>>(now - _initial).count() * 1000;
     }
 
     const double stopwatch::measure(const std::function<void(void)> &function)
@@ -88,7 +87,7 @@ namespace phi
 
         for(auto i = 0; i < samples; i++)
         {
-            watch.restart();
+            watch.resume();
             function();
             watch.stop();
             average += watch.getElapsedSeconds();

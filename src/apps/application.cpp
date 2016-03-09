@@ -28,26 +28,31 @@ namespace phi
 
         double timer = 0.0;
         uint frames = 0;
-
         onInit();
 
         _running = true;
 
         while (_running)
         {
-            onClear();
-            onRender();
+            millisecondsPerFrame = time::deltaSeconds * 1000;
+
+            //onClear();
+            //onRender();
             onInput();
             onUpdate();
 
             time::update();
-
-            if (time::totalMilliseconds - timer > time::MILLISECONDS_PER_SECOND)
+            
+            if (time::totalSeconds - timer > 1.0)
             {
-                timer += time::MILLISECONDS_PER_SECOND;
+                timer += 1.0;
                 framesPerSecond = frames;
                 frames = 0;
-                onTick();
+
+                phi::debug("fps:" + std::to_string(framesPerSecond));
+                phi::debug("timer:" + std::to_string(timer));
+
+                //onTick();
             }
 
             if (_window->closed)
@@ -55,7 +60,7 @@ namespace phi
 
             frames++;
 
-            onSwapbuffers();
+            //onSwapbuffers();
         }
     }
 

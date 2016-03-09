@@ -5,7 +5,7 @@ namespace phi
 {
     bool path::exists(const string& path)
     {
-        #ifdef MSVC
+        #ifdef WINDOWS
         FILE *file;
         fopen_s(&file, path.c_str(), "r");
         if (file)
@@ -63,7 +63,7 @@ namespace phi
         const string& directory, 
         vector<string> filters)
     {
-#ifdef MSVC
+#ifdef WINDOWS
         vector<fileInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
@@ -107,7 +107,7 @@ namespace phi
 
     vector<directoryInfo> path::getDirectories(const string& directory)
     {
-#ifdef MSVC
+#ifdef WINDOWS
         vector<directoryInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;

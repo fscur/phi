@@ -3,20 +3,21 @@
 
 namespace phi
 {
-    const double time::MILLISECONDS_PER_SECOND = 1000.0;
-    double time::totalMilliseconds = 0;
-    double time::deltaMilliseconds = 0;
+    double time::totalSeconds = 0;
+    double time::deltaSeconds = 0;
     stopwatch time::_stopwatch = stopwatch();
 
     void time::start()
     {
         _stopwatch.start();
+        totalSeconds = _stopwatch.getElapsedMilliseconds();
+        deltaSeconds = 0;
     }
 
     void time::update()
     {
-        auto totalMillisecondsLastFrame = totalMilliseconds;
-        auto totalMilliseconds = _stopwatch.getElapsedMilliseconds();
-        deltaMilliseconds = totalMilliseconds - totalMillisecondsLastFrame;
+        auto totalSecondsLastFrame = totalSeconds;
+        totalSeconds = _stopwatch.getElapsedSeconds();
+        deltaSeconds = totalSeconds - totalSecondsLastFrame;
     }
 }

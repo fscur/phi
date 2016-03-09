@@ -24,7 +24,7 @@ namespace phi
 
     void colorAnimator::update()
     {
-        int currentMilliseconds = time::totalMilliseconds;
+        int currentMilliseconds = time::totalSeconds * 1000;
 
         std::unordered_map<color*, colorAnimation*>::iterator i = _animations.begin();
         while (i != _animations.end())

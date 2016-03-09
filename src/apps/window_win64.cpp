@@ -7,7 +7,6 @@ namespace phi
     static HDC hDc;
     HWND hWnd;
 
-    
     namespace eventType
     {
         enum eventType
@@ -184,7 +183,7 @@ namespace phi
             result = DefWindowProc(hWnd, message, wParam, lParam);
         }
 
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        return result;
     }
 
     void window::init()
@@ -282,18 +281,18 @@ namespace phi
         _shouldRaiseMouseEvent = false;
         _shouldRaiseKeyboardEvent = false;
 
-        MSG message;
+        MSG msg;
 
-        while (PeekMessage(&message, hWnd, NULL, NULL, PM_REMOVE) > 0)
+        while (PeekMessage(&msg, hWnd, NULL, NULL, PM_REMOVE) > 0)
         {
-            if (message.message == WM_QUIT)
+            if (msg.message == WM_QUIT)
             {
                 closed = true;
                 return;
             }
 
-            TranslateMessage(&message);
-            DispatchMessage(&message);
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
         }
 
         if (_shouldRaiseMouseEvent)

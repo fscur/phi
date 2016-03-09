@@ -11,11 +11,8 @@ namespace phi
         static stopwatch _stopwatch;
 
     public:
-        CORE_API static const double MILLISECONDS_PER_SECOND;
-
-    public:
-        CORE_API static double totalMilliseconds;
-        CORE_API static double deltaMilliseconds;
+        CORE_API static double totalSeconds;
+        CORE_API static double deltaSeconds;
 
     public:
         CORE_API static void start();

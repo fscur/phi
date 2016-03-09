@@ -15,6 +15,7 @@ else()
 endif(MSVC)
 
 find_package(FREETYPE REQUIRED)
+message(${FREETYPE_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
 if(MSVC)

@@ -21,7 +21,7 @@ namespace phi
 
     void floatAnimator::update()
     {
-        int currentMilliseconds = time::totalMilliseconds;
+        int currentMilliseconds = time::totalSeconds * 1000;
 
         for (unsigned int i = 0; i < _animations.size(); i++)
         {
