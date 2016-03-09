@@ -42,7 +42,7 @@ namespace phi
             return _objects;
         }
 
-        resource<T>* getResource(GUID guid)
+        resource<T>* getResource(guid guid)
         {
             for (auto resource : _resources)
             {

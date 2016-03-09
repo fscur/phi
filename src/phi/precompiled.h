@@ -23,9 +23,7 @@
 #include <unordered_map>
 #include <vector>
 
-//TODO: create a cross platform guid class
 #include <assert.h>
-#include <objbase.h>
 #include <stdarg.h>
 
 #if WIN32

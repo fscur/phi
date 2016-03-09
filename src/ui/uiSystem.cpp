@@ -13,12 +13,12 @@ namespace phi
         _controlLostFocus = new eventHandler<controlEventArgs>();
         _cursor = nullptr;
 
-        input::mouseDown->bind<uiSystem, &uiSystem::inputMouseDown>(this);
-        input::mouseUp->bind<uiSystem, &uiSystem::inputMouseUp>(this);
-        input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
-        input::mouseWheel->bind<uiSystem, &uiSystem::inputMouseWheel>(this);
-        input::keyDown->bind<uiSystem, &uiSystem::inputKeyDown>(this);
-        input::keyDown->bind<uiSystem, &uiSystem::inputKeyUp>(this);
+        input::mouseDown->assign(std::bind(&uiSystem::inputMouseDown, this, std::placeholders::_1));
+        input::mouseUp->assign(std::bind(&uiSystem::inputMouseUp, this, std::placeholders::_1));
+        input::mouseMove->assign(std::bind(&uiSystem::inputMouseMove, this, std::placeholders::_1));
+        input::mouseWheel->assign(std::bind(&uiSystem::inputMouseWheel, this, std::placeholders::_1));
+        input::keyDown->assign(std::bind(&uiSystem::inputKeyDown, this, std::placeholders::_1));
+        input::keyDown->assign(std::bind(&uiSystem::inputKeyUp, this, std::placeholders::_1));
     }
 
     uiSystem* uiSystem::get()
@@ -41,12 +41,12 @@ namespace phi
         }
 
         control::init(info.size);
-        input::mouseMove->bind<uiSystem, &uiSystem::inputMouseMove>(this);
+        input::mouseMove->assign(std::bind(&uiSystem::inputMouseMove, this, std::placeholders::_1));
         _cursorRenderer = new quadRenderer2D(vec2(), 1.0f, sizeui(), sizeui());
         setCursor(phi::uiRepository::cursorDefault);
         _cursorRenderer->setViewportSize(sizeui(info.size.w, info.size.h, info.size.d));
         dragDropController::get()->init(info.size);
-        dragDropController::get()->getDradDropEnded()->bind<uiSystem, &uiSystem::dragDropEnded>(this);
+        dragDropController::get()->getDradDropEnded()->assign(std::bind(&uiSystem::dragDropEnded, this, std::placeholders::_1));
     }
 
     void uiSystem::setCursor(cursor* value)
@@ -175,14 +175,12 @@ namespace phi
 
     void uiSystem::notifyControlGotFocus(controlEventArgs e)
     {
-        if (_controlGotFocus->isBound())
-            _controlGotFocus->invoke(e);
+        _controlGotFocus->raise(e);
     }
 
     void uiSystem::notifyControlLostFocus(controlEventArgs e)
     {
-        if (_controlLostFocus->isBound())
-            _controlLostFocus->invoke(e);
+        _controlLostFocus->raise(e);
     }
 
     void uiSystem::addControl(control* cntrl)
@@ -202,12 +200,14 @@ namespace phi
             return lhs->getZIndex() > rhs->getZIndex();
         });
 
+        controlEventTokens eventTokens;
         auto zIndex = cntrl->getZIndex();
-        cntrl->getGotFocus()->bind<uiSystem, &uiSystem::controlGotFocus>(this);
-        cntrl->getMouseLeave()->bind<uiSystem, &uiSystem::controlMouseLeave>(this);
-        cntrl->getAddedChild()->bind<uiSystem, &uiSystem::controlAddedChild>(this);
-        cntrl->getRemovedChild()->bind<uiSystem, &uiSystem::controlRemovedChild>(this);
+        eventTokens.gotFocus = cntrl->getGotFocus()->assign(std::bind(&uiSystem::controlGotFocus, this, std::placeholders::_1));
+        eventTokens.mouseLeave = cntrl->getMouseLeave()->assign(std::bind(&uiSystem::controlMouseLeave, this, std::placeholders::_1));
+        eventTokens.addedChild = cntrl->getAddedChild()->assign(std::bind(&uiSystem::controlAddedChild, this, std::placeholders::_1));
+        eventTokens.removedChild = cntrl->getRemovedChild()->assign(std::bind(&uiSystem::controlRemovedChild, this, std::placeholders::_1));
         _controls.insert(index, cntrl);
+        _controlsEventTokens[cntrl] = eventTokens;
 
         if (root)
             _rootControls.push_back(cntrl);
@@ -218,10 +218,11 @@ namespace phi
 
     void uiSystem::removeControlFromList(control* cntrl)
     {
-        cntrl->getGotFocus()->unbind<uiSystem, &uiSystem::controlGotFocus>(this);
-        cntrl->getMouseLeave()->unbind<uiSystem, &uiSystem::controlMouseLeave>(this);
-        cntrl->getAddedChild()->unbind<uiSystem, &uiSystem::controlAddedChild>(this);
-        cntrl->getRemovedChild()->unbind<uiSystem, &uiSystem::controlRemovedChild>(this);
+        auto eventTokens = _controlsEventTokens[cntrl];
+        cntrl->getGotFocus()->unassign(eventTokens.gotFocus);
+        cntrl->getMouseLeave()->unassign(eventTokens.mouseLeave);
+        cntrl->getAddedChild()->unassign(eventTokens.addedChild);
+        cntrl->getRemovedChild()->unassign(eventTokens.removedChild);
 
         for (control* child : cntrl->getChildren())
             removeControlFromList(child);

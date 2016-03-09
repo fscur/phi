@@ -80,8 +80,7 @@ namespace phi
 
         updateSlider();
 
-        if (_valueChanged->isBound())
-            _valueChanged->invoke(eventArgs());
+        _valueChanged->raise(eventArgs());
     }
 
     void slider::setMinValue(float value)

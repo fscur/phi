@@ -55,12 +55,12 @@ namespace phi
         UI_API void addChild(control* child);
         UI_API void removeChild(control* child);
 
-        UI_API mouseEventHandler* getMouseEnter() { return _mouseEnter; }
-        UI_API mouseEventHandler* getMouseLeave() { return _mouseLeave; }
-        UI_API eventHandler<controlEventArgs>* getGotFocus() { return _gotFocus; }
-        UI_API eventHandler<controlEventArgs>* getLostFocus() { return _lostFocus; }
-        UI_API eventHandler<controlEventArgs>* getAddedChild() { return _addedChild; }
-        UI_API eventHandler<controlEventArgs>* getRemovedChild() { return _removedChild; }
+        UI_API mouseEventHandler* getMouseEnter() const { return _mouseEnter; }
+        UI_API mouseEventHandler* getMouseLeave() const { return _mouseLeave; }
+        UI_API eventHandler<controlEventArgs>* getGotFocus() const { return _gotFocus; }
+        UI_API eventHandler<controlEventArgs>* getLostFocus() const { return _lostFocus; }
+        UI_API eventHandler<controlEventArgs>* getAddedChild() const { return _addedChild; }
+        UI_API eventHandler<controlEventArgs>* getRemovedChild() const { return _removedChild; }
 
         UI_API virtual int getX() { return _x; }
         UI_API virtual int getY() { return _y; }

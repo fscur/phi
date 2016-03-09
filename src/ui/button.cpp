@@ -45,7 +45,7 @@ namespace phi
     {
         if (_image == nullptr)
             return;
-        
+
         auto width = _image->w;
         auto height = _image->h;
 
@@ -247,11 +247,8 @@ namespace phi
             if (getIsMouseOver())
             {
                 onClick();
-                if (_click->isBound())
-                {
-                    e->sender = this;
-                    _click->invoke(e);
-                }
+                e->sender = this;
+                _click->raise(e);
             }
 
             _clickedOver = false;

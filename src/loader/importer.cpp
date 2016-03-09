@@ -107,10 +107,10 @@ namespace phi
         return objectNode;
     }
 
-    GUID importer::convertToGuid(const char* bytesGuid)
+    guid importer::convertToGuid(const char* bytesGuid)
     {
         auto guidBytes = base64::decode(bytesGuid);
-        return *reinterpret_cast<GUID*>(guidBytes.data());
+        return guidBytes.data();
     }
 
     int importer::importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo)
