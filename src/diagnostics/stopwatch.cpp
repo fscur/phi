@@ -3,41 +3,62 @@
 #include "stopwatch.h"
 #include "console.h"
 
+using namespace std::chrono;
+
 namespace phi
 {
+    stopwatch::stopwatch() :
+        _initial(nanoseconds()),
+        _stop(nanoseconds()),
+        _isRunning(false)
+    {
+    }
+    
+    stopwatch::~stopwatch()
+    {
+        
+    }
+    
     void stopwatch::start()
     {
         if(!_isRunning)
         {
             _isRunning = true;
-            _initial = std::chrono::high_resolution_clock::now();
+            auto now = high_resolution_clock::now();
+            _initial = _stop = duration_cast<nanoseconds>(now.time_since_epoch());
         }
     }
 
     void stopwatch::stop()
     {
-        if(_isRunning)
-        {
-            _final = std::chrono::high_resolution_clock::now();
-            _currentNanoSeconds += _final - _initial;
-            _isRunning = false;
-        }
+        if (!_isRunning)
+            throw "idiot";
+
+        auto now = high_resolution_clock::now();
+        _stop = duration_cast<nanoseconds>(now.time_since_epoch());
+        _isRunning = false;
     }
 
-    void stopwatch::reset()
+    void stopwatch::resume()
     {
-        _currentNanoSeconds = std::chrono::nanoseconds::zero();
-    }
+        if (_isRunning)
+            throw "idiot";
 
-    void stopwatch::restart()
-    {
-        reset();
-        start();
+        auto now = high_resolution_clock::now().time_since_epoch();
+        _initial += now - _stop;
+        _isRunning = true;
     }
 
     const double stopwatch::getElapsedSeconds()
     {
-        return std::chrono::duration_cast<std::chrono::duration<double>>(_currentNanoSeconds).count();
+        auto now = high_resolution_clock::now().time_since_epoch();
+        return duration_cast<duration<double>>(now - _initial).count();
+    }
+
+    const double stopwatch::getElapsedMilliseconds()
+    {
+        auto now = high_resolution_clock::now().time_since_epoch();
+        return duration_cast<duration<double>>(now - _initial).count() * 1000;
     }
 
     const double stopwatch::measure(const std::function<void(void)> &function)
@@ -66,7 +87,7 @@ namespace phi
 
         for(auto i = 0; i < samples; i++)
         {
-            watch.restart();
+            watch.resume();
             function();
             watch.stop();
             average += watch.getElapsedSeconds();

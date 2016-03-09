@@ -1,8 +1,5 @@
 #pragma once
 #include <phi.h>
-#include "transform.h"
-
-#include <string>
 
 namespace phi
 {
@@ -23,18 +20,18 @@ namespace phi
 
     protected:
         componentType _type;
-        std::string _name;
+        string _name;
         node* _node;
 
     protected:
-        component(componentType type, std::string name) :
+        component(componentType type, string name) :
             _type(type), _name(name), _node(nullptr) { }
 
     public:
         virtual component* clone() const { return new component(*this); }
 
         int getType() const { return _type; }
-        std::string getName() const { return _name; }
+        string getName() const { return _name; }
 
         void setNode(node* value) { _node = value; }
     };

@@ -1,10 +1,10 @@
 #pragma once
-using uint = unsigned int;
-using uint64 = unsigned long long;
-using byte = unsigned char;
 
 namespace phi
 {
+    using uint = unsigned int;
+    using uint64 = unsigned long long;
+    using byte = unsigned char;
     using ivec2 = glm::ivec2;
     using ivec3 = glm::ivec3;
     using vec2 = glm::vec2;
@@ -42,7 +42,7 @@ namespace phi
     }
 
     template<typename T>
-    inline void debug(T& value)
+    inline void debug(T value)
     {
 #if _DEBUG
         std::cout << value << std::endl;
@@ -50,7 +50,7 @@ namespace phi
     }
 
     template<typename T>
-    inline void log(T& value)
+    inline void log(T value)
     {
         std::cout << value << std::endl;
     }

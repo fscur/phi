@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef WIN32
+#ifdef MSVC
     #ifdef SCENES_EXPORTS
         #define SCENES_API __declspec(dllexport)
     #else

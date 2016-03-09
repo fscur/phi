@@ -19,33 +19,32 @@ namespace phi
         const char *vertexText = vertText.c_str();
         const char *fragmentText = fragText.c_str();
 
-        glShaderSource(_vertexShader, 1, &vertexText, 0); // Set the source for the vertex shader to the loaded text
-        glCompileShader(_vertexShader); // Compile the vertex shader
+        glShaderSource(_vertexShader, 1, &vertexText, 0);
+        glCompileShader(_vertexShader);
 
 #if _DEBUG
-        result = validateShader(_vertexShader, _vertFile.c_str()); // Validate the vertex shader
+        result = validateShader(_vertexShader, _vertFile.c_str());
         if (!result)
             return false;
 #endif
-        glShaderSource(_fragmentShader, 1, &fragmentText, 0); // Set the source for the fragment shader to the loaded text
-        glCompileShader(_fragmentShader); // Compile the fragment shader
+        glShaderSource(_fragmentShader, 1, &fragmentText, 0);
+        glCompileShader(_fragmentShader);
 
 #if _DEBUG
-        result = validateShader(_fragmentShader, _fragFile.c_str()); // Validate the fragment shader
+        result = validateShader(_fragmentShader, _fragFile.c_str());
         if (!result)
             return false;
 #endif
 
-        _id = glCreateProgram(); // Create a GLSL program
-        glAttachShader(_id, _vertexShader); // Attach a vertex shader to the program
-        glAttachShader(_id, _fragmentShader); // Attach the fragment shader to the program
-
+        _id = glCreateProgram();
+        glAttachShader(_id, _vertexShader);
+        glAttachShader(_id, _fragmentShader);
         initAttribs();
 
-        glLinkProgram(_id); // Link the vertex and fragment shaders in the program
+        glLinkProgram(_id);
 
 #if _DEBUG
-        result = validateProgram(_id); // Validate the shader program
+        result = validateProgram(_id);
         if (!result)
             return false;
 #endif
@@ -89,10 +88,10 @@ namespace phi
         memset(buffer, 0, BUFFER_SIZE);
         GLsizei length = 0;
 
-        glGetShaderInfoLog(shader, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the shader
+        glGetShaderInfoLog(shader, BUFFER_SIZE, &length, buffer);
 
-        if (length > 0) // If we have any information to display
-            std::cout << "shader " << shader << " (" << (file.c_str() ? file : "") << ") compile info:\n" << buffer << std::endl; // Output the information
+        if (length > 0)
+            std::cout << "shader " << shader << " (" << (file.c_str() ? file : "") << ") compile info:\n" << buffer << std::endl;
 
         return success == GL_TRUE;
     }
@@ -104,19 +103,9 @@ namespace phi
         memset(buffer, 0, BUFFER_SIZE);
         GLsizei length = 0;
 
-        glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the program
-        if (length > 0) // If we have any information to display
-            std::cout << "Program " << program << " link info:\n" << buffer << std::endl; // Output the information
-
-        //This should be called before drawing to see if the current OpenGL state is correct for this shader (also, should be only called when debugging):
-        //glValidateProgram(program); // Get OpenGL to try validating the program
-        //GLint status;
-        //glGetProgramiv(program, GL_VALIDATE_STATUS, &status); // Find out if the shader program validated correctly
-        //if (status == GL_FALSE) // If there was a problem validating
-        //{
-        //    std::cout << "Error validating shader " << program << std::endl; // Output which program had the error
-        //    return false;
-        //}
+        glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer);
+        if (length > 0)
+            std::cout << "Program " << program << " link info:\n" << buffer << std::endl;
 
         GLint isLinked = 0;
         glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
@@ -167,11 +156,11 @@ namespace phi
         if (!_initialized)
             return;
 
-        glDetachShader(_id, _fragmentShader); // Detach the fragment shader
-        glDetachShader(_id, _vertexShader); // Detach the vertex shader
+        glDetachShader(_id, _fragmentShader);
+        glDetachShader(_id, _vertexShader);
 
-        glDeleteShader(_fragmentShader); // Delete the fragment shader
-        glDeleteShader(_vertexShader); // Delete the vertex shader
-        glDeleteProgram(_id); // Delete the shader program
+        glDeleteShader(_fragmentShader);
+        glDeleteShader(_vertexShader);
+        glDeleteProgram(_id);
     }
 }

@@ -5,6 +5,8 @@
 
 namespace phi
 {
+    class transform;
+
     class directionalLight :
         public light
     {

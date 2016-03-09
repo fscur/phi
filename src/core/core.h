@@ -1,13 +1,10 @@
 #pragma once
-
-#ifdef WIN32
-    #ifdef CORE_EXPORTS
-        #define CORE_API __declspec(dllexport)
-    #else
-        #define CORE_API __declspec(dllimport)
-    #endif
+#ifdef MSVC
+#ifdef CORE_EXPORTS
+#define CORE_API __declspec(dllexport)
 #else
-    #define CORE_API
+#define CORE_API __declspec(dllimport)
 #endif
-
-#define GLM_FORCE_RADIANS
+#else
+#define CORE_API
+#endif

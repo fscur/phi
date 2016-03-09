@@ -22,7 +22,7 @@ namespace phi
         CORE_API static geometry* quad();
 
     public:
-        CORE_API geometry::geometry() {}
+        CORE_API geometry() {}
 
     public:
         CORE_API ~geometry()

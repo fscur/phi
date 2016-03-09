@@ -20,7 +20,7 @@ namespace phi
         string _vertFile;
         string _fragFile;
 
-        std::map<uint, GLuint> _uniforms;
+        map<uint, GLuint> _uniforms;
 
         vector<string> _attributes;
         GLuint _textureCount;
@@ -48,7 +48,7 @@ namespace phi
 
         RENDERING_API bool init();
 
-        RENDERING_API inline void addUniform(uint location, string name);
+        RENDERING_API void addUniform(uint location, string name);
         RENDERING_API inline void setUniform(uint location, GLuint value) { glUniform1i(_uniforms[location], value); }
         RENDERING_API inline void setUniform(uint location, GLfloat value) { glUniform1f(_uniforms[location], value); }
         RENDERING_API inline void setUniform(uint location, color value) { glUniform4f(_uniforms[location], value.r, value.g, value.b, value.a); }

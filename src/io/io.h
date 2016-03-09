@@ -1,6 +1,5 @@
 #pragma once
-
-#ifdef WIN32
+#ifdef MSVC
 #ifdef IO_EXPORTS
 #define IO_API __declspec(dllexport)
 #else

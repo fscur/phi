@@ -5,6 +5,7 @@ namespace phi
 {
     bool path::exists(const string& path)
     {
+        #ifdef WINDOWS
         FILE *file;
         fopen_s(&file, path.c_str(), "r");
         if (file)
@@ -14,6 +15,10 @@ namespace phi
         }
 
         return false;
+        
+        #else
+            return false;
+        #endif
     }
 
     string path::getDirectoryFullName(string path)
@@ -58,7 +63,7 @@ namespace phi
         const string& directory, 
         vector<string> filters)
     {
-#ifdef WIN32
+#ifdef WINDOWS
         vector<fileInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
@@ -96,35 +101,13 @@ namespace phi
 
         return out;
 #else
-        DIR *dir;
-        class dirent *ent;
-        class stat st;
-
-        dir = opendir(directory);
-        while ((ent = readdir(dir)) != NULL) {
-            const std::string file_name = ent->d_name;
-            const std::string full_file_name = directory + "/" + file_name;
-
-            if (file_name[0] == '.')
-                continue;
-
-            if (stat(full_file_name.c_str(), &st) == -1)
-                continue;
-
-            const bool is_directory = (st.st_mode & S_IFDIR) != 0;
-
-            if (is_directory)
-                continue;
-
-            out.push_back(full_file_name);
-        }
-        closedir(dir);
+        return vector<fileInfo>();
 #endif
     }
 
     vector<directoryInfo> path::getDirectories(const string& directory)
     {
-#ifdef WIN32
+#ifdef WINDOWS
         vector<directoryInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
@@ -157,29 +140,7 @@ namespace phi
 
         return out;
 #else
-        DIR *dir;
-        class dirent *ent;
-        class stat st;
-
-        dir = opendir(directory);
-        while ((ent = readdir(dir)) != NULL) {
-            const string file_name = ent->d_name;
-            const string full_file_name = directory + "/" + file_name;
-
-            if (file_name[0] == '.')
-                continue;
-
-            if (stat(full_file_name.c_str(), &st) == -1)
-                continue;
-
-            const bool is_directory = (st.st_mode & S_IFDIR) != 0;
-
-            if (is_directory)
-                continue;
-
-            out.push_back(full_file_name);
-        }
-        closedir(dir);
+        return vector<directoryInfo>();
 #endif
     }
 

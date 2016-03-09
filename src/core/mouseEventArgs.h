@@ -1,6 +1,5 @@
 #pragma once
 #include <phi.h>
-#include "eventHandler.h"
 
 namespace phi
 {
@@ -10,7 +9,7 @@ namespace phi
         void* sender;
         int x;
         int y;
-        unsigned int clicks;
+        uint clicks;
         bool leftButtonPressed;
         bool rightButtonPressed;
         bool middleButtonPressed;
@@ -20,6 +19,19 @@ namespace phi
         bool isShiftPressed;
         bool isAltPressed;
 
-        mouseEventArgs() : handled(false) {}
+        mouseEventArgs() :
+            sender(nullptr),
+            x(0),
+            y(0),
+            clicks(0),
+            leftButtonPressed(false),
+            rightButtonPressed(false),
+            middleButtonPressed(false),
+            wheelDelta(0.0f),
+            handled(false),
+            isCtrlPressed(false),
+            isShiftPressed(false),
+            isAltPressed(false)
+        {}
     };
 }

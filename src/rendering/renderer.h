@@ -31,7 +31,7 @@ namespace phi
 
         ~renderer() {}
 
-        void renderer::render()
+        void render()
         {
             gBufferPass->render();
             lightingPass->render();

@@ -7,13 +7,14 @@
 
 #include <rendering\ray.h>
 #include <rendering\shader.h>
-#include <rendering\camera.h>
 
 #include "translationEventArgs.h"
 #include "control.h"
 
 namespace phi
 {
+    class camera;
+
     class translationControl :
         public control
     {

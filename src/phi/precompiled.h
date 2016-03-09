@@ -1,9 +1,13 @@
 #pragma once
-#pragma message ("Compiling precompiled headers.\n")
+#ifdef MSVC
+#pragma message ("Compiling precompiled headers")
+#else
+#pragma message "Compiling precompiled headers"
+#endif
 
 #include <algorithm>
 #include <cmath>
-#include <codecvt>
+//#include <codecvt>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -26,16 +30,17 @@
 #include <assert.h>
 #include <stdarg.h>
 
-#if WIN32
+#ifdef WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <gl\glew.h>
-#include <sdl\sdl_syswm.h>
-#else
+#include <windowsx.h>
+#elif APPLE
 #include <OpenGL\gl3.h>
 #endif
 
-#include <bullet\btBulletDynamicsCommon.h>
+#include <gl\glew.h>
+
+//#include <bullet\btBulletDynamicsCommon.h>
 
 #define GLM_FORCE_RADIANS
 
@@ -52,8 +57,7 @@
 #include <rapidjson\document.h>
 #include <rapidjson\filereadstream.h>
 
-#include <sdl\sdl_image.h>
-#include <sdl\sdl.h>
+#include <freeimage\FreeImage.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

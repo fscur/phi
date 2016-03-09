@@ -1,5 +1,7 @@
 #include <precompiled.h>
 #include "camera.h"
+#include <core\transform.h>
+#include <core\node.h>
 
 namespace phi
 {
@@ -18,7 +20,7 @@ namespace phi
         updateProjectionMatrix();
     }
 
-    inline mat4 camera::getViewMatrix()
+    mat4 camera::getViewMatrix()
     {
         if (_changedView)
             updateViewMatrix();
@@ -26,7 +28,7 @@ namespace phi
         return _viewMatrix;
     }
 
-    inline mat4 camera::getProjectionMatrix()
+    mat4 camera::getProjectionMatrix()
     {
         if (_changedProjection)
             updateProjectionMatrix();
@@ -34,7 +36,7 @@ namespace phi
         return _projectionMatrix;
     }
 
-    inline transform* camera::getTransform()
+    transform* camera::getTransform()
     {
         if (_node == nullptr)
             return nullptr;
@@ -42,7 +44,7 @@ namespace phi
         _node->getTransform();
     }
 
-    inline void camera::setResolution(vec2 value)
+    void camera::setResolution(vec2 value)
     {
         _resolution = value;
         _aspect = _resolution.x / _resolution.y;
@@ -61,13 +63,13 @@ namespace phi
         _changedView = false;
     }
 
-    inline void camera::updateProjectionMatrix()
+    void camera::updateProjectionMatrix()
     {
         _projectionMatrix = glm::perspective(_fov, _aspect, _near, _far);
         _changedProjection = false;
     }
 
-    inline void camera::moveTo(vec3 position)
+    void camera::moveTo(vec3 position)
     {
         getTransform()->setLocalPosition(position);
     }
@@ -161,7 +163,7 @@ namespace phi
         _changedView = true;
     }
 
-    inline void camera::update()
+    void camera::update()
     {
         // TODO: when the new event system is done, change this to update only when the transform changes
         updateViewMatrix();

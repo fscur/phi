@@ -3,10 +3,10 @@
 #include "rendering.h"
 #include <core\component.h>
 
-#include <core\node.h>
-
 namespace phi
 {
+    class transform;
+
     class camera :
         public component
     {

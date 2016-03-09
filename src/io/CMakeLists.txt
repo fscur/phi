@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
-
-#project(io)
-
-add_definitions(-DIO_EXPORTS)
+if (MSVC)
+    add_definitions(-DIO_EXPORTS)
+endif (MSVC)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
@@ -19,7 +18,7 @@ install(TARGETS io
     RUNTIME 
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os})
 
-if (WIN32)
+if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
@@ -28,6 +27,6 @@ if (WIN32)
         TARGET io
         PRE_BUILD
         COMMAND xcopy /D /Y \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
-endif(WIN32)
+endif(MSVC)
 
 set_target_properties(io PROPERTIES FOLDER Engine)

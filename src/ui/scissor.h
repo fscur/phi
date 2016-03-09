@@ -11,7 +11,7 @@ namespace phi
         float w;
         float h;
 
-        scissor::scissor();
+        scissor();
         scissor(float x, float y, float w, float h);
         scissor intersection(scissor b);
         bool intersectsWith(vec2 point);

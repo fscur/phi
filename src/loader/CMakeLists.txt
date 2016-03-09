@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-#project(loader)
-
-add_definitions(-DLOADER_EXPORTS)
+if (MSVC)
+    add_definitions(-DLOADER_EXPORTS)
+endif (MSVC)
 
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS}/phi)
 
 link_directories(${LIBS_DIRS})
+find_package(FREEIMAGE REQUIRED)
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
@@ -16,27 +17,14 @@ file(GLOB source_files *.cpp)
 add_library(loader SHARED ${source_files} ${header_files})
 
 target_link_libraries(loader rendering)
-
-#sdl
-find_package(SDL REQUIRED)
-if(NOT SDL_FOUND)
-    message(SDL not found!)
-endif(NOT SDL_FOUND)
-target_link_libraries(loader ${SDL_LIBRARY})
-
-#sdl_image
-find_package(SDL_IMAGE REQUIRED)
-if(NOT SDL_IMAGE_FOUND)
-    message(SDL_IMAGE not found!)
-endif(NOT SDL_IMAGE_FOUND)
-target_link_libraries(loader ${SDL_IMAGE_LIBRARY})
+target_link_libraries(loader ${FREEIMAGE_LIBRARY})
 
 install(TARGETS loader 
     RUNTIME 
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}
     CONFIGURATIONS ${CMAKE_BUILD_TYPE})
 
-if (WIN32)
+if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
@@ -45,6 +33,6 @@ if (WIN32)
         TARGET loader
         PRE_BUILD
         COMMAND xcopy /D /Y \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
-endif(WIN32)
+endif(MSVC)
 
 set_target_properties(loader PROPERTIES FOLDER Engine)

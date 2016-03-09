@@ -6,6 +6,8 @@
 
 namespace phi
 {
+    class transform;
+
     class spotLight :
         public light
     {
