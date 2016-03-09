@@ -33,17 +33,13 @@ THE SOFTWARE.
 #include <string>
 #include <iomanip>
 
-#ifdef GUID_ANDROID
-#include <jni.h>
-#endif
-
 // Class to represent a GUID/UUID. Each instance acts as a wrapper around a
 // 16 byte value that can be passed around by value. It also supports
 // conversion to string (via the stream operator <<) and conversion from a
 // string via constructor.
 class guid
 {
-  public:
+public:
 
     // create a guid from vector of bytes
     CORE_API guid(const std::vector<unsigned char> &bytes);
@@ -67,13 +63,13 @@ class guid
     CORE_API bool operator==(const guid &other) const;
     CORE_API bool operator!=(const guid &other) const;
 
-  private:
+private:
 
     // actual data
     std::vector<unsigned char> _bytes;
 
     // make the << operator a friend so it can access _bytes
-    friend std::ostream &operator<<(std::ostream &s, const guid &guid);
+    CORE_API friend std::ostream &operator<<(std::ostream &s, const guid &guid);
 };
 
 // Class that can create new guids. The only reason this exists instead of
@@ -85,29 +81,6 @@ class guid
 // each platform, but the use of newGuid is uniform.
 class guidGenerator
 {
-private:
-    static guidGenerator* _instance;
-
-  public:
-#ifdef GUID_ANDROID
-    CORE_API guidGenerator(JNIEnv *env);
-#else
-    CORE_API guidGenerator() { }
-#endif
-
-    CORE_API guid newGuid();
-
-    CORE_API static guid createGuid()
-    {
-        return _instance->newGuid();
-    }
-
-#ifdef GUID_ANDROID
-  private:
-    JNIEnv *_env;
-    jclass _uuidClass;
-    jmethodID _newGuidMethod;
-    jmethodID _mostSignificantBitsMethod;
-    jmethodID _leastSignificantBitsMethod;
-#endif
+public:
+    CORE_API static guid newGuid();
 };
