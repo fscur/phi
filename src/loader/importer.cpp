@@ -115,7 +115,7 @@ namespace phi
     int importer::importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo)
     {
         //TODO:: create load file fuction in the io API
-#ifdef WINDOWS 
+#ifdef _WIN32 
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
         char readBuffer[65536];
@@ -138,7 +138,7 @@ namespace phi
 
     int importer::importGeometry(string fileName, geometry*& data)
     {
-#ifdef WINDOWS
+#ifdef _WIN32
         std::ifstream iFile;
         iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
 
@@ -255,7 +255,7 @@ namespace phi
 
     int importer::importTexture(string fileName, resource<texture>*& textureResource)
     {
-#ifdef WINDOWS
+#ifdef _WIN32
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
         char readBuffer[65536];
@@ -285,7 +285,7 @@ namespace phi
 
     int importer::importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo)
     {
-#ifdef WINDOWS
+#ifdef _WIN32
         FILE* fp;
         fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
         char readBuffer[65536];

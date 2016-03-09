@@ -1,4 +1,4 @@
-set(CMAKE_CXX_FLAGS "-DMINGW -DDWINDOWS -DDEBUG -std=c++11" CACHE STRING "c++ compiler flags" FORCE)
+set(CMAKE_CXX_FLAGS "-DMINGW -DDEBUG -std=c++11" CACHE STRING "c++ compiler flags" FORCE)
 set(ROOT_DIR "../../")
 set(SOLUTION_PLATFORM "x64" CACHE PATH "")
 set(PHI_INCLUDE_DIRS "${ROOT_DIR}src/" CACHE PATH "")

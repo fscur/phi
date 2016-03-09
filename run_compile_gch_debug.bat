@@ -1,3 +1,3 @@
 cd .\src\phi\\.
-g++ -DMINGW -DDWINDOWS -DDEBUG -g -std=c++11 -I../../inc -I../../inc/freetype precompiled.h
+g++ -DMINGW -DDEBUG -std=c++11 -g -I../../inc -I../../inc/freetype precompiled.h
 cd ..\..\

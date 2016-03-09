@@ -4,6 +4,7 @@
 #include <core\node.h>
 #include <rendering\material.h>
 #include <rendering\gl.h>
+#include <io\path.h>
 
 namespace demon
 {
@@ -40,11 +41,11 @@ namespace demon
             std::function<bool(phi::string, phi::resource<T>*&)> importFunction)
         {
             auto subDirs = phi::path::getDirectories(directory);
-            for (auto &dir : subDirs)
+            for (phi::directoryInfo &dir : subDirs)
                 load(dir.path, filters, repository, importFunction);
 
             auto files = phi::path::getFiles(directory, filters);
-            for (auto &file : files)
+            for (phi::fileInfo &file : files)
             {
                 phi::resource<T>* resource;
                 if (importFunction(file.path, resource))

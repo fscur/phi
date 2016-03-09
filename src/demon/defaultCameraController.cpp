@@ -94,7 +94,7 @@ namespace demon
             auto camRight = transform->getRight();
             auto camUp = transform->getUp();
 
-            _targetPos = camPos + camDir * z + -camRight * x + camUp * y;
+            _targetPos = camPos + camDir * z + -camRight * (float)x + camUp * (float)y;
         }
 
         _eyeZ = z;
@@ -117,19 +117,19 @@ namespace demon
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
 
-        auto ys0 = _startPos.y - hh;
+        auto ys0 = (float)_startPos.y - hh;
         auto yp0 = ys0 / hh;
         auto ym0 = -(yp0 * tg);
 
-        auto xs0 = _startPos.x - hw;
+        auto xs0 = (float)_startPos.x - hw;
         auto xp0 = xs0 / hw;
         auto xm0 = xp0 * tg * aspect;
 
-        auto ys1 = mousePos.y - hh;
+        auto ys1 = (float)mousePos.y - hh;
         auto yp1 = ys1 / hh;
         auto ym1 = -(yp1 * tg);
 
-        auto xs1 = mousePos.x - hw;
+        auto xs1 = (float)mousePos.x - hw;
         auto xp1 = xs1 / hw;
         auto xm1 = xp1 * tg * aspect;
 
@@ -138,8 +138,8 @@ namespace demon
         auto xDiff = xm1 - xm0;
         auto yDiff = ym1 - ym0;
 
-        auto x = xDiff * (eyeZ / zNear);
-        auto y = yDiff * (eyeZ / zNear);
+        float x = xDiff * (eyeZ / zNear);
+        float y = yDiff * (eyeZ / zNear);
 
         phi::vec3 pos = _cameraPos - (phi::vec3(-_cameraRight * x) + phi::vec3(_cameraUp * y));
 
@@ -214,7 +214,7 @@ namespace demon
         phi::vec3 camRight = transform->getRight();
         phi::vec3 camUp = transform->getUp();
 
-        phi::vec3 targetPos = camPos + camDir * z + -camRight * x + camUp * y;
+        phi::vec3 targetPos = camPos + camDir * (float)z + -camRight * (float)x + camUp * (float)y;
 
         if (in)
             _camera->zoomIn(targetPos);

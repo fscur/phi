@@ -1,4 +1,3 @@
-#pragma once
 #include <precompiled.h>
 #include <apps\application.h>
 #include <demon\screen.h>
@@ -128,11 +127,11 @@ int main(int argc, char* args[])
         mainScreen->setLibraryPath(_libraryPath);
     else
         mainScreen->setLibraryPath(path + "\\library\\");
-
+    
     phi::debug("runnning.");
     app.run(mainScreen);
 
     phi::safeDelete(mainScreen);
-
+    
     return 0;
 }

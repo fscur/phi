@@ -11,7 +11,10 @@ cd ../../
 
 cd .\build\mingw\\.
 mingw32-make
+mingw32-make install
 cd ../../
+cd bin
+demon.exe
 
 set choice=
 set /P choice=
