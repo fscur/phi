@@ -51,6 +51,9 @@
 #include <gl\glew.h>
 
 //#include <bullet\btBulletDynamicsCommon.h>
+#ifdef MINGW
+#define GLM_HAS_CXX11_STL 0
+#endif
 
 #define GLM_FORCE_RADIANS
 
