@@ -28,11 +28,19 @@
 #include <vector>
 
 //TODO: create a cross platform guid class
+
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <stdio.h>
+
+#ifdef MINGW_HAS_SECURE_API
+#pragma message "__STDC_LIB_EXT1__ defined"
+#endif
+
 #include <assert.h>
 #include <objbase.h>
 #include <stdarg.h>
 
-#ifdef WINDOWS
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>

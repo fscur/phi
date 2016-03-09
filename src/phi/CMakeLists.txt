@@ -7,7 +7,6 @@ if(MSVC)
     file(GLOB header_files *.h)
     file(GLOB source_files *.cpp)
     add_library(phi STATIC ${source_files} ${header_files})
-
 else()
     file(GLOB header_files phi.h)
     file(GLOB source_files *.cpp)

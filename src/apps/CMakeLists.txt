@@ -15,16 +15,13 @@ file(GLOB source_files *.cpp)
 
 add_library(apps SHARED ${source_files} ${header_files})
 
-#target_link_libraries(apps diagnostics)
 target_link_libraries(apps core)
 
-if (MSVC)
 find_package(OPENGL REQUIRED)
 find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIR})
-target_link_libraries(apps ${OPENGL_LIBRARY})
 target_link_libraries(apps ${GLEW_LIBRARY})
-endif (MSVC)
+target_link_libraries(apps ${OPENGL_LIBRARY})
 
 install(
     TARGETS apps 

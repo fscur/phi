@@ -1,11 +1,19 @@
 #include <precompiled.h>
 #include "path.h"
 
+#include <stdlib.h>
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <stdio.h>
+
+#ifdef MINGW_HAS_SECURE_API
+#pragma message "__STDC_LIB_EXT1__ defined"
+#endif
+
 namespace phi
 {
     bool path::exists(const string& path)
     {
-        #ifdef WINDOWS
+        #ifdef _WIN32
         FILE *file;
         fopen_s(&file, path.c_str(), "r");
         if (file)
@@ -63,7 +71,7 @@ namespace phi
         const string& directory, 
         vector<string> filters)
     {
-#ifdef WINDOWS
+#ifdef _WIN32
         vector<fileInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
@@ -107,7 +115,7 @@ namespace phi
 
     vector<directoryInfo> path::getDirectories(const string& directory)
     {
-#ifdef WINDOWS
+#ifdef _WIN32
         vector<directoryInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
