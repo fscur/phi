@@ -1,31 +1,13 @@
 #include <precompiled.h>
-#include "window.h"
+#include "..\window.h"
+
+#include <core\input.h>
 
 namespace phi
 {
     static HINSTANCE hInstance;
     static HDC hDc;
     HWND hWnd;
-
-    namespace eventType
-    {
-        enum eventType
-        {
-            none,
-            onMouseMove,
-            onMouseDown,
-            onMouseUp,
-            onMouseWhell,
-            onKeyboardDown,
-            onKeyboardUp
-        };
-    }
-
-    mouseEventArgs _mouseEventArgs;
-    keyboardEventArgs _keyboardEventArgs;
-    eventType::eventType _eventType = eventType::none;
-    bool _shouldRaiseMouseEvent = false;
-    bool _shouldRaiseKeyboardEvent = false;
 
     static PIXELFORMATDESCRIPTOR getPixelFormat()
     {
@@ -41,86 +23,6 @@ namespace phi
         result.iLayerType = PFD_MAIN_PLANE;
         return result;
     }
-
-    void setKeyboardState(uint message, int flags, int key)
-    {
-        /*bool pressed = message == WM_KEYDOWN || message == WM_SYSKEYDOWN;
-        inputManager->m_KeyState[key] = pressed;
-
-        bool repeat = (flags >> 30) & 1;
-
-        int modifier = 0;
-        switch (key)
-        {
-        case SP_KEY_CONTROL:
-        modifier = SP_MODIFIER_LEFT_CONTROL;
-        break;
-        case SP_KEY_ALT:
-        modifier = SP_MODIFIER_LEFT_ALT;
-        break;
-        case SP_KEY_SHIFT:
-        modifier = SP_MODIFIER_LEFT_SHIFT;
-        break;
-        }
-        if (pressed)
-        inputManager->m_KeyModifiers |= modifier;
-        else
-        inputManager->m_KeyModifiers &= ~(modifier);
-
-        if (pressed)
-        inputManager->m_EventCallback(KeyPressedEvent(key, repeat, inputManager->m_KeyModifiers));
-        else
-        inputManager->m_EventCallback(KeyReleasedEvent(key));*/
-
-    }
-
-    void setMouseModifiers(uint message, int flags, int key)
-    {}
-
-    void setMouseState(uint message, int x, int y)
-    {
-        _mouseEventArgs.x = x;
-        _mouseEventArgs.y = y;
-
-        switch (message)
-        {
-        case WM_LBUTTONDOWN:
-            _mouseEventArgs.leftButtonPressed = true;
-            _eventType = eventType::onMouseDown;
-            break;
-        case WM_LBUTTONUP:
-            _mouseEventArgs.leftButtonPressed = true;
-            _eventType = eventType::onMouseUp;
-            break;
-        case WM_RBUTTONDOWN:
-            _mouseEventArgs.rightButtonPressed = true;
-            _eventType = eventType::onMouseDown;
-            break;
-        case WM_RBUTTONUP:
-            _mouseEventArgs.rightButtonPressed = true;
-            _eventType = eventType::onMouseUp;
-            break;
-        case WM_MBUTTONDOWN:
-            _mouseEventArgs.middleButtonPressed = true;
-            _eventType = eventType::onMouseDown;
-            break;
-        case WM_MBUTTONUP:
-            _mouseEventArgs.middleButtonPressed = true;
-            _eventType = eventType::onMouseUp;
-            break;
-        default:
-            return;
-        }
-
-        _shouldRaiseMouseEvent = true;
-    }
-
-    void raiseMouseEvent() 
-    {
-        phi::debug("mouse event raised: (" + std::to_string(_mouseEventArgs.x) + ", " + std::to_string(_mouseEventArgs.y) + ")");
-    }
-
-    void raiseKeyboardEvent() {}
 
     LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
@@ -162,19 +64,36 @@ namespace phi
             PostQuitMessage(0);
             break;
         case WM_KEYDOWN:
-        case WM_KEYUP:
         case WM_SYSKEYDOWN:
+            input::notifyKeyDown(wParam);
+            break;
+        case WM_KEYUP:
         case WM_SYSKEYUP:
-            setKeyboardState(message, lParam, wParam);
-            setMouseModifiers(message, lParam, wParam);
+            input::notifyKeyUp(wParam);
+            break;
+        case WM_MOUSEHWHEEL:
+            input::notifyMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));
+            break;
+        case WM_MOUSEMOVE:
+            input::notifyMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
         case WM_LBUTTONDOWN:
+            input::notifyLeftMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            break;
         case WM_LBUTTONUP:
+            input::notifyLeftMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            break;
         case WM_RBUTTONDOWN:
+            input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            break;
         case WM_RBUTTONUP:
+            input::notifyRightMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            break;
         case WM_MBUTTONDOWN:
+            input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            break;
         case WM_MBUTTONUP:
-            setMouseState(message, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            input::notifyMiddleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
         case WM_SIZE:
             //resize
@@ -277,10 +196,7 @@ namespace phi
     }
 
     void window::input()
-    {
-        _shouldRaiseMouseEvent = false;
-        _shouldRaiseKeyboardEvent = false;
-
+    {   
         MSG msg;
 
         while (PeekMessage(&msg, hWnd, NULL, NULL, PM_REMOVE) > 0)
@@ -294,66 +210,5 @@ namespace phi
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-
-        if (_shouldRaiseMouseEvent)
-            raiseMouseEvent();
-
-        if (_shouldRaiseKeyboardEvent)
-            raiseKeyboardEvent();
     }
-
-    /*
-   
-
-    void VulkanExampleBase::handleMessages(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-    {
-        switch (uMsg)
-        {
-        case WM_CLOSE:
-            prepared = false;
-            DestroyWindow(hWnd);
-            PostQuitMessage(0);
-            break;
-        case WM_PAINT:
-            ValidateRect(window, NULL);
-            break;
-        case WM_KEYDOWN:
-            switch (wParam)
-            {
-            case 0x50:
-                paused = !paused;
-                break;
-            case VK_ESCAPE:
-                exit(0);
-                break;
-            }
-            keyPressed((uint32_t)wParam);
-            break;
-        case WM_RBUTTONDOWN:
-        case WM_LBUTTONDOWN:
-            mousePos.x = (float)LOWORD(lParam);
-            mousePos.y = (float)HIWORD(lParam);
-            break;
-        case WM_MOUSEMOVE:
-            if (wParam & MK_RBUTTON)
-            {
-                int32_t posx = LOWORD(lParam);
-                int32_t posy = HIWORD(lParam);
-                zoom += (mousePos.y - (float)posy) * .005f * zoomSpeed;
-                mousePos = glm::vec2((float)posx, (float)posy);
-                viewChanged();
-            }
-            if (wParam & MK_LBUTTON)
-            {
-                int32_t posx = LOWORD(lParam);
-                int32_t posy = HIWORD(lParam);
-                rotation.x += (mousePos.y - (float)posy) * 1.25f * rotationSpeed;
-                rotation.y -= (mousePos.x - (float)posx) * 1.25f * rotationSpeed;
-                mousePos = glm::vec2((float)posx, (float)posy);
-                viewChanged();
-            }
-            break;
-        }
-    }
-    */
 }

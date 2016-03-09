@@ -105,8 +105,6 @@ phi::string getDirPath(phi::string filePath)
 
 int main(int argc, char* args[])
 {
-    //std::cout << "a" << std::endl;
-    //system("pause");
     phi::string exeFileName = phi::string(args[0]);
     phi::application app(exeFileName);
 
@@ -129,7 +127,7 @@ int main(int argc, char* args[])
         mainScreen->setLibraryPath(_libraryPath);
     else
         mainScreen->setLibraryPath(path + "\\library\\");
-
+    
     phi::debug("runnning.");
     app.run(mainScreen);
 

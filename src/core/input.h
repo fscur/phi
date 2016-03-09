@@ -8,13 +8,29 @@ namespace phi
 {
     class input
     {
+    private:
+        static void raiseMouseMoveEvent(mouseEventArgs* e);
+        static void raiseMouseDownEvent(mouseEventArgs* e);
+        static void raiseMouseUpEvent(mouseEventArgs* e);
+        static void raiseMouseWheelEvent(mouseEventArgs* e);
+        static void raiseKeyDownEvent(keyboardEventArgs e);
+        static void raiseKeyUpEvent(keyboardEventArgs e);
+
     public:
-        CORE_API static void notifyMouseMove(mouseEventArgs* e);
-        CORE_API static void notifyMouseDown(mouseEventArgs* e);
-        CORE_API static void notifyMouseUp(mouseEventArgs* e);
-        CORE_API static void notifyMouseWheel(mouseEventArgs* e);
-        CORE_API static void notifyKeyDown(keyboardEventArgs e);
-        CORE_API static void notifyKeyUp(keyboardEventArgs e);
+        CORE_API static void notifyLeftMouseDown(int x, int y);
+        CORE_API static void notifyRightMouseDown(int x, int y);
+        CORE_API static void notifyMiddleMouseDown(int x, int y);
+
+        CORE_API static void notifyMouseMove(int x, int y);
+
+        CORE_API static void notifyLeftMouseUp(int x, int y);
+        CORE_API static void notifyRightMouseUp(int x, int y);
+        CORE_API static void notifyMiddleMouseUp(int x, int y);
+
+        CORE_API static void notifyMouseWheel(int delta);
+
+        CORE_API static void notifyKeyDown(int key);
+        CORE_API static void notifyKeyUp(int key);
 
         CORE_API static mouseEventHandler* mouseMove;
         CORE_API static mouseEventHandler* mouseDown;
