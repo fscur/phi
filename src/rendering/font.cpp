@@ -12,7 +12,7 @@ namespace phi
         // TODO: all this code should be on the importer class?     Yes it totally should, good luck!!!!
         FT_Face face;
         if (FT_New_Face(library, path.c_str(), 0, &face))
-            log("Could not open font");
+            logError("Could not open font");
 
         FT_Set_Pixel_Sizes(face, 0, _size);
         FT_GlyphSlot g = face->glyph;

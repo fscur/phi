@@ -72,7 +72,7 @@ void form::initWindow()
 
     SDL_Rect r;
     if (SDL_GetDisplayBounds(0, &r) != 0)
-        phi::log("SDL_GetDisplayBounds failed: " +phi::string(SDL_GetError()));
+        phi::logError("SDL_GetDisplayBounds failed: " +phi::string(SDL_GetError()));
 
     //createGLWindow
     _window = SDL_CreateWindow(
@@ -89,7 +89,7 @@ void form::initWindow()
     _isFullScreen = false;
 
     if (_window == NULL)
-        phi::log("Window could not be created! SDL_Error: " + phi::string(SDL_GetError()));
+        phi::logError("Window could not be created! SDL_Error: " + phi::string(SDL_GetError()));
 
     int width = 0;
     int height = 0;
@@ -111,7 +111,7 @@ void form::initWindow()
     _glContext = SDL_GL_CreateContext(_window);
 
     if (!_glContext)
-        phi::log("Could not create context: " + phi::string(SDL_GetError()));
+        phi::logError("Could not create context: " + phi::string(SDL_GetError()));
 
 
     SDL_GL_SetSwapInterval(0);
@@ -122,7 +122,7 @@ void form::initWindow()
     GLenum glewInitStatus = glewInit();
 
     if(glewInitStatus != GLEW_OK)
-        phi::log("Error: " + phi::string(reinterpret_cast<const char*>(glewGetErrorString(glewInitStatus))));
+        phi::logError("Error: " + phi::string(reinterpret_cast<const char*>(glewGetErrorString(glewInitStatus))));
 
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
@@ -277,28 +277,6 @@ bool form::loop()
     std::cout << std::to_string(s * 1000.0) << std::endl;
 
     return !_isClosed;
-}
-
-int form::renderLoopWrapper(void *data)
-{
-    form* self = static_cast<form*>(data);
-    return self->renderLoop();
-}
-
-int form::renderLoop()
-{
-    int s = SDL_GL_MakeCurrent(_window, _glContext);
-
-    if (s != 0)
-        phi::log(phi::string(SDL_GetError()));
-
-    while (!_isClosed)
-    {
-        render();
-        SDL_GL_SwapWindow(_window);
-    }
-
-    return 0;
 }
 
 void form::centerScreen()

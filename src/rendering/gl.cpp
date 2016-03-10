@@ -11,7 +11,7 @@ namespace phi
 
         _initialized = true;
 
-        phi::log("Initializing OpenGL.");
+        phi::logInfo("Initializing OpenGL.");
 
         printOpenGLDetails();
         initOpenGLExtensions();
@@ -49,9 +49,9 @@ namespace phi
             return string((char*)glGetString(s));
         };
 
-        phi::log("Vendor: " + print(GL_VENDOR) + ".");
-        phi::log("Renderer: " + print(GL_RENDERER) + ".");
-        phi::log("Version: " + print(GL_VERSION) + ".");
+        phi::logInfo("Vendor: " + print(GL_VENDOR) + ".");
+        phi::logInfo("Renderer: " + print(GL_RENDERER) + ".");
+        phi::logInfo("Version: " + print(GL_VERSION) + ".");
     }
 
     void gl::initOpenGLExtensions()
@@ -75,13 +75,13 @@ namespace phi
         phiExtensions.push_back("GL_ARB_bindless_texture");
         phiExtensions.push_back("GL_ARB_sparse_texture");
 
-        phi::log("Extensions:");
+        //phi::logInfo("Extensions:");
 
         for (auto phiExtension : phiExtensions)
         {
             auto found = phi::contains(glExtensions, phiExtension);
             extensions[phiExtension] = found;
-            phi::log(phiExtension + (found ? "[Ok]" : "[Not Ok]"));
+            phi::logInfo(phiExtension + (found ? "[Ok]" : "[Not Ok]"));
         }
     }
 
@@ -190,6 +190,6 @@ namespace phi
     void gl::printError(string msg)
     {
         auto error = getErrorString(glGetError());
-        phi::log(msg + " (" + error + ")");
+        phi::logInfo(msg + " (" + error + ")");
     }
 }

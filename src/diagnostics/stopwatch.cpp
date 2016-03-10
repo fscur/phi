@@ -1,7 +1,6 @@
 #include <precompiled.h>
 #include "diagnostics.h"
 #include "stopwatch.h"
-#include "console.h"
 
 using namespace std::chrono;
 
@@ -71,7 +70,7 @@ namespace phi
     {
         auto msg = functionName + " took: ";
         auto elapsedSeconds = stopwatch::measure(function);
-        console::writeLine(msg + std::to_string(elapsedSeconds));
+        std::cout << msg + std::to_string(elapsedSeconds) << std::endl;
 
         return elapsedSeconds;
     }
@@ -97,7 +96,7 @@ namespace phi
         double average = stopwatch::measureAverage(function, samples);
 
         auto msg = "average of " + std::to_string(samples) + " samples for " + functionName + " took: ";
-        console::writeLine(msg + std::to_string(average));
+        std::cout << msg + std::to_string(average) << std::endl;
 
         return average;
     }

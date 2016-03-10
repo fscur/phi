@@ -9,7 +9,7 @@ application::application()
     phi::debug("Starting application.");
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
-        phi::log("SDL could not initialize! SDL_Error: " + phi::string(SDL_GetError()));
+        phi::logError("SDL could not initialize! SDL_Error: " + phi::string(SDL_GetError()));
 
     //TTF_Init();
 }

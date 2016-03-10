@@ -318,7 +318,7 @@ namespace phi
         texture* tex;
         if (!importTexture(imageFileName, tex))
         {
-            log("Image " + string(imageFileName) + " from texture " + name + " could not be loaded.");
+            logError("Image " + string(imageFileName) + " from texture " + name + " could not be loaded.");
             return 0;
         }
 

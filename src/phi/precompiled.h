@@ -27,6 +27,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <exception>
 
 //TODO: create a cross platform guid class
 #include <assert.h>
