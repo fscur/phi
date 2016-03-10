@@ -5,27 +5,27 @@
 
 #include <loader\importer.h>
 #include <rendering\model.h>
+#include <apps\application.h>
+
+using namespace phi;
 
 namespace demon
 {
-    screen::screen(phi::string name, phi::uint width, phi::uint height) :
+    screen::screen(string name, uint width, uint height) :
         window(name, width, height)
     {
-        _temp = 0.0f;
-        _isMouseDown = false;
-        _rotating = false;
-        _shadowMap = false;
-        _translationSpeed = 1.0f;
-        _rotationSpeed = 0.01f;
-        _commandsManager = new commandsManager();
-        _inputManager = new inputManager(_commandsManager);
     }
 
     screen::~screen()
     {
+        delete _commandsManager;
+        delete _inputManager;
+        delete _gl;
+        delete _library;
+        delete _scene;
     }
 
-    void screen::onInitialize()
+    void screen::onInit()
     {
         initGL();
         initLibrary();
@@ -35,35 +35,35 @@ namespace demon
 
     void screen::initGL()
     {
-        auto initState = phi::gl::state();
-        initState.clearColor = phi::vec4(0.0f);
-        initState.frontFace = phi::gl::frontFace::ccw;
+        auto initState = gl::state();
+        initState.clearColor = vec4(0.0f);
+        initState.frontFace = gl::frontFace::ccw;
         initState.culling = true;
-        initState.cullFace = phi::gl::cullFace::back;
+        initState.cullFace = gl::cullFace::back;
         initState.depthMask = true;
         initState.depthTest = true;
         initState.useBindlessTextures = false;
         initState.useSparseTextures = false;
 
-        auto info = phi::gl::glInfo();
+        auto info = gl::glInfo();
         info.state = initState;
-        info.shadersPath = _resourcesPath + "/shaders";
-        _gl = new phi::gl(info);
+        info.shadersPath = application::resourcesPath + "/shaders";
+        _gl = new gl(info);
     }
 
     void screen::initLibrary()
     {
-        _library = new library(_gl, _libraryPath);
+        _library = new library(_gl, application::libraryPath);
         _library->init();
     }
 
     void screen::initScene()
     {
-        _scene = new phi::scene(_gl, _width, _height);
+        _scene = new scene(_gl, _width, _height);
         auto camera = _scene->camera;
 
         auto cameraTransform = camera->getTransform();
-        auto cameraPos = phi::vec3(0.0f, 0.0f, 2.0f);
+        auto cameraPos = vec3(0.0f, 0.0f, 2.0f);
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
@@ -75,20 +75,22 @@ namespace demon
         for (size_t i = 0; i < 10; i++)
         {
             auto cloned = obj->clone();
-            cloned->getTransform().setLocalPosition(phi::vec3(i + (0.1f*i), 0.0, 0.0));
+            cloned->getTransform().setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
             _scene->add(cloned);
         }
     }
 
     void screen::initInput()
     {
+        _commandsManager = new commandsManager();
+        _inputManager = new inputManager(_commandsManager);
         _defaultController = new defaultCameraController(_scene);
         _inputManager->setCurrentCameraController(_defaultController);
     }
 
     void screen::onUpdate()
     {
-        _inputManager->update();
+        //_inputManager->update();
         _scene->update();
     }
 
@@ -97,42 +99,14 @@ namespace demon
         _scene->render();
     }
 
-    void screen::onMouseDown(phi::mouseEventArgs* e)
+    void screen::onTick()
     {
-        _inputManager->onMouseDown(e);
-    }
-
-    void screen::onMouseMove(phi::mouseEventArgs* e)
-    {
-        _inputManager->onMouseMove(e);
-    }
-
-    void screen::onMouseUp(phi::mouseEventArgs* e)
-    {
-        _inputManager->onMouseUp(e);
-    }
-
-    void screen::onMouseWheel(phi::mouseEventArgs* e)
-    {
-        _inputManager->onMouseWheel(e);
-    }
-
-    void screen::onKeyDown(phi::keyboardEventArgs* e)
-    {
-        if (_inputManager->onKeyDown(e))
-            return;
-
-        if (e->key == PHIK_ESCAPE)
-            close();
-    }
-
-    void screen::onKeyUp(phi::keyboardEventArgs* e)
-    {
-        _inputManager->onKeyUp(e);
+        debug("fps:" + std::to_string(application::framesPerSecond));
     }
 
     void screen::onClosing()
     {
+        debug("closing.");
         //TODO: MessageBox asking if the user really wants to close the window
         //TODO: Check if we really need the above TODO
     }

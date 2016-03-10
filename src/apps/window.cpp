@@ -9,19 +9,28 @@ namespace phi
         _height(height),
         closed(false){}
 
-    window::~window(){}
+    window::~window()
+    {}
 
-    void window::clear() {}
-    void window::render() {}
-    void window::update() {}
-    void window::tick() {}
-    void window::swapBuffers() {}
-    void window::close() {}
+    void window::clear() 
+    {
+        //onClear();
+    }
+
+    void window::render() 
+    {
+        onRender();
+    }
+    
+    void window::update() 
+    {
+        onUpdate();
+    }
+
+    void window::tick() 
+    {
+        onTick();
+    }
+    
     void window::onTick(){}
-    void window::onMouseDown(phi::mouseEventArgs* e){}
-    void window::onMouseMove(phi::mouseEventArgs* e){}
-    void window::onMouseUp(phi::mouseEventArgs* e){}
-    void window::onMouseWheel(phi::mouseEventArgs* e){}
-    void window::onKeyDown(phi::keyboardEventArgs* e){}
-    void window::onKeyUp(phi::keyboardEventArgs* e){}
 }

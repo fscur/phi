@@ -21,6 +21,7 @@ endif(WIN32)
 add_library(apps SHARED ${source_files} ${header_files})
 
 target_link_libraries(apps core)
+target_link_libraries(apps io)
 
 find_package(OPENGL REQUIRED)
 find_package(GLEW REQUIRED)

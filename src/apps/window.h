@@ -29,18 +29,11 @@ namespace phi
         APPS_API void swapBuffers();
         APPS_API void close();
 
-        APPS_API virtual void onTick();
-
-        APPS_API virtual void onInitialize() = 0;
+        APPS_API virtual void onInit() = 0;
         APPS_API virtual void onUpdate() = 0;
         APPS_API virtual void onRender() = 0;
         APPS_API virtual void onClosing() = 0;
 
-        APPS_API virtual void onMouseDown(phi::mouseEventArgs* e);
-        APPS_API virtual void onMouseMove(phi::mouseEventArgs* e);
-        APPS_API virtual void onMouseUp(phi::mouseEventArgs* e);
-        APPS_API virtual void onMouseWheel(phi::mouseEventArgs* e);
-        APPS_API virtual void onKeyDown(phi::keyboardEventArgs* e);
-        APPS_API virtual void onKeyUp(phi::keyboardEventArgs* e);
+        APPS_API virtual void onTick();
     };
 }

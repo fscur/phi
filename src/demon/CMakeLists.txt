@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
 
+if (MSVC)
+    add_definitions(-DAPI_EXPORTS)
+endif(MSVC)
+
 include_directories(${INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS})
 include_directories(${PHI_INCLUDE_DIRS}/phi)

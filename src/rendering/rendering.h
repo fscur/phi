@@ -9,5 +9,3 @@
 #else
     #define RENDERING_API
 #endif
-
-#define GLM_FORCE_RADIANS

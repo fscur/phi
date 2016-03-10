@@ -27,14 +27,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include <sys/types.h>
+#include <sys/stat.h>
 
-#define __STDC_WANT_LIB_EXT1__ 1
 #include <stdio.h>
-
-#ifdef MINGW_HAS_SECURE_API
-#pragma message "__STDC_LIB_EXT1__ defined"
-#endif
-
 #include <assert.h>
 #include <stdarg.h>
 
@@ -47,10 +43,11 @@
 #endif
 
 #include <gl\glew.h>
+#include <gl\wglew.h>
 
 //#include <bullet\btBulletDynamicsCommon.h>
 #ifdef MINGW
-#define GLM_HAS_CXX11_STL 0
+//#define GLM_HAS_CXX11_STL 0
 #endif
 
 #define GLM_FORCE_RADIANS
