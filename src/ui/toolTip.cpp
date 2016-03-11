@@ -7,7 +7,7 @@
 
 namespace phi
 {
-    toolTip::toolTip(sizef viewportSize)
+    toolTip::toolTip(sizeui viewportSize)
     {
         _viewportSize = viewportSize;
 
@@ -24,12 +24,12 @@ namespace phi
     {
     }
 
-    void toolTip::show(const std::string text, const vec2 location, const sizef rect)
+    void toolTip::show(const std::string text, const vec2 location, const sizeui rect)
     {
         _text = text;
 
         auto textSize = _foregroundRenderer->measureSize(_text, _font);
-        _size = sizef((GLuint)(textSize.w + 2.0f * TEXT_MARGIN), (GLuint)(textSize.h + 2.0f * TEXT_MARGIN));
+        _size = sizeui((GLuint)(textSize.w + 2.0f * TEXT_MARGIN), (GLuint)(textSize.h + 2.0f * TEXT_MARGIN));
 
         float textY;
         float targetHeight;

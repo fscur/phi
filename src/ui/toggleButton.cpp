@@ -5,7 +5,7 @@
 
 namespace phi
 {
-    toggleButton::toggleButton(sizef viewportSize) : button(viewportSize)
+    toggleButton::toggleButton(sizeui viewportSize) : button(viewportSize)
     {
         _checked = false;
         _checkedColor = color::white;
@@ -36,14 +36,14 @@ namespace phi
         _checkedBackgroundRenderer->update();
     }
 
-    void toggleButton::setSize(sizef value)
+    void toggleButton::setSize(sizeui value)
     {
         button::setSize(value);
         _checkedBackgroundRenderer->setSize(sizeui(value.w, value.h, value.d));
         _checkedBackgroundRenderer->update();
     }
 
-    void toggleButton::setViewportSize(sizef value)
+    void toggleButton::setViewportSize(sizeui value)
     {
         button::setViewportSize(value);
         _checkedBackgroundRenderer->setViewportSize(sizeui(value.w, value.h, value.d));

@@ -50,7 +50,7 @@ namespace phi
         void updateAabbs();
         void updateModelMatrix();
         void renderArrow(geometry* geometry, color color, mat4 modelMatrix);
-        ray castRay(vec2 screenCoords, sizef screenSize);
+        ray castRay(vec2 screenCoords, sizeui screenSize);
 
         vec3 screenToViewZNear(vec2 mousePos);
         vec2 worldToScreen(vec3 worldPos);
@@ -61,7 +61,7 @@ namespace phi
         virtual void onMouseLeave(mouseEventArgs* e) override;
 
     public:
-        UI_API translationControl(sizef viewportSize);
+        UI_API translationControl(sizeui viewportSize);
 
         UI_API void attachTo(transform* transform);
         UI_API void onRender() override;

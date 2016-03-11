@@ -39,7 +39,7 @@ namespace phi
     private:
         textureContainerLayout _layout;
         size_t _maxTextures;
-        uint _freeSpace;
+        size_t _freeSpace;
         GLint _unit;
         bool _bindless;
         bool _sparse;

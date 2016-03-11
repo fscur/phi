@@ -54,7 +54,7 @@ namespace phi
         virtual void onMouseLeave(mouseEventArgs* e) override;
 
     public:
-        UI_API rotationControl(sizef viewportSize);
+        UI_API rotationControl(sizeui viewportSize);
 
         UI_API void attachTo(transform* transform);
 

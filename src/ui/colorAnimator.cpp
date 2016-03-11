@@ -6,9 +6,9 @@
 namespace phi
 {
     std::unordered_map<color*, colorAnimation*> colorAnimator::_animations;
-    int colorAnimator::_lastUpdateMilliseconds = 0;
+    double colorAnimator::_lastUpdateMilliseconds = 0.0;
 
-    void colorAnimator::animateColor(color* colorFrom, color colorTo, int milliseconds)
+    void colorAnimator::animateColor(color* colorFrom, color colorTo, double milliseconds)
     {
         animateColor(new colorAnimation(colorFrom, colorTo, milliseconds));
     }
@@ -24,7 +24,7 @@ namespace phi
 
     void colorAnimator::update()
     {
-        int currentMilliseconds = time::totalSeconds * 1000;
+        double currentMilliseconds = time::totalSeconds * 1000;
 
         std::unordered_map<color*, colorAnimation*>::iterator i = _animations.begin();
         while (i != _animations.end())

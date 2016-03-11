@@ -33,6 +33,7 @@ namespace demon
 
     public:
         command();
+        virtual ~command();
         virtual bool getIsUndoable() { return true; }
         void start();
         void startUndo();

@@ -25,7 +25,7 @@ namespace phi
         void updateTextLocation();
 
     public:
-		label(sizef viewportSize);
+		label(sizeui viewportSize);
         ~label();
 
         std::string getText() { return _text; }
@@ -40,8 +40,8 @@ namespace phi
 
         void setX(int value) override;
         void setY(int value) override;
-        void setSize(sizef value) override;
-		void setViewportSize(sizef value) override;
+        void setSize(sizeui value) override;
+		void setViewportSize(sizeui value) override;
 
         void onRender() override;
     };

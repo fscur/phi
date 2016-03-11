@@ -44,7 +44,7 @@ namespace phi
         void deleteSelection();
 
     public:
-        textBox(sizef viewportSize);
+        textBox(sizeui viewportSize);
         ~textBox();
 
         std::string getText() { return _text; }
@@ -61,8 +61,8 @@ namespace phi
         void setX(int value) override;
         void setY(int value) override;
         void setZIndex(float value) override;
-        void setSize(sizef value) override;
-        void setViewportSize(sizef value) override;
+        void setSize(sizeui value) override;
+        void setViewportSize(sizeui value) override;
 
         void onMouseDown(mouseEventArgs* e) override;
         void onMouseUp(mouseEventArgs* e) override;

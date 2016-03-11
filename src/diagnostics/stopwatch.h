@@ -19,11 +19,11 @@ namespace phi
         DIAGNOSTICS_API void start();
         DIAGNOSTICS_API void stop();
         DIAGNOSTICS_API void resume();
-        DIAGNOSTICS_API const double getElapsedSeconds();
-        DIAGNOSTICS_API const double getElapsedMilliseconds();
-        DIAGNOSTICS_API static const double measure(const std::function<void(void)> &function);
-        DIAGNOSTICS_API static const double measure(const std::function<void(void)> &function, const string &functionName);
-        DIAGNOSTICS_API static const double measureAverage(const std::function<void(void)> &function, int numSamples);
-        DIAGNOSTICS_API static const double measureAverage(const std::function<void(void)> &function, const string &functionName, int numSamples);
+        DIAGNOSTICS_API double getElapsedSeconds();
+        DIAGNOSTICS_API double getElapsedMilliseconds();
+        DIAGNOSTICS_API static double measure(const std::function<void(void)> &function);
+        DIAGNOSTICS_API static double measure(const std::function<void(void)> &function, const string &functionName);
+        DIAGNOSTICS_API static double measureAverage(const std::function<void(void)> &function, int numSamples);
+        DIAGNOSTICS_API static double measureAverage(const std::function<void(void)> &function, const string &functionName, int numSamples);
     };
 }

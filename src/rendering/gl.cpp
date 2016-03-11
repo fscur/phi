@@ -97,8 +97,8 @@ namespace phi
 
         if (currentState.depthTest)
             glEnable(GL_DEPTH_TEST);
-
-        auto depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
+        
+        GLboolean depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
     }
 
