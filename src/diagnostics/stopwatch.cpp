@@ -14,11 +14,6 @@ namespace phi
     {
     }
 
-    stopwatch::~stopwatch()
-    {
-        
-    }
-    
     void stopwatch::start()
     {
         if(!_isRunning)

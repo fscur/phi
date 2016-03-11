@@ -14,8 +14,6 @@ namespace phi
 
     public:
         DIAGNOSTICS_API stopwatch();
-        DIAGNOSTICS_API ~stopwatch();
-
         DIAGNOSTICS_API void start();
         DIAGNOSTICS_API void stop();
         DIAGNOSTICS_API void resume();
