@@ -14,7 +14,7 @@ namespace phi
     {
     }
 
-    const char* phiException::what() const
+    const char* phiException::what() const noexcept
     {
         return _message;
     }

@@ -108,7 +108,7 @@ void executeCommands()
 int debugQuit(string msg)
 {
 #ifdef _DEBUG
-    log(msg);
+    logError(msg);
     system("pause");
 #endif
     return -1;
