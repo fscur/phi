@@ -16,8 +16,8 @@ namespace phi
         static int _lastUpdateMilliseconds;
 
     public:
-        UI_API static void animateColor(color* colorFrom, color colorTo, int milliseconds);
-        UI_API static void animateColor(colorAnimation* animation);
-        UI_API static void update();
+        static void animateColor(color* colorFrom, color colorTo, int milliseconds);
+        static void animateColor(colorAnimation* animation);
+        static void update();
     };
 }

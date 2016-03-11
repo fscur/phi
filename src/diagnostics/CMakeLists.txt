@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 if (MSVC)
-    add_definitions(-DDIAGNOSTICS_EXPORTS)
+    add_definitions(-Ddiagnostics_EXPORTS)
 endif (MSVC)
 
 include_directories(${INCLUDE_DIRS})
@@ -16,7 +16,8 @@ add_library(diagnostics SHARED ${source_files} ${header_files})
 target_link_libraries(diagnostics phi)
 
 install(TARGETS diagnostics 
-    RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os})
+    RUNTIME 
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")

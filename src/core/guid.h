@@ -24,14 +24,8 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "core.h"
-
 #include <phi.h>
-#include <iostream>
-#include <vector>
-#include <sstream>
-#include <string>
-#include <iomanip>
+#include "core.h"
 
 // Class to represent a GUID/UUID. Each instance acts as a wrapper around a
 // 16 byte value that can be passed around by value. It also supports
@@ -69,7 +63,7 @@ private:
     std::vector<unsigned char> _bytes;
 
     // make the << operator a friend so it can access _bytes
-    CORE_API friend std::ostream &operator<<(std::ostream &s, const guid &guid);
+    friend std::ostream &operator<<(std::ostream &s, const guid &guid);
 };
 
 // Class that can create new guids. The only reason this exists instead of

@@ -44,32 +44,32 @@ namespace phi
         void deleteSelection();
 
     public:
-        UI_API textBox(sizef viewportSize);
-        UI_API ~textBox();
+        textBox(sizef viewportSize);
+        ~textBox();
 
-        UI_API std::string getText() { return _text; }
-        UI_API color getBackgroundColor() { return _backgroundColor; }
-        UI_API color getForegroundColor() { return _foregroundColor; }
-        UI_API font* getFont() { return _font; }
-        UI_API eventHandler<eventArgs>* getTextChanged() { return _textChanged; }
+        std::string getText() { return _text; }
+        color getBackgroundColor() { return _backgroundColor; }
+        color getForegroundColor() { return _foregroundColor; }
+        font* getFont() { return _font; }
+        eventHandler<eventArgs>* getTextChanged() { return _textChanged; }
 
-        UI_API void setText(std::string value);
-        UI_API void setBackgroundColor(color value);
-        UI_API void setForegroundColor(color value) { _foregroundColor = value; }
-        UI_API void setFont(font* value);
+        void setText(std::string value);
+        void setBackgroundColor(color value);
+        void setForegroundColor(color value) { _foregroundColor = value; }
+        void setFont(font* value);
 
-        UI_API void setX(int value) override;
-        UI_API void setY(int value) override;
-        UI_API void setZIndex(float value) override;
-        UI_API void setSize(sizef value) override;
-        UI_API void setViewportSize(sizef value) override;
+        void setX(int value) override;
+        void setY(int value) override;
+        void setZIndex(float value) override;
+        void setSize(sizef value) override;
+        void setViewportSize(sizef value) override;
 
-        UI_API void onMouseDown(mouseEventArgs* e) override;
-        UI_API void onMouseUp(mouseEventArgs* e) override;
-        UI_API void onMouseMove(mouseEventArgs* e) override;
-        UI_API void onMouseEnter(mouseEventArgs* e) override;
-        UI_API void onKeyDown(keyboardEventArgs e) override;
+        void onMouseDown(mouseEventArgs* e) override;
+        void onMouseUp(mouseEventArgs* e) override;
+        void onMouseMove(mouseEventArgs* e) override;
+        void onMouseEnter(mouseEventArgs* e) override;
+        void onKeyDown(keyboardEventArgs e) override;
 
-        UI_API void onRender() override;
+        void onRender() override;
     };
 }

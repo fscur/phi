@@ -28,22 +28,16 @@ namespace phi
         void updateProjectionMatrix();
 
     public:
-        RENDERING_API camera(
+        RENDERING_API  camera(
             string name,
             float nearDistance,
             float farDistance,
             vec2 resolution,
             float fov);
 
-        RENDERING_API mat4 getViewMatrix();
-        RENDERING_API mat4 getProjectionMatrix();
-        RENDERING_API float getZNear() const { return _near; }
-        RENDERING_API float getZFar() const { return _far; }
-        RENDERING_API float getAspect() const { return _aspect; }
-        RENDERING_API vec2 getResolution() const { return _resolution; }
-        RENDERING_API float getFov() const { return _fov; }
-        RENDERING_API float getFocus() const { return _focus; }
-        RENDERING_API transform* getTransform();
+        RENDERING_API  mat4 getViewMatrix();
+        RENDERING_API  mat4 getProjectionMatrix();
+        RENDERING_API  transform* getTransform();
 
         RENDERING_API void setResolution(vec2 value);
 
@@ -54,6 +48,13 @@ namespace phi
 
         RENDERING_API void update();
 
-        RENDERING_API static componentType getComponentType() { return componentType::CAMERA; }
+        float getZNear() const { return _near; }
+        float getZFar() const { return _far; }
+        float getAspect() const { return _aspect; }
+        vec2 getResolution() const { return _resolution; }
+        float getFov() const { return _fov; }
+        float getFocus() const { return _focus; }
+
+        static componentType getComponentType() { return componentType::CAMERA; }
     };
 }

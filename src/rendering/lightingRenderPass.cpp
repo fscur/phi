@@ -51,7 +51,7 @@ namespace phi
 
             auto verticesCount = _quad->verticesCount;
             vertex* data = new vertex[verticesCount];
-            for (auto i = 0; i < verticesCount; i++)
+            for (uint i = 0; i < verticesCount; i++)
             {
                 data[i] = _quad->vboData[i];
                 data[i].position *= 2;

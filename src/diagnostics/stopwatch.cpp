@@ -8,12 +8,12 @@ using namespace std::chrono;
 namespace phi
 {
     stopwatch::stopwatch() :
-        _initial(nanoseconds()),
-        _stop(nanoseconds()),
+        _initial(std::chrono::nanoseconds()),
+        _stop(std::chrono::nanoseconds()),
         _isRunning(false)
     {
     }
-    
+
     stopwatch::~stopwatch()
     {
         

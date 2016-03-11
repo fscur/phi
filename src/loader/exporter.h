@@ -5,9 +5,9 @@
 
 namespace phi
 {
-    class exporter
+    class LOADER_API exporter
     {
     public:
-        LOADER_API static int exportMesh(vector<geometry*>* geometry, char* fileName);
+        static int exportMesh(vector<geometry*>* geometry, char* fileName);
     };
 }

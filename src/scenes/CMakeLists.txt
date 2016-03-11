@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 if (MSVC)
-    add_definitions(-DSCENES_EXPORTS)
+    add_definitions(-Dscenes_EXPORTS)
 endif (MSVC)
 
 include_directories(${INCLUDE_DIRS})
@@ -17,10 +17,9 @@ add_library(scenes SHARED ${source_files} ${header_files})
 
 target_link_libraries(scenes rendering)
 
-install(TARGETS scenes
+install(TARGETS scenes 
     RUNTIME 
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}/ 
-    CONFIGURATIONS ${CMAKE_BUILD_TYPE})
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")

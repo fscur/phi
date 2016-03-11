@@ -73,10 +73,10 @@ namespace phi
         void updateBuffers();
 
     public:
-        batch();
-        ~batch();
-        bool add(batchObject &batchObject);
-        void update(vector<batchObject> &batchObjects);
-        void render();
+        RENDERING_API batch();
+        RENDERING_API ~batch();
+        RENDERING_API bool add(batchObject &batchObject);
+        RENDERING_API void update(vector<batchObject> &batchObjects);
+        RENDERING_API void render();
     };
 }

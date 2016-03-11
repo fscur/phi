@@ -11,9 +11,9 @@ namespace phi
         sceneObject* sender;
 
     public:
-        sceneObjectEventArgs(sceneObject* sender)
+        sceneObjectEventArgs(sceneObject* sender) :
+            sender(sender)
         {
-            this->sender = sender;
         }
     };
 }

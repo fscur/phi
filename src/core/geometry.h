@@ -5,7 +5,7 @@
 
 namespace phi
 {
-    struct geometry
+    struct CORE_API geometry
     {
     private:
         static geometry* _quad;
@@ -19,20 +19,14 @@ namespace phi
         uint eboSize;
 
     public:
-        CORE_API static geometry* quad();
+        static geometry* quad();
 
     public:
-        CORE_API geometry() {}
+        geometry();
+        ~geometry();
 
-    public:
-        CORE_API ~geometry()
-        {
-            delete[] vboData;
-            delete[] eboData;
-        }
-
-        CORE_API static geometry* create(vector<vertex> vertices, vector<uint> indices);
-        CORE_API static geometry* create(
+        static geometry* create(vector<vertex> vertices, vector<uint> indices);
+        static geometry* create(
             uint verticesCount,
             float* positionsBuffer,
             float* texCoordsBuffer,
@@ -40,7 +34,7 @@ namespace phi
             uint indicesCount,
             uint* indicesBuffer);
 
-        CORE_API static void calcNormals(vector<vertex>& vertices, vector<uint>& indices);
-        CORE_API static void calcTangents(vector<vertex>& vertices, vector<uint>& indices);
+        static void calcNormals(vector<vertex>& vertices, vector<uint>& indices);
+        static void calcTangents(vector<vertex>& vertices, vector<uint>& indices);
     };
 }

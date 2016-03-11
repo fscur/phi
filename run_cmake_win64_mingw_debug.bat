@@ -18,11 +18,11 @@ goto end
 )
 
 cd ../../
-cd bin
+cd bin/win64/mingw/debug
 demon.exe /rp "D:\Prog\phi\resources" /lp "D:\Prog\phi\library"
 
 if not %ERRORLEVEL%==0 (
-cd ../../
+cd ../../../../
 goto end
 )
 

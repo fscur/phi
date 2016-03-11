@@ -25,24 +25,24 @@ namespace phi
         void updateTextLocation();
 
     public:
-		UI_API label(sizef viewportSize);
-        UI_API ~label();
+		label(sizef viewportSize);
+        ~label();
 
-        UI_API std::string getText() { return _text; }
-        UI_API font* getFont() { return _font; }
-        UI_API color getBackgroundColor() { return _backgroundColor; }
-        UI_API color getForegroundColor() { return _foregroundColor; }
+        std::string getText() { return _text; }
+        font* getFont() { return _font; }
+        color getBackgroundColor() { return _backgroundColor; }
+        color getForegroundColor() { return _foregroundColor; }
 
-        UI_API void setText(std::string value);
-        UI_API void setFont(font* value) { _font = value; }
-        UI_API void setBackgroundColor(color value) { _backgroundColor = value; }
-        UI_API void setForegroundColor(color value) { _foregroundColor = value; }
+        void setText(std::string value);
+        void setFont(font* value) { _font = value; }
+        void setBackgroundColor(color value) { _backgroundColor = value; }
+        void setForegroundColor(color value) { _foregroundColor = value; }
 
-        UI_API void setX(int value) override;
-        UI_API void setY(int value) override;
-        UI_API void setSize(sizef value) override;
-		UI_API void setViewportSize(sizef value) override;
+        void setX(int value) override;
+        void setY(int value) override;
+        void setSize(sizef value) override;
+		void setViewportSize(sizef value) override;
 
-        UI_API void onRender() override;
+        void onRender() override;
     };
 }

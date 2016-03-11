@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 if (MSVC)
-    add_definitions(-DAPPS_EXPORTS)
+    add_definitions(-Dapps_EXPORTS)
 endif(MSVC)
 
 include_directories(${INCLUDE_DIRS})
@@ -29,9 +29,9 @@ include_directories(${GLEW_INCLUDE_DIR})
 target_link_libraries(apps ${GLEW_LIBRARY})
 target_link_libraries(apps ${OPENGL_LIBRARY})
 
-install(
-    TARGETS apps 
-    RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os})
+install(TARGETS apps 
+    RUNTIME 
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")

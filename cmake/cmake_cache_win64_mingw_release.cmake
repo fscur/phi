@@ -1,4 +1,6 @@
+set(CMAKE_CXX_FLAGS "-DMINGW -std=c++11" CACHE STRING "c++ compiler flags" FORCE)
 set(ROOT_DIR "../../")
+set(BIN_FOLDER "win64/mingw/release" CACHE STRING "")
 set(SOLUTION_PLATFORM "x64" CACHE PATH "")
 set(PHI_INCLUDE_DIRS "${ROOT_DIR}src/" CACHE PATH "")
 set(INCLUDE_DIRS "${ROOT_DIR}inc/" CACHE PATH "")

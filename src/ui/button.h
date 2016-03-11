@@ -47,34 +47,34 @@ namespace phi
         virtual void renderForeground();
 
     public:
-        UI_API button(sizef viewportSize);
-        UI_API ~button();
+        button(sizef viewportSize);
+        ~button();
 
-        UI_API std::string getText() { return _text; }
-        UI_API texture* getTexture() { return _image; }
-        UI_API color getBackgroundColor() { return _backgroundColor; }
-        UI_API color getForegroundColor() { return _foregroundColor; }
-        UI_API font* getFont() { return _font; }
-        UI_API mouseEventHandler* getClick() { return _click; }
+        std::string getText() { return _text; }
+        texture* getTexture() { return _image; }
+        color getBackgroundColor() { return _backgroundColor; }
+        color getForegroundColor() { return _foregroundColor; }
+        font* getFont() { return _font; }
+        mouseEventHandler* getClick() { return _click; }
 
-        UI_API void setText(std::string value);
-        UI_API void setImage(texture* value);
-        UI_API void setBackgroundColor(color value);
-        UI_API void setForegroundColor(color value) { _foregroundColor = value; }
-        UI_API void setFont(font* value) { _font = value; }
+        void setText(std::string value);
+        void setImage(texture* value);
+        void setBackgroundColor(color value);
+        void setForegroundColor(color value) { _foregroundColor = value; }
+        void setFont(font* value) { _font = value; }
 
-        UI_API void setX(int value) override;
-        UI_API void setY(int value) override;
-        UI_API void setZIndex(float value) override;
-        UI_API void setSize(sizef value) override;
-        UI_API void setViewportSize(sizef value) override;
-        UI_API void setIsTopMost(bool value) override;
+        void setX(int value) override;
+        void setY(int value) override;
+        void setZIndex(float value) override;
+        void setSize(sizef value) override;
+        void setViewportSize(sizef value) override;
+        void setIsTopMost(bool value) override;
 
-        UI_API void onMouseDown(mouseEventArgs* e) override;
-        UI_API void onMouseUp(mouseEventArgs* e) override;
-        UI_API void onMouseEnter(mouseEventArgs* e) override;
-        UI_API void onMouseLeave(mouseEventArgs* e) override;
+        void onMouseDown(mouseEventArgs* e) override;
+        void onMouseUp(mouseEventArgs* e) override;
+        void onMouseEnter(mouseEventArgs* e) override;
+        void onMouseLeave(mouseEventArgs* e) override;
 
-        UI_API void onRender() override;
+        void onRender() override;
     };
 }

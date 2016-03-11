@@ -20,6 +20,10 @@ namespace phi
         _textColor = color::white;
     }
 
+    toolTip::~toolTip()
+    {
+    }
+
     void toolTip::show(const std::string text, const vec2 location, const sizef rect)
     {
         _text = text;
