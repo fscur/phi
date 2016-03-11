@@ -34,6 +34,7 @@ namespace demon
 
     public:
         defaultCameraController(phi::scene* scene);
+        virtual ~defaultCameraController();
 
         virtual bool onMouseDown(phi::mouseEventArgs* e, phi::inputKey key) override;
         virtual bool onMouseMove(phi::mouseEventArgs* e) override;

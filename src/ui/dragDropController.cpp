@@ -25,7 +25,7 @@ namespace phi
         return _instance;
     }
 
-    void dragDropController::init(sizef viewportSize)
+    void dragDropController::init(sizeui viewportSize)
     {
         _viewportSize = viewportSize;
         _dragTextureRenderer->setViewportSize(sizeui(_viewportSize.w, viewportSize.h, viewportSize.d));

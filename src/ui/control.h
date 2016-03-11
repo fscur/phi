@@ -27,7 +27,7 @@ namespace phi
         eventHandler<controlEventArgs>* _addedChild;
         eventHandler<controlEventArgs>* _removedChild;
         std::string _toolTipText;
-        float _mouseStillTime;
+        double _mouseStillTime;
         bool _renderToolTip;
         std::vector<control*> _children;
         std::string _dragData;
@@ -43,14 +43,14 @@ namespace phi
         int _x;
         int _y;
         float _zIndex;
-        sizef _size;
-        sizef _viewportSize;
+        sizeui _size;
+        sizeui _viewportSize;
 
     public:
-        control(sizef viewportSize);
-        ~control();
+        control(sizeui viewportSize);
+        virtual ~control();
 
-        static void init(sizef viewportSize);
+        static void init(sizeui viewportSize);
 
         void addChild(control* child);
         void removeChild(control* child);
@@ -65,11 +65,11 @@ namespace phi
         virtual int getX() { return _x; }
         virtual int getY() { return _y; }
         virtual float getZIndex() { return _zIndex; }
-        virtual sizef getSize() { return _size; }
+        virtual sizeui getSize() { return _size; }
         virtual bool getIsMouseOver() { return _isMouseOver; }
         virtual bool getIsFocused() { return _isFocused; }
         virtual bool getIsTopMost() { return _isTopMost; }
-        virtual sizef getViewportSize() { return _viewportSize; }
+        virtual sizeui getViewportSize() { return _viewportSize; }
         std::string getToolTipText() const { return _toolTipText; }
         std::vector<control*> getChildren() { return _children; }
         std::string getDragData() { return _dragData; }
@@ -78,8 +78,8 @@ namespace phi
         virtual void setX(int value) { _x = value; resetToolTip(); }
         virtual void setY(int value) { _y = value; resetToolTip(); }
         virtual void setZIndex(float value) { _zIndex = value; }
-        virtual void setSize(sizef value) { _size = value; }
-        virtual void setViewportSize(sizef value) { _viewportSize = value; }
+        virtual void setSize(sizeui value) { _size = value; }
+        virtual void setViewportSize(sizeui value) { _viewportSize = value; }
         virtual void setIsFocused(bool value);
         virtual void setIsTopMost(bool value) { _isTopMost = value; }
         void setToolTipText(const std::string value) { _toolTipText = value; }

@@ -35,8 +35,8 @@ namespace phi
         auto reserveContainer = [&](GLenum internalFormat, size_t size)
         {
             auto layout = phi::textureContainerLayout();
-            layout.w = _w;
-            layout.h = _h;
+            layout.w = static_cast<GLsizei>(_w);
+            layout.h = static_cast<GLsizei>(_h);
             layout.levels = 1;
             layout.internalFormat = internalFormat;
             layout.wrapMode = GL_REPEAT;
@@ -51,14 +51,19 @@ namespace phi
             GLenum internalFormat,
             GLenum dataFormat)
         {
-            auto texture = new phi::texture(_w, _h);
+            auto texture = new phi::texture(static_cast<uint>(_w), static_cast<uint>(_h));
             texture->internalFormat = internalFormat;
             texture->dataFormat = dataFormat;
             texture->minFilter = GL_NEAREST;
             texture->magFilter = GL_NEAREST;
             texture->generateMipmaps = false;
 
-            auto rt = new phi::renderTarget(attachment, _w, _h, _gl->texturesManager->add(texture));
+            auto rt = new phi::renderTarget(
+                attachment, 
+                static_cast<GLint>(_w), 
+                static_cast<GLint>(_h), 
+                _gl->texturesManager->add(texture));
+
             targets.push_back(rt);
             gBufferRenderPass::framebuffer->add(rt);
         };
@@ -100,6 +105,10 @@ namespace phi
 
         framebuffer->unbind(GL_FRAMEBUFFER);
         framebuffer->bindForReading(targets[3]);
-        glBlitFramebuffer(0, 0, _w, _h, 0, 0, _w, _h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+        auto w = static_cast<GLint>(_w);
+        auto h = static_cast<GLint>(_h);
+
+        glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     }
 }

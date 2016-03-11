@@ -18,6 +18,10 @@ namespace demon
         _shortcuts.add("ZoomOut", phi::inputKey(PHI_MOUSE_WHEEL_DOWN, PHI_NONE));
     }
 
+    defaultCameraController::~defaultCameraController()
+    {
+    }
+
     void defaultCameraController::executeInput(phi::inputKey key, phi::ivec2 mousePos)
     {
         auto cmd = _shortcuts.getCommand(key);

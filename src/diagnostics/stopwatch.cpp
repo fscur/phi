@@ -13,11 +13,6 @@ namespace phi
     {
     }
 
-    stopwatch::~stopwatch()
-    {
-        
-    }
-    
     void stopwatch::start()
     {
         if(!_isRunning)
@@ -48,19 +43,19 @@ namespace phi
         _isRunning = true;
     }
 
-    const double stopwatch::getElapsedSeconds()
+    double stopwatch::getElapsedSeconds()
     {
         auto now = high_resolution_clock::now().time_since_epoch();
         return duration_cast<duration<double>>(now - _initial).count();
     }
 
-    const double stopwatch::getElapsedMilliseconds()
+    double stopwatch::getElapsedMilliseconds()
     {
         auto now = high_resolution_clock::now().time_since_epoch();
         return duration_cast<duration<double>>(now - _initial).count() * 1000;
     }
 
-    const double stopwatch::measure(const std::function<void(void)> &function)
+    double stopwatch::measure(const std::function<void(void)> &function)
     {
         auto watch = stopwatch();
         watch.start();
@@ -70,7 +65,7 @@ namespace phi
         return watch.getElapsedSeconds();
     }
 
-    const double stopwatch::measure(const std::function<void(void)> &function, const string &functionName)
+    double stopwatch::measure(const std::function<void(void)> &function, const string &functionName)
     {
         auto msg = functionName + " took: ";
         auto elapsedSeconds = stopwatch::measure(function);
@@ -79,7 +74,7 @@ namespace phi
         return elapsedSeconds;
     }
 
-    const double stopwatch::measureAverage(const std::function<void(void)> &function, int samples)
+    double stopwatch::measureAverage(const std::function<void(void)> &function, int samples)
     {
         double average = 0;
         auto watch = stopwatch();
@@ -95,7 +90,7 @@ namespace phi
         return average / samples;
     }
 
-    const double stopwatch::measureAverage(const std::function<void(void)> &function, const string &functionName, int samples)
+    double stopwatch::measureAverage(const std::function<void(void)> &function, const string &functionName, int samples)
     {
         double average = stopwatch::measureAverage(function, samples);
 

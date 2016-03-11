@@ -7,7 +7,7 @@
 namespace phi
 {
     std::vector<floatAnimation*> floatAnimator::_animations;
-    int floatAnimator::_lastUpdateMilliseconds = 0;
+    double floatAnimator::_lastUpdateMilliseconds = 0.0;
 
     void floatAnimator::animateFloat(float* value, float to, int milliseconds)
     {
@@ -21,7 +21,7 @@ namespace phi
 
     void floatAnimator::update()
     {
-        int currentMilliseconds = time::totalSeconds * 1000;
+        double currentMilliseconds = time::totalSeconds * 1000;
 
         for (unsigned int i = 0; i < _animations.size(); i++)
         {

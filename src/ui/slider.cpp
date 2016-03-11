@@ -5,7 +5,7 @@
 
 namespace phi
 {
-    slider::slider(sizef viewportSize) : control(viewportSize)
+    slider::slider(sizeui viewportSize) : control(viewportSize)
     {
         _texture = uiRepository::textureButton;
         auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
@@ -41,7 +41,7 @@ namespace phi
         updateSlider();
     }
 
-    void slider::setSize(sizef value)
+    void slider::setSize(sizeui value)
     {
         _size = value;
         _trackQuad->setLocation(vec2(_trackQuad->getLocation().x, _y));
@@ -50,7 +50,7 @@ namespace phi
         updateSlider();
     }
 
-    void slider::setViewportSize(sizef value)
+    void slider::setViewportSize(sizeui value)
     {
         control::setViewportSize(value);
         auto size = sizeui(value.w, value.h, value.d);

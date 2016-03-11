@@ -31,50 +31,37 @@ THE SOFTWARE.
 // 16 byte value that can be passed around by value. It also supports
 // conversion to string (via the stream operator <<) and conversion from a
 // string via constructor.
-class guid
+namespace phi
 {
-public:
+    class guid
+    {
+    private:
+        vector<byte> _bytes;
 
-    // create a guid from vector of bytes
-    CORE_API guid(const std::vector<unsigned char> &bytes);
+    private:
+        friend std::ostream &operator<<(std::ostream &s, const guid &guid);
 
-    // create a guid from array of bytes
-    CORE_API guid(const unsigned char *bytes);
+    public:
+        CORE_API guid(const vector<byte> &bytes);
+        CORE_API guid(const byte* bytes);
+        CORE_API guid(const string &fromString);
+        CORE_API guid();
+        CORE_API guid(const guid &other);
+        CORE_API guid &operator=(const guid &other);
+        CORE_API bool operator==(const guid &other) const;
+        CORE_API bool operator!=(const guid &other) const;
+    };
 
-    // create a guid from string
-    CORE_API guid(const std::string &fromString);
-
-    // create empty guid
-    CORE_API guid();
-
-    // copy constructor
-    CORE_API guid(const guid &other);
-
-    // overload assignment operator
-    CORE_API guid &operator=(const guid &other);
-
-    // overload equality and inequality operator
-    CORE_API bool operator==(const guid &other) const;
-    CORE_API bool operator!=(const guid &other) const;
-
-private:
-
-    // actual data
-    std::vector<unsigned char> _bytes;
-
-    // make the << operator a friend so it can access _bytes
-    friend std::ostream &operator<<(std::ostream &s, const guid &guid);
-};
-
-// Class that can create new guids. The only reason this exists instead of
-// just a global "newGuid" function is because some platforms will require
-// that there is some attached context. In the case of android, we need to
-// know what JNIEnv is being used to call back to Java, but the newGuid()
-// function would no longer be cross-platform if we parameterized the android
-// version. Instead, construction of the GuidGenerator may be different on
-// each platform, but the use of newGuid is uniform.
-class guidGenerator
-{
-public:
-    CORE_API static guid newGuid();
-};
+    // Class that can create new guids. The only reason this exists instead of
+    // just a global "newGuid" function is because some platforms will require
+    // that there is some attached context. In the case of android, we need to
+    // know what JNIEnv is being used to call back to Java, but the newGuid()
+    // function would no longer be cross-platform if we parameterized the android
+    // version. Instead, construction of the GuidGenerator may be different on
+    // each platform, but the use of newGuid is uniform.
+    class guidGenerator
+    {
+    public:
+        CORE_API static guid newGuid();
+    };
+}

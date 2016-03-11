@@ -1,6 +1,6 @@
-set(CMAKE_CXX_FLAGS "/DMSVC /W3 /GR /EHsc" CACHE STRING "c++ compiler flags" FORCE)
+set(CMAKE_CXX_FLAGS "/DMSVC /W4 /WX /Za /Zc:wchar_t- /GR- /EHsc" CACHE STRING "c++ compiler flags" FORCE)
 set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1" CACHE STRING "c++ debug compiler flags" FORCE)
-set(CMAKE_C_FLAGS "/DMSVC /W3" CACHE STRING "c compiler flags" FORCE)
+set(CMAKE_C_FLAGS "/DMSVC /WAll /Wx" CACHE STRING "c compiler flags" FORCE)
 set(CMAKE_C_FLAGS_DEBUG "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1" CACHE STRING "c debug compiler flags" FORCE)
 set(ROOT_DIR "../../")
 set(BIN_FOLDER "win64/vc++" CACHE STRING "")

@@ -9,7 +9,7 @@
 
 namespace phi
 {
-    translationControl::translationControl(sizef viewportSize) :
+    translationControl::translationControl(sizeui viewportSize) :
         control(viewportSize)
     {
         _arrowGeometry = createArrowGeometry();
@@ -164,7 +164,7 @@ namespace phi
         _zAabb = createAabb(_zModelMatrix);
     }
 
-    ray translationControl::castRay(vec2 screenCoords, sizef screenSize)
+    ray translationControl::castRay(vec2 screenCoords, sizeui screenSize)
     {
         float w = (float)screenSize.w;
         float h = (float)screenSize.h;

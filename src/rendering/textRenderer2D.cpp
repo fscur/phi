@@ -118,10 +118,10 @@ namespace phi
         _shader->unbind();
     }
 
-    sizef textRenderer2D::measureSize(std::string text, font* font)
+    sizeui textRenderer2D::measureSize(std::string text, font* font)
     {
         if (text.empty())
-            return sizef(0.0f, 0.0f);
+            return sizeui(0, 0);
 
         float maxWidth = 0.0f;
         float currentWidth = 0.0f;
@@ -141,7 +141,7 @@ namespace phi
             maxWidth = glm::max(currentWidth, maxWidth);
         }
 
-        return sizef(maxWidth, currentHeight);
+        return sizeui((uint)maxWidth, (uint)currentHeight);
     }
 
     unsigned int textRenderer2D::measureString(std::string text, font* font, sizeui sz)

@@ -10,7 +10,7 @@ namespace phi
     {
     private:
         static std::vector<floatAnimation*> _animations;
-        static int _lastUpdateMilliseconds;
+        static double _lastUpdateMilliseconds;
 
     public:
         static void animateFloat(float* floatFrom, float floatTo, int milliseconds);

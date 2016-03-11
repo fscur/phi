@@ -48,7 +48,7 @@ namespace phi
             layout.minFilter,
             layout.magFilter);
 
-        phi::textureAddress textureAddress;
+        auto textureAddress = phi::textureAddress();
 
         auto it = _containers.find(key);
         if (it != _containers.end())
