@@ -25,6 +25,10 @@ namespace phi
     {
     }
 
+    transform::~transform()
+    {
+    }
+
     transform* transform::clone() const
     {
         return new transform(*this);

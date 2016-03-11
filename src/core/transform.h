@@ -25,7 +25,7 @@ namespace phi
     public:
         CORE_API transform();
         CORE_API transform(const transform& original);
-
+        CORE_API ~transform();
         CORE_API transform* clone() const;
         CORE_API mat4 getLocalModelMatrix();
         CORE_API mat4 getLocalRotationMatrix() const;

@@ -3,7 +3,7 @@
 
 namespace phi
 {
-    scissorStack::scissorStack(sizef viewportSize)
+    scissorStack::scissorStack(sizeui viewportSize)
     {
         _viewportSize = viewportSize;
         pushScissor(0.0f, 0.0f, (float)_viewportSize.w, (float)_viewportSize.h);

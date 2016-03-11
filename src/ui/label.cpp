@@ -3,7 +3,7 @@
 
 namespace phi
 {
-    label::label(sizef viewportSize) : control(viewportSize)
+    label::label(sizeui viewportSize) : control(viewportSize)
     {
         _text = "";
         //_texture = uiRepository::texturesRepository->getResource("button.png");
@@ -22,7 +22,7 @@ namespace phi
 
     void label::updateTextLocation()
     {
-        sizef textSize = _textRenderer->measureSize(_text, _font);
+        sizeui textSize = _textRenderer->measureSize(_text, _font);
         if (textSize.w > _size.w)
             _textX = _x;
         else
@@ -47,7 +47,7 @@ namespace phi
         updateTextLocation();
     }
 
-    void label::setSize(sizef size)
+    void label::setSize(sizeui size)
     {
         _size = size;
         auto sizeu = sizeui(size.w, size.h, size.d);
@@ -62,7 +62,7 @@ namespace phi
         updateTextLocation();
     }
 
-    void label::setViewportSize(sizef value)
+    void label::setViewportSize(sizeui value)
     {
         control::setViewportSize(value);
         auto size = sizeui(value.w, value.h, value.d);

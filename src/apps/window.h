@@ -18,7 +18,7 @@ namespace phi
 
     public:
         APPS_API window(string name, uint width, uint height);
-        APPS_API ~window();
+        APPS_API virtual ~window();
 
         APPS_API void init();
         APPS_API void clear();

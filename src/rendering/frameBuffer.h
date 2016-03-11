@@ -84,7 +84,7 @@ namespace phi
             glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
         }
 
-        void bindForDrawing(GLenum* buffers, size_t buffersCount)
+        void bindForDrawing(GLenum* buffers, GLsizei buffersCount)
         {
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
             glDrawBuffers(buffersCount, buffers);

@@ -21,7 +21,7 @@ namespace phi
     public:
         std::string applicationPath;
         std::string resourcesPath;
-        sizef size;
+        sizeui size;
     };
 
     class uiRepository

@@ -16,7 +16,7 @@ namespace phi
     public:
         std::string applicationPath;
         std::string resourcesPath;
-        sizef size;
+        sizeui size;
     };
 
     struct controlEventTokens
@@ -67,7 +67,7 @@ namespace phi
         UI_API static uiSystem* get();
         UI_API void init(uiSystemInfo info);
         UI_API void setCursor(cursor* value);
-        UI_API void resize(sizef value);
+        UI_API void resize(sizeui value);
 
         UI_API void addControl(control* control);
         UI_API void removeControl(control* control);

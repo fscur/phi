@@ -47,8 +47,8 @@ namespace phi
         virtual void renderForeground();
 
     public:
-        button(sizef viewportSize);
-        ~button();
+        button(sizeui viewportSize);
+        virtual ~button();
 
         std::string getText() { return _text; }
         texture* getTexture() { return _image; }
@@ -66,8 +66,8 @@ namespace phi
         void setX(int value) override;
         void setY(int value) override;
         void setZIndex(float value) override;
-        void setSize(sizef value) override;
-        void setViewportSize(sizef value) override;
+        void setSize(sizeui value) override;
+        void setViewportSize(sizeui value) override;
         void setIsTopMost(bool value) override;
 
         void onMouseDown(mouseEventArgs* e) override;

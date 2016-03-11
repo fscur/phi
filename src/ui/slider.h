@@ -35,7 +35,7 @@ namespace phi
 		void changeValue(vec2 pos);
 
     public:
-		slider(sizef viewportSize);
+		slider(sizeui viewportSize);
         ~slider();
 
         color getTrackColor() { return _trackColor; }
@@ -55,8 +55,8 @@ namespace phi
 
         void setX(int value) override;
         void setY(int value) override;
-        void setSize(sizef value) override;
-		void setViewportSize(sizef value) override;
+        void setSize(sizeui value) override;
+		void setViewportSize(sizeui value) override;
 		void setZIndex(float value) override;
 
         void onMouseDown(mouseEventArgs* e) override;

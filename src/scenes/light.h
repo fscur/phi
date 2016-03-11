@@ -7,10 +7,11 @@
 #include <rendering\attenuation.h>
 #include <rendering\shader.h>
 #include <rendering\texture.h>
+#include <core\transform.h>
 
 namespace phi
 {
-    class transform;
+    //class transform;
 
     class light :
         public component

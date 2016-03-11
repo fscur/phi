@@ -11,11 +11,11 @@ namespace phi
         float* _value;
         float _from;
         float _to;
-        int _milliseconds;
-        int _elapsed;
+        double _milliseconds;
+        double _elapsed;
         std::function<void(float)> _callback;
-        int _delayMilliseconds;
-        int _delayElapsed;
+        double _delayMilliseconds;
+        double _delayElapsed;
         std::function<float(float)> _easingFunction;
 
     public:
@@ -35,14 +35,14 @@ namespace phi
         float* getValue() { return _value; }
         float getFrom() { return _from; }
         float getTo() { return _to; }
-        int getMilliseconds() { return _milliseconds; }
-        int getElapsed() { return _elapsed; }
+        double getMilliseconds() { return _milliseconds; }
+        double getElapsed() { return _elapsed; }
         std::function<void(float)> getCallback() { return _callback; }
-        int getDelayMilliseconds() { return _delayMilliseconds; }
-        int getDelayElapsed() { return _delayElapsed; }
+        double getDelayMilliseconds() { return _delayMilliseconds; }
+        double getDelayElapsed() { return _delayElapsed; }
         std::function<float(float)> getEasingFunction() { return _easingFunction; }
 
-        void setElapsed(int value) { _elapsed = value; }
-        void setDelayElapsed(int value) { _delayElapsed = value; }
+        void setElapsed(double value) { _elapsed = value; }
+        void setDelayElapsed(double value) { _delayElapsed = value; }
     };
 }

@@ -190,7 +190,7 @@ namespace phi
             //image width and height
             unsigned int width(0), height(0);
             //OpenGL's image ID to map to
-            GLuint gl_texID;
+            //GLuint gl_texID;
 
             //check the file signature and deduce its format
             fif = FreeImage_GetFileType(cfileName, 0);
@@ -310,10 +310,10 @@ namespace phi
         auto specularColor = vec3((float)specularColorNode[0].GetDouble(), (float)specularColorNode[1].GetDouble(), (float)specularColorNode[2].GetDouble());
         auto emissiveColor = vec3((float)emissiveColorNode[0].GetDouble(), (float)emissiveColorNode[1].GetDouble(), (float)emissiveColorNode[2].GetDouble());
 
-        auto shininess = (float)d["Shininess"].GetDouble();
-        auto reflectivity = (float)d["Reflectivity"].GetDouble();
-        auto emission = d["Emission"].GetDouble();
-        auto opacity = (float)d["Opacity"].GetDouble();
+        float shininess = static_cast<float>(d["Shininess"].GetDouble());
+        float reflectivity = static_cast<float>(d["Reflectivity"].GetDouble());
+        float emission = static_cast<float>(d["Emission"].GetDouble());
+        float opacity = static_cast<float>(d["Opacity"].GetDouble());
 
         fclose(fp);
 

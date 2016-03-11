@@ -5,7 +5,7 @@
 
 namespace phi
 {
-    textBox::textBox(sizef viewportSize) : control(viewportSize)
+    textBox::textBox(sizeui viewportSize) : control(viewportSize)
     {
         _text = "";
         _texture = uiRepository::textureButton;
@@ -38,7 +38,7 @@ namespace phi
 
     void textBox::updateTextLocation()
     {
-        sizef textSize = _textRenderer->measureSize(_text, _font);
+        sizeui textSize = _textRenderer->measureSize(_text, _font);
 
         _textX = _x;
         _textY = (int)(_y + _size.h * 0.5f - textSize.h * 0.5f);
@@ -47,7 +47,7 @@ namespace phi
     void textBox::updateCursorLocation()
     {
         std::string sub = _text.substr(0, _cursorIndex);
-        sizef subTextSize = _textRenderer->measureSize(sub, _font);
+        sizeui subTextSize = _textRenderer->measureSize(sub, _font);
 
         float x = (float)_x + (float)subTextSize.w + (float)_textOffsetX; // Cast needed probably because of a float rounding problem (?)
         float y = _y + _size.h * 0.5f - _cursorRenderer->getSize().h * 0.5f;
@@ -70,7 +70,7 @@ namespace phi
         //    x = _x + _size.w - 1;
         //}
 
-        sizef textSize = _textRenderer->measureSize(_text, _font);
+        sizeui textSize = _textRenderer->measureSize(_text, _font);
         if (textSize.w < _size.w)
         {
             _textOffsetX = 0;
@@ -78,7 +78,7 @@ namespace phi
         }
         else if (textSize.w + _textOffsetX < _size.w)
         {
-            _textOffsetX -= (textSize.w + _textOffsetX) - _size.w;
+            _textOffsetX -= static_cast<int>((textSize.w + _textOffsetX) - _size.w);
             x = (float)(_x + _size.w - 1.0f);
         }
 
@@ -92,9 +92,9 @@ namespace phi
         unsigned int end = glm::max(_selectionStartIndex, _selectionEndIndex);
 
         std::string sub = _text.substr(start, end - start);
-        sizef subTextSize = _textRenderer->measureSize(sub, _font);
+        sizeui subTextSize = _textRenderer->measureSize(sub, _font);
         std::string pre = _text.substr(0, start);
-        sizef preTextSize = _textRenderer->measureSize(pre, _font);
+        sizeui preTextSize = _textRenderer->measureSize(pre, _font);
 
         _selectionRenderer->setSize(sizeui(subTextSize.w, _font->getLineHeight()));
         _selectionRenderer->setLocation(vec2(_x + preTextSize.w + _textOffsetX, _y + _size.h * 0.5f - _font->getLineHeight() * 0.5f));
@@ -128,7 +128,7 @@ namespace phi
         _cursorRenderer->update();
     }
 
-    void textBox::setSize(sizef value)
+    void textBox::setSize(sizeui value)
     {
         _size = value;
         _backgroundRenderer->setSize(sizeui(value.w, value.h, value.d));
@@ -157,7 +157,7 @@ namespace phi
         _currentColor = _backgroundColor;
     }
 
-    void textBox::setViewportSize(sizef value)
+    void textBox::setViewportSize(sizeui value)
     {
         control::setViewportSize(value);
         auto size = sizeui(value.w, value.h, value.d);
