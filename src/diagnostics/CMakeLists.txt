@@ -22,12 +22,18 @@ install(TARGETS diagnostics
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
-    
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Fd$(IntDir)precompiled.pdb")
+    
     add_custom_command(
         TARGET diagnostics
         PRE_BUILD
-        COMMAND ../../../../xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET diagnostics
+        POST_BUILD
+        COMMAND ../../../../scripts/post_build_vc++/project_$(Configuration).bat $(Configuration) diagnostics)
+        
 endif(MSVC)
 
 set_target_properties(diagnostics PROPERTIES FOLDER Engine)

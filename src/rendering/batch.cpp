@@ -17,6 +17,7 @@ namespace phi
         //glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &gpuMaxVboIndices);
 
         //_maxIndices = std::min(maxIndices, static_cast<size_t>(gpuMaxVboIndices));
+        auto testeDaMacaca = true;
     }
 
     batch::~batch()

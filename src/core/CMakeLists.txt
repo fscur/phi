@@ -27,7 +27,12 @@ if (MSVC)
     add_custom_command(
         TARGET core
         PRE_BUILD
-        COMMAND ../../../../xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET core
+        POST_BUILD
+        COMMAND ../../../../scripts/post_build_vc++/project_$(Configuration).bat $(Configuration) core)
 endif(MSVC)
 
 set_target_properties(core PROPERTIES FOLDER Engine)

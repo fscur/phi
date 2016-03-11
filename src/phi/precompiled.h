@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <cmath>
-////#include <codecvt>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -52,9 +51,9 @@
 
 #include <gl\glew.h>
 #include <gl\wglew.h>
-//
-////#include <bullet\btBulletDynamicsCommon.h>
-//
+
+//#include <bullet\btBulletDynamicsCommon.h>
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_CXX11
 
