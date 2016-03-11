@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include "guid.h"
 
 namespace phi
 {
@@ -7,17 +8,17 @@ namespace phi
     class resource
     {
     protected:
-        GUID _guid;
+        guid _guid;
         string _name;
         T* _object;
 
     public:
-        resource(GUID guid, string name, T* object) :
+        resource(guid guid, string name, T* object) :
             _guid(guid), _name(name), _object(object)
         {
         }
 
-        GUID getGuid() const { return _guid; }
+        guid getGuid() const { return _guid; }
         string getName() const { return _name; }
         T* getObject() const { return _object; }
     };

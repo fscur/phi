@@ -6,22 +6,38 @@
 
 namespace phi
 {
-    class input
+    class CORE_API input
     {
-    public:
-        CORE_API static void notifyMouseMove(mouseEventArgs* e);
-        CORE_API static void notifyMouseDown(mouseEventArgs* e);
-        CORE_API static void notifyMouseUp(mouseEventArgs* e);
-        CORE_API static void notifyMouseWheel(mouseEventArgs* e);
-        CORE_API static void notifyKeyDown(keyboardEventArgs e);
-        CORE_API static void notifyKeyUp(keyboardEventArgs e);
+    private:
+        static void raiseMouseMoveEvent(mouseEventArgs* e);
+        static void raiseMouseDownEvent(mouseEventArgs* e);
+        static void raiseMouseUpEvent(mouseEventArgs* e);
+        static void raiseMouseWheelEvent(mouseEventArgs* e);
+        static void raiseKeyDownEvent(keyboardEventArgs e);
+        static void raiseKeyUpEvent(keyboardEventArgs e);
 
-        CORE_API static mouseEventHandler* mouseMove;
-        CORE_API static mouseEventHandler* mouseDown;
-        CORE_API static mouseEventHandler* mouseUp;
-        CORE_API static mouseEventHandler* mouseWheel;
-        CORE_API static keyboardEventHandler* keyDown;
-        CORE_API static keyboardEventHandler* keyUp;
+    public:
+        static void notifyLeftMouseDown(int x, int y);
+        static void notifyRightMouseDown(int x, int y);
+        static void notifyMiddleMouseDown(int x, int y);
+
+        static void notifyMouseMove(int x, int y);
+
+        static void notifyLeftMouseUp(int x, int y);
+        static void notifyRightMouseUp(int x, int y);
+        static void notifyMiddleMouseUp(int x, int y);
+
+        static void notifyMouseWheel(int delta);
+
+        static void notifyKeyDown(int key);
+        static void notifyKeyUp(int key);
+
+        static mouseEventHandler* mouseMove;
+        static mouseEventHandler* mouseDown;
+        static mouseEventHandler* mouseUp;
+        static mouseEventHandler* mouseWheel;
+        static keyboardEventHandler* keyDown;
+        static keyboardEventHandler* keyUp;
     };
 
 }

@@ -5,7 +5,6 @@
 #pragma message "Compiling precompiled headers"
 #endif
 
-
 #include <algorithm>
 #include <cmath>
 //#include <codecvt>
@@ -16,6 +15,7 @@
 #include <fstream>
 #include <future>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <locale>
 #include <map>
@@ -29,22 +29,29 @@
 #include <vector>
 #include <exception>
 
-//TODO: create a cross platform guid class
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include <stdio.h>
 #include <assert.h>
-#include <objbase.h>
 #include <stdarg.h>
 
-#ifdef MSVC
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <sdl\sdl_syswm.h>
+#include <windowsx.h>
 #elif APPLE
 #include <OpenGL\gl3.h>
 #endif
 
 #include <gl\glew.h>
+#include <gl\wglew.h>
 
 //#include <bullet\btBulletDynamicsCommon.h>
+#ifdef MINGW
+//#define GLM_HAS_CXX11_STL 0
+#endif
 
 #define GLM_FORCE_RADIANS
 
@@ -62,8 +69,6 @@
 #include <rapidjson\filereadstream.h>
 
 #include <freeimage\FreeImage.h>
-#include <sdl\sdl_image.h>
-#include <sdl\sdl.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

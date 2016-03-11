@@ -64,4 +64,13 @@ namespace phi
         if (position != _objects.end())
             _objects.erase(position);
     }
+
+    inline float scene::getZBufferValue(phi::ivec2 mousePos)
+    {
+        auto pos = phi::ivec2(mousePos.x, h - mousePos.y);
+        auto z = _renderer->defaultFramebuffer->getZBufferValue(pos);
+        phi::debug("z buffer value: " + std::to_string(z));
+        return z;
+    }
+    
 }

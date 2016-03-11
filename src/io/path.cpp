@@ -5,7 +5,22 @@ namespace phi
 {
     bool path::exists(const string& path)
     {
-        #ifdef MSVC
+        struct stat s;
+        int err = stat(path.c_str(), &s);
+        if (err == -1) 
+        {
+            if (ENOENT == errno)
+                return false;
+
+            throw "unknown error.";
+        }
+
+        return true;
+    }
+
+    /*bool path::exists(const string& path)
+    {
+        #ifdef _WIN32
         FILE *file;
         fopen_s(&file, path.c_str(), "r");
         if (file)
@@ -19,7 +34,7 @@ namespace phi
         #else
             return false;
         #endif
-    }
+    }*/
 
     string path::getDirectoryFullName(string path)
     {
@@ -63,7 +78,7 @@ namespace phi
         const string& directory, 
         vector<string> filters)
     {
-#ifdef MSVC
+#ifdef _WIN32
         vector<fileInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
@@ -107,7 +122,7 @@ namespace phi
 
     vector<directoryInfo> path::getDirectories(const string& directory)
     {
-#ifdef MSVC
+#ifdef _WIN32
         vector<directoryInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;

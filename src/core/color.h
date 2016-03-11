@@ -4,7 +4,7 @@
 
 namespace phi
 {
-    struct color
+    struct CORE_API color
     {
     public:
         float r;
@@ -13,10 +13,10 @@ namespace phi
         float a;
 
     public:
-        CORE_API color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f);
+        color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f);
 
     public:
-        CORE_API static color fromRGBA(long rgba)
+        static color fromRGBA(long rgba)
         {
             int rgbaInt = (int) rgba;
             
@@ -36,12 +36,12 @@ namespace phi
             return color(rf, gf, bf, af);
         }
 
-        CORE_API static color fromRGBA(float r, float g, float b, float a)
+        static color fromRGBA(float r, float g, float b, float a)
         {
             return color(r, g, b, a);
         }
 
-        CORE_API friend bool operator==(const color& a, const color& b)
+        friend bool operator==(const color& a, const color& b)
         {
             return
                 a.r == b.r &&
@@ -50,21 +50,21 @@ namespace phi
                 a.a == b.a;
         }
 
-        CORE_API friend bool operator!=(const color& a, const color& b)
+        friend bool operator!=(const color& a, const color& b)
         {
             return !(a == b);
         }
 
-        CORE_API static color transparent;
-        CORE_API static color black;
-        CORE_API static color gray;
-        CORE_API static color white;
-        CORE_API static color red;
-        CORE_API static color green;
-        CORE_API static color blue;
-        CORE_API static color yellow;
-        CORE_API static color magenta;
-        CORE_API static color cyan;
-        CORE_API static color orange;
+        static color transparent;
+        static color black;
+        static color gray;
+        static color white;
+        static color red;
+        static color green;
+        static color blue;
+        static color yellow;
+        static color magenta;
+        static color cyan;
+        static color orange;
     };
 }

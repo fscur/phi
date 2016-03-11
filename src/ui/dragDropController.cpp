@@ -13,8 +13,8 @@ namespace phi
         _dragDropEnded = new eventHandler<dragDropEventArgs*>();
         _dragTexture = nullptr;
         _dragTextureRenderer = new quadRenderer2D(vec2(), 10.0f, sizeui(0, 0), sizeui(0, 0));
-        input::mouseUp->bind<dragDropController, &dragDropController::inputMouseUp>(this);
-        input::mouseMove->bind<dragDropController, &dragDropController::inputMouseMove>(this);
+        input::mouseUp->assign(std::bind(&dragDropController::inputMouseUp, this, std::placeholders::_1));
+        input::mouseMove->assign(std::bind(&dragDropController::inputMouseMove, this, std::placeholders::_1));
     }
 
     dragDropController* phi::dragDropController::get()
@@ -45,8 +45,7 @@ namespace phi
         if (_isDragging && e->leftButtonPressed)
         {
             _isDragging = false;
-            if (_dragDropEnded->isBound())
-                _dragDropEnded->invoke(new dragDropEventArgs(_dragData, e->x, e->y));
+            _dragDropEnded->raise(new dragDropEventArgs(_dragData, e->x, e->y));
         }
     }
 

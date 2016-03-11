@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 if (MSVC)
-    add_definitions(-DSCENES_EXPORTS)
+    add_definitions(-Dscenes_EXPORTS)
 endif (MSVC)
 
 include_directories(${INCLUDE_DIRS})
@@ -17,20 +17,19 @@ add_library(scenes SHARED ${source_files} ${header_files})
 
 target_link_libraries(scenes rendering)
 
-install(TARGETS scenes
+install(TARGETS scenes 
     RUNTIME 
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os}/ 
-    CONFIGURATIONS ${CMAKE_BUILD_TYPE})
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
 
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
-
+    
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Fd$(IntDir)precompiled.pdb")
     add_custom_command(
         TARGET scenes
         PRE_BUILD
-        COMMAND xcopy /D /Y \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+        COMMAND ../../../../xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
 endif(MSVC)
 
 set_target_properties(scenes PROPERTIES FOLDER Engine)

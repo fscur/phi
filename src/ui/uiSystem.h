@@ -1,3 +1,4 @@
+
 #pragma once
 #include <phi.h>
 
@@ -18,12 +19,21 @@ namespace phi
         sizef size;
     };
 
+    struct controlEventTokens
+    {
+        eventToken gotFocus;
+        eventToken mouseLeave;
+        eventToken addedChild;
+        eventToken removedChild;
+    };
+
     class uiSystem
     {
     private:
         static uiSystem* _instance;
         std::vector<control*> _controls;
         std::vector<control*> _rootControls;
+        std::map<control*, controlEventTokens> _controlsEventTokens;
         uiSystemInfo _info;
         eventHandler<controlEventArgs>* _controlGotFocus;
         eventHandler<controlEventArgs>* _controlLostFocus;
@@ -56,9 +66,6 @@ namespace phi
     public:
         UI_API static uiSystem* get();
         UI_API void init(uiSystemInfo info);
-        UI_API uiSystemInfo getInfo() { return _info; }
-        UI_API eventHandler<controlEventArgs>* getControlGotFocus() { return _controlGotFocus; }
-        UI_API eventHandler<controlEventArgs>* getControlLostFocus() { return _controlLostFocus; }
         UI_API void setCursor(cursor* value);
         UI_API void resize(sizef value);
 
@@ -66,5 +73,9 @@ namespace phi
         UI_API void removeControl(control* control);
         UI_API void update();
         UI_API void render();
+
+        uiSystemInfo getInfo() { return _info; }
+        eventHandler<controlEventArgs>* getControlGotFocus() { return _controlGotFocus; }
+        eventHandler<controlEventArgs>* getControlLostFocus() { return _controlLostFocus; }
     };
 }

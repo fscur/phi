@@ -325,8 +325,7 @@ namespace phi
             colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
             colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
 
-            if (_translationFinished->isBound())
-                _translationFinished->invoke(new phi::translationEventArgs(_transform, _startLocalPos, _transform->getLocalPosition()));
+            _translationFinished->raise(new phi::translationEventArgs(_transform, _startLocalPos, _transform->getLocalPosition()));
         }
     }
 
@@ -392,8 +391,7 @@ namespace phi
                 _transform->setLocalPosition(localWorld);
 
                 auto args = new translationEventArgs(_transform, currentPos, localWorld);
-                if (_translating->isBound())
-                    _translating->invoke(args);
+                _translating->raise(args);
 
                 if (args->cancel)
                     _transform->setLocalPosition(currentPos);

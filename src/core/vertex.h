@@ -1,4 +1,5 @@
 #pragma once
+
 #include <phi.h>
 #include "core.h"
 
@@ -11,8 +12,9 @@ namespace phi
         vec2 texCoord;
         vec3 normal;
         vec3 tangent;
+
     public:
-        CORE_API vertex(vec3 position = vec3(0.0f), vec2 texCoord = vec2(0.0f), vec3 normal = vec3(0.0f), vec3 tangent = vec3(0.0f)) :
+        vertex(vec3 position = vec3(0.0f), vec2 texCoord = vec2(0.0f), vec3 normal = vec3(0.0f), vec3 tangent = vec3(0.0f)) :
             position(position),
             texCoord(texCoord),
             normal(normal),
@@ -20,9 +22,9 @@ namespace phi
         {
         }
 
-        CORE_API ~vertex() { };
+        ~vertex() { };
 
-        CORE_API friend bool operator==(const vertex& a, const vertex& b)
+        friend bool operator==(const vertex& a, const vertex& b)
         {
             return
                 a.position == b.position &&
@@ -31,7 +33,7 @@ namespace phi
                 a.tangent == b.tangent;
         }
 
-        CORE_API friend bool operator!=(const vertex& a, const vertex& b)
+        friend bool operator!=(const vertex& a, const vertex& b)
         {
             return !(a == b);
         }

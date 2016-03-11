@@ -1,7 +1,7 @@
 #pragma once
 
-#ifdef MSVC
-    #ifdef RENDERING_EXPORTS
+#ifdef _WIN32
+    #ifdef rendering_EXPORTS
         #define RENDERING_API __declspec(dllexport)
     #else
         #define RENDERING_API __declspec(dllimport)
@@ -9,5 +9,3 @@
 #else
     #define RENDERING_API
 #endif
-
-#define GLM_FORCE_RADIANS

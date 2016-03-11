@@ -85,10 +85,11 @@ namespace phi
         texture* defaultNormalTexture;
         texture* defaultSpecularTexture;
         texture* defaultEmissiveTexture;
+
     public:
         RENDERING_API gl(gl::glInfo initInfo);
         RENDERING_API ~gl();
-        RENDERING_API string getErrorString(GLenum error);
-        RENDERING_API void printError(string msg);
+        string getErrorString(GLenum error);
+        void printError(string msg);
     };
 }

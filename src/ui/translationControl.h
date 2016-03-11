@@ -63,15 +63,13 @@ namespace phi
     public:
         UI_API translationControl(sizef viewportSize);
 
-        UI_API eventHandler<translationEventArgs*>* getTranslating() const { return _translating; }
-        UI_API eventHandler<translationEventArgs*>* getTranslationFinished() const { return _translationFinished; }
-
-        UI_API void setCamera(camera* value) { _camera = value; }
-
-        UI_API virtual bool isPointInside(int x, int y) override;
-
         UI_API void attachTo(transform* transform);
-
         UI_API void onRender() override;
+        UI_API virtual bool isPointInside(int x, int y) override;
+        
+        eventHandler<translationEventArgs*>* getTranslating() const { return _translating; }
+        eventHandler<translationEventArgs*>* getTranslationFinished() const { return _translationFinished; }
+
+        void setCamera(camera* value) { _camera = value; }
     };
 }

@@ -22,15 +22,14 @@ namespace phi
         float calcRange(float radius, unsigned int sides);
 
     public:
-
         SCENES_API pointLight(string name, color color, float intensity, float range, transform* transform);
         SCENES_API ~pointLight();
 
-        SCENES_API sphere* getBoundingVolume() const { return _boundingVolume; }
-        SCENES_API float getRange() const { return _range; }
-        SCENES_API float getOneOverRangerSqr() const { return _oneOverRangeSqr; }
-
         SCENES_API void setIntensity(float value) override;
         SCENES_API void setRange(float value);
+
+        sphere* getBoundingVolume() const { return _boundingVolume; }
+        float getRange() const { return _range; }
+        float getOneOverRangerSqr() const { return _oneOverRangeSqr; }
     };
 }

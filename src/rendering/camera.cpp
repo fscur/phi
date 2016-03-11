@@ -41,7 +41,7 @@ namespace phi
         if (_node == nullptr)
             return nullptr;
 
-        _node->getTransform();
+        return &(_node->getTransform());
     }
 
     void camera::setResolution(vec2 value)

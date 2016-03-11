@@ -56,14 +56,13 @@ namespace phi
     public:
         UI_API rotationControl(sizef viewportSize);
 
-        UI_API eventHandler<rotationEventArgs*>* getRotating() const { return _rotating; }
-        UI_API eventHandler<rotationEventArgs>* getRotationFinished() { return _rotationFinished; }
-
-        UI_API void setCamera(camera* value) { _camera = value; }
-
         UI_API void attachTo(transform* transform);
 
         UI_API virtual bool isPointInside(int x, int y) override;
         UI_API void onRender() override;
+
+        eventHandler<rotationEventArgs*>* getRotating() const { return _rotating; }
+        eventHandler<rotationEventArgs>* getRotationFinished() { return _rotationFinished; }
+        void setCamera(camera* value) { _camera = value; }
     };
 }

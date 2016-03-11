@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include "control.h"
 
-#include <core\clock.h>
+#include <core\time.h>
 
 namespace phi
 {
@@ -45,17 +45,13 @@ namespace phi
     void control::addChild(control* child)
     {
         _children.push_back(child);
-
-        if (_addedChild->isBound())
-            _addedChild->invoke(controlEventArgs(child));
+        _addedChild->raise(controlEventArgs(child));
     }
 
     void control::removeChild(control* child)
     {
         _children.erase(std::remove(_children.begin(), _children.end(), child), _children.end());
-
-        if (_removedChild->isBound())
-            _removedChild->invoke(controlEventArgs(child));
+        _removedChild->raise(controlEventArgs(child));
     }
 
     void control::setIsFocused(bool value)
@@ -119,8 +115,7 @@ namespace phi
             resetToolTip();
 
             onMouseEnter(e);
-            if (_mouseEnter->isBound())
-                _mouseEnter->invoke(e);
+            _mouseEnter->raise(e);
         }
     }
 
@@ -132,21 +127,18 @@ namespace phi
             resetToolTip();
 
             onMouseLeave(e);
-            if (_mouseLeave->isBound())
-                _mouseLeave->invoke(e);
+            _mouseLeave->raise(e);
         }
     }
 
     void control::notifyGotFocus(controlEventArgs e)
     {
-        if (_gotFocus->isBound())
-            _gotFocus->invoke(e);
+        _gotFocus->raise(e);
     }
 
     void control::notifyLostFocus(controlEventArgs e)
     {
-        if (_lostFocus->isBound())
-            _lostFocus->invoke(e);
+        _lostFocus->raise(e);
     }
 
     void control::resetToolTip()
@@ -159,7 +151,7 @@ namespace phi
     {
         if (_isMouseOver && !_renderToolTip)
         {
-            _mouseStillTime += clock::millisecondsElapsed;
+            _mouseStillTime += time::deltaSeconds * 1000.0;
 
             if (_mouseStillTime > 1000.0f && _toolTipText != "")
             {

@@ -25,7 +25,7 @@ namespace phi
 
     struct inputKeyHasher
     {
-        std::size_t operator()(const phi::inputKey& k) const
+        size_t operator()(const phi::inputKey& k) const
         {
             // Compute individual hash values for first,
             // second and third and combine them using XOR

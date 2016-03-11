@@ -12,12 +12,12 @@ namespace phi
         std::map<string, shader*> _shaders;
 
     public:
-        RENDERING_API shadersManager(string path) :
+        shadersManager(string path) :
             _path(path) 
         {}
 
-        RENDERING_API ~shadersManager();
-        RENDERING_API shader* load(string name, vector<string> attributes);
-        RENDERING_API shader* get(string name);
+        ~shadersManager();
+        shader* load(string name, vector<string> attributes);
+        shader* get(string name);
     };
 }

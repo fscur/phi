@@ -245,8 +245,7 @@ namespace phi
             colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
             colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 0.5f), 300);
 
-            if (_rotationFinished->isBound())
-                _rotationFinished->invoke(phi::rotationEventArgs(_transform, _startOrientation, _transform->getLocalOrientation()));
+            _rotationFinished->raise(phi::rotationEventArgs(_transform, _startOrientation, _transform->getLocalOrientation()));
         }
     }
 
@@ -364,8 +363,7 @@ namespace phi
                 _transform->rotate(angle - _currentAngle, dirLocal);
 
                 auto args = new rotationEventArgs(_transform, currentRot, _transform->getLocalOrientation());
-                if (_rotating->isBound())
-                    _rotating->invoke(args);
+                _rotating->raise(args);
 
                 if (args->cancel)
                     _transform->setLocalOrientation(currentRot);
