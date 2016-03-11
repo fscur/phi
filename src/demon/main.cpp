@@ -8,7 +8,8 @@ using namespace phi;
 
 extern "C"
 {
-    API unsigned long NvOptimusEnablement = 0x00000001;
+    API unsigned long NvOptimusEnablement = 1;
+    API int AmdPowerXpressRequestHighPerformance = 1;
 }
 
 struct commandLineCommand
