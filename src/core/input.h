@@ -13,8 +13,8 @@ namespace phi
         static void raiseMouseDownEvent(mouseEventArgs* e);
         static void raiseMouseUpEvent(mouseEventArgs* e);
         static void raiseMouseWheelEvent(mouseEventArgs* e);
-        static void raiseKeyDownEvent(keyboardEventArgs e);
-        static void raiseKeyUpEvent(keyboardEventArgs e);
+        static void raiseKeyDownEvent(keyboardEventArgs* e);
+        static void raiseKeyUpEvent(keyboardEventArgs* e);
 
     public:
         CORE_API static void notifyLeftMouseDown(int x, int y);

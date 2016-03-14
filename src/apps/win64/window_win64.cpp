@@ -27,7 +27,6 @@ namespace phi
     LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         LRESULT result = NULL;
-
         switch (message)
         {
         case WM_ACTIVATE:
@@ -63,15 +62,24 @@ namespace phi
         case WM_DESTROY:
             PostQuitMessage(0);
             break;
+        case WM_CHAR:
+            // TODO: handle text
+            break;
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            input::notifyKeyDown(wParam);
+            if (wParam >= 65 && wParam <= 90)
+                input::notifyKeyDown(wParam + 32);
+            else
+                input::notifyKeyDown(wParam);
             break;
         case WM_KEYUP:
         case WM_SYSKEYUP:
-            input::notifyKeyUp(wParam);
+            if (wParam >= 65 && wParam <= 90)
+                input::notifyKeyUp(wParam + 32);
+            else
+                input::notifyKeyUp(wParam);
             break;
-        case WM_MOUSEHWHEEL:
+        case WM_MOUSEWHEEL:
             input::notifyMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));
             break;
         case WM_MOUSEMOVE:
@@ -193,6 +201,8 @@ namespace phi
         ShowWindow(hWnd, SW_SHOW);
         SetForegroundWindow(hWnd);
         SetFocus(hWnd);
+
+        onInitialize();
     }
 
     void window::input()

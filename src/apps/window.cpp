@@ -13,7 +13,7 @@ namespace phi
 
     void window::clear() {}
     void window::render() {}
-    void window::update() {}
+    void window::update() { onUpdate(); }
     void window::tick() {}
     void window::swapBuffers() {}
     void window::close() {}

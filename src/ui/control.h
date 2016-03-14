@@ -97,8 +97,8 @@ namespace phi
         UI_API void virtual onMouseWheel(mouseEventArgs* e) {}
         UI_API void virtual onMouseEnter(mouseEventArgs* e) {}
         UI_API void virtual onMouseLeave(mouseEventArgs* e) {}
-        UI_API void virtual onKeyDown(keyboardEventArgs e) {}
-        UI_API void virtual onKeyUp(keyboardEventArgs e) {}
+        UI_API void virtual onKeyDown(keyboardEventArgs* e) {}
+        UI_API void virtual onKeyUp(keyboardEventArgs* e) {}
 
         void notifyMouseEnter(mouseEventArgs* e);
         void notifyMouseLeave(mouseEventArgs* e);
@@ -106,7 +106,7 @@ namespace phi
         void notifyMouseUp(mouseEventArgs* e);
         void notifyMouseMove(mouseEventArgs* e);
         void notifyMouseWheel(mouseEventArgs* e);
-        void notifyKeyDown(keyboardEventArgs e);
-        void notifyKeyUp(keyboardEventArgs e);
+        void notifyKeyDown(keyboardEventArgs* e);
+        void notifyKeyUp(keyboardEventArgs* e);
     };
 }

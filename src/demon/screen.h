@@ -5,9 +5,10 @@
 #include <scenes\scene.h>
 
 #include <apps\window.h>
+#include <apps\commandsManager.h>
+
 #include "defaultCameraController.h"
 #include "library.h"
-#include "inputManager.h"
 
 namespace demon
 {
@@ -33,8 +34,7 @@ namespace demon
 
         library* _library;
 
-        commandsManager* _commandsManager;
-        inputManager* _inputManager;
+        phi::commandsManager* _commandsManager;
         defaultCameraController* _defaultController;
 
     private:
@@ -52,13 +52,6 @@ namespace demon
 
         void onUpdate() override;
         void onRender() override;
-
-        void onMouseDown(phi::mouseEventArgs* e) override;
-        void onMouseMove(phi::mouseEventArgs* e) override;
-        void onMouseUp(phi::mouseEventArgs* e) override;
-        void onMouseWheel(phi::mouseEventArgs* e) override;
-        void onKeyDown(phi::keyboardEventArgs* e) override;
-        void onKeyUp(phi::keyboardEventArgs* e) override;
 
         void setResourcesPath(phi::string value) { _resourcesPath = value; }
         void setLibraryPath(phi::string value) { _libraryPath = value; }

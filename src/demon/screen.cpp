@@ -1,5 +1,9 @@
 ﻿#include <precompiled.h>
 #include "screen.h"
+
+#include <apps\undoCommand.h>
+#include <apps\redoCommand.h>
+
 #include <diagnostics\diagnostics.h>
 #include <diagnostics\stopwatch.h>
 
@@ -17,8 +21,6 @@ namespace demon
         _shadowMap = false;
         _translationSpeed = 1.0f;
         _rotationSpeed = 0.01f;
-        _commandsManager = new commandsManager();
-        _inputManager = new inputManager(_commandsManager);
     }
 
     screen::~screen()
@@ -27,8 +29,8 @@ namespace demon
 
     void screen::onInitialize()
     {
-        initGL();
-        initLibrary();
+        //initGL();
+        //initLibrary();
         initScene();
         initInput();
     }
@@ -67,68 +69,60 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
-        auto clonedFloor = floor->clone();
-        _scene->add(clonedFloor);
+        //auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
+        //auto clonedFloor = floor->clone();
+        //_scene->add(clonedFloor);
 
-        auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-        for (size_t i = 0; i < 10; i++)
-        {
-            auto cloned = obj->clone();
-            cloned->getTransform().setLocalPosition(phi::vec3(i + (0.1f*i), 0.0, 0.0));
-            _scene->add(cloned);
-        }
+        //auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
+        //for (size_t i = 0; i < 10; i++)
+        //{
+        //    auto cloned = obj->clone();
+        //    cloned->getTransform().setLocalPosition(phi::vec3(i + (0.1f*i), 0.0, 0.0));
+        //    _scene->add(cloned);
+        //}
     }
+
+    class command1 : public phi::command
+    {
+    private:
+        std::string _message;
+
+    public:
+        command1(std::string message) :
+            _message(message)
+        {
+        }
+
+        void execute() override
+        {
+            printf("[redo] %s\n", _message.c_str());
+        }
+
+        void executeUndo() override
+        {
+            printf("[undo] %s\n", _message.c_str());
+        }
+    };
 
     void screen::initInput()
     {
+        _commandsManager = new phi::commandsManager();
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_LCTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_LCTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_a }, [&]() -> phi::command* { return new command1("forfeit"); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_g }, [&]() -> phi::command* { return new command1("gg"); }));
+
         _defaultController = new defaultCameraController(_scene);
-        _inputManager->setCurrentCameraController(_defaultController);
     }
 
     void screen::onUpdate()
     {
-        _inputManager->update();
-        _scene->update();
+        //_scene->update();
     }
 
     void screen::onRender()
     {
         _scene->render();
-    }
-
-    void screen::onMouseDown(phi::mouseEventArgs* e)
-    {
-        _inputManager->onMouseDown(e);
-    }
-
-    void screen::onMouseMove(phi::mouseEventArgs* e)
-    {
-        _inputManager->onMouseMove(e);
-    }
-
-    void screen::onMouseUp(phi::mouseEventArgs* e)
-    {
-        _inputManager->onMouseUp(e);
-    }
-
-    void screen::onMouseWheel(phi::mouseEventArgs* e)
-    {
-        _inputManager->onMouseWheel(e);
-    }
-
-    void screen::onKeyDown(phi::keyboardEventArgs* e)
-    {
-        if (_inputManager->onKeyDown(e))
-            return;
-
-        if (e->key == PHIK_ESCAPE)
-            close();
-    }
-
-    void screen::onKeyUp(phi::keyboardEventArgs* e)
-    {
-        _inputManager->onKeyUp(e);
     }
 
     void screen::onClosing()

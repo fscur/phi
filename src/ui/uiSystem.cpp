@@ -150,7 +150,7 @@ namespace phi
         }
     }
 
-    void uiSystem::inputKeyDown(keyboardEventArgs e)
+    void uiSystem::inputKeyDown(keyboardEventArgs* e)
     {
         for (control* control : _controls)
         {
@@ -159,7 +159,7 @@ namespace phi
         }
     }
 
-    void uiSystem::inputKeyUp(keyboardEventArgs e)
+    void uiSystem::inputKeyUp(keyboardEventArgs* e)
     {
         for (control* control : _controls)
         {

@@ -3,7 +3,6 @@
 #include <scenes\scene.h>
 
 #include "cameraController.h"
-#include "shortcuts.h"
 
 namespace demon
 {
@@ -11,34 +10,34 @@ namespace demon
         public cameraController
     {
     private:
-        shortcuts _shortcuts;
-        phi::ivec2 _lastMousePos;
+        float _lastMousePosX;
+        float _lastMousePosY;
         bool _rotating;
         bool _panning;
         GLfloat _zBufferValue;
         phi::vec3 _cameraPos;
         phi::vec3 _cameraRight;
         phi::vec3 _cameraUp;
-        phi::ivec2 _startPos;
+        float _startPosX;
+        float _startPosY;
         float _eyeZ;
         phi::vec3 _targetPos;
         phi::scene* _scene;
 
     private:
-        void executeInput(phi::inputKey key, phi::ivec2 mousePos);
-        void initPan(phi::ivec2 mousePos);
-        void initRotate(phi::ivec2 mousePos);
-        void zoom(phi::ivec2 mousePos, bool in);
-        void pan(phi::ivec2 mousePos);
-        void rotate(phi::ivec2 mousePos);
+        void initPan(float mouseX, float mouseY);
+        void initRotate(float mouseX, float mouseY);
+        void zoom(float mouseX, float mouseY, bool in);
+        void pan(float mouseX, float mouseY);
+        void rotate(float mouseX, float mouseY);
+
+        virtual void onMouseDown(phi::mouseEventArgs* e) override;
+        virtual void onMouseMove(phi::mouseEventArgs* e) override;
+        virtual void onMouseUp(phi::mouseEventArgs* e) override;
+        virtual void onMouseWheel(phi::mouseEventArgs* e) override;
 
     public:
         defaultCameraController(phi::scene* scene);
-
-        virtual bool onMouseDown(phi::mouseEventArgs* e, phi::inputKey key) override;
-        virtual bool onMouseMove(phi::mouseEventArgs* e) override;
-        virtual bool onMouseUp(phi::mouseEventArgs* e, phi::inputKey key) override;
-        virtual bool onMouseWheel(phi::mouseEventArgs* e, phi::inputKey key) override;
 
         virtual void update() override;
     };

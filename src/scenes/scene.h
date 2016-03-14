@@ -37,9 +37,9 @@ namespace phi
 
         SCENES_API void add(node* n);
         SCENES_API void remove(node* n);
-        SCENES_API float getZBufferValue(phi::ivec2 mousePos) 
+        SCENES_API float getZBufferValue(float x, float y) 
         {
-            auto pos = phi::ivec2(mousePos.x, h - mousePos.y);
+            auto pos = phi::ivec2(x, h - y);
             auto z = _renderer->defaultFramebuffer->getZBufferValue(pos);
             phi::debug("z buffer value: " + std::to_string(z));
             return z;

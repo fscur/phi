@@ -260,12 +260,12 @@ namespace phi
         //uiSystem::get()->setCursor(uiRepository::cursorsRepository->getResource("TextCursor"));
     }
 
-    void textBox::onKeyDown(keyboardEventArgs e)
+    void textBox::onKeyDown(keyboardEventArgs* e)
     {
-        switch (e.key)
+        switch (e->key)
         {
             case PHIK_LEFT:
-                if (!e.isShiftPressed)
+                if (!e->isShiftPressed)
                     _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::max((int)_cursorIndex - 1, 0);
                 else
                     _selectionEndIndex = _cursorIndex = glm::max((int)_cursorIndex - 1, 0);
@@ -273,7 +273,7 @@ namespace phi
                 updateSelectionRenderer();
                 break;
             case PHIK_RIGHT:
-                if (!e.isShiftPressed)
+                if (!e->isShiftPressed)
                     _selectionStartIndex = _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, (unsigned int)_text.length());
                 else
                     _selectionEndIndex = _cursorIndex = glm::min(_cursorIndex + 1, (unsigned int)_text.length());
@@ -301,7 +301,7 @@ namespace phi
                 }
                 break;
             case PHIK_HOME:
-                if (!e.isShiftPressed)
+                if (!e->isShiftPressed)
                     _selectionStartIndex = _selectionEndIndex = _cursorIndex = 0;
                 else
                     _selectionEndIndex = _cursorIndex = 0;
@@ -309,7 +309,7 @@ namespace phi
                 updateSelectionRenderer();
                 break;
             case PHIK_END:
-                if (!e.isShiftPressed)
+                if (!e->isShiftPressed)
                     _selectionStartIndex = _selectionEndIndex = _cursorIndex = (unsigned int)_text.length();
                 else
                     _selectionEndIndex = _cursorIndex = (unsigned int)_text.length();
@@ -320,7 +320,7 @@ namespace phi
                 if (_selectionStartIndex != _selectionEndIndex)
                     deleteSelection();
 
-                char c = (char)e.key;
+                char c = (char)e->key;
                 setText(_text.insert(_cursorIndex++, 1, c));
                 _selectionStartIndex = _selectionEndIndex = _cursorIndex;
                 updateCursorLocation();

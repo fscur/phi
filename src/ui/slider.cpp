@@ -184,9 +184,9 @@ namespace phi
             changeValue(vec2(e->x, e->y));
     }
 
-    void slider::onKeyDown(keyboardEventArgs e)
+    void slider::onKeyDown(keyboardEventArgs* e)
     {
-        switch (e.key)
+        switch (e->key)
         {
         case PHIK_LEFT:
             setValue(glm::max(_minValue, _value - _stepValue));

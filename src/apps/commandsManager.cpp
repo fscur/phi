@@ -1,42 +1,25 @@
 #include <precompiled.h>
+
+#include <core\input.h>
+
 #include "commandsManager.h"
-//#include "selectAtPositionCommand.h"
-//#include "undoCommand.h"
-//#include "redoCommand.h"
-//#include "zoomToFitCommand.h"
-//#include "deleteSceneObjectCommand.h"
 
-namespace demon
+namespace phi
 {
-
-
     commandsManager::commandsManager()
     {
-        /*_shortcuts.add("Select", phi::inputKey(PHI_MOUSE_LEFT, PHI_NONE));
-        _shortcuts.add("DeselectAll", phi::inputKey(PHI_SCANCODE_ESCAPE, PHI_NONE));
-        _shortcuts.add("Undo", phi::inputKey(PHI_SCANCODE_Z, PHI_CTRL_PRESSED));
-        _shortcuts.add("Redo", phi::inputKey(PHI_SCANCODE_Y, PHI_CTRL_PRESSED));
-        _shortcuts.add("ZoomToFit", phi::inputKey(PHI_SCANCODE_F, PHI_CTRL_PRESSED));
-        _shortcuts.add("DeleteSceneObject", phi::inputKey(PHI_SCANCODE_DELETE, PHI_NONE));*/
-
-        //_commands["Select"] = [] () -> command*
-        //{
-        //    int mouseX, mouseY;
-        //    SDL_GetMouseState(&mouseX, &mouseY);
-        //    return new selectAtPositionCommand(glm::vec2(mouseX, mouseY));
-        //};
-
-        //_commands["DeselectAll"] = [&]() -> command* { return new selectObjectCommand(nullptr, 0); };
-        //_commands["Undo"] = [&] () -> command* { return new undoCommand(this); };
-        //_commands["Redo"] = [&] () -> command* { return new redoCommand(this); };
-        //_commands["ZoomToFit"] = [&] () -> command* { return new zoomToFitCommand(); };
-        //_commands["DeleteSceneObject"] = [&]() -> command* { return new deleteSceneObjectCommand(); };
-
+        phi::input::keyDown->assign(std::bind(&commandsManager::onKeyDown, this, std::placeholders::_1));
+        phi::input::keyUp->assign(std::bind(&commandsManager::onKeyUp, this, std::placeholders::_1));
         _executingCommand = false;
     }
 
     commandsManager::~commandsManager()
     {
+    }
+
+    void commandsManager::addShortcut(shortcut shortcut)
+    {
+        _shortcuts.push_back(shortcut);
     }
 
     void commandsManager::enqueueCommand(command* cmd, std::function<void(command*)> callback, bool isUndo)
@@ -103,13 +86,9 @@ namespace demon
             if (c->getIsUndoable())
             {
                 _undo.push(c);
-                /*std::stack<command*> empty;
-                std::swap(_redo, empty);*/
 
                 while (!_redo.empty())
-                {
                     _redo.pop();
-                }
             }
 
             _executingCommand = false;
@@ -119,25 +98,32 @@ namespace demon
         startNextCommand();
     }
 
-    void commandsManager::update()
+    void commandsManager::onKeyDown(phi::keyboardEventArgs* e)
     {
-        //startNextCommand();
+        if (_pressedKeys.size() == 0 || _pressedKeys.back() != e->key)
+            _pressedKeys.push_back(e->key);
+
+        auto shortcutsCopy = _shortcuts;
+        auto i = 0;
+        for (i = 0; i < _pressedKeys.size(); i++)
+        {
+            for (auto j = 0; j < shortcutsCopy.size(); j++)
+            {
+                if (i >= shortcutsCopy[j].keys.size() || shortcutsCopy[j].keys[i] != _pressedKeys[i])
+                    shortcutsCopy.erase(shortcutsCopy.begin() + j--);
+            }
+        }
+
+        for (auto j = 0; j < shortcutsCopy.size(); j++)
+            if (shortcutsCopy[j].keys.size() == i)
+                executeCommand(shortcutsCopy[j].commandFunc());
     }
 
-    bool commandsManager::onInput(phi::inputKey key)
+    void commandsManager::onKeyUp(phi::keyboardEventArgs* e)
     {
-        /*const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
-        auto cmdName = _shortcuts[key];
-        if (cmdName == "")
-            return false;
-
-        auto cmd = _commands[cmdName]();
-        if (cmd != nullptr)
-        {
-            executeCommand(cmd);
-            return true;
-        }*/
-
-        return false;
+        auto index = std::find(_pressedKeys.begin(), _pressedKeys.end(), e->key);
+        auto pressedKeysCount = _pressedKeys.size();
+        while (index != _pressedKeys.end())
+            index = _pressedKeys.erase(index);
     }
 }
