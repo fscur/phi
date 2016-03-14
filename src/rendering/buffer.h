@@ -72,32 +72,32 @@ namespace phi
             glDeleteBuffers(1, &id);
         }
 
-        inline void bind()
+        void bind()
         {
             glBindBuffer(target, id);
         }
 
-        inline void unbind()
+        void unbind()
         {
             glBindBuffer(target, 0);
         }
 
-        inline void bindBufferBase(GLuint location)
+        void bindBufferBase(GLuint location)
         {
             glBindBufferBase(target, location, id);
         }
 
-        inline void storage(GLsizeiptr size, void* data, bufferStorageUsage::bufferStorageUsage usage)
+        void storage(GLsizeiptr size, void* data, bufferStorageUsage::bufferStorageUsage usage)
         {
             glNamedBufferStorage(id, size, data == nullptr ? NULL : data, usage);
         }
 
-        inline void data(GLsizeiptr size, void* data, bufferDataUsage::bufferDataUsage usage)
+        void data(GLsizeiptr size, void* data, bufferDataUsage::bufferDataUsage usage)
         {
             glNamedBufferData(id, size, data == nullptr ? NULL : data, usage);
         }
 
-        inline void subData(GLintptr offset, GLintptr size, void* data)
+        void subData(GLintptr offset, GLintptr size, void* data)
         {
             glNamedBufferSubData(id, offset, size, data);
         }

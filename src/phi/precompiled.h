@@ -5,9 +5,13 @@
 #pragma message "Compiling precompiled headers"
 #endif
 
+#ifdef MSVC
+#pragma warning(disable : 4800)
+#pragma warning(push, 3)
+#endif
+
 #include <algorithm>
 #include <cmath>
-//#include <codecvt>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -15,6 +19,7 @@
 #include <fstream>
 #include <future>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <locale>
 #include <map>
@@ -27,16 +32,13 @@
 #include <unordered_map>
 #include <vector>
 
+#include <sys/types.h>
+#include <sys/stat.h>
 
-#define __STDC_WANT_LIB_EXT1__ 1
 #include <stdio.h>
-
-#ifdef MINGW_HAS_SECURE_API
-#pragma message "__STDC_LIB_EXT1__ defined"
-#endif
-
 #include <assert.h>
 #include <stdarg.h>
+#include <objbase.h>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -47,13 +49,12 @@
 #endif
 
 #include <gl\glew.h>
+#include <gl\wglew.h>
 
 //#include <bullet\btBulletDynamicsCommon.h>
-#ifdef MINGW
-#define GLM_HAS_CXX11_STL 0
-#endif
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_CXX11
 
 #include <glm\glm.hpp>
 #include <glm\gtc\constants.hpp>
@@ -72,3 +73,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+#ifdef MSVC
+#pragma warning(pop)
+#endif

@@ -6,7 +6,7 @@
 
 namespace phi
 {
-    class font
+    class RENDERING_API font
     {
     private:
         static const int MAX_WIDTH = 1024;
@@ -36,16 +36,16 @@ namespace phi
         } c[128];
 
     public:
-        RENDERING_API font(std::string name, std::string path, int size, FT_Library library);
-        RENDERING_API ~font();
+        font(std::string name, std::string path, int size, FT_Library library);
+        ~font();
 
-        RENDERING_API static font* fromFile(string fileName);//TODO: unimplemented method
+        static font* fromFile(string fileName);//TODO: unimplemented method
 
-        RENDERING_API int getTexWidth() { return _texWidth; }
-        RENDERING_API int getTexHeight() { return _texHeight; }
-        RENDERING_API int getBaseLine() { return _baseLine; }
-        RENDERING_API int getAscender() { return _ascender; }
-        RENDERING_API int getLineHeight() { return _lineHeight; }
-        RENDERING_API texture* getTexture() { return _texture; }
+        int getTexWidth() { return _texWidth; }
+        int getTexHeight() { return _texHeight; }
+        int getBaseLine() { return _baseLine; }
+        int getAscender() { return _ascender; }
+        int getLineHeight() { return _lineHeight; }
+        texture* getTexture() { return _texture; }
     };
 }

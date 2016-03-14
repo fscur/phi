@@ -80,7 +80,7 @@ namespace phi
         auto added = false;
         auto batchesCount = batches.size();
 
-        phi::batch* batch;
+        phi::batch* batch = nullptr;
 
         while (!added && i < batchesCount)
         {

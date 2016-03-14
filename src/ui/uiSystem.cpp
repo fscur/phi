@@ -66,7 +66,7 @@ namespace phi
         vec2 hotPoint = _cursor->getHotPoint();
         _cursorRenderer->setLocation(vec2(mousePos.x - textureWitdh * hotPoint.x, mousePos.y - textureHeight * hotPoint.y));
         _cursorRenderer->setZIndex(50.0f);
-        _cursorRenderer->setSize(sizeui((float)textureWitdh, (float)textureHeight));
+        _cursorRenderer->setSize(sizeui(textureWitdh, textureHeight));
         _cursorRenderer->update();
     }
 
@@ -266,7 +266,7 @@ namespace phi
         removeControl((control*)e.sender);
     }
 
-    void uiSystem::resize(sizef size)
+    void uiSystem::resize(sizeui size)
     {
         _info.size = size;
 

@@ -4,10 +4,10 @@
 
 namespace phi
 {
-    class base64
+    class CORE_API base64
     {
     public:
-        CORE_API static string encode(byte const* buf, uint bufLen);
-        CORE_API static vector<byte> decode(string const&);
+        static string encode(byte const* buf, uint bufLen);
+        static vector<byte> decode(string const&);
     };
 }

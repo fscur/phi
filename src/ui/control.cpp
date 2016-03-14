@@ -8,12 +8,12 @@ namespace phi
     toolTip* control::_toolTip = nullptr;
     scissorStack* control::controlsScissors = nullptr;
 
-    control::control(sizef viewportSize)
+    control::control(sizeui viewportSize)
     {
         _x = 0;
         _y = 0;
         _zIndex = 0;
-        _size = sizef(0, 0);
+        _size = sizeui(0, 0);
         _viewportSize = viewportSize;
         _isFocused = false;
         _isMouseOver = false;
@@ -36,7 +36,7 @@ namespace phi
         safeDelete(_mouseLeave);
     }
 
-    void control::init(sizef viewportSize)
+    void control::init(sizeui viewportSize)
     {
         _toolTip = new toolTip(viewportSize);
         controlsScissors = new scissorStack(viewportSize);

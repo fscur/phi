@@ -3,6 +3,13 @@
 
 namespace phi
 {
+    shader::shader(string vertFile, string fragFile, vector<string> attributes) :
+        _vertFile(vertFile),
+        _fragFile(fragFile),
+        _attributes(attributes),
+        _initialized(false)
+    {}
+
     bool shader::init()
     {
         if (_initialized)

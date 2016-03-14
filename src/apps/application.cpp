@@ -1,19 +1,35 @@
 #include <precompiled.h>
 #include "application.h"
 #include <core\time.h>
+#include <io\path.h>
 
 namespace phi
 {
     bool application::_initialized = false;
+    string application::exeFileName = string();
+    string application::path = string();
+    string application::resourcesPath = string();
+    string application::libraryPath = string();
+    uint application::framesPerSecond = 0;
+    double application::millisecondsPerFrame = 0.0;
 
-    application::application(string fileName) :
-        _window(nullptr),
+    application::application(const applicationStartInfo& startInfo) :
         _running(false),
-        fileName(fileName),
-        framesPerSecond(0),
-        millisecondsPerFrame(0.0f)
+        _window(nullptr)
     {
         assert(!_initialized);
+
+        exeFileName = startInfo.exeFileName;
+        path = phi::path::getDirectoryFullName(exeFileName);
+        resourcesPath = startInfo.resourcesPath;
+        libraryPath = startInfo.libraryPath;
+
+        if (resourcesPath.empty())
+            resourcesPath = path + "\\resources\\";
+
+        if (libraryPath.empty())
+            libraryPath = path + "\\library\\";
+
         _initialized = true;
         time::start();
     }
@@ -36,8 +52,8 @@ namespace phi
         {
             millisecondsPerFrame = time::deltaSeconds * 1000;
 
-            //onClear();
-            //onRender();
+            onClear();
+            onRender();
             onInput();
             onUpdate();
 
@@ -48,19 +64,19 @@ namespace phi
                 timer += 1.0;
                 framesPerSecond = frames;
                 frames = 0;
-
-                phi::debug("fps:" + std::to_string(framesPerSecond));
-                phi::debug("timer:" + std::to_string(timer));
-
-                //onTick();
+                
+                onTick();
             }
-
-            if (_window->closed)
-                _running = false;
 
             frames++;
 
-            //onSwapbuffers();
+            onSwapbuffers();
+
+            if (_window->closed)
+            {
+                onClose();
+                _running = false;
+            }
         }
     }
 
@@ -101,5 +117,6 @@ namespace phi
 
     void application::onClose()
     {
+        _window->close();
     }
 }

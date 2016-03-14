@@ -8,6 +8,16 @@ namespace phi
 {
     geometry* geometry::_quad = nullptr;
 
+    geometry::geometry()
+    {
+    }
+
+    geometry::~geometry()
+    {
+        delete[] vboData;
+        delete[] eboData;
+    }
+
     geometry* geometry::create(vector<vertex> vertices, vector<uint> indices)
     {
         calcTangents(vertices, indices);

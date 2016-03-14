@@ -29,15 +29,15 @@ namespace phi
     public:
         SCENES_API spotLight(string name, color color, float intensity, float range, float cutoff, transform* transform);
         SCENES_API ~spotLight();
-    
-        SCENES_API float getCutoff() const { return _cutoff; }
-        SCENES_API float getRadius() const { return _radius; }
-        SCENES_API float getRange() const { return _range; }
-        SCENES_API float getOneOverRangerSqr() const { return _oneOverRangeSqr; }
-        SCENES_API cone* getBoundingVolume() const { return _boundingVolume; }
 
         SCENES_API void setRange(float value);
         SCENES_API void setCutoff(float value);
         SCENES_API void setIntensity(float value) override;
+    
+        float getCutoff() const { return _cutoff; }
+        float getRadius() const { return _radius; }
+        float getRange() const { return _range; }
+        float getOneOverRangerSqr() const { return _oneOverRangeSqr; }
+        cone* getBoundingVolume() const { return _boundingVolume; }
     };
 }

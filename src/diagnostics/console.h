@@ -4,7 +4,7 @@
 
 namespace phi
 {
-    class console
+    class DIAGNOSTICS_API console
     {
     public:
         console() { };

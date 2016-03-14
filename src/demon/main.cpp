@@ -1,34 +1,45 @@
 #include <precompiled.h>
+#include "demon.h"
 #include <apps\application.h>
 #include <demon\screen.h>
+#include <io\path.h>
+
+using namespace phi;
+
+extern "C"
+{
+    API unsigned long NvOptimusEnablement = 1;
+    API int AmdPowerXpressRequestHighPerformance = 1;
+}
 
 struct commandLineCommand
 {
 public:
-    phi::string name;
-    phi::vector<phi::string> args;
-    void(*func)(phi::vector<phi::string>);
+    string name;
+    vector<string> args;
+    void(*func)(vector<string>);
     bool shouldExecute;
 
 public:
-    commandLineCommand(phi::string name, void(*func)(phi::vector<phi::string>))
-    {
-        this->name = name;
-        shouldExecute = false;
-        this->func = func;
+    commandLineCommand(string name, void(*func)(vector<string>)) :
+        name(name),
+        args(vector<string>()),
+        func(func),
+        shouldExecute(false)
+    {   
     }
 };
 
-phi::vector<commandLineCommand> commandLineCommands;
-phi::string _resourcesPath;
-phi::string _libraryPath;
+vector<commandLineCommand> commandLineCommands;
+string _resourcesPath;
+string _libraryPath;
 
-void rpCommandFunction(phi::vector<phi::string> args)
+void rpCommandFunction(vector<string> args)
 {
     _resourcesPath = args[0];
 }
 
-void lpCommandFunction(phi::vector<phi::string> args)
+void lpCommandFunction(vector<string> args)
 {
     _libraryPath = args[0];
 }
@@ -56,13 +67,12 @@ void processCommandLine(int argc, char* args[])
 
     for (int i = 1; i < argc; i++)
     {
-        phi::string arg(args[i]);
+        string arg(args[i]);
 
 #if _DEBUG
         std::cout << args[i] << " ";
 #endif
-
-        phi::vector<phi::string>::iterator it;
+        vector<string>::iterator it;
 
         bool foundCommand = false;
 
@@ -95,43 +105,42 @@ void executeCommands()
             commandLineCommands[i].func(commandLineCommands[i].args);
 }
 
-phi::string getDirPath(phi::string filePath)
+int debugQuit(string msg)
 {
-    phi::string exePath = filePath;
-
-    auto index = filePath.find_last_of('\\');
-    return exePath.substr(0, index);
+#ifdef _DEBUG
+    log(msg);
+    system("pause");
+#endif
+    return -1;
 }
 
 int main(int argc, char* args[])
 {
-    phi::string exeFileName = phi::string(args[0]);
-    phi::application app(exeFileName);
-
-    phi::string path = getDirPath(exeFileName);
-
-    phi::debug("application path: " + path + ".");
+    string exeFileName = string(args[0]);
 
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
 
+    applicationStartInfo appStartInfo;
+    appStartInfo.exeFileName = exeFileName;
+    appStartInfo.resourcesPath = _resourcesPath;
+    appStartInfo.libraryPath = _libraryPath;
+
+    application app(appStartInfo);
+
+    if (!path::exists(application::resourcesPath))
+        return debugQuit("Resources path not found. [" + application::resourcesPath + "]");
+
+    if (!path::exists(application::libraryPath))
+        return debugQuit("Library path not found. [" + application::libraryPath + "]");
+
     auto mainScreen = new demon::screen("?", 1024, 768);
-
-    if (!_resourcesPath.empty())
-        mainScreen->setResourcesPath(_resourcesPath);
-    else
-        mainScreen->setResourcesPath(path + "\\resources\\");
-
-    if (!_libraryPath.empty())
-        mainScreen->setLibraryPath(_libraryPath);
-    else
-        mainScreen->setLibraryPath(path + "\\library\\");
     
-    phi::debug("runnning.");
+    debug("runnning.");
     app.run(mainScreen);
 
-    phi::safeDelete(mainScreen);
-    
+    safeDelete(mainScreen);
+
     return 0;
 }

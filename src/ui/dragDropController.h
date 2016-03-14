@@ -17,7 +17,7 @@ namespace phi
     {
     private:
         static dragDropController* _instance;
-        sizef _viewportSize;
+        sizeui _viewportSize;
         bool _isDragging;
         std::string _dragData;
         texture* _dragTexture;
@@ -30,16 +30,16 @@ namespace phi
         void inputMouseMove(mouseEventArgs* e);
 
     public:
-        UI_API static dragDropController* get();
+        static dragDropController* get();
 
-        UI_API void init(sizef viewportSize);
+        void init(sizeui viewportSize);
 
-        UI_API bool getIsDragging() { return _isDragging; }
-        UI_API std::string getDragData() { return _dragData; }
-        UI_API eventHandler<dragDropEventArgs*>* getDradDropEnded() { return _dragDropEnded; }
+        bool getIsDragging() { return _isDragging; }
+        std::string getDragData() { return _dragData; }
+        eventHandler<dragDropEventArgs*>* getDradDropEnded() { return _dragDropEnded; }
 
-        UI_API void startDrag(std::string value, texture* texture = nullptr);
+        void startDrag(std::string value, texture* texture = nullptr);
 
-        UI_API void render();
+        void render();
     };
 }

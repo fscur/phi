@@ -8,23 +8,24 @@
 
 namespace phi
 {
-    class importer
+    class LOADER_API importer
     {
     public:
-        LOADER_API static material* defaultMaterial;
-        LOADER_API static texture* defaultAlbedoTexture;
-        LOADER_API static texture* defaultNormalTexture;
-        LOADER_API static texture* defaultSpecularTexture;
-        LOADER_API static texture* defaultEmissiveTexture;
+        static material* defaultMaterial;
+        static texture* defaultAlbedoTexture;
+        static texture* defaultNormalTexture;
+        static texture* defaultSpecularTexture;
+        static texture* defaultEmissiveTexture;
 
     private:
         static node* readNode(const rapidjson::Value& node, string currentFolder, resourcesRepository<material>* materialsRepo);
         static guid convertToGuid(const char* bytesGuid);
+
     public:
-        LOADER_API static int importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo);
-        LOADER_API static int importGeometry(string fileName, phi::geometry*& geometry);
-        LOADER_API static int importTexture(string fileName, texture*& texture);
-        LOADER_API static int importTexture(string fileName, resource<texture>*& textureResource);
-        LOADER_API static int importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo);
+        static int importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo);
+        static int importGeometry(string fileName, phi::geometry*& geometry);
+        static int importTexture(string fileName, texture*& texture);
+        static int importTexture(string fileName, resource<texture>*& textureResource);
+        static int importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo);
     };
 }

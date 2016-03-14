@@ -21,7 +21,7 @@ namespace phi
     public:
         std::string applicationPath;
         std::string resourcesPath;
-        sizef size;
+        sizeui size;
     };
 
     class uiRepository
@@ -31,25 +31,25 @@ namespace phi
         static void loadCursors(std::string directory);
         static void loadFonts(std::string directory);
     public:
-        UI_API static font* fontConsolas14;
-        UI_API static font* fontConsolas16;
-        UI_API static font* fontConsolas18;
-        UI_API static font* fontConsolas24;
-        UI_API static font* fontConsolas100;
-        UI_API static font* fontArial72;
+        static font* fontConsolas14;
+        static font* fontConsolas16;
+        static font* fontConsolas18;
+        static font* fontConsolas24;
+        static font* fontConsolas100;
+        static font* fontArial72;
 
-        UI_API static cursor* cursorDefault;
-        UI_API static cursor* cursorText;
+        static cursor* cursorDefault;
+        static cursor* cursorText;
 
-        UI_API static texture* textureButton;
-        UI_API static texture* textureArrowDown;
-        UI_API static texture* textureArrowUp;
-        UI_API static texture* textureModels;
-        UI_API static texture* textureMaterials;
+        static texture* textureButton;
+        static texture* textureArrowDown;
+        static texture* textureArrowUp;
+        static texture* textureModels;
+        static texture* textureMaterials;
 
-        UI_API static bool initialized;
+        static bool initialized;
 
     public:
-        UI_API static void init(uiRepositoryInfo info);
+        static void init(uiRepositoryInfo info);
     };
 }

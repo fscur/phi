@@ -10,7 +10,7 @@ namespace phi
     class scissorStack
     {
     private:
-        sizef _viewportSize;
+        sizeui _viewportSize;
         std::vector<scissor> _scissors;
         scissor _currentScissor;
 
@@ -18,7 +18,7 @@ namespace phi
         void calculateCurrentScissor();
 
     public:
-        scissorStack(sizef viewportSize);
+        scissorStack(sizeui viewportSize);
 
         void pushScissor(scissor s);
         void pushScissor(float x, float y, float width, float height);

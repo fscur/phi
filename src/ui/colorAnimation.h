@@ -13,12 +13,12 @@ namespace phi
         color* _colorFromVar;
         color _colorFrom;
         color _colorTo;
-        int _milliseconds;
-        int _elapsed;
+        double _milliseconds;
+        double _elapsed;
         std::function<float(float)> _easingFunction;
 
     public:
-        colorAnimation(color* from, color to, int milliseconds, std::function<float(float)> easingFunction = easingFunctions::linear)
+        colorAnimation(color* from, color to, double milliseconds, std::function<float(float)> easingFunction = easingFunctions::linear)
         {
             _colorFromVar = from;
             _colorFrom = *from;
@@ -31,10 +31,10 @@ namespace phi
         color* getColorFromVar() { return _colorFromVar; }
         color getColorFrom() { return _colorFrom; }
         color getColorTo() { return _colorTo; }
-        int getMilliseconds() { return _milliseconds; }
-        int getElapsed() { return _elapsed; }
+        double getMilliseconds() { return _milliseconds; }
+        double getElapsed() { return _elapsed; }
         std::function<float(float)> getEasingFunction() { return _easingFunction; }
 
-        void setElapsed(int value) { _elapsed = value; }
+        void setElapsed(double value) { _elapsed = value; }
     };
 }

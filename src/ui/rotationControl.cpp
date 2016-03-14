@@ -7,7 +7,7 @@
 
 namespace phi
 {
-    rotationControl::rotationControl(sizef viewportSize) :
+    rotationControl::rotationControl(sizeui viewportSize) :
         control(viewportSize)
     {
         //_shader = shaderManager::get()->getShader("UI_MESH");

@@ -6,6 +6,7 @@ namespace phi
     class eventArgs
     {
     public:
+        eventArgs() {}
         virtual ~eventArgs(){}
     };
 }

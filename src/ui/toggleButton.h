@@ -20,21 +20,21 @@ namespace phi
         void onClick() override;
 
     public:
-        UI_API toggleButton(sizef viewportSize);
+        toggleButton(sizeui viewportSize);
 
-        UI_API bool getChecked() const { return _checked; }
-        UI_API color getCheckedColor() const { return _checkedColor; }
-        UI_API eventHandler<controlCancelEventArgs*>* getCheckedChanging() { return _checkedChanging; }
-        UI_API eventHandler<controlEventArgs>* getCheckedChanged() { return _checkedChanged; }
+        bool getChecked() const { return _checked; }
+        color getCheckedColor() const { return _checkedColor; }
+        eventHandler<controlCancelEventArgs*>* getCheckedChanging() { return _checkedChanging; }
+        eventHandler<controlEventArgs>* getCheckedChanged() { return _checkedChanged; }
 
-        UI_API void setX(int value) override;
-        UI_API void setY(int value) override;
-        UI_API void setZIndex(float value) override;
-        UI_API void setSize(sizef value) override;
-        UI_API void setViewportSize(sizef value) override;
-        UI_API void setChecked(const bool value);
-        UI_API void setCheckedColor(const color value) { _checkedColor = value; }
+        void setX(int value) override;
+        void setY(int value) override;
+        void setZIndex(float value) override;
+        void setSize(sizeui value) override;
+        void setViewportSize(sizeui value) override;
+        void setChecked(const bool value);
+        void setCheckedColor(const color value) { _checkedColor = value; }
 
-        UI_API void onRender() override;
+        void onRender() override;
     };
 }

@@ -22,7 +22,7 @@ namespace phi
     public:
         SCENES_API ~sphere();
 
-        SCENES_API float getRadius() const { return _radius; }
-        SCENES_API void setRadius(float radius);
+        float getRadius() const { return _radius; }
+        void setRadius(float radius);
     };
 }

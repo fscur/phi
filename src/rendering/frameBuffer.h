@@ -73,48 +73,48 @@ namespace phi
             }
         }
 
-        inline void bind(GLenum target)
+        void bind(GLenum target)
         {
             glBindFramebuffer(target, _id);
         }
 
-        inline void bindForDrawing()
+        void bindForDrawing()
         {
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
             glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
         }
 
-        inline void bindForDrawing(GLenum* buffers, size_t buffersCount)
+        void bindForDrawing(GLenum* buffers, GLsizei buffersCount)
         {
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
             glDrawBuffers(buffersCount, buffers);
         }
 
-        inline void bindForReading(renderTarget* sourceRenderTarget)
+        void bindForReading(renderTarget* sourceRenderTarget)
         {
             glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
             glReadBuffer(sourceRenderTarget->attachment);
         }
 
-        inline void unbind(GLenum target)
+        void unbind(GLenum target)
         {
             glBindFramebuffer(target, 0);
         }
 
-        inline void blitToDefault(renderTarget* renderTarget)
+        void blitToDefault(renderTarget* renderTarget)
         {
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
             bindForReading(renderTarget);
             glBlitFramebuffer(0, 0, renderTarget->w, renderTarget->h, 0, 0, renderTarget->w, renderTarget->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
         }
 
-        inline void blit(framebuffer* sourceFramebuffer, renderTarget* sourceRenderTarget, framebuffer* targetFramebuffer, renderTarget* targetRenderTarget)
+        void blit(framebuffer* sourceFramebuffer, renderTarget* sourceRenderTarget, framebuffer* targetFramebuffer, renderTarget* targetRenderTarget)
         {
             sourceFramebuffer->bindForReading(sourceRenderTarget);
             glBlitFramebuffer(0, 0, sourceRenderTarget->w, sourceRenderTarget->h, 0, 0, targetRenderTarget->w, targetRenderTarget->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
         }
 
-        inline GLfloat getZBufferValue(ivec2 mousePos)
+        GLfloat getZBufferValue(ivec2 mousePos)
         {
             GLfloat zBufferValue;
             glReadPixels(mousePos.x, mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);

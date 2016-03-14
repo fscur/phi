@@ -35,37 +35,37 @@ namespace phi
 		void changeValue(vec2 pos);
 
     public:
-		UI_API slider(sizef viewportSize);
-        UI_API ~slider();
+		slider(sizeui viewportSize);
+        ~slider();
 
-        UI_API color getTrackColor() { return _trackColor; }
-        UI_API color getSliderColor() { return _sliderColor; }
-        UI_API eventHandler<eventArgs>* getValueChanged() { return _valueChanged; }
-        UI_API float getValue() { return _value; }
-        UI_API float getMinValue() { return _minValue; }
-        UI_API float getMaxValue() { return _maxValue; }
-        UI_API float getStepValue() { return _stepValue; }
+        color getTrackColor() { return _trackColor; }
+        color getSliderColor() { return _sliderColor; }
+        eventHandler<eventArgs>* getValueChanged() { return _valueChanged; }
+        float getValue() { return _value; }
+        float getMinValue() { return _minValue; }
+        float getMaxValue() { return _maxValue; }
+        float getStepValue() { return _stepValue; }
 
-        UI_API void setTrackColor(color value) { _trackColor = value; }
-        UI_API void setSliderColor(color value);
-        UI_API void setValue(float value);
-        UI_API void setMinValue(float value);
-        UI_API void setMaxValue(float value);
-        UI_API void setStepValue(float value);
+        void setTrackColor(color value) { _trackColor = value; }
+        void setSliderColor(color value);
+        void setValue(float value);
+        void setMinValue(float value);
+        void setMaxValue(float value);
+        void setStepValue(float value);
 
-        UI_API void setX(int value) override;
-        UI_API void setY(int value) override;
-        UI_API void setSize(sizef value) override;
-		UI_API void setViewportSize(sizef value) override;
-		UI_API void setZIndex(float value) override;
+        void setX(int value) override;
+        void setY(int value) override;
+        void setSize(sizeui value) override;
+		void setViewportSize(sizeui value) override;
+		void setZIndex(float value) override;
 
-        UI_API void onMouseDown(mouseEventArgs* e) override;
-        UI_API void onMouseUp(mouseEventArgs* e) override;
-        UI_API void onMouseMove(mouseEventArgs* e) override;
-        UI_API void onKeyDown(keyboardEventArgs* e) override;
-        UI_API void onMouseEnter(mouseEventArgs* e) override;
-        UI_API void onMouseLeave(mouseEventArgs* e) override;
+        void onMouseDown(mouseEventArgs* e) override;
+        void onMouseUp(mouseEventArgs* e) override;
+        void onMouseMove(mouseEventArgs* e) override;
+        void onKeyDown(keyboardEventArgs* e) override;
+        void onMouseEnter(mouseEventArgs* e) override;
+        void onMouseLeave(mouseEventArgs* e) override;
 
-        UI_API void onRender() override;
+        void onRender() override;
     };
 }

@@ -38,6 +38,7 @@ namespace demon
 
     public:
         defaultCameraController(phi::scene* scene);
+        virtual ~defaultCameraController();
 
         virtual void update() override;
     };

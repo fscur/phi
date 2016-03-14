@@ -5,6 +5,35 @@
 
 namespace phi
 {
+    transform::transform() :
+        _parent(nullptr),
+        _changed(false),
+        _localSize(vec3(1.0f)),
+        _localOrientation(quat()),
+        _right(vec3(1.0f, 0.0f, 0.0f)),
+        _up(vec3(0.0f, 1.0f, 0.0f)),
+        _direction(vec3(0.0f, 0.0f, 1.0f))
+    {
+    }
+
+    transform::transform(const transform & original) :
+        _localPosition(original._localPosition),
+        _localSize(original._localSize),
+        _localOrientation(original._localOrientation),
+        _parent(original._parent),
+        _changed(original._changed)
+    {
+    }
+
+    transform::~transform()
+    {
+    }
+
+    transform* transform::clone() const
+    {
+        return new transform(*this);
+    }
+
     void transform::updateData()
     {
         auto localRotation = getLocalRotationMatrix();

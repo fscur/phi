@@ -5,7 +5,7 @@
 
 namespace phi
 {
-    button::button(sizef viewportSize) : control(viewportSize)
+    button::button(sizeui viewportSize) : control(viewportSize)
     {
         auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
         _text = "";
@@ -32,7 +32,7 @@ namespace phi
 
     void button::updateTextLocation()
     {
-        sizef textSize = _textRenderer->measureSize(_text, _font);
+        sizeui textSize = _textRenderer->measureSize(_text, _font);
         if (textSize.w > _size.w)
             _textX = _x;
         else
@@ -127,13 +127,12 @@ namespace phi
         _imageRenderer->update();
     }
 
-    void button::setSize(sizef value)
+    void button::setSize(sizeui value)
     {
-        auto size = sizeui(value.w, value.h, value.d);
         _size = value;
-        _backgroundRenderer->setSize(size);
+        _backgroundRenderer->setSize(value);
         _backgroundRenderer->update();
-        _overlayRenderer->setSize(size);
+        _overlayRenderer->setSize(value);
         _overlayRenderer->update();
         updateImageSize();
         updateImageLocation();
@@ -158,10 +157,9 @@ namespace phi
         _backgroundColor = _currentBackgroundColor = value;
     }
 
-    void button::setViewportSize(sizef value)
+    void button::setViewportSize(sizeui value)
     {
-        auto viewportSize = getViewportSize();
-        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
+        auto size = getViewportSize();
 
         control::setViewportSize(value);
         _backgroundRenderer->setViewportSize(size);

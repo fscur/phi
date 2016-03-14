@@ -28,6 +28,7 @@ namespace phi
             _type(type), _name(name), _node(nullptr) { }
 
     public:
+        virtual ~component() {}
         virtual component* clone() const { return new component(*this); }
 
         int getType() const { return _type; }

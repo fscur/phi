@@ -130,7 +130,7 @@ namespace phi
             _layout.internalFormat,
             _layout.w,
             _layout.h,
-            _maxTextures);
+            static_cast<GLsizei>(_maxTextures));
 
         glTextureParameteri(id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
         glTextureParameteri(id, GL_TEXTURE_WRAP_T, _layout.wrapMode);

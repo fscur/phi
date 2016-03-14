@@ -16,50 +16,18 @@ namespace phi
         vector<node*> _children;
 
     public:
-        node() :
-            _parent(nullptr), _transform(transform()) {}
+        CORE_API node();
+        CORE_API node(const node& original);
 
-        node(const node& original) :
-            _transform(*(original._transform.clone())),
-            _parent(nullptr)
-        {
-            auto clonedChildren = vector<node*>();
-            for (auto& child : original._children)
-            {
-                auto clonedChild = child->clone();
-                clonedChild->_parent = this;
-                clonedChild->getTransform().setParent(&_transform);
-                clonedChildren.push_back(clonedChild);
-            }
-            _children = std::move(clonedChildren);
+        CORE_API node* clone() const;
 
-            auto clonedComponents = vector<component*>();
-            for (auto& component : original._components)
-            {
-                auto clonedComponent = component->clone();
-                clonedComponents.push_back(clonedComponent);
-            }
-            _components = std::move(clonedComponents);
-        }
+        CORE_API void addComponent(component* const component);
+        CORE_API void addChild(node* const child);
 
-        node* clone() const { return new node(*this); }
         transform& getTransform() { return _transform; }
         node* getParent() const { return _parent; }
         vector<node*>& getChildren() { return _children; }
-
         void setParent(node* const value) { _parent = value; }
-
-        void addComponent(component* const component)
-        {
-            _components.push_back(component);
-            component->setNode(this);
-        }
-
-        void addChild(node* const child)
-        {
-            _children.push_back(child);
-            child->setParent(this);
-        }
 
         template<typename T>
         T* getComponent() const

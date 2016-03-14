@@ -1,17 +1,24 @@
 #include <precompiled.h>
 #include "path.h"
 
-#include <stdlib.h>
-#define __STDC_WANT_LIB_EXT1__ 1
-#include <stdio.h>
-
-#ifdef MINGW_HAS_SECURE_API
-#pragma message "__STDC_LIB_EXT1__ defined"
-#endif
-
 namespace phi
 {
     bool path::exists(const string& path)
+    {
+        struct stat s;
+        int err = stat(path.c_str(), &s);
+        if (err == -1) 
+        {
+            if (ENOENT == errno)
+                return false;
+
+            throw "unknown error.";
+        }
+
+        return true;
+    }
+
+    /*bool path::exists(const string& path)
     {
         #ifdef _WIN32
         FILE *file;
@@ -27,7 +34,7 @@ namespace phi
         #else
             return false;
         #endif
-    }
+    }*/
 
     string path::getDirectoryFullName(string path)
     {
