@@ -1,7 +1,8 @@
 #include <precompiled.h>
-#include "font.h"
-
 #include <core/resource.h>
+#include "font.h"
+#include "glError.h" 
+
 
 namespace phi
 {
@@ -53,6 +54,7 @@ namespace phi
 
         // We require 1 byte alignment when uploading texture data
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glError::check();
 
         // Clamping to edges is important to prevent artifacts when scaling
         //_texture->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -83,6 +85,8 @@ namespace phi
             }
 
             glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+            glError::check();
+
             c[i].ax = (float)(g->advance.x >> 6);
             c[i].ay = (float)(g->advance.y >> 6);
 

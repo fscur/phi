@@ -54,34 +54,16 @@ namespace phi
         std::map<texture*, phi::textureAddress> texturesAddresses;
         vector<texture*> textures;
 
+    public:
         textureContainer(
             textureContainerLayout layout,
             size_t maxTextures,
             GLint unit,
-            bool bindless = false,
-            bool sparse = false) :
-            _layout(layout),
-            _maxTextures(maxTextures),
-            _freeSpace(maxTextures),
-            _unit(unit),
-            _bindless(bindless),
-            _sparse(sparse),
-            id(0),
-            handle(0),
-            textures()
-        {
-            create();
-        }
+            bool bindless,
+            bool sparse);
 
-        ~textureContainer()
-        {
-            if (_bindless)
-                glMakeTextureHandleNonResidentARB(handle); //TODO: check if this shit releases the handle from gpu!!!
-
-            glDeleteTextures(1, &id);
-        }
+        ~textureContainer();
 
         bool add(texture* texture, textureAddress& textureAddress);
     };
 }
-

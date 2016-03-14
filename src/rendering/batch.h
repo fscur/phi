@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
+#include "rendering.h"
 #include <core\geometry.h>
-#include "mesh.h"
 #include "vertexBuffer.h"
 #include "buffer.h"
 #include "mesh.h"

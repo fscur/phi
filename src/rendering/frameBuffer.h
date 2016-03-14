@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include "rendering.h"
 #include "renderTarget.h"
 
 namespace phi
@@ -13,113 +14,22 @@ namespace phi
         vector<GLenum> _drawBuffers;
 
     public:
-        framebuffer(bool isDefaultFramebuffer = false) :
-            _id(0),
-            _currentAttachment(0)
-        {
-            if (!isDefaultFramebuffer)
-                glCreateFramebuffers(1, &_id);
+        RENDERING_API framebuffer(bool isDefaultFramebuffer = false);
+        RENDERING_API ~framebuffer();
 
-            glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_maxColorAttachments);
-        }
+        RENDERING_API void add(renderTarget* renderTarget);
+        RENDERING_API void bind(GLenum target);
+        RENDERING_API void bindForDrawing();
+        RENDERING_API void bindForDrawing(GLenum* buffers, GLsizei buffersCount);
+        RENDERING_API void bindForReading(renderTarget* sourceRenderTarget);
+        RENDERING_API void unbind(GLenum target);
+        RENDERING_API void blitToDefault(renderTarget* renderTarget);
+        RENDERING_API void blit(
+            framebuffer* sourceFramebuffer,
+            renderTarget* sourceRenderTarget,
+            framebuffer* targetFramebuffer,
+            renderTarget* targetRenderTarget);
 
-        ~framebuffer()
-        {
-            glDeleteFramebuffers(1, &_id);
-        }
-
-        void add(renderTarget* renderTarget)
-        {
-            if (_id == 0)
-            {
-                phi::debug("trying to add render target to default framebuffer!?");
-                return;
-            }
-
-            auto att = renderTarget->attachment;
-
-            if (!(att == GL_DEPTH_ATTACHMENT || 
-                att == GL_STENCIL_ATTACHMENT || 
-                att == GL_DEPTH_STENCIL_ATTACHMENT))
-                _drawBuffers.push_back(att);
-
-            glBindFramebuffer(GL_FRAMEBUFFER, _id);
-
-            glNamedFramebufferTextureLayer(
-                _id,
-                att,
-                renderTarget->textureAddress.containerId,
-                0,
-                static_cast<GLint>(renderTarget->textureAddress.page));
-
-            auto status = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
-
-            switch (status)
-            {
-            case GL_FRAMEBUFFER_COMPLETE:
-                phi::debug("complete");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                phi::debug("incomplete attachment");;
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-                phi::debug("incomplete draw buffer");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-                phi::debug("incomplete layer targets");
-                break;
-            default:
-                break;
-            }
-        }
-
-        void bind(GLenum target)
-        {
-            glBindFramebuffer(target, _id);
-        }
-
-        void bindForDrawing()
-        {
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-            glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
-        }
-
-        void bindForDrawing(GLenum* buffers, GLsizei buffersCount)
-        {
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-            glDrawBuffers(buffersCount, buffers);
-        }
-
-        void bindForReading(renderTarget* sourceRenderTarget)
-        {
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-            glReadBuffer(sourceRenderTarget->attachment);
-        }
-
-        void unbind(GLenum target)
-        {
-            glBindFramebuffer(target, 0);
-        }
-
-        void blitToDefault(renderTarget* renderTarget)
-        {
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-            bindForReading(renderTarget);
-            glBlitFramebuffer(0, 0, renderTarget->w, renderTarget->h, 0, 0, renderTarget->w, renderTarget->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-        }
-
-        void blit(framebuffer* sourceFramebuffer, renderTarget* sourceRenderTarget, framebuffer* targetFramebuffer, renderTarget* targetRenderTarget)
-        {
-            sourceFramebuffer->bindForReading(sourceRenderTarget);
-            glBlitFramebuffer(0, 0, sourceRenderTarget->w, sourceRenderTarget->h, 0, 0, targetRenderTarget->w, targetRenderTarget->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-        }
-
-        GLfloat getZBufferValue(ivec2 mousePos)
-        {
-            GLfloat zBufferValue;
-            glReadPixels(mousePos.x, mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
-
-            return zBufferValue;
-        }
+        RENDERING_API GLfloat getZBufferValue(ivec2 mousePos);
     };
 }

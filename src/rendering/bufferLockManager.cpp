@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "bufferLockManager.h"
+#include "glError.h"
 
 namespace phi
 {
@@ -8,14 +9,12 @@ namespace phi
     bufferLockManager::bufferLockManager(bool _cpuUpdates)
         : _cpuUpdates(_cpuUpdates)
     {
-
     }
 
     bufferLockManager::~bufferLockManager()
     {
-        for (auto it = _bufferLocks.begin(); it != _bufferLocks.end(); ++it) {
+        for (auto it = _bufferLocks.begin(); it != _bufferLocks.end(); ++it)
             cleanup(&*it);
-        }
 
         _bufferLocks.clear();
     }
@@ -24,6 +23,7 @@ namespace phi
     {
         bufferRange testRange = { lockBeginBytes, lockLength };
         vector<bufferLock> swapLocks;
+
         for (auto it = _bufferLocks.begin(); it != _bufferLocks.end(); ++it)
         {
             if (testRange.Overlaps(it->range))
@@ -44,6 +44,7 @@ namespace phi
     {
         bufferRange newRange = { lockBeginBytes, lockLength };
         GLsync syncName = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        glError::check();
         bufferLock newLock = { newRange, syncName };
 
         _bufferLocks.push_back(newLock);
@@ -51,32 +52,36 @@ namespace phi
 
     void bufferLockManager::wait(GLsync* syncObject)
     {
-        if (_cpuUpdates) {
+        if (_cpuUpdates) 
+        {
             GLbitfield waitFlags = 0;
             GLuint64 waitDuration = 0;
-            while (1) {
+
+            while (1) 
+            {
                 GLenum waitRet = glClientWaitSync(*syncObject, waitFlags, waitDuration);
-                if (waitRet == GL_ALREADY_SIGNALED || waitRet == GL_CONDITION_SATISFIED) {
-                    return;
-                }
+                glError::check();
 
-                if (waitRet == GL_WAIT_FAILED) {
-                    //assert(!"Not sure what to do here. Probably raise an exception or something.");
+                if (waitRet == GL_ALREADY_SIGNALED || waitRet == GL_CONDITION_SATISFIED)
                     return;
-                }
 
-                // After the first time, need to start flushing, and wait for a looong time.
+                if (waitRet == GL_WAIT_FAILED)
+                    return;
+
                 waitFlags = GL_SYNC_FLUSH_COMMANDS_BIT;
                 waitDuration = ONE_SECOND_IN_NANOSECONDS;
             }
         }
-        else {
+        else
+        {
             glWaitSync(*syncObject, 0, GL_TIMEOUT_IGNORED);
+            glError::check();
         }
     }
 
     void bufferLockManager::cleanup(bufferLock* bufferLock)
     {
         glDeleteSync(bufferLock->syncObject);
+        glError::check();
     }
 }
