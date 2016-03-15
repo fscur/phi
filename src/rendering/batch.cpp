@@ -33,14 +33,19 @@ namespace phi
     void batch::createVao(const batchObject &batchObject)
     {
         glCreateVertexArrays(1, &_vao);
+        glError::check();
         glBindVertexArray(_vao);
+        glError::check();
+
         auto geometry = batchObject.geometry;
         createVbo(geometry->vboData, geometry->vboSize);
         createEbo(geometry->eboData, geometry->eboSize);
         createMaterialsIdsBuffer(nullptr, sizeof(uint));
         createModelMatricesBuffer(nullptr, sizeof(mat4));
         createDrawCmdsBuffer(nullptr, sizeof(drawElementsIndirectCmd));
+
         glBindVertexArray(0);
+        glError::check();
 
         _objectsCount = 1;
         _freeSpace = 0;
@@ -51,13 +56,18 @@ namespace phi
     void batch::createVao()
     {
         glCreateVertexArrays(1, &_vao);
+        glError::check();
         glBindVertexArray(_vao);
+        glError::check();
+
         createVbo(nullptr, MAX_VBO_SIZE);
         createEbo(nullptr, MAX_VBO_SIZE);
         createMaterialsIdsBuffer(nullptr, sizeof(uint));
         createModelMatricesBuffer(nullptr, sizeof(mat4));
         createDrawCmdsBuffer(nullptr, sizeof(drawElementsIndirectCmd));
+
         glBindVertexArray(0);
+        glError::check();
     }
 
     void batch::createVbo(void* data, GLsizeiptr size)
@@ -222,9 +232,16 @@ namespace phi
     void batch::render()
     {
         glBindVertexArray(_vao);
+        glError::check();
+
         _drawCmdBuffer->bind();
+
         glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, _objectsCount, 0);
+        glError::check();
+
         _drawCmdBuffer->unbind();
+
         glBindVertexArray(0);
+        glError::check();
     }
 }

@@ -89,7 +89,5 @@ namespace phi
     public:
         RENDERING_API gl(gl::glInfo initInfo);
         RENDERING_API ~gl();
-        string getErrorString(GLenum error);
-        void printError(string msg);
     };
 }

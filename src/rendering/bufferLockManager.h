@@ -9,7 +9,8 @@ namespace phi
         size_t startOffset;
         size_t length;
 
-        bool Overlaps(const bufferRange& _rhs) const {
+        bool Overlaps(const bufferRange& _rhs) const 
+        {
             return startOffset < (_rhs.startOffset + _rhs.length)
                 && _rhs.startOffset < (startOffset + length);
         }
