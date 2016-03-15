@@ -12,6 +12,7 @@ namespace phi
     string application::libraryPath = string();
     uint application::framesPerSecond = 0;
     double application::millisecondsPerFrame = 0.0;
+    logger application::_logger = phi::logger();
 
     application::application(const applicationStartInfo& startInfo) :
         _running(false),
@@ -78,6 +79,21 @@ namespace phi
                 _running = false;
             }
         }
+    }
+
+    void application::logError(string message)
+    {
+        _logger.logError(message);
+    }
+
+    void application::logWarning(string message)
+    {
+        _logger.logWarning(message);
+    }
+
+    void application::logInfo(string message)
+    {
+        _logger.logInfo(message);
     }
 
     void application::onInit()

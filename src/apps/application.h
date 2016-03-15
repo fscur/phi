@@ -2,6 +2,7 @@
 #include <phi.h>
 #include "apps.h"
 #include "window.h"
+#include <diagnostics\logger.h>
 
 namespace phi
 {
@@ -28,6 +29,7 @@ namespace phi
     private:
         bool _running;
         window* _window;
+        static logger _logger;
 
     private:
         void onInit();
@@ -44,5 +46,8 @@ namespace phi
         APPS_API ~application();
 
         APPS_API void run(window* window);
+        APPS_API static void logError(string message);
+        APPS_API static void logWarning(string message);
+        APPS_API static void logInfo(string message);
     };
 }

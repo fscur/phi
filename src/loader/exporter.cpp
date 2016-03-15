@@ -3,9 +3,9 @@
 
 namespace phi
 {
-    int exporter::exportMesh(std::vector<geometry*>* geometry, char* fileName)
+    void exporter::exportMesh(std::vector<geometry*>* geometry, char* fileName)
     {
-        char* mat = "Material is not used anymore.";
+        auto mat = "Material is not used anymore.";
         std::ofstream stream;
         stream.open(fileName, std::ios::out | std::ios::binary);
 
@@ -13,7 +13,7 @@ namespace phi
         for (unsigned int i = 0; i < meshCount; i++)
         {
             auto itemData = (*geometry)[i];
-            stream.write(mat, 256);
+            stream.write((char*)mat, 256);
 
             auto verticesCount = itemData->verticesCount;
             stream.write((char*)&verticesCount, sizeof(unsigned int));
@@ -28,7 +28,5 @@ namespace phi
         delete[] mat;
 
         stream.close();
-
-        return 1;
     }
 }

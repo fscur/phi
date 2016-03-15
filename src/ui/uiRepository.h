@@ -1,6 +1,5 @@
 #pragma once
 #include <phi.h>
-
 #include "ui.h"
 
 #include <core\resourcesRepository.h>
@@ -12,24 +11,24 @@
 
 namespace phi
 {
-    static const std::string UI_FONTS_PATH = "fonts";
-    static const std::string UI_IMAGES_PATH = "images";
-    static const std::string UI_CURSORS_PATH = "cursors";
+    static const string UI_FONTS_PATH = "fonts";
+    static const string UI_IMAGES_PATH = "images";
+    static const string UI_CURSORS_PATH = "cursors";
 
     struct uiRepositoryInfo
     {
     public:
-        std::string applicationPath;
-        std::string resourcesPath;
+        string applicationPath;
+        string resourcesPath;
         sizeui size;
     };
 
     class uiRepository
     {
     private:
-        static void loadTextures(std::string directory);
-        static void loadCursors(std::string directory);
-        static void loadFonts(std::string directory);
+        static void loadTextures(string directory);
+        static void loadCursors(string directory);
+        static void loadFonts(string directory);
     public:
         static font* fontConsolas14;
         static font* fontConsolas16;

@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "slider.h"
 
+#include <core\exception.h>
+
 #include "colorAnimator.h"
 
 namespace phi
@@ -72,52 +74,34 @@ namespace phi
     void slider::setValue(float value)
     {
         if (value < _minValue)
-            throw "Value should be greater than the minimum value.";
+            throw exception("Value should be greater than the minimum value.");
         if (value > _maxValue)
-            throw "Value should be smaller than the maximum value.";
+            throw exception("Value should be smaller than the maximum value.");
 
         _value = value;
 
         updateSlider();
-
         _valueChanged->raise(eventArgs());
     }
 
-    void slider::setMinValue(float value)
+    void slider::setRangeAndValue(float min, float max, float value)
     {
-        if (value > _maxValue)
-            throw "Minimum value should be smaller than or equal to the maximum value.";
-        if (_maxValue - value < _stepValue)
-            throw "The difference between the maximum value and the minimum value should be greater than or equal to the step value.";
+        if (max < min)
+            throw exception("Maximum value should be greather than or equal to the minimum value.");
+        else if(value > max || value < min)
+            throw exception("value should be in the range of min and max.");
 
-        _minValue = value; 
-        if (_value < _minValue)
-            setValue(_minValue);
+        _minValue = min;
+        _maxValue = max;
+        _value = value;
 
         updateSlider();
-    }
-
-    void slider::setMaxValue(float value)
-    {
-        if (value < _minValue)
-            throw "Maximum value should be greather than or equal to the minimum value.";
-        if (value - _minValue < _stepValue)
-            throw "The difference between the maximum value and the minimum value should be greater than or equal to the step value.";
-
-        _maxValue = value; 
-        if (_value > _maxValue)
-            setValue(_maxValue);
-
-        updateSlider();
+        _valueChanged->raise(eventArgs());
     }
 
     void slider::setStepValue(float value) 
     { 
-        if (_maxValue - _minValue < value)
-            throw "The difference between the maximum value and the minimum value should be greater than or equal to the step value.";
-
         _stepValue = value;
-
         updateSlider();
     }
 

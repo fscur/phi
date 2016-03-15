@@ -7,8 +7,9 @@ namespace phi
 {
     cursor::cursor(std::string path, vec2 hotPoint)
     {
-        phi::resource<texture>* textRes = nullptr;
-        phi::importer::importTexture(path, textRes);
+        //TODO: Find a way to fix the resource delete and the object it contains
+        //TODO: try catch this shit
+        resource<texture>* textRes = importer::importTexture(path);
 
         _texture = textRes->getObject();
         _hotPoint = hotPoint;

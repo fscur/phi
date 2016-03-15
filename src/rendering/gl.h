@@ -65,10 +65,12 @@ namespace phi
         };
 
     private:
+        const string BINDLESS_TEXTURE_EXTENSION = "GL_ARB_bindless_texture";
+        const string SPARSE_TEXTURE_EXTENSION = "GL_ARB_sparse_texture";
+
         static bool _initialized;
 
     private:
-        void printOpenGLDetails();
         void initOpenGLExtensions();
         void initState();
         void initDefaultResources(bool sparse);
@@ -91,5 +93,9 @@ namespace phi
         RENDERING_API ~gl();
         string getErrorString(GLenum error);
         void printError(string msg);
+
+        string getVendor() { return string((char*)glGetString(GL_VENDOR)); };
+        string getRenderer() { return string((char*)glGetString(GL_RENDERER)); };
+        string getVersion() { return string((char*)glGetString(GL_VERSION)); };
     };
 }

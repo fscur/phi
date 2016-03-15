@@ -16,7 +16,6 @@ namespace phi
     using mat4 = glm::mat4;
     using quat = glm::quat;
     using string = std::string;
-    using exception = std::exception;
 
     template<class T>
     using vector = std::vector<T>;
@@ -49,10 +48,6 @@ namespace phi
 
         return it != vector.end();
     }
-
-    void logError(string value);
-    void logWarning(string value);
-    void logInfo(string value);
 
     template<typename T>
     void debug(T value)

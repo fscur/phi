@@ -19,26 +19,23 @@ namespace demon
 
     void library::init()
     {
-        auto importTextureFunction = [](phi::string filePath, phi::resource<phi::texture>*& resource)
+        auto importTextureFunction = [](phi::string filePath)
         {
-            return phi::importer::importTexture(filePath, resource);
+            return phi::importer::importTexture(filePath);
         };
 
-        _texturesRepository =
-            load<phi::texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
-
-        auto importMaterialFunction = [&](phi::string filePath, phi::resource<phi::material>*& resource)
+        auto importMaterialFunction = [&](phi::string filePath)
         {
-            return phi::importer::importMaterial(filePath, resource, _texturesRepository);
+            return phi::importer::importMaterial(filePath, _texturesRepository);
         };
 
+        auto importModelFunction = [&](phi::string filePath)
+        {
+            return phi::importer::importNode(filePath, _materialsRepository);
+        };
+
+        _texturesRepository = load<phi::texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
         _materialsRepository = load<phi::material>(_libraryPath + "/materials", ".material", importMaterialFunction);
-
-        auto importModelFunction = [&](phi::string filePath, phi::resource<phi::node>*& resource)
-        {
-            return phi::importer::importNode(filePath, resource, _materialsRepository);
-        };
-
         _nodesRepository = load<phi::node>(_libraryPath + "/models", ".model", importModelFunction);
     }
 }

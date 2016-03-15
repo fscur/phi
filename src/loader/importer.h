@@ -1,8 +1,10 @@
 #pragma once
 #include <phi.h>
 #include "loader.h"
+
 #include <core\resourcesRepository.h>
 #include <core\node.h>
+
 #include <rendering\model.h>
 #include <rendering\mesh.h>
 
@@ -22,10 +24,10 @@ namespace phi
         static guid convertToGuid(const char* bytesGuid);
 
     public:
-        static int importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo);
-        static int importGeometry(string fileName, phi::geometry*& geometry);
-        static int importTexture(string fileName, texture*& texture);
-        static int importTexture(string fileName, resource<texture>*& textureResource);
-        static int importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo);
+        static resource<node>* importNode(string fileName, resourcesRepository<material>* materialsRepo);
+        static geometry* importGeometry(string fileName);
+        static texture* importImage(string fileName);
+        static resource<texture>* importTexture(string fileName);
+        static resource<material>* importMaterial(string fileName, resourcesRepository<texture>* texturesRepo);
     };
 }

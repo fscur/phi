@@ -32,10 +32,10 @@ namespace phi
         float _stepValue;
 
         void updateSlider();
-		void changeValue(vec2 pos);
+        void changeValue(vec2 pos);
 
     public:
-		slider(sizeui viewportSize);
+        slider(sizeui viewportSize);
         ~slider();
 
         color getTrackColor() { return _trackColor; }
@@ -49,15 +49,14 @@ namespace phi
         void setTrackColor(color value) { _trackColor = value; }
         void setSliderColor(color value);
         void setValue(float value);
-        void setMinValue(float value);
-        void setMaxValue(float value);
+        void setRangeAndValue(float min, float max, float value);
         void setStepValue(float value);
 
         void setX(int value) override;
         void setY(int value) override;
         void setSize(sizeui value) override;
-		void setViewportSize(sizeui value) override;
-		void setZIndex(float value) override;
+        void setViewportSize(sizeui value) override;
+        void setZIndex(float value) override;
 
         void onMouseDown(mouseEventArgs* e) override;
         void onMouseUp(mouseEventArgs* e) override;

@@ -1,8 +1,10 @@
 #include <precompiled.h>
 #include "demon.h"
-#include <apps\application.h>
-#include <demon\screen.h>
+
 #include <io\path.h>
+#include <apps\application.h>
+#include <apps\invalidInitializationException.h>
+#include <demon\screen.h>
 
 using namespace phi;
 
@@ -26,7 +28,7 @@ public:
         args(vector<string>()),
         func(func),
         shouldExecute(false)
-    {   
+    {
     }
 };
 
@@ -108,7 +110,7 @@ void executeCommands()
 int debugQuit(string msg)
 {
 #ifdef _DEBUG
-    logError(msg);
+    application::logError(msg);
     system("pause");
 #endif
     return -1;
@@ -135,12 +137,18 @@ int main(int argc, char* args[])
     if (!path::exists(application::libraryPath))
         return debugQuit("Library path not found. [" + application::libraryPath + "]");
 
-    auto mainScreen = new demon::screen("?", 1024, 768);
-    
-    debug("runnning.");
-    app.run(mainScreen);
-
-    safeDelete(mainScreen);
+    try
+    {
+        auto mainScreen = new demon::screen("?", 1024, 768);
+        debug("runnning.");
+        app.run(mainScreen);
+        safeDelete(mainScreen);
+    }
+    catch (const phi::invalidInitializationException& exception)
+    {
+        application::logError(exception.what());
+        system("pause");
+    }
 
     return 0;
 }

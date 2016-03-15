@@ -13,6 +13,7 @@ file(GLOB source_files *.cpp)
 add_library(io SHARED ${source_files} ${header_files})
 
 target_link_libraries(io diagnostics)
+target_link_libraries(io core)
 
 install(TARGETS io 
     RUNTIME 
