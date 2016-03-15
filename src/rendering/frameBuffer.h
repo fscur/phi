@@ -30,6 +30,6 @@ namespace phi
             framebuffer* targetFramebuffer,
             renderTarget* targetRenderTarget);
 
-        RENDERING_API GLfloat getZBufferValue(ivec2 mousePos);
+        RENDERING_API GLfloat getZBufferValue(int x, int y);
     };
 }

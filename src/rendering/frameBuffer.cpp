@@ -144,11 +144,11 @@ namespace phi
         glError::check();
     }
 
-    GLfloat framebuffer::getZBufferValue(ivec2 mousePos)
+    GLfloat framebuffer::getZBufferValue(int x, int y)
     {
         GLfloat zBufferValue;
 
-        glReadPixels(mousePos.x, mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+        glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
         glError::check();
 
         return zBufferValue;
