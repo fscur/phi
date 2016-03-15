@@ -13,9 +13,9 @@ namespace demon
         _panning = false;
     }
 
-    void defaultCameraController::initPan(float mouseX, float mouseY)
+    void defaultCameraController::initPan(int mouseX, int mouseY)
     {
-        _zBufferValue = _scene->getZBufferValue(mouseX, mouseY);
+        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
         phi::mat4 proj = _camera->getProjectionMatrix();
 
         if (_zBufferValue == 1.0f)
@@ -32,9 +32,9 @@ namespace demon
         _panning = true;
     }
 
-    void defaultCameraController::initRotate(float mouseX, float mouseY)
+    void defaultCameraController::initRotate(int mouseX, int mouseY)
     {
-        _zBufferValue = _scene->getZBufferValue(mouseX, mouseY);
+        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
 
         phi::mat4 proj = _camera->getProjectionMatrix();
 
@@ -55,8 +55,8 @@ namespace demon
 
             auto tg = tan(fov * 0.5f) * zNear;
 
-            auto w = _camera->getResolution().x;
-            auto h = _camera->getResolution().y;
+            auto w = static_cast<float>(_camera->getResolution().w);
+            auto h = static_cast<float>(_camera->getResolution().h);
 
             auto hh = h * 0.5f;
             auto hw = w * 0.5f;
@@ -85,7 +85,7 @@ namespace demon
         _rotating = true;
     }
 
-    void defaultCameraController::pan(float mouseX, float mouseY)
+    void defaultCameraController::pan(int mouseX, int mouseY)
     {
         auto zNear = _camera->getZNear();
         auto iez = 1.0f / zNear;
@@ -95,8 +95,8 @@ namespace demon
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = _camera->getResolution().x;
-        auto h = _camera->getResolution().y;
+        auto w = static_cast<float>(_camera->getResolution().w);
+        auto h = static_cast<float>(_camera->getResolution().h);
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
@@ -130,7 +130,7 @@ namespace demon
         _camera->moveTo(pos);
     }
 
-    void defaultCameraController::rotate(float mouseX, float mouseY)
+    void defaultCameraController::rotate(int mouseX, int mouseY)
     {
         auto zNear = _camera->getZNear();
         auto iez = 1.0f / zNear;
@@ -140,8 +140,8 @@ namespace demon
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = _camera->getResolution().x;
-        auto h = _camera->getResolution().y;
+        auto w = static_cast<float>(_camera->getResolution().w);
+        auto h = static_cast<float>(_camera->getResolution().h);
 
         auto dx = _lastMousePosX - mouseX;
         auto dy = _lastMousePosY - mouseY;
@@ -155,9 +155,9 @@ namespace demon
         _lastMousePosY = mouseY;
     }
 
-    void defaultCameraController::zoom(float mouseX, float mouseY, bool in)
+    void defaultCameraController::zoom(int mouseX, int mouseY, bool in)
     {
-        _zBufferValue = _scene->getZBufferValue(mouseX, mouseY);
+        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
 
         auto camera = *_camera;
         phi::mat4 proj = _camera->getProjectionMatrix();
@@ -176,8 +176,8 @@ namespace demon
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = _camera->getResolution().x;
-        auto h = _camera->getResolution().y;
+        auto w = static_cast<float>(_camera->getResolution().w);
+        auto h = static_cast<float>(_camera->getResolution().h);
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;

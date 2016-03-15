@@ -8,10 +8,6 @@ namespace phi
         _finishedCallback = nullptr;
     }
 
-    command::~command()
-    {
-    }
-
     void command::start()
     {
         execute();

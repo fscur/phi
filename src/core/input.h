@@ -27,7 +27,7 @@ namespace phi
         static void notifyRightMouseUp(int x, int y);
         static void notifyMiddleMouseUp(int x, int y);
 
-        static void notifyMouseWheel(int delta);
+        static void notifyMouseWheel(int delta, int x, int y);
 
         static void notifyKeyDown(int key);
         static void notifyKeyUp(int key);

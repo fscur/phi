@@ -17,7 +17,7 @@ namespace phi
             _commandsManager = commandsManager;
         }
 
-        void undoCommand::execute()
+        void execute() override
         {
             _commandsManager->undo();
         }

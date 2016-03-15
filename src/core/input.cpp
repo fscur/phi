@@ -109,11 +109,13 @@ namespace phi
         raiseMouseUpEvent(&mouseArgs);
     }
 
-    void input::notifyMouseWheel(int delta)
+    void input::notifyMouseWheel(int delta, int x,  int y)
     {
-        //phi::debug("mouse wheel notified: (" + std::to_string(delta) + ")");
+        //phi::debug("mouse wheel notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
-        mouseArgs.wheelDelta = delta;
+        mouseArgs.wheelDelta = static_cast<float>(delta);
+        mouseArgs.x = x;
+        mouseArgs.y = y;
         raiseMouseWheelEvent(&mouseArgs);
     }
 

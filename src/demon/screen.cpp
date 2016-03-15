@@ -18,18 +18,11 @@ namespace demon
     screen::screen(string name, uint width, uint height) :
         window(name, width, height)
     {
-        _temp = 0.0f;
-        _isMouseDown = false;
-        _rotating = false;
-        _shadowMap = false;
-        _translationSpeed = 1.0f;
-        _rotationSpeed = 0.01f;
     }
 
     screen::~screen()
     {
         delete _commandsManager;
-        delete _inputManager;
         delete _gl;
         delete _library;
         delete _scene;
@@ -37,8 +30,8 @@ namespace demon
 
     void screen::onInit()
     {
-        //initGL();
-        //initLibrary();
+        initGL();
+        initLibrary();
         initScene();
         initInput();
     }
@@ -46,7 +39,7 @@ namespace demon
     void screen::initGL()
     {
         auto initState = gl::state();
-        initState.clearColor = vec4(0.0f);
+        initState.clearColor = vec4(1.0f);
         initState.frontFace = gl::frontFace::ccw;
         initState.culling = true;
         initState.cullFace = gl::cullFace::back;
@@ -77,9 +70,9 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        //auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
-        //auto clonedFloor = floor->clone();
-        //_scene->add(clonedFloor);
+        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
+        auto clonedFloor = floor->clone();
+        _scene->add(clonedFloor);
 
         auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
         for (size_t i = 0; i < 10; i++)
@@ -90,30 +83,11 @@ namespace demon
         }
     }
 
-    public:
-        command1(std::string message) :
-            _message(message)
-        {
-        }
-
-        void execute() override
-        {
-            printf("[redo] %s\n", _message.c_str());
-        }
-
-        void executeUndo() override
-        {
-            printf("[undo] %s\n", _message.c_str());
-        }
-    };
-
     void screen::initInput()
     {
         _commandsManager = new phi::commandsManager();
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_LCTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_LCTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_a }, [&]() -> phi::command* { return new command1("forfeit"); }));
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_g }, [&]() -> phi::command* { return new command1("gg"); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
 
         _defaultController = new defaultCameraController(_scene);
     }

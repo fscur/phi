@@ -16,7 +16,7 @@ namespace phi
         phi::sizeui viewportSize;
         unsigned long actionsSum;
     public:
-        APPS_API virtual ~commandInfo() {}
+        APPS_API virtual ~commandInfo();
     };
 
     class command
@@ -30,12 +30,12 @@ namespace phi
         void threadStartUndo();
 
     protected:
-        APPS_API virtual void execute() { };
-        APPS_API virtual void executeUndo() { };
+        virtual void execute() { };
+        virtual void executeUndo() { };
 
     public:
         APPS_API command();
-        APPS_API virtual bool getIsUndoable() { return true; }
+        virtual bool getIsUndoable() { return true; }
         APPS_API void start();
         APPS_API void startUndo();
         APPS_API void startAsync(std::function<void(command*)> finishedCallback);

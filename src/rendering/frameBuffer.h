@@ -114,10 +114,10 @@ namespace phi
             glBlitFramebuffer(0, 0, sourceRenderTarget->w, sourceRenderTarget->h, 0, 0, targetRenderTarget->w, targetRenderTarget->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
         }
 
-        GLfloat getZBufferValue(ivec2 mousePos)
+        GLfloat getZBufferValue(int x, int y)
         {
             GLfloat zBufferValue;
-            glReadPixels(mousePos.x, mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+            glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
 
             return zBufferValue;
         }

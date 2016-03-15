@@ -17,7 +17,7 @@ namespace phi
             _commandsManager = commandsManager;
         }
 
-        void redoCommand::execute()
+        void execute() override
         {
             _commandsManager->redo();
         }
