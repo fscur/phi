@@ -16,6 +16,8 @@ namespace phi
     public:
         bool closed;
 
+    private:
+        void adjustWindowToScreenBounds();
     public:
         APPS_API window(string name, uint width, uint height);
         APPS_API virtual ~window();

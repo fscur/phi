@@ -12,6 +12,8 @@ namespace phi
     HINSTANCE _applicationInstance;
     HDC _deviceContext;
     HGLRC _renderingContext;
+    DWORD _windowExStyle = 0;
+    DWORD _windowStyle = WS_OVERLAPPEDWINDOW;
 
     int convertToKey(WPARAM wParam)
     {
@@ -248,11 +250,8 @@ namespace phi
         if (!RegisterClassEx(&wndClass))
             throw invalidInitializationException("Could not register window class!");
 
-        int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-        int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-
-        DWORD dwExStyle = 0;
-        DWORD dwStyle = WS_OVERLAPPEDWINDOW;
+        auto screenWidth = GetSystemMetrics(SM_CXSCREEN);
+        auto screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
         RECT windowRect;
         windowRect.left = (long)(screenWidth * 0.5f - width * 0.5f);
@@ -260,13 +259,13 @@ namespace phi
         windowRect.top = (long)(screenHeight * 0.5f - height * 0.5f);
         windowRect.bottom = windowRect.top + height;
 
-        AdjustWindowRectEx(&windowRect, dwStyle, FALSE, dwExStyle);
+        AdjustWindowRectEx(&windowRect, _windowStyle, FALSE, _windowExStyle);
 
         _windowHandle = CreateWindowEx(
             0,
             name.c_str(),
             name.c_str(),
-            dwStyle,
+            _windowStyle,
             windowRect.left,
             windowRect.top,
             windowRect.right - windowRect.left,
@@ -359,6 +358,7 @@ namespace phi
 
     void window::init()
     {
+        adjustWindowToScreenBounds();
         createWindow(_name, _width, _height);
         createGLContext();
 
@@ -367,6 +367,21 @@ namespace phi
         SetFocus(_windowHandle);
 
         onInit();
+    }
+
+    void window::adjustWindowToScreenBounds()
+    {
+        auto screenWidth = static_cast<uint>(GetSystemMetrics(SM_CXSCREEN));
+        auto screenHeight = static_cast<uint>(GetSystemMetrics(SM_CYSCREEN));
+
+        RECT rectangle = { 0, 0, 0, 0 };
+        AdjustWindowRectEx(&rectangle, _windowStyle, FALSE, _windowExStyle);
+
+        auto horizontalBorderSize = static_cast<uint>(rectangle.right - rectangle.left);
+        auto verticalBorderSize = static_cast<uint>(rectangle.bottom - rectangle.top);
+
+        _width = std::min(_width, screenWidth);
+        _height = std::min(_height, screenHeight - verticalBorderSize);
     }
 
     void window::input()
