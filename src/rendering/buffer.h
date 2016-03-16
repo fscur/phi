@@ -1,6 +1,8 @@
 #pragma once
 #include <phi.h>
+#include "rendering.h"
 #include "gl.h"
+#include "glError.h"
 
 namespace phi
 {
@@ -59,47 +61,14 @@ namespace phi
         bufferTarget::bufferTarget target;
 
     public:
-        buffer(bufferTarget::bufferTarget  target) :
-            target(target),
-            id(-1)
-        {
-            glCreateBuffers(1, &id);
-            bind();
-        }
+        RENDERING_API buffer(bufferTarget::bufferTarget  target);
+        RENDERING_API virtual ~buffer();
 
-        ~buffer()
-        {
-            glDeleteBuffers(1, &id);
-        }
-
-        void bind()
-        {
-            glBindBuffer(target, id);
-        }
-
-        void unbind()
-        {
-            glBindBuffer(target, 0);
-        }
-
-        void bindBufferBase(GLuint location)
-        {
-            glBindBufferBase(target, location, id);
-        }
-
-        void storage(GLsizeiptr size, void* data, bufferStorageUsage::bufferStorageUsage usage)
-        {
-            glNamedBufferStorage(id, size, data == nullptr ? NULL : data, usage);
-        }
-
-        void data(GLsizeiptr size, void* data, bufferDataUsage::bufferDataUsage usage)
-        {
-            glNamedBufferData(id, size, data == nullptr ? NULL : data, usage);
-        }
-
-        void subData(GLintptr offset, GLintptr size, void* data)
-        {
-            glNamedBufferSubData(id, offset, size, data);
-        }
+        RENDERING_API void bind();
+        RENDERING_API void unbind();
+        RENDERING_API void bindBufferBase(GLuint location);
+        RENDERING_API void storage(GLsizeiptr size, void* data, bufferStorageUsage::bufferStorageUsage usage);
+        RENDERING_API void data(GLsizeiptr size, void* data, bufferDataUsage::bufferDataUsage usage);
+        RENDERING_API void subData(GLintptr offset, GLintptr size, void* data);
     };
 }

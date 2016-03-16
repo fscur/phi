@@ -1,13 +1,14 @@
 #pragma once
 #include <phi.h>
+
 #include <core/mouseEventArgs.h>
 #include <core/keyboardEventArgs.h>
-#include <core/inputKey.h>
 
+#include "apps.h"
 #include "command.h"
-#include "shortcuts.h"
+#include "shortcut.h"
 
-namespace demon
+namespace phi
 {
     struct pendingCommand
     {
@@ -18,36 +19,36 @@ namespace demon
 
         pendingCommand(command* cmd, std::function<void(command*)> callback, bool isUndo) :
             cmd(cmd), callback(callback), isUndo(isUndo)
-        {
-        }
+        {}
     };
 
     class commandsManager
     {
     private:
-        //commandInfo* _commandInfo;
-        //phi::vector<command*> _pendingCommands;
-        //phi::vector<command*> _executingCommands;
-        shortcuts _shortcuts;
-        std::unordered_map<phi::string, std::function<command*(void)>> _commands;
+        std::vector<shortcut> _shortcuts;
         std::queue<pendingCommand*> _pendingCommands;
         std::stack<command*> _undo;
         std::stack<command*> _redo;
         bool _executingCommand;
         std::mutex _pendingCommandsMutex;
 
+        std::vector<keycode> _pressedKeys;
+
+        std::vector<shortcut> _commandShortcuts;
+
     private:
+        void onKeyDown(phi::keyboardEventArgs* e);
+        void onKeyUp(phi::keyboardEventArgs* e);
         void enqueueCommand(command* cmd, std::function<void(command*)> callback, bool isUndo);
         void startNextCommand();
 
     public:
-        commandsManager();
-        ~commandsManager();
+        APPS_API commandsManager();
+        APPS_API ~commandsManager();
 
-        void undo();
-        void redo();
-        void executeCommand(command* cmd);
-        void update();
-        bool onInput(phi::inputKey key);
+        APPS_API void addShortcut(shortcut shortcut);
+        APPS_API void undo();
+        APPS_API void redo();
+        APPS_API void executeCommand(command* cmd);
     };
 }

@@ -97,12 +97,12 @@ namespace phi
         onMouseWheel(e);
     }
 
-    void control::notifyKeyDown(keyboardEventArgs e)
+    void control::notifyKeyDown(keyboardEventArgs* e)
     {
         onKeyDown(e);
     }
 
-    void control::notifyKeyUp(keyboardEventArgs e)
+    void control::notifyKeyUp(keyboardEventArgs* e)
     {
         onKeyUp(e);
     }

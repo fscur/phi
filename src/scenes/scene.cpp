@@ -13,7 +13,7 @@ namespace phi
         _pipeline = new phi::pipeline(gl);
         _renderer = new phi::renderer(gl, w, h);
 
-        camera = new phi::camera("mainCamera", 0.1f, 1000.0f, vec2(w, h), glm::half_pi<float>());
+        camera = new phi::camera("mainCamera", 0.1f, 1000.0f, sizeui(static_cast<uint>(w), static_cast<uint>(h)), glm::half_pi<float>());
         auto cameraNode = new node();
         cameraNode->addComponent(camera);
         add(cameraNode);
@@ -48,7 +48,7 @@ namespace phi
 
     void scene::resize(size_t w, size_t h)
     {
-        camera->setResolution(vec2(w, h));
+        camera->setResolution(sizeui(static_cast<uint>(w), static_cast<uint>(h)));
     }
 
     void scene::add(node* n)
@@ -65,12 +65,9 @@ namespace phi
             _objects.erase(position);
     }
 
-    inline float scene::getZBufferValue(phi::ivec2 mousePos)
+    inline float scene::getZBufferValue(int x, int y)
     {
-        auto pos = phi::ivec2(mousePos.x, h - mousePos.y);
-        auto z = _renderer->defaultFramebuffer->getZBufferValue(pos);
-        phi::debug("z buffer value: " + std::to_string(z));
+        auto z = _renderer->defaultFramebuffer->getZBufferValue(x, y);
         return z;
     }
-    
 }

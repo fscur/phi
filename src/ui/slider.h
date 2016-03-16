@@ -61,7 +61,7 @@ namespace phi
         void onMouseDown(mouseEventArgs* e) override;
         void onMouseUp(mouseEventArgs* e) override;
         void onMouseMove(mouseEventArgs* e) override;
-        void onKeyDown(keyboardEventArgs e) override;
+        void onKeyDown(keyboardEventArgs* e) override;
         void onMouseEnter(mouseEventArgs* e) override;
         void onMouseLeave(mouseEventArgs* e) override;
 

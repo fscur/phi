@@ -89,6 +89,8 @@ enum
     PHIK_x = 'x',
     PHIK_y = 'y',
     PHIK_z = 'z',
+    PHIK_SHIFT = 0x10,
+    PHIK_CTRL = 0x11,
 
     PHIK_CAPSLOCK = PHI_SCANCODE_TO_KEYCODE(PHI_SCANCODE_CAPSLOCK),
 

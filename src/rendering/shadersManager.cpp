@@ -5,6 +5,10 @@
 
 namespace phi
 {
+    shadersManager::shadersManager(string path) :
+        _path(path)
+    {}
+
     shadersManager::~shadersManager()
     {
         for (auto pair : _shaders)

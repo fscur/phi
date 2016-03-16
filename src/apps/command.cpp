@@ -1,16 +1,11 @@
 #include <precompiled.h>
 #include "command.h"
 
-namespace demon
+namespace phi
 {
-
     command::command()
     {
         _finishedCallback = nullptr;
-    }
-
-    command::~command()
-    {
     }
 
     void command::start()

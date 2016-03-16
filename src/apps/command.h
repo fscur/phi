@@ -2,7 +2,9 @@
 #include <phi.h>
 #include <core\size.h>
 
-namespace demon
+#include "apps.h"
+
+namespace phi
 {
     class commandInfo
     {
@@ -14,7 +16,7 @@ namespace demon
         phi::sizeui viewportSize;
         unsigned long actionsSum;
     public:
-        virtual ~commandInfo() {}
+        APPS_API virtual ~commandInfo();
     };
 
     class command
@@ -32,12 +34,11 @@ namespace demon
         virtual void executeUndo() { };
 
     public:
-        command();
-        virtual ~command();
+        APPS_API command();
         virtual bool getIsUndoable() { return true; }
-        void start();
-        void startUndo();
-        void startAsync(std::function<void(command*)> finishedCallback);
-        void startUndoAsync(std::function<void(command*)> finishedCallback);
+        APPS_API void start();
+        APPS_API void startUndo();
+        APPS_API void startAsync(std::function<void(command*)> finishedCallback);
+        APPS_API void startUndoAsync(std::function<void(command*)> finishedCallback);
     };
 }

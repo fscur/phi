@@ -58,8 +58,8 @@ namespace phi
         void inputMouseUp(mouseEventArgs* e);
         void inputMouseMove(mouseEventArgs* e);
         void inputMouseWheel(mouseEventArgs* e);
-        void inputKeyDown(keyboardEventArgs e);
-        void inputKeyUp(keyboardEventArgs e);
+        void inputKeyDown(keyboardEventArgs* e);
+        void inputKeyUp(keyboardEventArgs* e);
         void dragDropEnded(dragDropEventArgs* e);
         void renderCursor();
 

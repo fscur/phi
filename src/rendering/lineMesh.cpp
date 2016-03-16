@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "lineMesh.h"
+#include "glError.h"
 
 namespace phi
 {
@@ -17,8 +18,13 @@ namespace phi
         delete[] _positionsBuffer;
 
         glDeleteBuffers(1, &_positionsVbo);
+        glError::check();
+
         glDeleteBuffers(1, &_indicesVbo);
+        glError::check();
+
         glDeleteVertexArrays(1, &_vao);
+        glError::check();
     }
 
     lineMesh* lineMesh::create(string name, vector<vec3> &positions, vector<GLuint>* indices)
@@ -90,33 +96,54 @@ namespace phi
         auto indicesSize = _indicesCount * sizeof(GLuint);
 
         glGenVertexArrays(1, &_vao);
+        glError::check();
+        
         glBindVertexArray(_vao);
+        glError::check();
 
         glGenBuffers(1, &_positionsVbo);
+        glError::check();
+
         glBindBuffer(GL_ARRAY_BUFFER, _positionsVbo);
-        glBufferData(GL_ARRAY_BUFFER, _pSize, _positionsBuffer, GL_STATIC_DRAW);
+        glError::check();
+
+        glBufferData(GL_ARRAY_BUFFER, _pSize, _positionsBuffer, GL_STATIC_DRAW); 
+        glError::check();
 
         glGenBuffers(1, &_indicesVbo);
+        glError::check();
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesVbo);
+        glError::check();
+
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &(*_indices)[0], GL_STATIC_DRAW);
+        glError::check();
     }
 
     void lineMesh::bind()
     {
         glEnableVertexAttribArray(0);
+        glError::check();
+
         glBindBuffer(GL_ARRAY_BUFFER, _positionsVbo);
+        glError::check();
+
         glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glError::check();
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesVbo);
+        glError::check();
     }
 
     void lineMesh::render()
     {
         glDrawElements(GL_LINES, _indicesCount, GL_UNSIGNED_INT, 0);
+        glError::check();
     }
 
     void lineMesh::unbind()
     {
         glDisableVertexAttribArray(0);
+        glError::check();
     }
 }

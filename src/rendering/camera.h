@@ -1,7 +1,10 @@
 #pragma once
 #include <phi.h>
-#include "rendering.h"
+
 #include <core\component.h>
+#include <core\size.h>
+
+#include "rendering.h"
 
 namespace phi
 {
@@ -21,7 +24,7 @@ namespace phi
         float _far;
         float _aspect;
         float _fov;
-        vec2 _resolution;
+        sizeui _resolution;
 
     private:
         void updateViewMatrix();
@@ -32,14 +35,14 @@ namespace phi
             string name,
             float nearDistance,
             float farDistance,
-            vec2 resolution,
+            sizeui resolution,
             float fov);
 
         RENDERING_API  mat4 getViewMatrix();
         RENDERING_API  mat4 getProjectionMatrix();
         RENDERING_API  transform* getTransform();
 
-        RENDERING_API void setResolution(vec2 value);
+        RENDERING_API void setResolution(sizeui value);
 
         RENDERING_API void moveTo(vec3 position);
         RENDERING_API void zoomIn(vec3 targetPos);
@@ -51,7 +54,7 @@ namespace phi
         float getZNear() const { return _near; }
         float getZFar() const { return _far; }
         float getAspect() const { return _aspect; }
-        vec2 getResolution() const { return _resolution; }
+        sizeui getResolution() const { return _resolution; }
         float getFov() const { return _fov; }
         float getFocus() const { return _focus; }
 

@@ -1,7 +1,6 @@
 #include <precompiled.h>
 #include "defaultCameraController.h"
 
-#include <core/inputKey.h>
 #include <rendering/camera.h>
 
 namespace demon
@@ -12,32 +11,11 @@ namespace demon
     {
         _rotating = false;
         _panning = false;
-        _shortcuts.add("Pan", phi::inputKey(PHI_MOUSE_MIDDLE, PHI_NONE));
-        _shortcuts.add("Rotate", phi::inputKey(PHI_MOUSE_RIGHT, PHI_NONE));
-        _shortcuts.add("ZoomIn", phi::inputKey(PHI_MOUSE_WHEEL_UP, PHI_NONE));
-        _shortcuts.add("ZoomOut", phi::inputKey(PHI_MOUSE_WHEEL_DOWN, PHI_NONE));
     }
 
-    defaultCameraController::~defaultCameraController()
+    void defaultCameraController::initPan(int mouseX, int mouseY)
     {
-    }
-
-    void defaultCameraController::executeInput(phi::inputKey key, phi::ivec2 mousePos)
-    {
-        auto cmd = _shortcuts.getCommand(key);
-        if (cmd == "Pan")
-            initPan(mousePos);
-        else if (cmd == "Rotate")
-            initRotate(mousePos);
-        else if (cmd == "ZoomIn")
-            zoom(mousePos, true);
-        else if (cmd == "ZoomOut")
-            zoom(mousePos, false);
-    }
-
-    void defaultCameraController::initPan(phi::ivec2 mousePos)
-    {
-        _zBufferValue = _scene->getZBufferValue(mousePos);
+        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
         phi::mat4 proj = _camera->getProjectionMatrix();
 
         if (_zBufferValue == 1.0f)
@@ -49,17 +27,19 @@ namespace demon
         _cameraPos = cameraTransform->getPosition();
         _cameraRight = cameraTransform->getRight();
         _cameraUp = cameraTransform->getUp();
-        _startPos = mousePos;
+        _startPosX = mouseX;
+        _startPosY = mouseY;
         _panning = true;
     }
 
-    void defaultCameraController::initRotate(phi::ivec2 mousePos)
+    void defaultCameraController::initRotate(int mouseX, int mouseY)
     {
-        _zBufferValue = _scene->getZBufferValue(mousePos);
+        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
 
         phi::mat4 proj = _camera->getProjectionMatrix();
 
-        _lastMousePos = mousePos;
+        _lastMousePosX = mouseX;
+        _lastMousePosY = mouseY;
 
         float z = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
         if (_zBufferValue == 1.0f)
@@ -75,17 +55,17 @@ namespace demon
 
             auto tg = tan(fov * 0.5f) * zNear;
 
-            auto w = _camera->getResolution().x;
-            auto h = _camera->getResolution().y;
+            auto w = static_cast<float>(_camera->getResolution().w);
+            auto h = static_cast<float>(_camera->getResolution().h);
 
             auto hh = h * 0.5f;
             auto hw = w * 0.5f;
 
-            auto ys0 = mousePos.y - hh;
+            auto ys0 = mouseY - hh;
             auto yp0 = ys0 / hh;
             auto ym0 = -(yp0 * tg);
 
-            auto xs0 = mousePos.x - hw;
+            auto xs0 = mouseX - hw;
             auto xp0 = xs0 / hw;
             auto xm0 = xp0 * tg * aspect;
 
@@ -105,7 +85,7 @@ namespace demon
         _rotating = true;
     }
 
-    void defaultCameraController::pan(phi::ivec2 mousePos)
+    void defaultCameraController::pan(int mouseX, int mouseY)
     {
         auto zNear = _camera->getZNear();
         auto iez = 1.0f / zNear;
@@ -115,25 +95,25 @@ namespace demon
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = _camera->getResolution().x;
-        auto h = _camera->getResolution().y;
+        auto w = static_cast<float>(_camera->getResolution().w);
+        auto h = static_cast<float>(_camera->getResolution().h);
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
 
-        auto ys0 = (float)_startPos.y - hh;
+        auto ys0 = (float)_startPosY - hh;
         auto yp0 = ys0 / hh;
         auto ym0 = -(yp0 * tg);
 
-        auto xs0 = (float)_startPos.x - hw;
+        auto xs0 = (float)_startPosX - hw;
         auto xp0 = xs0 / hw;
         auto xm0 = xp0 * tg * aspect;
 
-        auto ys1 = (float)mousePos.y - hh;
+        auto ys1 = (float)mouseY - hh;
         auto yp1 = ys1 / hh;
         auto ym1 = -(yp1 * tg);
 
-        auto xs1 = (float)mousePos.x - hw;
+        auto xs1 = (float)mouseX - hw;
         auto xp1 = xs1 / hw;
         auto xm1 = xp1 * tg * aspect;
 
@@ -150,7 +130,7 @@ namespace demon
         _camera->moveTo(pos);
     }
 
-    void defaultCameraController::rotate(phi::ivec2 mousePos)
+    void defaultCameraController::rotate(int mouseX, int mouseY)
     {
         auto zNear = _camera->getZNear();
         auto iez = 1.0f / zNear;
@@ -160,23 +140,24 @@ namespace demon
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = _camera->getResolution().x;
-        auto h = _camera->getResolution().y;
+        auto w = static_cast<float>(_camera->getResolution().w);
+        auto h = static_cast<float>(_camera->getResolution().h);
 
-        auto dx = _lastMousePos.x - mousePos.x;
-        auto dy = _lastMousePos.y - mousePos.y;
+        auto dx = _lastMousePosX - mouseX;
+        auto dy = _lastMousePosY - mouseY;
 
         auto x = (dx / w) * 3 * phi::PI;
         auto y = (dy / h) * 3 * phi::PI;
 
         _camera->orbit(_targetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), x, y);
 
-        _lastMousePos = mousePos;
+        _lastMousePosX = mouseX;
+        _lastMousePosY = mouseY;
     }
 
-    void defaultCameraController::zoom(phi::ivec2 mousePos, bool in)
+    void defaultCameraController::zoom(int mouseX, int mouseY, bool in)
     {
-        _zBufferValue = _scene->getZBufferValue(mousePos);
+        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
 
         auto camera = *_camera;
         phi::mat4 proj = _camera->getProjectionMatrix();
@@ -195,17 +176,17 @@ namespace demon
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = _camera->getResolution().x;
-        auto h = _camera->getResolution().y;
+        auto w = static_cast<float>(_camera->getResolution().w);
+        auto h = static_cast<float>(_camera->getResolution().h);
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
 
-        auto ys0 = mousePos.y - hh;
+        auto ys0 = mouseY - hh;
         auto yp0 = ys0 / hh;
         auto ym0 = -(yp0 * tg);
 
-        auto xs0 = mousePos.x - hw;
+        auto xs0 = mouseX - hw;
         auto xp0 = xs0 / hw;
         auto xm0 = xp0 * tg * aspect;
 
@@ -226,34 +207,30 @@ namespace demon
             _camera->zoomOut(targetPos);
     }
 
-    bool defaultCameraController::onMouseDown(phi::mouseEventArgs* e, phi::inputKey key)
+    void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
     {
-        executeInput(key, phi::vec2(e->x, e->y));
-        return false;
+        if (e->rightButtonPressed)
+            initRotate(e->x, e->y);
+        else if (e->middleButtonPressed)
+            initPan(e->x, e->y);
     }
 
-    bool defaultCameraController::onMouseMove(phi::mouseEventArgs* e)
+    void defaultCameraController::onMouseMove(phi::mouseEventArgs* e)
     {
-        phi::vec2 mousePos = phi::vec2(e->x, e->y);
-
         if (_rotating)
-            rotate(mousePos);
+            rotate(e->x, e->y);
         if (_panning)
-            pan(mousePos);
-
-        return false;
+            pan(e->x, e->y);
     }
 
-    bool defaultCameraController::onMouseUp(phi::mouseEventArgs* e, phi::inputKey key)
+    void defaultCameraController::onMouseUp(phi::mouseEventArgs* e)
     {
         _panning = _rotating = false;
-        return false;
     }
 
-    bool defaultCameraController::onMouseWheel(phi::mouseEventArgs* e, phi::inputKey key)
+    void defaultCameraController::onMouseWheel(phi::mouseEventArgs* e)
     {
-        executeInput(key, phi::vec2(e->x, e->y));
-        return false;
+        zoom(e->x, e->y, e->wheelDelta > 0.0f);
     }
 
     void defaultCameraController::update()

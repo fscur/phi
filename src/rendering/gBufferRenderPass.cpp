@@ -93,8 +93,11 @@ namespace phi
         framebuffer->bindForDrawing();
 
         glDepthMask(GL_TRUE);
+        glError::check();
         glEnable(GL_DEPTH_TEST);
+        glError::check();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glError::check();
 
         shader->bind();
 
@@ -110,5 +113,6 @@ namespace phi
         auto h = static_cast<GLint>(_h);
 
         glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        glError::check();
     }
 }

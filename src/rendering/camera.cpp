@@ -5,14 +5,14 @@
 
 namespace phi
 {
-    camera::camera(std::string name, float nearDistance, float farDistance, vec2 resolution, float fov) : 
+    camera::camera(std::string name, float nearDistance, float farDistance, sizeui resolution, float fov) : 
         component(component::componentType::CAMERA, name),
         _near(nearDistance),
         _far(farDistance),
         _resolution(resolution),
         _fov(fov),
         _focus(1.0f),
-        _aspect(resolution.x / resolution.y),
+        _aspect(static_cast<float>(resolution.w) / static_cast<float>(resolution.h)),
         _changedView(false),
         _changedProjection(false)
     {
@@ -44,10 +44,10 @@ namespace phi
         return &(_node->getTransform());
     }
 
-    void camera::setResolution(vec2 value)
+    void camera::setResolution(sizeui value)
     {
         _resolution = value;
-        _aspect = _resolution.x / _resolution.y;
+        _aspect = static_cast<float>(_resolution.w) / static_cast<float>(_resolution.h);
         _changedProjection = true;
     }
 

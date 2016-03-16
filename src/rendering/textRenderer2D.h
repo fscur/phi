@@ -21,9 +21,11 @@ namespace phi
         glm::mat4 _viewMatrix;
         glm::mat4 _projectionMatrix;
         glm::mat4 _modelMatrix;
+
     private:
         void updateViewMatrix();
         void updateProjMatrix();
+
     public:
         RENDERING_API textRenderer2D(sizeui viewportSize);
         RENDERING_API ~textRenderer2D();

@@ -43,7 +43,10 @@ namespace phi
             _quad = geometry::quad();
 
             glCreateVertexArrays(1, &_quadVao);
+            glError::check();
+            
             glBindVertexArray(_quadVao);
+            glError::check();
 
             vector<vertexAttrib> attribs;
             attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
@@ -64,15 +67,21 @@ namespace phi
             _quadEbo->storage(_quad->eboSize, _quad->eboData, bufferStorageUsage::write);
 
             glBindVertexArray(0);
+            glError::check();
         }
 
         void lightingRenderPass::renderQuad()
         {
             glBindVertexArray(_quadVao);
+            glError::check();
+
             shader->bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_UNSIGNED_INT, 6, GL_UNSIGNED_INT, 0);
+            glError::check();
             shader->unbind();
+
             glBindVertexArray(0);
+            glError::check();
         }
 
         void lightingRenderPass::update()
@@ -90,11 +99,13 @@ namespace phi
         void lightingRenderPass::render()
         {
             glDisable(GL_DEPTH_TEST);
+            glError::check();
 
             /*gBufferPass->framebuffer->bindForReading(gBufferPass->targets[0]);
             glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);*/
 
             glClear(GL_COLOR_BUFFER_BIT);
+            glError::check();
 
             renderQuad();
         }

@@ -71,18 +71,29 @@ namespace phi
     void gl::initState()
     {
         glClearColor(currentState.clearColor.r, currentState.clearColor.g, currentState.clearColor.b, currentState.clearColor.a);
+        glError::check();
 
         if (currentState.culling)
+        {
             glEnable(GL_CULL_FACE);
+            glError::check();
+        }
 
         glCullFace(currentState.cullFace);
+        glError::check();
+
         glFrontFace(currentState.frontFace);
+        glError::check();
 
         if (currentState.depthTest)
+        {
             glEnable(GL_DEPTH_TEST);
+            glError::check();
+        }
         
         GLboolean depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
+        glError::check();
     }
 
     void gl::initDefaultResources(bool sparse)
@@ -147,32 +158,5 @@ namespace phi
             data);
 
         return texture;
-    }
-
-    string gl::getErrorString(GLenum error)
-    {
-        switch (error)
-        {
-        case GL_NO_ERROR: return "No error";
-            break;
-        case GL_INVALID_ENUM: return "Invalid enum";
-            break;
-        case GL_INVALID_VALUE: return "Invalid value";
-            break;
-        case GL_INVALID_OPERATION: return "Invalid operation";
-            break;
-        case GL_OUT_OF_MEMORY: return "Out of memory";
-            break;
-        default:
-            break;
-        }
-
-        return string();
-    }
-
-    void gl::printError(string msg)
-    {
-        auto error = getErrorString(glGetError());
-        phi::debug(msg + " (" + error + ")");
     }
 }

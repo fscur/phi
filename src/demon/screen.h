@@ -5,9 +5,10 @@
 #include <scenes\scene.h>
 
 #include <apps\window.h>
+#include <apps\commandsManager.h>
+
 #include "defaultCameraController.h"
 #include "library.h"
-#include "inputManager.h"
 
 namespace demon
 {
@@ -24,8 +25,7 @@ namespace demon
 
         library* _library;
 
-        commandsManager* _commandsManager;
-        inputManager* _inputManager;
+        phi::commandsManager* _commandsManager;
         defaultCameraController* _defaultController;
 
     private:

@@ -12,11 +12,9 @@ namespace phi
         std::map<string, shader*> _shaders;
 
     public:
-        shadersManager(string path) :
-            _path(path) 
-        {}
-
+        shadersManager(string path);
         ~shadersManager();
+
         shader* load(string name, vector<string> attributes);
         shader* get(string name);
     };

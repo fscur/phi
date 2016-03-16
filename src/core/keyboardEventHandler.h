@@ -6,7 +6,7 @@
 namespace phi
 {
     class keyboardEventHandler :
-        public eventHandler<keyboardEventArgs>
+        public eventHandler<keyboardEventArgs*>
     {
     };
 }

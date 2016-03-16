@@ -1,5 +1,9 @@
 ﻿#include <precompiled.h>
 #include "screen.h"
+
+#include <apps\undoCommand.h>
+#include <apps\redoCommand.h>
+
 #include <diagnostics\diagnostics.h>
 #include <diagnostics\stopwatch.h>
 
@@ -19,7 +23,6 @@ namespace demon
     screen::~screen()
     {
         delete _commandsManager;
-        delete _inputManager;
         delete _gl;
         delete _library;
         delete _scene;
@@ -38,7 +41,7 @@ namespace demon
         application::logInfo("Initializing OpenGl");
 
         auto initState = gl::state();
-        initState.clearColor = vec4(0.0f);
+        initState.clearColor = vec4(1.0f);
         initState.frontFace = gl::frontFace::ccw;
         initState.culling = true;
         initState.cullFace = gl::cullFace::back;
@@ -95,15 +98,15 @@ namespace demon
 
     void screen::initInput()
     {
-        _commandsManager = new commandsManager();
-        _inputManager = new inputManager(_commandsManager);
+        _commandsManager = new phi::commandsManager();
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
+
         _defaultController = new defaultCameraController(_scene);
-        _inputManager->setCurrentCameraController(_defaultController);
     }
 
     void screen::onUpdate()
     {
-        //_inputManager->update();
         _scene->update();
     }
 

@@ -27,10 +27,6 @@ THE SOFTWARE.
 #include <phi.h>
 #include "core.h"
 
-// Class to represent a GUID/UUID. Each instance acts as a wrapper around a
-// 16 byte value that can be passed around by value. It also supports
-// conversion to string (via the stream operator <<) and conversion from a
-// string via constructor.
 namespace phi
 {
     class guid
@@ -39,7 +35,7 @@ namespace phi
         vector<byte> _bytes;
 
     private:
-        friend std::ostream &operator<<(std::ostream &s, const guid &guid);
+        CORE_API friend std::ostream &operator<<(std::ostream &s, const guid &guid);
 
     public:
         CORE_API guid(const vector<byte> &bytes);
@@ -52,13 +48,6 @@ namespace phi
         CORE_API bool operator!=(const guid &other) const;
     };
 
-    // Class that can create new guids. The only reason this exists instead of
-    // just a global "newGuid" function is because some platforms will require
-    // that there is some attached context. In the case of android, we need to
-    // know what JNIEnv is being used to call back to Java, but the newGuid()
-    // function would no longer be cross-platform if we parameterized the android
-    // version. Instead, construction of the GuidGenerator may be different on
-    // each platform, but the use of newGuid is uniform.
     class guidGenerator
     {
     public:

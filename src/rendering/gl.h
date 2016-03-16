@@ -91,9 +91,6 @@ namespace phi
     public:
         RENDERING_API gl(gl::glInfo initInfo);
         RENDERING_API ~gl();
-        string getErrorString(GLenum error);
-        void printError(string msg);
-
         string getVendor() { return string((char*)glGetString(GL_VENDOR)); };
         string getRenderer() { return string((char*)glGetString(GL_RENDERER)); };
         string getVersion() { return string((char*)glGetString(GL_VERSION)); };
