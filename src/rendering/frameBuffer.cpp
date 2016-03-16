@@ -57,20 +57,20 @@ namespace phi
 
         switch (status)
         {
-        case GL_FRAMEBUFFER_COMPLETE:
-            phi::debug("complete");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            phi::debug("incomplete attachment");;
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            phi::debug("incomplete draw buffer");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-            phi::debug("incomplete layer targets");
-            break;
-        default:
-            break;
+            case GL_FRAMEBUFFER_COMPLETE:
+                phi::debug("complete");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                phi::debug("incomplete attachment");;
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                phi::debug("incomplete draw buffer");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+                phi::debug("incomplete layer targets");
+                break;
+            default:
+                break;
         }
     }
 
@@ -95,6 +95,12 @@ namespace phi
         glError::check();
 
         glDrawBuffers(buffersCount, buffers);
+        glError::check();
+    }
+
+    void framebuffer::bindForReading()
+    {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
         glError::check();
     }
 
@@ -130,15 +136,15 @@ namespace phi
         sourceFramebuffer->bindForReading(sourceRenderTarget);
 
         glBlitFramebuffer(
-            0, 
-            0, 
-            sourceRenderTarget->w, 
-            sourceRenderTarget->h, 
-            0, 
-            0, 
-            targetRenderTarget->w, 
-            targetRenderTarget->h, 
-            GL_COLOR_BUFFER_BIT, 
+            0,
+            0,
+            sourceRenderTarget->w,
+            sourceRenderTarget->h,
+            0,
+            0,
+            targetRenderTarget->w,
+            targetRenderTarget->h,
+            GL_COLOR_BUFFER_BIT,
             GL_LINEAR);
 
         glError::check();

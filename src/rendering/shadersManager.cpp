@@ -11,7 +11,7 @@ namespace phi
 
     shadersManager::~shadersManager()
     {
-        for (auto pair : _shaders)
+        for (auto& pair : _shaders)
         {
             pair.second->release();
             safeDelete(pair.second);

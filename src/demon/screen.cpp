@@ -22,10 +22,6 @@ namespace demon
 
     screen::~screen()
     {
-        delete _commandsManager;
-        delete _gl;
-        delete _library;
-        delete _scene;
     }
 
     void screen::onInit()
@@ -123,6 +119,11 @@ namespace demon
     void screen::onClosing()
     {
         debug("closing.");
+        delete _commandsManager;
+        delete _gl;
+        delete _library;
+        delete _scene;
+
         //TODO: MessageBox asking if the user really wants to close the window
         //TODO: Check if we really need the above TODO
     }

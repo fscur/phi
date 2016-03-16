@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "textureContainer.h"
+#include "glError.h"
 
 namespace phi
 {
@@ -25,25 +26,33 @@ namespace phi
     textureContainer::~textureContainer()
     {
         if (_bindless)
+        {
             glMakeTextureHandleNonResidentARB(handle); //TODO: check if this shit releases the handle from gpu!!!
+            glError::check();
+        }
 
         glDeleteTextures(1, &id);
+        glError::check();
     }
 
     void textureContainer::create()
     {
         glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &id);
+        glError::check();
 
         if (!_bindless)
         {
             glActiveTexture(GL_TEXTURE0 + _unit);
+            glError::check();
         }
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+        glError::check();
 
         if (_sparse)
         {
             glTextureParameteri(id, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
+            glError::check();
 
             // TODO: This could be done once per internal format. For now, just do it every time.
             GLint indexCount = 0,
@@ -58,13 +67,18 @@ namespace phi
             auto internalFormat = _layout.internalFormat;
 
             glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 1, &indexCount);
+            glError::check();
 
             for (GLint i = 0; i < indexCount; ++i)
             {
                 glTextureParameteri(id, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, i);
+                glError::check();
                 glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_VIRTUAL_PAGE_SIZE_X_ARB, 1, &xSize);
+                glError::check();
                 glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_VIRTUAL_PAGE_SIZE_Y_ARB, 1, &ySize);
+                glError::check();
                 glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_VIRTUAL_PAGE_SIZE_Z_ARB, 1, &zSize);
+                glError::check();
 
                 if (zSize == 1)
                 {
@@ -77,7 +91,10 @@ namespace phi
             }
 
             if (bestIndex != -1)
+            {
                 glTextureParameteri(id, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, bestIndex);
+                glError::check();
+            }
         }
 
         glTextureStorage3D(id,
@@ -86,16 +103,23 @@ namespace phi
             _layout.w,
             _layout.h,
             static_cast<GLsizei>(_maxTextures));
+        glError::check();
 
         glTextureParameteri(id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
+        glError::check();
         glTextureParameteri(id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
+        glError::check();
         glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
+        glError::check();
         glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
+        glError::check();
 
         if (_bindless)
         {
             handle = glGetTextureHandleARB(id);
+            glError::check();
             glMakeTextureHandleResidentARB(handle);
+            glError::check();
         }
     }
 
@@ -120,6 +144,7 @@ namespace phi
                     levelHeight,
                     1,
                     GL_TRUE);
+                glError::check();
 
                 levelWidth = std::max(levelWidth / 2, 1);
                 levelHeight = std::max(levelHeight / 2, 1);
@@ -140,8 +165,10 @@ namespace phi
                 texture->dataFormat,
                 texture->dataType,
                 texture->data);
+            glError::check();
 
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+            glError::check();
         }
     }
 
