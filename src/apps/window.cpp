@@ -10,7 +10,8 @@ namespace phi
         closed(false){}
 
     window::~window()
-    {}
+    {
+    }
 
     void window::clear() 
     {

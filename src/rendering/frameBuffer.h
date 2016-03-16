@@ -21,6 +21,7 @@ namespace phi
         RENDERING_API void bind(GLenum target);
         RENDERING_API void bindForDrawing();
         RENDERING_API void bindForDrawing(GLenum* buffers, GLsizei buffersCount);
+        RENDERING_API void bindForReading();
         RENDERING_API void bindForReading(renderTarget* sourceRenderTarget);
         RENDERING_API void unbind(GLenum target);
         RENDERING_API void blitToDefault(renderTarget* renderTarget);

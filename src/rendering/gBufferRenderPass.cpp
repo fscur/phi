@@ -107,7 +107,7 @@ namespace phi
         shader->unbind();
 
         framebuffer->unbind(GL_FRAMEBUFFER);
-        framebuffer->bindForReading(targets[3]);
+        framebuffer->bindForReading();
 
         auto w = static_cast<GLint>(_w);
         auto h = static_cast<GLint>(_h);

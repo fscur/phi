@@ -73,6 +73,12 @@ namespace phi
             return false;
 #endif
 
+        glDeleteShader(_fragmentShader);
+        glError::check();
+
+        glDeleteShader(_vertexShader);
+        glError::check();
+
         _initialized = true;
 
         return true;
@@ -282,17 +288,7 @@ namespace phi
         if (!_initialized)
             return;
 
-        glDetachShader(_id, _fragmentShader);
-        glError::check();
-
-        glDetachShader(_id, _vertexShader);
-        glError::check();
-
-        glDeleteShader(_fragmentShader);
-        glError::check();
-
-        glDeleteShader(_vertexShader);
-        glError::check();
+        unbind();
 
         glDeleteProgram(_id);
         glError::check();
