@@ -17,7 +17,7 @@ namespace phi
         loggerDevice* _device;
     public:
         DIAGNOSTICS_API logger();
-        //DIAGNOSTICS_API logger(loggerDevice* device);
+        DIAGNOSTICS_API logger(loggerDevice* device);
         DIAGNOSTICS_API ~logger();
 
         DIAGNOSTICS_API void logError(string message) const;

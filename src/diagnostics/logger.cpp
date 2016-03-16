@@ -6,15 +6,14 @@
 namespace phi
 {
     logger::logger() :
-        _device(new consoleLoggerDevice())
-        //logger::logger(new consoleLoggerDevice())
+        logger::logger(new consoleLoggerDevice())
     {
     }
 
-    //logger::logger(loggerDevice * device) :
-    //    _device(device)
-    //{
-    //}
+    logger::logger(loggerDevice* device) :
+        _device(device)
+    {
+    }
 
     logger::~logger()
     {
