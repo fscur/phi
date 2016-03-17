@@ -75,6 +75,10 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <gettext\libintl.h>
+
+#define _(string) gettext(string)
+
 #ifdef MSVC
 #pragma warning(pop)
 #endif

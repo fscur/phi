@@ -4,7 +4,6 @@
 #include "font.h"
 #include "glError.h" 
 
-
 namespace phi
 {
     font::font(std::string name, std::string path, int size, FT_Library library)
@@ -13,6 +12,7 @@ namespace phi
 
         // TODO: all this code should be on the importer class?     Yes it totally should, good luck!!!!
         FT_Face face;
+
         if (FT_New_Face(library, path.c_str(), 0, &face))
             throw phi::exception("Could not open font " + path);
 
@@ -31,7 +31,8 @@ namespace phi
         {
             if (FT_Load_Char(face, i, FT_LOAD_RENDER))
             {
-                fprintf(stderr, "Loading character %c failed!\n", i);
+                //TODO: Log message to app
+                //fprintf(stderr, "Loading character %c failed!\n", i);
                 continue;
             }
 
@@ -74,7 +75,8 @@ namespace phi
         {
             if (FT_Load_Char(face, i, FT_LOAD_RENDER))
             {
-                fprintf(stderr, "Loading character %c failed!\n", i);
+                //TODO: Log message to app
+                //fprintf(stderr, "Loading character %c failed!\n", i);
                 continue;
             }
 

@@ -48,6 +48,8 @@ find_package(FREETYPE REQUIRED)
 link_directories(${FREETYPE_LIBRARIES})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(demon ${FREETYPE_LIBRARY})
+target_link_libraries(demon libiconv.lib)
+target_link_libraries(demon libintl.lib)
 
 install(TARGETS demon 
     RUNTIME 

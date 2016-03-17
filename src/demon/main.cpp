@@ -63,17 +63,9 @@ void processCommandLine(int argc, char* args[])
 {
     int curCommand = -1;
 
-#if _DEBUG
-    std::cout << "cmd line: ";
-#endif
-
     for (int i = 1; i < argc; i++)
     {
         string arg(args[i]);
-
-#if _DEBUG
-        std::cout << args[i] << " ";
-#endif
         vector<string>::iterator it;
 
         bool foundCommand = false;
@@ -92,9 +84,7 @@ void processCommandLine(int argc, char* args[])
         if (!foundCommand && curCommand > -1)
             commandLineCommands[curCommand].args.push_back(arg);
     }
-#if _DEBUG
-    std::cout << std::endl;
-#endif
+
     return;
 }
 
@@ -116,8 +106,17 @@ int debugQuit(string msg)
     return -1;
 }
 
+void initGetText()
+{
+    setlocale(LC_ALL, "");
+    bindtextdomain("demon", "./locale");
+    textdomain("demon");
+}
+
 int main(int argc, char* args[])
 {
+    initGetText();
+
     string exeFileName = string(args[0]);
 
     initCommandLineCommands();
@@ -140,7 +139,6 @@ int main(int argc, char* args[])
     try
     {
         auto mainScreen = new demon::screen("?", 1024, 768);
-        debug("runnning.");
         app.run(mainScreen);
         safeDelete(mainScreen);
     }
