@@ -17,15 +17,15 @@ add_library(scenes SHARED ${source_files} ${header_files})
 
 target_link_libraries(scenes rendering)
 
-install(TARGETS scenes 
-    RUNTIME 
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
+if (MINGW)
+    set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
+    install(TARGETS scenes RUNTIME DESTINATION ${install_folder})
+endif(MINGW)
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
-    
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Fd$(IntDir)precompiled.pdb")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
     
     add_custom_command(
         TARGET scenes
@@ -35,7 +35,7 @@ if (MSVC)
     add_custom_command(
         TARGET scenes
         POST_BUILD
-        COMMAND ../../../../scripts/post_build_vc++/project_$(Configuration).bat $(Configuration) scenes)
+        COMMAND ../../../../scripts/post_build_vc++/project.bat $(Configuration) scenes)
         
 endif(MSVC)
 

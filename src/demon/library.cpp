@@ -39,5 +39,9 @@ namespace demon
         _texturesRepository = load<texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
         _materialsRepository = load<material>(_libraryPath + "/materials", ".material", importMaterialFunction);
         _nodesRepository = load<node>(_libraryPath + "/models", ".model", importModelFunction);
+        debug(_("Library initialized."));
+        //debug(_("Library initialized again."));
+        //debug(_("Library initialized again now."));
+
     }
 }

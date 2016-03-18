@@ -1,4 +1,9 @@
 @echo OFF
+:start
+
+CD scripts
+call create_po_files.bat
+cd ..
 
 set root=.\
 set return=..\..\
@@ -8,8 +13,6 @@ set build=%root%build\win64
 if not exist %build% (
 	mkdir %build%
 )
-
-:start
 
 cd %build%
 cmake -C %return%cmake/cache_win64_vc++.cmake -G "Visual Studio 14 2015 Win64" %return%
@@ -38,6 +41,7 @@ if not exist %build% (
 cd %build%
 cmake -C %return_gcc%cmake/cache_win64_gcc_release.cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" %return_gcc%
 cd %return_gcc%
+
 
 set choice=
 set /P choice=

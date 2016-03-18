@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 10:50-0300\n"
+"POT-Creation-Date: 2016-03-18 17:38-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,14 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: D:\Prog\phi\src\demon\.\defaultCameraController.cpp:18
-msgid "init pan"
-msgstr ""
-
-#: D:\Prog\phi\src\demon\.\library.cpp:43
+#: D:\Prog\phi\src\demon\.\library.cpp:42
 msgid "Library initialized."
-msgstr ""
-
-#: D:\Prog\phi\src\demon\.\screen.cpp:34
-msgid "Screen initialized."
 msgstr ""
