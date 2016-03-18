@@ -1,4 +1,3 @@
-/* libgnuintl.h.  Generated from libgnuintl.h.in.  */
 /* Message catalogs for internationalization.
    Copyright (C) 1995-1997, 2000-2012 Free Software Foundation, Inc.
 
@@ -89,9 +88,6 @@ extern int libintl_version;
 /* The user can define _INTL_REDIRECT_INLINE or _INTL_REDIRECT_MACROS.
    If he doesn't, we choose the method.  A third possible method is
    _INTL_REDIRECT_ASM, supported only by GCC.  */
-
-#define _INTL_REDIRECT_INLINE
-
 #if !(defined _INTL_REDIRECT_INLINE || defined _INTL_REDIRECT_MACROS)
 # if defined __GNUC__ && __GNUC__ >= 2 && !(defined __APPLE_CC__ && __APPLE_CC__ > 1) && !defined __MINGW32__ && !(__GNUC__ == 2 && defined _AIX) && (defined __STDC__ || defined __cplusplus)
 #  define _INTL_REDIRECT_ASM
@@ -248,7 +244,6 @@ extern char *dcngettext (const char *__domainname,
 #endif
 
 
-#ifndef IN_LIBGLOCALE
 
 /* Set the current default message catalog to DOMAINNAME.
    If DOMAINNAME is null, return the current default.
@@ -304,7 +299,6 @@ extern char *bind_textdomain_codeset (const char *__domainname,
        _INTL_ASM (libintl_bind_textdomain_codeset);
 #endif
 
-#endif /* IN_LIBGLOCALE */
 
 
 /* Support for format strings with positions in *printf(), following the
@@ -387,7 +381,7 @@ extern int vsnprintf (char *, size_t, const char *, va_list);
 
 #endif
 
-#if 0
+#if 1
 
 #if !(defined asprintf && defined _GL_STDIO_H) /* don't override gnulib */
 #undef asprintf
@@ -402,7 +396,7 @@ extern int vasprintf (char **, const char *, va_list);
 
 #endif
 
-#if 1
+#if 0
 
 #undef fwprintf
 #define fwprintf libintl_fwprintf
@@ -468,4 +462,3 @@ extern void
 #endif
 
 #endif /* libintl.h */
-
