@@ -226,15 +226,19 @@ namespace demon
         // [cam]<--------------z-------------->[obj]
         // [cam]<------dist------><near*><near>[obj] (*bounce area)
         auto dist = z - zNear * 2.0f;
+        //phi::debug(dist);
         if (dist < 0.0f)
         {
             if (!in)
                 dist = z - zNear;
         }
         else if (!in)
-            dist = z;
+            dist = z * 3.0f;
 
-        _targetZoom += dist * (delta / 1920.0f);
+        if (in)
+            _targetZoom += glm::max(dist, 0.1f) * (delta / 1920.0f);
+        else
+            _targetZoom += dist * (delta / 1920.0f);
 
         bool collision;
         if (dist < _targetZoom)
@@ -248,7 +252,7 @@ namespace demon
             collision = false;
         }
 
-        phi::debug("dist: " + std::to_string(dist) + " tz: " + std::to_string(_targetZoom) + " zl: " + std::to_string(_zoomLimit) + " cl: " + std::to_string(collision));
+        //phi::debug("dist: " + std::to_string(dist) + " tz: " + std::to_string(_targetZoom) + " zl: " + std::to_string(_zoomLimit) + " cl: " + std::to_string(collision));
 
         _currentZoom = _targetZoom;
         _zoomCameraStartPos = camPos;
