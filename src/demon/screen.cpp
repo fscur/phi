@@ -11,6 +11,8 @@
 #include <rendering\model.h>
 #include <apps\application.h>
 
+#include <ui\floatAnimator.h>
+
 using namespace phi;
 
 namespace demon
@@ -30,6 +32,14 @@ namespace demon
         initLibrary();
         initScene();
         initInput();
+
+        //for (float i = 0.0f; i < 1.0f; i += 0.025f)
+        //{
+        //    int a = (int)(easingFunctions::easeOutBack(i, 1.70158f) * 100.0f);
+        //    phi::debug(std::string(a, '-') + "[" + std::to_string(a) + "]");
+        //}
+
+        //1.70158f
     }
 
     void screen::initGL()
@@ -62,7 +72,7 @@ namespace demon
         auto camera = _scene->camera;
 
         auto cameraTransform = camera->getTransform();
-        auto cameraPos = vec3(0.0f, 0.0f, 2.0f);
+        auto cameraPos = vec3(0.0f, 0.0f, 10.0f);
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
@@ -71,7 +81,7 @@ namespace demon
         _scene->add(clonedFloor);
 
         auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-        for (size_t i = 0; i < 10; i++)
+        for (size_t i = 0; i < 1; i++)
         {
             auto cloned = obj->clone();
             cloned->getTransform().setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
@@ -90,7 +100,9 @@ namespace demon
 
     void screen::onUpdate()
     {
+        phi::floatAnimator::update();
         _scene->update();
+        _defaultController->update();
     }
 
     void screen::onRender()

@@ -54,6 +54,7 @@ namespace phi
 
             onClear();
             onRender();
+            onSwapbuffers();
             onInput();
             onUpdate();
 
@@ -69,8 +70,6 @@ namespace phi
             }
 
             frames++;
-
-            onSwapbuffers();
 
             if (_window->closed)
             {
