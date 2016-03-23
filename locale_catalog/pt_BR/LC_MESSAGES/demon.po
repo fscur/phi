@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-03-21 16:03-0300\n"
-"PO-Revision-Date: 2016-03-21 16:04-0300\n"
+"PO-Revision-Date: 2016-03-23 19:03-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: win64\window_win64.cpp:411
 msgid "Closing window."
-msgstr "Closing window."
+msgstr "Fechando janela."
 
 #: library.cpp:42
 msgid "Library initialized."
