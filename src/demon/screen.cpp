@@ -33,11 +33,13 @@ namespace demon
         initScene();
         initInput();
 
-        //for (float i = 0.0f; i < 1.0f; i += 0.025f)
-        //{
-        //    int a = (int)(easingFunctions::easeOutBack(i, 1.70158f) * 100.0f);
-        //    phi::debug(std::string(a, '-') + "[" + std::to_string(a) + "]");
-        //}
+        auto d = 1.0f;
+        auto c = 0.5f;
+        for (float i = 0.0f; i < 1.0f; i += 0.025f)
+        {
+            int a = (int)(easingFunctions::easeRubberBack(i) * 100.0f);
+            phi::debug(std::string((int)a, '-') + "[" + std::to_string(a) + "]");
+        }
 
         //1.70158f
     }
@@ -78,7 +80,11 @@ namespace demon
 
         auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
         auto clonedFloor = floor->clone();
-        _scene->add(clonedFloor);
+        //_scene->add(clonedFloor);
+
+        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform().setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
+        _scene->add(cube);
 
         auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
         for (size_t i = 0; i < 1; i++)
@@ -101,8 +107,8 @@ namespace demon
     void screen::onUpdate()
     {
         phi::floatAnimator::update();
-        _scene->update();
         _defaultController->update();
+        _scene->update();
     }
 
     void screen::onRender()
@@ -112,7 +118,7 @@ namespace demon
 
     void screen::onTick()
     {
-        debug("fps:" + std::to_string(application::framesPerSecond));
+        //debug("fps:" + std::to_string(application::framesPerSecond));
     }
 
     void screen::onClosing()

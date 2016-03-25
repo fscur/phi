@@ -45,22 +45,20 @@ namespace phi
                 continue;
             }
 
+            animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
+
             float* value = animation->getValue();
             float from = animation->getFrom();
             float to = animation->getTo();
 
             float percent = (float)animation->getElapsed() / (float)animation->getMilliseconds();
             percent = glm::clamp(percent, 0.0f, 1.0f);
-            //float diff = sin(percent * pi<float>() * 0.5f);
-            //float t = percent;
-            //float diff = t<.5 ? 4 * t*t*t : (t - 1)*(2 * t - 2)*(2 * t - 2) + 1; // bão!
-            //float diff = t*(2 - t);
             float diff = animation->getEasingFunction()(percent);
 
-            if (percent >= 1.0f)
-            {
-                *value = to;
+            *value = from + (to - from) * diff;
 
+            if (animation->getElapsed() > (float)animation->getMilliseconds())
+            {
                 auto callback = animation->getCallback();
                 if (callback != nullptr)
                     callback(*value);
@@ -75,9 +73,6 @@ namespace phi
             }
             else
             {
-                *value = from + (to - from) * diff;
-                animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
-
                 auto callback = animation->getCallback();
                 if (callback != nullptr)
                     callback(*value);

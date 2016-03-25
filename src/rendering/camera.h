@@ -43,6 +43,8 @@ namespace phi
         RENDERING_API  transform* getTransform();
 
         RENDERING_API void setResolution(sizeui value);
+        void setFov(float value) { _fov = value; _changedProjection = true; }
+        void setZNear(float value) { _near = value; _changedProjection = true; }
 
         RENDERING_API void moveTo(vec3 position);
         RENDERING_API void zoom(vec3 offset);
