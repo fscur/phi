@@ -121,5 +121,7 @@ namespace phi
     {
         // TODO: when the new event system is done, change this to update only when the transform changes
         updateViewMatrix();
+        //if (_changedProjection)
+        //    updateProjectionMatrix();
     }
 }

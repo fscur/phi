@@ -112,7 +112,7 @@ namespace phi
         return true;
     }
 
-    bool ray::intersects(aabb* aabb, vec3* normal)
+    bool ray::intersects(aabb* aabb, vec3* position, vec3* normal)
     {
         if (intersects(aabb))
         {
@@ -179,6 +179,7 @@ namespace phi
                 }
             }
 
+            *position = _origin + _direction * minT;
             *normal = minNormal;
             return true;
         }
