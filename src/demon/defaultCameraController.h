@@ -11,9 +11,10 @@ namespace demon
         public cameraController
     {
     private:
+        float const ZOOM_FACTOR = 0.03f;
         float const ZOOM_MIN_BOUNCE = 0.01f;
-        float const ZOOM_MAX_BOUNCE = 0.25f;
-        float const ZOOM_SUM_TIME = 0.5f;
+        float const ZOOM_MAX_BOUNCE = 0.1f;
+        unsigned int const ZOOM_ACCUMULATION_TIME = 500u;
 
     private:
         int _lastMousePosX;
@@ -32,15 +33,12 @@ namespace demon
 
         phi::vec3 _zoomDir;
         float _zoomSpeed;
-        float _zoomTime;
-        float _zoomSumTime;
+        unsigned int _zoomTime;
+        unsigned int _zoomAccumulationTime;
         float _zoomCurrent;
         float _zoomLimit;
-        bool _zoomResetSpeed;
         float _zoomBounceValue;
         phi::floatAnimation* _zoomBounceAnimation;
-        float _zoomZ;
-        float _zoomZNear;
 
     private:
         void initPan(int mouseX, int mouseY);
@@ -48,6 +46,8 @@ namespace demon
         void zoom(int mouseX, int mouseY, float delta);
         void pan(int mouseX, int mouseY);
         void rotate(int mouseX, int mouseY);
+
+        void updateZoom();
 
         virtual void onMouseDown(phi::mouseEventArgs* e) override;
         virtual void onMouseMove(phi::mouseEventArgs* e) override;

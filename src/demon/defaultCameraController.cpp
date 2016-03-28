@@ -5,8 +5,6 @@
 
 #include <rendering\camera.h>
 
-#include <rendering\ray.h>
-
 namespace demon
 {
     defaultCameraController::defaultCameraController(phi::scene* scene) :
@@ -15,18 +13,20 @@ namespace demon
         _rotating(false),
         _panning(false),
         _zoomSpeed(0.0f),
-        _zoomTime(0.0f),
-        _zoomResetSpeed(false),
+        _zoomTime(0u),
+        _zoomAccumulationTime(0u),
         _zoomBounceValue(0.0f),
-        _zoomBounceAnimation(nullptr),
-        _zoomSumTime(0.0f),
-        _zoomZ(0.0f),
-        _zoomZNear(0.0f)
+        _zoomBounceAnimation(nullptr)
     {
     }
 
     void defaultCameraController::initPan(int mouseX, int mouseY)
     {
+        if (_zoomBounceAnimation)
+            return;
+
+        _zoomSpeed = 0.0f;
+
         _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
         phi::mat4 proj = _camera->getProjectionMatrix();
 
@@ -46,6 +46,9 @@ namespace demon
 
     void defaultCameraController::initRotate(int mouseX, int mouseY)
     {
+        if (_zoomBounceAnimation)
+            return;
+
         _zoomSpeed = 0.0f;
 
         _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
@@ -171,11 +174,7 @@ namespace demon
 
     void defaultCameraController::zoom(int mouseX, int mouseY, float delta)
     {
-        //mouseX = (int)(_camera->getResolution().w * 0.5f);
-        //mouseY = (int)(_camera->getResolution().h * 0.5f);
-        auto in = delta > 0.0f;
-
-        if (in && _zoomBounceAnimation)
+        if (delta > 0.0f && _zoomBounceAnimation)
             return;
 
         _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
@@ -222,46 +221,24 @@ namespace demon
 
         _zoomDir = glm::normalize(camDir * z + -camRight * (float)x + camUp * (float)y);
 
-        //if (!in)
-        //{
-        //    dist = 500.0f / glm::tan(_camera->getFov() * 0.5f) - z;
-        //    phi::debug(dist);
-        //}
-
-        _zoomTime = 0.0f;
+        _zoomTime = 0u;
         _zoomCurrent = 0.0f;
 
-        if (_zoomResetSpeed || glm::sign(_zoomSpeed) != glm::sign(delta))
+        if (glm::sign(_zoomSpeed) != glm::sign(delta))
+            _zoomSpeed = 0.0f;
+
+        if (_zoomAccumulationTime <= 0u)
         {
             _zoomSpeed = 0.0f;
-            _zoomResetSpeed = false;
+            _zoomAccumulationTime = ZOOM_ACCUMULATION_TIME;
         }
 
-        if (_zoomSumTime <= 0.0f)
-        {
-            _zoomSpeed = 0.0f;
-            _zoomSumTime = ZOOM_SUM_TIME;
-        }
-
-        //auto perc = (delta / 120.0f) * 0.001875f;
-        _zoomSpeed += (delta / 120.0f) * 0.03f * 50.0f;
-        _zoomLimit = (z + zNear) - ZOOM_MAX_BOUNCE - 0.01f; // Small gap so the camera does not go past the z-near plane
-        _zoomZ = z + zNear;
-        _zoomZNear = zNear;
-
-        auto r = phi::ray(_camera->getTransform()->getPosition(), _zoomDir);
-        auto bb = new phi::aabb(phi::vec3(-0.5f, -0.5f, -0.5f), phi::vec3(0.5f, 0.5f, 0.5f));
-
-        phi::vec3 position, normal;
-        if (r.intersects(bb, &position, &normal))
-            //phi::debug("inter: " + std::to_string(position.x) + ";" + std::to_string(position.y) + ";" + std::to_string(position.z));
-            phi::debug("ray: " + std::to_string(glm::length(position - _camera->getTransform()->getPosition())));
-        phi::debug("depth: " + std::to_string(z));
+        _zoomSpeed += (delta / 120.0f) * ZOOM_FACTOR;
+        _zoomLimit = glm::max(z - zNear - ZOOM_MAX_BOUNCE - 0.0001f, 0.0f); // Small gap so the camera does not go past the z-near plane
 
         if (_zoomBounceAnimation)
         {
             phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
-            phi::debug("canceled");
             _zoomBounceAnimation = nullptr;
         }
     }
@@ -272,15 +249,6 @@ namespace demon
             initRotate(e->x, e->y);
         else if (e->middleButtonPressed)
             initPan(e->x, e->y);
-        else if (e->leftButtonPressed)
-        {
-            //_zBufferValue = _scene->getZBufferValue(e->x, _camera->getResolution().h - e->y);
-            _zBufferValue = _scene->getZBufferValue((int)(_camera->getResolution().w * 0.5f), (int)(_camera->getResolution().h * 0.5f));
-
-            phi::mat4 proj = _camera->getProjectionMatrix();
-            auto z = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
-            phi::debug(z);
-        }
     }
 
     void defaultCameraController::onMouseMove(phi::mouseEventArgs* e)
@@ -301,35 +269,25 @@ namespace demon
         zoom(e->x, e->y, e->wheelDelta);
     }
 
-    void defaultCameraController::update()
+    void defaultCameraController::updateZoom()
     {
         auto deltaSeconds = static_cast<float>(phi::time::deltaSeconds);
-        auto deltaMilliseconds = static_cast<float>(phi::time::deltaSeconds) * 1000.0f;
+        auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
         _zoomTime += deltaMilliseconds;
-        _zoomSumTime = glm::max(_zoomSumTime - deltaSeconds, 0.0f);
+        _zoomAccumulationTime = glm::max(_zoomAccumulationTime - deltaMilliseconds, 0u);
 
-        auto delta = _zoomSpeed * glm::exp(-_zoomTime / 325.0f);
-
-        if (glm::abs(delta) < 0.001f)
-            _zoomResetSpeed = true;
+        auto delta = _zoomSpeed * glm::exp(_zoomTime / -325.0f);
 
         if (_zoomCurrent + delta > _zoomLimit)
         {
             _camera->getTransform()->translate(_zoomDir * (_zoomLimit - _zoomCurrent));
             _zoomCurrent = _zoomLimit;
-
             _zoomSpeed = 0.0f;
 
             if (_zoomBounceAnimation)
-            {
                 phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
-                phi::debug("canceled");
-            }
 
-            phi::debug("started");
-
-            auto speedPercent = glm::clamp((delta - 0.0f) / 2.0f, 0.0f, 1.0f);
-            //phi::debug(speedPercent);
+            auto speedPercent = glm::clamp(delta / 2.0f, 0.0f, 1.0f);
             auto bounceDistance = ZOOM_MIN_BOUNCE + (ZOOM_MAX_BOUNCE * speedPercent);
             auto cameraPosition = _camera->getTransform()->getPosition();
 
@@ -342,13 +300,10 @@ namespace demon
                 [this, cameraPosition](float t)
                 {
                     _camera->getTransform()->setLocalPosition(cameraPosition + _zoomDir * _zoomBounceValue);
-                    auto diff = glm::max(_zoomLimit + _zoomBounceValue + _zoomZNear - _zoomZ - 0.01f, 0.0f);
-                    _camera->setZNear(_zoomZNear - diff);
-                    //phi::debug(_camera->getZNear());
                 },
                 0,
                 phi::easingFunctions::easeRubberBack,
-                [&] { _zoomBounceAnimation = nullptr; phi::debug("ended"); }
+                [&] { _zoomBounceAnimation = nullptr; }
             );
 
             phi::floatAnimator::animateFloat(_zoomBounceAnimation);
@@ -358,5 +313,10 @@ namespace demon
             _zoomCurrent += delta;
             _camera->getTransform()->translate(_zoomDir * delta);
         }
+    }
+
+    void defaultCameraController::update()
+    {
+        updateZoom();
     }
 }
