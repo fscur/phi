@@ -7,7 +7,9 @@ namespace phi
         _name(name),
         _width(width),
         _height(height),
-        closed(false){}
+        closed(false)
+    {
+    }
 
     window::~window()
     {

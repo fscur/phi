@@ -19,6 +19,13 @@ namespace demon
         importer::defaultMaterial = _gl->defaultMaterial;
     }
 
+    library::~library()
+    {
+        delete _texturesRepository;
+        delete _materialsRepository;
+        delete _nodesRepository;
+    }
+
     void library::init()
     {
         auto importTextureFunction = [](string filePath)
@@ -40,8 +47,5 @@ namespace demon
         _materialsRepository = load<material>(_libraryPath + "/materials", ".material", importMaterialFunction);
         _nodesRepository = load<node>(_libraryPath + "/models", ".model", importModelFunction);
         debug(_("Library initialized."));
-        //debug(_("Library initialized again."));
-        //debug(_("Library initialized again now."));
-
     }
 }

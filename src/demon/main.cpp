@@ -49,10 +49,8 @@ void lpCommandFunction(vector<string> args)
 void initCommandLineCommands()
 {
     /*
-
     /rp <path> resources path
     /lp <path> library path
-
     */
 
     commandLineCommands.push_back(commandLineCommand("/rp", &rpCommandFunction));
@@ -122,14 +120,11 @@ int main(int argc, char* args[])
     initCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
-
     applicationStartInfo appStartInfo;
     appStartInfo.exeFileName = exeFileName;
     appStartInfo.resourcesPath = _resourcesPath;
     appStartInfo.libraryPath = _libraryPath;
-
     application app(appStartInfo);
-
     if (!path::exists(application::resourcesPath))
         return debugQuit("Resources path not found. [" + application::resourcesPath + "]");
 
@@ -147,6 +142,8 @@ int main(int argc, char* args[])
         application::logError(exception.what());
         system("pause");
     }
+
+    phi::input::release();
 
     return 0;
 }

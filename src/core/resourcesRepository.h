@@ -18,6 +18,15 @@ namespace phi
 
         ~resourcesRepository()
         {
+            for (auto resource : _resources)
+            {
+                safeDelete(resource);
+            }
+
+            for (auto object : _objects)
+            {
+                safeDelete(object);
+            }
         }
 
         void release()

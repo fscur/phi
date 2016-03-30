@@ -43,7 +43,7 @@ namespace phi
                 gl::frontFace frontFace = gl::frontFace::ccw,
                 gl::cullFace cullFace = gl::cullFace::back,
                 bool useBindlessTextures = false,
-                bool useSparseTextures = false):
+                bool useSparseTextures = false) :
                 clearColor(clearColor),
                 culling(culling),
                 depthTest(depthTest),
@@ -57,11 +57,12 @@ namespace phi
 
         struct glInfo
         {
-            public:
             gl::state state;
             string shadersPath;
-        public:
-            glInfo() {}
+
+            glInfo()
+            {
+            }
         };
 
     private:
@@ -80,7 +81,7 @@ namespace phi
     public:
         phi::texturesManager* texturesManager;
         phi::shadersManager* shadersManager;
-        gl:: state currentState;
+        gl::state currentState;
         std::map<string, bool> extensions;
         material* defaultMaterial;
         texture* defaultAlbedoTexture;

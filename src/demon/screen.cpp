@@ -120,6 +120,7 @@ namespace demon
     {
         debug("closing.");
         delete _commandsManager;
+        delete _defaultController;
         delete _gl;
         delete _library;
         delete _scene;

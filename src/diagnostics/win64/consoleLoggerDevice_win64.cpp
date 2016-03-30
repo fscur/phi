@@ -12,21 +12,21 @@ namespace phi
     {
     }
 
-    void consoleLoggerDevice::logError(std::string message)
+    void consoleLoggerDevice::logError(string message)
     {
         SetConsoleTextAttribute(_consoleHandle, FOREGROUND_RED | FOREGROUND_INTENSITY);
         std::cout << message << std::endl;
         SetConsoleTextAttribute(_consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
     }
 
-    void consoleLoggerDevice::logWarning(std::string message)
+    void consoleLoggerDevice::logWarning(string message)
     {
         SetConsoleTextAttribute(_consoleHandle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
         std::cout << message << std::endl;
         SetConsoleTextAttribute(_consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
     }
 
-    void consoleLoggerDevice::logInfo(std::string message)
+    void consoleLoggerDevice::logInfo(string message)
     {
         SetConsoleTextAttribute(_consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
         std::cout << message << std::endl;

@@ -36,6 +36,7 @@ namespace phi
 
     gl::~gl()
     {
+        delete defaultMaterial;
         delete texturesManager;
         delete shadersManager;
     }
@@ -90,7 +91,7 @@ namespace phi
             glEnable(GL_DEPTH_TEST);
             glError::check();
         }
-        
+
         GLboolean depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
         glError::check();
@@ -124,9 +125,9 @@ namespace phi
 
     texture* gl::createDefaultTexture(bool sparse, vec4 color)
     {
-        auto x = 1; 
+        auto x = 1;
         auto y = 1;
-        
+
         if (sparse)
         {
             x = 128;

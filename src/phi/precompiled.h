@@ -36,6 +36,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdarg.h>
@@ -43,6 +45,8 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
+#include <DbgHelp.h>
+#include <TlHelp32.h>
 #include <windows.h>
 #include <windowsx.h>
 #elif APPLE

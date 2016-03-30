@@ -67,6 +67,7 @@ namespace demon
     public:
 
         library(phi::gl* gl, phi::string resourcesPath);
+        ~library();
 
         void init();
 

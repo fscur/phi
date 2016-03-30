@@ -1,4 +1,5 @@
 #pragma once
+
 #ifdef _WIN32
 #ifdef io_EXPORTS
 #define IO_API __declspec(dllexport)

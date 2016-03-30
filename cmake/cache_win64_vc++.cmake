@@ -1,4 +1,4 @@
-set(CMAKE_CXX_FLAGS "/DMSVC /W4 /WX /Za /Zc:wchar_t- /GR- /EHsc" CACHE STRING "c++ compiler flags" FORCE)
+set(CMAKE_CXX_FLAGS "/DMSVC /W4 /WX /Zc:wchar_t- /GR- /EHsc" CACHE STRING "c++ compiler flags" FORCE)
 set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1" CACHE STRING "c++ debug compiler flags" FORCE)
 set(CMAKE_C_FLAGS "/DMSVC /W4 /WX" CACHE STRING "c compiler flags" FORCE)
 set(CMAKE_C_FLAGS_DEBUG "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1" CACHE STRING "c debug compiler flags" FORCE)
