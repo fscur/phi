@@ -228,7 +228,7 @@ namespace phi
             if (strcmp(endOfFileName - 4, cppExtension) == 0 ||
                 strcmp(endOfFileName - 2, headerExtension) == 0)
             {
-                //SymGetSymFromAddr64(process, symbolAddress, 0, symbol);
+                //TODO: choose best SymFromAddr
                 SymFromAddr(process, symbolAddress, 0, symbol);
                 stackSymbol.name = _strdup(symbol->Name);
                 stackSymbol.address = symbolAddress;

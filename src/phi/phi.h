@@ -40,7 +40,7 @@ namespace phi
         delete[] value;
         value = nullptr;
     }
-    
+
     template<typename T>
     bool contains(vector<T> vector, T value)
     {

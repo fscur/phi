@@ -46,6 +46,11 @@ if (MSVC)
         
     add_custom_command(
         TARGET apps
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.idb\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET apps
         POST_BUILD
         COMMAND ../../../../scripts/post_build_vc++/project.bat $(Configuration) apps)
         
