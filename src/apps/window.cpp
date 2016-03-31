@@ -22,7 +22,7 @@ namespace phi
     {
         onRender();
     }
-    
+
     void window::update() 
     {
         onUpdate();
@@ -32,6 +32,6 @@ namespace phi
     {
         onTick();
     }
-    
+
     void window::onTick(){}
 }

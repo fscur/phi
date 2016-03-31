@@ -17,6 +17,8 @@ namespace demon
         unsigned int const ZOOM_ACCUMULATION_TIME = 500u;
 
     private:
+        int _mousePosX;
+        int _mousePosY;
         int _lastMousePosX;
         int _lastMousePosY;
         bool _rotating;
@@ -40,14 +42,19 @@ namespace demon
         float _zoomBounceValue;
         phi::floatAnimation* _zoomBounceAnimation;
 
+        phi::vec2 _rotationSpeed;
+        unsigned int _rotationTime;
+        unsigned int _rotationLastMouseMove;
+
     private:
         void initPan(int mouseX, int mouseY);
         void initRotate(int mouseX, int mouseY);
         void zoom(int mouseX, int mouseY, float delta);
-        void pan(int mouseX, int mouseY);
-        void rotate(int mouseX, int mouseY);
+        void pan();
+        void rotate();
 
         void updateZoom();
+        void updateRotation();
 
         virtual void onMouseDown(phi::mouseEventArgs* e) override;
         virtual void onMouseMove(phi::mouseEventArgs* e) override;

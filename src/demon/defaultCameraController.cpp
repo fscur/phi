@@ -16,7 +16,9 @@ namespace demon
         _zoomTime(0u),
         _zoomAccumulationTime(0u),
         _zoomBounceValue(0.0f),
-        _zoomBounceAnimation(nullptr)
+        _zoomBounceAnimation(nullptr),
+        _rotationSpeed(phi::vec2()),
+        _rotationTime(0u)
     {
     }
 
@@ -26,6 +28,7 @@ namespace demon
             return;
 
         _zoomSpeed = 0.0f;
+        _rotationSpeed = phi::vec2();
 
         _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
         phi::mat4 proj = _camera->getProjectionMatrix();
@@ -47,16 +50,16 @@ namespace demon
     void defaultCameraController::initRotate(int mouseX, int mouseY)
     {
         if (_zoomBounceAnimation)
-            return;
+        {
+            phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
+            _zoomBounceAnimation = nullptr;
+        }
 
         _zoomSpeed = 0.0f;
 
         _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
 
         phi::mat4 proj = _camera->getProjectionMatrix();
-
-        _lastMousePosX = mouseX;
-        _lastMousePosY = mouseY;
 
         float z = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
         if (_zBufferValue == 1.0f)
@@ -100,9 +103,11 @@ namespace demon
 
         _eyeZ = z;
         _rotating = true;
+
+        _rotationSpeed = phi::vec2();
     }
 
-    void defaultCameraController::pan(int mouseX, int mouseY)
+    void defaultCameraController::pan()
     {
         auto zNear = _camera->getZNear();
         auto iez = 1.0f / zNear;
@@ -126,11 +131,11 @@ namespace demon
         auto xp0 = xs0 / hw;
         auto xm0 = xp0 * tg * aspect;
 
-        auto ys1 = (float)mouseY - hh;
+        auto ys1 = (float)_mousePosY - hh;
         auto yp1 = ys1 / hh;
         auto ym1 = -(yp1 * tg);
 
-        auto xs1 = (float)mouseX - hw;
+        auto xs1 = (float)_mousePosX - hw;
         auto xp1 = xs1 / hw;
         auto xm1 = xp1 * tg * aspect;
 
@@ -147,7 +152,7 @@ namespace demon
         _camera->moveTo(pos);
     }
 
-    void defaultCameraController::rotate(int mouseX, int mouseY)
+    void defaultCameraController::rotate()
     {
         auto zNear = _camera->getZNear();
         auto iez = 1.0f / zNear;
@@ -160,22 +165,30 @@ namespace demon
         auto w = static_cast<float>(_camera->getResolution().w);
         auto h = static_cast<float>(_camera->getResolution().h);
 
-        auto dx = _lastMousePosX - mouseX;
-        auto dy = _lastMousePosY - mouseY;
+        auto dx = _mousePosX - _lastMousePosX;
+        auto dy = _mousePosY - _lastMousePosY;
 
         auto x = (dx / w) * 3 * phi::PI;
         auto y = (dy / h) * 3 * phi::PI;
 
-        _camera->orbit(_targetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), x, y);
+        auto power = phi::vec2(x, y);
+        auto powerLength = glm::length(power);
 
-        _lastMousePosX = mouseX;
-        _lastMousePosY = mouseY;
+        if (dx == 0.0f || dy == 0.0f)
+            _rotationSpeed = glm::normalize(_rotationSpeed + power) * powerLength;
+        else
+            _rotationSpeed = power;
+
+        _rotationLastMouseMove = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+        _rotationTime = 0u;
     }
 
     void defaultCameraController::zoom(int mouseX, int mouseY, float delta)
     {
         if (delta > 0.0f && _zoomBounceAnimation)
             return;
+
+        _rotationSpeed = phi::vec2();
 
         _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
 
@@ -253,15 +266,28 @@ namespace demon
 
     void defaultCameraController::onMouseMove(phi::mouseEventArgs* e)
     {
+        _lastMousePosX = _mousePosX;
+        _lastMousePosY = _mousePosY;
+        _mousePosX = e->x;
+        _mousePosY = e->y;
+
         if (_rotating)
-            rotate(e->x, e->y);
+            rotate();
         if (_panning)
-            pan(e->x, e->y);
+            pan();
     }
 
     void defaultCameraController::onMouseUp(phi::mouseEventArgs* e)
     {
-        _panning = _rotating = false;
+        _panning = false;
+
+        if (e->rightButtonPressed)
+        {
+            _rotating = false;
+            auto nowMilliseconds = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+            auto deltaTime = glm::max(10u, nowMilliseconds - _rotationLastMouseMove);
+            _rotationSpeed *= 1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f));
+        }
     }
 
     void defaultCameraController::onMouseWheel(phi::mouseEventArgs* e)
@@ -271,7 +297,6 @@ namespace demon
 
     void defaultCameraController::updateZoom()
     {
-        auto deltaSeconds = static_cast<float>(phi::time::deltaSeconds);
         auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
         _zoomTime += deltaMilliseconds;
         _zoomAccumulationTime = glm::max(_zoomAccumulationTime - deltaMilliseconds, 0u);
@@ -315,8 +340,23 @@ namespace demon
         }
     }
 
+    void defaultCameraController::updateRotation()
+    {
+        auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
+        _rotationTime += deltaMilliseconds;
+
+        auto desFactor = _rotating ? 100.0f : 325.0f;
+        auto speed = _rotationSpeed * glm::exp(_rotationTime / -desFactor);
+
+        _camera->orbit(_targetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), -speed.x, -speed.y);
+    }
+
     void defaultCameraController::update()
     {
         updateZoom();
+        updateRotation();
+
+        _lastMousePosX = _mousePosX;
+        _lastMousePosY = _mousePosY;
     }
 }
