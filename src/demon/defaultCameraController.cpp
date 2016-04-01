@@ -19,7 +19,9 @@ namespace demon
         _rotationSpeed(phi::vec2()),
         _rotationInertiaTime(0u),
         _panSpeed(0.0f),
-        _panInertiaTime(0u)
+        _panInertiaTime(0u),
+        _panDelta(phi::vec3()),
+        _panDoingInertia(false)
     {
     }
 
@@ -33,7 +35,16 @@ namespace demon
 
     void defaultCameraController::onMouseUp(phi::mouseEventArgs* e)
     {
-        _panning = false;
+        if (e->middleButtonPressed)
+        {
+            _panning = false;
+            auto nowMilliseconds = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+            auto deltaTime = glm::max(10u, nowMilliseconds - _panLastMouseMoveTime);
+            auto oldL = glm::length(_panDelta);
+            _panDelta = (_virtualCameraPos - _camera->getTransform()->getPosition());
+            _panDelta += _panDelta * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f)));
+            _cameraPos = _camera->getTransform()->getPosition();
+        }
 
         if (e->rightButtonPressed)
         {
@@ -62,6 +73,7 @@ namespace demon
         _cameraPos = _virtualCameraPos = cameraTransform->getPosition();
         _cameraRight = cameraTransform->getRight();
         _cameraUp = cameraTransform->getUp();
+        _panDelta = glm::vec3();
         _startPosX = mouseX;
         _startPosY = mouseY;
         _panning = true;
@@ -151,7 +163,7 @@ namespace demon
         auto yp0 = ys0 / hh;
         auto ym0 = -(yp0 * tg);
 
-        auto xs0 = (float)_lastMousePosX- hw;
+        auto xs0 = (float)_lastMousePosX - hw;
         auto xp0 = xs0 / hw;
         auto xm0 = xp0 * tg * aspect;
 
@@ -171,32 +183,13 @@ namespace demon
 
         auto panSpeed = phi::vec2(x, y);
         auto panDelta = phi::vec3(_cameraRight * panSpeed.x) + phi::vec3(-_cameraUp * panSpeed.y);
-        _panSpeed = glm::length(panSpeed);
 
         _cameraPos = _camera->getTransform()->getPosition();
         _virtualCameraPos = _virtualCameraPos + panDelta;
-        _panDir =  glm::normalize(_virtualCameraPos - _cameraPos);
-
-        if (_panAnimation)
-            phi::floatAnimator::cancelAnimation(_panAnimation);
-
-        _panAnimation = new phi::floatAnimation
-        (
-            0.0f,
-            glm::length(_virtualCameraPos - _cameraPos),
-            500,
-            [&](float t)
-            {
-                auto delta = _panDir * t;
-                _camera->getTransform()->setLocalPosition(_cameraPos + delta);
-            },
-            0,
-            phi::easingFunctions::easeOutQuint,
-            [&] { _panAnimation = nullptr; }
-        );
-        phi::floatAnimator::animateFloat(_panAnimation);
-
+        _panDelta = _virtualCameraPos - _cameraPos;
         _panInertiaTime = 0u;
+        _panLastMouseMoveTime = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+        _panDoingInertia = true;
     }
 
     void defaultCameraController::mouseMoveRotate()
@@ -343,9 +336,9 @@ namespace demon
                 bounceDistance,
                 400,
                 [this, cameraPosition](float t)
-                {
-                    _camera->getTransform()->setLocalPosition(cameraPosition + _zoomDir * t);
-                },
+            {
+                _camera->getTransform()->setLocalPosition(cameraPosition + _zoomDir * t);
+            },
                 0,
                 phi::easingFunctions::easeRubberBack,
                 [&] { _zoomBounceAnimation = nullptr; }
@@ -373,17 +366,23 @@ namespace demon
 
     void defaultCameraController::updatePan()
     {
-        //if (_panning)
-        //    return;
+        if (!_panDoingInertia)
+            return;
 
-        //auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
-        //_panInertiaTime += deltaMilliseconds;
+        auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
+        _panInertiaTime += deltaMilliseconds;
+        auto desFactor = _panning ? 100.0f : 325.0f;
+        auto percent = -glm::exp(_panInertiaTime / -desFactor) + 1.0f;
+        auto speed = glm::length(_panDelta) * percent;
 
-        //auto speed = _panSpeed * glm::exp(_panInertiaTime / -325.0f);
+        if (speed == 0.0f)
+            return;
 
-        //phi::debug(speed);
-        //auto delta = _panDir * speed;
-        //_camera->getTransform()->translate(delta);
+        auto dir = glm::normalize(_panDelta);
+        _camera->getTransform()->setLocalPosition(_cameraPos + dir * speed);
+
+        if (percent >= 1.0f)
+            _panDoingInertia = false;
     }
 
     void defaultCameraController::cancelZoom()
@@ -411,5 +410,6 @@ namespace demon
         }
 
         _panSpeed = 0.0f;
+        _panDelta = phi::vec3();
     }
 }

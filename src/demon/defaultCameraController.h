@@ -47,10 +47,12 @@ namespace demon
         unsigned int _rotationLastMouseMoveTime;
 
         float _panSpeed;
-        glm::vec3 _panDir;
+        glm::vec3 _panDelta;
         unsigned int _panInertiaTime;
         phi::floatAnimation* _panAnimation;
         phi::vec3 _virtualCameraPos;
+        unsigned int _panLastMouseMoveTime;
+        bool _panDoingInertia;
 
     private:
         void initPan(int mouseX, int mouseY);
