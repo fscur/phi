@@ -52,11 +52,11 @@ namespace phi
         {
             millisecondsPerFrame = time::deltaSeconds * 1000;
 
-            onClear();
-            onRender();
             onSwapbuffers();
             onInput();
             onUpdate();
+            onClear();
+            onRender();
 
             time::update();
             

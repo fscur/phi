@@ -14,7 +14,6 @@ namespace phi
         static double _lastUpdateMilliseconds;
 
     public:
-        UI_API static void animateFloat(float* floatFrom, float floatTo, int milliseconds);
         UI_API static void animateFloat(floatAnimation* animation);
         UI_API static void cancelAnimation(floatAnimation* animation);
         UI_API static void update();

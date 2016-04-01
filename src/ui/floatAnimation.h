@@ -8,7 +8,6 @@ namespace phi
     class floatAnimation
     {
     private:
-        float* _value;
         float _from;
         float _to;
         double _milliseconds;
@@ -20,9 +19,8 @@ namespace phi
         std::function<void()> _endCallback;
 
     public:
-        floatAnimation(float* value, float to, int milliseconds, std::function<void(float)> callback = nullptr, int delayMilliseconds = 0, std::function<float(float)> easingFunction = easingFunctions::linear, std::function<void()> endCallback = nullptr) :
-            _value(value),
-            _from(*value),
+        floatAnimation(float from, float to, int milliseconds, std::function<void(float)> callback, int delayMilliseconds = 0, std::function<float(float)> easingFunction = easingFunctions::linear, std::function<void()> endCallback = nullptr) :
+            _from(from),
             _to(to),
             _milliseconds(milliseconds),
             _elapsed(0),
@@ -34,7 +32,6 @@ namespace phi
         {
         }
 
-        float* getValue() { return _value; }
         float getFrom() { return _from; }
         float getTo() { return _to; }
         double getMilliseconds() { return _milliseconds; }

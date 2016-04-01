@@ -10,11 +10,6 @@ namespace phi
     std::vector<floatAnimation*> floatAnimator::_toCancelAnimations;
     double floatAnimator::_lastUpdateMilliseconds = 0.0;
 
-    void floatAnimator::animateFloat(float* value, float to, int milliseconds)
-    {
-        animateFloat(new floatAnimation(value, to, milliseconds));
-    }
-
     void floatAnimator::animateFloat(floatAnimation* animation)
     {
         _animations.push_back(animation);
@@ -47,7 +42,6 @@ namespace phi
 
             animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
 
-            float* value = animation->getValue();
             float from = animation->getFrom();
             float to = animation->getTo();
 
@@ -55,13 +49,13 @@ namespace phi
             percent = glm::clamp(percent, 0.0f, 1.0f);
             float diff = animation->getEasingFunction()(percent);
 
-            *value = from + (to - from) * diff;
+            auto value = from + (to - from) * diff;
 
             if (animation->getElapsed() > (float)animation->getMilliseconds())
             {
                 auto callback = animation->getCallback();
                 if (callback != nullptr)
-                    callback(*value);
+                    callback(value);
 
                 auto endCallback = animation->getEndCallback();
                 if (endCallback)
@@ -75,7 +69,7 @@ namespace phi
             {
                 auto callback = animation->getCallback();
                 if (callback != nullptr)
-                    callback(*value);
+                    callback(value);
             }
         }
 

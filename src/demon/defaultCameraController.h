@@ -32,29 +32,42 @@ namespace demon
         float _eyeZ;
         phi::vec3 _targetPos;
         phi::scene* _scene;
+        phi::node* _cube;
 
         phi::vec3 _zoomDir;
         float _zoomSpeed;
-        unsigned int _zoomTime;
-        unsigned int _zoomAccumulationTime;
-        float _zoomCurrent;
-        float _zoomLimit;
-        float _zoomBounceValue;
+        unsigned int _zoomSpeedAccumulationTime;
+        unsigned int _zoomInertiaTime;
+        float _zoomDistanceTraveled;
+        float _zoomDistanceLimit;
         phi::floatAnimation* _zoomBounceAnimation;
 
         phi::vec2 _rotationSpeed;
-        unsigned int _rotationTime;
-        unsigned int _rotationLastMouseMove;
+        unsigned int _rotationInertiaTime;
+        unsigned int _rotationLastMouseMoveTime;
+
+        float _panSpeed;
+        glm::vec3 _panDir;
+        unsigned int _panInertiaTime;
+        phi::floatAnimation* _panAnimation;
+        phi::vec3 _virtualCameraPos;
 
     private:
         void initPan(int mouseX, int mouseY);
         void initRotate(int mouseX, int mouseY);
-        void zoom(int mouseX, int mouseY, float delta);
-        void pan();
-        void rotate();
+
+        void mouseWheelZoom(int mouseX, int mouseY, float delta);
+
+        void mouseMovePan();
+        void mouseMoveRotate();
 
         void updateZoom();
         void updateRotation();
+        void updatePan();
+
+        void cancelZoom();
+        void cancelRotation();
+        void cancelPan();
 
         virtual void onMouseDown(phi::mouseEventArgs* e) override;
         virtual void onMouseMove(phi::mouseEventArgs* e) override;

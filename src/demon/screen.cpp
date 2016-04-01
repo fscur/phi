@@ -80,10 +80,10 @@ namespace demon
 
         auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
         auto clonedFloor = floor->clone();
-        //_scene->add(clonedFloor);
+        _scene->add(clonedFloor);
 
         auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
-        cube->getTransform().setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
+        cube->getTransform().setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
         _scene->add(cube);
 
         auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
@@ -101,6 +101,8 @@ namespace demon
         _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
 
+        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform().setLocalSize(phi::vec3(0.1f, 0.1f, 0.1f));
         _defaultController = new defaultCameraController(_scene);
     }
 

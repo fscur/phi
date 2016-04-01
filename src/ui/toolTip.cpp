@@ -53,8 +53,7 @@ namespace phi
         _backgroundRenderer->setLocation(_location);
         _backgroundRenderer->update();
 
-        float* w = new float(3.0f);
-        floatAnimator::animateFloat(new phi::floatAnimation(w, (float)_size.w, 150, [&](float w) -> void
+        floatAnimator::animateFloat(new phi::floatAnimation(3.0f, (float)_size.w, 150, [&](float w) -> void
         {
             auto s = _backgroundRenderer->getSize();
             _backgroundRenderer->setSize(sizeui((GLuint)w, s.h));
@@ -64,8 +63,7 @@ namespace phi
             _backgroundRenderer->update();
         }, 150, easingFunctions::easeOutQuad));
 
-        float* h = new float(0.0f);
-        floatAnimator::animateFloat(new phi::floatAnimation(h, targetHeight, 100, [&](float h) -> void
+        floatAnimator::animateFloat(new phi::floatAnimation(0.0f, targetHeight, 100, [&](float h) -> void
         {
             auto s = _backgroundRenderer->getSize();
             _backgroundRenderer->setSize(sizeui(s.w, (GLuint)abs(h)));
