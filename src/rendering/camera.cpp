@@ -92,7 +92,7 @@ namespace phi
         position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
         position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
 
-        auto target = transform->getPosition() + transform->getDirection() * _focus;
+        auto target = transform->getPosition() + transform->getDirection();
         target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
         target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
 

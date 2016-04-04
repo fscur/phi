@@ -32,16 +32,6 @@ namespace demon
         initLibrary();
         initScene();
         initInput();
-
-        auto d = 1.0f;
-        auto c = 0.5f;
-        for (float i = 0.0f; i < 1.0f; i += 0.025f)
-        {
-            int a = (int)(easingFunctions::easeRubberBack(i) * 100.0f);
-            phi::debug(std::string((int)a, '-') + "[" + std::to_string(a) + "]");
-        }
-
-        //1.70158f
     }
 
     void screen::initGL()

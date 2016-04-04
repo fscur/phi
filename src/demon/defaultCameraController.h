@@ -17,59 +17,55 @@ namespace demon
         unsigned int const ZOOM_ACCUMULATION_TIME = 500u;
 
     private:
+        phi::scene* _scene;
         int _mousePosX;
         int _mousePosY;
         int _lastMousePosX;
         int _lastMousePosY;
-        bool _rotating;
-        bool _panning;
-        GLfloat _zBufferValue;
-        phi::vec3 _cameraPos;
-        phi::vec3 _cameraRight;
-        phi::vec3 _cameraUp;
-        int _startPosX;
-        int _startPosY;
-        float _eyeZ;
-        phi::vec3 _targetPos;
-        phi::scene* _scene;
-        phi::node* _cube;
 
         phi::vec3 _zoomDir;
         float _zoomSpeed;
-        unsigned int _zoomSpeedAccumulationTime;
-        unsigned int _zoomInertiaTime;
         float _zoomDistanceTraveled;
         float _zoomDistanceLimit;
+        unsigned int _zoomSpeedAccumulationTime;
+        unsigned int _zoomInertiaTime;
         phi::floatAnimation* _zoomBounceAnimation;
 
-        phi::vec2 _rotationSpeed;
-        unsigned int _rotationInertiaTime;
+        bool _rotating;
+        bool _rotationDoingInertia;
+        phi::vec2 _rotationDelta;
+        phi::vec3 _rotationTargetPos;
         unsigned int _rotationLastMouseMoveTime;
+        unsigned int _rotationInertiaTime;
+        float _rotationInertiaLastPercent;
 
-        float _panSpeed;
-        glm::vec3 _panDelta;
-        unsigned int _panInertiaTime;
-        phi::floatAnimation* _panAnimation;
-        phi::vec3 _virtualCameraPos;
-        unsigned int _panLastMouseMoveTime;
+        bool _panning;
         bool _panDoingInertia;
+        float _panEyeZ;
+        phi::vec3 _panCameraPos;
+        phi::vec3 _panCameraRight;
+        phi::vec3 _panCameraUp;
+        glm::vec3 _panDelta;
+        phi::vec3 _panTargetCameraPos;
+        unsigned int _panLastMouseMoveTime;
+        unsigned int _panInertiaTime;
 
     private:
-        void initPan(int mouseX, int mouseY);
-        void initRotate(int mouseX, int mouseY);
+        void zoomMouseWheel(int mouseX, int mouseY, float delta);
+        void zoomUpdate();
+        void zoomCancel();
 
-        void mouseWheelZoom(int mouseX, int mouseY, float delta);
+        void panMouseDown(int mouseX, int mouseY);
+        void panMouseMove();
+        void panMouseUp();
+        void panUpdate();
+        void panCancel();
 
-        void mouseMovePan();
-        void mouseMoveRotate();
-
-        void updateZoom();
-        void updateRotation();
-        void updatePan();
-
-        void cancelZoom();
-        void cancelRotation();
-        void cancelPan();
+        void rotationMouseDown(int mouseX, int mouseY);
+        void rotationMouseMove();
+        void rotationMouseUp();
+        void rotationUpdate();
+        void rotationCancel();
 
         virtual void onMouseDown(phi::mouseEventArgs* e) override;
         virtual void onMouseMove(phi::mouseEventArgs* e) override;
