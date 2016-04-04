@@ -1,10 +1,17 @@
 #pragma once
 #include <phi.h>
+
 #include <core\resourcesRepository.h>
 #include <core\node.h>
+
+#include <io\path.h>
+
+#include <loader\importResourceException.h>
+
 #include <rendering\material.h>
 #include <rendering\gl.h>
-#include <io\path.h>
+
+#include <apps\application.h>
 
 namespace demon
 {
@@ -23,13 +30,11 @@ namespace demon
         phi::resourcesRepository<T>* load(
             phi::string directory,
             phi::string filter,
-            std::function<bool(phi::string, phi::resource<T>*&)> importFunction)
+            std::function<phi::resource<T>*(phi::string)> importFunction)
         {
             auto repository = new phi::resourcesRepository<T>();
-            auto filters = phi::vector<phi::string>();
-            filters.push_back(filter);
 
-            load(directory, filters, repository, importFunction);
+            load(directory, { filter }, repository, importFunction);
 
             return repository;
         }
@@ -38,18 +43,24 @@ namespace demon
         void load(phi::string directory,
             phi::vector<phi::string> filters,
             phi::resourcesRepository<T>* repository,
-            std::function<bool(phi::string, phi::resource<T>*&)> importFunction)
+            std::function<phi::resource<T>*(phi::string)> importFunction)
         {
             auto subDirs = phi::path::getDirectories(directory);
             for (phi::directoryInfo &dir : subDirs)
                 load(dir.path, filters, repository, importFunction);
 
             auto files = phi::path::getFiles(directory, filters);
-            for (phi::fileInfo &file : files)
+            
+            for (auto &file : files)
             {
-                phi::resource<T>* resource;
-                if (importFunction(file.path, resource))
-                    repository->addResource(resource);
+                try
+                {
+                    repository->addResource(importFunction(file.path));
+                }
+                catch (const phi::importResourceException& exception)
+                {
+                    phi::application::logError(phi::string(exception.what()) + " " + exception.getResourcePath());
+                }
             }
         }
 

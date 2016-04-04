@@ -1,8 +1,10 @@
 #include <precompiled.h>
 #include "demon.h"
-#include <apps\application.h>
-#include <demon\screen.h>
+
 #include <io\path.h>
+#include <apps\application.h>
+#include <apps\invalidInitializationException.h>
+#include <demon\screen.h>
 
 using namespace phi;
 
@@ -26,7 +28,7 @@ public:
         args(vector<string>()),
         func(func),
         shouldExecute(false)
-    {   
+    {
     }
 };
 
@@ -61,17 +63,9 @@ void processCommandLine(int argc, char* args[])
 {
     int curCommand = -1;
 
-#if _DEBUG
-    std::cout << "cmd line: ";
-#endif
-
     for (int i = 1; i < argc; i++)
     {
         string arg(args[i]);
-
-#if _DEBUG
-        std::cout << args[i] << " ";
-#endif
         vector<string>::iterator it;
 
         bool foundCommand = false;
@@ -90,9 +84,7 @@ void processCommandLine(int argc, char* args[])
         if (!foundCommand && curCommand > -1)
             commandLineCommands[curCommand].args.push_back(arg);
     }
-#if _DEBUG
-    std::cout << std::endl;
-#endif
+
     return;
 }
 
@@ -108,14 +100,23 @@ void executeCommands()
 int debugQuit(string msg)
 {
 #ifdef _DEBUG
-    log(msg);
+    application::logError(msg);
     system("pause");
 #endif
     return -1;
 }
 
+void initGetText()
+{
+    setlocale(LC_ALL, "");
+    bindtextdomain("demon", "./locale");
+    textdomain("demon");
+}
+
 int main(int argc, char* args[])
 {
+    initGetText();
+
     string exeFileName = string(args[0]);
 
     initCommandLineCommands();
@@ -135,12 +136,17 @@ int main(int argc, char* args[])
     if (!path::exists(application::libraryPath))
         return debugQuit("Library path not found. [" + application::libraryPath + "]");
 
-    auto mainScreen = new demon::screen("?", 1024, 768);
-    
-    debug("runnning.");
-    app.run(mainScreen);
-
-    safeDelete(mainScreen);
+    try
+    {
+        auto mainScreen = new demon::screen("?", 1024, 768);
+        app.run(mainScreen);
+        safeDelete(mainScreen);
+    }
+    catch (const phi::invalidInitializationException& exception)
+    {
+        application::logError(exception.what());
+        system("pause");
+    }
 
     return 0;
 }

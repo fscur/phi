@@ -11,13 +11,10 @@ namespace phi
 
         _initialized = true;
 
-        phi::log("Initializing OpenGL.");
-
-        printOpenGLDetails();
         initOpenGLExtensions();
 
-        auto hasBindlessTextures = extensions["GL_ARB_bindless_texture"] && info.state.useBindlessTextures;
-        auto hasSparseTextures = extensions["GL_ARB_sparse_texture"] && info.state.useSparseTextures;
+        auto hasBindlessTextures = extensions[BINDLESS_TEXTURE_EXTENSION] && info.state.useBindlessTextures;
+        auto hasSparseTextures = extensions[SPARSE_TEXTURE_EXTENSION] && info.state.useSparseTextures;
 
         currentState = gl::state(
             info.state.clearColor,
@@ -43,17 +40,6 @@ namespace phi
         delete shadersManager;
     }
 
-    void gl::printOpenGLDetails()
-    {
-        auto print = [](GLenum s) -> string {
-            return string((char*)glGetString(s));
-        };
-
-        phi::log("Vendor: " + print(GL_VENDOR) + ".");
-        phi::log("Renderer: " + print(GL_RENDERER) + ".");
-        phi::log("Version: " + print(GL_VERSION) + ".");
-    }
-
     void gl::initOpenGLExtensions()
     {
         const GLubyte* glExtension = nullptr;
@@ -67,21 +53,18 @@ namespace phi
             glExtensions.push_back(string((char*)glExtension));
             glExtension = glGetStringi(GL_EXTENSIONS, ++i);
         }
+        glGetError(); //cleaning error from loading the last (inexistent) extension
 
-        //cleaning error from loading the last (inexistent) extension
-        glGetError();
-
-        vector<string> phiExtensions;
-        phiExtensions.push_back("GL_ARB_bindless_texture");
-        phiExtensions.push_back("GL_ARB_sparse_texture");
-
-        phi::log("Extensions:");
+        vector<string> phiExtensions =
+        {
+            BINDLESS_TEXTURE_EXTENSION,
+            SPARSE_TEXTURE_EXTENSION,
+        };
 
         for (auto phiExtension : phiExtensions)
         {
             auto found = phi::contains(glExtensions, phiExtension);
             extensions[phiExtension] = found;
-            phi::log(phiExtension + (found ? "[Ok]" : "[Not Ok]"));
         }
     }
 

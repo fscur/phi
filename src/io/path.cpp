@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "path.h"
 
+#include <core\exception.h>
+
 namespace phi
 {
     bool path::exists(const string& path)
@@ -12,29 +14,11 @@ namespace phi
             if (ENOENT == errno)
                 return false;
 
-            throw "unknown error.";
+            throw exception("[path::exists] unknown error.");
         }
 
         return true;
     }
-
-    /*bool path::exists(const string& path)
-    {
-        #ifdef _WIN32
-        FILE *file;
-        fopen_s(&file, path.c_str(), "r");
-        if (file)
-        {
-            fclose(file);
-            return true;
-        }
-
-        return false;
-        
-        #else
-            return false;
-        #endif
-    }*/
 
     string path::getDirectoryFullName(string path)
     {

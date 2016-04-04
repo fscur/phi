@@ -28,43 +28,32 @@ namespace phi
     static const float PI_OVER_4 = 0.7853981634f;
 
     template<typename T>
-    inline void safeDelete(T value)
+    void safeDelete(T value)
     {
         delete value;
         value = nullptr;
     }
 
     template<typename T>
-    inline void safeDeleteArray(T value)
+    void safeDeleteArray(T value)
     {
         delete[] value;
         value = nullptr;
     }
-
+    
     template<typename T>
-    inline void debug(T value)
-    {
-#if _DEBUG
-        std::cout << value << std::endl;
-#endif
-    }
-
-    template<typename T>
-    inline void log(T value)
-    {
-        std::cout << value << std::endl;
-    }
-
-    inline void log(vec3 value)
-    {
-        std::cout << value.x << "; " << value.y << "; " << value.z << std::endl;
-    }
-
-    template<typename T>
-    inline bool contains(vector<T> vector, T value)
+    bool contains(vector<T> vector, T value)
     {
         auto it = std::find(vector.begin(), vector.end(), value);
 
         return it != vector.end();
+    }
+
+    template<typename T>
+    void debug(T value)
+    {
+#if _DEBUG
+        std::cout << value << std::endl;
+#endif
     }
 }

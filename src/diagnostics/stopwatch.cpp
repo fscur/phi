@@ -1,7 +1,5 @@
 #include <precompiled.h>
-#include "diagnostics.h"
 #include "stopwatch.h"
-#include "console.h"
 
 using namespace std::chrono;
 
@@ -16,7 +14,7 @@ namespace phi
 
     void stopwatch::start()
     {
-        if(!_isRunning)
+        if (!_isRunning)
         {
             _isRunning = true;
             auto now = high_resolution_clock::now();
@@ -26,22 +24,22 @@ namespace phi
 
     void stopwatch::stop()
     {
-        if (!_isRunning)
-            throw "idiot";
-
-        auto now = high_resolution_clock::now();
-        _stop = duration_cast<nanoseconds>(now.time_since_epoch());
-        _isRunning = false;
+        if (_isRunning)
+        {
+            auto now = high_resolution_clock::now();
+            _stop = duration_cast<nanoseconds>(now.time_since_epoch());
+            _isRunning = false;
+        }
     }
 
     void stopwatch::resume()
     {
-        if (_isRunning)
-            throw "idiot";
-
-        auto now = high_resolution_clock::now().time_since_epoch();
-        _initial += now - _stop;
-        _isRunning = true;
+        if (!_isRunning)
+        {
+            auto now = high_resolution_clock::now().time_since_epoch();
+            _initial += now - _stop;
+            _isRunning = true;
+        }
     }
 
     double stopwatch::getElapsedSeconds()
@@ -70,7 +68,7 @@ namespace phi
     {
         auto msg = functionName + " took: ";
         auto elapsedSeconds = stopwatch::measure(function);
-        console::writeLine(msg + std::to_string(elapsedSeconds));
+        std::cout << msg + std::to_string(elapsedSeconds) << std::endl;
 
         return elapsedSeconds;
     }
@@ -80,7 +78,7 @@ namespace phi
         double average = 0;
         auto watch = stopwatch();
 
-        for(auto i = 0; i < samples; i++)
+        for (auto i = 0; i < samples; i++)
         {
             watch.resume();
             function();
@@ -96,7 +94,7 @@ namespace phi
         double average = stopwatch::measureAverage(function, samples);
 
         auto msg = "average of " + std::to_string(samples) + " samples for " + functionName + " took: ";
-        console::writeLine(msg + std::to_string(average));
+        std::cout << msg + std::to_string(average) << std::endl;
 
         return average;
     }

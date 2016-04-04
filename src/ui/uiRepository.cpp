@@ -39,33 +39,30 @@ namespace phi
         initialized = true;
     }
 
-    void uiRepository::loadTextures(std::string directory)
+    void uiRepository::loadTextures(string directory)
     {
-        phi::resource<phi::texture>* textureButtonRes;
-        phi::importer::importTexture(phi::path::combine(directory, "button.texture"), textureButtonRes);
+        //TODO: Find a way to deal with resource<T> delete. Maybe in this case should import a .png, not a texture
+        //TODO: try catch this shit
+        resource<texture>* textureButtonRes = importer::importTexture(path::combine(directory, "button.texture"));
         textureButton = textureButtonRes->getObject();
 
-        phi::resource<phi::texture>* textureArrowDownRes;
-        phi::importer::importTexture(phi::path::combine(directory, "arrow_down.texture"), textureArrowDownRes);
+        resource<texture>* textureArrowDownRes = importer::importTexture(path::combine(directory, "arrow_down.texture"));
         textureArrowDown = textureArrowDownRes->getObject();
 
-        phi::resource<phi::texture>* textureArrowUpRes;
-        phi::importer::importTexture(phi::path::combine(directory, "arrow_up.texture"), textureArrowUpRes);
+        resource<texture>* textureArrowUpRes = importer::importTexture(path::combine(directory, "arrow_up.texture"));
         textureArrowUp = textureArrowUpRes->getObject();
 
-        phi::resource<phi::texture>* textureModelsRes;
-        phi::importer::importTexture(phi::path::combine(directory, "models.texture"), textureModelsRes);
+        resource<texture>* textureModelsRes = importer::importTexture(path::combine(directory, "models.texture"));
         textureModels = textureModelsRes->getObject();
 
-        phi::resource<phi::texture>* textureMaterialsRes;
-        phi::importer::importTexture(phi::path::combine(directory, "materials.texture"), textureMaterialsRes);
+        resource<texture>* textureMaterialsRes = importer::importTexture(path::combine(directory, "materials.texture"));
         textureMaterials = textureMaterialsRes->getObject();
     }
 
-    void uiRepository::loadFonts(std::string directory)
+    void uiRepository::loadFonts(string directory)
     {
-        auto consolasPath = phi::path::combine(directory, "Consola.ttf");
-        auto arialPath = phi::path::combine(directory, "Arial.ttf");
+        auto consolasPath = path::combine(directory, "Consola.ttf");
+        auto arialPath = path::combine(directory, "Arial.ttf");
 
         //fontConsolas14 = new font("Consola_14", consolasPath, 14, renderingSystem::freeTypeLibrary);
         //fontConsolas16 = new font("Consola_16", consolasPath, 16, renderingSystem::freeTypeLibrary);
@@ -75,7 +72,7 @@ namespace phi
         //fontArial72 = new font("Arial_72", arialPath, 72, renderingSystem::freeTypeLibrary);
     }
 
-    void uiRepository::loadCursors(std::string directory)
+    void uiRepository::loadCursors(string directory)
     {
         cursorText = new cursor(path::combine(directory, "text.texture"), vec2(0.5f, 0.5f));
         cursorDefault = new cursor(path::combine(directory, "default.texture"), vec2(0.0f, 0.0f));

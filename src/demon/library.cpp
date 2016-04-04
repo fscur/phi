@@ -4,41 +4,44 @@
 #include <loader\importer.h>
 #include <io\path.h>
 
+using namespace phi;
+
 namespace demon
 {
-    library::library(phi::gl* gl, phi::string resourcesPath) :
+    library::library(gl* gl, string resourcesPath) :
         _gl(gl),
         _libraryPath(resourcesPath)
     {
-        phi::importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
-        phi::importer::defaultNormalTexture = _gl->defaultNormalTexture;
-        phi::importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
-        phi::importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
-        phi::importer::defaultMaterial = _gl->defaultMaterial;
+        importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
+        importer::defaultNormalTexture = _gl->defaultNormalTexture;
+        importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
+        importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
+        importer::defaultMaterial = _gl->defaultMaterial;
     }
 
     void library::init()
     {
-        auto importTextureFunction = [](phi::string filePath, phi::resource<phi::texture>*& resource)
+        auto importTextureFunction = [](string filePath)
         {
-            return phi::importer::importTexture(filePath, resource);
+            return importer::importTexture(filePath);
         };
 
-        _texturesRepository =
-            load<phi::texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
-
-        auto importMaterialFunction = [&](phi::string filePath, phi::resource<phi::material>*& resource)
+        auto importMaterialFunction = [&](string filePath)
         {
-            return phi::importer::importMaterial(filePath, resource, _texturesRepository);
+            return importer::importMaterial(filePath, _texturesRepository);
         };
 
-        _materialsRepository = load<phi::material>(_libraryPath + "/materials", ".material", importMaterialFunction);
-
-        auto importModelFunction = [&](phi::string filePath, phi::resource<phi::node>*& resource)
+        auto importModelFunction = [&](string filePath)
         {
-            return phi::importer::importNode(filePath, resource, _materialsRepository);
+            return importer::importNode(filePath, _materialsRepository);
         };
 
-        _nodesRepository = load<phi::node>(_libraryPath + "/models", ".model", importModelFunction);
+        _texturesRepository = load<texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
+        _materialsRepository = load<material>(_libraryPath + "/materials", ".material", importMaterialFunction);
+        _nodesRepository = load<node>(_libraryPath + "/models", ".model", importModelFunction);
+        debug(_("Library initialized."));
+        //debug(_("Library initialized again."));
+        //debug(_("Library initialized again now."));
+
     }
 }

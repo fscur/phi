@@ -8,7 +8,8 @@ if(MSVC)
     file(GLOB source_files *.cpp)
     add_library(phi STATIC ${source_files} ${header_files})
 else()
-    file(GLOB header_files phi.h)
+    file(GLOB header_files *.h)
+    list(REMOVE_ITEM header_files "precompiled.h")
     file(GLOB source_files *.cpp)
     add_library(phi STATIC ${source_files} ${header_files})
 endif(MSVC)
@@ -20,10 +21,10 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Ycprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(IntDir)precompiled.pch")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Fd$(IntDir)precompiled.pdb")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
     
     add_custom_command(
         TARGET phi
         POST_BUILD
-        COMMAND ../../../../scripts/post_build_vc++/phi_$(Configuration).bat)
+        COMMAND ../../../../scripts/post_build_vc++/phi.bat $(Configuration))
 endif(MSVC)

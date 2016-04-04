@@ -8,7 +8,6 @@ namespace phi
     {
     private:
         static string getErrorString(GLenum error);
-        static void printError(string msg);
 
     public:
         RENDERING_API static void check();

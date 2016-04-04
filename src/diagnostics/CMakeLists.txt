@@ -11,18 +11,24 @@ include_directories(${PHI_INCLUDE_DIRS}/phi)
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
+if(WIN32)
+file(GLOB source_files_platform ./win64/*.cpp)
+set(source_files ${source_files} ${source_files_platform})
+endif(WIN32)
+
 add_library(diagnostics SHARED ${source_files} ${header_files})
 
 target_link_libraries(diagnostics phi)
 
-install(TARGETS diagnostics 
-    RUNTIME 
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
+if (MINGW)
+    set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
+    install(TARGETS diagnostics RUNTIME DESTINATION ${install_folder})
+endif(MINGW)
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Fd$(IntDir)precompiled.pdb")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
     
     add_custom_command(
         TARGET diagnostics
@@ -32,7 +38,7 @@ if (MSVC)
     add_custom_command(
         TARGET diagnostics
         POST_BUILD
-        COMMAND ../../../../scripts/post_build_vc++/project_$(Configuration).bat $(Configuration) diagnostics)
+        COMMAND ../../../../scripts/post_build_vc++/project.bat $(Configuration) diagnostics)
         
 endif(MSVC)
 

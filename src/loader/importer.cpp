@@ -4,8 +4,14 @@
 #include <core\base64.h>
 #include <io\path.h>
 
+#include "importResourceException.h"
+
 namespace phi
 {
+    using rapidjson::FileReadStream;
+    using rapidjson::Document;
+    using rapidjson::Value;
+
     material* importer::defaultMaterial = nullptr;
     texture* importer::defaultAlbedoTexture = nullptr;
     texture* importer::defaultNormalTexture = nullptr;
@@ -33,8 +39,7 @@ namespace phi
             case 1:
             {
                 auto geometryPath = components[i]["GeometryPath"].GetString();
-                phi::geometry* geometry = nullptr;
-                importGeometry(currentFolder + "\\" + geometryPath, geometry);
+                auto geometry = importGeometry(currentFolder + "\\" + geometryPath);
 
                 auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
                 auto matRes = materialsRepo->getResource(materialGuid);
@@ -60,49 +65,6 @@ namespace phi
             objectNode->addChild(child);
         }
 
-        //auto type = node["Type"].GetInt();
-        //object3D* objectNode = nullptr;
-
-        //switch (type)
-        //{
-        //    case 0:
-        //    {
-        //        auto model = new phi::model(node["Name"].GetString());
-        //        objectNode = model;
-        //        break;
-        //    }
-        //    case 1:
-        //    {
-        //        auto geometryPath = node["GeometryPath"].GetString();
-        //        phi::geometry* geometry = nullptr;
-        //        importGeometry(currentFolder + "\\" + geometryPath, geometry);
-
-        //        auto materialGuid = convertToGuid(node["MaterialGuid"].GetString());
-        //        auto matRes = materialsRepo->getResource(materialGuid);
-
-        //        material* mat;
-        //        if (matRes == nullptr)
-        //            mat = defaultMaterial;
-        //        else
-        //            mat = matRes->getObject();
-
-        //        auto mesh = new phi::mesh(node["Name"].GetString(), geometry, mat);
-        //        objectNode = mesh;
-        //        break;
-        //    }
-        //}
-
-        //if (!node.HasMember("Children"))
-        //    return objectNode;
-
-        //const rapidjson::Value& children = node["Children"];
-        //auto childrenCount = children.Size();
-        //for (rapidjson::SizeType i = 0; i < childrenCount; i++)
-        //{
-        //    auto child = readNode(children[i], currentFolder, materialsRepo);
-        //    objectNode->addChild(child);
-        //}
-
         return objectNode;
     }
 
@@ -112,31 +74,32 @@ namespace phi
         return guidBytes.data();
     }
 
-    int importer::importNode(string fileName, resource<node>*& objectResource, resourcesRepository<material>* materialsRepo)
+    resource<node>* importer::importNode(string fileName, resourcesRepository<material>* materialsRepo)
     {
         //TODO:: create load file fuction in the io API
 #ifdef _WIN32 
-        FILE* fp;
-        fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
-        char readBuffer[65536];
-        rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
-        rapidjson::Document doc;
-        doc.ParseStream(is);
+        FILE* file;
+        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
+
+        char fileBuffer[65536];
+        FileReadStream fileStream(file, fileBuffer, sizeof(fileBuffer));
+        Document document;
+        document.ParseStream(fileStream);
+
+        fclose(file);
 
         auto currentFolder = path::getDirectoryFullName(fileName);
+        auto nodeName = path::getFileNameWithoutExtension(fileName);
+        auto rootNode = readNode(document["Node"], currentFolder, materialsRepo);
+        auto guid = convertToGuid(document["Guid"].GetString());
 
-        auto rootNode = readNode(doc["Node"], currentFolder, materialsRepo);
-        auto guid = convertToGuid(doc["Guid"].GetString());
-
-        objectResource = new resource<node>(guid, path::getFileNameWithoutExtension(fileName), rootNode);
-
-        fclose(fp);
-        return 1;
+        return new resource<node>(guid, nodeName, rootNode);
+#else
+        throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
 #endif
-        return 0;
     }
 
-    int importer::importGeometry(string fileName, geometry*& data)
+    geometry* importer::importGeometry(string fileName)
     {
 #ifdef _WIN32
         std::ifstream iFile;
@@ -144,184 +107,165 @@ namespace phi
 
         if (!iFile.is_open())
         {
-            std::cout << "ERROR: File " << fileName << "coult not be loaded." << std::endl;
-            return 0;
+            throw importResourceException("File coult not be loaded.", fileName);
         }
 
-        auto intSize = sizeof(int);
-        auto floatSize = (unsigned int)sizeof(float);
-
         int verticesCount = -1;
-        iFile.read(reinterpret_cast<char*>(&verticesCount), intSize);
+        iFile.read(reinterpret_cast<char*>(&verticesCount), sizeof(int));
 
-        unsigned int positionsSize = verticesCount * 3 * floatSize;
-        unsigned int texCoordsSize = verticesCount * 2 * floatSize;
-        unsigned int normalsSize = verticesCount * 3 * floatSize;
+        auto positionsBuffer = new float[verticesCount * 3];
+        auto texCoordsBuffer = new float[verticesCount * 2];
+        auto normalsBuffer = new float[verticesCount * 3];
 
-        float* positionsBuffer = new float[verticesCount * 3];
-        float* texCoordsBuffer = new float[verticesCount * 2];
-        float* normalsBuffer = new float[verticesCount * 3];
+        auto positionsSize = verticesCount * 3 * sizeof(float);
+        auto texCoordsSize = verticesCount * 2 * sizeof(float);
+        auto normalsSize = verticesCount * 3 * sizeof(float);
 
         iFile.read(reinterpret_cast<char*>(positionsBuffer), positionsSize);
         iFile.read(reinterpret_cast<char*>(texCoordsBuffer), texCoordsSize);
         iFile.read(reinterpret_cast<char*>(normalsBuffer), normalsSize);
 
         int indicesCount = -1;
-        iFile.read(reinterpret_cast<char*>(&indicesCount), intSize);
+        iFile.read(reinterpret_cast<char*>(&indicesCount), sizeof(int));
 
-        unsigned int* indicesBuffer = new unsigned int[indicesCount];
-        iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * intSize);
+        auto indicesBuffer = new uint[indicesCount];
+        iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * sizeof(int));
 
-        data = geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
-        return 1;
+        iFile.close();
+
+        return geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
+#else
+        throw importResourceException("importGeometry was not implemented ins other platforms than WIN32");
 #endif
-        return 0;
     }
 
-    int importer::importTexture(string fileName, texture*& texture)
+    texture* importer::importImage(string fileName)
     {
-        auto cfileName = fileName.c_str();
-            //image format
-            FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
-            //pointer to the image, once loaded
-            FIBITMAP *dib(0);
-            //pointer to the image data
-            BYTE* bits(0);
-            //image width and height
-            unsigned int width(0), height(0);
-            //OpenGL's image ID to map to
-            //GLuint gl_texID;
+        auto fileNameChar = fileName.c_str();
+        auto imageFormat = FreeImage_GetFileType(fileNameChar, 0);
 
-            //check the file signature and deduce its format
-            fif = FreeImage_GetFileType(cfileName, 0);
-            //if still unknown, try to guess the file format from the file extension
-            if (fif == FIF_UNKNOWN)
-                fif = FreeImage_GetFIFFromFilename(cfileName);
-            //if still unkown, return failure
-            if (fif == FIF_UNKNOWN)
-                return false;
+        if (imageFormat == FIF_UNKNOWN)
+            imageFormat = FreeImage_GetFIFFromFilename(fileNameChar);
 
-            //check that the plugin has reading capabilities and load the file
-            if (FreeImage_FIFSupportsReading(fif))
-                dib = FreeImage_Load(fif, cfileName);
-            //if the image failed to load, return failure
-            if (!dib)
-                return false;
+        if (imageFormat == FIF_UNKNOWN)
+            throw importResourceException("Format not identified importing texture", fileName);
 
-            //retrieve the image data
-            bits = FreeImage_GetBits(dib);
-            //get the image width and height
-            width = FreeImage_GetWidth(dib);
-            height = FreeImage_GetHeight(dib);
-            //if this somehow one of these failed (they shouldn't), return failure
-            if ((bits == 0) || (width == 0) || (height == 0))
-                return 0;
+        if (!FreeImage_FIFSupportsReading(imageFormat))
+            throw importResourceException("Image format not supported ", fileName);
+            
+        auto imagePointer = FreeImage_Load(imageFormat, fileNameChar);
+        if (!imagePointer)
+            throw importResourceException("Failed loading image", fileName);
 
-            GLenum format = GL_BGRA;
-            auto bpp = FreeImage_GetBPP(dib);
-            auto redMask = FreeImage_GetRedMask(dib);
+        auto dataPtr = FreeImage_GetBits(imagePointer);
+        auto width = FreeImage_GetWidth(imagePointer);
+        auto height = FreeImage_GetHeight(imagePointer);
 
-            switch (bpp)
-            {
-            case 24:
-                if (redMask == 255)
-                    format = GL_RGB;
-                else
-                    format = GL_BGR;
-                break;
-            case 32:
-                if (redMask == 255)
-                    format = GL_RGBA;
-                else
-                    format = GL_BGRA;
-                break;
-            }
+        if (dataPtr == nullptr || width == 0 || height == 0)
+            throw importResourceException("Failed loading image data of", fileName);
 
-            auto totalBytes = bpp / 8;
-            auto data = malloc(width * height * totalBytes);
-            memcpy(data, bits, width * height * totalBytes);
+        auto format = GL_BGRA;
+        auto bpp = FreeImage_GetBPP(imagePointer);
+        auto redMask = FreeImage_GetRedMask(imagePointer);
 
-            texture = new phi::texture(
-                width,
-                height,
-                GL_TEXTURE_2D,
-                GL_RGBA8,
-                format,
-                GL_UNSIGNED_BYTE,
-                (byte*)data);
-
-            return 1;
-    }
-
-    int importer::importTexture(string fileName, resource<texture>*& textureResource)
-    {
-#ifdef _WIN32
-        FILE* fp;
-        fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
-        char readBuffer[65536];
-        rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
-        rapidjson::Document d;
-        d.ParseStream(is);
-
-        auto guid = convertToGuid(d["Guid"].GetString());
-        auto imageFileName = path::getDirectoryFullName(fileName) + "\\" + d["ImageFileName"].GetString();
-
-        fclose(fp);
-
-        auto name = path::getFileNameWithoutExtension(fileName);
-
-        texture* tex;
-        if (!importTexture(imageFileName, tex))
+        switch (bpp)
         {
-            log("Image " + string(imageFileName) + " from texture " + name + " could not be loaded.");
-            return 0;
+        case 24:
+            if (redMask == 255)
+                format = GL_RGB;
+            else
+                format = GL_BGR;
+            break;
+        case 32:
+            if (redMask == 255)
+                format = GL_RGBA;
+            else
+                format = GL_BGRA;
+            break;
         }
 
-        textureResource = new resource<texture>(guid, name, tex);
-        return 1;
-#endif
-        return 0;
+        auto totalBytes = bpp / 8;
+        auto data = malloc(width * height * totalBytes);
+        memcpy(data, dataPtr, width * height * totalBytes);
+
+        return new texture(
+            width,
+            height,
+            GL_TEXTURE_2D,
+            GL_RGBA8,
+            format,
+            GL_UNSIGNED_BYTE,
+            (byte*)dataPtr);
     }
 
-    int importer::importMaterial(string fileName, resource<material>*& materialResource, resourcesRepository<texture>* texturesRepo)
+    resource<texture>* importer::importTexture(string fileName)
     {
 #ifdef _WIN32
-        FILE* fp;
-        fopen_s(&fp, fileName.c_str(), "rb"); // non-Windows use "r"
+        FILE* file;
+        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
         char readBuffer[65536];
-        rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
-        rapidjson::Document d;
-        d.ParseStream(is);
 
-        auto guid = convertToGuid(d["Guid"].GetString());
-        auto albedoTextureGuid = convertToGuid(d["AlbedoTextureGuid"].GetString());
-        auto normalTextureGuid = convertToGuid(d["NormalTextureGuid"].GetString());
-        auto specularTextureGuid = convertToGuid(d["SpecularTextureGuid"].GetString());
-        auto emissiveTextureGuid = convertToGuid(d["EmissiveTextureGuid"].GetString());
+        FileReadStream fileStream(file, readBuffer, sizeof(readBuffer));
+        Document document;
+        document.ParseStream(fileStream);
+
+        fclose(file);
+
+        auto guid = convertToGuid(document["Guid"].GetString());
+        auto imageName = document["ImageFileName"].GetString();
+
+        auto imageFileName = path::getDirectoryFullName(fileName) + "\\" + imageName;
+        auto textureName = path::getFileNameWithoutExtension(fileName);
+        auto tex = importImage(imageFileName);
+
+        return new resource<texture>(guid, textureName, tex);
+#else
+        throw importResourceException("Import texture was not implemented in other platforms than Win32", fileName);
+#endif
+
+    }
+
+    resource<material>* importer::importMaterial(string fileName, resourcesRepository<texture>* texturesRepo)
+    {
+#ifdef _WIN32
+        FILE* file;
+        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
+        
+        char readBuffer[65536];
+        FileReadStream fileStream(file, readBuffer, sizeof(readBuffer));
+        Document document;
+        document.ParseStream(fileStream);
+
+        fclose(file);
+
+        auto guid = convertToGuid(document["Guid"].GetString());
+        auto albedoTextureGuid = convertToGuid(document["AlbedoTextureGuid"].GetString());
+        auto normalTextureGuid = convertToGuid(document["NormalTextureGuid"].GetString());
+        auto specularTextureGuid = convertToGuid(document["SpecularTextureGuid"].GetString());
+        auto emissiveTextureGuid = convertToGuid(document["EmissiveTextureGuid"].GetString());
         auto albedoTextureResource = texturesRepo->getResource(albedoTextureGuid);
         auto normalTextureResource = texturesRepo->getResource(normalTextureGuid);
         auto specularTextureResource = texturesRepo->getResource(specularTextureGuid);
         auto emissiveTextureResource = texturesRepo->getResource(emissiveTextureGuid);
 
-        const rapidjson::Value& albedoColorNode = d["AlbedoColor"];
-        const rapidjson::Value& specularColorNode = d["SpecularColor"];
-        const rapidjson::Value& emissiveColorNode = d["EmissiveColor"];
+        const Value& albedoColorNode = document["AlbedoColor"];
+        const Value& specularColorNode = document["SpecularColor"];
+        const Value& emissiveColorNode = document["EmissiveColor"];
         auto albedoColor = vec3((float)albedoColorNode[0].GetDouble(), (float)albedoColorNode[1].GetDouble(), (float)albedoColorNode[2].GetDouble());
         auto specularColor = vec3((float)specularColorNode[0].GetDouble(), (float)specularColorNode[1].GetDouble(), (float)specularColorNode[2].GetDouble());
         auto emissiveColor = vec3((float)emissiveColorNode[0].GetDouble(), (float)emissiveColorNode[1].GetDouble(), (float)emissiveColorNode[2].GetDouble());
 
-        float shininess = static_cast<float>(d["Shininess"].GetDouble());
-        float reflectivity = static_cast<float>(d["Reflectivity"].GetDouble());
-        float emission = static_cast<float>(d["Emission"].GetDouble());
-        float opacity = static_cast<float>(d["Opacity"].GetDouble());
-
-        fclose(fp);
+        auto shininess = static_cast<float>(document["Shininess"].GetDouble());
+        auto reflectivity = static_cast<float>(document["Reflectivity"].GetDouble());
+        auto emission = static_cast<float>(document["Emission"].GetDouble());
+        auto opacity = static_cast<float>(document["Opacity"].GetDouble());
 
         auto albedoTexture = albedoTextureResource == nullptr ? defaultAlbedoTexture : albedoTextureResource->getObject();
         auto normalTexture = normalTextureResource == nullptr ? defaultNormalTexture : normalTextureResource->getObject();
         auto specularTexture = specularTextureResource == nullptr ? defaultSpecularTexture : specularTextureResource->getObject();
         auto emissiveTexture = emissiveTextureResource == nullptr ? defaultEmissiveTexture : emissiveTextureResource->getObject();
 
+        auto materialName = path::getFileNameWithoutExtension(fileName);
         auto mat = new material(
             albedoTexture,
             normalTexture,
@@ -335,9 +279,9 @@ namespace phi
             emission,
             opacity);
 
-        materialResource = new resource<material>(guid, path::getFileNameWithoutExtension(fileName), mat);
-        return 1;
+        return new resource<material>(guid, materialName, mat);
+#else
+        throw importResourceException("Import material was not implemented in other platforms than Win32", fileName);
 #endif
-        return 0;
     }
 }

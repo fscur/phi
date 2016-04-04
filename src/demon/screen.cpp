@@ -36,6 +36,8 @@ namespace demon
 
     void screen::initGL()
     {
+        application::logInfo("Initializing OpenGl");
+
         auto initState = gl::state();
         initState.clearColor = vec4(1.0f);
         initState.frontFace = gl::frontFace::ccw;
@@ -50,6 +52,17 @@ namespace demon
         info.state = initState;
         info.shadersPath = application::resourcesPath + "/shaders";
         _gl = new gl(info);
+
+        application::logInfo("Vendor: " + _gl->getVendor() + ".");
+        application::logInfo("Renderer: " + _gl->getRenderer() + ".");
+        application::logInfo("Version: " + _gl->getVersion() + ".");
+
+        application::logInfo("Extensions:");
+        for(auto extensionStatus : _gl->extensions)
+        {
+            auto status = extensionStatus.second ? " [Ok]" : " [Not Ok]";
+            application::logInfo(extensionStatus.first + status);
+        }
     }
 
     void screen::initLibrary()

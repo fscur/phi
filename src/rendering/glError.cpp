@@ -24,12 +24,6 @@ namespace phi
         return string();
     }
 
-    void glError::printError(string msg)
-    {
-        auto error = getErrorString(glGetError());
-        phi::log(msg + " (" + error + ")");
-    }
-
     void glError::check()
     {
 #ifdef _DEBUG

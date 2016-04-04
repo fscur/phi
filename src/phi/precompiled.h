@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once //TODO: hope this commented line never starts a two thousand errors compilation :)
 #ifdef MSVC
 #pragma message ("Compiling precompiled headers")
 #else
@@ -31,6 +31,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <exception>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -73,6 +74,10 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+#include <gettext\libintl.h>
+
+#define _(string) gettext(string)
 
 #ifdef MSVC
 #pragma warning(pop)
