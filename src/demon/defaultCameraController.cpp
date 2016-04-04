@@ -49,7 +49,7 @@ namespace demon
 
     void defaultCameraController::onMouseUp(phi::mouseEventArgs* e)
     {
-        if (e->middleButtonPressed || e->leftButtonPressed)
+        if (e->middleButtonPressed)
             panMouseUp();
 
         if (e->rightButtonPressed)
@@ -122,11 +122,10 @@ namespace demon
         auto x = (xm0 / zNear) * z;
         auto y = (ym0 / zNear) * z;
 
-        auto transform = _camera->getTransform();
-        phi::vec3 camPos = transform->getPosition();
-        phi::vec3 camDir = transform->getDirection();
-        phi::vec3 camRight = transform->getRight();
-        phi::vec3 camUp = transform->getUp();
+        auto cameraTransform = _camera->getTransform();
+        phi::vec3 camDir = cameraTransform->getDirection();
+        phi::vec3 camRight = cameraTransform->getRight();
+        phi::vec3 camUp = cameraTransform->getUp();
 
         _zoomDir = glm::normalize(camDir * z + -camRight * (float)x + camUp * (float)y);
 
@@ -144,20 +143,29 @@ namespace demon
 
         _zoomSpeed += (delta / 120.0f) * ZOOM_FACTOR;
         _zoomDistanceLimit = glm::max(z - zNear - ZOOM_MAX_BOUNCE - 0.0001f, 0.0f); // Small gap so the camera does not go past the z-near plane
+        _zoomCameraPos = cameraTransform->getPosition();
     }
 
     void defaultCameraController::zoomUpdate()
     {
-        auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
+        auto deltaMilliseconds = static_cast<int32_t>(phi::time::deltaSeconds * 1000.0f);
+        _zoomSpeedAccumulationTime = glm::max(_zoomSpeedAccumulationTime - deltaMilliseconds, 0);
+
+        if (_zoomSpeed == 0.0f)
+            return;
+
         _zoomInertiaTime += deltaMilliseconds;
-        _zoomSpeedAccumulationTime = glm::max(_zoomSpeedAccumulationTime - deltaMilliseconds, 0u);
+        auto percent = -glm::exp(_zoomInertiaTime / -325.0f) + 1.0f;
+        auto delta = _zoomSpeed * percent;
 
-        auto delta = _zoomSpeed * glm::exp(_zoomInertiaTime / -325.0f);
+        if (percent == 1.0f)
+            _zoomSpeed = 0.0f;
 
-        if (_zoomDistanceTraveled + delta > _zoomDistanceLimit)
+        if (delta > _zoomDistanceLimit)
         {
-            _camera->getTransform()->translate(_zoomDir * (_zoomDistanceLimit - _zoomDistanceTraveled));
+            _camera->getTransform()->setLocalPosition(_zoomCameraPos + _zoomDir * _zoomDistanceLimit);
             _zoomDistanceTraveled = _zoomDistanceLimit;
+            _zoomSpeed = 0.0f;
 
             zoomCancel();
 
@@ -182,10 +190,7 @@ namespace demon
             phi::floatAnimator::animateFloat(_zoomBounceAnimation);
         }
         else
-        {
-            _zoomDistanceTraveled += delta;
-            _camera->getTransform()->translate(_zoomDir * delta);
-        }
+            _camera->getTransform()->setLocalPosition(_zoomCameraPos + _zoomDir * delta);
     }
 
     void defaultCameraController::zoomCancel()
@@ -289,13 +294,13 @@ namespace demon
         _panInertiaTime += deltaMilliseconds;
         auto desFactor = _panning ? 100.0f : 325.0f;
         auto percent = -glm::exp(_panInertiaTime / -desFactor) + 1.0f;
-        auto speed = glm::length(_panDelta) * percent;
+        auto delta = glm::length(_panDelta) * percent;
 
-        if (speed == 0.0f)
+        if (delta == 0.0f)
             return;
 
         auto dir = glm::normalize(_panDelta);
-        _camera->getTransform()->setLocalPosition(_panCameraPos + dir * speed);
+        _camera->getTransform()->setLocalPosition(_panCameraPos + dir * delta);
 
         if (percent >= 1.0f)
             _panDoingInertia = false;
@@ -411,10 +416,10 @@ namespace demon
         _rotationInertiaTime += deltaMilliseconds;
         auto desFactor = _rotating ? 100.0f : 325.0f;
         auto percent = -glm::exp(_rotationInertiaTime / -desFactor) + 1.0f;
-        auto speed = _rotationDelta * (percent - _rotationInertiaLastPercent);
+        auto delta = _rotationDelta * (percent - _rotationInertiaLastPercent);
         _rotationInertiaLastPercent = percent;
 
-        _camera->orbit(_rotationTargetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), -speed.x, -speed.y);
+        _camera->orbit(_rotationTargetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), -delta.x, -delta.y);
 
         if (percent >= 1.0f)
             _rotationDoingInertia = false;

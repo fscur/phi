@@ -11,32 +11,33 @@ namespace demon
         public cameraController
     {
     private:
-        float const ZOOM_FACTOR = 0.03f;
+        float const ZOOM_FACTOR = 1.0f;
         float const ZOOM_MIN_BOUNCE = 0.01f;
         float const ZOOM_MAX_BOUNCE = 0.1f;
-        unsigned int const ZOOM_ACCUMULATION_TIME = 500u;
+        int32_t const ZOOM_ACCUMULATION_TIME = 500;
 
     private:
         phi::scene* _scene;
-        int _mousePosX;
-        int _mousePosY;
-        int _lastMousePosX;
-        int _lastMousePosY;
+        int32_t _mousePosX;
+        int32_t _mousePosY;
+        int32_t _lastMousePosX;
+        int32_t _lastMousePosY;
 
         phi::vec3 _zoomDir;
+        phi::vec3 _zoomCameraPos;
         float _zoomSpeed;
         float _zoomDistanceTraveled;
         float _zoomDistanceLimit;
-        unsigned int _zoomSpeedAccumulationTime;
-        unsigned int _zoomInertiaTime;
+        int32_t _zoomSpeedAccumulationTime;
+        int32_t _zoomInertiaTime;
         phi::floatAnimation* _zoomBounceAnimation;
 
         bool _rotating;
         bool _rotationDoingInertia;
         phi::vec2 _rotationDelta;
         phi::vec3 _rotationTargetPos;
-        unsigned int _rotationLastMouseMoveTime;
-        unsigned int _rotationInertiaTime;
+        int32_t _rotationLastMouseMoveTime;
+        int32_t _rotationInertiaTime;
         float _rotationInertiaLastPercent;
 
         bool _panning;
@@ -47,8 +48,8 @@ namespace demon
         phi::vec3 _panCameraUp;
         glm::vec3 _panDelta;
         phi::vec3 _panTargetCameraPos;
-        unsigned int _panLastMouseMoveTime;
-        unsigned int _panInertiaTime;
+        int32_t _panLastMouseMoveTime;
+        int32_t _panInertiaTime;
 
     private:
         void zoomMouseWheel(int mouseX, int mouseY, float delta);
