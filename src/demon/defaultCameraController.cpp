@@ -404,7 +404,6 @@ namespace demon
         auto deltaTime = glm::max(10u, nowMilliseconds - _rotationLastMouseMoveTime);
         auto lastRemainingRotation = (1.0f - _rotationInertiaLastPercent) * glm::length(_rotationDelta);
         _rotationDelta = glm::normalize(_rotationDelta) * (lastRemainingRotation + lastRemainingRotation * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f))));
-        phi::debug(glm::length(_rotationDelta));
     }
 
     void defaultCameraController::rotationUpdate()
