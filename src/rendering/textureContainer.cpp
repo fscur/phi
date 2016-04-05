@@ -27,7 +27,7 @@ namespace phi
     {
         if (_bindless)
         {
-            glMakeTextureHandleNonResidentARB(handle); //TODO: check if this shit releases the handle from gpu!!!
+            glMakeTextureHandleNonResidentARB(handle);
             glError::check();
         }
 

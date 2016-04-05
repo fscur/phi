@@ -18,6 +18,11 @@ namespace phi
         {
         }
 
+        ~resource()
+        {
+            safeDelete(_object);
+        }
+
         guid getGuid() const { return _guid; }
         string getName() const { return _name; }
         T* getObject() const { return _object; }

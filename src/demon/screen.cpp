@@ -4,7 +4,6 @@
 #include <apps\undoCommand.h>
 #include <apps\redoCommand.h>
 
-#include <diagnostics\diagnostics.h>
 #include <diagnostics\stopwatch.h>
 
 #include <loader\importer.h>
@@ -51,12 +50,18 @@ namespace demon
         info.shadersPath = application::resourcesPath + "/shaders";
         _gl = new gl(info);
 
+        importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
+        importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
+        importer::defaultNormalTexture = _gl->defaultNormalTexture;
+        importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
+        importer::defaultMaterial = _gl->defaultMaterial;
+
         application::logInfo("Vendor: " + _gl->getVendor() + ".");
         application::logInfo("Renderer: " + _gl->getRenderer() + ".");
         application::logInfo("Version: " + _gl->getVersion() + ".");
 
         application::logInfo("Extensions:");
-        for(auto extensionStatus : _gl->extensions)
+        for (auto extensionStatus : _gl->extensions)
         {
             auto status = extensionStatus.second ? " [Ok]" : " [Not Ok]";
             application::logInfo(extensionStatus.first + status);

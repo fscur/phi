@@ -14,7 +14,12 @@ namespace phi
     }
 
     gBufferRenderPass::~gBufferRenderPass()
-    {}
+    {
+        for (auto target : targets)
+            safeDelete(target);
+
+        safeDelete(framebuffer);
+    }
 
     void gBufferRenderPass::initShader()
     {
@@ -58,11 +63,12 @@ namespace phi
             texture->magFilter = GL_NEAREST;
             texture->generateMipmaps = false;
 
+            auto textureAddress = _gl->texturesManager->add(texture);
             auto rt = new phi::renderTarget(
                 attachment, 
-                static_cast<GLint>(_w), 
-                static_cast<GLint>(_h), 
-                _gl->texturesManager->add(texture));
+                static_cast<GLint>(_w),
+                static_cast<GLint>(_h),
+                textureAddress);
 
             targets.push_back(rt);
             gBufferRenderPass::framebuffer->add(rt);

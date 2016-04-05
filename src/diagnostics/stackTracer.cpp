@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "stackTracer.h"
 
+#include "fileUtils.h"
+
 namespace phi
 {
     stackTracer::stackTracer()
@@ -14,44 +16,62 @@ namespace phi
     symbolFile stackTracer::symbolFileFromAddress(HANDLE process, uintptr_t symbolAddress)
     {
         DWORD displacement;
-        IMAGEHLP_LINE64 line = {};
-        line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+        debugHelp::line64 line = {};
+        line.sizeOfStruct = sizeof(debugHelp::line64);
 
-        if (SymGetLineFromAddr64(process, symbolAddress, &displacement, &line))
+        if (debugHelp::symGetLineFromAddr64(process, symbolAddress, &displacement, &line))
         {
-            return symbolFile(line.FileName, line.LineNumber);
+            auto fileNameSize = strlen(line.fileName) + 1;
+            auto symbolFile = phi::symbolFile();
+
+            symbolFile.name = static_cast<char*>(malloc(sizeof(char) * fileNameSize));
+            symbolFile.line = line.lineNumber;
+
+            strcpy_s(symbolFile.name, fileNameSize, line.fileName);
+
+            return symbolFile;
         }
         else
         {
-            return symbolFile("", 0);
+            return symbolFile((char*)"", 0);
         }
     }
 
     symbolModule stackTracer::symbolModuleFromAddress(HANDLE process, uintptr_t symbolAddress)
     {
-        IMAGEHLP_MODULE64 module = {};
-        module.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
+        debugHelp::module64 module = {};
+        module.sizeOfStruct = sizeof(debugHelp::module64);
 
-        if (SymGetModuleInfo64(process, symbolAddress, &module))
+        if (debugHelp::symGetModuleInfo64(process, symbolAddress, &module))
         {
-            return symbolModule(module.ModuleName, module.LoadedImageName);
+            auto moduleNameSize = strlen(module.moduleName) + 1;
+            auto modulePathSize = strlen(module.loadedImageName) + 1;
+            auto symbolModule = phi::symbolModule();
+
+            symbolModule.name = static_cast<char*>(malloc(sizeof(char) * moduleNameSize));
+            symbolModule.path = static_cast<char*>(malloc(sizeof(char) * modulePathSize));
+
+            strcpy_s(symbolModule.name, moduleNameSize, module.moduleName);
+            strcpy_s(symbolModule.path, modulePathSize, module.loadedImageName);
+
+            return symbolModule;
         }
         else
         {
-            return symbolModule("", "");
+            return symbolModule((char*)"", (char*)"");
         }
     }
 
     void stackTracer::takeSnapshot(HANDLE process)
     {
-        auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+        auto snapshot = CreateToolhelp32Snapshot(debugHelp::SNAPMODULE, GetCurrentProcessId());
         MODULEENTRY32 moduleEntry;
         moduleEntry.dwSize = sizeof(MODULEENTRY32);
 
         auto hasModules = Module32First(snapshot, &moduleEntry);
         while (hasModules)
         {
-            SymLoadModule64(
+            debugHelp::symLoadModule64(
                 process, 0,
                 (PSTR)moduleEntry.szExePath,
                 (PSTR)moduleEntry.szModule,
@@ -69,9 +89,9 @@ namespace phi
         return IMAGE_FILE_MACHINE_AMD64; //TODO: check all pc image types
     }
 
-    STACKFRAME64 stackTracer::buildStackFrame(CONTEXT context)
+    debugHelp::stackFrame stackTracer::buildStackFrame(CONTEXT context)
     {
-        STACKFRAME64 stackFrame = {};
+        debugHelp::stackFrame stackFrame = {};
         stackFrame.AddrPC.Offset = context.Rip;
         stackFrame.AddrPC.Mode = AddrModeFlat;
         stackFrame.AddrFrame.Offset = context.Rsp;
@@ -82,24 +102,38 @@ namespace phi
         return stackFrame;
     }
 
-    IMAGEHLP_SYMBOL64* stackTracer::buildSymbol64Pointer()
+    debugHelp::symbol64* stackTracer::buildSymbolPointer()
     {
-        auto symbolPointer = (IMAGEHLP_SYMBOL64*)malloc(sizeof(IMAGEHLP_SYMBOL64) + MAX_SYMBOL_NAME_LENGTH);
-        memset(symbolPointer, 0, sizeof(IMAGEHLP_SYMBOL64) + MAX_SYMBOL_NAME_LENGTH);
-        symbolPointer->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64);
-        symbolPointer->MaxNameLength = MAX_SYMBOL_NAME_LENGTH;
+        auto symbolPointer = (debugHelp::symbol64*)malloc(sizeof(debugHelp::symbol64) + MAX_SYMBOL_NAME_LENGTH);
+        memset(symbolPointer, 0, sizeof(debugHelp::symbol64) + MAX_SYMBOL_NAME_LENGTH);
+        symbolPointer->sizeOfStruct = sizeof(debugHelp::symbol64);
+        symbolPointer->maxNameLength = MAX_SYMBOL_NAME_LENGTH;
 
         return symbolPointer;
     }
 
-    SYMBOL_INFO* stackTracer::buildSymbolPointer()
+    stackSymbol stackTracer::buildStackSymbolFromAddress(HANDLE process, uintptr_t callAddress)
     {
-        auto symbolPointer = (SYMBOL_INFO*)malloc(sizeof(SYMBOL_INFO) + MAX_SYMBOL_NAME_LENGTH);
-        memset(symbolPointer, 0, sizeof(SYMBOL_INFO) + MAX_SYMBOL_NAME_LENGTH);
-        symbolPointer->SizeOfStruct = sizeof(SYMBOL_INFO);
-        symbolPointer->MaxNameLen = MAX_SYMBOL_NAME_LENGTH;
+        auto symbol = buildSymbolPointer();
+        debugHelp::symGetSymFromAddr64(process, callAddress, 0, symbol);
 
-        return symbolPointer;
+        auto symbolNameSize = strlen(symbol->name) + 1;
+        auto stackSymbol = phi::stackSymbol();
+
+        stackSymbol.name = static_cast<char*>(malloc(sizeof(char) * symbolNameSize));
+        strcpy_s(stackSymbol.name, symbolNameSize, symbol->name);
+
+        stackSymbol.file = symbolFileFromAddress(process, callAddress);
+        stackSymbol.module = symbolModuleFromAddress(process, callAddress);
+        stackSymbol.address = callAddress;
+
+        free(symbol);
+        return stackSymbol;
+    }
+
+    void stackTracer::LoadLibraries(const char* executableFilePath)
+    {
+        debugHelp::load(executableFilePath);
     }
 
     vector<stackSymbol> stackTracer::captureStackBackTrace()
@@ -109,26 +143,19 @@ namespace phi
         auto process = GetCurrentProcess();
         auto callsCount = CaptureStackBackTrace(0, maxCallsToCapture, stackCalls, NULL);
 
-        SymInitialize(process, NULL, TRUE);
+        debugHelp::symInitialize(process, NULL, TRUE);
         takeSnapshot(process);
 
-        auto symbol = buildSymbol64Pointer();
         auto stack = vector<stackSymbol>();
 
         for (auto i = 0; i < callsCount; i++)
         {
-            auto callAddress = (DWORD64)(stackCalls[i]);
-            SymGetSymFromAddr64(process, callAddress, 0, symbol);
-            //SymFromAddr(process, callAddress, 0, symbol);
+            auto callAddress = reinterpret_cast<uintptr_t>(stackCalls[i]);
+            auto stackSymbol = buildStackSymbolFromAddress(process, callAddress);
 
-            auto address = static_cast<uintptr_t>(symbol->Address);
-            auto module = symbolModuleFromAddress(process, address);
-            auto file = symbolFileFromAddress(process, address);
-
-            stack.push_back(stackSymbol(symbol->Name, address, file, module));
+            stack.push_back(stackSymbol);
         }
 
-        free(symbol);
         return stack;
     }
 
@@ -141,40 +168,40 @@ namespace phi
         context.ContextFlags = CONTEXT_FULL;
         RtlCaptureContext(&context);
 
-        SymInitialize(process, NULL, FALSE);
+        debugHelp::symInitialize(process, NULL, FALSE);
         takeSnapshot(process);
 
         auto imageType = getPcImageType();
         auto stackFrame = buildStackFrame(context);
-        auto symbol = buildSymbol64Pointer();
         auto stack = vector<stackSymbol>();
-
-        while (StackWalk64(
+        auto framesToSkip = 1;
+        while (debugHelp::stackWalk64(
             imageType,
             process,
             thread,
             &stackFrame,
             &context,
             NULL,
-            SymFunctionTableAccess64,
-            SymGetModuleBase64,
+            debugHelp::symFunctionTableAccess64,
+            debugHelp::symGetModuleBase64,
             NULL))
         {
-            auto symbolAddress = static_cast<uintptr_t>(stackFrame.AddrPC.Offset);
+            if (framesToSkip > 0)
+            {
+                --framesToSkip;
+                continue;
+            }
+
+            auto callAddress = static_cast<uintptr_t>(stackFrame.AddrPC.Offset);
             auto returnAddress = static_cast<uintptr_t>(stackFrame.AddrReturn.Offset);
 
-            if (symbolAddress == returnAddress || symbolAddress == 0)
+            if (callAddress == returnAddress || callAddress == 0)
                 break;
 
-            SymGetSymFromAddr64(process, symbolAddress, 0, symbol);
-
-            auto module = symbolModuleFromAddress(process, symbolAddress);
-            auto file = symbolFileFromAddress(process, symbolAddress);
-
-            stack.push_back(stackSymbol(symbol->Name, symbolAddress, file, module));
+            auto stackSymbol = buildStackSymbolFromAddress(process, callAddress);
+            stack.push_back(stackSymbol);
         }
 
-        free(symbol);
         return stack;
     }
 
@@ -187,7 +214,7 @@ namespace phi
         context.ContextFlags = CONTEXT_FULL;
         RtlCaptureContext(&context);
 
-        SymInitialize(process, NULL, FALSE);
+        debugHelp::symInitialize(process, NULL, FALSE);
         takeSnapshot(process);
 
         auto imageType = getPcImageType();
@@ -195,19 +222,19 @@ namespace phi
         auto symbol = buildSymbolPointer();
         auto stackSymbol = phi::stackSymbol();
 
-        char* cppExtension = ".cpp";
-        char* headerExtension = ".h";
+        char const* cppExtension = ".cpp";
+        char const* headerExtension = ".h";
 
         int framesToSkip = 3;
-        while (StackWalk64(
+        while (debugHelp::stackWalk64(
             imageType,
             process,
             thread,
             &stackFrame,
             &context,
             NULL,
-            SymFunctionTableAccess64,
-            SymGetModuleBase64,
+            debugHelp::symFunctionTableAccess64,
+            debugHelp::symGetModuleBase64,
             NULL))
         {
             if (framesToSkip > 0)
@@ -228,9 +255,8 @@ namespace phi
             if (strcmp(endOfFileName - 4, cppExtension) == 0 ||
                 strcmp(endOfFileName - 2, headerExtension) == 0)
             {
-                //TODO: choose best SymFromAddr
-                SymFromAddr(process, symbolAddress, 0, symbol);
-                stackSymbol.name = _strdup(symbol->Name);
+                debugHelp::symGetSymFromAddr64(process, symbolAddress, 0, symbol);
+                stackSymbol.name = _strdup(symbol->name);
                 stackSymbol.address = symbolAddress;
                 stackSymbol.file.line = file.line;
                 stackSymbol.file.name = _strdup(file.name);
@@ -243,16 +269,117 @@ namespace phi
         return stackSymbol;
     }
 
-    void stackTracer::printStackTrace(vector<stackSymbol> stack)
+    stackSymbol stackTracer::optimizedCaptureAllocationSight()
     {
-        std::cout << "Printing stack" << std::endl;
+        auto thread = GetCurrentThread();
+        auto process = GetCurrentProcess();
 
-        for (auto& symbol : stack)
+        CONTEXT context = {};
+        context.ContextFlags = CONTEXT_FULL;
+        RtlCaptureContext(&context);
+
+        debugHelp::symInitialize(process, nullptr, false);
+
+        auto snapshot = debugHelp::createToolhelp32Snapshot(debugHelp::SNAPMODULE, GetCurrentProcessId());
+        debugHelp::moduleEntry32 moduleEntry;
+        moduleEntry.dwSize = sizeof(debugHelp::moduleEntry32);
+
+        auto hasModules = debugHelp::module32First(snapshot, &moduleEntry);
+        while (hasModules)
         {
-            std::cout << symbol.toString() << std::endl;
-            //printf("0x%08X %s(%i): %s\n", symbol.address, symbol.file.name.c_str(), symbol.file.line, symbol.name.c_str());
+            debugHelp::symLoadModule64(
+                process, 0,
+                (PSTR)moduleEntry.szExePath,
+                (PSTR)moduleEntry.szModule,
+                (DWORD64)moduleEntry.modBaseAddr,
+                moduleEntry.modBaseSize);
+
+            hasModules = debugHelp::module32Next(snapshot, &moduleEntry);
         }
 
-        std::cout << std::endl;
+        debugHelp::closeHandle(snapshot);
+
+        auto imageType = IMAGE_FILE_MACHINE_AMD64;
+        
+        debugHelp::stackFrame stackFrame = {};
+        stackFrame.AddrPC.Offset = context.Rip;
+        stackFrame.AddrPC.Mode = AddrModeFlat;
+        stackFrame.AddrFrame.Offset = context.Rsp;
+        stackFrame.AddrFrame.Mode = AddrModeFlat;
+        stackFrame.AddrStack.Offset = context.Rsp;
+        stackFrame.AddrStack.Mode = AddrModeFlat;
+
+        auto symbolPointer = (debugHelp::symbol64*)malloc(sizeof(debugHelp::symbol64) + MAX_SYMBOL_NAME_LENGTH);
+        memset(symbolPointer, 0, sizeof(debugHelp::symbol64) + MAX_SYMBOL_NAME_LENGTH);
+        symbolPointer->sizeOfStruct = sizeof(debugHelp::symbol64);
+        symbolPointer->maxNameLength = MAX_SYMBOL_NAME_LENGTH;
+
+        auto stackSymbol = phi::stackSymbol();
+
+        char const* cppExtension = ".cpp";
+        char const* headerExtension = ".h";
+
+        int framesToSkip = 3;
+        while (debugHelp::stackWalk64(
+            imageType,
+            process,
+            thread,
+            &stackFrame,
+            &context,
+            NULL,
+            debugHelp::symFunctionTableAccess64,
+            debugHelp::symGetModuleBase64,
+            NULL))
+        {
+            if (framesToSkip > 0)
+            {
+                --framesToSkip;
+                continue;
+            }
+
+            auto symbolAddress = (uintptr_t)stackFrame.AddrPC.Offset;
+            auto returnAddress = (uintptr_t)stackFrame.AddrReturn.Offset;
+
+            if (symbolAddress == returnAddress || symbolAddress == 0)
+                break;
+
+            DWORD displacement;
+            debugHelp::line64 line = {};
+            line.sizeOfStruct = sizeof(debugHelp::line64);
+
+            if (debugHelp::symGetLineFromAddr64(process, symbolAddress, &displacement, &line))
+            {
+                auto endOfFileName = line.fileName + strlen(line.fileName);
+
+                if (strcmp(endOfFileName - 4, cppExtension) == 0 ||
+                    strcmp(endOfFileName - 2, headerExtension) == 0)
+                {
+                    debugHelp::symGetSymFromAddr64(process, symbolAddress, 0, symbolPointer);
+                    stackSymbol.name = _strdup(symbolPointer->name);
+                    stackSymbol.address = symbolAddress;
+                    stackSymbol.file.line = line.lineNumber;
+                    stackSymbol.file.name = _strdup(line.fileName);
+
+                    break;
+                }
+            }
+        }
+
+        free(symbolPointer);
+        return stackSymbol;
+    }
+
+    void stackTracer::printStackTrace(vector<stackSymbol> stack)
+    {
+        OutputDebugString("\n\nstack trace:\n");
+
+        char messageBuffer[4096];
+        for (auto& symbol : stack)
+        {
+            sprintf_s(messageBuffer, "%s (%d): at %s::%s\n", symbol.file.name, symbol.file.line, symbol.module.name, symbol.name);
+            OutputDebugString(messageBuffer);
+        }
+
+        OutputDebugString("\n\n");
     }
 }

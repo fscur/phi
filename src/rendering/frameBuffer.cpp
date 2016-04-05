@@ -26,7 +26,7 @@ namespace phi
         glError::check();
     }
 
-    void framebuffer::add(renderTarget * renderTarget)
+    void framebuffer::add(renderTarget* renderTarget)
     {
         if (_id == 0)
         {

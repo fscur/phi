@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "loader.h"
+#include "loaderApi.h"
 #include <core\geometry.h>
 
 namespace phi

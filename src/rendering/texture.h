@@ -48,6 +48,9 @@ namespace phi
         {
         }
 
-        ~texture() {}
+        ~texture() 
+        {
+            safeDeleteArray(data);
+        }
     };
 }

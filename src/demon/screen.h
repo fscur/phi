@@ -22,7 +22,6 @@ namespace demon
 
         phi::gl* _gl;
         phi::scene* _scene;
-
         library* _library;
 
         phi::commandsManager* _commandsManager;

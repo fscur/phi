@@ -23,9 +23,7 @@ namespace demon
         phi::resourcesRepository<phi::texture>* _texturesRepository;
         phi::resourcesRepository<phi::material>* _materialsRepository;
         phi::resourcesRepository<phi::node>* _nodesRepository;
-
     private:
-
         template<typename T>
         phi::resourcesRepository<T>* load(
             phi::string directory,

@@ -12,11 +12,11 @@ namespace phi
     using rapidjson::Document;
     using rapidjson::Value;
 
-    material* importer::defaultMaterial = nullptr;
     texture* importer::defaultAlbedoTexture = nullptr;
     texture* importer::defaultNormalTexture = nullptr;
     texture* importer::defaultSpecularTexture = nullptr;
     texture* importer::defaultEmissiveTexture = nullptr;
+    material* importer::defaultMaterial = nullptr;
 
     node* importer::readNode(const rapidjson::Value& jsonNode, string currentFolder, resourcesRepository<material>* materialsRepo)
     {
@@ -152,7 +152,7 @@ namespace phi
 
         if (!FreeImage_FIFSupportsReading(imageFormat))
             throw importResourceException("Image format not supported ", fileName);
-            
+
         auto imagePointer = FreeImage_Load(imageFormat, fileNameChar);
         if (!imagePointer)
             throw importResourceException("Failed loading image", fileName);
@@ -184,9 +184,12 @@ namespace phi
             break;
         }
 
-        auto totalBytes = bpp / 8;
-        auto data = malloc(width * height * totalBytes);
-        memcpy(data, dataPtr, width * height * totalBytes);
+        auto bytesPerPixel = bpp / 8;
+        auto totalBytes = width * height * bytesPerPixel;
+        auto data = new byte[totalBytes];
+        memcpy(data, dataPtr, totalBytes);
+
+        FreeImage_Unload(imagePointer);
 
         return new texture(
             width,
@@ -195,7 +198,7 @@ namespace phi
             GL_RGBA8,
             format,
             GL_UNSIGNED_BYTE,
-            (byte*)dataPtr);
+            data);
     }
 
     resource<texture>* importer::importTexture(string fileName)
@@ -222,7 +225,6 @@ namespace phi
 #else
         throw importResourceException("Import texture was not implemented in other platforms than Win32", fileName);
 #endif
-
     }
 
     resource<material>* importer::importMaterial(string fileName, resourcesRepository<texture>* texturesRepo)
@@ -230,7 +232,7 @@ namespace phi
 #ifdef _WIN32
         FILE* file;
         fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
-        
+
         char readBuffer[65536];
         FileReadStream fileStream(file, readBuffer, sizeof(readBuffer));
         Document document;

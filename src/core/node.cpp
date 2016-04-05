@@ -6,10 +6,20 @@ namespace phi
     node::node() :
         _parent(nullptr), 
         _transform(transform()) 
-    {}
+    {
+    }
+
+    node::~node()
+    {
+        for (auto child : _children)
+            safeDelete(child);
+
+        for (auto component : _components)
+            safeDelete(component);
+    }
 
     node::node(const node& original) :
-        _transform(*(original._transform.clone())),
+        _transform(original._transform),
         _parent(nullptr)
     {
         auto clonedChildren = vector<node*>();

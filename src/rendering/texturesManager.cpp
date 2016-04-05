@@ -30,11 +30,9 @@ namespace phi
     {
         for (auto &pair : _containers)
         {
-            auto containers = pair.second;
-            auto containersCount = containers.size();
-            for (uint i = 0; i < containersCount; ++i)
+            for (auto container : pair.second)
             {
-                delete containers[i];
+                delete container;
             }
         }
     }

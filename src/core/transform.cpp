@@ -16,7 +16,7 @@ namespace phi
     {
     }
 
-    transform::transform(const transform & original) :
+    transform::transform(const transform& original) :
         _localPosition(original._localPosition),
         _localSize(original._localSize),
         _localOrientation(original._localOrientation),

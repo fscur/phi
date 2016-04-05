@@ -4,7 +4,7 @@
 #include <core\input.h>
 #include <core\size.h>
 
-#include "ui.h"
+#include "uiApi.h"
 #include "uiRepository.h"
 #include "controlEventArgs.h"
 #include "toolTip.h"

@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "core.h"
+#include "coreApi.h"
 #include "mouseEventHandler.h"
 #include "keyboardEventHandler.h"
 

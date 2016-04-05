@@ -33,7 +33,7 @@ namespace phi
         GUID newId;
         CoCreateGuid(&newId);
 
-        auto bytes = new byte[16];
+        auto bytes = vector<byte>(16);
         bytes[0] = (newId.Data1 >> 24) & 0xFF;
         bytes[1] = (newId.Data1 >> 16) & 0xFF;
         bytes[2] = (newId.Data1 >> 8) & 0xFF;

@@ -1,18 +1,17 @@
 #pragma once
 #include <phi.h>
-#include "scenes.h"
+#include "scenesApi.h"
+
 #include <core\color.h>
 #include <core\component.h>
+#include <core\transform.h>
 
 #include <rendering\attenuation.h>
 #include <rendering\shader.h>
 #include <rendering\texture.h>
-#include <core\transform.h>
 
 namespace phi
 {
-    //class transform;
-
     class light :
         public component
     {

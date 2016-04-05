@@ -11,7 +11,6 @@ namespace phi
     {
     private:
         phi::gl* _gl;
-
     public:
         size_t w;
         size_t h;
@@ -29,23 +28,17 @@ namespace phi
             lightingPass = new phi::lightingRenderPass(gBufferPass, gl, w, h);
         }
 
-        ~renderer() {}
+        ~renderer() 
+        {
+            safeDelete(defaultFramebuffer);
+            safeDelete(gBufferPass);
+            safeDelete(lightingPass);
+        }
 
         void render()
         {
             gBufferPass->render();
             lightingPass->render();
-            
-            /*
-            gBufferPass->framebuffer->bindForReading(gBufferPass->targets[0]);
-            glBlitFramebuffer(0, 0, w, h, 0, 192 * 0, 256, 192, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-            gBufferPass->framebuffer->bindForReading(gBufferPass->targets[1]);
-            glBlitFramebuffer(0, 0, w, h, 0, 192 * 1, 256, 192 * 2, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-            gBufferPass->framebuffer->bindForReading(gBufferPass->targets[2]);
-            glBlitFramebuffer(0, 0, w, h, 0, 192 * 2, 256, 192 * 3, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-            */
         }
 
         void update()

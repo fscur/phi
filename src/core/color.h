@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "core.h"
+#include "coreApi.h"
 
 namespace phi
 {

@@ -38,6 +38,14 @@ namespace phi
         _rtsBuffer->bindBufferBase(2);
     }
 
+    lightingRenderPass::~lightingRenderPass()
+    {
+        safeDelete(_rtsBuffer);
+        safeDelete(_quad);
+        safeDelete(_quadVbo);
+        safeDelete(_quadEbo);
+    }
+
     void lightingRenderPass::createQuad()
     {
         _quad = geometry::quad();
@@ -68,6 +76,8 @@ namespace phi
 
         glBindVertexArray(0);
         glError::check();
+
+        safeDeleteArray(data);
     }
 
     void lightingRenderPass::renderQuad()
@@ -100,9 +110,6 @@ namespace phi
     {
         glDisable(GL_DEPTH_TEST);
         glError::check();
-
-        /*gBufferPass->framebuffer->bindForReading(gBufferPass->targets[0]);
-        glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);*/
 
         glClear(GL_COLOR_BUFFER_BIT);
         glError::check();

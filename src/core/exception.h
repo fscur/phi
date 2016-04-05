@@ -1,5 +1,5 @@
 #pragma once
-#include "core.h"
+#include "coreApi.h"
 #include <phi.h>
 
 #include <diagnostics\stackSymbol.h>
@@ -13,6 +13,6 @@ namespace phi
         vector<stackSymbol> _stackTrace;
     public:
         CORE_API exception(string message);
-        vector<stackSymbol> getStackTrace() { return _stackTrace; }
+        vector<stackSymbol> getStackTrace() const { return _stackTrace; }
     };
 }

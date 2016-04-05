@@ -2,6 +2,7 @@
 #include "exception.h"
 
 #include <diagnostics\stackTracer.h>
+#include <diagnostics\stopwatch.h>
 
 namespace phi
 {
@@ -10,6 +11,7 @@ namespace phi
     {
 #if _DEBUG
         _stackTrace = stackTracer::stackWalk64();
+        stackTracer::printStackTrace(_stackTrace);
 #else
         _stackTrace = stackTracer::captureStackBackTrace();
 #endif

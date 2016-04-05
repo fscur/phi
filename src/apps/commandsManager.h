@@ -1,10 +1,10 @@
 #pragma once
 #include <phi.h>
+#include "appsApi.h"
 
 #include <core/mouseEventArgs.h>
 #include <core/keyboardEventArgs.h>
 
-#include "apps.h"
 #include "command.h"
 #include "shortcut.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "rendering.h"
+#include "renderingApi.h"
 #include "gl.h"
 #include "gBufferRenderPass.h"
 #include "vertexBuffer.h"
@@ -45,6 +45,7 @@ namespace phi
 
     public:
         RENDERING_API lightingRenderPass(phi::gBufferRenderPass* gBufferPass, phi::gl* gl, size_t w, size_t h);
+        RENDERING_API ~lightingRenderPass();
 
         RENDERING_API void update();
         RENDERING_API void render();

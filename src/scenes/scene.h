@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "scenes.h"
+#include "scenesApi.h"
 
 #include <core\mathUtils.h>
 #include <core\node.h>

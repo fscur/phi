@@ -12,18 +12,13 @@ namespace demon
         _gl(gl),
         _libraryPath(resourcesPath)
     {
-        importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
-        importer::defaultNormalTexture = _gl->defaultNormalTexture;
-        importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
-        importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
-        importer::defaultMaterial = _gl->defaultMaterial;
     }
 
     library::~library()
     {
-        delete _texturesRepository;
-        delete _materialsRepository;
-        delete _nodesRepository;
+        safeDelete(_texturesRepository);
+        safeDelete(_materialsRepository);
+        safeDelete(_nodesRepository);
     }
 
     void library::init()

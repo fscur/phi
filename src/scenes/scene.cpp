@@ -23,6 +23,9 @@ namespace phi
     {
         for (auto object : _objects)
             safeDelete(object);
+
+        safeDelete(_pipeline);
+        safeDelete(_renderer);
     }
 
     void scene::update()

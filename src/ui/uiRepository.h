@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "ui.h"
+#include "uiApi.h"
 
 #include <core\resourcesRepository.h>
 #include <core\size.h>

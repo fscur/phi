@@ -41,7 +41,7 @@ namespace phi
         if (_node == nullptr)
             return nullptr;
 
-        return &(_node->getTransform());
+        return &_node->getTransform();
     }
 
     void camera::setResolution(sizeui value)
@@ -53,12 +53,12 @@ namespace phi
 
     void camera::updateViewMatrix()
     {
-        auto transform = getTransform();
-        if (transform == nullptr)
-            transform = new phi::transform();
+        auto transform = phi::transform();
+        if (_node != nullptr)
+            transform = _node->getTransform();
 
-        auto position = transform->getPosition();
-        auto target = position + transform->getDirection() * _focus;
+        auto position = transform.getPosition();
+        auto target = position + transform.getDirection() * _focus;
         _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
         _changedView = false;
     }

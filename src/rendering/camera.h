@@ -4,7 +4,7 @@
 #include <core\component.h>
 #include <core\size.h>
 
-#include "rendering.h"
+#include "renderingApi.h"
 
 namespace phi
 {
@@ -37,6 +37,8 @@ namespace phi
             float farDistance,
             sizeui resolution,
             float fov);
+
+        ~camera() {};
 
         RENDERING_API  mat4 getViewMatrix();
         RENDERING_API  mat4 getProjectionMatrix();

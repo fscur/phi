@@ -1,11 +1,11 @@
-REM @echo OFF
-REM if %1==Debug goto :eof
-REM if %1==RelWithDebInfo goto :eof
-REM if %1==MinSizeRel goto :eof
+@echo OFF
+if %1==Debug goto :eof
+if %1==RelWithDebInfo goto :eof
+if %1==MinSizeRel goto :eof
 
-REM cd ..\..\..\
+cd ..\..\..\
 
-REM set build=.\gcc\%1\src\%2
+set build=.\gcc\%1\src\%2
 
-REM cd %build%
-REM mingw32-make
+cd %build%
+mingw32-make

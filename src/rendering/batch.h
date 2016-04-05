@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "rendering.h"
+#include "renderingApi.h"
 #include <core\geometry.h>
 #include "vertexBuffer.h"
 #include "buffer.h"

@@ -29,9 +29,9 @@ using namespace std;
 
 namespace phi
 {
-    guid::guid(const vector<byte> &bytes)
+    guid::guid(const vector<byte>& bytes) :
+        _bytes(bytes)
     {
-        _bytes = bytes;
     }
 
     guid::guid(const byte* bytes)
@@ -87,14 +87,14 @@ namespace phi
         }
     }
 
-    guid::guid()
+    guid::guid() :
+        _bytes(std::vector<byte>(16, 0))
     {
-        _bytes = std::vector<byte>(16, 0);
     }
 
-    guid::guid(const guid &other)
+    guid::guid(const guid &other) :
+        _bytes(other._bytes)
     {
-        _bytes = other._bytes;
     }
 
     guid &guid::operator=(const guid &other)

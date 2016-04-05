@@ -1,5 +1,5 @@
 #pragma once
-#include "diagnostics.h"
+#include "diagnosticsApi.h"
 #include <phi.h>
 
 namespace phi
@@ -10,14 +10,14 @@ namespace phi
         {
         }
 
-        symbolModule(char* name, char* path) :
+        symbolModule(char * name, char * path) :
             name(name),
             path(path)
         {
         }
 
-        const char* name;
-        const char* path;
+        char* name;
+        char* path;
     };
 
     struct symbolFile
@@ -33,7 +33,7 @@ namespace phi
         }
 
         unsigned int line;
-        const char* name;
+        char* name;
     };
 
     struct stackSymbol
@@ -50,7 +50,7 @@ namespace phi
         {
         }
 
-        const char* name;
+        char* name;
         uintptr_t address;
         symbolFile file;
         symbolModule module;

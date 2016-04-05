@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "rendering.h"
+#include "renderingApi.h"
 #include "material.h"
 #include "texturesManager.h"
 #include "shadersManager.h"
@@ -74,9 +74,9 @@ namespace phi
     private:
         void initOpenGLExtensions();
         void initState();
-        void initDefaultResources(bool sparse);
-        texture* createDefaultTexture(bool sparse, vec4 color);
-        void createDefaultMaterial();
+        void createDefaultResources(bool hasSparseTextures);
+        texture* createDefaultTexture(bool hasSparseTextures, vec4 color);
+        material* createDefaultMaterial();
 
     public:
         phi::texturesManager* texturesManager;

@@ -5,7 +5,7 @@
 #include <core\mathUtils.h>
 
 #include "colorAnimation.h"
-#include "ui.h"
+#include "uiApi.h"
 
 namespace phi
 {

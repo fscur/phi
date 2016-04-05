@@ -1,9 +1,14 @@
 #include <precompiled.h>
-#include "demon.h"
+#include "demonApi.h"
+
+#include <diagnostics\stackTracer.h>
+#include <diagnostics\stopwatch.h>
 
 #include <io\path.h>
+
 #include <apps\application.h>
 #include <apps\invalidInitializationException.h>
+
 #include <demon\screen.h>
 
 using namespace phi;
@@ -46,7 +51,7 @@ void lpCommandFunction(vector<string> args)
     _libraryPath = args[0];
 }
 
-void initCommandLineCommands()
+void initializeCommandLineCommands()
 {
     /*
     /rp <path> resources path
@@ -68,7 +73,7 @@ void processCommandLine(int argc, char* args[])
 
         bool foundCommand = false;
 
-        for (unsigned int cmdIndex = 0; cmdIndex < commandLineCommands.size(); cmdIndex++)
+        for (auto cmdIndex = 0; cmdIndex < commandLineCommands.size(); cmdIndex++)
         {
             if (arg.compare(commandLineCommands[cmdIndex].name) == 0)
             {
@@ -95,47 +100,35 @@ void executeCommands()
             commandLineCommands[i].func(commandLineCommands[i].args);
 }
 
-int debugQuit(string msg)
-{
-#ifdef _DEBUG
-    application::logError(msg);
-    system("pause");
-#endif
-    return -1;
-}
-
-void initGetText()
+void initializeGetText()
 {
     setlocale(LC_ALL, "");
     bindtextdomain("demon", "./locale");
     textdomain("demon");
 }
 
+void initializeDiagnostics(const char* executableFileName)
+{
+    phi::stackTracer::LoadLibraries(executableFileName);
+}
+
 int main(int argc, char* args[])
 {
-    initGetText();
+    char executableFileName[FILENAME_MAX];
+    strcpy_s(executableFileName, args[0]);
 
-    string exeFileName = string(args[0]);
-
-    initCommandLineCommands();
+    initializeDiagnostics(executableFileName);
+    initializeGetText();
+    initializeCommandLineCommands();
     processCommandLine(argc, args);
     executeCommands();
-    applicationStartInfo appStartInfo;
-    appStartInfo.exeFileName = exeFileName;
-    appStartInfo.resourcesPath = _resourcesPath;
-    appStartInfo.libraryPath = _libraryPath;
-    application app(appStartInfo);
-    if (!path::exists(application::resourcesPath))
-        return debugQuit("Resources path not found. [" + application::resourcesPath + "]");
-
-    if (!path::exists(application::libraryPath))
-        return debugQuit("Library path not found. [" + application::libraryPath + "]");
 
     try
     {
-        auto mainScreen = new demon::screen("?", 1024, 768);
-        app.run(mainScreen);
-        safeDelete(mainScreen);
+        auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, _libraryPath);
+        auto application = phi::application(appStartInfo);
+        auto screen = demon::screen("?", 1024, 768);
+        application.run(&screen);
     }
     catch (const phi::invalidInitializationException& exception)
     {

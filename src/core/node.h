@@ -18,6 +18,7 @@ namespace phi
     public:
         CORE_API node();
         CORE_API node(const node& original);
+        CORE_API ~node();
 
         CORE_API node* clone() const;
 

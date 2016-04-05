@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "gl.h"
 
+#include <loader\importer.h>
+
 namespace phi
 {
     bool gl::_initialized = false;
@@ -27,18 +29,22 @@ namespace phi
             hasSparseTextures);
 
         initState();
+        createDefaultResources(hasSparseTextures);
 
         texturesManager = new phi::texturesManager(hasBindlessTextures, hasSparseTextures);
         shadersManager = new phi::shadersManager(info.shadersPath);
-
-        initDefaultResources(hasSparseTextures);
     }
 
     gl::~gl()
     {
-        delete defaultMaterial;
-        delete texturesManager;
-        delete shadersManager;
+        safeDelete(texturesManager);
+        safeDelete(shadersManager);
+
+        safeDelete(defaultAlbedoTexture);
+        safeDelete(defaultNormalTexture);
+        safeDelete(defaultSpecularTexture);
+        safeDelete(defaultEmissiveTexture);
+        safeDelete(defaultMaterial);
     }
 
     void gl::initOpenGLExtensions()
@@ -97,38 +103,12 @@ namespace phi
         glError::check();
     }
 
-    void gl::initDefaultResources(bool sparse)
-    {
-        defaultAlbedoTexture = createDefaultTexture(sparse, vec4(1.0f));
-        defaultNormalTexture = createDefaultTexture(sparse, vec4(0.5f, 0.5f, 1.0f, 1.0f));
-        defaultSpecularTexture = createDefaultTexture(sparse, vec4(1.0f));
-        defaultEmissiveTexture = createDefaultTexture(sparse, vec4(0.0f));
-
-        createDefaultMaterial();
-    }
-
-    void gl::createDefaultMaterial()
-    {
-        defaultMaterial = new material(
-            defaultAlbedoTexture,
-            defaultNormalTexture,
-            defaultSpecularTexture,
-            defaultEmissiveTexture,
-            vec3(1.0f),
-            vec3(1.0f),
-            vec3(1.0f),
-            0.1f,
-            0.0f,
-            0.0f,
-            1.0f);
-    }
-
-    texture* gl::createDefaultTexture(bool sparse, vec4 color)
+    texture* gl::createDefaultTexture(bool hasSparseTextures, vec4 color)
     {
         auto x = 1;
         auto y = 1;
 
-        if (sparse)
+        if (hasSparseTextures)
         {
             x = 128;
             y = 128;
@@ -149,7 +129,7 @@ namespace phi
             }
         }
 
-        auto texture = new phi::texture(
+        return new texture(
             x,
             y,
             GL_TEXTURE_2D,
@@ -157,7 +137,30 @@ namespace phi
             GL_RGBA,
             GL_UNSIGNED_BYTE,
             data);
+    }
 
-        return texture;
+    material* gl::createDefaultMaterial()
+    {
+        return new material(
+            defaultAlbedoTexture,
+            defaultNormalTexture,
+            defaultSpecularTexture,
+            defaultEmissiveTexture,
+            vec3(1.0f),
+            vec3(1.0f),
+            vec3(1.0f),
+            0.1f,
+            0.0f,
+            0.0f,
+            1.0f);
+    }
+
+    void gl::createDefaultResources(bool hasSparseTextures)
+    {
+        defaultAlbedoTexture = createDefaultTexture(hasSparseTextures, vec4(1.0f));
+        defaultNormalTexture = createDefaultTexture(hasSparseTextures, vec4(0.5f, 0.5f, 1.0f, 1.0f));
+        defaultSpecularTexture = createDefaultTexture(hasSparseTextures, vec4(1.0f));
+        defaultEmissiveTexture = createDefaultTexture(hasSparseTextures, vec4(0.0f));
+        defaultMaterial = createDefaultMaterial();
     }
 }
