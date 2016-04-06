@@ -1,7 +1,14 @@
+set(CMAKE_CONFIGURATION_TYPES Debug MinSizeRel Release RelWithDebInfo DebugWithMemoryTracking)
+set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "Added DebugWithMemoryTracking configuration" FORCE)
+
 set(CMAKE_CXX_FLAGS "/DMSVC /W4 /WX /Zc:wchar_t- /GR- /EHsc" CACHE STRING "c++ compiler flags" FORCE)
 set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MDd /ZI /Ob0 /Od /RTC1" CACHE STRING "c++ debug compiler flags" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUGWITHMEMORYTRACKING "/D_DEBUG /DDETAILED_MEMORY_TRACKING /MDd /ZI /Ob0 /Od /RTC1" CACHE STRING "c++ debug with memory tracking compiler flags" FORCE)
 set(CMAKE_C_FLAGS "/DMSVC /W4 /WX" CACHE STRING "c compiler flags" FORCE)
 set(CMAKE_C_FLAGS_DEBUG "/D_DEBUG /MDd /ZI /Ob0 /Od /RTC1" CACHE STRING "c debug compiler flags" FORCE)
+set(CMAKE_C_FLAGS_DEBUGWITHMEMORYTRACKING "/D_DEBUG /DDETAILED_MEMORY_TRACKING /MDd /ZI /Ob0 /Od /RTC1" CACHE STRING "c debug with memory tracking compiler flags" FORCE)
+SET(CMAKE_EXE_LINKER_FLAGS_DEBUGWITHMEMORYTRACKING "/DEBUG" CACHE STRING "Flags used for linking binaries during debug with memory tracking builds." FORCE)
+SET(CMAKE_SHARED_LINKER_FLAGS_DEBUGWITHMEMORYTRACKING "/DEBUG" CACHE STRING "Flags used by the shared libraries linker during debug with memory tracking builds." FORCE )
 
 set(ROOT_DIR "../../")
 set(BIN_FOLDER "win64/vc++" CACHE STRING "")

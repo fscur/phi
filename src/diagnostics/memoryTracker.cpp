@@ -5,7 +5,6 @@
 #include "stackTracer.h"
 
 #ifdef _DEBUG
-//#define DETAILED_MEMORY_TRACK
 
 namespace phi
 {
@@ -123,7 +122,7 @@ namespace phi
             {
                 auto entry = _heapBuffer.getEntries();
                 char messageBuffer[1024];
-#ifdef DETAILED_MEMORY_TRACK
+#ifdef DETAILED_MEMORY_TRACKING
                 int count = 0;
                 OutputDebugString("\n\n");
                 while (entry)
@@ -150,7 +149,7 @@ namespace phi
                 sprintf_s(messageBuffer,
                     "\n%s %zd %s", "There are currently",
                     allocationCount,
-                    "memory leaks.\n#define DETAILED_MEMORY_TRACK in ""diagnostics\\memoryTracker.h"" file for detailed information!\n\n");
+                    "memory leaks.\nRun in DebugWithMemoryTracking configuration for more information!!1\n\n");
 #endif
                 printf_s(messageBuffer);
                 system("pause");
@@ -160,7 +159,7 @@ namespace phi
         HeapDumper() :
             allocationCount(0)
         {
-#ifdef DETAILED_MEMORY_TRACK
+#ifdef DETAILED_MEMORY_TRACKING
             initializeStackTracer();
 #endif
         }
@@ -187,7 +186,7 @@ namespace phi
         ++heap.allocationCount;
         auto address = malloc(size);
 
-#ifdef DETAILED_MEMORY_TRACK
+#ifdef DETAILED_MEMORY_TRACKING
         auto entry = static_cast<linkedList::node*>(malloc(sizeof(linkedList::node)));
         entry->address = address;
         entry->size = size;
@@ -201,7 +200,7 @@ namespace phi
 
     void deallocate(void* address)
     {
-#ifdef DETAILED_MEMORY_TRACK
+#ifdef DETAILED_MEMORY_TRACKING
         heap.removeEntry(address);
 #endif
         --heap.allocationCount;

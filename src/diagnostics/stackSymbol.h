@@ -6,7 +6,9 @@ namespace phi
 {
     struct symbolModule
     {
-        symbolModule()
+        symbolModule() :
+            name((char*)("")),
+            path((char*)(""))
         {
         }
 
@@ -22,7 +24,9 @@ namespace phi
 
     struct symbolFile
     {
-        symbolFile()
+        symbolFile() :
+            name((char*)("")),
+            line(0)
         {
         }
 

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-21 16:03-0300\n"
-"PO-Revision-Date: 2016-03-23 19:03-0300\n"
+"POT-Creation-Date: 2016-04-06 15:54-0300\n"
+"PO-Revision-Date: 2016-04-06 16:10-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -17,14 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7\n"
 
-#: win64\window_win64.cpp:411
-msgid "Closing window."
-msgstr "Fechando janela."
-
-#: library.cpp:42 library.cpp:49 library.cpp:44
+#: library.cpp:44
 msgid "Library initialized."
 msgstr "Biblioteca inicializada."
-
-#: shader.cpp:272
-msgid "shader binded."
-msgstr "Shader bindado."

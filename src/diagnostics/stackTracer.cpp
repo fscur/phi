@@ -33,7 +33,7 @@ namespace phi
         }
         else
         {
-            return symbolFile((char*)"", 0);
+            return symbolFile();
         }
     }
 
@@ -58,7 +58,7 @@ namespace phi
         }
         else
         {
-            return symbolModule((char*)"", (char*)"");
+            return symbolModule();
         }
     }
 
