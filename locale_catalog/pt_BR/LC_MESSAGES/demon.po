@@ -21,7 +21,7 @@ msgstr ""
 msgid "Closing window."
 msgstr "Fechando janela."
 
-#: library.cpp:42
+#: library.cpp:42 library.cpp:48
 msgid "Library initialized."
 msgstr "Biblioteca inicializada."
 
