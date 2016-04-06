@@ -18,7 +18,7 @@ namespace phi
     texture* importer::defaultSpecularTexture = nullptr;
     texture* importer::defaultEmissiveTexture = nullptr;
 
-    node* importer::readNode(const rapidjson::Value& jsonNode, string currentFolder, resourcesRepository<material>* materialsRepo)
+    node* importer::readNode(const rapidjson::Value& jsonNode, string currentFolder, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo)
     {
         auto objectNode = new node();
 
@@ -31,28 +31,28 @@ namespace phi
 
             switch (type)
             {
-            case 0:
-            {
-                component = new phi::model(components[i]["Name"].GetString());
-                break;
-            }
-            case 1:
-            {
-                auto geometryPath = components[i]["GeometryPath"].GetString();
-                auto geometry = importGeometry(currentFolder + "\\" + geometryPath);
+                case 0:
+                {
+                    component = new phi::model(components[i]["Name"].GetString());
+                    break;
+                }
+                case 1:
+                {
+                    auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
+                    auto geometry = geometriesRepo->getResource(geometryGuid)->getObject();
 
-                auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
-                auto matRes = materialsRepo->getResource(materialGuid);
+                    auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
+                    auto matRes = materialsRepo->getResource(materialGuid);
 
-                material* mat;
-                if (matRes == nullptr)
-                    mat = defaultMaterial;
-                else
-                    mat = matRes->getObject();
+                    material* mat;
+                    if (matRes == nullptr)
+                        mat = defaultMaterial;
+                    else
+                        mat = matRes->getObject();
 
-                component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
-                break;
-            }
+                    component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
+                    break;
+                }
             }
             objectNode->addComponent(component);
         }
@@ -61,7 +61,7 @@ namespace phi
         auto childrenCount = children.Size();
         for (rapidjson::SizeType i = 0; i < childrenCount; i++)
         {
-            auto child = readNode(children[i], currentFolder, materialsRepo);
+            auto child = readNode(children[i], currentFolder, materialsRepo, geometriesRepo);
             objectNode->addChild(child);
         }
 
@@ -74,7 +74,7 @@ namespace phi
         return guidBytes.data();
     }
 
-    resource<node>* importer::importNode(string fileName, resourcesRepository<material>* materialsRepo)
+    resource<node>* importer::importNode(string fileName, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo)
     {
         //TODO:: create load file fuction in the io API
 #ifdef _WIN32 
@@ -90,52 +90,12 @@ namespace phi
 
         auto currentFolder = path::getDirectoryFullName(fileName);
         auto nodeName = path::getFileNameWithoutExtension(fileName);
-        auto rootNode = readNode(document["Node"], currentFolder, materialsRepo);
+        auto rootNode = readNode(document["Node"], currentFolder, materialsRepo, geometriesRepo);
         auto guid = convertToGuid(document["Guid"].GetString());
 
         return new resource<node>(guid, nodeName, rootNode);
 #else
         throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
-#endif
-    }
-
-    geometry* importer::importGeometry(string fileName)
-    {
-#ifdef _WIN32
-        std::ifstream iFile;
-        iFile.open(fileName.c_str(), std::ios::in | std::ios::binary);
-
-        if (!iFile.is_open())
-        {
-            throw importResourceException("File coult not be loaded.", fileName);
-        }
-
-        int verticesCount = -1;
-        iFile.read(reinterpret_cast<char*>(&verticesCount), sizeof(int));
-
-        auto positionsBuffer = new float[verticesCount * 3];
-        auto texCoordsBuffer = new float[verticesCount * 2];
-        auto normalsBuffer = new float[verticesCount * 3];
-
-        auto positionsSize = verticesCount * 3 * sizeof(float);
-        auto texCoordsSize = verticesCount * 2 * sizeof(float);
-        auto normalsSize = verticesCount * 3 * sizeof(float);
-
-        iFile.read(reinterpret_cast<char*>(positionsBuffer), positionsSize);
-        iFile.read(reinterpret_cast<char*>(texCoordsBuffer), texCoordsSize);
-        iFile.read(reinterpret_cast<char*>(normalsBuffer), normalsSize);
-
-        int indicesCount = -1;
-        iFile.read(reinterpret_cast<char*>(&indicesCount), sizeof(int));
-
-        auto indicesBuffer = new uint[indicesCount];
-        iFile.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * sizeof(int));
-
-        iFile.close();
-
-        return geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
-#else
-        throw importResourceException("importGeometry was not implemented ins other platforms than WIN32");
 #endif
     }
 
@@ -223,6 +183,51 @@ namespace phi
         throw importResourceException("Import texture was not implemented in other platforms than Win32", fileName);
 #endif
 
+    }
+
+    resource<geometry>* importer::importGeometry(string fileName)
+    {
+#ifdef _WIN32
+        std::ifstream file;
+        file.open(fileName.c_str(), std::ios::in | std::ios::binary);
+
+        if (!file.is_open())
+        {
+            throw importResourceException("File coult not be loaded.", fileName);
+        }
+
+        auto geomGuid = new uint8_t[16];
+        file.read(reinterpret_cast<char*>(geomGuid), 16);
+
+        int verticesCount = -1;
+        file.read(reinterpret_cast<char*>(&verticesCount), sizeof(int));
+
+        auto positionsBuffer = new float[verticesCount * 3];
+        auto texCoordsBuffer = new float[verticesCount * 2];
+        auto normalsBuffer = new float[verticesCount * 3];
+
+        auto positionsSize = verticesCount * 3 * sizeof(float);
+        auto texCoordsSize = verticesCount * 2 * sizeof(float);
+        auto normalsSize = verticesCount * 3 * sizeof(float);
+
+        file.read(reinterpret_cast<char*>(positionsBuffer), positionsSize);
+        file.read(reinterpret_cast<char*>(texCoordsBuffer), texCoordsSize);
+        file.read(reinterpret_cast<char*>(normalsBuffer), normalsSize);
+
+        int indicesCount = -1;
+        file.read(reinterpret_cast<char*>(&indicesCount), sizeof(int));
+
+        auto indicesBuffer = new uint[indicesCount];
+        file.read(reinterpret_cast<char*>(indicesBuffer), indicesCount * sizeof(int));
+
+        file.close();
+
+        auto name = path::getFileNameWithoutExtension(fileName);
+        auto geom = geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
+        return new resource<geometry>(geomGuid, name, geom);
+#else
+        throw importResourceException("importGeometry was not implemented ins other platforms than WIN32");
+#endif
     }
 
     resource<material>* importer::importMaterial(string fileName, resourcesRepository<texture>* texturesRepo)

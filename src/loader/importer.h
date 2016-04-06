@@ -20,12 +20,12 @@ namespace phi
         static texture* defaultEmissiveTexture;
 
     private:
-        static node* readNode(const rapidjson::Value& node, string currentFolder, resourcesRepository<material>* materialsRepo);
+        static node* readNode(const rapidjson::Value& node, string currentFolder, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo);
         static guid convertToGuid(const char* bytesGuid);
 
     public:
-        static resource<node>* importNode(string fileName, resourcesRepository<material>* materialsRepo);
-        static geometry* importGeometry(string fileName);
+        static resource<node>* importNode(string fileName, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo);
+        static resource<geometry>* importGeometry(string fileName);
         static texture* importImage(string fileName);
         static resource<texture>* importTexture(string fileName);
         static resource<material>* importMaterial(string fileName, resourcesRepository<texture>* texturesRepo);
