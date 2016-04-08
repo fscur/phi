@@ -6,6 +6,9 @@ namespace phi
 {
     struct symbolModule
     {
+        char* name;
+        char* path;
+
         symbolModule() :
             name((char*)("")),
             path((char*)(""))
@@ -17,13 +20,13 @@ namespace phi
             path(path)
         {
         }
-
-        char* name;
-        char* path;
     };
 
     struct symbolFile
     {
+        char* name;
+        unsigned int line;
+
         symbolFile() :
             name((char*)("")),
             line(0)
@@ -35,13 +38,15 @@ namespace phi
             line(line)
         {
         }
-
-        unsigned int line;
-        char* name;
     };
 
     struct stackSymbol
     {
+        char* name;
+        uintptr_t address;
+        symbolFile file;
+        symbolModule module;
+
         stackSymbol()
         {
         }
@@ -53,11 +58,6 @@ namespace phi
             module(module)
         {
         }
-
-        char* name;
-        uintptr_t address;
-        symbolFile file;
-        symbolModule module;
 
         string toString()
         {
