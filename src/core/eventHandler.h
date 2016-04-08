@@ -19,7 +19,6 @@ namespace phi
             std::function<void(Args...)> function;
         };
 
-    private:
         std::vector<eventTokenFunction> _functions;
 
     public:

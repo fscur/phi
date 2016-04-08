@@ -20,6 +20,15 @@ namespace phi
         updateProjectionMatrix();
     }
 
+    void camera::onNodeChanged(node* previousValue)
+    {
+        if (previousValue)
+            previousValue->getTransform().getChangedEvent()->unassign(_transformChangedEventToken);
+
+        if (_node)
+            _transformChangedEventToken = _node->getTransform().getChangedEvent()->assign(std::bind(&camera::transformChanged, this));
+    }
+
     mat4 camera::getViewMatrix()
     {
         if (_changedView)
@@ -67,6 +76,11 @@ namespace phi
     {
         _projectionMatrix = glm::perspective(_fov, _aspect, _near, _far);
         _changedProjection = false;
+    }
+
+    void camera::transformChanged()
+    {
+        _changedView = true;
     }
 
     void camera::moveTo(vec3 position)
@@ -119,9 +133,5 @@ namespace phi
 
     void camera::update()
     {
-        // TODO: when the new event system is done, change this to update only when the transform changes
-        updateViewMatrix();
-        //if (_changedProjection)
-        //    updateProjectionMatrix();
     }
 }

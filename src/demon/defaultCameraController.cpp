@@ -127,7 +127,7 @@ namespace demon
         phi::vec3 camRight = cameraTransform->getRight();
         phi::vec3 camUp = cameraTransform->getUp();
 
-        _zoomDir = glm::normalize(camDir * z + -camRight * (float)x + camUp * (float)y);
+        _zoomDir = glm::normalize(camDir * z + -camRight * static_cast<float>(x) + camUp * static_cast<float>(y));
 
         _zoomInertiaTime = 0u;
         _zoomDistanceTraveled = 0.0f;
@@ -148,17 +148,17 @@ namespace demon
 
     void defaultCameraController::zoomUpdate()
     {
-        auto deltaMilliseconds = static_cast<int32_t>(phi::time::deltaSeconds * 1000.0f);
-        _zoomSpeedAccumulationTime = glm::max(_zoomSpeedAccumulationTime - deltaMilliseconds, 0);
+        auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
+        _zoomSpeedAccumulationTime = glm::max(_zoomSpeedAccumulationTime - deltaMilliseconds, 0.0);
 
         if (_zoomSpeed == 0.0f)
             return;
 
         _zoomInertiaTime += deltaMilliseconds;
-        auto percent = -glm::exp(_zoomInertiaTime / -325.0f) + 1.0f;
+        auto percent = static_cast<float>(-glm::exp(_zoomInertiaTime / -325.0f) + 1.0f);
         auto delta = _zoomSpeed * percent;
 
-        if (percent == 1.0f)
+        if (percent > 0.998f)
             _zoomSpeed = 0.0f;
 
         if (delta > _zoomDistanceLimit)
@@ -271,15 +271,15 @@ namespace demon
         _panTargetCameraPos += deltaWorld;
         _panDelta = _panTargetCameraPos - _panCameraPos;
         _panInertiaTime = 0u;
-        _panLastMouseMoveTime = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+        _panLastMouseMoveTime = phi::time::totalSeconds * 1000.0;
         _panDoingInertia = true;
     }
 
     void defaultCameraController::panMouseUp()
     {
         _panning = false;
-        auto nowMilliseconds = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
-        auto deltaTime = glm::max(10u, nowMilliseconds - _panLastMouseMoveTime);
+        auto nowMilliseconds = phi::time::totalSeconds * 1000.0;
+        auto deltaTime = static_cast<float>(glm::max(10.0, nowMilliseconds - _panLastMouseMoveTime));
         _panCameraPos = _camera->getTransform()->getPosition();
         _panDelta = _panTargetCameraPos - _panCameraPos;
         _panDelta += _panDelta * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f)));
@@ -290,11 +290,11 @@ namespace demon
         if (!_panDoingInertia)
             return;
 
-        auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
+        auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
         _panInertiaTime += deltaMilliseconds;
         auto desFactor = _panning ? 100.0f : 325.0f;
         auto percent = -glm::exp(_panInertiaTime / -desFactor) + 1.0f;
-        auto delta = glm::length(_panDelta) * percent;
+        auto delta = static_cast<float>(glm::length(_panDelta) * percent);
 
         if (delta == 0.0f)
             return;
@@ -387,7 +387,7 @@ namespace demon
         auto lastRemainingRotation = (1.0f - _rotationInertiaLastPercent) * glm::length(_rotationDelta);
         _rotationDelta = glm::normalize(delta) * (lastRemainingRotation + glm::length(delta));
 
-        _rotationLastMouseMoveTime = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+        _rotationLastMouseMoveTime = phi::time::totalSeconds * 1000.0;
         _rotationInertiaTime = 0u;
         _rotationDoingInertia = true;
         _rotationInertiaLastPercent = 0.0f;
@@ -400,8 +400,8 @@ namespace demon
         if (glm::length(_rotationDelta) == 0.0f)
             return;
 
-        auto nowMilliseconds = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
-        auto deltaTime = glm::max(10u, nowMilliseconds - _rotationLastMouseMoveTime);
+        auto nowMilliseconds = phi::time::totalSeconds * 1000.0;
+        auto deltaTime = static_cast<float>(glm::max(10.0, nowMilliseconds - _rotationLastMouseMoveTime));
         auto lastRemainingRotation = (1.0f - _rotationInertiaLastPercent) * glm::length(_rotationDelta);
         _rotationDelta = glm::normalize(_rotationDelta) * (lastRemainingRotation + lastRemainingRotation * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f))));
     }
@@ -411,15 +411,14 @@ namespace demon
         if (!_rotationDoingInertia)
             return;
 
-        auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
+        auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0f;
         _rotationInertiaTime += deltaMilliseconds;
         auto desFactor = _rotating ? 100.0f : 325.0f;
-        auto percent = -glm::exp(_rotationInertiaTime / -desFactor) + 1.0f;
+        auto percent = static_cast<float>(-glm::exp(_rotationInertiaTime / -desFactor) + 1.0);
         auto delta = _rotationDelta * (percent - _rotationInertiaLastPercent);
         _rotationInertiaLastPercent = percent;
 
         _camera->orbit(_rotationTargetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), -delta.x, -delta.y);
-
         if (percent >= 1.0f)
             _rotationDoingInertia = false;
     }

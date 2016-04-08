@@ -27,6 +27,8 @@ namespace phi
         component(componentType type, string name) :
             _type(type), _name(name), _node(nullptr) { }
 
+        void virtual onNodeChanged(node* previousValue) {}
+
     public:
         virtual ~component() {}
         virtual component* clone() const { return new component(*this); }
@@ -34,6 +36,11 @@ namespace phi
         int getType() const { return _type; }
         string getName() const { return _name; }
 
-        void setNode(node* value) { _node = value; }
+        void setNode(node* value)
+        {
+            auto previousValue = _node;
+            _node = value;
+            onNodeChanged(previousValue);
+        }
     };
 }

@@ -12,7 +12,8 @@ namespace phi
         _localOrientation(quat()),
         _right(vec3(1.0f, 0.0f, 0.0f)),
         _up(vec3(0.0f, 1.0f, 0.0f)),
-        _direction(vec3(0.0f, 0.0f, 1.0f))
+        _direction(vec3(0.0f, 0.0f, 1.0f)),
+        _changedEvent(new eventHandler<>())
     {
     }
 
@@ -21,7 +22,8 @@ namespace phi
         _localSize(original._localSize),
         _localOrientation(original._localOrientation),
         _parent(original._parent),
-        _changed(original._changed)
+        _changed(original._changed),
+        _changedEvent(new eventHandler<>())
     {
     }
 
@@ -128,28 +130,32 @@ namespace phi
         return _direction;
     }
 
-    void transform::setParent(transform * value)
+    void transform::setParent(transform* value)
     {
         _parent = value;
         _changed = true;
+        _changedEvent->raise();
     }
 
     void transform::setLocalPosition(vec3 value)
     {
         _localPosition = value;
         _changed = true;
+        _changedEvent->raise();
     }
 
     void transform::setLocalOrientation(quat value)
     {
         _localOrientation = value;
         _changed = true;
+        _changedEvent->raise();
     }
 
     void transform::setLocalSize(vec3 value)
     {
         _localSize = value;
         _changed = true;
+        _changedEvent->raise();
     }
 
     void transform::setDirection(vec3 direction)

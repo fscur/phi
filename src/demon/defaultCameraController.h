@@ -28,16 +28,16 @@ namespace demon
         float _zoomSpeed;
         float _zoomDistanceTraveled;
         float _zoomDistanceLimit;
-        int32_t _zoomSpeedAccumulationTime;
-        int32_t _zoomInertiaTime;
+        double _zoomSpeedAccumulationTime;
+        double _zoomInertiaTime;
         phi::floatAnimation* _zoomBounceAnimation;
 
         bool _rotating;
         bool _rotationDoingInertia;
         phi::vec2 _rotationDelta;
         phi::vec3 _rotationTargetPos;
-        int32_t _rotationLastMouseMoveTime;
-        int32_t _rotationInertiaTime;
+        double _rotationLastMouseMoveTime;
+        double _rotationInertiaTime;
         float _rotationInertiaLastPercent;
 
         bool _panning;
@@ -48,8 +48,8 @@ namespace demon
         phi::vec3 _panCameraUp;
         glm::vec3 _panDelta;
         phi::vec3 _panTargetCameraPos;
-        int32_t _panLastMouseMoveTime;
-        int32_t _panInertiaTime;
+        double _panLastMouseMoveTime;
+        double _panInertiaTime;
 
     private:
         void zoomMouseWheel(int mouseX, int mouseY, float delta);

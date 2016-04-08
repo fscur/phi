@@ -3,6 +3,7 @@
 
 #include <core\component.h>
 #include <core\size.h>
+#include <core\eventHandler.h>
 
 #include "rendering.h"
 
@@ -25,10 +26,15 @@ namespace phi
         float _aspect;
         float _fov;
         sizeui _resolution;
+        eventToken _transformChangedEventToken;
 
     private:
         void updateViewMatrix();
         void updateProjectionMatrix();
+        void transformChanged();
+
+    protected:
+        RENDERING_API void onNodeChanged(node* previousValue) override;
 
     public:
         RENDERING_API  camera(

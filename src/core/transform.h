@@ -2,6 +2,7 @@
 #include <phi.h>
 #include "core.h"
 #include "mathUtils.h"
+#include "eventHandler.h"
 
 namespace phi
 {
@@ -18,6 +19,7 @@ namespace phi
         vec3 _up;
         vec3 _direction;
         bool _changed;
+        eventHandler<>* _changedEvent;
 
     private:
         void updateData();
@@ -47,6 +49,7 @@ namespace phi
         vec3 getLocalPosition() const { return _localPosition; }
         quat getLocalOrientation() const { return _localOrientation; }
         vec3 getLocalSize() const { return _localSize; }
+        eventHandler<>* getChangedEvent() const { return _changedEvent; }
 
         void translate(vec3 translation) { setLocalPosition(_localPosition + translation); }
         void rotate(float angle, vec3 axis) { setLocalOrientation(angleAxis(angle, axis) * _localOrientation); }
