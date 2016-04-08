@@ -1,4 +1,4 @@
-set(CMAKE_CXX_FLAGS "-DMINGW -D_DEBUG -std=c++11 -Dapi_EXPORTS" CACHE STRING "c++ compiler flags" FORCE)
+set(CMAKE_CXX_FLAGS "-DMINGW -D_DEBUG -std=c++11 -Wall -Dapi_EXPORTS" CACHE STRING "c++ compiler flags" FORCE)
 set(ROOT_DIR "../../")
 set(BIN_FOLDER "win64/gcc/debug" CACHE STRING "")
 set(SOLUTION_PLATFORM "win64/gcc" CACHE STRING "")
