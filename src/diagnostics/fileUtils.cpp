@@ -9,7 +9,7 @@ void fileUtils::getDirectoryFromPath(const char* fullPath, char* directory)
     auto pathSize = strlen(fullPath);
     auto pathSeparator = L'\\';
 
-    for (int i = 0; i < pathSize; i++)
+    for (size_t i = 0; i < pathSize; i++)
     {
         if (fullPath[i] != pathSeparator)
         {
