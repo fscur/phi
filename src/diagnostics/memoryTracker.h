@@ -3,6 +3,7 @@
 #include "diagnosticsApi.h"
 
 #ifdef _DEBUG
+
 namespace phi
 {
     DIAGNOSTICS_API void* allocate(size_t size);

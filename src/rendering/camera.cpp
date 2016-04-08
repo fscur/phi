@@ -74,59 +74,13 @@ namespace phi
         getTransform()->setLocalPosition(position);
     }
 
-    void camera::zoomIn(vec3 targetPos)
+    void camera::zoom(vec3 offset)
     {
         auto transform = getTransform();
         auto position = transform->getPosition();
-        auto dist = mathUtils::distance(targetPos, position) - _near;
-        vec3 direction = normalize(targetPos - position);
-
-        auto factor = 0.5f;
-
-        if (dist < 1.0)
-            factor = 1 - (1 / (pow(2.0f, dist)));
-
-        dist *= factor;
-
-        auto offset = direction * dist;
-
-        auto newPosition = position + offset;
-
-        _focus = glm::max(_focus - dist, _near);
-        transform->setLocalPosition(newPosition);
-
-        if (dist - _near < 0.2f)
-        {
-            _far = 100.01f;
-            _near = 0.01f;
-            _changedProjection = true;
-        }
-
-        _changedView = true;
-    }
-
-    void camera::zoomOut(vec3 targetPos)
-    {
-        auto transform = getTransform();
-        auto position = transform->getPosition();
-        auto dist = mathUtils::distance(targetPos, position);
-        vec3 direction = normalize(targetPos - position);
-
-        dist *= -0.5f / (1 - 0.5f);
-
-        vec3 offset = direction * dist;
-
         vec3 newPosition = position + offset;
 
-        _focus -= dist;
         transform->setLocalPosition(newPosition);
-
-        if (dist - _near > 0.2f)
-        {
-            _far = 1000.0f;
-            _near = 0.1f;
-            _changedProjection = true;
-        }
 
         _changedView = true;
     }
@@ -138,7 +92,7 @@ namespace phi
         position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
         position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
 
-        auto target = transform->getPosition() + transform->getDirection() * _focus;
+        auto target = transform->getPosition() + transform->getDirection();
         target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
         target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
 
@@ -147,7 +101,7 @@ namespace phi
         auto upDot = dot(dir, vec3(0.0f, 1.0f, 0.0f));
         if (upDot > 0.98f || upDot < -0.98f)
         {
-            orbit(origin, axisX, axisY, angleX, 0.0f); // I hope this line never starts a stack overflow
+            orbit(origin, axisX, axisY, angleX, 0.0f); // I hope this line never starts a stack overflow... well, it did!
             return;
         }
 
@@ -167,5 +121,7 @@ namespace phi
     {
         // TODO: when the new event system is done, change this to update only when the transform changes
         updateViewMatrix();
+        //if (_changedProjection)
+        //    updateProjectionMatrix();
     }
 }

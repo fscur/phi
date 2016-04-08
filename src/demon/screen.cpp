@@ -10,6 +10,8 @@
 #include <rendering\model.h>
 #include <apps\application.h>
 
+#include <ui\floatAnimator.h>
+
 using namespace phi;
 
 namespace demon
@@ -80,7 +82,7 @@ namespace demon
         auto camera = _scene->camera;
 
         auto cameraTransform = camera->getTransform();
-        auto cameraPos = vec3(0.0f, 0.0f, 2.0f);
+        auto cameraPos = vec3(0.0f, 0.0f, 10.0f);
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
@@ -88,8 +90,12 @@ namespace demon
         auto clonedFloor = floor->clone();
         _scene->add(clonedFloor);
 
+        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform().setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
+        _scene->add(cube);
+
         auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-        for (size_t i = 0; i < 10; i++)
+        for (size_t i = 0; i < 1; i++)
         {
             auto cloned = obj->clone();
             cloned->getTransform().setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
@@ -108,6 +114,8 @@ namespace demon
 
     void screen::onUpdate()
     {
+        phi::floatAnimator::update();
+        _defaultController->update();
         _scene->update();
     }
 
@@ -118,7 +126,7 @@ namespace demon
 
     void screen::onTick()
     {
-        debug("fps:" + std::to_string(application::framesPerSecond));
+        //debug("fps:" + std::to_string(application::framesPerSecond));
     }
 
     void screen::onClosing()

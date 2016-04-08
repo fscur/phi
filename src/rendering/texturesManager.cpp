@@ -31,9 +31,7 @@ namespace phi
         for (auto &pair : _containers)
         {
             for (auto container : pair.second)
-            {
-                delete container;
-            }
+                safeDelete(container);
         }
     }
 

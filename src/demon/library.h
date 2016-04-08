@@ -3,6 +3,7 @@
 
 #include <core\resourcesRepository.h>
 #include <core\node.h>
+#include <core\geometry.h>
 
 #include <io\path.h>
 
@@ -21,6 +22,7 @@ namespace demon
         phi::gl* _gl;
         phi::string _libraryPath;
         phi::resourcesRepository<phi::texture>* _texturesRepository;
+        phi::resourcesRepository<phi::geometry>* _geometriesRepository;
         phi::resourcesRepository<phi::material>* _materialsRepository;
         phi::resourcesRepository<phi::node>* _nodesRepository;
     private:
@@ -48,7 +50,7 @@ namespace demon
                 load(dir.path, filters, repository, importFunction);
 
             auto files = phi::path::getFiles(directory, filters);
-            
+
             for (auto &file : files)
             {
                 try
@@ -70,6 +72,7 @@ namespace demon
         void init();
 
         phi::resourcesRepository<phi::texture>* getTexturesRepository() const { return _texturesRepository; }
+        phi::resourcesRepository<phi::geometry>* getGeometriesRepository() const { return _geometriesRepository; }
         phi::resourcesRepository<phi::material>* getMaterialsRepository() const { return _materialsRepository; }
         phi::resourcesRepository<phi::node>* getObjectsRepository() const { return _nodesRepository; }
     };

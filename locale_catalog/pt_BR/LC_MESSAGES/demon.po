@@ -20,3 +20,7 @@ msgstr ""
 #: library.cpp:44
 msgid "Library initialized."
 msgstr "Biblioteca inicializada."
+
+#: shader.cpp:272
+msgid "shader binded."
+msgstr "Shader bindado."

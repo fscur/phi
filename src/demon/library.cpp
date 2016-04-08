@@ -18,6 +18,7 @@ namespace demon
     {
         safeDelete(_texturesRepository);
         safeDelete(_materialsRepository);
+        safeDelete(_geometriesRepository);
         safeDelete(_nodesRepository);
     }
 
@@ -28,6 +29,11 @@ namespace demon
             return importer::importTexture(filePath);
         };
 
+        auto importGeometryFunction = [](string filePath)
+        {
+            return importer::importGeometry(filePath);
+        };
+
         auto importMaterialFunction = [&](string filePath)
         {
             return importer::importMaterial(filePath, _texturesRepository);
@@ -35,10 +41,11 @@ namespace demon
 
         auto importModelFunction = [&](string filePath)
         {
-            return importer::importNode(filePath, _materialsRepository);
+            return importer::importNode(filePath, _materialsRepository, _geometriesRepository);
         };
 
         _texturesRepository = load<texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
+        _geometriesRepository = load<geometry>(_libraryPath + "/models", ".geometry", importGeometryFunction);
         _materialsRepository = load<material>(_libraryPath + "/materials", ".material", importMaterialFunction);
         _nodesRepository = load<node>(_libraryPath + "/models", ".model", importModelFunction);
         debug(_("Library initialized."));

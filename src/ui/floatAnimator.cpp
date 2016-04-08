@@ -7,20 +7,28 @@
 namespace phi
 {
     std::vector<floatAnimation*> floatAnimator::_animations;
+    std::vector<floatAnimation*> floatAnimator::_toCancelAnimations;
     double floatAnimator::_lastUpdateMilliseconds = 0.0;
-
-    void floatAnimator::animateFloat(float* value, float to, int milliseconds)
-    {
-        animateFloat(new floatAnimation(value, to, milliseconds));
-    }
 
     void floatAnimator::animateFloat(floatAnimation* animation)
     {
         _animations.push_back(animation);
     }
 
+    void floatAnimator::cancelAnimation(floatAnimation* animation)
+    {
+        _toCancelAnimations.push_back(animation);
+    }
+
     void floatAnimator::update()
     {
+        while (_toCancelAnimations.size() > 0)
+        {
+            auto element = _toCancelAnimations[0];
+            _animations.erase(std::remove(_animations.begin(), _animations.end(), element), _animations.end());
+            _toCancelAnimations.erase(std::remove(_toCancelAnimations.begin(), _toCancelAnimations.end(), element), _toCancelAnimations.end());
+        }
+
         double currentMilliseconds = time::totalSeconds * 1000;
 
         for (unsigned int i = 0; i < _animations.size(); i++)
@@ -32,25 +40,26 @@ namespace phi
                 continue;
             }
 
-            float* value = animation->getValue();
+            animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
+
             float from = animation->getFrom();
             float to = animation->getTo();
 
             float percent = (float)animation->getElapsed() / (float)animation->getMilliseconds();
             percent = glm::clamp(percent, 0.0f, 1.0f);
-            //float diff = sin(percent * pi<float>() * 0.5f);
-            //float t = percent;
-            //float diff = t<.5 ? 4 * t*t*t : (t - 1)*(2 * t - 2)*(2 * t - 2) + 1; // bão!
-            //float diff = t*(2 - t);
             float diff = animation->getEasingFunction()(percent);
 
-            if (percent >= 1.0f)
-            {
-                *value = to;
+            auto value = from + (to - from) * diff;
 
+            if (animation->getElapsed() > (float)animation->getMilliseconds())
+            {
                 auto callback = animation->getCallback();
                 if (callback != nullptr)
-                    callback(*value);
+                    callback(value);
+
+                auto endCallback = animation->getEndCallback();
+                if (endCallback)
+                    endCallback();
 
                 safeDelete(animation);
                 _animations.erase(_animations.begin() + i);
@@ -58,12 +67,9 @@ namespace phi
             }
             else
             {
-                *value = from + (to - from) * diff;
-                animation->setElapsed(animation->getElapsed() + currentMilliseconds - _lastUpdateMilliseconds);
-
                 auto callback = animation->getCallback();
                 if (callback != nullptr)
-                    callback(*value);
+                    callback(value);
             }
         }
 

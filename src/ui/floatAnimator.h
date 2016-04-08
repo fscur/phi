@@ -10,11 +10,12 @@ namespace phi
     {
     private:
         static std::vector<floatAnimation*> _animations;
+        static std::vector<floatAnimation*> _toCancelAnimations;
         static double _lastUpdateMilliseconds;
 
     public:
-        static void animateFloat(float* floatFrom, float floatTo, int milliseconds);
-        static void animateFloat(floatAnimation* animation);
-        static void update();
+        UI_API static void animateFloat(floatAnimation* animation);
+        UI_API static void cancelAnimation(floatAnimation* animation);
+        UI_API static void update();
     };
 }

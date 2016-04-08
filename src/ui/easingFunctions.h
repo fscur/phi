@@ -45,6 +45,13 @@ namespace phi
         // acceleration until halfway, then deceleration 
         static float easeInOutQuint(float t) { return t < .5 ? 16 * t*t*t*t*t : 1 + 16 * (--t)*t*t*t*t; }
 
+        static float easeOutCirc(float t)
+        {
+            t /= 1.0f;
+            t--;
+            return glm::sqrt(1.0f - t*t);
+        };
+
         static float easeOutBounce(float t)
         {
             if (t < (1.0f / 2.75f))
@@ -76,6 +83,26 @@ namespace phi
             else
                 s = p / (2.0f * 3.14159265358979323846f) * std::asin(1.0f / a);
             return a*std::pow(2.0f, -10.0f * t) * std::sin((t - s)*(2.0f * 3.14159265358979323846f) / p) + 1.0f;
+        }
+
+        static float easeOutBack(float t, float s)
+        {
+            return 1.0f *((t = t / 1.0f - 1.0f) * t * ((s + 1.0f) * t + s) + 1.0f) + 0.0f;
+        }
+
+        static float easeOutBackDefault(float t)
+        {
+            return easeOutBack(t, 1.70158f);
+        }
+
+        static float easeBounceBack(float t)
+        {
+            return (float)glm::sin(t * 3.14159265359);
+        }
+
+        static float easeRubberBack(float t)
+        {
+            return (float)glm::sin(glm::pow(t, 1.0f / 2.0f) * phi::PI);
         }
     };
 }

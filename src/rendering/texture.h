@@ -50,7 +50,10 @@ namespace phi
 
         ~texture() 
         {
-            safeDeleteArray(data);
+            if (data != nullptr)
+            {
+                safeDeleteArray(data);
+            }
         }
     };
 }

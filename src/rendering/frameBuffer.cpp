@@ -152,8 +152,8 @@ namespace phi
 
     GLfloat framebuffer::getZBufferValue(int x, int y)
     {
+        bindForReading();
         GLfloat zBufferValue;
-
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
         glError::check();
 

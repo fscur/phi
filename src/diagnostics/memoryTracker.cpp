@@ -114,16 +114,25 @@ namespace phi
 
         void dumpMemory()
         {
-            if (!allocationCount)
+            char messageBuffer[1024];
+
+            if (allocationCount == 0)
             {
-                OutputDebugString("\nCongrats folk your software does not have any memory leaks =]\n\n");
+                OutputDebugString("\nCongrats folk your software does not have any memory leaks!1 You rock =]\n\n");
+            }
+            else if (allocationCount < 0)
+            {
+                sprintf_s(
+                    messageBuffer,
+                    "\nHey bro, apparently you have deleted %zd pointers that had already been deleted.\nAre you high on crack?\n\n",
+                    allocationCount);
+
+                OutputDebugString(messageBuffer);
             }
             else
             {
                 auto entry = _heapBuffer.getEntries();
-                char messageBuffer[1024];
 #ifdef DETAILED_MEMORY_TRACKING
-                int count = 0;
                 OutputDebugString("\n\n");
                 while (entry)
                 {
@@ -136,25 +145,25 @@ namespace phi
 
                     OutputDebugString(messageBuffer);
                     entry = entry->next;
-                    ++count;
                 }
                 OutputDebugString("\n\n");
 
                 sprintf_s(messageBuffer,
-                    "\n%s %d %s",
+                    "\n%s %zd %s",
                     "There are currently",
-                    count,
-                    "memory leaks.\nCheck the output window for more details\n\n");
+                    allocationCount,
+                    "memory leaks.\nDid you smoke pot again last night?\nCheck the output window for more details\n\n");
 #else
                 sprintf_s(messageBuffer,
-                    "\n%s %zd %s", "There are currently",
+                    "\n%s %zd %s",
+                    "There are currently",
                     allocationCount,
-                    "memory leaks.\nRun in DebugWithMemoryTracking configuration for more information!!1\n\n");
+                    "memory leaks.\nDid you smoke pot again last night?\nRun in DebugWithMemoryTracking configuration for more information!!1\n\n");
 #endif
                 printf_s(messageBuffer);
                 system("pause");
-            }
         }
+    }
     public:
         HeapDumper() :
             allocationCount(0)
@@ -178,8 +187,7 @@ namespace phi
         {
             _heapBuffer.removeEntry(address);
         }
-
-    } heap;
+} heap;
 
     void* allocate(size_t size)
     {

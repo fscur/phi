@@ -48,7 +48,6 @@ namespace phi
         uint indicesCount,
         uint* indicesBuffer)
     {
-        string teste;
         vector<uint> indices(indicesBuffer, indicesBuffer + indicesCount);
         vector<vertex> vertices;
 

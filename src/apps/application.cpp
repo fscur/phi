@@ -1,6 +1,6 @@
 #include <precompiled.h>
 #include "application.h"
-
+#include <core\time.h>
 #include <io\path.h>
 
 #include <core\time.h>
@@ -59,24 +59,24 @@ namespace phi
         {
             millisecondsPerFrame = time::deltaSeconds * 1000;
 
-            onClear();
-            onRender();
+            onSwapbuffers();
             onInput();
             onUpdate();
+            onClear();
+            onRender();
 
             time::update();
-
+            
             if (time::totalSeconds - timer > 1.0)
             {
                 timer += 1.0;
                 framesPerSecond = frames;
                 frames = 0;
-
+                
                 onTick();
             }
 
             frames++;
-            onSwapbuffers();
 
             if (_window->closed)
             {

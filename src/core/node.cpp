@@ -22,23 +22,19 @@ namespace phi
         _transform(original._transform),
         _parent(nullptr)
     {
-        auto clonedChildren = vector<node*>();
         for (auto& child : original._children)
         {
             auto clonedChild = child->clone();
             clonedChild->_parent = this;
             clonedChild->getTransform().setParent(&_transform);
-            clonedChildren.push_back(clonedChild);
+            _children.push_back(clonedChild);
         }
-        _children = std::move(clonedChildren);
 
-        auto clonedComponents = vector<component*>();
         for (auto& component : original._components)
         {
             auto clonedComponent = component->clone();
-            clonedComponents.push_back(clonedComponent);
+            _components.push_back(clonedComponent);
         }
-        _components = std::move(clonedComponents);
     }
 
     inline node* node::clone() const 

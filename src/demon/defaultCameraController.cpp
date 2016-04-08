@@ -1,52 +1,330 @@
 #include <precompiled.h>
 #include "defaultCameraController.h"
 
-#include <rendering/camera.h>
+#include <core\time.h>
+
+#include <rendering\camera.h>
 
 namespace demon
 {
     defaultCameraController::defaultCameraController(phi::scene* scene) :
         _scene(scene),
-        cameraController(scene->camera)
+        cameraController(scene->camera),
+        _rotating(false),
+        _panning(false),
+        _zoomSpeed(0.0f),
+        _zoomInertiaTime(0u),
+        _zoomSpeedAccumulationTime(0u),
+        _zoomBounceAnimation(nullptr),
+        _rotationDelta(phi::vec2()),
+        _rotationInertiaTime(0u),
+        _rotationDoingInertia(false),
+        _rotationLastMouseMoveTime(0u),
+        _panInertiaTime(0u),
+        _panDelta(phi::vec3()),
+        _panDoingInertia(false)
     {
-        _rotating = false;
-        _panning = false;
     }
 
-    void defaultCameraController::initPan(int mouseX, int mouseY)
+    void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
     {
-        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
+        if (e->rightButtonPressed && !_panning)
+            rotationMouseDown(e->x, e->y);
+        else if (e->middleButtonPressed && !_rotating)
+            panMouseDown(e->x, e->y);
+    }
+
+    void defaultCameraController::onMouseMove(phi::mouseEventArgs* e)
+    {
+        _lastMousePosX = _mousePosX;
+        _lastMousePosY = _mousePosY;
+        _mousePosX = e->x;
+        _mousePosY = e->y;
+
+        if (_rotating)
+            rotationMouseMove();
+        if (_panning)
+            panMouseMove();
+    }
+
+    void defaultCameraController::onMouseUp(phi::mouseEventArgs* e)
+    {
+        if (e->middleButtonPressed)
+            panMouseUp();
+
+        if (e->rightButtonPressed)
+            rotationMouseUp();
+    }
+
+    void defaultCameraController::onMouseWheel(phi::mouseEventArgs* e)
+    {
+        if (!_panning && !_rotating)
+            zoomMouseWheel(e->x, e->y, e->wheelDelta);
+    }
+
+    void defaultCameraController::update()
+    {
+        zoomUpdate();
+        rotationUpdate();
+        panUpdate();
+
+        _lastMousePosX = _mousePosX;
+        _lastMousePosY = _mousePosY;
+    }
+
+    void defaultCameraController::zoomMouseWheel(int mouseX, int mouseY, float delta)
+    {
+        if (delta > 0.0f && _zoomBounceAnimation)
+            return;
+
+        if (_zoomBounceAnimation)
+        {
+            phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
+            _zoomBounceAnimation = nullptr;
+        }
+
+        rotationCancel();
+        panCancel();
+
+        auto zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
+
+        auto camera = *_camera;
         phi::mat4 proj = _camera->getProjectionMatrix();
 
-        if (_zBufferValue == 1.0f)
-            _eyeZ = 20.0f;
+        float z;
+        if (zBufferValue == 1.0f)
+            z = 10.0f;
         else
-            _eyeZ = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
+            z = -proj[3].z / (zBufferValue * -2.0f + 1.0f - proj[2].z);
+
+        auto zNear = _camera->getZNear();
+        auto iez = 1.0f / zNear;
+        auto zFar = _camera->getZFar();
+        auto aspect = _camera->getAspect();
+        auto fov = _camera->getFov();
+
+        auto tg = tan(fov * 0.5f) * zNear;
+
+        auto w = static_cast<float>(_camera->getResolution().w);
+        auto h = static_cast<float>(_camera->getResolution().h);
+
+        auto hh = h * 0.5f;
+        auto hw = w * 0.5f;
+
+        auto ys0 = mouseY - hh;
+        auto yp0 = ys0 / hh;
+        auto ym0 = -(yp0 * tg);
+
+        auto xs0 = mouseX - hw;
+        auto xp0 = xs0 / hw;
+        auto xm0 = xp0 * tg * aspect;
+
+        auto x = (xm0 / zNear) * z;
+        auto y = (ym0 / zNear) * z;
 
         auto cameraTransform = _camera->getTransform();
-        _cameraPos = cameraTransform->getPosition();
-        _cameraRight = cameraTransform->getRight();
-        _cameraUp = cameraTransform->getUp();
-        _startPosX = mouseX;
-        _startPosY = mouseY;
+        phi::vec3 camDir = cameraTransform->getDirection();
+        phi::vec3 camRight = cameraTransform->getRight();
+        phi::vec3 camUp = cameraTransform->getUp();
+
+        _zoomDir = glm::normalize(camDir * z + -camRight * (float)x + camUp * (float)y);
+
+        _zoomInertiaTime = 0u;
+        _zoomDistanceTraveled = 0.0f;
+
+        if (glm::sign(_zoomSpeed) != glm::sign(delta))
+            _zoomSpeed = 0.0f;
+
+        if (_zoomSpeedAccumulationTime <= 0u)
+        {
+            _zoomSpeed = 0.0f;
+            _zoomSpeedAccumulationTime = ZOOM_ACCUMULATION_TIME;
+        }
+
+        _zoomSpeed += (delta / 120.0f) * ZOOM_FACTOR;
+        _zoomDistanceLimit = glm::max(z - zNear - ZOOM_MAX_BOUNCE - 0.0001f, 0.0f); // Small gap so the camera does not go past the z-near plane
+        _zoomCameraPos = cameraTransform->getPosition();
+    }
+
+    void defaultCameraController::zoomUpdate()
+    {
+        auto deltaMilliseconds = static_cast<int32_t>(phi::time::deltaSeconds * 1000.0f);
+        _zoomSpeedAccumulationTime = glm::max(_zoomSpeedAccumulationTime - deltaMilliseconds, 0);
+
+        if (_zoomSpeed == 0.0f)
+            return;
+
+        _zoomInertiaTime += deltaMilliseconds;
+        auto percent = -glm::exp(_zoomInertiaTime / -325.0f) + 1.0f;
+        auto delta = _zoomSpeed * percent;
+
+        if (percent == 1.0f)
+            _zoomSpeed = 0.0f;
+
+        if (delta > _zoomDistanceLimit)
+        {
+            _camera->getTransform()->setLocalPosition(_zoomCameraPos + _zoomDir * _zoomDistanceLimit);
+            _zoomDistanceTraveled = _zoomDistanceLimit;
+            _zoomSpeed = 0.0f;
+
+            zoomCancel();
+
+            auto speedPercent = glm::clamp(delta / 2.0f, 0.0f, 1.0f);
+            auto bounceDistance = ZOOM_MIN_BOUNCE + (ZOOM_MAX_BOUNCE * speedPercent);
+            auto cameraPosition = _camera->getTransform()->getPosition();
+
+            _zoomBounceAnimation = new phi::floatAnimation
+            (
+                0.0f,
+                bounceDistance,
+                400,
+                [this, cameraPosition](float t)
+            {
+                _camera->getTransform()->setLocalPosition(cameraPosition + _zoomDir * t);
+            },
+                0,
+                phi::easingFunctions::easeRubberBack,
+                [&] { _zoomBounceAnimation = nullptr; }
+            );
+
+            phi::floatAnimator::animateFloat(_zoomBounceAnimation);
+        }
+        else
+            _camera->getTransform()->setLocalPosition(_zoomCameraPos + _zoomDir * delta);
+    }
+
+    void defaultCameraController::zoomCancel()
+    {
+        if (_zoomBounceAnimation)
+        {
+            phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
+            _zoomBounceAnimation = nullptr;
+        }
+
+        _zoomSpeed = 0.0f;
+    }
+
+    void defaultCameraController::panMouseDown(int mouseX, int mouseY)
+    {
+        zoomCancel();
+        rotationCancel();
+        panCancel();
+
+        auto zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
+        phi::mat4 proj = _camera->getProjectionMatrix();
+
+        if (zBufferValue == 1.0f)
+            _panEyeZ = 20.0f;
+        else
+            _panEyeZ = -proj[3].z / (zBufferValue * -2.0f + 1.0f - proj[2].z);
+
+        auto cameraTransform = _camera->getTransform();
+        _panCameraPos = _panTargetCameraPos = cameraTransform->getPosition();
+        _panCameraRight = cameraTransform->getRight();
+        _panCameraUp = cameraTransform->getUp();
+        _panDelta = glm::vec3();
         _panning = true;
     }
 
-    void defaultCameraController::initRotate(int mouseX, int mouseY)
+    void defaultCameraController::panMouseMove()
     {
-        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
+        auto zNear = _camera->getZNear();
+        auto iez = 1.0f / zNear;
+        auto zFar = _camera->getZFar();
+        auto aspect = _camera->getAspect();
+        auto fov = _camera->getFov();
 
+        auto tg = tan(fov * 0.5f) * zNear;
+
+        auto w = static_cast<float>(_camera->getResolution().w);
+        auto h = static_cast<float>(_camera->getResolution().h);
+
+        auto hh = h * 0.5f;
+        auto hw = w * 0.5f;
+
+        auto ys0 = (float)_lastMousePosY - hh;
+        auto yp0 = ys0 / hh;
+        auto ym0 = -(yp0 * tg);
+
+        auto xs0 = (float)_lastMousePosX - hw;
+        auto xp0 = xs0 / hw;
+        auto xm0 = xp0 * tg * aspect;
+
+        auto ys1 = (float)_mousePosY - hh;
+        auto yp1 = ys1 / hh;
+        auto ym1 = -(yp1 * tg);
+
+        auto xs1 = (float)_mousePosX - hw;
+        auto xp1 = xs1 / hw;
+        auto xm1 = xp1 * tg * aspect;
+
+        auto xDiff = xm1 - xm0;
+        auto yDiff = ym1 - ym0;
+
+        float x = xDiff * (_panEyeZ / zNear);
+        float y = yDiff * (_panEyeZ / zNear);
+
+        auto delta = phi::vec2(x, y);
+        auto deltaWorld = phi::vec3(_panCameraRight * delta.x) + phi::vec3(-_panCameraUp * delta.y);
+
+        _panCameraPos = _camera->getTransform()->getPosition();
+        _panTargetCameraPos += deltaWorld;
+        _panDelta = _panTargetCameraPos - _panCameraPos;
+        _panInertiaTime = 0u;
+        _panLastMouseMoveTime = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+        _panDoingInertia = true;
+    }
+
+    void defaultCameraController::panMouseUp()
+    {
+        _panning = false;
+        auto nowMilliseconds = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+        auto deltaTime = glm::max(10u, nowMilliseconds - _panLastMouseMoveTime);
+        _panCameraPos = _camera->getTransform()->getPosition();
+        _panDelta = _panTargetCameraPos - _panCameraPos;
+        _panDelta += _panDelta * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f)));
+    }
+
+    void defaultCameraController::panUpdate()
+    {
+        if (!_panDoingInertia)
+            return;
+
+        auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
+        _panInertiaTime += deltaMilliseconds;
+        auto desFactor = _panning ? 100.0f : 325.0f;
+        auto percent = -glm::exp(_panInertiaTime / -desFactor) + 1.0f;
+        auto delta = glm::length(_panDelta) * percent;
+
+        if (delta == 0.0f)
+            return;
+
+        auto dir = glm::normalize(_panDelta);
+        _camera->getTransform()->setLocalPosition(_panCameraPos + dir * delta);
+
+        if (percent >= 1.0f)
+            _panDoingInertia = false;
+    }
+
+    void defaultCameraController::panCancel()
+    {
+        _panDelta = phi::vec3();
+    }
+
+    void defaultCameraController::rotationMouseDown(int mouseX, int mouseY)
+    {
+        zoomCancel();
+        rotationCancel();
+        panCancel();
+
+        auto zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
         phi::mat4 proj = _camera->getProjectionMatrix();
 
-        _lastMousePosX = mouseX;
-        _lastMousePosY = mouseY;
-
-        float z = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
-        if (_zBufferValue == 1.0f)
-            //_targetPos = phi::scenesManager::get()->getScene()->getAabb()->getCenter();
-            _targetPos = glm::vec3();
+        if (zBufferValue == 1.0f)
+            _rotationTargetPos = glm::vec3(); //_targetPos = phi::scenesManager::get()->getScene()->getAabb()->getCenter();
         else
         {
+            auto z = -proj[3].z / (zBufferValue * -2.0f + 1.0f - proj[2].z);
             auto zNear = _camera->getZNear();
             auto iez = 1.0f / zNear;
             auto zFar = _camera->getZFar();
@@ -78,14 +356,14 @@ namespace demon
             auto camRight = transform->getRight();
             auto camUp = transform->getUp();
 
-            _targetPos = camPos + camDir * z + -camRight * (float)x + camUp * (float)y;
+            _rotationTargetPos = camPos + camDir * z + -camRight * (float)x + camUp * (float)y;
         }
 
-        _eyeZ = z;
+        _rotationLastMouseMoveTime = 0u;
         _rotating = true;
     }
 
-    void defaultCameraController::pan(int mouseX, int mouseY)
+    void defaultCameraController::rotationMouseMove()
     {
         auto zNear = _camera->getZNear();
         auto iez = 1.0f / zNear;
@@ -98,142 +376,56 @@ namespace demon
         auto w = static_cast<float>(_camera->getResolution().w);
         auto h = static_cast<float>(_camera->getResolution().h);
 
-        auto hh = h * 0.5f;
-        auto hw = w * 0.5f;
-
-        auto ys0 = (float)_startPosY - hh;
-        auto yp0 = ys0 / hh;
-        auto ym0 = -(yp0 * tg);
-
-        auto xs0 = (float)_startPosX - hw;
-        auto xp0 = xs0 / hw;
-        auto xm0 = xp0 * tg * aspect;
-
-        auto ys1 = (float)mouseY - hh;
-        auto yp1 = ys1 / hh;
-        auto ym1 = -(yp1 * tg);
-
-        auto xs1 = (float)mouseX - hw;
-        auto xp1 = xs1 / hw;
-        auto xm1 = xp1 * tg * aspect;
-
-        auto eyeZ = _eyeZ;
-
-        auto xDiff = xm1 - xm0;
-        auto yDiff = ym1 - ym0;
-
-        float x = xDiff * (eyeZ / zNear);
-        float y = yDiff * (eyeZ / zNear);
-
-        phi::vec3 pos = _cameraPos - (phi::vec3(-_cameraRight * x) + phi::vec3(_cameraUp * y));
-
-        _camera->moveTo(pos);
-    }
-
-    void defaultCameraController::rotate(int mouseX, int mouseY)
-    {
-        auto zNear = _camera->getZNear();
-        auto iez = 1.0f / zNear;
-        auto zFar = _camera->getZFar();
-        auto aspect = _camera->getAspect();
-        auto fov = _camera->getFov();
-
-        auto tg = tan(fov * 0.5f) * zNear;
-
-        auto w = static_cast<float>(_camera->getResolution().w);
-        auto h = static_cast<float>(_camera->getResolution().h);
-
-        auto dx = _lastMousePosX - mouseX;
-        auto dy = _lastMousePosY - mouseY;
+        auto dx = _mousePosX - _lastMousePosX;
+        auto dy = _mousePosY - _lastMousePosY;
 
         auto x = (dx / w) * 3 * phi::PI;
         auto y = (dy / h) * 3 * phi::PI;
 
-        _camera->orbit(_targetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), x, y);
+        auto delta = phi::vec2(x, y);
 
-        _lastMousePosX = mouseX;
-        _lastMousePosY = mouseY;
+        auto lastRemainingRotation = (1.0f - _rotationInertiaLastPercent) * glm::length(_rotationDelta);
+        _rotationDelta = glm::normalize(delta) * (lastRemainingRotation + glm::length(delta));
+
+        _rotationLastMouseMoveTime = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+        _rotationInertiaTime = 0u;
+        _rotationDoingInertia = true;
+        _rotationInertiaLastPercent = 0.0f;
     }
 
-    void defaultCameraController::zoom(int mouseX, int mouseY, bool in)
+    void defaultCameraController::rotationMouseUp()
     {
-        _zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
+        _rotating = false;
 
-        auto camera = *_camera;
-        phi::mat4 proj = _camera->getProjectionMatrix();
+        if (glm::length(_rotationDelta) == 0.0f)
+            return;
 
-        float z;
-        if (_zBufferValue == 1.0f)
-            z = 10.0f;
-        else
-            z = -proj[3].z / (_zBufferValue * -2.0f + 1.0f - proj[2].z);
-
-        auto zNear = _camera->getZNear();
-        auto iez = 1.0f / zNear;
-        auto zFar = _camera->getZFar();
-        auto aspect = _camera->getAspect();
-        auto fov = _camera->getFov();
-
-        auto tg = tan(fov * 0.5f) * zNear;
-
-        auto w = static_cast<float>(_camera->getResolution().w);
-        auto h = static_cast<float>(_camera->getResolution().h);
-
-        auto hh = h * 0.5f;
-        auto hw = w * 0.5f;
-
-        auto ys0 = mouseY - hh;
-        auto yp0 = ys0 / hh;
-        auto ym0 = -(yp0 * tg);
-
-        auto xs0 = mouseX - hw;
-        auto xp0 = xs0 / hw;
-        auto xm0 = xp0 * tg * aspect;
-
-        auto x = (xm0 / zNear) * z;
-        auto y = (ym0 / zNear) * z;
-
-        auto transform = _camera->getTransform();
-        phi::vec3 camPos = transform->getPosition();
-        phi::vec3 camDir = transform->getDirection();
-        phi::vec3 camRight = transform->getRight();
-        phi::vec3 camUp = transform->getUp();
-
-        phi::vec3 targetPos = camPos + camDir * (float)z + -camRight * (float)x + camUp * (float)y;
-
-        if (in)
-            _camera->zoomIn(targetPos);
-        else
-            _camera->zoomOut(targetPos);
+        auto nowMilliseconds = static_cast<unsigned int>(phi::time::totalSeconds * 1000.0f);
+        auto deltaTime = glm::max(10u, nowMilliseconds - _rotationLastMouseMoveTime);
+        auto lastRemainingRotation = (1.0f - _rotationInertiaLastPercent) * glm::length(_rotationDelta);
+        _rotationDelta = glm::normalize(_rotationDelta) * (lastRemainingRotation + lastRemainingRotation * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f))));
     }
 
-    void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
+    void defaultCameraController::rotationUpdate()
     {
-        if (e->rightButtonPressed)
-            initRotate(e->x, e->y);
-        else if (e->middleButtonPressed)
-            initPan(e->x, e->y);
+        if (!_rotationDoingInertia)
+            return;
+
+        auto deltaMilliseconds = static_cast<unsigned int>(phi::time::deltaSeconds * 1000.0f);
+        _rotationInertiaTime += deltaMilliseconds;
+        auto desFactor = _rotating ? 100.0f : 325.0f;
+        auto percent = -glm::exp(_rotationInertiaTime / -desFactor) + 1.0f;
+        auto delta = _rotationDelta * (percent - _rotationInertiaLastPercent);
+        _rotationInertiaLastPercent = percent;
+
+        _camera->orbit(_rotationTargetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), -delta.x, -delta.y);
+
+        if (percent >= 1.0f)
+            _rotationDoingInertia = false;
     }
 
-    void defaultCameraController::onMouseMove(phi::mouseEventArgs* e)
+    void defaultCameraController::rotationCancel()
     {
-        if (_rotating)
-            rotate(e->x, e->y);
-        if (_panning)
-            pan(e->x, e->y);
-    }
-
-    void defaultCameraController::onMouseUp(phi::mouseEventArgs* e)
-    {
-        _panning = _rotating = false;
-    }
-
-    void defaultCameraController::onMouseWheel(phi::mouseEventArgs* e)
-    {
-        zoom(e->x, e->y, e->wheelDelta > 0.0f);
-    }
-
-    void defaultCameraController::update()
-    {
+        _rotationDelta = phi::vec2();
     }
 }
