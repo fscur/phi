@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "diagnostics.h"
+#include "diagnosticsApi.h"
 
 #include "loggerDevice.h"
 

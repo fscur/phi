@@ -14,7 +14,12 @@ namespace phi
     }
 
     gBufferRenderPass::~gBufferRenderPass()
-    {}
+    {
+        for (auto target : targets)
+            safeDelete(target);
+
+        safeDelete(framebuffer);
+    }
 
     void gBufferRenderPass::initShader()
     {
@@ -46,7 +51,7 @@ namespace phi
             _gl->texturesManager->reserveContainer(layout, size);
         };
 
-        auto createTexture = [&](
+        auto createRenderTarget = [&](
             GLenum attachment,
             GLenum internalFormat,
             GLenum dataFormat)
@@ -57,23 +62,27 @@ namespace phi
             texture->minFilter = GL_NEAREST;
             texture->magFilter = GL_NEAREST;
             texture->generateMipmaps = false;
+            texture->data = 0;
 
-            auto rt = new phi::renderTarget(
+            auto textureAddress = _gl->texturesManager->add(texture);
+            auto renderTarget = new phi::renderTarget(
                 attachment, 
-                static_cast<GLint>(_w), 
-                static_cast<GLint>(_h), 
-                _gl->texturesManager->add(texture));
+                static_cast<GLint>(_w),
+                static_cast<GLint>(_h),
+                textureAddress,
+                texture);
 
-            targets.push_back(rt);
-            gBufferRenderPass::framebuffer->add(rt);
+            targets.push_back(renderTarget);
+            gBufferRenderPass::framebuffer->add(renderTarget);
         };
 
         reserveContainer(GL_RGBA16F, 3);
         reserveContainer(GL_DEPTH_COMPONENT32, 1);
-        createTexture(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA);
-        createTexture(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA);
-        createTexture(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA);
-        createTexture(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT);
+
+        createRenderTarget(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA);
+        createRenderTarget(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA);
+        createRenderTarget(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA);
+        createRenderTarget(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT);
     }
 
     void gBufferRenderPass::update()

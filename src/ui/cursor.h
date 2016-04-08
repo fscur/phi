@@ -5,7 +5,7 @@
 
 #include <rendering/texture.h>
 
-#include "ui.h"
+#include "uiApi.h"
 
 namespace phi
 {

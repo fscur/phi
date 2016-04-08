@@ -4,7 +4,6 @@
 #include <apps\undoCommand.h>
 #include <apps\redoCommand.h>
 
-#include <diagnostics\diagnostics.h>
 #include <diagnostics\stopwatch.h>
 
 #include <loader\importer.h>
@@ -53,12 +52,18 @@ namespace demon
         info.shadersPath = application::resourcesPath + "/shaders";
         _gl = new gl(info);
 
+        importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
+        importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
+        importer::defaultNormalTexture = _gl->defaultNormalTexture;
+        importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
+        importer::defaultMaterial = _gl->defaultMaterial;
+
         application::logInfo("Vendor: " + _gl->getVendor() + ".");
         application::logInfo("Renderer: " + _gl->getRenderer() + ".");
         application::logInfo("Version: " + _gl->getVersion() + ".");
 
         application::logInfo("Extensions:");
-        for(auto extensionStatus : _gl->extensions)
+        for (auto extensionStatus : _gl->extensions)
         {
             auto status = extensionStatus.second ? " [Ok]" : " [Not Ok]";
             application::logInfo(extensionStatus.first + status);
@@ -104,8 +109,6 @@ namespace demon
         _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
 
-        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
-        cube->getTransform().setLocalSize(phi::vec3(0.1f, 0.1f, 0.1f));
         _defaultController = new defaultCameraController(_scene);
     }
 
@@ -130,6 +133,7 @@ namespace demon
     {
         debug("closing.");
         delete _commandsManager;
+        delete _defaultController;
         delete _gl;
         delete _library;
         delete _scene;

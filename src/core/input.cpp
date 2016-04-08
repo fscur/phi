@@ -42,7 +42,6 @@ namespace phi
 
     void input::notifyLeftMouseDown(int x, int y)
     {
-        //phi::debug("left mouse down notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
         mouseArgs.x = x;
         mouseArgs.y = y;
@@ -52,7 +51,6 @@ namespace phi
 
     void input::notifyRightMouseDown(int x, int y)
     {
-        //phi::debug("right mouse down notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
         mouseArgs.x = x;
         mouseArgs.y = y;
@@ -62,7 +60,6 @@ namespace phi
 
     void input::notifyMiddleMouseDown(int x, int y)
     {
-        //phi::debug("middle mouse down notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
         mouseArgs.x = x;
         mouseArgs.y = y;
@@ -72,7 +69,6 @@ namespace phi
 
     void input::notifyMouseMove(int x, int y)
     {
-        //phi::debug("mouse move notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
         mouseArgs.x = x;
         mouseArgs.y = y;
@@ -81,7 +77,6 @@ namespace phi
 
     void input::notifyLeftMouseUp(int x, int y)
     {
-        //phi::debug("left mouse up notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
         mouseArgs.x = x;
         mouseArgs.y = y;
@@ -91,7 +86,6 @@ namespace phi
 
     void input::notifyRightMouseUp(int x, int y)
     {
-        //phi::debug("right mouse up notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
         mouseArgs.x = x;
         mouseArgs.y = y;
@@ -101,7 +95,6 @@ namespace phi
 
     void input::notifyMiddleMouseUp(int x, int y)
     {
-        //phi::debug("middle mouse up notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
         mouseArgs.x = x;
         mouseArgs.y = y;
@@ -109,9 +102,8 @@ namespace phi
         raiseMouseUpEvent(&mouseArgs);
     }
 
-    void input::notifyMouseWheel(int delta, int x,  int y)
+    void input::notifyMouseWheel(int delta, int x, int y)
     {
-        //phi::debug("mouse wheel notified: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
         auto mouseArgs = mouseEventArgs();
         mouseArgs.wheelDelta = static_cast<float>(delta);
         mouseArgs.x = x;
@@ -121,7 +113,6 @@ namespace phi
 
     void input::notifyKeyDown(int key)
     {
-        //phi::debug("key down notified: (" + std::to_string(key) + ")");
         auto keyboardArgs = keyboardEventArgs();
         keyboardArgs.key = key;
         raiseKeyDownEvent(&keyboardArgs);
@@ -129,9 +120,18 @@ namespace phi
 
     void input::notifyKeyUp(int key)
     {
-        //phi::debug("key up notified: (" + std::to_string(key) + ")");
         auto keyboardArgs = keyboardEventArgs();
         keyboardArgs.key = key;
         raiseKeyUpEvent(&keyboardArgs);
+    }
+
+    void input::release()
+    {
+        delete keyDown;
+        delete keyUp;
+        delete mouseDown;
+        delete mouseUp;
+        delete mouseMove;
+        delete mouseWheel;
     }
 }

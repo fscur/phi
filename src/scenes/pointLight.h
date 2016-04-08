@@ -1,10 +1,12 @@
 #pragma once
 #include <phi.h>
-#include "scenes.h"
+#include "scenesApi.h"
+
 #include <rendering/attenuation.h>
 
 #include "light.h"
 #include "sphere.h"
+
 namespace phi
 {
     class transform;

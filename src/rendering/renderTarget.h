@@ -12,17 +12,25 @@ namespace phi
         GLint w;
         GLint h;
         phi::textureAddress textureAddress;
+        phi::texture* texture;
     public:
         renderTarget(
             GLenum attachment,
             GLint w, 
             GLint h,
-            phi::textureAddress textureAddress) :
+            phi::textureAddress textureAddress,
+            phi::texture* texture) :
             attachment(attachment),
             w(w),
             h(h),
-            textureAddress(textureAddress)
+            textureAddress(textureAddress),
+            texture(texture)
         {
+        }
+
+        ~renderTarget()
+        {
+            safeDelete(texture);
         }
     };
 }

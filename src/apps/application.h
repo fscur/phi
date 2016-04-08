@@ -1,14 +1,23 @@
 #pragma once
 #include <phi.h>
-#include "apps.h"
-#include "window.h"
+#include "appsApi.h"
+
 #include <diagnostics\logger.h>
+
+#include "window.h"
 
 namespace phi
 {
     struct applicationStartInfo
     {
-        string exeFileName;
+        applicationStartInfo(string executableFileName, string resourcesPath, string libraryPath) :
+            executableFileName(executableFileName),
+            resourcesPath(resourcesPath),
+            libraryPath(libraryPath)
+        {
+        }
+
+        string executableFileName;
         string resourcesPath;
         string libraryPath;
     };
@@ -19,7 +28,7 @@ namespace phi
         static bool _initialized;
 
     public:
-        APPS_API static string exeFileName;
+        APPS_API static string executableFileName;
         APPS_API static string path;
         APPS_API static string resourcesPath;
         APPS_API static string libraryPath;

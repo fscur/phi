@@ -25,9 +25,7 @@ namespace demon
         phi::resourcesRepository<phi::geometry>* _geometriesRepository;
         phi::resourcesRepository<phi::material>* _materialsRepository;
         phi::resourcesRepository<phi::node>* _nodesRepository;
-
     private:
-
         template<typename T>
         phi::resourcesRepository<T>* load(
             phi::string directory,
@@ -69,6 +67,7 @@ namespace demon
     public:
 
         library(phi::gl* gl, phi::string resourcesPath);
+        ~library();
 
         void init();
 

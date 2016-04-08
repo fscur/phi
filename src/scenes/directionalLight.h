@@ -1,6 +1,7 @@
 #pragma once
 #include <phi.h>
-#include "scenes.h"
+#include "scenesApi.h"
+
 #include "light.h"
 
 namespace phi

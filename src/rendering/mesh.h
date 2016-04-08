@@ -12,13 +12,13 @@ namespace phi
     public:
         phi::geometry* geometry;
         phi::material* material;
-
     public:
-
         mesh(string name, phi::geometry* geometry, phi::material* material) :
             component(componentType::MESH, name),
             geometry(geometry),
-            material(material) {}
+            material(material) 
+        {
+        }
 
         component* clone() const override
         {

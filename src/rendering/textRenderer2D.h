@@ -1,12 +1,11 @@
 #pragma once
 #include <phi.h>
-#include "rendering.h"
+#include "renderingApi.h"
 
 #include <core\size.h>
 
 #include "shadersManager.h"
 #include "shader.h"
-//#include "quad.h"
 #include "font.h"
 #include "mesh.h"
 

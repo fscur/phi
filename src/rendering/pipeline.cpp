@@ -17,10 +17,10 @@ namespace phi
         delete _materialsBuffer;
         delete _frameUniformBlockBuffer;
 
-        auto batchesCount = batches.size();
-
-        for (auto i = 0; i < batchesCount; ++i)
-            delete batches[i];
+        for (auto batch : batches)
+        {
+            delete batch;
+        }
     }
 
     void pipeline::createFrameUniformBlockBuffer()

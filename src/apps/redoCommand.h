@@ -1,5 +1,4 @@
 #pragma once
-
 #include "commandsManager.h"
 
 namespace phi

@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "rendering.h"
+#include "renderingApi.h"
 #include <core\color.h>
 #include <core\size.h>
 #include "texture.h"

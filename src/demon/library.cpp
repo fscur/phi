@@ -12,11 +12,14 @@ namespace demon
         _gl(gl),
         _libraryPath(resourcesPath)
     {
-        importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
-        importer::defaultNormalTexture = _gl->defaultNormalTexture;
-        importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
-        importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
-        importer::defaultMaterial = _gl->defaultMaterial;
+    }
+
+    library::~library()
+    {
+        safeDelete(_texturesRepository);
+        safeDelete(_materialsRepository);
+        safeDelete(_geometriesRepository);
+        safeDelete(_nodesRepository);
     }
 
     void library::init()
@@ -46,8 +49,5 @@ namespace demon
         _materialsRepository = load<material>(_libraryPath + "/materials", ".material", importMaterialFunction);
         _nodesRepository = load<node>(_libraryPath + "/models", ".model", importModelFunction);
         debug(_("Library initialized."));
-        //debug(_("Library initialized again."));
-        //debug(_("Library initialized again now."));
-
     }
 }

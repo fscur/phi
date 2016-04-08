@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "rendering.h"
+#include "renderingApi.h"
 #include "gl.h"
 #include "batch.h"
 #include "shader.h"
@@ -16,17 +16,14 @@ namespace phi
         phi::gl* _gl;
         size_t _w;
         size_t _h;
-
     public:
         phi::shader* shader;
         vector<renderTarget*> targets;
         vector<phi::batch*> batches;
         phi::framebuffer* framebuffer;
-
     private:
         void initShader();
         void initRenderTargets();
-
     public:
         RENDERING_API gBufferRenderPass(phi::gl* gl, size_t w, size_t h);
         RENDERING_API ~gBufferRenderPass();

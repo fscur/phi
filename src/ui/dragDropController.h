@@ -8,7 +8,7 @@
 #include <rendering\texture.h>
 #include <rendering\quadRenderer2D.h>
 
-#include "ui.h"
+#include "uiApi.h"
 #include "dragDropEventArgs.h"
 
 namespace phi

@@ -3,10 +3,14 @@
 #include <core\time.h>
 #include <io\path.h>
 
+#include <core\time.h>
+
+#include "invalidInitializationException.h"
+
 namespace phi
 {
     bool application::_initialized = false;
-    string application::exeFileName = string();
+    string application::executableFileName = string();
     string application::path = string();
     string application::resourcesPath = string();
     string application::libraryPath = string();
@@ -19,17 +23,20 @@ namespace phi
         _window(nullptr)
     {
         assert(!_initialized);
-
-        exeFileName = startInfo.exeFileName;
-        path = phi::path::getDirectoryFullName(exeFileName);
+        executableFileName = startInfo.executableFileName;
+        path = phi::path::getDirectoryFullName(executableFileName);
         resourcesPath = startInfo.resourcesPath;
         libraryPath = startInfo.libraryPath;
 
         if (resourcesPath.empty())
             resourcesPath = path + "\\resources\\";
-
         if (libraryPath.empty())
             libraryPath = path + "\\library\\";
+
+        if (!path::exists(resourcesPath))
+            throw invalidInitializationException("Resources path not found. [" + resourcesPath + "]");
+        if (!path::exists(libraryPath))
+            throw invalidInitializationException("Library path not found. [" + libraryPath + "]");
 
         _initialized = true;
         time::start();
@@ -42,13 +49,12 @@ namespace phi
     void application::run(window* window)
     {
         _window = window;
-
-        double timer = 0.0;
-        uint frames = 0;
-        onInit();
-
         _running = true;
 
+        onInit();
+
+        auto timer = 0.0;
+        auto frames = 0u;
         while (_running)
         {
             millisecondsPerFrame = time::deltaSeconds * 1000;

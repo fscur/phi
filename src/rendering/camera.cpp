@@ -50,7 +50,7 @@ namespace phi
         if (_node == nullptr)
             return nullptr;
 
-        return &(_node->getTransform());
+        return &_node->getTransform();
     }
 
     void camera::setResolution(sizeui value)
@@ -62,12 +62,12 @@ namespace phi
 
     void camera::updateViewMatrix()
     {
-        auto transform = getTransform();
-        if (transform == nullptr)
-            transform = new phi::transform();
+        auto transform = phi::transform();
+        if (_node != nullptr)
+            transform = _node->getTransform();
 
-        auto position = transform->getPosition();
-        auto target = position + transform->getDirection() * _focus;
+        auto position = transform.getPosition();
+        auto target = position + transform.getDirection() * _focus;
         _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
         _changedView = false;
     }
@@ -115,7 +115,7 @@ namespace phi
         auto upDot = dot(dir, vec3(0.0f, 1.0f, 0.0f));
         if (upDot > 0.98f || upDot < -0.98f)
         {
-            orbit(origin, axisX, axisY, angleX, 0.0f); // I hope this line never starts a stack overflow
+            orbit(origin, axisX, axisY, angleX, 0.0f); // I hope this line never starts a stack overflow... well, it did!
             return;
         }
 

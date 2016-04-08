@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "core.h"
+#include "coreApi.h"
 #include "mouseEventHandler.h"
 #include "keyboardEventHandler.h"
 
@@ -21,16 +21,17 @@ namespace phi
         static void notifyRightMouseDown(int x, int y);
         static void notifyMiddleMouseDown(int x, int y);
 
-        static void notifyMouseMove(int x, int y);
-
         static void notifyLeftMouseUp(int x, int y);
         static void notifyRightMouseUp(int x, int y);
         static void notifyMiddleMouseUp(int x, int y);
 
+        static void notifyMouseMove(int x, int y);
         static void notifyMouseWheel(int delta, int x, int y);
 
         static void notifyKeyDown(int key);
         static void notifyKeyUp(int key);
+
+        static void release();
 
         static mouseEventHandler* mouseMove;
         static mouseEventHandler* mouseDown;

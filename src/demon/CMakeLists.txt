@@ -21,8 +21,8 @@ find_package(FREETYPE REQUIRED)
 link_directories(${FREETYPE_LIBRARIES})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(demon ${FREETYPE_LIBRARY})
-target_link_libraries(demon libiconv.lib)
-target_link_libraries(demon libintl.lib)
+target_link_libraries(demon ${LIBICONV_LIBRARY})
+target_link_libraries(demon ${LIBINTL_LIBRARY})
 
 if (MINGW)
     set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
@@ -38,6 +38,11 @@ if (MSVC)
         TARGET demon
         PRE_BUILD
         COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET demon
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.idb\" \".\\$(IntDir)\")
         
     add_custom_command(
         TARGET demon

@@ -42,7 +42,6 @@ cd %build%
 cmake -C %return_gcc%cmake/cache_win64_gcc_release.cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" %return_gcc%
 cd %return_gcc%
 
-
-set choice=
-set /P choice=
-if "%choice%"=="" goto start
+REM set choice=
+REM set /P choice=
+REM if "%choice%"=="" goto start

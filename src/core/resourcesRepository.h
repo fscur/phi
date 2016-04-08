@@ -18,12 +18,14 @@ namespace phi
 
         ~resourcesRepository()
         {
+            for (auto resource : _resources)
+                safeDelete(resource);
         }
 
         void release()
         {
-            for (unsigned int i = 0; i < _resources.size(); i++)
-                safeDelete(_resources[i]);
+            for(auto resource : _resources)
+                safeDelete(resource);
         }
 
         void addResource(resource<T>* r)

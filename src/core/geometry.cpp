@@ -14,8 +14,8 @@ namespace phi
 
     geometry::~geometry()
     {
-        delete[] vboData;
-        delete[] eboData;
+        safeDeleteArray(vboData);
+        safeDeleteArray(eboData);
     }
 
     geometry* geometry::create(vector<vertex> vertices, vector<uint> indices)
@@ -48,7 +48,6 @@ namespace phi
         uint indicesCount,
         uint* indicesBuffer)
     {
-        string teste;
         vector<uint> indices(indicesBuffer, indicesBuffer + indicesCount);
         vector<vertex> vertices;
 

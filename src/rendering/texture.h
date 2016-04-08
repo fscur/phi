@@ -48,6 +48,12 @@ namespace phi
         {
         }
 
-        ~texture() {}
+        ~texture() 
+        {
+            if (data != nullptr)
+            {
+                safeDeleteArray(data);
+            }
+        }
     };
 }
