@@ -17,3 +17,5 @@ mingw32-make install
 if not %ERRORLEVEL%==0 (
 cd %root%
 )
+
+pause
