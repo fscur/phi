@@ -28,17 +28,16 @@ namespace phi
         //glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &gpuMaxVboIndices);
 
         //_maxIndices = std::min(maxIndices, static_cast<size_t>(gpuMaxVboIndices));
-        auto testeDaMacaca = true;
     }
 
     batch::~batch()
     {
         glDeleteVertexArrays(1, &_vao);
-        delete _vbo;
-        delete _materialsIdsBuffer;
-        delete _modelMatricesBuffer;
-        delete _ebo;
-        delete _drawCmdBuffer;
+        safeDelete(_vbo);
+        safeDelete(_materialsIdsBuffer);
+        safeDelete(_modelMatricesBuffer);
+        safeDelete(_ebo);
+        safeDelete(_drawCmdBuffer);
     }
 
     void batch::createVao(const batchObject &batchObject)
@@ -157,7 +156,6 @@ namespace phi
 
     void batch::addNewGeometry(const batchObject& batchObject)
     {
-        auto geometriesCount = _geometries.size();
         auto geometry = batchObject.geometry;
         auto vboSize = geometry->vboSize;
         auto eboSize = geometry->eboSize;

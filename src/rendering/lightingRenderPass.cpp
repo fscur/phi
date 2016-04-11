@@ -4,9 +4,16 @@
 namespace phi
 {
     lightingRenderPass::lightingRenderPass(phi::gBufferRenderPass* gBufferPass, phi::gl* gl, size_t w, size_t h) :
+        _gl(gl),
         _w(w),
         _h(h),
-        _gl(gl)
+        _quad(nullptr),
+        _quadVao(0u),
+        _quadVbo(nullptr),
+        _quadEbo(nullptr),
+        _rtsBuffer(nullptr),
+        shader(nullptr),
+        batches(vector<phi::batch*>())
     {
         createQuad();
 

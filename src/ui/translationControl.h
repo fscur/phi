@@ -19,31 +19,31 @@ namespace phi
         public control
     {
     private:
+        transform* _transform;
+        shader* _shader;
+        camera* _camera;
         geometry* _arrowGeometry;
+        eventHandler<translationEventArgs*>* _translating;
+        eventHandler<translationEventArgs*>* _translationFinished;
+        aabb _xAabb;
+        aabb _yAabb;
+        aabb _zAabb;
+        color _xColor;
+        color _yColor;
+        color _zColor;
+        mat4 _modelMatrix;
         mat4 _xModelMatrix;
         mat4 _yModelMatrix;
         mat4 _zModelMatrix;
-        aabb* _xAabb;
-        aabb* _yAabb;
-        aabb* _zAabb;
+        vec3 _startPos;
+        vec3 _startLocalPos;
+        vec2 _mouseStartPos;
         bool _mouseOverX;
         bool _mouseOverY;
         bool _mouseOverZ;
         bool _clickedOverX;
         bool _clickedOverY;
         bool _clickedOverZ;
-        color _xColor;
-        color _yColor;
-        color _zColor;
-        transform* _transform;
-        shader* _shader;
-        vec3 _startPos;
-        vec3 _startLocalPos;
-        vec2 _mouseStartPos;
-        camera* _camera;
-        mat4 _modelMatrix;
-        eventHandler<translationEventArgs*>* _translating;
-        eventHandler<translationEventArgs*>* _translationFinished;
 
     private:
         geometry* createArrowGeometry();

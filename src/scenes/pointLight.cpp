@@ -7,15 +7,15 @@
 
 namespace phi
 {
-    pointLight::pointLight(string name, color color, float intensity, float range, transform* transform) :
-        light(componentType::POINT_LIGHT, name, color, intensity, transform),
-        _boundingVolumeSides(5),
+    pointLight::pointLight(string name, color color, float intensity, float range) :
+        light(componentType::POINT_LIGHT, name, color, intensity),
         _range(range),
-        _oneOverRangeSqr(1.0f / (pow(_range, 2.0f)))
+        _oneOverRangeSqr(1.0f / (pow(_range, 2.0f))),
+        _boundingVolumeSides(5)
     {
         auto radius = calcRange(_range, _boundingVolumeSides);
-        auto d = 2.0f * radius;
-        transform->setLocalSize(vec3(d, d, d));
+        //auto d = 2.0f * radius;
+        //transform->setLocalSize(vec3(d, d, d)); TODO: fix this when implementing lights (not my problem)
         _boundingVolume = sphere::create(radius, _boundingVolumeSides, _boundingVolumeSides, nullptr);
     }
 
@@ -39,6 +39,7 @@ namespace phi
         _oneOverRangeSqr = 1.0f / (pow(_range, 2.0f));
         auto radius = calcRange(value, _boundingVolumeSides);
         _boundingVolume->setRadius(radius);
-        _transform->setLocalSize(vec3(radius * 2.0f, radius * 2.0f, radius * 2.0f));
+        auto transform = getTransform();
+        transform->setLocalSize(vec3(radius * 2.0f, radius * 2.0f, radius * 2.0f));
     }
 }

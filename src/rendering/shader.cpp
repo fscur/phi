@@ -4,11 +4,18 @@
 
 namespace phi
 {
-    shader::shader(string vertFile, string fragFile, vector<string> attributes) :
-        _vertFile(vertFile),
-        _fragFile(fragFile),
-        _attributes(attributes),
-        _initialized(false)
+    shader::shader(
+        string vertexFile, 
+        string fragmentFile, 
+        vector<string> attributes) :
+        _programId(0u),
+        _vertexShaderId(0u),
+        _fragmentShaderId(0u),
+        _vertexFile(vertexFile),
+        _fragmentFile(fragmentFile),
+        _initialized(false),
+        _uniforms(map<uint, GLuint>()),
+        _attributes(attributes)
     {}
 
     bool shader::init()
@@ -18,65 +25,65 @@ namespace phi
 
         bool result = true;
 
-        _vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        _vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
         glError::check();
 
-        _fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        _fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
         glError::check();
 
-        string vertText = loadShaderFile(_vertFile.c_str());
-        string fragText = loadShaderFile(_fragFile.c_str());
+        string vertText = loadShaderFile(_vertexFile.c_str());
+        string fragText = loadShaderFile(_fragmentFile.c_str());
 
         const char *vertexText = vertText.c_str();
         const char *fragmentText = fragText.c_str();
 
-        glShaderSource(_vertexShader, 1, &vertexText, 0);
+        glShaderSource(_vertexShaderId, 1, &vertexText, 0);
         glError::check();
 
-        glCompileShader(_vertexShader);
-        glError::check();
-
-#if _DEBUG
-        result = validateShader(_vertexShader, _vertFile.c_str());
-        if (!result)
-            return false;
-#endif
-        glShaderSource(_fragmentShader, 1, &fragmentText, 0);
-        glError::check();
-
-        glCompileShader(_fragmentShader);
+        glCompileShader(_vertexShaderId);
         glError::check();
 
 #if _DEBUG
-        result = validateShader(_fragmentShader, _fragFile.c_str());
+        result = validateShader(_vertexShaderId, _vertexFile.c_str());
+        if (!result)
+            return false;
+#endif
+        glShaderSource(_fragmentShaderId, 1, &fragmentText, 0);
+        glError::check();
+
+        glCompileShader(_fragmentShaderId);
+        glError::check();
+
+#if _DEBUG
+        result = validateShader(_fragmentShaderId, _fragmentFile.c_str());
         if (!result)
             return false;
 #endif
 
-        _id = glCreateProgram();
+        _programId = glCreateProgram();
         glError::check();
 
-        glAttachShader(_id, _vertexShader);
+        glAttachShader(_programId, _vertexShaderId);
         glError::check();
 
-        glAttachShader(_id, _fragmentShader);
+        glAttachShader(_programId, _fragmentShaderId);
         glError::check();
 
         initAttribs();
 
-        glLinkProgram(_id);
+        glLinkProgram(_programId);
         glError::check();
 
 #if _DEBUG
-        result = validateProgram(_id);
+        result = validateProgram(_programId);
         if (!result)
             return false;
 #endif
 
-        glDeleteShader(_fragmentShader);
+        glDeleteShader(_fragmentShaderId);
         glError::check();
 
-        glDeleteShader(_vertexShader);
+        glDeleteShader(_vertexShaderId);
         glError::check();
 
         _initialized = true;
@@ -153,7 +160,7 @@ namespace phi
     {
         for (uint i = 0; i < _attributes.size(); ++i)
         {
-            glBindAttribLocation(_id, i, _attributes[i].c_str());
+            glBindAttribLocation(_programId, i, _attributes[i].c_str());
             glError::check();
         }
     }
@@ -163,7 +170,7 @@ namespace phi
         if (!_initialized)
             return;
 
-        _uniforms[location] = glGetUniformLocation(_id, name.c_str());
+        _uniforms[location] = glGetUniformLocation(_programId, name.c_str());
         glError::check();
     }
 
@@ -268,9 +275,7 @@ namespace phi
         if (!_initialized)
             return;
 
-        _textureCount = 0;
-
-        glUseProgram(_id);
+        glUseProgram(_programId);
         glError::check();
     }
 
@@ -290,7 +295,7 @@ namespace phi
 
         unbind();
 
-        glDeleteProgram(_id);
+        glDeleteProgram(_programId);
         glError::check();
     }
 }

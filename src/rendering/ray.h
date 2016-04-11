@@ -15,9 +15,9 @@ namespace phi
         RENDERING_API ray(vec3 origin = vec3(), vec3 direction = vec3());
         RENDERING_API ~ray();
 
-        RENDERING_API bool intersects(aabb* aabb);
-        RENDERING_API bool intersects(aabb* aabb, vec3* position, vec3* normal);
-        RENDERING_API bool intersects(vec3 bl, vec3 tl, vec3 tr, vec3 br, float* t);
+        RENDERING_API bool intersects(aabb aabb);
+        RENDERING_API bool intersects(aabb aabb, vec3& position, vec3& normal);
+        RENDERING_API bool intersects(vec3 bl, vec3 tl, vec3 tr, vec3 br, float& t);
 
         vec3 getOrigin() const { return _origin; }
         vec3 getDirection() const { return _direction; }

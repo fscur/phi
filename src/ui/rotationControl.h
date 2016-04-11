@@ -21,6 +21,8 @@ namespace phi
         lineMesh* _circleMesh;
         shader* _shader;
         camera* _camera;
+        eventHandler<rotationEventArgs*>* _rotating;
+        eventHandler<rotationEventArgs>* _rotationFinished;
         color _xColor;
         color _yColor;
         color _zColor;
@@ -28,20 +30,18 @@ namespace phi
         mat4 _xModelMatrix;
         mat4 _yModelMatrix;
         mat4 _zModelMatrix;
-        std::vector<vec3> _xPositions;
-        std::vector<vec3> _yPositions;
-        std::vector<vec3> _zPositions;
-        bool _mouseOverX;
-        bool _mouseOverY;
-        bool _mouseOverZ;
+        vec2 _mouseStartPos;
+        quat _startOrientation;
+        float _currentAngle;
+        vector<vec3> _xPositions;
+        vector<vec3> _yPositions;
+        vector<vec3> _zPositions;
         bool _clickedOverX;
         bool _clickedOverY;
         bool _clickedOverZ;
-        vec2 _mouseStartPos;
-        float _currentAngle;
-        quat _startOrientation;
-        eventHandler<rotationEventArgs*>* _rotating;
-        eventHandler<rotationEventArgs>* _rotationFinished;
+        bool _mouseOverX;
+        bool _mouseOverY;
+        bool _mouseOverZ;
 
     private:
         void createCircleMesh();

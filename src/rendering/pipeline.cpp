@@ -14,13 +14,11 @@ namespace phi
 
     pipeline::~pipeline()
     {
-        delete _materialsBuffer;
-        delete _frameUniformBlockBuffer;
+        safeDelete(_materialsBuffer);
+        safeDelete(_frameUniformBlockBuffer);
 
         for (auto batch : batches)
-        {
-            delete batch;
-        }
+            safeDelete(batch);
     }
 
     void pipeline::createFrameUniformBlockBuffer()
@@ -63,7 +61,7 @@ namespace phi
             batchObject.mesh = mesh;
             batchObject.geometry = geometry;
             batchObject.materialId = _materialsMaterialsGpu[material];
-            batchObject.modelMatrix = n->getTransform().getModelMatrix();
+            batchObject.modelMatrix = n->getTransform()->getModelMatrix();
 
             addToBatches(batchObject);
         }
@@ -76,7 +74,7 @@ namespace phi
 
     void pipeline::addToBatches(batchObject& batchObject)
     {
-        auto i = 0;
+        auto i = 0u;
         auto added = false;
         auto batchesCount = batches.size();
 
@@ -168,7 +166,7 @@ namespace phi
                 batchObject.mesh = mesh;
                 batchObject.geometry = mesh->geometry;
                 batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-                batchObject.modelMatrix = n->getTransform().getModelMatrix();
+                batchObject.modelMatrix = n->getTransform()->getModelMatrix();
                 bacthObjectsToUpdade.push_back(batchObject);
             }
 

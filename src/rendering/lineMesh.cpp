@@ -4,18 +4,23 @@
 
 namespace phi
 {
-    lineMesh::lineMesh()
+    lineMesh::lineMesh() :
+        _vao(0u),
+        _positionsVbo(0u),
+        _indicesVbo(0u),
+        _indicesCount(0u),
+        _pSize(0u),
+        _iSize(0u),
+        _positionsBuffer(nullptr),
+        _indicesBuffer(nullptr),
+        _positions(vector<vec3>()),
+        _indices(vector<uint>())
     {
-        _vao = 0;
-
-        _positionsVbo = 0;
-        _indicesVbo = 0;
-        _indicesCount = 0;
     }
 
     lineMesh::~lineMesh()
     {
-        delete[] _positionsBuffer;
+        safeDeleteArray(_positionsBuffer);
 
         glDeleteBuffers(1, &_positionsVbo);
         glError::check();
@@ -27,7 +32,7 @@ namespace phi
         glError::check();
     }
 
-    lineMesh* lineMesh::create(string name, vector<vec3> &positions, vector<GLuint>* indices)
+    lineMesh* lineMesh::create(string name, vector<vec3>& positions, vector<uint>& indices)
     {
         lineMesh* m = new lineMesh();
         m->addData(positions, indices);
@@ -40,10 +45,10 @@ namespace phi
         GLuint indicesCount,
         GLuint* indicesBuffer)
     {
-        auto indices = new vector<GLuint>();
+        vector<uint> indices;
 
-        for (GLuint i = 0; i < indicesCount; ++i)
-            indices->push_back(indicesBuffer[i]);
+        for (size_t i = 0; i < indicesCount; ++i)
+            indices.push_back(indicesBuffer[i]);
 
         vector<vec3> positions;
 
@@ -57,31 +62,28 @@ namespace phi
         }
 
         lineMesh* m = new lineMesh();
-        auto floatSize = (GLuint)sizeof(GLfloat);
+        auto floatSize = sizeof(GLfloat);
         m->_indices = indices;
         m->_indicesCount = indicesCount;
         m->_positionsBuffer = positionsBuffer;
-        m->_pSize = positionsCount * 3 * floatSize;
+        m->_pSize = positionsCount * 3 * static_cast<GLuint>(floatSize);
 
         m->storeBuffers();
 
         return m;
     }
 
-    void lineMesh::addData(vector<vec3> positions, vector<GLuint>* indices)
+    void lineMesh::addData(vector<vec3>& positions, vector<uint>& indices)
     {
+        size_t positionsCount = positions.size();
+
         _positions = positions;
         _indices = indices;
-        _indicesCount = (GLuint)indices->size();
+        _indicesCount = static_cast<GLuint>(indices.size());
+        _pSize = static_cast<GLuint>(positionsCount) * 3 * static_cast<GLuint>(sizeof(GLfloat));
+        _positionsBuffer = new GLfloat[positionsCount * 3];
 
-        _pSize = (GLuint)positions.size() * 3 * sizeof(GLfloat);
-
-        _positionsBuffer = new GLfloat[positions.size() * 3];
-
-        vector<vec3>::iterator i;
-        unsigned int pIndex = 0;
-
-        for (auto i = 0; i < positions.size(); ++i)
+        for (size_t i = 0u; i < positionsCount; ++i)
         {
             _positionsBuffer[i * 3] = positions[i].x;
             _positionsBuffer[i * 3 + 1] = positions[i].y;
@@ -116,7 +118,7 @@ namespace phi
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesVbo);
         glError::check();
 
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &(*_indices)[0], GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &_indices[0], GL_STATIC_DRAW);
         glError::check();
     }
 

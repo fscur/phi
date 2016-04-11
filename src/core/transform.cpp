@@ -37,6 +37,7 @@ namespace phi
 
     transform::~transform()
     {
+        safeDelete(_changedEvent);
     }
 
     transform* transform::clone() const

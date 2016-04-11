@@ -8,19 +8,34 @@
 namespace phi
 {
     rotationControl::rotationControl(sizeui viewportSize) :
-        control(viewportSize)
+        control(viewportSize),
+        _transform(nullptr),
+        _circleMesh(nullptr),
+        _shader(nullptr),
+        _camera(nullptr),
+        _rotating(new eventHandler<rotationEventArgs*>()),
+        _rotationFinished(new eventHandler<rotationEventArgs>()),
+        _xColor(color(1.0f, 0.0f, 0.0f, 0.5f)),
+        _yColor(color(0.0f, 1.0f, 0.0f, 0.5f)),
+        _zColor(color(0.0f, 0.0f, 1.0f, 0.5f)),
+        _modelMatrix(mat4(1.0f)),
+        _xModelMatrix(glm::rotate(phi::PI * +0.5f, vec3(0.0f, 1.0f, 0.0f))),
+        _yModelMatrix(glm::rotate(phi::PI * -0.5f, vec3(1.0f, 0.0f, 0.0f))),
+        _zModelMatrix(mat4(1.0f)),
+        _mouseStartPos(vec2(0.0f)),
+        _startOrientation(quat()),
+        _currentAngle(0.0f),
+        _xPositions(vector<vec3>()),
+        _yPositions(vector<vec3>()),
+        _zPositions(vector<vec3>()),
+        _clickedOverX(false),
+        _clickedOverY(false),
+        _clickedOverZ(false),
+        _mouseOverX(false),
+        _mouseOverY(false),
+        _mouseOverZ(false)
+        
     {
-        //_shader = shaderManager::get()->getShader("UI_MESH");
-        _transform = nullptr;
-        _xModelMatrix = glm::rotate(glm::pi<float>() * 0.5f, vec3(0.0f, 1.0f, 0.0f));
-        _yModelMatrix = glm::rotate(glm::pi<float>() * -0.5f, vec3(1.0f, 0.0f, 0.0f));
-        _zModelMatrix = mat4();
-        _clickedOverX = _clickedOverY = _clickedOverZ = _mouseOverX = _mouseOverY = _mouseOverZ = false;
-        _xColor = color(1.0f, 0.0f, 0.0f, 0.5f);
-        _yColor = color(0.0f, 1.0f, 0.0f, 0.5f);
-        _zColor = color(0.0f, 0.0f, 1.0f, 0.5f);
-        _rotating = new eventHandler<rotationEventArgs*>();
-        _rotationFinished = new eventHandler<rotationEventArgs>();
         createCircleMesh();
     }
 
@@ -29,20 +44,21 @@ namespace phi
         _xPositions = std::vector<vec3>();
         _yPositions = std::vector<vec3>();
         _zPositions = std::vector<vec3>();
-        auto indices = new std::vector<GLuint>();
+        vector<GLuint> indices;
+
         auto r = 0.7f;
-        auto n = 50;
+        auto n = 50u;
         auto as = (glm::pi<float>() * 2.0f) / (float)n;
         auto a = 0.0f;
 
-        for (auto i = 0; i < n; i++)
+        for (auto i = 0u; i < n; i++)
         {
             auto pos = vec3(glm::cos(a) * r, glm::sin(a) * r, 0.0f);
             _xPositions.push_back(mathUtils::multiply(_xModelMatrix, pos));
             _yPositions.push_back(mathUtils::multiply(_yModelMatrix, pos));
             _zPositions.push_back(pos);
-            indices->push_back(i);
-            indices->push_back((i + 1) % n);
+            indices.push_back(i);
+            indices.push_back((i + 1) % n);
             a += as;
         }
 
@@ -82,15 +98,20 @@ namespace phi
     {
         // Return minimum distance between line segment vw and point p
         const float l2 = glm::length2(w - v);  // i.e. |w-v|^2 -  avoid a sqrt
-        if (l2 == 0.0)
+
+        if (l2 == 0.0f)
             return glm::length(v - p);   // v == w case
 
         // Consider the line extending the segment, parameterized as v + t (w - v).
         // We find projection of point p onto the line. 
         // It falls where t = [(p-v) . (w-v)] / |w-v|^2
         const float t = glm::dot(p - v, w - v) / l2;
-        if (t < 0.0) return glm::length(v - p);       // Beyond the 'v' end of the segment
-        else if (t > 1.0) return glm::length(w - p);  // Beyond the 'w' end of the segment
+        
+        if (t < 0.0f) 
+            return glm::length(v - p);       // Beyond the 'v' end of the segment
+        else if (t > 1.0f) 
+            return glm::length(w - p); // Beyond the 'w' end of the segment
+
         const vec2 projection = v + t * (w - v);  // Projection falls on the segment
         return glm::length(projection - p);
     }
@@ -144,7 +165,7 @@ namespace phi
             return vec2(pos.x, -pos.y) * v + v;
         };
 
-        auto count = _xPositions.size();
+        size_t count = _xPositions.size();
         auto mousePosition = vec2(x, y);
 
         auto mouseOverXOld = _mouseOverX;
@@ -153,7 +174,7 @@ namespace phi
 
         _mouseOverX = _mouseOverY = _mouseOverZ = false;
 
-        for (auto i = 0; i < count; i++)
+        for (size_t i = 0; i < count; i++)
         {
             auto screenA = worldToScreen(_xPositions[i]);
             auto screenB = worldToScreen(_xPositions[(i + 1) % count]);
@@ -173,7 +194,7 @@ namespace phi
 
         if (!_mouseOverX)
         {
-            for (auto i = 0; i < count; i++)
+            for (size_t i = 0; i < count; i++)
             {
                 auto screenA = worldToScreen(_yPositions[i]);
                 auto screenB = worldToScreen(_yPositions[(i + 1) % count]);
@@ -194,7 +215,7 @@ namespace phi
 
         if (!_mouseOverX && !_mouseOverY)
         {
-            for (auto i = 0; i < count; i++)
+            for (size_t i = 0; i < count; i++)
             {
                 auto screenA = worldToScreen(_zPositions[i]);
                 auto screenB = worldToScreen(_zPositions[(i + 1) % count]);
@@ -259,7 +280,7 @@ namespace phi
 
         auto screenToViewZNear = [&] (const vec2 vec)
         {
-            auto zNear = _camera->getZNear();
+            auto zNear = _camera->getNear();
             auto aspect = _camera->getAspect();
             auto fov = _camera->getFov();
 
@@ -281,7 +302,7 @@ namespace phi
 
             return vec3(x, y, -zNear);
         };
-
+        /*
         auto worldToScreen = [&] (const vec3 worldPos)
         {
             auto vp = _camera->getProjectionMatrix() * _camera->getViewMatrix();
@@ -293,13 +314,14 @@ namespace phi
             pos = pos / pos.w;
             return vec2(pos.x, -pos.y) * v + v;
         };
+        */
 
-        auto worldToView = [&] (const vec3 vec)
+        /*auto worldToView = [&] (const vec3 vec)
         {
             auto v = vec4(vec.x, vec.y, vec.z, 1.0f);
             v = _camera->getViewMatrix() * v;
             return vec3(v.x, v.y, v.z);
-        };
+        };*/
 
         if (e->x == _mouseStartPos.x && e->y == _mouseStartPos.y)
             return;
@@ -434,7 +456,7 @@ namespace phi
 
     void rotationControl::renderCircle(color color, mat4 modelMatrix)
     {
-        auto mvp = _camera->getProjectionMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
+        //auto mvp = _camera->getProjectionMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
         _shader->bind();
         //_shader->setUniform("mvp", mvp);
         //_shader->setUniform("color", color);

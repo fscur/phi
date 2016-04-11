@@ -7,6 +7,9 @@
 
 #include "renderingApi.h"
 
+#undef near
+#undef far
+
 namespace phi
 {
     class transform;
@@ -15,17 +18,17 @@ namespace phi
         public component
     {
     private:
-        mat4 _viewMatrix;
-        mat4 _projectionMatrix;
-        float _focus;
-        bool _changedView;
-        bool _changedProjection;
-        bool _perspective;
+        float _width;
+        float _height;
         float _near;
         float _far;
-        float _aspect;
         float _fov;
-        sizeui _resolution;
+        float _aspect;
+        float _focus;
+        mat4 _projectionMatrix;
+        mat4 _viewMatrix;
+        bool _changedProjection;
+        bool _changedView;
         eventToken _transformChangedEventToken;
 
     private:
@@ -39,31 +42,33 @@ namespace phi
     public:
         RENDERING_API  camera(
             string name,
-            float nearDistance,
-            float farDistance,
-            sizeui resolution,
+            float width,
+            float height,
+            float near,
+            float far,
             float fov);
 
-        ~camera() {};
+        RENDERING_API  ~camera();
 
         RENDERING_API  mat4 getViewMatrix();
         RENDERING_API  mat4 getProjectionMatrix();
         RENDERING_API  transform* getTransform();
 
-        RENDERING_API void setResolution(sizeui value);
-        void setFov(float value) { _fov = value; _changedProjection = true; }
-        void setZNear(float value) { _near = value; _changedProjection = true; }
+        RENDERING_API void setWidth(float value);
+        RENDERING_API void setHeight(float value);
+        RENDERING_API void setFov(float value);
+        RENDERING_API void setNear(float value);
+        RENDERING_API void setFar(float value);
 
         RENDERING_API void moveTo(vec3 position);
         RENDERING_API void zoom(vec3 offset);
         RENDERING_API void orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY);
 
-        RENDERING_API void update();
-
-        float getZNear() const { return _near; }
-        float getZFar() const { return _far; }
+        float getNear() const { return _near; }
+        float getFar() const { return _far; }
         float getAspect() const { return _aspect; }
-        sizeui getResolution() const { return _resolution; }
+        float getWidth() const { return _width; }
+        float getHeight() const { return _height; }
         float getFov() const { return _fov; }
         float getFocus() const { return _focus; }
 

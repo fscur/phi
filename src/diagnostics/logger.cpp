@@ -17,7 +17,7 @@ namespace phi
 
     logger::~logger()
     {
-        delete _device;
+        safeDelete(_device);
     }
 
     void logger::logError(string message) const

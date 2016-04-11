@@ -9,9 +9,9 @@ namespace phi
         double dy = v1.y - v0.y;
         double dz = v1.z - v0.z;
 
-        double x2 = pow(dx, 2); 
-        double y2 = pow(dy, 2);
-        double z2 = pow(dz, 2);
+        double x2 = pow(dx, 2.0f); 
+        double y2 = pow(dy, 2.0f);
+        double z2 = pow(dz, 2.0f);
 
         return (float)sqrt(x2 + y2 + z2);
     }
@@ -56,65 +56,65 @@ namespace phi
 
     mat4 mathUtils::getRotationMatrixAboutAnArbitraryAxis(vec3 origin, vec3 axis, float angle)
     {
-        double y2 = pow(axis.y, 2);
-        double z2 = pow(axis.z, 2);
+        double y2 = pow(axis.y, 2.0);
+        double z2 = pow(axis.z, 2.0);
         double l = sqrt(y2 + z2);
 
         double a = axis.x;
-        double b = l != 0 ? axis.y / l : 1;
-        double c = l != 0 ? axis.z / l : 0;
+        double b = l != 0.0 ? axis.y / l : 1.0;
+        double c = l != 0.0 ? axis.z / l : 0.0;
 
         double cossine = cos(angle);
         double sine = sin(angle);
 
         //translate by -origin to make axis pass through the origin
         mat4 t0 = mat4(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
             -origin.x, -origin.y, -origin.z, 1);
 
         //rotate about X axis to align rotation axis with XY plane
         mat4 t1 = mat4(
-            1, 0, 0, 0,
-            0, b, -c, 0,
-            0, c, b, 0,
-            0, 0, 0, 1);
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, b, -c, 0.0f,
+            0.0f, c, b, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
         //rotate about Z axis to align rotation axis with X Axis
         mat4 t2 = mat4(
-            a, -l, 0, 0,
-            l, a, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+            a, -l, 0.0f, 0.0f,
+            l, a, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
         //rotate about X with the desired rotation angle
         mat4 t3 = mat4(
-            1, 0, 0, 0,
-            0, cossine, sine, 0,
-            0, -sine, cossine, 0,
-            0, 0, 0, 1);
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, cossine, sine, 0.0f,
+            0.0f, -sine, cossine, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
         //undo t2 rotation
         mat4 t4 = mat4(
-            a, l, 0, 0,
-            -l, a, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+            a, l, 0.0f, 0.0f,
+           -l, a, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
         //undo t1 rotation
         mat4 t5 = mat4(
-            1, 0, 0, 0,
-            0, b, c, 0,
-            0, -c, b, 0,
-            0, 0, 0, 1);
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, b, c, 0.0f,
+            0.0f, -c, b, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
         //undo t0 translation
         mat4 t6 = mat4(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            origin.x, origin.y, origin.z, 1);
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            origin.x, origin.y, origin.z, 1.0f);
 
         mat4 transform;
 
@@ -134,12 +134,13 @@ namespace phi
         float cosTheta = dot(start, dest);
         vec3 rotationAxis;
 
-        if (cosTheta < -1 + 0.000001f){
+        if (cosTheta < -1 + 0.000001f)
+        {
             // special case when vectors in opposite directions:
             // there is no "ideal" rotation axis
             // So guess one; any will do as long as it's perpendicular to start
             rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
-            if (length(rotationAxis) < 0.01 ) // bad luck, they were parallel, try again!
+            if (length(rotationAxis) < 0.01f ) // bad luck, they were parallel, try again!
                 rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
 
             rotationAxis = glm::normalize(rotationAxis);
@@ -148,8 +149,8 @@ namespace phi
 
         rotationAxis = cross(start, dest);
 
-        float s = sqrt( (1+cosTheta)*2 );
-        float invs = 1 / s;
+        float s = sqrt((1.0f + cosTheta) * 2.0f);
+        float invs = 1.0f / s;
 
         return quat(
             s * 0.5f, 
@@ -164,5 +165,5 @@ namespace phi
         auto a = vec4(v.x, v.y, v.z, 1.0f);
         auto b = m * a;
         return vec3(b.x, b.y, b.z);
-    };
+    }
 }

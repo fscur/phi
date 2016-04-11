@@ -10,22 +10,22 @@ namespace phi
     DIAGNOSTICS_API void deallocate(void* ptr);
 }
 
-void* operator new(size_t size)
+void* operator new(size_t mem)
 {
-    return phi::allocate(size);
+    return phi::allocate(mem);
 }
 
-void* operator new[](size_t size)
+void* operator new[](size_t mem)
 {
-    return phi::allocate(size);
+    return phi::allocate(mem);
 }
 
-void operator delete(void* ptr)
+void operator delete(void* ptr) noexcept
 {
     phi::deallocate(ptr);
 }
 
-void operator delete[](void* ptr)
+void operator delete[](void* ptr) noexcept
 {
     phi::deallocate(ptr);
 }
