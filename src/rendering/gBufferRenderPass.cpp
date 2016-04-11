@@ -4,9 +4,12 @@
 namespace phi
 {
     gBufferRenderPass::gBufferRenderPass(phi::gl* gl, size_t w, size_t h) :
+        _gl(gl),
         _w(w),
         _h(h),
-        _gl(gl),
+        shader(nullptr),
+        targets(vector<renderTarget*>()),
+        batches(vector<phi::batch*>()),
         framebuffer(new phi::framebuffer())
     {
         initShader();

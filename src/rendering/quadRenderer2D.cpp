@@ -38,8 +38,8 @@ namespace phi
 
     void quadRenderer2D::updateModelMatrix()
     {
-        int w = (int)_size.w;
-        int h = (int)_size.h;
+        /*int w = (int)_size.w;
+        int h = (int)_size.h;*/
 
         //_transform->setModelMatrix(
         //    mat4(
