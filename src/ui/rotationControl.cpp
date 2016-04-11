@@ -259,7 +259,7 @@ namespace phi
 
         auto screenToViewZNear = [&] (const vec2 vec)
         {
-            auto zNear = _camera->getZNear();
+            auto zNear = _camera->getNear();
             auto aspect = _camera->getAspect();
             auto fov = _camera->getFov();
 

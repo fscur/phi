@@ -28,7 +28,6 @@ namespace phi
         //glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &gpuMaxVboIndices);
 
         //_maxIndices = std::min(maxIndices, static_cast<size_t>(gpuMaxVboIndices));
-        auto testeDaMacaca = true;
     }
 
     batch::~batch()
@@ -157,7 +156,6 @@ namespace phi
 
     void batch::addNewGeometry(const batchObject& batchObject)
     {
-        auto geometriesCount = _geometries.size();
         auto geometry = batchObject.geometry;
         auto vboSize = geometry->vboSize;
         auto eboSize = geometry->eboSize;

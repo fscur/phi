@@ -5,59 +5,29 @@
 
 namespace phi
 {
-    camera::camera(std::string name, float nearDistance, float farDistance, sizeui resolution, float fov) : 
+    camera::camera(
+        std::string name, 
+        float width, 
+        float height, 
+        float near, 
+        float far, 
+        float fov) : 
         component(component::componentType::CAMERA, name),
-        _near(nearDistance),
-        _far(farDistance),
-        _resolution(resolution),
+        _width(width),
+        _height(height),
+        _near(near),
+        _far(far),
         _fov(fov),
+        _aspect(_width / _height),
         _focus(1.0f),
-        _aspect(static_cast<float>(resolution.w) / static_cast<float>(resolution.h)),
+        _projectionMatrix(mat4(1.0f)),
+        _viewMatrix(mat4(1.0f)),
+        _changedProjection(false),
         _changedView(false),
-        _changedProjection(false)
+        _transformChangedEventToken(eventToken())
     {
         updateViewMatrix();
         updateProjectionMatrix();
-    }
-
-    void camera::onNodeChanged(node* previousValue)
-    {
-        if (previousValue)
-            previousValue->getTransform().getChangedEvent()->unassign(_transformChangedEventToken);
-
-        if (_node)
-            _transformChangedEventToken = _node->getTransform().getChangedEvent()->assign(std::bind(&camera::transformChanged, this));
-    }
-
-    mat4 camera::getViewMatrix()
-    {
-        if (_changedView)
-            updateViewMatrix();
-
-        return _viewMatrix;
-    }
-
-    mat4 camera::getProjectionMatrix()
-    {
-        if (_changedProjection)
-            updateProjectionMatrix();
-
-        return _projectionMatrix;
-    }
-
-    transform* camera::getTransform()
-    {
-        if (_node == nullptr)
-            return nullptr;
-
-        return &_node->getTransform();
-    }
-
-    void camera::setResolution(sizeui value)
-    {
-        _resolution = value;
-        _aspect = static_cast<float>(_resolution.w) / static_cast<float>(_resolution.h);
-        _changedProjection = true;
     }
 
     void camera::updateViewMatrix()
@@ -72,18 +42,83 @@ namespace phi
         _changedView = false;
     }
 
-    void camera::updateProjectionMatrix()
+    inline void camera::updateProjectionMatrix()
     {
         _projectionMatrix = glm::perspective(_fov, _aspect, _near, _far);
         _changedProjection = false;
     }
 
-    void camera::transformChanged()
+    inline void camera::transformChanged()
     {
         _changedView = true;
     }
 
-    void camera::moveTo(vec3 position)
+    inline void camera::onNodeChanged(node* previousValue)
+    {
+        if (previousValue)
+            previousValue->getTransform().getChangedEvent()->unassign(_transformChangedEventToken);
+
+        if (_node)
+            _transformChangedEventToken = _node->getTransform().getChangedEvent()->assign(std::bind(&camera::transformChanged, this));
+    }
+
+    inline mat4 camera::getViewMatrix()
+    {
+        if (_changedView)
+            updateViewMatrix();
+
+        return _viewMatrix;
+    }
+
+    inline mat4 camera::getProjectionMatrix()
+    {
+        if (_changedProjection)
+            updateProjectionMatrix();
+
+        return _projectionMatrix;
+    }
+
+    inline transform* camera::getTransform()
+    {
+        if (_node == nullptr)
+            return nullptr;
+
+        return &_node->getTransform();
+    }
+
+    inline void camera::setWidth(float value)
+    {
+        _width = value;
+        _aspect = _width / _height;
+        _changedProjection = true;
+    }
+
+    inline void camera::setHeight(float value)
+    {
+        _height = value;
+        _aspect = _width / _height;
+        _changedProjection = true;
+    }
+
+    inline void camera::setFov(float value) 
+    { 
+        _fov = value; 
+        _changedProjection = true; 
+    }
+
+    inline void camera::setNear(float value) 
+    { 
+        _near = value; 
+        _changedProjection = true; 
+    }
+
+    inline void camera::setFar(float value) 
+    { 
+        _far = value; 
+        _changedProjection = true; 
+    }
+
+    inline void camera::moveTo(vec3 position)
     {
         getTransform()->setLocalPosition(position);
     }
@@ -129,9 +164,5 @@ namespace phi
         transform->setLocalOrientation(q2 * q1);
 
         _changedView = true;
-    }
-
-    void camera::update()
-    {
     }
 }
