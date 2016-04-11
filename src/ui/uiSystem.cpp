@@ -201,7 +201,6 @@ namespace phi
         });
 
         controlEventTokens eventTokens;
-        auto zIndex = cntrl->getZIndex();
         eventTokens.gotFocus = cntrl->getGotFocus()->assign(std::bind(&uiSystem::controlGotFocus, this, std::placeholders::_1));
         eventTokens.mouseLeave = cntrl->getMouseLeave()->assign(std::bind(&uiSystem::controlMouseLeave, this, std::placeholders::_1));
         eventTokens.addedChild = cntrl->getAddedChild()->assign(std::bind(&uiSystem::controlAddedChild, this, std::placeholders::_1));

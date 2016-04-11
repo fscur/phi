@@ -10,23 +10,31 @@
 namespace phi
 {
     translationControl::translationControl(sizeui viewportSize) :
-        control(viewportSize)
-    {
-        _arrowGeometry = createArrowGeometry();
+        control(viewportSize),
+        _transform(nullptr),
+        _shader(nullptr),
+        _camera(nullptr),
+        _arrowGeometry(createArrowGeometry()),
         //_shader = shaderManager::get()->getShader("UI_MESH");
-        _transform = nullptr;
-        _xAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
-        _yAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
-        _zAabb = new aabb(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
-        _xColor = color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f);
-        _yColor = color::fromRGBA(0.0f, 1.0f, 0.0f, 0.5f);
-        _zColor = color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f);
-        _xModelMatrix = glm::rotate(PI * 0.5f, vec3(0.0f, 1.0f, 0.0f));
-        _yModelMatrix = glm::rotate(PI * -0.5f, vec3(1.0f, 0.0f, 0.0f));
-        _zModelMatrix = mat4();
-        _clickedOverX = _clickedOverY = _clickedOverZ = false;
-        _translating = new eventHandler<translationEventArgs*>();
-        _translationFinished = new eventHandler<translationEventArgs*>();
+        _translating(new eventHandler<translationEventArgs*>()),
+        _translationFinished(new eventHandler<translationEventArgs*>()),
+        _xAabb(aabb(vec3(0.0f), vec3(0.0f))),
+        _yAabb(aabb(vec3(0.0f), vec3(0.0f))),
+        _zAabb(aabb(vec3(0.0f), vec3(0.0f))),
+        _xColor(color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f)),
+        _yColor(color::fromRGBA(0.0f, 1.0f, 0.0f, 0.5f)),
+        _zColor(color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f)),
+        _modelMatrix(mat4(1.0f)),
+        _xModelMatrix(glm::rotate(phi::PI * +0.5f, vec3(0.0f, 1.0f, 0.0f))),
+        _yModelMatrix(glm::rotate(phi::PI * -0.5f, vec3(1.0f, 0.0f, 0.0f))),
+        _zModelMatrix(mat4(1.0f)),
+        _mouseOverX(false),
+        _mouseOverY(false),
+        _mouseOverZ(false),
+        _clickedOverX(false),
+        _clickedOverY(false),
+        _clickedOverZ(false)
+    {
     }
 
     geometry* translationControl::createArrowGeometry()
@@ -156,7 +164,7 @@ namespace phi
         {
             auto newMin = _modelMatrix * modelMatrix * min;
             auto newMax = _modelMatrix * modelMatrix * max;
-            return new aabb(vec3(newMin.x, newMin.y, newMin.z), vec3(newMax.x, newMax.y, newMax.z));
+            return aabb(vec3(newMin.x, newMin.y, newMin.z), vec3(newMax.x, newMax.y, newMax.z));
         };
 
         _xAabb = createAabb(_xModelMatrix);
@@ -421,7 +429,7 @@ namespace phi
 
     void translationControl::renderArrow(geometry* geometry, color color, mat4 modelMatrix)
     {
-        auto mvp = _camera->getProjectionMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
+        //auto mvp = _camera->getProjectionMatrix() * _camera->getViewMatrix() * _modelMatrix * modelMatrix;
 
         _shader->bind();
         //_shader->setUniform("mvp", mvp);
