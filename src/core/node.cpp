@@ -4,8 +4,10 @@
 namespace phi
 {
     node::node() :
-        _parent(nullptr), 
-        _transform(new transform()) 
+        _parent(nullptr),
+        _transform(new transform()),
+        _components(vector<component*>()),
+        _children(vector<node*>())
     {
     }
 
@@ -21,8 +23,8 @@ namespace phi
     }
 
     node::node(const node& original) :
-        _transform(original._transform->clone()),
-        _parent(nullptr)
+        _parent(nullptr),
+        _transform(original._transform->clone())
     {
         for (auto& child : original._children)
         {

@@ -13,7 +13,15 @@ namespace phi
         _pipeline = new phi::pipeline(gl);
         _renderer = new phi::renderer(gl, w, h);
 
-        camera = new phi::camera("mainCamera", 0.1f, 1000.0f, sizeui(static_cast<uint>(w), static_cast<uint>(h)), glm::half_pi<float>() * 0.5f);
+        camera = 
+            new phi::camera(
+                "mainCamera", 
+                static_cast<float>(w), 
+                static_cast<float>(h), 
+                0.1f, 
+                1000.0f, 
+                glm::half_pi<float>() * 0.5f);
+
         auto cameraNode = new node();
         cameraNode->addComponent(camera);
         add(cameraNode);
@@ -30,8 +38,6 @@ namespace phi
 
     void scene::update()
     {
-        camera->update();
-
         auto frameUniformBlock = phi::frameUniformBlock();
         frameUniformBlock.p = camera->getProjectionMatrix();
         frameUniformBlock.v = camera->getViewMatrix();
@@ -51,7 +57,8 @@ namespace phi
 
     void scene::resize(size_t w, size_t h)
     {
-        camera->setResolution(sizeui(static_cast<uint>(w), static_cast<uint>(h)));
+        camera->setWidth(static_cast<float>(w));
+        camera->setHeight(static_cast<float>(h));
     }
 
     void scene::add(node* n)

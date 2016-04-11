@@ -11,8 +11,8 @@ namespace phi
     {
     private:
         transform* _transform;
-        vector<component*> _components;
         node* _parent;
+        vector<component*> _components;
         vector<node*> _children;
 
     public:

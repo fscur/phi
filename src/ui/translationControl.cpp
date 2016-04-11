@@ -215,7 +215,7 @@ namespace phi
 
     vec3 translationControl::screenToViewZNear(vec2 mousePos)
     {
-        auto zNear = _camera->getZNear();
+        auto zNear = _camera->getNear();
         auto aspect = _camera->getAspect();
         auto fov = _camera->getFov();
 

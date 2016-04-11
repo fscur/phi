@@ -5,8 +5,8 @@
 namespace phi
 {
     buffer::buffer(bufferTarget::bufferTarget target) :
-        target(target),
-        id(-1)
+        id(-1),
+        target(target)
     {
         glCreateBuffers(1, &id);
         bind();

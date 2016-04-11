@@ -86,7 +86,7 @@ namespace demon
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
+        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
 
         phi::mat4 proj = _camera->getProjectionMatrix();
 
@@ -96,16 +96,16 @@ namespace demon
         else
             z = -proj[3].z / (zBufferValue * -2.0f + 1.0f - proj[2].z);
 
-        auto zNear = _camera->getZNear();
+        auto zNear = _camera->getNear();
         auto iez = 1.0f / zNear;
-        auto zFar = _camera->getZFar();
+        auto zFar = _camera->getFar();
         auto aspect = _camera->getAspect();
         auto fov = _camera->getFov();
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = static_cast<float>(_camera->getResolution().w);
-        auto h = static_cast<float>(_camera->getResolution().h);
+        auto w = _camera->getWidth();
+        auto h = _camera->getHeight();
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
@@ -209,7 +209,7 @@ namespace demon
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
+        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
         phi::mat4 proj = _camera->getProjectionMatrix();
 
         if (zBufferValue == 1.0f)
@@ -227,16 +227,16 @@ namespace demon
 
     void defaultCameraController::panMouseMove()
     {
-        auto zNear = _camera->getZNear();
+        auto zNear = _camera->getNear();
         auto iez = 1.0f / zNear;
-        auto zFar = _camera->getZFar();
+        auto zFar = _camera->getFar();
         auto aspect = _camera->getAspect();
         auto fov = _camera->getFov();
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = static_cast<float>(_camera->getResolution().w);
-        auto h = static_cast<float>(_camera->getResolution().h);
+        auto w = _camera->getWidth();
+        auto h = _camera->getHeight();
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
@@ -316,7 +316,7 @@ namespace demon
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
+        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
         phi::mat4 proj = _camera->getProjectionMatrix();
 
         if (zBufferValue == 1.0f)
@@ -324,16 +324,16 @@ namespace demon
         else
         {
             auto z = -proj[3].z / (zBufferValue * -2.0f + 1.0f - proj[2].z);
-            auto zNear = _camera->getZNear();
+            auto zNear = _camera->getNear();
             auto iez = 1.0f / zNear;
-            auto zFar = _camera->getZFar();
+            auto zFar = _camera->getFar();
             auto aspect = _camera->getAspect();
             auto fov = _camera->getFov();
 
             auto tg = tan(fov * 0.5f) * zNear;
 
-            auto w = static_cast<float>(_camera->getResolution().w);
-            auto h = static_cast<float>(_camera->getResolution().h);
+            auto w = _camera->getWidth();
+            auto h = _camera->getHeight();
 
             auto hh = h * 0.5f;
             auto hw = w * 0.5f;
@@ -364,16 +364,16 @@ namespace demon
 
     void defaultCameraController::rotationMouseMove()
     {
-        auto zNear = _camera->getZNear();
+        auto zNear = _camera->getNear();
         auto iez = 1.0f / zNear;
-        auto zFar = _camera->getZFar();
+        auto zFar = _camera->getFar();
         auto aspect = _camera->getAspect();
         auto fov = _camera->getFov();
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = static_cast<float>(_camera->getResolution().w);
-        auto h = static_cast<float>(_camera->getResolution().h);
+        auto w = _camera->getWidth();
+        auto h = _camera->getHeight();
 
         auto dx = _mousePosX - _lastMousePosX;
         auto dy = _mousePosY - _lastMousePosY;

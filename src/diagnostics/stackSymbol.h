@@ -6,24 +6,27 @@ namespace phi
 {
     struct symbolModule
     {
+        char* name;
+        char* path;
+
         symbolModule() :
             name((char*)("")),
             path((char*)(""))
         {
         }
 
-        symbolModule(char * name, char * path) :
+        symbolModule(char* name, char* path) :
             name(name),
             path(path)
         {
         }
-
-        char* name;
-        char* path;
     };
 
     struct symbolFile
     {
+        char* name;
+        unsigned int line;
+
         symbolFile() :
             name((char*)("")),
             line(0)
@@ -35,13 +38,15 @@ namespace phi
             line(line)
         {
         }
-
-        unsigned int line;
-        char* name;
     };
 
     struct stackSymbol
     {
+        char* name;
+        uintptr_t address;
+        symbolFile file;
+        symbolModule module;
+
         stackSymbol()
         {
         }
@@ -54,15 +59,10 @@ namespace phi
         {
         }
 
-        char* name;
-        uintptr_t address;
-        symbolFile file;
-        symbolModule module;
-
         string toString()
         {
             auto lineNumber = file.line != 0 ? "(" + std::to_string(file.line) + "): " : "";
-            auto separator = module.name!= "" ? ":: " : "";
+            auto separator = strcmp(module.name, "") == 0 ? "" : "::";
 
             std::stringstream stream;
             stream << std::hex << address << " " << file.name << lineNumber << module.name << separator << name;

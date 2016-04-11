@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "glError.h"
+#include <core\exception.h>
 
 namespace phi
 {
@@ -30,7 +31,7 @@ namespace phi
         GLenum error = glGetError();
 
         if (error != GL_NO_ERROR)
-            throw getErrorString(error);
+            throw phi::exception(getErrorString(error));
 #endif
     }
 }

@@ -9,13 +9,13 @@ namespace phi
     private:
         vec3 _min;
         vec3 _max;
-        vec3 _center;
         float _width;
         float _height;
         float _depth;
         float _halfWidth;
         float _halfHeight;
         float _halfDepth;
+        vec3 _center;
         float _radius;
 
     public:

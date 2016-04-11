@@ -69,8 +69,8 @@ if (MSVC)
         install(DIRECTORY ${resources_dir} DESTINATION ${bin_dir} CONFIGURATIONS ${OUTPUTCONFIG})
         install(DIRECTORY ${library_dir} DESTINATION ${bin_dir} CONFIGURATIONS ${OUTPUTCONFIG})
         install(DIRECTORY ${locale_dir} DESTINATION ${bin_dir} CONFIGURATIONS ${OUTPUTCONFIG})
-
     endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
+    
 else()
         set (bin_dir ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
         install(FILES ${dll_files} DESTINATION ${bin_dir})

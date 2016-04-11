@@ -377,7 +377,6 @@ namespace phi
         RECT rectangle = { 0, 0, 0, 0 };
         AdjustWindowRectEx(&rectangle, _windowStyle, FALSE, _windowExStyle);
 
-        auto horizontalBorderSize = static_cast<uint>(rectangle.right - rectangle.left);
         auto verticalBorderSize = static_cast<uint>(rectangle.bottom - rectangle.top);
 
         _width = std::min(_width, screenWidth);
@@ -405,7 +404,6 @@ namespace phi
     {
         SwapBuffers(_deviceContext);
     }
-
 
     void window::close()
     {

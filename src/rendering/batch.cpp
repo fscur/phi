@@ -6,18 +6,28 @@
 namespace phi
 {
     batch::batch() :
+        _vao(0),
         _freeSpace(MAX_VBO_SIZE),
-        _drawCount(0),
-        _objectsCount(0),
         _vboOffset(0),
         _eboOffset(0),
-        _vao(0)
+        _indicesOffset(0),
+        _verticesOffset(0),
+        _drawCount(0),
+        _objectsCount(0),
+        _modelMatrices(vector<mat4>()),
+        _geometries(vector<geometry*>()),
+        _instances(map<geometry*, vector<drawInstanceData>>()),
+        _meshInstances(map<mesh*, drawInstanceData>()),
+        _vbo(nullptr),
+        _materialsIdsBuffer(nullptr),
+        _modelMatricesBuffer(nullptr),
+        _ebo(nullptr),
+        _drawCmdBuffer(nullptr)
     {
         //auto gpuMaxVboIndices = 0;
         //glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &gpuMaxVboIndices);
 
         //_maxIndices = std::min(maxIndices, static_cast<size_t>(gpuMaxVboIndices));
-        auto testeDaMacaca = true;
     }
 
     batch::~batch()
@@ -146,7 +156,6 @@ namespace phi
 
     void batch::addNewGeometry(const batchObject& batchObject)
     {
-        auto geometriesCount = _geometries.size();
         auto geometry = batchObject.geometry;
         auto vboSize = geometry->vboSize;
         auto eboSize = geometry->eboSize;
