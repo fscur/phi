@@ -10,6 +10,7 @@ namespace phi
     {
     private:
         float _radius;
+
     private:
         sphere(float radius, phi::geometry* geometry, phi::material* material);
 

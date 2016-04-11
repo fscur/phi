@@ -4,7 +4,8 @@
 namespace phi
 {
     sphere::sphere(float radius, phi::geometry* geometry, phi::material* material) :
-        _radius(radius), mesh("sphere", geometry, material)
+        mesh("sphere", geometry, material),
+        _radius(radius)
     {
     }
 

@@ -5,9 +5,9 @@ namespace phi
 {
     light::light(component::componentType type, string name, color color, float intensity) :
         component(type, name),
+        _shadowMap(nullptr),
         _color(color),
-        _intensity(intensity),
-        _shadowMap(nullptr)
+        _intensity(intensity)
     {
     }
 
