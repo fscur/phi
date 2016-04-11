@@ -21,8 +21,8 @@ namespace phi
     }
 
     node::node(const node& original) :
-        _transform(original._transform),
-        _parent(nullptr)
+        _parent(nullptr),
+        _transform(original._transform)
     {
         for (auto& child : original._children)
         {

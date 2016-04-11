@@ -100,21 +100,32 @@ namespace phi
 
     void commandsManager::onKeyDown(phi::keyboardEventArgs* e)
     {
-        if (_pressedKeys.size() == 0 || _pressedKeys.back() != e->key)
-            _pressedKeys.push_back(e->key);
+        size_t pressedKeysCount = _pressedKeys.size();
 
-        auto shortcutsCopy = _shortcuts;
-        auto i = 0;
-        for (i = 0; i < _pressedKeys.size(); i++)
+        if (pressedKeysCount == 0u || _pressedKeys.back() != e->key)
         {
-            for (auto j = 0; j < shortcutsCopy.size(); j++)
-            {
-                if (i >= shortcutsCopy[j].keys.size() || shortcutsCopy[j].keys[i] != _pressedKeys[i])
-                    shortcutsCopy.erase(shortcutsCopy.begin() + j--);
-            }
+            _pressedKeys.push_back(e->key);
+            pressedKeysCount++;
         }
 
-        for (auto j = 0; j < shortcutsCopy.size(); j++)
+        auto shortcutsCopy = _shortcuts;
+        size_t shortcutsCopyCount = shortcutsCopy.size();
+        size_t i = 0u;
+
+        while (i < pressedKeysCount)
+        {
+            for (size_t j = 0u; j < shortcutsCopyCount; ++j)
+            {
+                if (i >= shortcutsCopy[j].keys.size() || 
+                    shortcutsCopy[j].keys[i] != _pressedKeys[i])
+                    shortcutsCopy.erase(shortcutsCopy.begin() + j--);
+            }
+            ++i;
+        }
+
+        shortcutsCopyCount = shortcutsCopy.size();
+
+        for (size_t j = 0u; j < shortcutsCopyCount; ++j)
             if (shortcutsCopy[j].keys.size() == i)
                 executeCommand(shortcutsCopy[j].commandFunc());
     }
@@ -122,7 +133,6 @@ namespace phi
     void commandsManager::onKeyUp(phi::keyboardEventArgs* e)
     {
         auto index = std::find(_pressedKeys.begin(), _pressedKeys.end(), e->key);
-        auto pressedKeysCount = _pressedKeys.size();
         while (index != _pressedKeys.end())
             index = _pressedKeys.erase(index);
     }
