@@ -40,24 +40,23 @@ namespace phi
         const uint MAX_VBO_SIZE = 1 * 1024 * 1024;
         GLuint _vao;
         size_t _freeSpace;
+        GLint _vboOffset;
+        GLint _eboOffset;
+        GLint _indicesOffset;
+        GLint _verticesOffset;
+        GLuint _drawCount;
+        GLuint _objectsCount;
+
+        vector<mat4> _modelMatrices;
+        vector<geometry*> _geometries;
+        map<geometry*, vector<drawInstanceData>> _instances;
+        map<mesh*, drawInstanceData> _meshInstances;
+
         vertexBuffer* _vbo;
         vertexBuffer* _materialsIdsBuffer;
         vertexBuffer* _modelMatricesBuffer;
         buffer* _ebo;
         buffer* _drawCmdBuffer;
-
-        vector<mat4> _modelMatrices;
-        vector<geometry*> _geometries;
-        std::map<geometry*, vector<drawInstanceData>> _instances;
-        std::map<mesh*, drawInstanceData> _meshInstances;
-
-        GLint _vboOffset;
-        GLint _eboOffset;
-        GLint _indicesOffset;
-        GLint _verticesOffset;
-
-        GLuint _drawCount;
-        GLuint _objectsCount;
 
     private:
         void createVao();

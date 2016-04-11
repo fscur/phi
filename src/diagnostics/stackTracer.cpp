@@ -372,7 +372,6 @@ namespace phi
     void stackTracer::printStackTrace(vector<stackSymbol> stack)
     {
         OutputDebugString("\n\nstack trace:\n");
-
         char messageBuffer[4096];
         for (auto& symbol : stack)
         {

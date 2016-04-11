@@ -4,8 +4,10 @@
 namespace phi
 {
     node::node() :
-        _parent(nullptr), 
-        _transform(transform()) 
+        _parent(nullptr),
+        _transform(transform()),
+        _components(vector<component*>()),
+        _children(vector<node*>())
     {
     }
 
