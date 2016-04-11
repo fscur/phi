@@ -5,7 +5,7 @@ namespace phi
 {
     node::node() :
         _parent(nullptr),
-        _transform(transform()),
+        _transform(new transform()),
         _components(vector<component*>()),
         _children(vector<node*>())
     {
@@ -18,17 +18,19 @@ namespace phi
 
         for (auto component : _components)
             safeDelete(component);
+
+        safeDelete(_transform);
     }
 
     node::node(const node& original) :
         _parent(nullptr),
-        _transform(original._transform)
+        _transform(original._transform->clone())
     {
         for (auto& child : original._children)
         {
             auto clonedChild = child->clone();
             clonedChild->_parent = this;
-            clonedChild->getTransform().setParent(&_transform);
+            clonedChild->getTransform()->setParent(_transform);
             _children.push_back(clonedChild);
         }
 

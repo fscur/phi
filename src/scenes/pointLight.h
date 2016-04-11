@@ -2,6 +2,8 @@
 #include <phi.h>
 #include "scenesApi.h"
 
+#include <core\node.h>
+
 #include <rendering/attenuation.h>
 
 #include "light.h"
@@ -22,9 +24,16 @@ namespace phi
 
     private:
         float calcRange(float radius, unsigned int sides);
+        transform* getTransform() const
+        {
+            if (_node == nullptr)
+                return nullptr;
+
+            return _node->getTransform();
+        }
 
     public:
-        SCENES_API pointLight(string name, color color, float intensity, float range, transform* transform);
+        SCENES_API pointLight(string name, color color, float intensity, float range);
         SCENES_API ~pointLight();
 
         SCENES_API void setIntensity(float value) override;

@@ -25,9 +25,16 @@ namespace phi
         float calcRadius(float cutoff, float range);
         void updateViewMatrix();
         void updateProjectionMatrix();
+        transform* getTransform() const
+        {
+            if (_node == nullptr)
+                return nullptr;
+
+            return _node->getTransform();
+        }
 
     public:
-        SCENES_API spotLight(string name, color color, float intensity, float range, float cutoff, transform* transform);
+        SCENES_API spotLight(string name, color color, float intensity, float range, float cutoff);
         SCENES_API ~spotLight();
 
         SCENES_API void setRange(float value);

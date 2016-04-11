@@ -5,8 +5,8 @@
 
 namespace phi
 {
-    directionalLight::directionalLight(string name, color color, float intensity, transform* transform) :
-        light(componentType::DIRECTIONAL_LIGHT, name, color, intensity, transform)
+    directionalLight::directionalLight(string name, color color, float intensity) :
+        light(componentType::DIRECTIONAL_LIGHT, name, color, intensity)
     {
         _projectionMatrix = glm::ortho<float>(-20, 20, -20, 20, -50, 50.0);
         updateViewMatrix();
@@ -26,11 +26,12 @@ namespace phi
 
     void directionalLight::updateViewMatrix()
     {
-        auto direction = _transform->getDirection();
+        auto transform = getTransform();
+        auto direction = transform->getDirection();
         vec3 J = vec3(0.0f, 1.0f, 0.0f);
         vec3 up = normalize(J - direction * dot(direction, J));
 
-        auto position = _transform->getPosition();
+        auto position = transform->getPosition();
         _viewMatrix = glm::lookAt(position, position + direction, up);
         _changed = false;
     }

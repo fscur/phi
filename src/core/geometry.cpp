@@ -166,7 +166,7 @@ namespace phi
             vertices[i].tangent = t;
         }
 
-        delete[] bitangents;
+        safeDeleteArray(bitangents);
     }
 
     geometry* geometry::quad()

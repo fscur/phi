@@ -20,7 +20,7 @@ namespace phi
 
     lineMesh::~lineMesh()
     {
-        delete[] _positionsBuffer;
+        safeDeleteArray(_positionsBuffer);
 
         glDeleteBuffers(1, &_positionsVbo);
         glError::check();

@@ -25,7 +25,7 @@ namespace phi
             stream.write((char*)itemData->eboData, itemData->eboSize);
         }
 
-        delete[] mat;
+        safeDeleteArray(mat);
 
         stream.close();
     }

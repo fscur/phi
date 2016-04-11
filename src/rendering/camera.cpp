@@ -19,7 +19,6 @@ namespace phi
         _far(far),
         _fov(fov),
         _aspect(_width / _height),
-        _focus(1.0f),
         _projectionMatrix(mat4(1.0f)),
         _viewMatrix(mat4(1.0f)),
         _changedProjection(false),
@@ -30,14 +29,23 @@ namespace phi
         updateProjectionMatrix();
     }
 
+    camera::~camera()
+    {
+        if (_node)
+            _node->getTransform()->getChangedEvent()->unassign(_transformChangedEventToken);
+    }
+
     void camera::updateViewMatrix()
     {
-        auto transform = phi::transform();
+        phi::vec3 position;
+        phi::vec3 target = glm::vec3(0.0f, 0.0, 1.0f);
         if (_node != nullptr)
-            transform = _node->getTransform();
+        {
+            auto transform = _node->getTransform();
+            position = transform->getPosition();
+            target = position + transform->getDirection();
+        }
 
-        auto position = transform.getPosition();
-        auto target = position + transform.getDirection() * _focus;
         _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
         _changedView = false;
     }
@@ -56,10 +64,10 @@ namespace phi
     inline void camera::onNodeChanged(node* previousValue)
     {
         if (previousValue)
-            previousValue->getTransform().getChangedEvent()->unassign(_transformChangedEventToken);
+            previousValue->getTransform()->getChangedEvent()->unassign(_transformChangedEventToken);
 
         if (_node)
-            _transformChangedEventToken = _node->getTransform().getChangedEvent()->assign(std::bind(&camera::transformChanged, this));
+            _transformChangedEventToken = _node->getTransform()->getChangedEvent()->assign(std::bind(&camera::transformChanged, this));
     }
 
     inline mat4 camera::getViewMatrix()
@@ -83,7 +91,7 @@ namespace phi
         if (_node == nullptr)
             return nullptr;
 
-        return &_node->getTransform();
+        return _node->getTransform();
     }
 
     inline void camera::setWidth(float value)

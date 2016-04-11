@@ -3,18 +3,16 @@
 
 namespace phi
 {
-    light::light(component::componentType type, string name, color color, float intensity, transform* transform) :
+    light::light(component::componentType type, string name, color color, float intensity) :
         component(type, name),
         _color(color),
         _intensity(intensity),
-        _shadowMap(nullptr),
-        _transform(transform)
+        _shadowMap(nullptr)
     {
     }
 
     light::~light()
     {
-        safeDelete(_transform);
     }
 
     color light::getColor()

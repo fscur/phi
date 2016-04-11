@@ -48,6 +48,8 @@ namespace phi
             float far,
             float fov);
 
+        RENDERING_API  ~camera();
+
         RENDERING_API  mat4 getViewMatrix();
         RENDERING_API  mat4 getProjectionMatrix();
         RENDERING_API  transform* getTransform();
