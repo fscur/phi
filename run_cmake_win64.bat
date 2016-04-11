@@ -1,9 +1,10 @@
 @echo OFF
 :start
 
-CD scripts
-call create_po_files.bat
-cd ..
+REM Uncomment this to execute gettext and transalate stuff
+REM cd scripts
+REM call create_po_files.bat
+REM cd ..
 
 set root=.\
 set return=..\..\
