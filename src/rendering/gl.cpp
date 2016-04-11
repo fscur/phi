@@ -105,13 +105,13 @@ namespace phi
 
     texture* gl::createDefaultTexture(bool hasSparseTextures, vec4 color)
     {
-        auto x = 1;
-        auto y = 1;
+        auto x = 1u;
+        auto y = 1u;
 
         if (hasSparseTextures)
         {
-            x = 128;
-            y = 128;
+            x = 128u;
+            y = 128u;
         }
 
         auto data = new byte[x * y * 4];

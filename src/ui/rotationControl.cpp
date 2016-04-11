@@ -29,7 +29,8 @@ namespace phi
         _xPositions = std::vector<vec3>();
         _yPositions = std::vector<vec3>();
         _zPositions = std::vector<vec3>();
-        auto indices = new std::vector<GLuint>();
+        vector<GLuint> indices;
+
         auto r = 0.7f;
         auto n = 50;
         auto as = (glm::pi<float>() * 2.0f) / (float)n;
@@ -41,8 +42,8 @@ namespace phi
             _xPositions.push_back(mathUtils::multiply(_xModelMatrix, pos));
             _yPositions.push_back(mathUtils::multiply(_yModelMatrix, pos));
             _zPositions.push_back(pos);
-            indices->push_back(i);
-            indices->push_back((i + 1) % n);
+            indices.push_back(i);
+            indices.push_back((i + 1) % n);
             a += as;
         }
 

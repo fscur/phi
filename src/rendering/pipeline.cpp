@@ -76,7 +76,7 @@ namespace phi
 
     void pipeline::addToBatches(batchObject& batchObject)
     {
-        auto i = 0;
+        auto i = 0u;
         auto added = false;
         auto batchesCount = batches.size();
 

@@ -77,45 +77,45 @@ namespace phi
 
         //meshRenderer mr = meshRenderer();
 
-        glm::mat4 vp = _projectionMatrix * _viewMatrix;
+        //glm::mat4 vp = _projectionMatrix * _viewMatrix;
 
-        float currentX = location.x, currentY = location.y;
-        for(char& p : text)
-        {
-            if (p == '\n')
-            {
-                currentX = location.x;
-                currentY += font->getLineHeight();
-                continue;
-            }
+        //float currentX = location.x, currentY = location.y;
+        //for(char& p : text)
+        //{
+        //    if (p == '\n')
+        //    {
+        //        currentX = location.x;
+        //        currentY += font->getLineHeight();
+        //        continue;
+        //    }
 
-            float x = currentX + font->c[p].bl;
-            float y = currentY + font->getAscender() - font->c[p].bt;// - (font->c[p].bh - font->c[p].bt - font->getBaseLine()) * sy;
-            float w = font->c[p].bw;
-            float h = font->c[p].bh;
+        //    float x = currentX + font->c[p].bl;
+        //    float y = currentY + font->getAscender() - font->c[p].bt;// - (font->c[p].bh - font->c[p].bt - font->getBaseLine()) * sy;
+        //    float w = font->c[p].bw;
+        //    float h = font->c[p].bh;
 
-            currentX += font->c[p].ax;
-            currentY += font->c[p].ay;
+        //    currentX += font->c[p].ax;
+        //    currentY += font->c[p].ay;
 
-            float tl = font->c[p].tx;
-            float tr = font->c[p].tx + font->c[p].bw / font->getTexWidth();
-            float tt = font->c[p].ty;
-            float tb = font->c[p].ty + font->c[p].bh / font->getTexHeight();
+        //    float tl = font->c[p].tx;
+        //    float tr = font->c[p].tx + font->c[p].bw / font->getTexWidth();
+        //    float tt = font->c[p].ty;
+        //    float tb = font->c[p].ty + font->c[p].bh / font->getTexHeight();
 
-            /*_modelMatrix = glm::mat4(
-                w, 0.0f, 0.0f, 0.0f,
-                0.0f, h, 0.0f, 0.0f,
-                0.0f, 0.0f, 1.0f, 0.0f,
-                x + w * 0.5f, _viewportSize.height - (y + h * 0.5f), zIndex, 1.0f);
+        //    /*_modelMatrix = glm::mat4(
+        //        w, 0.0f, 0.0f, 0.0f,
+        //        0.0f, h, 0.0f, 0.0f,
+        //        0.0f, 0.0f, 1.0f, 0.0f,
+        //        x + w * 0.5f, _viewportSize.height - (y + h * 0.5f), zIndex, 1.0f);
 
-            _shader->setUniform("mvp", vp * _modelMatrix);
-            _shader->setUniform("texCoordOrigin", glm::vec2(tl, tt));
-            _shader->setUniform("texCoordQuadSize", glm::vec2(font->c[p].bw / font->getTexWidth(), font->c[p].bh / font->getTexHeight()));
+        //    _shader->setUniform("mvp", vp * _modelMatrix);
+        //    _shader->setUniform("texCoordOrigin", glm::vec2(tl, tt));
+        //    _shader->setUniform("texCoordQuadSize", glm::vec2(font->c[p].bw / font->getTexWidth(), font->c[p].bh / font->getTexHeight()));
 
-            mr.render(_mesh);*/
-        }
+        //    mr.render(_mesh);*/
+        //}
 
-        _shader->unbind();
+        //_shader->unbind();
     }
 
     sizeui textRenderer2D::measureSize(std::string text, font* font)
@@ -124,9 +124,9 @@ namespace phi
             return sizeui(0, 0);
 
         float maxWidth = 0.0f;
-        float currentWidth = 0.0f;
+        //float currentWidth = 0.0f;
         float currentHeight = (float)font->getLineHeight();
-
+        /*
         for(char& p : text)
         {
             if (p == '\n')
@@ -139,7 +139,7 @@ namespace phi
             currentWidth += font->c[p].ax;
             currentHeight += font->c[p].ay;
             maxWidth = glm::max(currentWidth, maxWidth);
-        }
+        }*/
 
         return sizeui((uint)maxWidth, (uint)currentHeight);
     }
@@ -150,7 +150,7 @@ namespace phi
             return 0;
 
         unsigned int index = 0;
-        float currentWidth = 0.0f;
+        /*float currentWidth = 0.0f;
         for(char& p : text)
         {
             if (p == '\n')
@@ -164,7 +164,7 @@ namespace phi
 
             currentWidth += font->c[p].ax;
             index++;
-        }
+        }*/
 
         return index;
     }

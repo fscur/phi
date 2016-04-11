@@ -10,20 +10,17 @@ namespace phi
     class shader
     {
     private:
-        GLuint _id;
+        GLuint _programId;
+        GLuint _vertexShaderId;
+        GLuint _fragmentShaderId;
 
-        GLuint _vertexShader;
-        GLuint _fragmentShader;
+        string _vertexFile;
+        string _fragmentFile;
 
         bool _initialized;
 
-        string _vertFile;
-        string _fragFile;
-
         map<uint, GLuint> _uniforms;
-
         vector<string> _attributes;
-        GLuint _textureCount;
 
     private:
         string loadShaderFile(const string fileName);
@@ -31,7 +28,10 @@ namespace phi
         bool validateProgram(GLuint program);
 
     public:
-        RENDERING_API shader(string vertFile, string fragFile, vector<string> attributes);
+        RENDERING_API shader(
+            string vertFile, 
+            string fragFile, 
+            vector<string> attributes);
 
         RENDERING_API bool init();
         RENDERING_API void addUniform(uint location, string name);
@@ -56,6 +56,6 @@ namespace phi
         RENDERING_API void unbind();
         RENDERING_API void release();
 
-        GLuint getId() const { return _id; }
+        GLuint getId() const { return _programId; }
     };
 }
