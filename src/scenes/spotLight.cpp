@@ -8,13 +8,13 @@ namespace phi
 {
     spotLight::spotLight(string name, color color, float intensity, float range, float cutoff) :
         light(componentType::SPOT_LIGHT, name, color, intensity),
-        _cutoff(cutoff),
         _range(range),
         _oneOverRangeSqr(1.0f / (pow(_range, 2.0f))),
+        _cutoff(cutoff),
         _radius(calcRadius(cutoff, _range)),
         _boundingVolume(cone::create(5, nullptr))
     {
-        auto diameter =  2.0f * _radius * 1.15f;
+        //auto diameter =  2.0f * _radius * 1.15f;
         //transform->setLocalSize(vec3(diameter, diameter, _range)); TODO: fix this when implementing lights (not my problem)
         updateViewMatrix();
         updateProjectionMatrix();

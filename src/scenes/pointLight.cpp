@@ -9,12 +9,12 @@ namespace phi
 {
     pointLight::pointLight(string name, color color, float intensity, float range) :
         light(componentType::POINT_LIGHT, name, color, intensity),
-        _boundingVolumeSides(5),
         _range(range),
-        _oneOverRangeSqr(1.0f / (pow(_range, 2.0f)))
+        _oneOverRangeSqr(1.0f / (pow(_range, 2.0f))),
+        _boundingVolumeSides(5)
     {
         auto radius = calcRange(_range, _boundingVolumeSides);
-        auto d = 2.0f * radius;
+        //auto d = 2.0f * radius;
         //transform->setLocalSize(vec3(d, d, d)); TODO: fix this when implementing lights (not my problem)
         _boundingVolume = sphere::create(radius, _boundingVolumeSides, _boundingVolumeSides, nullptr);
     }

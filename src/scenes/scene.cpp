@@ -6,9 +6,9 @@
 namespace phi
 {
     scene::scene(phi::gl* gl, size_t w, size_t h) :
+        _gl(gl),
         w(w),
-        h(h),
-        _gl(gl)
+        h(h)
     {
         _pipeline = new phi::pipeline(gl);
         _renderer = new phi::renderer(gl, w, h);
