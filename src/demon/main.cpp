@@ -75,7 +75,7 @@ void processCommandLine(int argc, char* args[])
 
         bool foundCommand = false;
 
-        for (auto cmdIndex = 0; cmdIndex < commandLineCommands.size(); cmdIndex++)
+        for (size_t cmdIndex = 0; cmdIndex < commandLineCommands.size(); cmdIndex++)
         {
             if (arg.compare(commandLineCommands[cmdIndex].name) == 0)
             {
