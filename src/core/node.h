@@ -10,8 +10,8 @@ namespace phi
     class node
     {
     private:
-        transform* _transform;
         node* _parent;
+        transform* _transform;
         vector<component*> _components;
         vector<node*> _children;
 

@@ -12,8 +12,9 @@ namespace phi
     void scissorStack::calculateCurrentScissor()
     {
         _currentScissor = _scissors[0];
+        size_t count = _scissors.size();
 
-        for (int i = 1; i < _scissors.size(); i++)
+        for (size_t i = 1; i < count; i++)
             _currentScissor = _currentScissor.intersection(_scissors[i]);
     }
 

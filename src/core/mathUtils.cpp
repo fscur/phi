@@ -134,7 +134,8 @@ namespace phi
         float cosTheta = dot(start, dest);
         vec3 rotationAxis;
 
-        if (cosTheta < -1 + 0.000001f){
+        if (cosTheta < -1 + 0.000001f)
+        {
             // special case when vectors in opposite directions:
             // there is no "ideal" rotation axis
             // So guess one; any will do as long as it's perpendicular to start
@@ -164,5 +165,5 @@ namespace phi
         auto a = vec4(v.x, v.y, v.z, 1.0f);
         auto b = m * a;
         return vec3(b.x, b.y, b.z);
-    };
+    }
 }
