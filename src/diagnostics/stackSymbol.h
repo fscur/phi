@@ -15,7 +15,7 @@ namespace phi
         {
         }
 
-        symbolModule(char * name, char * path) :
+        symbolModule(char* name, char* path) :
             name(name),
             path(path)
         {
@@ -62,7 +62,7 @@ namespace phi
         string toString()
         {
             auto lineNumber = file.line != 0 ? "(" + std::to_string(file.line) + "): " : "";
-            auto separator = module.name!= "" ? ":: " : "";
+            auto separator = strcmp(module.name, "") == 0 ? "" : "::";
 
             std::stringstream stream;
             stream << std::hex << address << " " << file.name << lineNumber << module.name << separator << name;

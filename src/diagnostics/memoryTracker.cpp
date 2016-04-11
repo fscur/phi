@@ -131,8 +131,8 @@ namespace phi
             }
             else
             {
-                auto entry = _heapBuffer.getEntries();
 #ifdef DETAILED_MEMORY_TRACKING
+                auto entry = _heapBuffer.getEntries();
                 OutputDebugString("\n\n");
                 while (entry)
                 {
