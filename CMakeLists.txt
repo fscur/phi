@@ -26,7 +26,6 @@ set (locale_dir ${CMAKE_CURRENT_SOURCE_DIR}/locale)
 set (src_dir ${CMAKE_BINARY_DIR}/src)
 
 if (WIN32)
-    file(GLOB pdb_files ${dlls_dir}/*.pdb)
     file(GLOB dll_files ${dlls_dir}/*.dll)
     file(GLOB tlb_files ${dlls_dir}/*.tlb)
 elseif(APPLE)
@@ -66,16 +65,12 @@ if (MSVC)
         string(TOLOWER ${OUTPUTCONFIG} OUTPUTCONFIG)
         set (bin_dir ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER}/${OUTPUTCONFIG})
         
-        if (${OUTPUTCONFIG} STREQUAL debug)
-            install(FILES ${pdb_files} DESTINATION ${bin_dir} CONFIGURATIONS ${OUTPUTCONFIG})
-        endif (${OUTPUTCONFIG} STREQUAL debug)
-        
         install(FILES ${dll_files} DESTINATION ${bin_dir} CONFIGURATIONS ${OUTPUTCONFIG})
         install(DIRECTORY ${resources_dir} DESTINATION ${bin_dir} CONFIGURATIONS ${OUTPUTCONFIG})
         install(DIRECTORY ${library_dir} DESTINATION ${bin_dir} CONFIGURATIONS ${OUTPUTCONFIG})
         install(DIRECTORY ${locale_dir} DESTINATION ${bin_dir} CONFIGURATIONS ${OUTPUTCONFIG})
-
     endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
+    
 else()
         set (bin_dir ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
         install(FILES ${dll_files} DESTINATION ${bin_dir})
