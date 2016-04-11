@@ -66,12 +66,12 @@ void initializeCommandLineCommands()
 
 void processCommandLine(int argc, char* args[])
 {
-    int curCommand = -1;
+    size_t lastCommand = 0;
+    auto foundLastCommand = false;
 
     for (int i = 1; i < argc; i++)
     {
         string arg(args[i]);
-        vector<string>::iterator it;
 
         bool foundCommand = false;
 
@@ -79,15 +79,16 @@ void processCommandLine(int argc, char* args[])
         {
             if (arg.compare(commandLineCommands[cmdIndex].name) == 0)
             {
-                curCommand = cmdIndex;
-                commandLineCommands[curCommand].shouldExecute = true;
+                commandLineCommands[cmdIndex].shouldExecute = true;
+                lastCommand = cmdIndex;
+                foundLastCommand = true;
                 foundCommand = true;
                 break;
             }
         }
 
-        if (!foundCommand && curCommand > -1)
-            commandLineCommands[curCommand].args.push_back(arg);
+        if (!foundCommand && foundLastCommand)
+            commandLineCommands[lastCommand].args.push_back(arg);
     }
 
     return;
