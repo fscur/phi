@@ -4,6 +4,7 @@
 #include <core\component.h>
 #include <core\size.h>
 #include <core\eventHandler.h>
+#include <core\node.h>
 
 #include "renderingApi.h"
 
@@ -17,7 +18,6 @@ namespace phi
     private:
         mat4 _viewMatrix;
         mat4 _projectionMatrix;
-        float _focus;
         bool _changedView;
         bool _changedProjection;
         bool _perspective;
@@ -44,11 +44,14 @@ namespace phi
             sizeui resolution,
             float fov);
 
-        ~camera() {};
+        ~camera()
+        {
+            if (_node)
+                _node->getTransform()->getChangedEvent()->unassign(_transformChangedEventToken);
+        }
 
         RENDERING_API  mat4 getViewMatrix();
         RENDERING_API  mat4 getProjectionMatrix();
-        RENDERING_API  transform* getTransform();
 
         RENDERING_API void setResolution(sizeui value);
         void setFov(float value) { _fov = value; _changedProjection = true; }
@@ -60,12 +63,19 @@ namespace phi
 
         RENDERING_API void update();
 
+        transform* getTransform() const
+        {
+            if (_node == nullptr)
+                return nullptr;
+
+            return _node->getTransform();
+        }
+
         float getZNear() const { return _near; }
         float getZFar() const { return _far; }
         float getAspect() const { return _aspect; }
         sizeui getResolution() const { return _resolution; }
         float getFov() const { return _fov; }
-        float getFocus() const { return _focus; }
 
         static componentType getComponentType() { return componentType::CAMERA; }
     };

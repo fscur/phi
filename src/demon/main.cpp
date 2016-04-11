@@ -11,6 +11,8 @@
 
 #include <demon\screen.h>
 
+#include <core\eventHandler.h>
+
 using namespace phi;
 
 extern "C"

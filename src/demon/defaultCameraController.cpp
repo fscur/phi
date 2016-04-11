@@ -88,7 +88,6 @@ namespace demon
 
         auto zBufferValue = _scene->getZBufferValue(mouseX, _camera->getResolution().h - mouseY);
 
-        auto camera = *_camera;
         phi::mat4 proj = _camera->getProjectionMatrix();
 
         float z;

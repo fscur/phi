@@ -127,11 +127,11 @@ namespace phi
 
     void input::release()
     {
-        delete keyDown;
-        delete keyUp;
-        delete mouseDown;
-        delete mouseUp;
-        delete mouseMove;
-        delete mouseWheel;
+        safeDelete(keyDown);
+        safeDelete(keyUp);
+        safeDelete(mouseDown);
+        safeDelete(mouseUp);
+        safeDelete(mouseMove);
+        safeDelete(mouseWheel);
     }
 }

@@ -10,7 +10,7 @@ namespace phi
     class node
     {
     private:
-        transform _transform;
+        transform* _transform;
         vector<component*> _components;
         node* _parent;
         vector<node*> _children;
@@ -25,7 +25,7 @@ namespace phi
         CORE_API void addComponent(component* const component);
         CORE_API void addChild(node* const child);
 
-        transform& getTransform() { return _transform; }
+        transform* getTransform() const { return _transform; }
         node* getParent() const { return _parent; }
         vector<node*>& getChildren() { return _children; }
         void setParent(node* const value) { _parent = value; }

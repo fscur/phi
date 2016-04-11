@@ -1,7 +1,6 @@
 #include <precompiled.h>
 #include "camera.h"
 #include <core\transform.h>
-#include <core\node.h>
 
 namespace phi
 {
@@ -11,7 +10,6 @@ namespace phi
         _far(farDistance),
         _resolution(resolution),
         _fov(fov),
-        _focus(1.0f),
         _aspect(static_cast<float>(resolution.w) / static_cast<float>(resolution.h)),
         _changedView(false),
         _changedProjection(false)
@@ -23,10 +21,10 @@ namespace phi
     void camera::onNodeChanged(node* previousValue)
     {
         if (previousValue)
-            previousValue->getTransform().getChangedEvent()->unassign(_transformChangedEventToken);
+            previousValue->getTransform()->getChangedEvent()->unassign(_transformChangedEventToken);
 
         if (_node)
-            _transformChangedEventToken = _node->getTransform().getChangedEvent()->assign(std::bind(&camera::transformChanged, this));
+            _transformChangedEventToken = _node->getTransform()->getChangedEvent()->assign(std::bind(&camera::transformChanged, this));
     }
 
     mat4 camera::getViewMatrix()
@@ -45,14 +43,6 @@ namespace phi
         return _projectionMatrix;
     }
 
-    transform* camera::getTransform()
-    {
-        if (_node == nullptr)
-            return nullptr;
-
-        return &_node->getTransform();
-    }
-
     void camera::setResolution(sizeui value)
     {
         _resolution = value;
@@ -62,12 +52,15 @@ namespace phi
 
     void camera::updateViewMatrix()
     {
-        auto transform = phi::transform();
+        phi::vec3 position;
+        phi::vec3 target = glm::vec3(0.0f, 0.0, 1.0f);
         if (_node != nullptr)
-            transform = _node->getTransform();
+        {
+            auto transform = _node->getTransform();
+            position = transform->getPosition();
+            target = position + transform->getDirection();
+        }
 
-        auto position = transform.getPosition();
-        auto target = position + transform.getDirection() * _focus;
         _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
         _changedView = false;
     }

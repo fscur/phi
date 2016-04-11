@@ -23,11 +23,11 @@ namespace phi
     batch::~batch()
     {
         glDeleteVertexArrays(1, &_vao);
-        delete _vbo;
-        delete _materialsIdsBuffer;
-        delete _modelMatricesBuffer;
-        delete _ebo;
-        delete _drawCmdBuffer;
+        safeDelete(_vbo);
+        safeDelete(_materialsIdsBuffer);
+        safeDelete(_modelMatricesBuffer);
+        safeDelete(_ebo);
+        safeDelete(_drawCmdBuffer);
     }
 
     void batch::createVao(const batchObject &batchObject)

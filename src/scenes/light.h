@@ -21,10 +21,9 @@ namespace phi
     protected:
         color _color;
         float _intensity;
-        transform* _transform;
 
     protected:
-        light(component::componentType type, string name, color color, float intensity, transform* transform);
+        light(component::componentType type, string name, color color, float intensity);
 
     public:
         SCENES_API virtual ~light();
@@ -36,7 +35,5 @@ namespace phi
         SCENES_API virtual void setIntensity(float intensity);
         SCENES_API void setShadowMap(texture* shadowMap);
         SCENES_API float calcRange(attenuation attenuation, color color);
-
-        transform* getTransform() { return _transform; }
     };
 }

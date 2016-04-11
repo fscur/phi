@@ -91,14 +91,14 @@ namespace demon
         _scene->add(clonedFloor);
 
         auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
-        cube->getTransform().setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
+        cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
         _scene->add(cube);
 
         auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
         for (size_t i = 0; i < 1; i++)
         {
             auto cloned = obj->clone();
-            cloned->getTransform().setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
+            cloned->getTransform()->setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
             _scene->add(cloned);
         }
     }
@@ -132,11 +132,11 @@ namespace demon
     void screen::onClosing()
     {
         debug("closing.");
-        delete _commandsManager;
-        delete _defaultController;
-        delete _gl;
-        delete _library;
-        delete _scene;
+        safeDelete(_commandsManager);
+        safeDelete(_defaultController);
+        safeDelete(_gl);
+        safeDelete(_library);
+        safeDelete(_scene);
 
         //TODO: MessageBox asking if the user really wants to close the window
         //TODO: Check if we really need the above TODO
