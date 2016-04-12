@@ -86,9 +86,8 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
-        auto clonedFloor = floor->clone();
-        _scene->add(clonedFloor);
+        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject()->clone();
+        _scene->add(floor);
 
         auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
         cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
@@ -106,8 +105,8 @@ namespace demon
     void screen::initInput()
     {
         _commandsManager = new phi::commandsManager();
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&] { return new phi::undoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&] { return new phi::redoCommand(_commandsManager); }));
 
         _defaultController = new defaultCameraController(_scene);
     }
@@ -126,7 +125,7 @@ namespace demon
 
     void screen::onTick()
     {
-        //debug("fps:" + std::to_string(application::framesPerSecond));
+        debug("fps:" + std::to_string(application::framesPerSecond));
     }
 
     void screen::onClosing()

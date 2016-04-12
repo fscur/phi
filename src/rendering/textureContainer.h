@@ -51,12 +51,12 @@ namespace phi
     public:
         GLuint id;
         GLuint64 handle;
-        std::map<texture*, phi::textureAddress> texturesAddresses;
+        map<texture*, textureAddress> texturesAddresses;
         vector<texture*> textures;
 
     public:
         textureContainer(
-            textureContainerLayout layout,
+            const textureContainerLayout& layout,
             size_t maxTextures,
             GLint unit,
             bool bindless,

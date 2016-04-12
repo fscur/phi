@@ -8,21 +8,19 @@ namespace phi
     {
         switch (error)
         {
-        case GL_NO_ERROR: return "No error";
-            break;
-        case GL_INVALID_ENUM: return "Invalid enum";
-            break;
-        case GL_INVALID_VALUE: return "Invalid value";
-            break;
-        case GL_INVALID_OPERATION: return "Invalid operation";
-            break;
-        case GL_OUT_OF_MEMORY: return "Out of memory";
-            break;
+        case GL_NO_ERROR:
+            return "No error";
+        case GL_INVALID_ENUM:
+            return "Invalid enum";
+        case GL_INVALID_VALUE:
+            return "Invalid value";
+        case GL_INVALID_OPERATION:
+            return "Invalid operation";
+        case GL_OUT_OF_MEMORY:
+            return "Out of memory";
         default:
-            break;
+            return "Unknown error";
         }
-
-        return string();
     }
 
     void glError::check()
@@ -31,7 +29,7 @@ namespace phi
         GLenum error = glGetError();
 
         if (error != GL_NO_ERROR)
-            throw phi::exception(getErrorString(error));
+            throw exception(getErrorString(error));
 #endif
     }
 }

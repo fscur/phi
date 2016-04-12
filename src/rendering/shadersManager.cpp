@@ -18,16 +18,16 @@ namespace phi
         }
     }
 
-    shader* shadersManager::load(string name, vector<string> attributes)
+    shader* shadersManager::load(string name, const vector<string>& attributes)
     {
         auto vertFile = path::combine(_path, name, ".vert");
         auto fragFile = path::combine(_path, name, ".frag");
 
-        shader* s = new shader(vertFile, fragFile, attributes);
-        s->init();
-        _shaders[name] = (s);
+        auto shader = new phi::shader(vertFile, fragFile, attributes);
+        shader->init();
+        _shaders[name] = shader;
 
-        return s;
+        return shader;
     }
 
     shader* shadersManager::get(string name)

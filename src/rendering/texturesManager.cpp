@@ -89,7 +89,7 @@ namespace phi
         return textureAddress;
     }
 
-    void texturesManager::reserveContainer(textureContainerLayout layout, size_t size)
+    void texturesManager::reserveContainer(const textureContainerLayout& layout, size_t size)
     {
         auto key = std::make_tuple(
             layout.w,

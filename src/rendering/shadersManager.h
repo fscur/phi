@@ -15,7 +15,7 @@ namespace phi
         shadersManager(string path);
         ~shadersManager();
 
-        shader* load(string name, vector<string> attributes);
+        shader* load(string name, const vector<string>& attributes);
         shader* get(string name);
     };
 }

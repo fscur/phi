@@ -23,15 +23,15 @@ namespace phi
         vector<string> _attributes;
 
     private:
-        string loadShaderFile(const string fileName);
-        bool validateShader(GLuint shader, const string file = 0);
+        string loadShaderFile(string fileName);
+        bool validateShader(GLuint shader, const string& file = 0);
         bool validateProgram(GLuint program);
 
     public:
         RENDERING_API shader(
             string vertFile, 
             string fragFile, 
-            vector<string> attributes);
+            const vector<string>& attributes);
 
         RENDERING_API bool init();
         RENDERING_API void addUniform(uint location, string name);

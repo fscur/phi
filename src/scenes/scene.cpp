@@ -5,22 +5,21 @@
 
 namespace phi
 {
-    scene::scene(phi::gl* gl, size_t w, size_t h) :
+    scene::scene(gl* gl, size_t w, size_t h) :
         _gl(gl),
         w(w),
         h(h)
     {
-        _pipeline = new phi::pipeline(gl);
-        _renderer = new phi::renderer(gl, w, h);
+        _pipeline = new pipeline(gl);
+        _renderer = new renderer(gl, w, h);
 
-        camera = 
-            new phi::camera(
-                "mainCamera", 
-                static_cast<float>(w), 
-                static_cast<float>(h), 
-                0.1f, 
-                1000.0f, 
-                glm::half_pi<float>() * 0.5f);
+        camera = new phi::camera(
+            "mainCamera",
+            static_cast<float>(w),
+            static_cast<float>(h),
+            0.1f,
+            1000.0f,
+            glm::half_pi<float>() * 0.5f);
 
         auto cameraNode = new node();
         cameraNode->addComponent(camera);
@@ -46,6 +45,7 @@ namespace phi
 
         _pipeline->updateFrameUniformBlock(frameUniformBlock);
 
+        //TODO: possible design flaw ? anyway.. try to remove this slow copy assignment
         _renderer->gBufferPass->batches = _pipeline->batches;
         _renderer->update();
     }
@@ -61,15 +61,15 @@ namespace phi
         camera->setHeight(static_cast<float>(h));
     }
 
-    void scene::add(node* n)
+    void scene::add(node* node)
     {
-        _objects.push_back(n);
-        _pipeline->add(n);
+        _objects.push_back(node);
+        _pipeline->add(node);
     }
 
-    void scene::remove(node* n)
+    void scene::remove(node* node)
     {
-        auto position = std::find(_objects.begin(), _objects.end(), n);
+        auto position = std::find(_objects.begin(), _objects.end(), node);
 
         if (position != _objects.end())
             _objects.erase(position);
@@ -77,7 +77,6 @@ namespace phi
 
     inline float scene::getZBufferValue(int x, int y)
     {
-        auto z = _renderer->defaultFramebuffer->getZBufferValue(x, y);
-        return z;
+        return _renderer->defaultFramebuffer->getZBufferValue(x, y);
     }
 }

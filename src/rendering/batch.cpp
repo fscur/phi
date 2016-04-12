@@ -124,7 +124,7 @@ namespace phi
         _drawCmdBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
-    bool batch::add(batchObject &batchObject)
+    bool batch::add(const batchObject &batchObject)
     {
         auto geometry = batchObject.geometry;
         auto vboSize = geometry->vboSize;
@@ -226,7 +226,7 @@ namespace phi
         _materialsIdsBuffer->data(sizeof(uint) * materialsIdsData.size(), &materialsIdsData[0], bufferDataUsage::dynamicDraw);
     }
 
-    void batch::update(vector<batchObject> &batchObjects)
+    void batch::update(const vector<batchObject>& batchObjects)
     {
         for (auto &batchObject : batchObjects)
         {

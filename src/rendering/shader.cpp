@@ -7,7 +7,7 @@ namespace phi
     shader::shader(
         string vertexFile, 
         string fragmentFile, 
-        vector<string> attributes) :
+        const vector<string>& attributes) :
         _programId(0u),
         _vertexShaderId(0u),
         _fragmentShaderId(0u),
@@ -91,14 +91,12 @@ namespace phi
         return true;
     }
 
-    string shader::loadShaderFile(const string fileName)
+    string shader::loadShaderFile(string fileName)
     {
-        string filePath = fileName;
-
         string fileString;
         string line;
 
-        std::ifstream file(filePath);
+        std::ifstream file(fileName);
 
         if (file.is_open()) 
         {
@@ -115,7 +113,7 @@ namespace phi
         return fileString;
     }
 
-    bool shader::validateShader(GLuint shader, const string file)
+    bool shader::validateShader(GLuint shader, const string& file)
     {
         GLint success = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);

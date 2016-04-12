@@ -7,6 +7,7 @@
 #include "buffer.h"
 #include "shader.h"
 #include "batch.h"
+
 #include <core\geometry.h>
 
 namespace phi
@@ -26,14 +27,14 @@ namespace phi
     class lightingRenderPass
     {
     private:
-        phi::gl* _gl;
-        size_t _w;
-        size_t _h;
+        gl* _gl;
         geometry* _quad;
-        uint _quadVao;
         vertexBuffer* _quadVbo;
         buffer* _quadEbo;
         buffer* _rtsBuffer;
+        size_t _w;
+        size_t _h;
+        uint _quadVao;
 
     private:
         void createQuad();
@@ -41,10 +42,9 @@ namespace phi
 
     public:
         shader* shader;
-        std::vector<phi::batch*> batches;
 
     public:
-        RENDERING_API lightingRenderPass(phi::gBufferRenderPass* gBufferPass, phi::gl* gl, size_t w, size_t h);
+        RENDERING_API lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, size_t w, size_t h);
         RENDERING_API ~lightingRenderPass();
 
         RENDERING_API void update();
