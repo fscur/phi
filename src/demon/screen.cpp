@@ -126,6 +126,9 @@ namespace demon
     void screen::onTick()
     {
         debug("fps:" + std::to_string(application::framesPerSecond));
+#if _DEBUG
+        _gl->shadersManager->reloadAllShaders();
+#endif
     }
 
     void screen::onClosing()

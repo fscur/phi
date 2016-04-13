@@ -109,25 +109,23 @@ namespace phi
         }
 
         auto shortcutsCopy = _shortcuts;
-        size_t shortcutsCopyCount = shortcutsCopy.size();
         size_t i = 0u;
 
         while (i < pressedKeysCount)
         {
-            for (size_t j = 0u; j < shortcutsCopyCount; ++j)
+            for (size_t j = 0u; j < shortcutsCopy.size(); ++j)
             {
-                if (i >= shortcutsCopy[j].keys.size() || 
-                    shortcutsCopy[j].keys[i] != _pressedKeys[i])
+                if (i >= shortcutsCopy[j].keys.size() || shortcutsCopy[j].keys[i] != _pressedKeys[i])
                     shortcutsCopy.erase(shortcutsCopy.begin() + j--);
             }
             ++i;
         }
 
-        shortcutsCopyCount = shortcutsCopy.size();
-
-        for (size_t j = 0u; j < shortcutsCopyCount; ++j)
+        for (size_t j = 0u; j < shortcutsCopy.size(); ++j)
+        {
             if (shortcutsCopy[j].keys.size() == i)
                 executeCommand(shortcutsCopy[j].commandFunc());
+        }
     }
 
     void commandsManager::onKeyUp(phi::keyboardEventArgs* e)

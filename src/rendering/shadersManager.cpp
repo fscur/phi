@@ -37,4 +37,17 @@ namespace phi
         else
             return _shaders[name];
     }
+
+    void shadersManager::reloadAllShaders()
+    {
+        for (auto& pair : _shaders)
+        {
+            auto shader = pair.second;
+            while (!shader->reload())
+            {
+                phi::debug("\nFailed \""+ pair.first + "\" shader compilation.\nPress enter to try again...\n");
+                std::cin.get();
+            }
+        }
+    }
 }

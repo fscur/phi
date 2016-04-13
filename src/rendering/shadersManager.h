@@ -17,5 +17,6 @@ namespace phi
 
         shader* load(string name, const vector<string>& attributes);
         shader* get(string name);
+        RENDERING_API void reloadAllShaders();
     };
 }

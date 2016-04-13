@@ -23,6 +23,7 @@ namespace phi
         vector<string> _attributes;
 
     private:
+        bool compileShader(GLuint shader, string& file);
         string loadShaderFile(string fileName);
         bool validateShader(GLuint shader, const string& file = 0);
         bool validateProgram(GLuint program);
@@ -51,10 +52,11 @@ namespace phi
         RENDERING_API void setUniform(uint location, vector<GLint> value);
         RENDERING_API void setUniform(uint location, vector<GLuint64> value);
 
-        RENDERING_API void initAttribs();
+        RENDERING_API void initializeAttributes();
         RENDERING_API void bind();
         RENDERING_API void unbind();
         RENDERING_API void release();
+        RENDERING_API bool reload();
 
         GLuint getId() const { return _programId; }
     };
