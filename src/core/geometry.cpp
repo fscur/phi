@@ -8,14 +8,11 @@ namespace phi
 {
     geometry* geometry::_quad = nullptr;
 
-    geometry::geometry()
-    {
-    }
-
     geometry::~geometry()
     {
         safeDeleteArray(vboData);
         safeDeleteArray(eboData);
+        safeDelete(aabb);
     }
 
     geometry* geometry::create(vector<vertex> vertices, vector<uint> indices)
@@ -36,6 +33,8 @@ namespace phi
 
         memcpy(data->vboData, &vertices[0], data->vboSize);
         memcpy(data->eboData, &indices[0], data->eboSize);
+
+        data->aabb = new phi::aabb(calcAabb(vertices));
 
         return data;
     }
@@ -167,6 +166,34 @@ namespace phi
         }
 
         safeDeleteArray(bitangents);
+    }
+
+    aabb geometry::calcAabb(vector<vertex>& vertices)
+    {
+        auto verticesCount = vertices.size();
+        if (verticesCount == 0)
+            return phi::aabb();
+
+        auto firstVertex = vertices[0].position;
+        auto minX = firstVertex.x;
+        auto minY = firstVertex.y;
+        auto minZ = firstVertex.z;
+        auto maxX = firstVertex.x;
+        auto maxY = firstVertex.y;
+        auto maxZ = firstVertex.z;
+
+        for (size_t i = 1; i < verticesCount; i++)
+        {
+            auto p = vertices[i].position;
+            minX = glm::min(minX, p.x);
+            minY = glm::min(minY, p.y);
+            minZ = glm::min(minZ, p.z);
+            maxX = glm::max(maxX, p.x);
+            maxY = glm::max(maxY, p.y);
+            maxZ = glm::max(maxZ, p.z);
+        }
+
+        return phi::aabb(vec3(minX, minY, minZ), vec3(maxX, maxY, maxZ));
     }
 
     geometry* geometry::quad()

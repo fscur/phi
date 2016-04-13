@@ -16,8 +16,8 @@ namespace phi
         _objectsCount(0),
         _modelMatrices(vector<mat4>()),
         _geometries(vector<geometry*>()),
-        _instances(map<geometry*, vector<drawInstanceData>>()),
-        _meshInstances(map<mesh*, drawInstanceData>()),
+        _instances(map<geometry*, vector<drawInstanceData*>>()),
+        _meshInstances(map<mesh*, drawInstanceData*>()),
         _vbo(nullptr),
         _materialsIdsBuffer(nullptr),
         _modelMatricesBuffer(nullptr),
@@ -147,9 +147,14 @@ namespace phi
             return false;
 
         if (!found)
+        {
             addNewGeometry(batchObject);
-        else
             addNewInstance(batchObject);
+        }
+        else
+        {
+            addNewInstance(batchObject);
+        }
 
         return true;
     }
@@ -170,15 +175,14 @@ namespace phi
 
         ++_objectsCount;
         _freeSpace -= std::max(geometry->vboSize, geometry->eboSize);
-
-        addNewInstance(batchObject);
     }
 
     void batch::addNewInstance(const batchObject& batchObject)
     {
         auto geometry = batchObject.geometry;
-        auto instance = drawInstanceData(0, batchObject.modelMatrix, batchObject.materialId);
+        auto instance = new drawInstanceData(0, batchObject.modelMatrix, batchObject.materialId);
         _instances[geometry].push_back(instance);
+        _meshInstances[batchObject.mesh] = instance;
 
         updateBuffers();
     }
@@ -200,9 +204,9 @@ namespace phi
 
             for (auto instance : instances)
             {
-                instance.id = instanceId++;
-                modelMatricesData.push_back(instance.modelMatrix);
-                materialsIdsData.push_back(instance.materialId);
+                instance->id = instanceId++;
+                modelMatricesData.push_back(instance->modelMatrix);
+                materialsIdsData.push_back(instance->materialId);
             }
 
             GLuint indicesCount = geometry->indicesCount;
@@ -231,11 +235,35 @@ namespace phi
         for (auto &batchObject : batchObjects)
         {
             auto instance = _meshInstances[batchObject.mesh];
-            instance.materialId = batchObject.materialId;
-            instance.modelMatrix = batchObject.modelMatrix;
+            instance->materialId = batchObject.materialId;
+            instance->modelMatrix = batchObject.modelMatrix;
         }
-        
+
         updateBuffers();
+    }
+
+    void batch::update(const batchObject& batchObject)
+    {
+        auto instance = _meshInstances[batchObject.mesh];
+        instance->materialId = batchObject.materialId;
+        instance->modelMatrix = batchObject.modelMatrix;
+
+        GLintptr offset = 0;
+        for (auto geometry : _geometries)
+        {
+            if (geometry == batchObject.geometry)
+            {
+                offset += std::distance(_instances[geometry].begin(), std::find(_instances[geometry].begin(), _instances[geometry].end(), instance));
+                break;
+            }
+            else
+            {
+                offset += _instances[geometry].size();
+            }
+        }
+
+        _modelMatricesBuffer->subData(offset * sizeof(mat4), sizeof(mat4), &instance->modelMatrix);
+        _materialsIdsBuffer->subData(offset * sizeof(uint), sizeof(uint), &instance->materialId);
     }
 
     void batch::render()

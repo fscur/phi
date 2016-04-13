@@ -86,16 +86,16 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
-        auto clonedFloor = floor->clone();
-        _scene->add(clonedFloor);
-
         auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
         cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
         _scene->add(cube);
 
+        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
+        auto clonedFloor = floor->clone();
+        _scene->add(clonedFloor);
+
         auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-        for (size_t i = 0; i < 1; i++)
+        for (size_t i = 0; i < 1; ++i)
         {
             auto cloned = obj->clone();
             cloned->getTransform()->setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));

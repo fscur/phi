@@ -18,9 +18,9 @@ namespace phi
         //_shader = shaderManager::get()->getShader("UI_MESH");
         _translating(new eventHandler<translationEventArgs*>()),
         _translationFinished(new eventHandler<translationEventArgs*>()),
-        _xAabb(aabb(vec3(0.0f), vec3(0.0f))),
-        _yAabb(aabb(vec3(0.0f), vec3(0.0f))),
-        _zAabb(aabb(vec3(0.0f), vec3(0.0f))),
+        _xAabb(new aabb()),
+        _yAabb(new aabb()),
+        _zAabb(new aabb()),
         _xColor(color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f)),
         _yColor(color::fromRGBA(0.0f, 1.0f, 0.0f, 0.5f)),
         _zColor(color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f)),
@@ -167,9 +167,9 @@ namespace phi
             return aabb(vec3(newMin.x, newMin.y, newMin.z), vec3(newMax.x, newMax.y, newMax.z));
         };
 
-        _xAabb = createAabb(_xModelMatrix);
-        _yAabb = createAabb(_yModelMatrix);
-        _zAabb = createAabb(_zModelMatrix);
+        _xAabb = new aabb(createAabb(_xModelMatrix));
+        _yAabb = new aabb(createAabb(_yModelMatrix));
+        _zAabb = new aabb(createAabb(_zModelMatrix));
     }
 
     ray translationControl::castRay(vec2 screenCoords, sizeui screenSize)
@@ -198,21 +198,21 @@ namespace phi
 
         auto ray = castRay(vec2(x, y), _viewportSize);
         auto xMouseOverOld = _mouseOverX;
-        _mouseOverX = ray.intersects(_xAabb);
+        _mouseOverX = ray.intersects(*_xAabb);
         if (!xMouseOverOld && _mouseOverX)
             colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 1.0f), 300);
         if (xMouseOverOld && !_mouseOverX && !_clickedOverX)
             colorAnimator::animateColor(&_xColor, color(1.0f, 0.0f, 0.0f, 0.5f), 300);
 
         auto yMouseOverOld = _mouseOverY;
-        _mouseOverY = ray.intersects(_yAabb) && !_mouseOverX;
+        _mouseOverY = ray.intersects(*_yAabb) && !_mouseOverX;
         if (!yMouseOverOld && _mouseOverY)
             colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 1.0f), 300);
         if (yMouseOverOld && !_mouseOverY && !_clickedOverY)
             colorAnimator::animateColor(&_yColor, color(0.0f, 1.0f, 0.0f, 0.5f), 300);
 
         auto zMouseOverOld = _mouseOverZ;
-        _mouseOverZ = ray.intersects(_zAabb) && !_mouseOverX && !_mouseOverY;
+        _mouseOverZ = ray.intersects(*_zAabb) && !_mouseOverX && !_mouseOverY;
         if (!zMouseOverOld && _mouseOverZ)
             colorAnimator::animateColor(&_zColor, color(0.0f, 0.0f, 1.0f, 1.0f), 300);
         if (zMouseOverOld && !_mouseOverZ && !_clickedOverZ)

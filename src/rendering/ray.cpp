@@ -9,16 +9,16 @@ namespace phi
         _direction = direction;
     }
 
-    ray::~ray(){}
+    ray::~ray() {}
 
     bool ray::intersects(aabb aabb)
     {
-        float minX = aabb.getMin().x;
-        float minY = aabb.getMin().y;
-        float minZ = aabb.getMin().z;
-        float maxX = aabb.getMax().x;
-        float maxY = aabb.getMax().y;
-        float maxZ = aabb.getMax().z;
+        float minX = aabb.min.x;
+        float minY = aabb.min.y;
+        float minZ = aabb.min.z;
+        float maxX = aabb.max.x;
+        float maxY = aabb.max.y;
+        float maxZ = aabb.max.z;
         float x0 = _origin.x;
         float y0 = _origin.y;
         float z0 = _origin.z;
@@ -112,12 +112,12 @@ namespace phi
         return true;
     }
 
-    bool ray::intersects(aabb aabb, vec3& position, vec3& normal)
+    bool ray::intersects(aabb aabb, vec3*& positions, vec3*& normals, size_t& count)
     {
         if (intersects(aabb))
         {
-            auto min = aabb.getMin();
-            auto max = aabb.getMax();
+            auto min = aabb.min;
+            auto max = aabb.max;
             auto lbb = vec3(min.x, min.y, min.z);
             auto lbf = vec3(min.x, min.y, max.z);
             auto ltf = vec3(min.x, max.y, max.z);
@@ -127,60 +127,33 @@ namespace phi
             auto rtf = vec3(max.x, max.y, max.z);
             auto rtb = vec3(max.x, max.y, min.z);
 
-            auto minT = std::numeric_limits<float>::max();
-            auto minNormal = vec3();
+            std::map<float, vec3> intersections;
             float t;
             if (intersects(lbb, lbf, ltf, ltb, t))
-            {
-                if (t < minT)
-                {
-                    minT = t;
-                    minNormal = vec3(-1.0f, 0.0f, 0.0f);
-                }
-            }
+                intersections[t] = vec3(-1.0f, 0.0f, 0.0f);
             if (intersects(rbf, rbb, rtb, rtf, t))
-            {
-                if (t < minT)
-                {
-                    minT = t;
-                    minNormal = vec3(1.0f, 0.0f, 0.0f);
-                }
-            }
+                intersections[t] = vec3(1.0f, 0.0f, 0.0f);
             if (intersects(lbf, rbf, rtf, ltf, t))
-            {
-                if (t < minT)
-                {
-                    minT = t;
-                    minNormal = vec3(0.0f, 0.0f, 1.0f);
-                }
-            }
+                intersections[t] = vec3(0.0f, 0.0f, 1.0f);
             if (intersects(rbb, lbb, ltb, rtb, t))
-            {
-                if (t < minT)
-                {
-                    minT = t;
-                    minNormal = vec3(0.0f, 0.0f, -1.0f);
-                }
-            }
+                intersections[t] = vec3(0.0f, 0.0f, -1.0f);
             if (intersects(ltf, rtf, rtb, ltb, t))
-            {
-                if (t < minT)
-                {
-                    minT = t;
-                    minNormal = vec3(0.0f, 1.0f, 0.0f);
-                }
-            }
+                intersections[t] = vec3(0.0f, 1.0f, 0.0f);
             if (intersects(lbb, rbb, rbf, lbf, t))
+                intersections[t] = vec3(0.0f, -1.0f, 0.0f);
+
+            count = intersections.size();
+            positions = new vec3[count];
+            normals = new vec3[count];
+
+            auto i = 0;
+            for (auto const &iter : intersections)
             {
-                if (t < minT)
-                {
-                    minT = t;
-                    minNormal = vec3(0.0f, -1.0f, 0.0f);
-                }
+                positions[i] = _origin + _direction * iter.first;
+                normals[i] = iter.second;
+                ++i;
             }
 
-            position = _origin + _direction * minT;
-            normal = minNormal;
             return true;
         }
 
@@ -191,14 +164,14 @@ namespace phi
     {
         auto planeNormal = normalize(cross(bl - br, br - tr));
         auto d = dot(planeNormal, bl);
-        t = (d - dot(planeNormal, _origin))/(dot(planeNormal, (_direction)));
+        t = (d - dot(planeNormal, _origin)) / (dot(planeNormal, (_direction)));
         float nDotA = dot(planeNormal, _origin);
         float nDotBA = dot(planeNormal, _direction);
-        auto point = _origin + (((d - nDotA)/nDotBA) * _direction);
-        auto in = dot(bl, tl-bl) <= dot(point, tl-bl) &&
-            dot(point, tl-bl) <= dot(tl, tl-bl) &&
-            dot(bl, br-bl) <= dot(point, br-bl) &&
-            dot(point, br-bl) <= dot(br, br-bl);
+        auto point = _origin + (((d - nDotA) / nDotBA) * _direction);
+        auto in = dot(bl, tl - bl) <= dot(point, tl - bl) &&
+            dot(point, tl - bl) <= dot(tl, tl - bl) &&
+            dot(bl, br - bl) <= dot(point, br - bl) &&
+            dot(point, br - bl) <= dot(br, br - bl);
 
         return in;
     }

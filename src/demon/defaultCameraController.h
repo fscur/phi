@@ -51,7 +51,20 @@ namespace demon
         double _panLastMouseMoveTime;
         double _panInertiaTime;
 
+        bool _dragging;
+        phi::node* _dragObject;
+        phi::vec3 _dragObjectStartPosition;
+        phi::vec3 _dragOrigin;
+        phi::vec3 _dragPlaneBottomLeft;
+        phi::vec3 _dragPlaneBottomRight;
+        phi::vec3 _dragPlaneTopRight;
+        phi::vec3 _dragPlaneTopLeft;
+
     private:
+        void dragMouseDown(int mouseX, int mouseY);
+        void dragMouseMove();
+        void dragMouseUp();
+
         void zoomMouseWheel(int mouseX, int mouseY, float delta);
         void zoomUpdate();
         void zoomCancel();

@@ -3,34 +3,40 @@
 
 namespace phi
 {
+    aabb::aabb() :
+        min(vec3()),
+        max(vec3()),
+        width(0.0f),
+        height(0.0f),
+        depth(0.0f),
+        halfWidth(0.0f),
+        halfHeight(0.0f),
+        halfDepth(0.0f),
+        center(vec3()),
+        radius(0.0f)
+    {
+    }
+
     aabb::aabb(vec3 min, vec3 max) :
-        _min(min), 
-        _max(max), 
-        _width(max.x - min.x),
-        _height(max.y - min.y),
-        _depth(max.z - min.z),
-        _halfWidth((max.x - min.x) * 0.5f),
-        _halfHeight((max.y - min.y) * 0.5f),
-        _halfDepth((max.z - min.z) * 0.5f),
-        _center((_min + _max) * 0.5f),
-        _radius(glm::length(_min - _center))
+        min(min),
+        max(max),
+        width(max.x - min.x),
+        height(max.y - min.y),
+        depth(max.z - min.z),
+        halfWidth((max.x - min.x) * 0.5f),
+        halfHeight((max.y - min.y) * 0.5f),
+        halfDepth((max.z - min.z) * 0.5f),
+        center((min + max) * 0.5f),
+        radius(glm::length(min - center))
     {
     }
 
-    aabb::aabb(const vector<vec3> &points)
+    aabb::aabb(const aabb& original) :
+        aabb(original.min, original.max)
     {
-        update(points);
     }
 
-    bool aabb::contains(vec3 pos) const
-    {
-        return
-            _min.x <= pos.x && pos.x < _max.x &&
-            _min.y <= pos.y && pos.y < _max.y &&
-            _min.z <= pos.z && pos.z < _max.z;
-    }
-
-    void aabb::update(const vector<vec3> &points)
+    aabb aabb::fromPoints(const vector<vec3> &points)
     {
         auto minX = std::numeric_limits<float>::max();
         auto minY = std::numeric_limits<float>::max();
@@ -39,7 +45,7 @@ namespace phi
         auto maxY = std::numeric_limits<float>::lowest();
         auto maxZ = std::numeric_limits<float>::lowest();
 
-        for(auto pos : points)
+        for (auto pos : points)
         {
             if (pos.x < minX)
                 minX = pos.x;
@@ -60,15 +66,31 @@ namespace phi
                 maxZ = pos.z;
         }
 
-        _min = vec3(minX, minY, minZ);
-        _max = vec3(maxX, maxY, maxZ);
-        _width = _max.x - _min.x;
-        _height = _max.y - _min.y;
-        _depth = _max.z - _min.z;
-        _halfWidth = _width * 0.5f;
-        _halfHeight = _height * 0.5f;
-        _halfDepth = _depth * 0.5f;
-        _center = (_min + _max) / 2.0f;
-        _radius = length(_min - _center);
+        auto min = vec3(minX, minY, minZ);
+        auto max = vec3(maxX, maxY, maxZ);
+
+        return aabb(min, max);
+    }
+
+    bool aabb::contains(vec3 pos) const
+    {
+        return
+            min.x <= pos.x && pos.x < max.x &&
+            min.y <= pos.y && pos.y < max.y &&
+            min.z <= pos.z && pos.z < max.z;
+    }
+
+    aabb aabb::add(aabb a, aabb b)
+    {
+        auto min = vec3(
+            glm::min(a.min.x, b.min.x),
+            glm::min(a.min.y, b.min.y),
+            glm::min(a.min.z, b.min.z));
+        auto max = vec3(
+            glm::max(a.max.x, b.max.x),
+            glm::max(a.max.y, b.max.y),
+            glm::max(a.max.z, b.max.z));
+
+        return aabb(min, max);
     }
 }

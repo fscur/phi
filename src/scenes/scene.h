@@ -16,9 +16,7 @@ namespace phi
 
     private:
         phi::gl* _gl;
-
         vector<node*> _objects;
-
         phi::renderer* _renderer;
         phi::pipeline* _pipeline;
 
@@ -31,6 +29,8 @@ namespace phi
         SCENES_API scene(phi::gl* gl, size_t w, size_t h);
         SCENES_API ~scene();
         
+        vector<node*>* getObjects() { return &_objects; }
+
         SCENES_API void update();
         SCENES_API void render();
         SCENES_API void resize(size_t w, size_t h);

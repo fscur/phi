@@ -25,9 +25,9 @@ namespace phi
         geometry* _arrowGeometry;
         eventHandler<translationEventArgs*>* _translating;
         eventHandler<translationEventArgs*>* _translationFinished;
-        aabb _xAabb;
-        aabb _yAabb;
-        aabb _zAabb;
+        aabb* _xAabb;
+        aabb* _yAabb;
+        aabb* _zAabb;
         color _xColor;
         color _yColor;
         color _zColor;

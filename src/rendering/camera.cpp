@@ -56,7 +56,7 @@ namespace phi
         _changedProjection = false;
     }
 
-    inline void camera::transformChanged()
+    inline void camera::transformChanged(transform* sender)
     {
         _changedView = true;
     }
@@ -67,7 +67,7 @@ namespace phi
             previousValue->getTransform()->getChangedEvent()->unassign(_transformChangedEventToken);
 
         if (_node)
-            _transformChangedEventToken = _node->getTransform()->getChangedEvent()->assign(std::bind(&camera::transformChanged, this));
+            _transformChangedEventToken = _node->getTransform()->getChangedEvent()->assign(std::bind(&camera::transformChanged, this, std::placeholders::_1));
     }
 
     inline mat4 camera::getViewMatrix()

@@ -34,7 +34,7 @@ namespace phi
     private:
         void updateViewMatrix();
         void updateProjectionMatrix();
-        void transformChanged();
+        void transformChanged(transform* sender);
 
     protected:
         RENDERING_API void onNodeChanged(node* previousValue) override;

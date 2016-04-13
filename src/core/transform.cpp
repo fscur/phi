@@ -16,7 +16,8 @@ namespace phi
         _up(vec3(0.0f, 1.0f, 0.0f)),
         _direction(vec3(0.0f, 0.0f, 1.0f)),
         _changed(false),
-        _changedEvent(new eventHandler<>())
+        _changedEvent(new eventHandler<transform*>()),
+        _parentTransformChangedEventToken(eventToken())
     {
     }
 
@@ -31,7 +32,8 @@ namespace phi
         _up(original._up),
         _direction(original._direction),
         _changed(original._changed),
-        _changedEvent(new eventHandler<>())
+        _changedEvent(new eventHandler<transform*>()),
+        _parentTransformChangedEventToken(eventToken())
     {
     }
 
@@ -66,6 +68,17 @@ namespace phi
         _right = mathUtils::multiply(rotation, vec3(1.0f, 0.0f, 0.0f));
         _up = mathUtils::multiply(rotation, vec3(0.0f, 1.0f, 0.0f));
         _direction = mathUtils::multiply(rotation, vec3(0.0f, 0.0f, 1.0f));
+    }
+
+    void transform::setChanged()
+    {
+        _changed = true;
+        _changedEvent->raise(this);
+    }
+
+    void transform::parentTransformChanged(transform* transform)
+    {
+        setChanged();
     }
 
     mat4 transform::getLocalModelMatrix()
@@ -141,30 +154,33 @@ namespace phi
 
     void transform::setParent(transform* value)
     {
+        if (_parent)
+            _parent->getChangedEvent()->unassign(_parentTransformChangedEventToken);
+
         _parent = value;
-        _changed = true;
-        _changedEvent->raise();
+
+        if (_parent)
+            _parentTransformChangedEventToken = _parent->getChangedEvent()->assign(std::bind(&transform::parentTransformChanged, this, std::placeholders::_1));
+
+        setChanged();
     }
 
     void transform::setLocalPosition(vec3 value)
     {
         _localPosition = value;
-        _changed = true;
-        _changedEvent->raise();
+        setChanged();
     }
 
     void transform::setLocalOrientation(quat value)
     {
         _localOrientation = value;
-        _changed = true;
-        _changedEvent->raise();
+        setChanged();
     }
 
     void transform::setLocalSize(vec3 value)
     {
         _localSize = value;
-        _changed = true;
-        _changedEvent->raise();
+        setChanged();
     }
 
     void transform::setDirection(vec3 direction)
