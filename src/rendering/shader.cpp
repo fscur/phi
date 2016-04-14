@@ -56,7 +56,7 @@ namespace phi
 #endif
         _initialized = true;
 
-        return true;
+        return result;
     }
 
     bool shader::compileShader(GLuint shaderId, string& file)
