@@ -14,6 +14,7 @@ namespace phi
     HGLRC _renderingContext;
     DWORD _windowExStyle = 0;
     DWORD _windowStyle = WS_OVERLAPPEDWINDOW;
+    LPARAM _lastMouseMove;
 
     int convertToKey(WPARAM wParam)
     {
@@ -144,14 +145,11 @@ namespace phi
         return 0;
     }
 
-    LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        auto p = POINT();
-        p.x = GET_X_LPARAM(lParam);
-        p.y = GET_Y_LPARAM(lParam);
-        ScreenToClient(_windowHandle, &p);
-
+        auto point = POINT();
         LRESULT result = 0;
+
         switch (message)
         {
         case WM_ACTIVATE:
@@ -196,28 +194,44 @@ namespace phi
             input::notifyKeyUp(convertToKey(wParam));
             break;
         case WM_MOUSEWHEEL:
-            input::notifyMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), p.x, p.y);
-            break;
-        case WM_MOUSEMOVE:
-            input::notifyMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            point.x = GET_X_LPARAM(lParam);
+            point.y = GET_Y_LPARAM(lParam);
+            ScreenToClient(_windowHandle, &point);
+            input::notifyMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), point.x, point.y);
             break;
         case WM_LBUTTONDOWN:
             input::notifyLeftMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            SetCapture(_windowHandle);
             break;
         case WM_LBUTTONUP:
             input::notifyLeftMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            ReleaseCapture();
             break;
         case WM_RBUTTONDOWN:
             input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            SetCapture(_windowHandle);
             break;
         case WM_RBUTTONUP:
             input::notifyRightMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            ReleaseCapture();
             break;
         case WM_MBUTTONDOWN:
             input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            SetCapture(_windowHandle);
             break;
         case WM_MBUTTONUP:
             input::notifyMiddleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            ReleaseCapture();
+            break;
+        case WM_MOUSEMOVE:
+            if (lParam != _lastMouseMove)
+                input::notifyMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
+            _lastMouseMove = lParam;
+            break;
+        case WM_CAPTURECHANGED:
+            //Any operation that uses SetCapture function and has an end state should set it end state here,
+            //for example changing the cursor at the end of a drag and drog operation.
             break;
         case WM_SIZE:
             //TODO: Resize
@@ -236,7 +250,7 @@ namespace phi
 
         wndClass.cbSize = sizeof(WNDCLASSEX);
         wndClass.style = CS_HREDRAW | CS_VREDRAW;
-        wndClass.lpfnWndProc = (WNDPROC)wndProc;
+        wndClass.lpfnWndProc = (WNDPROC)windowProcedure;
         wndClass.cbClsExtra = 0;
         wndClass.cbWndExtra = 0;
         wndClass.hInstance = _applicationInstance;

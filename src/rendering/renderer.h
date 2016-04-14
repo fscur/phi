@@ -19,10 +19,10 @@ namespace phi
         size_t h;
 
         renderer(phi::gl* gl, size_t w, size_t h) :
+            _gl(gl),
             gBufferPass(new gBufferRenderPass(gl, w, h)),
             lightingPass(new lightingRenderPass(gBufferPass, gl, w, h)),
             defaultFramebuffer(new framebuffer(true)),
-            _gl(gl),
             w(w),
             h(h)
         {
