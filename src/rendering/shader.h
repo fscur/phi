@@ -20,6 +20,7 @@ namespace phi
         bool _initialized;
 
         map<uint, GLuint> _uniforms;
+        map<uint, string> _uniformsNames;
         vector<string> _attributes;
 
     private:
@@ -27,12 +28,14 @@ namespace phi
         string loadShaderFile(string fileName);
         bool validateShader(GLuint shader, const string& file = 0);
         bool validateProgram(GLuint program);
+        void createUniform(uint location, const string& name);
 
     public:
         RENDERING_API shader(
             string vertFile, 
             string fragFile, 
             const vector<string>& attributes);
+        RENDERING_API ~shader();
 
         RENDERING_API bool init();
         RENDERING_API void addUniform(uint location, string name);
@@ -55,7 +58,6 @@ namespace phi
         RENDERING_API void initializeAttributes();
         RENDERING_API void bind();
         RENDERING_API void unbind();
-        RENDERING_API void release();
         RENDERING_API bool reload();
 
         GLuint getId() const { return _programId; }
