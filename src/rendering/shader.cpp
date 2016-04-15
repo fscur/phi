@@ -7,7 +7,7 @@ namespace phi
     shader::shader(
         string vertexFile, 
         string fragmentFile, 
-        vector<string> attributes) :
+        const vector<string>& attributes) :
         _programId(0u),
         _vertexShaderId(0u),
         _fragmentShaderId(0u),
@@ -16,7 +16,29 @@ namespace phi
         _initialized(false),
         _uniforms(map<uint, GLuint>()),
         _attributes(attributes)
-    {}
+    {
+    }
+
+    shader::~shader()
+    {
+        if (!_initialized)
+            return;
+
+        unbind();
+
+        glDetachShader(_programId, _vertexShaderId);
+        glError::check();
+        glDetachShader(_programId, _fragmentShaderId);
+        glError::check();
+
+        glDeleteShader(_vertexShaderId);
+        glError::check();
+        glDeleteShader(_fragmentShaderId);
+        glError::check();
+
+        glDeleteProgram(_programId);
+        glError::check();
+    }
 
     bool shader::init()
     {
@@ -31,34 +53,8 @@ namespace phi
         _fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
         glError::check();
 
-        string vertText = loadShaderFile(_vertexFile.c_str());
-        string fragText = loadShaderFile(_fragmentFile.c_str());
-
-        const char *vertexText = vertText.c_str();
-        const char *fragmentText = fragText.c_str();
-
-        glShaderSource(_vertexShaderId, 1, &vertexText, 0);
-        glError::check();
-
-        glCompileShader(_vertexShaderId);
-        glError::check();
-
-#if _DEBUG
-        result = validateShader(_vertexShaderId, _vertexFile.c_str());
-        if (!result)
-            return false;
-#endif
-        glShaderSource(_fragmentShaderId, 1, &fragmentText, 0);
-        glError::check();
-
-        glCompileShader(_fragmentShaderId);
-        glError::check();
-
-#if _DEBUG
-        result = validateShader(_fragmentShaderId, _fragmentFile.c_str());
-        if (!result)
-            return false;
-#endif
+        result = compileShader(_vertexShaderId, _vertexFile);
+        result = compileShader(_fragmentShaderId, _fragmentFile);
 
         _programId = glCreateProgram();
         glError::check();
@@ -69,7 +65,7 @@ namespace phi
         glAttachShader(_programId, _fragmentShaderId);
         glError::check();
 
-        initAttribs();
+        initializeAttributes();
 
         glLinkProgram(_programId);
         glError::check();
@@ -79,26 +75,35 @@ namespace phi
         if (!result)
             return false;
 #endif
-
-        glDeleteShader(_fragmentShaderId);
-        glError::check();
-
-        glDeleteShader(_vertexShaderId);
-        glError::check();
-
         _initialized = true;
 
-        return true;
+        return result;
     }
 
-    string shader::loadShaderFile(const string fileName)
+    bool shader::compileShader(GLuint shaderId, string& file)
     {
-        string filePath = fileName;
+        auto result = true;
+        auto content = loadShaderFile(file.c_str());
+        auto contentText = content.c_str();
+        glShaderSource(shaderId, 1, &contentText, 0);
+        glError::check();
 
+        glCompileShader(shaderId);
+        glError::check();
+
+#if _DEBUG
+        result = validateShader(shaderId, _fragmentFile.c_str());
+#endif
+
+        return result;
+    }
+
+    string shader::loadShaderFile(string fileName)
+    {
         string fileString;
         string line;
 
-        std::ifstream file(filePath);
+        std::ifstream file(fileName);
 
         if (file.is_open()) 
         {
@@ -115,7 +120,7 @@ namespace phi
         return fileString;
     }
 
-    bool shader::validateShader(GLuint shader, const string file)
+    bool shader::validateShader(GLuint shader, const string& file)
     {
         GLint success = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -156,7 +161,13 @@ namespace phi
         return isLinked == GL_TRUE;
     }
 
-    void shader::initAttribs()
+    void shader::createUniform(uint location, const string & name)
+    {
+        _uniforms[location] = glGetUniformLocation(_programId, name.c_str());
+        glError::check();
+    }
+
+    void shader::initializeAttributes()
     {
         for (uint i = 0; i < _attributes.size(); ++i)
         {
@@ -170,8 +181,8 @@ namespace phi
         if (!_initialized)
             return;
 
-        _uniforms[location] = glGetUniformLocation(_programId, name.c_str());
-        glError::check();
+        _uniformsNames[location] = name;
+        createUniform(location, name);
     }
 
     void shader::setUniform(uint location, texture* value, GLuint index)
@@ -288,14 +299,27 @@ namespace phi
         glError::check();
     }
 
-    void shader::release()
+    bool shader::reload()
     {
-        if (!_initialized)
-            return;
-
         unbind();
 
-        glDeleteProgram(_programId);
+        bool result = true;
+
+        result = compileShader(_fragmentShaderId, _fragmentFile);
+        result = compileShader(_vertexShaderId, _vertexFile);
+
+        glLinkProgram(_programId);
         glError::check();
+        result = validateProgram(_programId);
+
+        if (result)
+        {
+            for (auto& pair : _uniformsNames)
+            {
+                createUniform(pair.first, pair.second);
+            }
+        }
+
+        return result;
     }
 }

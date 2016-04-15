@@ -29,18 +29,18 @@ namespace phi
         void createMaterialsBuffer();
 
         void addToBatches(node* n);
-        void addToBatches(batchObject& batchObject);
+        void addToBatches(const batchObject& batchObject);
 
         void updateBatches(node* n);
         void uploadMaterial(material* material);
 
         void nodeTransformChanged(node* sender);
     public:
-        RENDERING_API pipeline(phi::gl* gl);
+        RENDERING_API pipeline(gl* gl);
         RENDERING_API ~pipeline();
 
         RENDERING_API void add(node* n);
         RENDERING_API void update(node* n);
-        RENDERING_API void updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock);
+        RENDERING_API void updateFrameUniformBlock(frameUniformBlock& frameUniformBlock);
     };
 }

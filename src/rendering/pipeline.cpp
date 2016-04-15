@@ -41,14 +41,15 @@ namespace phi
         _materialsBuffer->bindBufferBase(1);
     }
 
-    void pipeline::updateFrameUniformBlock(phi::frameUniformBlock frameUniformBlock)
+    void pipeline::updateFrameUniformBlock(frameUniformBlock& frameUniformBlock)
     {
         _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
     }
 
-    void pipeline::addToBatches(node* n)
+    void pipeline::addToBatches(node* node)
     {
-        auto mesh = n->getComponent<phi::mesh>();
+        auto mesh = node->getComponent<phi::mesh>();
+        
         if (mesh)
         {
             auto material = mesh->material;
@@ -61,7 +62,7 @@ namespace phi
             batchObject.mesh = mesh;
             batchObject.geometry = geometry;
             batchObject.materialId = _materialsMaterialsGpu[material];
-            batchObject.modelMatrix = n->getTransform()->getModelMatrix();
+            batchObject.modelMatrix = node->getTransform()->getModelMatrix();
 
             addToBatches(batchObject);
 
@@ -69,19 +70,19 @@ namespace phi
             _transformChangedTokens[mesh] = eventToken;
         }
 
-        auto children = n->getChildren();
+        auto children = node->getChildren();
 
         for (auto child : children)
             addToBatches(child);
     }
 
-    void pipeline::addToBatches(batchObject& batchObject)
+    void pipeline::addToBatches(const batchObject& batchObject)
     {
         auto i = 0u;
         auto added = false;
         auto batchesCount = batches.size();
 
-        phi::batch* batch = nullptr;
+        batch* batch = nullptr;
 
         while (!added && i < batchesCount)
         {
@@ -135,46 +136,45 @@ namespace phi
         _loadedMaterials.push_back(material);
     }
 
-    void pipeline::add(node* n)
+    void pipeline::add(node* node)
     {
-        addToBatches(n);
+        addToBatches(node);
     }
 
-    void pipeline::updateBatches(node* n)
+    void pipeline::updateBatches(node* node)
     {
-        auto mesh = n->getComponent<phi::mesh>();
+        auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
             auto batch = _meshesBatches[mesh];
-            _nodesToUpdate[batch].push_back(n);
+            _nodesToUpdate[batch].push_back(node);
         }
 
-        auto children = n->getChildren();
+        auto children = node->getChildren();
         for (auto child : children)
             updateBatches(child);
     }
 
-    void pipeline::update(node* n)
+    void pipeline::update(node* node)
     {
-        updateBatches(n);
+        updateBatches(node);
 
         for (auto batch : batches)
         {
             vector<batchObject> bacthObjectsToUpdade;
 
-            for (auto n : _nodesToUpdate[batch])
+            for (auto node : _nodesToUpdate[batch])
             {
-                auto mesh = n->getComponent<phi::mesh>();
+                auto mesh = node->getComponent<phi::mesh>();
                 auto batchObject = phi::batchObject();
                 batchObject.mesh = mesh;
                 batchObject.geometry = mesh->geometry;
                 batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-                batchObject.modelMatrix = n->getTransform()->getModelMatrix();
+                batchObject.modelMatrix = node->getTransform()->getModelMatrix();
                 bacthObjectsToUpdade.push_back(batchObject);
             }
 
             batch->update(bacthObjectsToUpdade);
-
             _nodesToUpdate[batch].clear();
         }
     }

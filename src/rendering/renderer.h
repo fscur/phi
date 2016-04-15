@@ -10,29 +10,29 @@ namespace phi
     class renderer
     {
     private:
-        phi::gl* _gl;
+        gl* _gl;
     public:
+        gBufferRenderPass* gBufferPass;
+        lightingRenderPass* lightingPass;
+        framebuffer* defaultFramebuffer;
         size_t w;
         size_t h;
-        phi::gBufferRenderPass* gBufferPass;
-        phi::lightingRenderPass* lightingPass;
-        framebuffer* defaultFramebuffer;
 
         renderer(phi::gl* gl, size_t w, size_t h) :
             _gl(gl),
+            gBufferPass(new gBufferRenderPass(gl, w, h)),
+            lightingPass(new lightingRenderPass(gBufferPass, gl, w, h)),
+            defaultFramebuffer(new framebuffer(true)),
             w(w),
             h(h)
         {
-            defaultFramebuffer = new framebuffer(true);
-            gBufferPass = new phi::gBufferRenderPass(gl, w, h);
-            lightingPass = new phi::lightingRenderPass(gBufferPass, gl, w, h);
         }
 
-        ~renderer() 
+        ~renderer()
         {
-            safeDelete(defaultFramebuffer);
             safeDelete(gBufferPass);
             safeDelete(lightingPass);
+            safeDelete(defaultFramebuffer);
         }
 
         void render()

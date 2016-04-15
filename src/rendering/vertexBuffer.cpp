@@ -3,12 +3,11 @@
 
 namespace phi
 {
-    vertexBuffer::vertexBuffer(vector<vertexAttrib> attribs) :
+    vertexBuffer::vertexBuffer(const vector<vertexAttrib>& attribs) :
         buffer(bufferTarget::array)
     {
-        auto s = attribs.size();
-
-        for (GLuint i = 0; i < s; i++)
+        auto attribsCount = attribs.size();
+        for (GLuint i = 0; i < attribsCount; i++)
         {
             auto location = attribs[i].location;
 

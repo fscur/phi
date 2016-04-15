@@ -60,7 +60,7 @@ namespace phi
 
     private:
         void createVao();
-        void createVao(const batchObject &batchObject);
+        void createVao(const batchObject& batchObject);
         void createVbo(void* data, GLsizeiptr size);
         void createMaterialsIdsBuffer(void* data, GLsizeiptr size);
         void createModelMatricesBuffer(void* data, GLsizeiptr size);
@@ -74,9 +74,9 @@ namespace phi
     public:
         RENDERING_API batch();
         RENDERING_API ~batch();
-        RENDERING_API bool add(batchObject &batchObject);
-        RENDERING_API void update(const batchObject &batchObject);
-        RENDERING_API void update(vector<batchObject> &batchObjects);
+        RENDERING_API bool add(const batchObject& batchObject);
+        RENDERING_API void update(const batchObject& batchObject);
+        RENDERING_API void update(const vector<batchObject>& batchObjects);
         RENDERING_API void render();
     };
 }

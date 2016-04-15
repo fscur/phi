@@ -9,8 +9,7 @@ namespace phi
     {
     private:
         const size_t MAX_CONTAINER_ITEMS = 10;
-        std::map<
-            std::tuple<GLsizei, GLsizei, GLsizei, GLenum, GLint, GLint, GLint>, 
+        map<std::tuple<GLsizei, GLsizei, GLsizei, GLenum, GLint, GLint, GLint>, 
             vector<textureContainer*>> _containers;
 
         bool _bindless;
@@ -28,7 +27,7 @@ namespace phi
         texturesManager(bool bindless, bool sparse);
         ~texturesManager();
 
-        phi::textureAddress add(phi::texture* texture);
-        void reserveContainer(textureContainerLayout layout, size_t size);
+        textureAddress add(texture* texture);
+        void reserveContainer(const textureContainerLayout& layout, size_t size);
     };
 }

@@ -94,6 +94,10 @@ namespace demon
         auto clonedFloor = floor->clone();
         _scene->add(clonedFloor);
 
+        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
+        _scene->add(cube);
+
         auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
         for (size_t i = 0; i < 1; ++i)
         {
@@ -106,8 +110,8 @@ namespace demon
     void screen::initInput()
     {
         _commandsManager = new phi::commandsManager();
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&] { return new phi::undoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&] { return new phi::redoCommand(_commandsManager); }));
 
         _defaultController = new defaultCameraController(_scene);
     }
@@ -126,7 +130,10 @@ namespace demon
 
     void screen::onTick()
     {
-        //debug("fps:" + std::to_string(application::framesPerSecond));
+        debug("fps:" + std::to_string(application::framesPerSecond));
+#if _DEBUG
+        _gl->shadersManager->reloadAllShaders();
+#endif
     }
 
     void screen::onClosing()

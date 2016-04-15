@@ -5,7 +5,7 @@
 namespace phi
 {
     textureContainer::textureContainer(
-        textureContainerLayout layout,
+        const textureContainerLayout& layout,
         size_t maxTextures,
         GLint unit,
         bool bindless = false,

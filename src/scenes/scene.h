@@ -15,18 +15,18 @@ namespace phi
     {
 
     private:
-        phi::gl* _gl;
+        gl* _gl;
         vector<node*> _objects;
-        phi::renderer* _renderer;
-        phi::pipeline* _pipeline;
+        renderer* _renderer;
+        pipeline* _pipeline;
 
     public:
         size_t w;
         size_t h;
-        phi::camera* camera;
+        camera* camera;
 
     public:
-        SCENES_API scene(phi::gl* gl, size_t w, size_t h);
+        SCENES_API scene(gl* gl, size_t w, size_t h);
         SCENES_API ~scene();
         
         vector<node*>* getObjects() { return &_objects; }

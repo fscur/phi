@@ -13,19 +13,19 @@ namespace phi
     class gBufferRenderPass
     {
     private:
-        phi::gl* _gl;
+        gl* _gl;
         size_t _w;
         size_t _h;
     public:
-        phi::shader* shader;
+        shader* shader;
+        framebuffer* framebuffer;
         vector<renderTarget*> targets;
-        vector<phi::batch*> batches;
-        phi::framebuffer* framebuffer;
+        vector<batch*> batches;
     private:
         void initShader();
         void initRenderTargets();
     public:
-        RENDERING_API gBufferRenderPass(phi::gl* gl, size_t w, size_t h);
+        RENDERING_API gBufferRenderPass(gl* gl, size_t w, size_t h);
         RENDERING_API ~gBufferRenderPass();
 
         RENDERING_API void update();
