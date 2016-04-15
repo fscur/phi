@@ -27,7 +27,6 @@ namespace phi
     {
 #ifdef _DEBUG
         GLenum error = glGetError();
-
         if (error != GL_NO_ERROR)
             throw exception(getErrorString(error));
 #endif

@@ -3,6 +3,8 @@
 
 #include <core\time.h>
 
+#include <loader\importer.h>
+
 #include <rendering\camera.h>
 #include <rendering\mesh.h>
 #include <rendering\ray.h>
@@ -47,6 +49,8 @@ namespace demon
         _dragPlaneTopRight(phi::vec3()),
         _dragPlaneTopLeft(phi::vec3())
     {
+        auto gridTexture = phi::importer::importImage("C:\\Users\\Fernando\\Desktop\\grid.png");
+        _scene->renderer->planeGridPass->setTexture(gridTexture);
     }
 
     void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
@@ -166,6 +170,7 @@ namespace demon
 
             if (normal == phi::vec3(-1.0f, 0.0f, 0.0f))
             {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(rbf);
                 _dragPlaneBottomLeft = lbb;
                 _dragPlaneBottomRight = lbf;
                 _dragPlaneTopRight = ltf;
@@ -173,6 +178,7 @@ namespace demon
             }
             else if (normal == phi::vec3(1.0f, 0.0f, 0.0f))
             {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(lbb);
                 _dragPlaneBottomLeft = rbf;
                 _dragPlaneBottomRight = rbb;
                 _dragPlaneTopRight = rtb;
@@ -180,6 +186,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 0.0f, 1.0f))
             {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(rbb);
                 _dragPlaneBottomLeft = lbf;
                 _dragPlaneBottomRight = rbf;
                 _dragPlaneTopRight = rtf;
@@ -187,6 +194,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 0.0f, -1.0f))
             {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(lbf);
                 _dragPlaneBottomLeft = rbb;
                 _dragPlaneBottomRight = lbb;
                 _dragPlaneTopRight = ltb;
@@ -194,6 +202,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 1.0f, 0.0f))
             {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(lbb);
                 _dragPlaneBottomLeft = ltf;
                 _dragPlaneBottomRight = rtf;
                 _dragPlaneTopRight = rtb;
@@ -201,13 +210,17 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, -1.0f, 0.0f))
             {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(ltf);
                 _dragPlaneBottomLeft = lbb;
                 _dragPlaneBottomRight = rbb;
                 _dragPlaneTopRight = rbf;
                 _dragPlaneTopLeft = lbf;
             }
 
+            _scene->renderer->planeGridPass->transform.setDirection(normal);
+
             _dragging = true;
+            _scene->renderer->planeGridPass->show();
         }
 
         safeDelete(aabb);
@@ -249,7 +262,11 @@ namespace demon
 
     void defaultCameraController::dragMouseUp()
     {
-        _dragging = false;
+        if (_dragging)
+        {
+            _scene->renderer->planeGridPass->hide();
+            _dragging = false;
+        }
     }
 
     void defaultCameraController::zoomMouseWheel(int mouseX, int mouseY, float delta)

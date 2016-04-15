@@ -11,7 +11,7 @@ namespace phi
         h(h)
     {
         _pipeline = new pipeline(gl);
-        _renderer = new renderer(gl, w, h);
+        renderer = new phi::renderer(gl, w, h);
 
         camera = new phi::camera(
             "mainCamera",
@@ -32,7 +32,7 @@ namespace phi
             safeDelete(object);
 
         safeDelete(_pipeline);
-        safeDelete(_renderer);
+        safeDelete(renderer);
     }
 
     void scene::update()
@@ -46,13 +46,13 @@ namespace phi
         _pipeline->updateFrameUniformBlock(frameUniformBlock);
 
         //TODO: possible design flaw ? anyway.. try to remove this slow copy assignment
-        _renderer->gBufferPass->batches = _pipeline->batches;
-        _renderer->update();
+        renderer->gBufferPass->batches = _pipeline->batches;
+        renderer->update();
     }
 
     void scene::render()
     {
-        _renderer->render();
+        renderer->render();
     }
 
     void scene::resize(size_t w, size_t h)
@@ -77,6 +77,6 @@ namespace phi
 
     inline float scene::getZBufferValue(int x, int y)
     {
-        return _renderer->defaultFramebuffer->getZBufferValue(x, y);
+        return renderer->defaultFramebuffer->getZBufferValue(x, y);
     }
 }

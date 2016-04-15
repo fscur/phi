@@ -4,6 +4,7 @@
 #include "batch.h"
 #include "gBufferRenderPass.h"
 #include "lightingRenderPass.h"
+#include "planeGridPass.h"
 
 namespace phi
 {
@@ -12,39 +13,44 @@ namespace phi
     private:
         gl* _gl;
     public:
-        gBufferRenderPass* gBufferPass;
-        lightingRenderPass* lightingPass;
-        framebuffer* defaultFramebuffer;
         size_t w;
         size_t h;
+        gBufferRenderPass* gBufferPass;
+        lightingRenderPass* lightingPass;
+        planeGridPass* planeGridPass;
+        framebuffer* defaultFramebuffer;
 
         renderer(phi::gl* gl, size_t w, size_t h) :
             _gl(gl),
-            gBufferPass(new gBufferRenderPass(gl, w, h)),
-            lightingPass(new lightingRenderPass(gBufferPass, gl, w, h)),
-            defaultFramebuffer(new framebuffer(true)),
             w(w),
             h(h)
         {
+            defaultFramebuffer = new framebuffer(true);
+            gBufferPass = new gBufferRenderPass(gl, w, h);
+            lightingPass = new lightingRenderPass(gBufferPass, gl, w, h);
+            planeGridPass = new phi::planeGridPass(gl, w, h);
         }
 
-        ~renderer()
+        ~renderer() 
         {
+            safeDelete(defaultFramebuffer);
             safeDelete(gBufferPass);
             safeDelete(lightingPass);
-            safeDelete(defaultFramebuffer);
+            safeDelete(planeGridPass);
         }
 
         void render()
         {
             gBufferPass->render();
             lightingPass->render();
+            planeGridPass->render();
         }
 
         void update()
         {
             gBufferPass->update();
             lightingPass->update();
+            planeGridPass->update();
         }
     };
 }

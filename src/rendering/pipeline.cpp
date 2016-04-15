@@ -66,7 +66,7 @@ namespace phi
 
             addToBatches(batchObject);
 
-            auto eventToken = n->getTransformChanged()->assign(std::bind(&pipeline::nodeTransformChanged, this, std::placeholders::_1));
+            auto eventToken = node->getTransformChanged()->assign(std::bind(&pipeline::nodeTransformChanged, this, std::placeholders::_1));
             _transformChangedTokens[mesh] = eventToken;
         }
 

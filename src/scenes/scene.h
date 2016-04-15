@@ -17,13 +17,13 @@ namespace phi
     private:
         gl* _gl;
         vector<node*> _objects;
-        renderer* _renderer;
         pipeline* _pipeline;
 
     public:
         size_t w;
         size_t h;
         camera* camera;
+        renderer* renderer;
 
     public:
         SCENES_API scene(gl* gl, size_t w, size_t h);

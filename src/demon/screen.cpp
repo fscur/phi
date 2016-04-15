@@ -38,7 +38,7 @@ namespace demon
         application::logInfo("Initializing OpenGl");
 
         auto initState = gl::state();
-        initState.clearColor = vec4(1.0f);
+        initState.clearColor = vec4(0.0f);
         initState.frontFace = gl::frontFace::ccw;
         initState.culling = true;
         initState.cullFace = gl::cullFace::back;
@@ -49,7 +49,7 @@ namespace demon
 
         auto info = gl::glInfo();
         info.state = initState;
-        info.shadersPath = application::resourcesPath + "/shaders";
+        info.shadersPath = path::combine(application::resourcesPath, "shaders");
         _gl = new gl(info);
 
         importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
@@ -86,9 +86,13 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
-        cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
-        _scene->add(cube);
+        auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
+        for (size_t i = 0; i < 1; ++i)
+        {
+            auto cloned = obj->clone();
+            cloned->getTransform()->setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
+            _scene->add(cloned);
+        }
 
         auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
         auto clonedFloor = floor->clone();
@@ -97,14 +101,6 @@ namespace demon
         auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
         cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
         _scene->add(cube);
-
-        auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-        for (size_t i = 0; i < 1; ++i)
-        {
-            auto cloned = obj->clone();
-            cloned->getTransform()->setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
-            _scene->add(cloned);
-        }
     }
 
     void screen::initInput()
