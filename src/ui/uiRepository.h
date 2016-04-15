@@ -4,7 +4,7 @@
 
 #include <core\resourcesRepository.h>
 #include <core\size.h>
-
+#include <rendering\fontManager.h>
 #include <rendering\font.h>
 
 #include "cursor.h"
@@ -18,9 +18,10 @@ namespace phi
     struct uiRepositoryInfo
     {
     public:
+        fontManager* fontManager;
         string applicationPath;
         string resourcesPath;
-        sizeui size;
+        sizef size;
     };
 
     class uiRepository
@@ -28,14 +29,9 @@ namespace phi
     private:
         static void loadTextures(string directory);
         static void loadCursors(string directory);
-        static void loadFonts(string directory);
+        static void loadFonts(string directory, fontManager* fontManager);
     public:
         static font* fontConsolas14;
-        static font* fontConsolas16;
-        static font* fontConsolas18;
-        static font* fontConsolas24;
-        static font* fontConsolas100;
-        static font* fontArial72;
 
         static cursor* cursorDefault;
         static cursor* cursorText;

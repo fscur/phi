@@ -124,7 +124,7 @@ namespace phi
         _drawCmdBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
-    bool batch::add(const batchObject &batchObject)
+    bool batch::add(const batchObject& batchObject)
     {
         auto geometry = batchObject.geometry;
         auto vboSize = geometry->vboSize;

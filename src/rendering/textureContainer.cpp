@@ -5,7 +5,7 @@
 namespace phi
 {
     textureContainer::textureContainer(
-        const textureContainerLayout& layout,
+        textureContainerLayout layout,
         size_t maxTextures,
         GLint unit,
         bool bindless = false,
@@ -123,7 +123,7 @@ namespace phi
         }
     }
 
-    void textureContainer::load(texture* texture)
+    void textureContainer::load(const texture* const texture)
     {
         auto textureAddress = texturesAddresses[texture];
 
@@ -172,7 +172,7 @@ namespace phi
         }
     }
 
-    bool textureContainer::add(texture* texture, textureAddress& textureAddress)
+    bool textureContainer::add(const texture* const texture, textureAddress& textureAddress)
     {
         if (_freeSpace == 0)
             return false;

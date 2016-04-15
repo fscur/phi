@@ -13,11 +13,6 @@
 namespace phi
 {
     font* uiRepository::fontConsolas14;
-    font* uiRepository::fontConsolas16;
-    font* uiRepository::fontConsolas18;
-    font* uiRepository::fontConsolas24;
-    font* uiRepository::fontConsolas100;
-    font* uiRepository::fontArial72;
 
     cursor* uiRepository::cursorDefault;
     cursor* uiRepository::cursorText;
@@ -32,7 +27,7 @@ namespace phi
 
     void uiRepository::init(uiRepositoryInfo info)
     {
-        loadFonts(phi::path::combine(info.resourcesPath, UI_FONTS_PATH));
+        loadFonts(phi::path::combine(info.resourcesPath, UI_FONTS_PATH), info.fontManager);
         loadTextures(phi::path::combine(info.resourcesPath, UI_IMAGES_PATH));
         loadCursors(phi::path::combine(info.resourcesPath, UI_CURSORS_PATH));
 
@@ -59,17 +54,12 @@ namespace phi
         textureMaterials = textureMaterialsRes->getObject();
     }
 
-    void uiRepository::loadFonts(string directory)
+    void uiRepository::loadFonts(string directory, fontManager* fontManager)
     {
         auto consolasPath = path::combine(directory, "Consola.ttf");
         auto arialPath = path::combine(directory, "Arial.ttf");
-
-        //fontConsolas14 = new font("Consola_14", consolasPath, 14, renderingSystem::freeTypeLibrary);
-        //fontConsolas16 = new font("Consola_16", consolasPath, 16, renderingSystem::freeTypeLibrary);
-        //fontConsolas18 = new font("Consola_18", consolasPath, 18, renderingSystem::freeTypeLibrary);
-        //fontConsolas24 = new font("Consola_24", consolasPath, 24, renderingSystem::freeTypeLibrary);
-        //fontConsolas100 = new font("Consola_100", consolasPath, 100, renderingSystem::freeTypeLibrary);
-        //fontArial72 = new font("Arial_72", arialPath, 72, renderingSystem::freeTypeLibrary);
+        
+        fontConsolas14 = new font(consolasPath, 14);
     }
 
     void uiRepository::loadCursors(string directory)

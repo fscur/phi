@@ -35,7 +35,7 @@ namespace phi
         }
     }
 
-    textureAddress texturesManager::add(texture* texture)
+    textureAddress texturesManager::add(const texture* const texture)
     {
         GLsizei maxLevels = 1;
 
@@ -77,7 +77,10 @@ namespace phi
                 added = containers[i++]->add(texture, textureAddress);
 
             if (added)
+            {
+                _textures[texture] = textureAddress;
                 return textureAddress;
+            }
         }
 
         auto container = new textureContainer(layout, _maxContainerSize, ++_currentTextureUnit, _bindless, _sparse);
@@ -89,7 +92,17 @@ namespace phi
         return textureAddress;
     }
 
-    void texturesManager::reserveContainer(const textureContainerLayout& layout, size_t size)
+    textureAddress texturesManager::get(const texture* const texture)
+    {
+        return _textures[texture];
+    }
+
+    bool texturesManager::contains(const texture* const texture)
+    {
+        return _textures.find(texture) != _textures.end();
+    }
+
+    void texturesManager::reserveContainer(textureContainerLayout layout, size_t size)
     {
         auto key = std::make_tuple(
             layout.w,

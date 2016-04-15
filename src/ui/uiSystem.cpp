@@ -11,7 +11,7 @@ namespace phi
     {
         _controlGotFocus = new eventHandler<controlEventArgs>();
         _controlLostFocus = new eventHandler<controlEventArgs>();
-        _cursor = nullptr;
+        //_cursor = nullptr;
 
         input::mouseDown->assign(std::bind(&uiSystem::inputMouseDown, this, std::placeholders::_1));
         input::mouseUp->assign(std::bind(&uiSystem::inputMouseUp, this, std::placeholders::_1));
@@ -19,6 +19,13 @@ namespace phi
         input::mouseWheel->assign(std::bind(&uiSystem::inputMouseWheel, this, std::placeholders::_1));
         input::keyDown->assign(std::bind(&uiSystem::inputKeyDown, this, std::placeholders::_1));
         input::keyDown->assign(std::bind(&uiSystem::inputKeyUp, this, std::placeholders::_1));
+    }
+
+    uiSystem::~uiSystem()
+    {
+        safeDelete(_gl);
+        safeDelete(_font);
+        safeDelete(_uiRenderer);
     }
 
     uiSystem* uiSystem::get()
@@ -31,6 +38,10 @@ namespace phi
 
     void uiSystem::init(uiSystemInfo info)
     {
+        _gl = info.gl;
+
+        initRenderer(info.size.w, info.size.h);
+
         if (!uiRepository::initialized)
         {
             phi::uiRepositoryInfo repositoryInfo = phi::uiRepositoryInfo();
@@ -40,18 +51,17 @@ namespace phi
             phi::uiRepository::init(repositoryInfo);
         }
 
-        control::init(info.size);
         input::mouseMove->assign(std::bind(&uiSystem::inputMouseMove, this, std::placeholders::_1));
-        _cursorRenderer = new quadRenderer2D(vec2(), 1.0f, sizeui(), sizeui());
-        setCursor(phi::uiRepository::cursorDefault);
-        _cursorRenderer->setViewportSize(sizeui(info.size.w, info.size.h, info.size.d));
-        dragDropController::get()->init(info.size);
-        dragDropController::get()->getDradDropEnded()->assign(std::bind(&uiSystem::dragDropEnded, this, std::placeholders::_1));
+    }
+
+    void uiSystem::initRenderer(float width, float height)
+    {
+        _uiRenderer = new uiRenderer(_gl, width, height);
     }
 
     void uiSystem::setCursor(cursor* value)
     {
-        vec2 mousePos;
+        /*vec2 mousePos;
 
         if (_cursor != nullptr)
             mousePos = _cursorRenderer->getLocation() + vec2(_cursor->getTexture()->w * _cursor->getHotPoint().x, _cursor->getTexture()->h * _cursor->getHotPoint().y);
@@ -67,7 +77,7 @@ namespace phi
         _cursorRenderer->setLocation(vec2(mousePos.x - textureWitdh * hotPoint.x, mousePos.y - textureHeight * hotPoint.y));
         _cursorRenderer->setZIndex(50.0f);
         _cursorRenderer->setSize(sizeui(textureWitdh, textureHeight));
-        _cursorRenderer->update();
+        _cursorRenderer->update();*/
     }
 
     void uiSystem::inputMouseDown(mouseEventArgs* e)
@@ -94,12 +104,12 @@ namespace phi
 
     void uiSystem::inputMouseMove(mouseEventArgs* e)
     {
-        auto w = _cursor->getTexture()->w;
+        /*auto w = _cursor->getTexture()->w;
         auto h = _cursor->getTexture()->h;
 
         vec2 hotPoint = _cursor->getHotPoint();
         _cursorRenderer->setLocation(vec2(e->x - w * hotPoint.x, e->y - h * hotPoint.y));
-        _cursorRenderer->update();
+        _cursorRenderer->update();*/
 
         //control* higher = nullptr;
         //for (control* control : _controls)
@@ -183,52 +193,53 @@ namespace phi
         _controlLostFocus->raise(e);
     }
 
-    void uiSystem::addControl(control* cntrl)
+    void uiSystem::addControl(control* control)
     {
-        _controlsToAdd.push_back(std::pair<control*, bool>(cntrl, true));
+        _controlsToAdd.push_back(std::pair<phi::control*, bool>(control, true));
     }
 
-    void uiSystem::removeControl(control* cntrl)
+    void uiSystem::removeControl(control* control)
     {
-        _controlsToRemove.push_back(cntrl);
+        _controlsToRemove.push_back(control);
     }
 
-    void uiSystem::addControlToList(control* cntrl, bool root)
+    void uiSystem::addControlToLists(control* control, bool root)
     {
-        auto index = std::upper_bound(_controls.begin(), _controls.end(), cntrl, [](control* lhs, control* rhs)
+        auto index = std::upper_bound(_controls.begin(), _controls.end(), control, [](phi::control* lhs, phi::control* rhs)
         {
             return lhs->getZIndex() > rhs->getZIndex();
         });
 
         controlEventTokens eventTokens;
-        eventTokens.gotFocus = cntrl->getGotFocus()->assign(std::bind(&uiSystem::controlGotFocus, this, std::placeholders::_1));
-        eventTokens.mouseLeave = cntrl->getMouseLeave()->assign(std::bind(&uiSystem::controlMouseLeave, this, std::placeholders::_1));
-        eventTokens.addedChild = cntrl->getAddedChild()->assign(std::bind(&uiSystem::controlAddedChild, this, std::placeholders::_1));
-        eventTokens.removedChild = cntrl->getRemovedChild()->assign(std::bind(&uiSystem::controlRemovedChild, this, std::placeholders::_1));
-        _controls.insert(index, cntrl);
-        _controlsEventTokens[cntrl] = eventTokens;
+        eventTokens.propertyChanged = control->getPropertyChanged()->assign(std::bind(&uiSystem::controlProperyChanged, this, std::placeholders::_1));
+        eventTokens.gotFocus = control->getGotFocus()->assign(std::bind(&uiSystem::controlGotFocus, this, std::placeholders::_1));
+        eventTokens.mouseLeave = control->getMouseLeave()->assign(std::bind(&uiSystem::controlMouseLeave, this, std::placeholders::_1));
+        eventTokens.addedChild = control->getAddedChild()->assign(std::bind(&uiSystem::controlAddedChild, this, std::placeholders::_1));
+        eventTokens.removedChild = control->getRemovedChild()->assign(std::bind(&uiSystem::controlRemovedChild, this, std::placeholders::_1));
+        _controls.insert(index, control);
+        _controlsEventTokens[control] = eventTokens;
 
         if (root)
-            _rootControls.push_back(cntrl);
+            _rootControls.push_back(control);
 
-        for (control* child : cntrl->getChildren())
-            addControlToList(child, false);
+        for (phi::control* child : control->getChildren())
+            addControlToLists(child, false);
     }
 
-    void uiSystem::removeControlFromList(control* cntrl)
+    void uiSystem::removeControlFromLists(control* control)
     {
-        auto eventTokens = _controlsEventTokens[cntrl];
-        cntrl->getGotFocus()->unassign(eventTokens.gotFocus);
-        cntrl->getMouseLeave()->unassign(eventTokens.mouseLeave);
-        cntrl->getAddedChild()->unassign(eventTokens.addedChild);
-        cntrl->getRemovedChild()->unassign(eventTokens.removedChild);
+        auto eventTokens = _controlsEventTokens[control];
+        control->getGotFocus()->unassign(eventTokens.gotFocus);
+        control->getMouseLeave()->unassign(eventTokens.mouseLeave);
+        control->getAddedChild()->unassign(eventTokens.addedChild);
+        control->getRemovedChild()->unassign(eventTokens.removedChild);
 
-        for (control* child : cntrl->getChildren())
-            removeControlFromList(child);
+        for (phi::control* child : control->getChildren())
+            removeControlFromLists(child);
 
-        _controls.erase(std::remove(_controls.begin(), _controls.end(), cntrl), _controls.end());
+        _controls.erase(std::remove(_controls.begin(), _controls.end(), control), _controls.end());
 
-        auto root = std::find(_rootControls.begin(), _rootControls.end(), cntrl);
+        auto root = std::find(_rootControls.begin(), _rootControls.end(), control);
         if (root != _rootControls.end())
             _rootControls.erase(root);
     }
@@ -265,57 +276,58 @@ namespace phi
         removeControl((control*)e.sender);
     }
 
-    void uiSystem::resize(sizeui size)
+    void uiSystem::controlProperyChanged(control* sender)
+    { 
+        if (sender == nullptr)
+            _uiRenderer->update(_controls);
+        else
+            //_uiRenderer->update(sender);
+            _uiRenderer->update(_controls);
+    }
+
+    void uiSystem::resize(sizef size)
     {
         _info.size = size;
 
-        for (unsigned int i = 0; i < _controls.size(); i++)
+        /*for (unsigned int i = 0; i < _controls.size(); i++)
         {
             control* control = _controls[i];
             control->setViewportSize(size);
-        }
-
-        _cursorRenderer->setViewportSize(sizeui(_info.size.w, _info.size.h, _info.size.d));
-        _cursorRenderer->update();
+        }*/
     }
 
     void uiSystem::update()
     {
+        bool dirty = false;
+
         for (std::pair<control*, bool> pair : _controlsToAdd)
-            addControlToList(pair.first, pair.second);
+        {
+            addControlToLists(pair.first, pair.second);
+            dirty = true;
+        }
+
         _controlsToAdd.clear();
 
-        for (control* cntrl : _controlsToRemove)
-            removeControlFromList(cntrl);
+        for (auto control : _controlsToRemove)
+        {
+            removeControlFromLists(control);
+            dirty = true;
+        }
+
         _controlsToRemove.clear();
 
         floatAnimator::update();
 
-        for (unsigned int i = 0; i < _controls.size(); i++)
-        {
-            control* control = _controls[i];
+        for (auto control : _controls)
             control->update();
-        }
+
+        if (dirty)
+            controlProperyChanged(nullptr);
     }
 
     void uiSystem::render()
     {
-        glDepthMask(GL_TRUE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        for (control* ctrl : _rootControls)
-            ctrl->render();
-
-        dragDropController::get()->render();
-
-        glDisable(GL_BLEND);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        renderCursor();
-
-        glDisable(GL_BLEND);
+        _uiRenderer->render();
     }
 
     void uiSystem::renderCursor()

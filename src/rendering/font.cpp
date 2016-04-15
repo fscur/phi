@@ -1,118 +1,115 @@
 #include <precompiled.h>
-#include <core/resource.h>
-#include <core\exception.h>
 #include "font.h"
-#include "glError.h" 
 
 namespace phi
 {
-    font::font(std::string name, std::string path, int size, FT_Library library)
+    FT_Library font::FreeTypeLibrary = nullptr;
+
+    font::font(string name, uint size)
     {
+        _hinting = true;
         _size = size;
+        _horizontalScale = 100.0f;
+        _dpi = 96.0f;
 
-        // TODO: all this code should be on the importer class?     Yes it totally should, good luck!!!!
-        FT_Face face;
+        FT_New_Face(font::FreeTypeLibrary, name.c_str(), 0, &_fontFace);
+        FT_Set_Char_Size(_fontFace, _size * 64, 0, static_cast<int>(_dpi * _horizontalScale), static_cast<int>(_dpi));
 
-        if (FT_New_Face(library, path.c_str(), 0, &face))
-            throw phi::exception("Could not open font " + path);
-
-        FT_Set_Pixel_Sizes(face, 0, _size);
-        FT_GlyphSlot g = face->glyph;
-
-        int roww = 0;
-        int rowh = 0;
-        _texWidth = 0;
-        _texHeight = 0;
-
-        memset(c, 0, sizeof c);
-
-         //Find minimum size for a texture holding all visible ASCII characters
-        for (int i = 32; i < 256; i++)
+        FT_Matrix matrix =
         {
-            if (FT_Load_Char(face, i, FT_LOAD_RENDER))
-            {
-                //TODO: Log message to app
-                //fprintf(stderr, "Loading character %c failed!\n", i);
-                continue;
-            }
+            static_cast<int>((1.0f / _horizontalScale) * 0x10000L),
+            static_cast<int>(0 * 0x10000L),
+            static_cast<int>(0 * 0x10000L),
+            static_cast<int>(1 * 0x10000L)
+        };
 
-            if (roww + g->bitmap.width + 1 >= MAX_WIDTH)
-            {
-                _texWidth = std::max(_texWidth, roww);
-                _texHeight += rowh;
-                roww = 0;
-                rowh = 0;
-            }
-            roww += g->bitmap.width + 1;
-            rowh = std::max(rowh, (int)g->bitmap.rows);
+        FT_Set_Transform(_fontFace, &matrix, NULL);
+
+        _hasKerning = static_cast<bool>(FT_HAS_KERNING(_fontFace));
+        _ascender = static_cast<float>(_fontFace->size->metrics.ascender >> 6);
+        _baseLine = static_cast<float>(_fontFace->size->metrics.descender >> 6);
+        _lineHeight = static_cast<float>(_fontFace->size->metrics.height >> 6);
+    }
+
+    glyph* font::getGlyph(const ulong& glyphChar)
+    {
+        auto glyphIndex = FT_Get_Char_Index(_fontFace, glyphChar);
+        return getGlyph(glyphIndex);
+    }
+
+    glyph* font::getGlyph(const uint& glyphIndex)
+    {
+        if (_glyphCache.find(glyphIndex) != _glyphCache.end())
+            return _glyphCache[glyphIndex];
+
+        FT_GlyphSlot glyphSlot = _fontFace->glyph;
+        float primary = 0.33f;
+        float secondary = 0.33f;
+        float tertiary = 0.0f;
+        float norm = 1.0f / (primary + 2.0f * secondary + 2.0f * tertiary);
+
+        byte lcdWeights[5];
+        lcdWeights[0] = (byte)(tertiary * norm * 255);
+        lcdWeights[1] = (byte)(secondary * norm * 255);
+        lcdWeights[2] = (byte)(primary * norm * 255);
+        lcdWeights[3] = (byte)(secondary * norm * 255);
+        lcdWeights[4] = (byte)(tertiary * norm * 255);
+
+        FT_Library_SetLcdFilter(font::FreeTypeLibrary, FT_LCD_FILTER_LIGHT);
+        FT_Library_SetLcdFilterWeights(font::FreeTypeLibrary, lcdWeights);
+        int flags = FT_LOAD_RENDER | FT_LOAD_TARGET_LCD;
+
+        if (_hinting)
+            flags |= FT_LOAD_FORCE_AUTOHINT;
+        else
+            flags |= FT_LOAD_NO_AUTOHINT | FT_LOAD_NO_HINTING;
+
+        FT_Load_Glyph(_fontFace, glyphIndex, flags);
+
+        auto buffer = glyphSlot->bitmap.buffer;
+        auto w = glyphSlot->bitmap.width / 3;
+        auto h = glyphSlot->bitmap.rows;
+
+        auto g = new glyph();
+        g->index = glyphIndex;
+        g->width = static_cast<float>(w);
+        g->height = static_cast<float>(h);
+        g->offsetX = static_cast<float>(glyphSlot->bitmap_left);
+        g->offsetY = static_cast<float>(glyphSlot->bitmap_top);
+        g->horiBearingX = static_cast<float>((glyphSlot->metrics.horiBearingX >> 6) / _horizontalScale);
+        g->horiBearingY = static_cast<float>(glyphSlot->metrics.horiBearingY >> 6);
+        g->horiAdvance = static_cast<float>((glyphSlot->metrics.horiAdvance >> 6) / _horizontalScale);
+        g->vertBearingX = static_cast<float>(glyphSlot->metrics.vertBearingX >> 6);
+        g->vertBearingY = static_cast<float>(glyphSlot->metrics.vertBearingY >> 6);
+        g->vertAdvance = static_cast<float>(glyphSlot->metrics.vertAdvance >> 6);
+        g->data = buffer;
+        _glyphCache[glyphIndex] = g;
+
+        return g;
+    }
+
+    ivec2 font::getKerning(glyph* firstGlyph, glyph* secondGlyph)
+    {
+        if (_hasKerning &&
+            firstGlyph != nullptr &&
+            secondGlyph != nullptr)
+        {
+            FT_Vector kern;
+            FT_Get_Kerning(
+                _fontFace,
+                firstGlyph->index,
+                secondGlyph->index,
+                FT_KERNING_DEFAULT,
+                &kern);
+
+            return ivec2((kern.x >> 6) / _horizontalScale, kern.y >> 6);
         }
 
-        _texWidth = std::max(_texWidth, roww);
-        _texHeight += rowh;
-
-        //_texture = texture::create(_texWidth, _texHeight, GL_RGBA, GL_RED, GL_UNSIGNED_BYTE);
-        _texture = new texture(_texWidth, _texHeight, GL_RGBA);
-        //_texture->bind(0);
-
-        // We require 1 byte alignment when uploading texture data
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glError::check();
-
-        // Clamping to edges is important to prevent artifacts when scaling
-        //_texture->setParam(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        //_texture->setParam(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        // Linear filtering usually looks best for text
-        //_texture->setParam(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        //_texture->setParam(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // Paste all glyph bitmaps into the texture, remembering the offset
-        int ox = 0;
-        int oy = 0;
-
-        rowh = 0;
-        for (int i = 32; i < 128; i++)
-        {
-            if (FT_Load_Char(face, i, FT_LOAD_RENDER))
-            {
-                //TODO: Log message to app
-                //fprintf(stderr, "Loading character %c failed!\n", i);
-                continue;
-            }
-
-            if (ox + g->bitmap.width + 1 >= MAX_WIDTH)
-            {
-                oy += rowh;
-                rowh = 0;
-                ox = 0;
-            }
-
-            glTexSubImage2D(GL_TEXTURE_2D, 0, ox, oy, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-            glError::check();
-
-            c[i].ax = (float)(g->advance.x >> 6);
-            c[i].ay = (float)(g->advance.y >> 6);
-
-            c[i].bw = (float)g->bitmap.width;
-            c[i].bh = (float)g->bitmap.rows;
-
-            c[i].bl = (float)g->bitmap_left;
-            c[i].bt = (float)g->bitmap_top;
-
-            c[i].tx = ox / (float)_texWidth;
-            c[i].ty = oy / (float)_texHeight;
-
-            rowh = std::max(rowh, (int)g->bitmap.rows);
-            ox += g->bitmap.width + 1;
-        }
-
-        _baseLine = (int)abs(face->size->metrics.descender / 64.0f);
-        _ascender = (int)abs(face->size->metrics.ascender / 64.0f);
-        _lineHeight = (int)(face->size->metrics.height / 64.0f);
+        return ivec2(0);
     }
 
     font::~font()
     {
-        safeDelete(_texture);
+        FT_Done_Face(_fontFace);
     }
 }

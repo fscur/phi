@@ -3,14 +3,14 @@
 
 namespace phi
 {
-    gBufferRenderPass::gBufferRenderPass(gl* gl, size_t w, size_t h) :
+    gBufferRenderPass::gBufferRenderPass(phi::gl* gl, size_t w, size_t h) :
         _gl(gl),
         _w(w),
         _h(h),
         shader(nullptr),
-        framebuffer(new phi::framebuffer()),
         targets(vector<renderTarget*>()),
-        batches(vector<batch*>())
+        batches(vector<phi::batch*>()),
+        framebuffer(new phi::framebuffer())
     {
         initShader();
         initRenderTargets();
@@ -42,7 +42,7 @@ namespace phi
     {
         auto reserveContainer = [&](GLenum internalFormat, size_t size)
         {
-            auto layout = textureContainerLayout();
+            auto layout = phi::textureContainerLayout();
             layout.w = static_cast<GLsizei>(_w);
             layout.h = static_cast<GLsizei>(_h);
             layout.levels = 1;

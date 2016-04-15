@@ -3,15 +3,15 @@
 
 namespace phi
 {
-    lightingRenderPass::lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, size_t w, size_t h) :
+    lightingRenderPass::lightingRenderPass(phi::gBufferRenderPass* gBufferPass, phi::gl* gl, size_t w, size_t h) :
         _gl(gl),
+        _w(w),
+        _h(h),
         _quad(nullptr),
+        _quadVao(0u),
         _quadVbo(nullptr),
         _quadEbo(nullptr),
         _rtsBuffer(nullptr),
-        _w(w),
-        _h(h),
-        _quadVao(0u),
         shader(nullptr)
     {
         createQuad();
@@ -67,7 +67,7 @@ namespace phi
         attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
 
         auto verticesCount = _quad->verticesCount;
-        auto data = new vertex[verticesCount];
+        vertex* data = new vertex[verticesCount];
         for (uint i = 0; i < verticesCount; i++)
         {
             data[i] = _quad->vboData[i];

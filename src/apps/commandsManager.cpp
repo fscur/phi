@@ -122,10 +122,8 @@ namespace phi
         }
 
         for (size_t j = 0u; j < shortcutsCopy.size(); ++j)
-        {
             if (shortcutsCopy[j].keys.size() == i)
                 executeCommand(shortcutsCopy[j].commandFunc());
-        }
     }
 
     void commandsManager::onKeyUp(phi::keyboardEventArgs* e)

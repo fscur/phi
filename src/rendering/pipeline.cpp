@@ -30,7 +30,6 @@ namespace phi
             nullptr,
             bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
-        _frameUniformBlockBuffer->bindBufferBase(0);
     }
 
     void pipeline::createMaterialsBuffer()
@@ -38,18 +37,17 @@ namespace phi
         auto materialsBufferSize = MAX_MATERIALS_COUNT * sizeof(materialGpuData);
         _materialsBuffer = new buffer(bufferTarget::shader);
         _materialsBuffer->storage(materialsBufferSize, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
-        _materialsBuffer->bindBufferBase(1);
     }
 
-    void pipeline::updateFrameUniformBlock(frameUniformBlock& frameUniformBlock)
+    void pipeline::updateFrameUniformBlock(phi::frameUniformBlock& frameUniformBlock)
     {
         _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
+        _frameUniformBlockBuffer->bindBufferBase(0);
     }
 
-    void pipeline::addToBatches(node* node)
+    void pipeline::addToBatches(node* n)
     {
-        auto mesh = node->getComponent<phi::mesh>();
-        
+        auto mesh = n->getComponent<phi::mesh>();
         if (mesh)
         {
             auto material = mesh->material;
@@ -62,12 +60,12 @@ namespace phi
             batchObject.mesh = mesh;
             batchObject.geometry = geometry;
             batchObject.materialId = _materialsMaterialsGpu[material];
-            batchObject.modelMatrix = node->getTransform()->getModelMatrix();
+            batchObject.modelMatrix = n->getTransform()->getModelMatrix();
 
             addToBatches(batchObject);
         }
 
-        auto children = node->getChildren();
+        auto children = n->getChildren();
 
         for (auto child : children)
             addToBatches(child);
@@ -79,7 +77,7 @@ namespace phi
         auto added = false;
         auto batchesCount = batches.size();
 
-        batch* batch = nullptr;
+        phi::batch* batch = nullptr;
 
         while (!added && i < batchesCount)
         {
@@ -129,49 +127,50 @@ namespace phi
         auto offset = _materialsMaterialsGpu[material] * sizeof(phi::materialGpuData);
 
         _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
-
+        _materialsBuffer->bindBufferBase(1);
         _loadedMaterials.push_back(material);
     }
 
-    void pipeline::add(node* node)
+    void pipeline::add(node* n)
     {
-        addToBatches(node);
+        addToBatches(n);
     }
 
-    void pipeline::updateBatches(node* node)
+    void pipeline::updateBatches(node* n)
     {
-        auto mesh = node->getComponent<phi::mesh>();
+        auto mesh = n->getComponent<phi::mesh>();
         if (mesh)
         {
             auto batch = _meshesBatches[mesh];
-            _nodesToUpdate[batch].push_back(node);
+            _nodesToUpdate[batch].push_back(n);
         }
 
-        auto children = node->getChildren();
+        auto children = n->getChildren();
         for (auto child : children)
             updateBatches(child);
     }
 
-    void pipeline::update(node* node)
+    void pipeline::update(node* n)
     {
-        updateBatches(node);
+        updateBatches(n);
 
         for (auto batch : batches)
         {
             vector<batchObject> bacthObjectsToUpdade;
 
-            for (auto node : _nodesToUpdate[batch])
+            for (auto n : _nodesToUpdate[batch])
             {
-                auto mesh = node->getComponent<phi::mesh>();
+                auto mesh = n->getComponent<phi::mesh>();
                 auto batchObject = phi::batchObject();
                 batchObject.mesh = mesh;
                 batchObject.geometry = mesh->geometry;
                 batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-                batchObject.modelMatrix = node->getTransform()->getModelMatrix();
+                batchObject.modelMatrix = n->getTransform()->getModelMatrix();
                 bacthObjectsToUpdade.push_back(batchObject);
             }
 
             batch->update(bacthObjectsToUpdade);
+
             _nodesToUpdate[batch].clear();
         }
     }

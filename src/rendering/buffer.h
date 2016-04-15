@@ -67,8 +67,8 @@ namespace phi
         RENDERING_API void bind();
         RENDERING_API void unbind();
         RENDERING_API void bindBufferBase(GLuint location);
-        RENDERING_API void storage(GLsizeiptr size, void* data, bufferStorageUsage::bufferStorageUsage usage);
-        RENDERING_API void data(GLsizeiptr size, void* data, bufferDataUsage::bufferDataUsage usage);
+        RENDERING_API void storage(GLsizeiptr size, const void* data, bufferStorageUsage::bufferStorageUsage usage);
+        RENDERING_API void data(GLsizeiptr size, const void* data, bufferDataUsage::bufferDataUsage usage);
         RENDERING_API void subData(GLintptr offset, GLintptr size, void* data);
     };
 }

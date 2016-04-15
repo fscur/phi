@@ -3,79 +3,49 @@
 
 namespace phi
 {
-    label::label(sizeui viewportSize) : control(viewportSize)
+    label::label() :
+        control(controlType::label),
+        _font(uiRepository::fontConsolas14),
+        _text(L"[label]")
     {
-        _text = "";
-        //_texture = uiRepository::texturesRepository->getResource("button.png");
-        auto size = sizeui(viewportSize.w, viewportSize.h, viewportSize.d);
-        _backgroundRenderer = new quadRenderer2D(vec2(), 0.0f, phi::sizeui(0, 0), size);
-        _textRenderer = new textRenderer2D(size);
-        //_font = uiRepository::fontsRepository->getResource("Consola_14");
-        _textX = 0;
-        _textY = 0;
     }
 
     label::~label()
     {
-        safeDelete(_textRenderer);
     }
 
     void label::updateTextLocation()
     {
-        sizeui textSize = _textRenderer->measureSize(_text, _font);
+        /*sizeui textSize = _textRenderer->measureSize(_text, _font);
         if (textSize.w > _size.w)
             _textX = _x;
         else
             _textX = (int)(_x + _size.w * 0.5f - textSize.w * 0.5f);
 
-        _textY = (int)(_y + _size.h * 0.5f - textSize.h * 0.5f);
+        _textY = (int)(_y + _size.h * 0.5f - textSize.h * 0.5f);*/
     }
 
-    void label::setX(int value)
+    inline void label::setPosition(vec3 value)
     {
-        _x = value;
-        _backgroundRenderer->setLocation(vec2(_x, _y));
-        _backgroundRenderer->update();
-        updateTextLocation();
+        _position = value;
+        raisePropertyChanged();
     }
 
-    void label::setY(int value)
+    inline void label::setSize(sizef value)
     {
-        _y = value;
-        _backgroundRenderer->setLocation(vec2(_x, _y));
-        _backgroundRenderer->update();
-        updateTextLocation();
+        _size = value;
+        raisePropertyChanged();
     }
 
-    void label::setSize(sizeui size)
+    inline void label::setFont(font * value) 
     {
-        _size = size;
-        auto sizeu = sizeui(size.w, size.h, size.d);
-        _backgroundRenderer->setSize(sizeu);
-        _backgroundRenderer->update();
-        updateTextLocation();
+        _font = value;
+        raisePropertyChanged();
     }
 
-    void label::setText(std::string value)
+    inline void label::setText(wstring value)
     {
         _text = value;
-        updateTextLocation();
-    }
-
-    void label::setViewportSize(sizeui value)
-    {
-        control::setViewportSize(value);
-        auto size = sizeui(value.w, value.h, value.d);
-        _textRenderer->setViewportSize(size);
-        _textRenderer->update();
-    }
-
-    void label::onRender()
-    {
-        //glEnable(GL_BLEND);
-        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        _backgroundRenderer->render(_texture, _backgroundColor);
-        _textRenderer->render(_text, _font, _foregroundColor, _backgroundColor, vec2(_textX, _textY), _zIndex + 0.001f);
-        //glDisable(GL_BLEND);
+        raisePropertyChanged();
     }
 }

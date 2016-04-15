@@ -46,17 +46,17 @@ namespace phi
 
     private:
         void create();
-        void load(texture* texture);
+        void load(const texture* const texture);
 
     public:
         GLuint id;
         GLuint64 handle;
-        map<texture*, textureAddress> texturesAddresses;
-        vector<texture*> textures;
+        std::map<const texture*, phi::textureAddress> texturesAddresses;
+        vector<const texture*> textures;
 
     public:
         textureContainer(
-            const textureContainerLayout& layout,
+            textureContainerLayout layout,
             size_t maxTextures,
             GLint unit,
             bool bindless,
@@ -64,6 +64,6 @@ namespace phi
 
         ~textureContainer();
 
-        bool add(texture* texture, textureAddress& textureAddress);
+        bool add(const texture* const texture, textureAddress& textureAddress);
     };
 }

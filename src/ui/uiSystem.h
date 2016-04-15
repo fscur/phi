@@ -4,7 +4,10 @@
 
 #include <core\size.h>
 
-#include <rendering\quadRenderer2D.h>
+#include <rendering\gl.h>
+#include <rendering\font.h>
+
+#include "uiRenderer.h"
 
 #include "cursor.h"
 #include "control.h"
@@ -14,9 +17,10 @@ namespace phi
     struct uiSystemInfo
     {
     public:
-        std::string applicationPath;
-        std::string resourcesPath;
-        sizeui size;
+        gl* gl;
+        string applicationPath;
+        string resourcesPath;
+        sizef size;
     };
 
     struct controlEventTokens
@@ -25,28 +29,32 @@ namespace phi
         eventToken mouseLeave;
         eventToken addedChild;
         eventToken removedChild;
+        eventToken propertyChanged;
     };
 
     class uiSystem
     {
     private:
         static uiSystem* _instance;
-        std::vector<control*> _controls;
-        std::vector<control*> _rootControls;
-        std::map<control*, controlEventTokens> _controlsEventTokens;
+        vector<control*> _controls;
+        vector<control*> _rootControls;
+        map<control*, controlEventTokens> _controlsEventTokens;
         uiSystemInfo _info;
         eventHandler<controlEventArgs>* _controlGotFocus;
         eventHandler<controlEventArgs>* _controlLostFocus;
-        cursor* _cursor;
-        quadRenderer2D* _cursorRenderer;
-        std::vector<std::pair<control*, bool>> _controlsToAdd;
-        std::vector<control*> _controlsToRemove;
+        vector<std::pair<control*, bool>> _controlsToAdd;
+        vector<control*> _controlsToRemove;
+
+        gl* _gl;
+        font* _font;
+        uiRenderer* _uiRenderer;
 
     private:
         uiSystem();
+        ~uiSystem();
 
-        void addControlToList(control* cntrl, bool root);
-        void removeControlFromList(control* cntrl);
+        void addControlToLists(control* control, bool root);
+        void removeControlFromLists(control* control);
 
         void notifyControlGotFocus(controlEventArgs e);
         void notifyControlLostFocus(controlEventArgs e);
@@ -62,12 +70,14 @@ namespace phi
         void inputKeyUp(keyboardEventArgs* e);
         void dragDropEnded(dragDropEventArgs* e);
         void renderCursor();
+        void initRenderer(float width, float height);
+        void controlProperyChanged(control* sender);
 
     public:
         UI_API static uiSystem* get();
         UI_API void init(uiSystemInfo info);
         UI_API void setCursor(cursor* value);
-        UI_API void resize(sizeui value);
+        UI_API void resize(sizef value);
 
         UI_API void addControl(control* control);
         UI_API void removeControl(control* control);

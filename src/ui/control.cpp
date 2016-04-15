@@ -5,41 +5,48 @@
 
 namespace phi
 {
-    toolTip* control::_toolTip = nullptr;
     scissorStack* control::controlsScissors = nullptr;
 
-    control::control(sizeui viewportSize)
-    {
-        _x = 0;
-        _y = 0;
-        _zIndex = 0;
-        _size = sizeui(0, 0);
-        _viewportSize = viewportSize;
-        _isFocused = false;
-        _isMouseOver = false;
-        _isTopMost = false;
-        _toolTipText = "";
-        _renderToolTip = false;
-        _dragData = "";
-        _clickedOver = false;
-        _mouseEnter = new mouseEventHandler();
-        _mouseLeave = new mouseEventHandler();
-        _gotFocus = new eventHandler<controlEventArgs>();
-        _lostFocus = new eventHandler<controlEventArgs>();
-        _addedChild = new eventHandler<controlEventArgs>();
-        _removedChild = new eventHandler<controlEventArgs>();
+    control::control(controlType::controlType type) :
+        _mouseEnter(new mouseEventHandler()),
+        _mouseLeave(new mouseEventHandler()),
+        _propertyChanged(new eventHandler<control*>()),
+        _gotFocus(new eventHandler<controlEventArgs>()),
+        _lostFocus(new eventHandler<controlEventArgs>()),
+        _addedChild(new eventHandler<controlEventArgs>()),
+        _removedChild(new eventHandler<controlEventArgs>()),
+        _dragTexture(nullptr),
+        _children(vector<control*>()),
+        _dragData(""),
+        _toolTipText(""),
+        _mouseStillTime(0.0),
+        _isFocused(false),
+        _isTopMost(false),
+        _isMouseOver(false),
+        _clickedOver(false),
+        _renderToolTip(false),
+        _position(vec3(0.0f)),
+        _zIndex(0),
+        _size(sizef(0.0f)),
+        _viewportSize(sizef(0.0f)),
+        _backgroundColor(color::transparent),
+        _backgroundTexture(nullptr),
+        type(type)
+    {   
     }
 
     control::~control()
     {
         safeDelete(_mouseEnter);
         safeDelete(_mouseLeave);
-    }
+        safeDelete(_propertyChanged);
+        safeDelete(_gotFocus);
+        safeDelete(_lostFocus);
+        safeDelete(_addedChild);
+        safeDelete(_removedChild);
+        safeDelete(_dragTexture);
 
-    void control::init(sizeui viewportSize)
-    {
-        _toolTip = new toolTip(viewportSize);
-        controlsScissors = new scissorStack(viewportSize);
+        //TODO:deleter children controls
     }
 
     void control::addChild(control* child)
@@ -65,9 +72,27 @@ namespace phi
             notifyLostFocus(controlEventArgs(this));
     }
 
+    inline void control::setBackgroundColor(color value) 
+    { 
+        _backgroundColor = value; 
+        raisePropertyChanged();
+    }
+
+    inline void control::setBackgroundTexture(texture* value) 
+    { 
+        _backgroundTexture = value; 
+        raisePropertyChanged();
+    }
+
+    void control::setPadding(vec4 value)
+    {
+        _padding = value;
+        raisePropertyChanged();
+    }
+
     bool control::isPointInside(int x, int y)
     {
-        return x >= _x && x <= _x + (int)_size.w && y >= _y && y <= _y + (int)_size.h;
+        return x >= _position.x && x <= _position.x + (int)_size.w && y >= _position.y && y <= _position.y + (int)_size.h;
     }
 
     void control::notifyMouseDown(mouseEventArgs* e)
@@ -141,6 +166,11 @@ namespace phi
         _lostFocus->raise(e);
     }
 
+    void control::raisePropertyChanged()
+    {
+        _propertyChanged->raise(this);
+    }
+
     void control::resetToolTip()
     {
         _mouseStillTime = 0.0f;
@@ -165,24 +195,10 @@ namespace phi
                 //else
                 //    y = _y + _size.h;
 
-                _toolTip->show(_toolTipText, vec2(_x + _size.w * 0.5f, _y + _size.h), _size);
+                //_toolTip->show(_toolTipText, vec2(_x + _size.w * 0.5f, _y + _size.h), _size);
 
                 _renderToolTip = true;
             }
         }
-    }
-
-    void control::render()
-    {
-        if (_renderToolTip)
-            _toolTip->render();
-
-        onRender();
-    }
-
-    void control::onRender()
-    {
-        for (control* ctrl : _children)
-            ctrl->render();
     }
 }
