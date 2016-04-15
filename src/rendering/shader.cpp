@@ -19,6 +19,27 @@ namespace phi
     {
     }
 
+    shader::~shader()
+    {
+        if (!_initialized)
+            return;
+
+        unbind();
+
+        glDetachShader(_programId, _vertexShaderId);
+        glError::check();
+        glDetachShader(_programId, _fragmentShaderId);
+        glError::check();
+
+        glDeleteShader(_vertexShaderId);
+        glError::check();
+        glDeleteShader(_fragmentShaderId);
+        glError::check();
+
+        glDeleteProgram(_programId);
+        glError::check();
+    }
+
     bool shader::init()
     {
         if (_initialized)
@@ -140,6 +161,12 @@ namespace phi
         return isLinked == GL_TRUE;
     }
 
+    void shader::createUniform(uint location, const string & name)
+    {
+        _uniforms[location] = glGetUniformLocation(_programId, name.c_str());
+        glError::check();
+    }
+
     void shader::initializeAttributes()
     {
         for (uint i = 0; i < _attributes.size(); ++i)
@@ -154,8 +181,8 @@ namespace phi
         if (!_initialized)
             return;
 
-        _uniforms[location] = glGetUniformLocation(_programId, name.c_str());
-        glError::check();
+        _uniformsNames[location] = name;
+        createUniform(location, name);
     }
 
     void shader::setUniform(uint location, texture* value, GLuint index)
@@ -272,17 +299,6 @@ namespace phi
         glError::check();
     }
 
-    void shader::release()
-    {
-        if (!_initialized)
-            return;
-
-        unbind();
-
-        glDeleteProgram(_programId);
-        glError::check();
-    }
-
     bool shader::reload()
     {
         unbind();
@@ -295,6 +311,14 @@ namespace phi
         glLinkProgram(_programId);
         glError::check();
         result = validateProgram(_programId);
+
+        if (result)
+        {
+            for (auto& pair : _uniformsNames)
+            {
+                createUniform(pair.first, pair.second);
+            }
+        }
 
         return result;
     }

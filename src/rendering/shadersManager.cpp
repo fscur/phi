@@ -12,10 +12,7 @@ namespace phi
     shadersManager::~shadersManager()
     {
         for (auto& pair : _shaders)
-        {
-            pair.second->release();
             safeDelete(pair.second);
-        }
     }
 
     shader* shadersManager::load(string name, const vector<string>& attributes)
