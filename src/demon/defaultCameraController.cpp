@@ -49,8 +49,8 @@ namespace demon
         _dragPlaneTopRight(phi::vec3()),
         _dragPlaneTopLeft(phi::vec3())
     {
-        auto gridTexture = phi::importer::importImage("C:\\Users\\Fernando\\Desktop\\grid.png");
-        _scene->renderer->planeGridPass->setTexture(gridTexture);
+        _gridTexture = phi::importer::importImage("C:\\Users\\Fernando\\Desktop\\grid.png");
+        _scene->renderer->planeGridPass->setTexture(_gridTexture);
     }
 
     void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
@@ -131,15 +131,16 @@ namespace demon
         object->traverse
         (
             [&aabb](phi::node* n)
-        {
-            auto meshComponent = n->getComponent<phi::mesh>();
-            if (meshComponent)
             {
-                auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
-                safeDelete(aabb);
-                aabb = added;
+                auto meshComponent = n->getComponent<phi::mesh>();
+                if (meshComponent)
+                {
+                    auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
+                    safeDelete(aabb);
+                    aabb = added;
+                }
             }
-        });
+        );
 
         auto model = object->getTransform()->getModelMatrix();
         auto transformedMin = phi::mathUtils::multiply(model, aabb->min);

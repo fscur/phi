@@ -22,6 +22,7 @@ namespace demon
         int32_t _mousePosY;
         int32_t _lastMousePosX;
         int32_t _lastMousePosY;
+        phi::texture* _gridTexture;
 
         phi::vec3 _zoomDir;
         phi::vec3 _zoomCameraPos;
@@ -88,7 +89,10 @@ namespace demon
 
     public:
         defaultCameraController(phi::scene* scene);
-        virtual ~defaultCameraController() {}
+        virtual ~defaultCameraController()
+        {
+            safeDelete(_gridTexture);
+        }
 
         virtual void update() override;
     };

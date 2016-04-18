@@ -103,7 +103,6 @@ namespace phi
     void planeGridPass::update()
     {
         shader->bind();
-
         shader->setUniform(0, transform.getModelMatrix());
         shader->setUniform(1, ((float)phi::time::totalSeconds - _beginSeconds) * 20.0f);
         shader->setUniform(2, _scale);

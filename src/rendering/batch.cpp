@@ -38,6 +38,13 @@ namespace phi
         safeDelete(_modelMatricesBuffer);
         safeDelete(_ebo);
         safeDelete(_drawCmdBuffer);
+
+        for (auto geometry : _geometries)
+        {
+            auto instances = _instances[geometry];
+            for (auto instance : instances)
+                safeDelete(instance);
+        }
     }
 
     void batch::createVao(const batchObject &batchObject)
