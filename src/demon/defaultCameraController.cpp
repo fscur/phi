@@ -9,6 +9,8 @@
 #include <rendering\mesh.h>
 #include <rendering\ray.h>
 
+#include <apps\application.h>
+
 namespace demon
 {
     defaultCameraController::defaultCameraController(phi::scene* scene) :
@@ -49,7 +51,8 @@ namespace demon
         _dragPlaneTopRight(phi::vec3()),
         _dragPlaneTopLeft(phi::vec3())
     {
-        _gridTexture = phi::importer::importImage("C:\\Users\\Fernando\\Desktop\\grid.png");
+        auto texturePath = phi::application::resourcesPath + "\\images\\grid.png";
+        _gridTexture = phi::importer::importImage(texturePath);
         _scene->renderer->planeGridPass->setTexture(_gridTexture);
     }
 
@@ -157,6 +160,9 @@ namespace demon
             _dragOrigin = positions[0];
             _dragObject = object;
             _dragObjectStartPosition = object->getTransform()->getLocalPosition();
+
+            phi::safeDeleteArray(normals);
+            phi::safeDeleteArray(positions);
 
             auto min = transformedAabb.min;
             auto max = transformedAabb.max;
