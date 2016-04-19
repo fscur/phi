@@ -5,25 +5,17 @@
 
 namespace phi
 {
-    scene::scene(phi::gl* gl, size_t w, size_t h) :
+    scene::scene(gl* gl, float w, float h) :
         _gl(gl),
-        w(w),
-        h(h)
+        _objects(vector<node*>()),
+        _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
+        _pipeline(new pipeline(gl)),
+        _renderer(new renderer(gl, w, h)),
+        _w(w),
+        _h(h)
     {
-        _pipeline = new phi::pipeline(gl);
-        _renderer = new phi::renderer(gl, w, h);
-
-        camera = 
-            new phi::camera(
-                "mainCamera", 
-                static_cast<float>(w), 
-                static_cast<float>(h), 
-                0.1f, 
-                1000.0f, 
-                glm::half_pi<float>() * 0.5f);
-
         auto cameraNode = new node();
-        cameraNode->addComponent(camera);
+        cameraNode->addComponent(_camera);
         add(cameraNode);
     }
 
@@ -39,8 +31,8 @@ namespace phi
     void scene::update()
     {
         auto frameUniformBlock = phi::frameUniformBlock();
-        frameUniformBlock.p = camera->getProjectionMatrix();
-        frameUniformBlock.v = camera->getViewMatrix();
+        frameUniformBlock.p = _camera->getProjectionMatrix();
+        frameUniformBlock.v = _camera->getViewMatrix();
         frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
         frameUniformBlock.ip = glm::inverse(frameUniformBlock.p);
 
@@ -55,10 +47,10 @@ namespace phi
         _renderer->render();
     }
 
-    void scene::resize(size_t w, size_t h)
+    void scene::resize(float w, float h)
     {
-        camera->setWidth(static_cast<float>(w));
-        camera->setHeight(static_cast<float>(h));
+        _camera->setWidth(w);
+        _camera->setHeight(h);
     }
 
     void scene::add(node* n)

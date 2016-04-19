@@ -2,9 +2,9 @@
 #include <phi.h>
 #include "uiApi.h"
 #include <rendering\gl.h>
+#include <rendering\camera.h>
 #include <core\geometry.h>
 #include <rendering\vertexBuffer.h>
-#include "control.h"
 
 namespace phi
 {
@@ -24,12 +24,8 @@ namespace phi
     class controlsRenderPass
     {
     private:
-        const gl* _gl;
-        float _w;
-        float _h;
-
-        mat4 _projectionMatrix;
-        mat4 _viewMatrix;
+        gl* _gl;
+        camera* _camera;
 
         shader* _shader;
         geometry* _quad;
@@ -44,21 +40,23 @@ namespace phi
         vector<controlRenderData> _controlsRenderData;
         GLsizei _instanceCount;
 
-        vector<control*> _controls;
+        //vector<control*> _controls;
     private:
         void initShader();
-        void initCamera();
         void createQuad();
         void createVao();
         void createVbo(void* const data, GLsizeiptr size);
         void createEbo(void* const data, GLsizeiptr size);
         void createModelMatricesBuffer();
         void createControlsRenderDataBuffer();
+        void updateBuffers();
 
     public:
-        UI_API controlsRenderPass(const gl* const gl, float w, float h);
+        UI_API controlsRenderPass(gl* gl, camera* camera);
         UI_API ~controlsRenderPass();
-        UI_API void update(const vector<control*>& controls);
+        UI_API void add(controlRenderData renderData, mat4 modelMatrix);
+        UI_API void update();
+        //UI_API void update(const vector<control*>& controls);
         UI_API void render() const;
     };
 }

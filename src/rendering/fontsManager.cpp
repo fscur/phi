@@ -1,20 +1,30 @@
 #include <precompiled.h>
-#include "fontManager.h"
+#include "fontsManager.h"
+#include <io\path.h>
 
 namespace phi
 {
-    FT_Library fontManager::_freeTypeLibrary = nullptr;
-    bool fontManager::_freeTypeInitialized = false;
+    FT_Library fontsManager::_freeTypeLibrary = nullptr;
+    bool fontsManager::_initialized = false;
 
-    fontManager::fontManager(texturesManager* texturesManager) :
-        _texturesManager(texturesManager)
+    fontsManager::fontsManager(string path, texturesManager* texturesManager) :
+        _path(path),
+        _texturesManager(texturesManager),
+        _fonts(map<std::tuple<string, uint>, font*>()),
+        _glyphAtlas(map<glyph*, glyphNode*>()),
+        _glyphAtlasRoot(nullptr),
+        _glyphAtlasTexture(nullptr),
+        _glyphCache(map<std::tuple<const font*, ulong>, glyph*>()),
+        _glyphAtlasSize(-1),
+        _glyphAtlasTextureAddress(textureAddress())
     {
-        if (!_freeTypeInitialized)
+        assert(!_initialized);
+
+        if (!_initialized)
         {
+            _initialized = true;
             FT_Init_FreeType(&_freeTypeLibrary);
             font::FreeTypeLibrary = _freeTypeLibrary;
-
-            _freeTypeInitialized = true;
         }
 
         auto glyphAtlasSize = 0;
@@ -39,12 +49,15 @@ namespace phi
         _glyphAtlasTextureAddress = _texturesManager->add(_glyphAtlasTexture);
     }
 
-    fontManager::~fontManager()
+    fontsManager::~fontsManager()
     {
         FT_Done_FreeType(_freeTypeLibrary);
+        
+        for (auto pair : _fonts)
+            safeDelete(pair.second);
     }
 
-    glyph* fontManager::getGlyph(font* const font, const ulong& glyphChar)
+    glyph* fontsManager::getGlyph(font* const font, const ulong& glyphChar)
     {
         std::tuple<const phi::font*, ulong> key(font, glyphChar);
 
@@ -80,8 +93,27 @@ namespace phi
             GL_UNSIGNED_BYTE,
             glyph->data);
 
+        /*glBindTexture(GL_TEXTURE_2D_ARRAY, _glyphAtlasTextureAddress.containerId);
+        glError::check();
+
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        glError::check();*/
+
         _glyphCache[key] = glyph;
 
         return glyph;
+    }
+
+    font* fontsManager::load(string name, uint size)
+    {
+        auto key = std::tuple<string, uint>(name, size);
+
+        if (_fonts.find(key) != _fonts.end())
+            return _fonts[key];
+
+        string fileName = path::combine(_path, name);
+        auto font = new phi::font(fileName, size);
+        _fonts[key] = font;
+        return font;
     }
 }

@@ -1,18 +1,21 @@
 #include <precompiled.h>
 #include "font.h"
+#include <core\exception.h>
 
 namespace phi
 {
     FT_Library font::FreeTypeLibrary = nullptr;
 
-    font::font(string name, uint size)
+    font::font(const string& fileName, const uint size) :
+        _size(size),
+        _hinting(false),
+        _horizontalScale(1.0f),
+        _dpi(96.0f)
     {
-        _hinting = true;
-        _size = size;
-        _horizontalScale = 100.0f;
-        _dpi = 96.0f;
+        if (font::FreeTypeLibrary == nullptr)
+            throw phi::exception("FreeType not initialized. Inititialized Font Manager? ;)");
 
-        FT_New_Face(font::FreeTypeLibrary, name.c_str(), 0, &_fontFace);
+        FT_New_Face(font::FreeTypeLibrary, fileName.c_str(), 0, &_fontFace);
         FT_Set_Char_Size(_fontFace, _size * 64, 0, static_cast<int>(_dpi * _horizontalScale), static_cast<int>(_dpi));
 
         FT_Matrix matrix =

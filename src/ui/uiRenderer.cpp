@@ -1,15 +1,14 @@
 #include <precompiled.h>
 #include "uiRenderer.h"
-#include "label.h"
+//#include "label.h"
 
 namespace phi
 {
-    uiRenderer::uiRenderer(const gl* const gl, float w, float h) :
+    uiRenderer::uiRenderer(gl* gl, camera* camera) :
         _gl(gl),
-        _controlsRenderPass(new controlsRenderPass(gl, w, h)),
-        _textRenderPass(new textRenderPass(gl, w, h)),
-        _w(w),
-        _h(h)
+        _camera(camera), 
+        _controlsRenderPass(new controlsRenderPass(gl, _camera)),
+        _textRenderPass(new textRenderPass(gl, _camera))
     {   
     }
 
@@ -19,10 +18,10 @@ namespace phi
         safeDelete(_textRenderPass);
     }
 
-    void uiRenderer::update(const vector<control*>& controls)
+    /*void uiRenderer::update(const vector<control*>& controls)
     {
         _controlsRenderPass->update(controls);
-
+        
         vector<textRenderData> texts;
 
         for (auto control : controls)
@@ -49,6 +48,72 @@ namespace phi
     
     void uiRenderer::update(const control* const control)
     {
+    }
+*/
+
+    void uiRenderer::add(node* node)
+    {
+        addToLists(node);
+    }
+
+    void uiRenderer::addToLists(node* node)
+    {
+        auto controlRenderer = node->getComponent<phi::controlRenderer>();
+
+        if (controlRenderer)
+            addControlRenderer(node, controlRenderer);
+
+        auto textRenderer = node->getComponent<phi::textRenderer>();
+
+        if (textRenderer)
+            addTextRenderer(node, textRenderer);
+
+        auto children = node->getChildren();
+
+        for (auto child : children)
+            addToLists(child);
+    }
+
+    void uiRenderer::addControlRenderer(node* node, controlRenderer* controlRenderer)
+    {
+        _controlRenderers.push_back(controlRenderer);
+
+        auto renderData = controlRenderData();
+        renderData.backgroundColor = controlRenderer->getBackgroundColor();
+
+        auto texture = controlRenderer->getBackgroundTexture();
+        textureAddress address;
+
+        auto texturesManager = _gl->texturesManager;
+
+        if (texture == nullptr)
+            texture = _gl->defaultAlbedoTexture;
+
+        if (!texturesManager->contains(texture))
+            address = texturesManager->add(texture);
+        else
+            address = texturesManager->get(texture);
+
+        renderData.backgroundTextureUnit = address.unit;
+        renderData.backgroundTexturePage = address.page;
+
+        _controlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
+    }
+
+    void uiRenderer::addTextRenderer(node* node, textRenderer* textRenderer)
+    {
+        _textRenderers.push_back(textRenderer);
+        auto renderData = textRenderData();
+        renderData.text = textRenderer->getText();
+        renderData.position = node->getTransform()->getPosition();
+        renderData.font = textRenderer->getFont();
+
+        _textRenderPass->add(renderData);
+    }
+
+    void uiRenderer::update()
+    {
+        _controlsRenderPass->update();
     }
 
     void uiRenderer::render() const

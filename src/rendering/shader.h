@@ -2,7 +2,6 @@
 #include <phi.h>
 #include "renderingApi.h"
 #include <core\color.h>
-#include <core\size.h>
 #include "texture.h"
 
 namespace phi
@@ -43,7 +42,6 @@ namespace phi
         RENDERING_API void setUniform(uint location, GLuint value);
         RENDERING_API void setUniform(uint location, GLfloat value);
         RENDERING_API void setUniform(uint location, color value);
-        RENDERING_API void setUniform(uint location, sizef value);
         RENDERING_API void setUniform(uint location, mat3 value);
         RENDERING_API void setUniform(uint location, mat4 value);
         RENDERING_API void setUniform(uint location, vec2 value);

@@ -1,9 +1,15 @@
 #pragma once
 #include <phi.h>
 #include "uiApi.h"
+#include <core\node.h>
 #include <rendering\gl.h>
+#include <rendering\camera.h>
+#include "controlRenderer.h"
 #include "controlsRenderPass.h"
+
 #include "textRenderPass.h"
+#include "textRenderer.h"
+
 
 namespace phi
 {
@@ -11,19 +17,22 @@ namespace phi
     {
     private:
         const gl* _gl;
+        camera* _camera;
+        vector<controlRenderer*> _controlRenderers;
+        vector<textRenderer*> _textRenderers;
         controlsRenderPass* _controlsRenderPass;
         textRenderPass* _textRenderPass;
-        float _w;
-        float _h;
 
     private:
-        
+        void addToLists(node* node);
 
     public:
-        uiRenderer(const gl* const gl, float w, float h);
+        uiRenderer(gl* gl, camera* camera);
         ~uiRenderer();
-        void update(const vector<control*>& controls);
-        void update(const control* const control);
+        void add(node* node);
+        void addControlRenderer(node* node, controlRenderer* controlRenderer);
+        void addTextRenderer(node* node, textRenderer* textRenderer);
+        void update();
         void render() const;
     };
 }

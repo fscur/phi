@@ -15,27 +15,25 @@ namespace phi
     {
 
     private:
-        phi::gl* _gl;
-
+        gl* _gl;
         vector<node*> _objects;
-
-        phi::renderer* _renderer;
-        phi::pipeline* _pipeline;
-
-    public:
-        size_t w;
-        size_t h;
-        phi::camera* camera;
+        renderer* _renderer;
+        pipeline* _pipeline;
+        camera* _camera;
+        float _w;
+        float _h;
 
     public:
-        SCENES_API scene(phi::gl* gl, size_t w, size_t h);
+        SCENES_API scene(gl* gl, float w, float h);
         SCENES_API ~scene();
         
         SCENES_API void update();
         SCENES_API void render();
-        SCENES_API void resize(size_t w, size_t h);
+        SCENES_API void resize(float w, float h);
         SCENES_API void add(node* n);
         SCENES_API void remove(node* n);
+
         SCENES_API float getZBufferValue(int x, int y);
+        SCENES_API camera* getCamera() const { return _camera; }
     };
 }

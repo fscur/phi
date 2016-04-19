@@ -4,7 +4,6 @@
 #include <core\mouseEventArgs.h>
 #include <core\keyboardEventArgs.h>
 #include <core\input.h>
-#include <core\size.h>
 
 #include <rendering\camera.h>
 

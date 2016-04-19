@@ -3,15 +3,13 @@
 
 namespace phi
 {
-    inline textRenderPass::textRenderPass(const gl* const gl, float w, float h) :
+    inline textRenderPass::textRenderPass(gl* gl, camera* camera) :
         _gl(gl),
-        _w(w),
-        _h(h)
+        _camera(camera)
     {
-        _fontManager = new fontManager(_gl->texturesManager);
+        _fontsManager = gl->fontsManager;
 
         initShader();
-        initCamera();
         createQuad();
         createVao();
     }
@@ -20,7 +18,6 @@ namespace phi
     {
         safeDelete(_quad);
         safeDelete(_shader);
-        safeDelete(_fontManager);
         safeDelete(_vbo);
         safeDelete(_modelMatricesBuffer);
         safeDelete(_glyphIdsBuffer);
@@ -43,25 +40,6 @@ namespace phi
         _shader->addUniform(1, "p");
         _shader->addUniform(2, "glyphAtlas");
         _shader->addUniform(3, "texelSize");
-    }
-
-    void textRenderPass::initCamera()
-    {
-        auto size = 1.0f;
-        auto hw = (float)_w * 0.5f;
-        auto hh = (float)_h * 0.5f;
-
-        _projectionMatrix = glm::ortho<float>(-hw, hw, -hh, hh, 0, 1000);
-
-        /*_viewMatrix = glm::lookAt<float>(
-            vec3(hw, -hh, 1.0f),
-            vec3(hw, -hh, -1.0f),
-            vec3(0.0f, 1.0f, 0.0f));*/
-
-        _viewMatrix = glm::lookAt<float>(
-            vec3(0.0f, 0.0f, 1.0f),
-            vec3(0.0f, 0.0f, -1.0f),
-            vec3(0.0f, 1.0f, 0.0f));
     }
 
     void textRenderPass::createQuad()
@@ -166,7 +144,7 @@ namespace phi
 
         for (size_t i = 0; i < textLength; i++)
         {
-            auto glyph = _fontManager->getGlyph(font, (ulong)text[i]);
+            auto glyph = _fontsManager->getGlyph(font, (ulong)text[i]);
             auto kern = font->getKerning(previousGlyph, glyph);
             auto w = glyph->width;
             auto h = glyph->height;
@@ -196,6 +174,17 @@ namespace phi
         }
     }
 
+    void textRenderPass::add(textRenderData textRenderData)
+    {
+        auto font = textRenderData.font;
+
+        if (font == nullptr)
+            font = _gl->defaultFont;
+
+        addText(textRenderData.text, textRenderData.position, font);
+        updateBuffers();
+    }
+
     void textRenderPass::update(const vector<textRenderData>& texts)
     {
         _modelMatrices.clear();
@@ -211,19 +200,19 @@ namespace phi
     {
         _glyphInfoBuffer->bindBufferBase(0);
 
-        auto texelSize = 1.0f / (float)_fontManager->getGlyphAtlasSize();
+        auto texelSize = 1.0f / (float)_fontsManager->getGlyphAtlasSize();
 
         //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glDisable(GL_DEPTH_TEST);
-
+        glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendColor(1, 1, 1, 1);
 
         _shader->bind();
-        _shader->setUniform(0, _viewMatrix);
-        _shader->setUniform(1, _projectionMatrix);
-        _shader->setUniform(2, _fontManager->getGlyphAtlasTextureAdress().unit);
+        _shader->setUniform(0, _camera->getViewMatrix());
+        _shader->setUniform(1, _camera->getProjectionMatrix());
+        _shader->setUniform(2, _fontsManager->getGlyphAtlasTextureAdress().unit);
         _shader->setUniform(3, glm::vec2(texelSize, texelSize));
 
         glBindVertexArray(_vao);
@@ -235,5 +224,7 @@ namespace phi
         glBlendColor(0, 0, 0, 0);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
+
+        glEnable(GL_CULL_FACE);
     }
 }

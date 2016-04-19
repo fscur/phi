@@ -2,10 +2,9 @@
 #include <phi.h>
 #include <apps\window.h>
 #include <apps\commandsManager.h>
-#include <ui\label.h>
+//#include <ui\label.h>
 #include <scenes\scene.h>
-#include <rendering\textRenderer.h>
-#include <ui\uiSystem.h>
+#include <ui\ui.h>
 
 #include "defaultCameraController.h"
 #include "library.h"
@@ -24,8 +23,7 @@ namespace demon
         phi::scene* _scene;
         library* _library;
 
-        phi::uiSystem* _ui;
-        phi::label* _label1;
+        phi::ui* _ui;
         phi::commandsManager* _commandsManager;
         defaultCameraController* _defaultController;
 

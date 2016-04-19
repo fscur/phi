@@ -3,7 +3,7 @@
 
 namespace phi
 {
-    gBufferRenderPass::gBufferRenderPass(phi::gl* gl, size_t w, size_t h) :
+    gBufferRenderPass::gBufferRenderPass(gl* gl, float w, float h) :
         _gl(gl),
         _w(w),
         _h(h),

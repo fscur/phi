@@ -10,7 +10,10 @@
 #include <rendering\model.h>
 #include <apps\application.h>
 
-#include <ui\label.h>
+#include <ui\controlRenderer.h>
+#include <ui\textRenderer.h>
+
+#include <animation\floatAnimator.h>
 
 using namespace phi;
 
@@ -51,6 +54,7 @@ namespace demon
         auto info = gl::glInfo();
         info.state = initState;
         info.shadersPath = application::resourcesPath + "/shaders";
+        info.fontsPath = application::resourcesPath + "/fonts";
         _gl = new gl(info);
 
         importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
@@ -79,8 +83,8 @@ namespace demon
 
     void screen::initScene()
     {
-        _scene = new scene(_gl, _width, _height);
-        auto camera = _scene->camera;
+        _scene = new scene(_gl, static_cast<float>(_width), static_cast<float>(_height));
+        auto camera = _scene->getCamera();
 
         auto cameraTransform = camera->getTransform();
         auto cameraPos = vec3(0.0f, 0.0f, 10.0f);
@@ -98,30 +102,22 @@ namespace demon
 
     void screen::initUi()
     {
-        auto info = phi::uiSystemInfo();
-        info.applicationPath = phi::application::path;
-        info.resourcesPath = phi::application::resourcesPath;
-        info.size = sizef(static_cast<float>(_width), static_cast<float>(_height));
-        info.gl = _gl;
-        _ui = uiSystem::get();
-        _ui->init(info);
+        _ui = new ui(_gl, static_cast<float>(_width), static_cast<float>(_height));
 
-        auto label0 = new phi::label();
-        label0->setText(L"nando");
-        label0->setSize(sizef(100.0f, 100.0f));
-        label0->setPosition(vec3(0.0f, 0.0f, 0.0f));
-        label0->setBackgroundColor(color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f));
-        _ui->addControl(label0);
+        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 20);
 
-        _label1 = new phi::label();
-        _label1->setText(L"nando fodelão tio");
-        _label1->setSize(sizef(200.0f, 100.0f));
-        _label1->setPosition(vec3(50.0f, 0.0f, 0.0f));
-        _label1->setBackgroundColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 0.8f));
+        auto label0 = ui::newLabel(L"nando", vec3(0.0f, 0.0f, 0.0f), vec3(100.0f, 100.0f, 1.0f));
+        auto controlRenderer = label0->getComponent<phi::controlRenderer>();
+        controlRenderer->setBackgroundColor(color::fromRGBA(0.3f, 0.7f, 0.8f, 0.5f));
+        _ui->add(label0);
 
-        auto texture = _library->getTexturesRepository()->getAllResources()[0]->getObject();
-        _label1->setBackgroundTexture(texture);
-        _ui->addControl(_label1);
+        auto label1 = ui::newLabel(L"patricks", vec3(150.0f, 0.0f, 0.0f), vec3(100.0f, 100.0f, 1.0f));
+        controlRenderer = label1->getComponent<phi::controlRenderer>();
+        controlRenderer->setBackgroundColor(color::fromRGBA(0.8f, 0.7f, 0.3f, 0.5f));
+
+        auto textRenderer = label1->getComponent<phi::textRenderer>();
+        textRenderer->setFont(font);
+        _ui->add(label1);
     }
 
     void screen::initInput()
@@ -132,19 +128,12 @@ namespace demon
 
         _defaultController = new defaultCameraController(_scene);
     }
-    float t = 0.0f;
 
     void screen::onUpdate()
     {
-        t += 0.01f;
-
         phi::floatAnimator::update();
         _defaultController->update();
         _scene->update();
-
-        auto pos = phi::vec3(glm::cos(t) * 50.0f, glm::sin(t) * 50.0f, 0.0f);
-        _label1->setPosition(pos);
-
         _ui->update();
     }
 

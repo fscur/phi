@@ -48,7 +48,7 @@ void main(void)
         g = mix(current.r,  previous.b, z);
         b = mix(current.g,  current.r,  z);
     }
-   else if(shift < 1.0)
+    else if(shift < 1.0)
     {
         float z = (shift - 0.66)/0.334;
         r = mix(previous.g, previous.r, z);
@@ -61,9 +61,9 @@ void main(void)
    vec4 color = vec4(vcolor.rgb, (r+g+b)/3.0);
    color = t*color + (1.0-t)*vec4(r,g,b, min(min(r,g),b));
 
-   //fragColor = vec4(color.rgb, vcolor.a*color.a);
+   fragColor = vec4(color.rgb, vcolor.a*color.a);
    //fragColor = vec4(shift, 0.0, 0.0, 1.0); 
-   fragColor = fetch(fragTexCoord);
+   //fragColor = fetch(fragTexCoord);
    //fragColor = fetch(fragTexCoord + vec2(-1.0, 0.0) * texelSize.xy);
    //fragColor = vec4(1.0, 1.0, 0.0, 1.0);
    //fragColor = vec4(fragTexCoord, 1.0, 1.0);

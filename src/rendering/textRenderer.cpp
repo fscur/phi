@@ -8,7 +8,7 @@ namespace phi
         _w(w),
         _h(h)
     {
-        _fontManager = new fontManager(_gl->texturesManager);
+        //_fontManager = new fontsManager(_gl->texturesManager);
 
         initShader();
         initCamera();

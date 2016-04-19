@@ -2,7 +2,7 @@
 #include <phi.h>
 #include "renderingApi.h"
 #include "gl.h"
-#include "fontManager.h"
+#include "fontsManager.h"
 #include <core\geometry.h>
 #include "vertexBuffer.h"
 
@@ -18,7 +18,7 @@ namespace phi
         mat4 _projectionMatrix;
         mat4 _viewMatrix;
 
-        fontManager* _fontManager;
+        fontsManager* _fontManager;
 
         shader* _shader;
         geometry* _quad;

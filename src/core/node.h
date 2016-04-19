@@ -2,7 +2,6 @@
 #include <phi.h>
 #include "component.h"
 #include "transform.h"
-
 #include <vector>
 
 namespace phi
@@ -30,10 +29,14 @@ namespace phi
         vector<node*>& getChildren() { return _children; }
         void setParent(node* const value) { _parent = value; }
 
+        CORE_API void setPosition(vec3 value);
+        CORE_API void setSize(vec3 value);
+
         template<typename T>
         T* getComponent() const
         {
             const component::componentType type = T::getComponentType();
+
             for (unsigned int i = 0; i < _components.size(); i++)
             {
                 if (_components[i]->getType() == type)

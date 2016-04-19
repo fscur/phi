@@ -14,8 +14,8 @@ namespace phi
     {
     private:
         gl* _gl;
-        size_t _w;
-        size_t _h;
+        float _w;
+        float _h;
     public:
         shader* shader;
         framebuffer* framebuffer;
@@ -25,7 +25,7 @@ namespace phi
         void initShader();
         void initRenderTargets();
     public:
-        RENDERING_API gBufferRenderPass(gl* gl, size_t w, size_t h);
+        RENDERING_API gBufferRenderPass(gl* gl, float w, float h);
         RENDERING_API ~gBufferRenderPass();
 
         RENDERING_API void update();

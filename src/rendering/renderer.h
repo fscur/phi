@@ -15,10 +15,10 @@ namespace phi
         gBufferRenderPass* gBufferPass;
         lightingRenderPass* lightingPass;
         framebuffer* defaultFramebuffer;
-        size_t w;
-        size_t h;
+        float w;
+        float h;
 
-        renderer(phi::gl* gl, size_t w, size_t h) :
+        renderer(gl* gl, float w, float h) :
             _gl(gl),
             gBufferPass(new gBufferRenderPass(gl, w, h)),
             lightingPass(new lightingRenderPass(gBufferPass, gl, w, h)),

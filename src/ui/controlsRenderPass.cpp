@@ -3,14 +3,12 @@
 
 namespace phi 
 { 
-    controlsRenderPass::controlsRenderPass(const gl* const gl, float w, float h) :
+    controlsRenderPass::controlsRenderPass(gl* gl, camera* camera) :
         _gl(gl),
-        _w(w),
-        _h(h),
+        _camera(camera),
         _instanceCount(0)
     {
         initShader();
-        initCamera();
         createQuad();
         createVao();
     }
@@ -35,25 +33,6 @@ namespace phi
         _shader->addUniform(0, "v");
         _shader->addUniform(1, "p");
         _shader->addUniform(2, "textureArrays");
-    }
-
-    void controlsRenderPass::initCamera()
-    {
-        auto size = 1.0f;
-        auto hw = (float)_w * 0.5f;
-        auto hh = (float)_h * 0.5f;
-
-        _projectionMatrix = glm::ortho<float>(-hw, hw, -hh, hh, 0, 1000);
-
-        /*_viewMatrix = glm::lookAt<float>(
-            vec3(hw, -hh, 1.0f),
-            vec3(hw, -hh, -1.0f),
-            vec3(0.0f, 1.0f, 0.0f));*/
-
-        _viewMatrix = glm::lookAt<float>(
-            vec3(0.0f, 0.0f, 1.0f),
-            vec3(0.0f, 0.0f, -1.0f),
-            vec3(0.0f, 1.0f, 0.0f));
     }
 
     void controlsRenderPass::createQuad()
@@ -119,50 +98,25 @@ namespace phi
         _controlsRenderDataBuffer->bindBufferBase(0);
     }
 
-    void controlsRenderPass::update(const vector<control*>& controls)
+    void controlsRenderPass::updateBuffers()
     {
-        _instanceCount = static_cast<GLsizei>(controls.size());
-        _controlsRenderData.clear();
-        _modelMatrices.clear();
-
-        for (auto control : controls)
-        {
-            vec3 pos = control->getPosition();
-            sizef size = control->getSize();
-
-            auto modelMatrix = mat4(
-                size.w, 0.0f, 0.0f, 0.0f,
-                0.0f, size.h, 0.0f, 0.0f,
-                0.0f, 0.0f, 1.0f, 0.0f,
-                pos.x, -pos.y, pos.z, 1.0f
-            );
-
-            _modelMatrices.push_back(modelMatrix);
-
-            auto renderData = controlRenderData();
-            renderData.backgroundColor = control->getBackgroundColor();
-
-            auto texture = control->getBackgroundTexture();
-            textureAddress address;
-
-            auto texturesManager = _gl->texturesManager;
-
-            if (texture == nullptr)
-                texture = _gl->defaultAlbedoTexture;
-
-            if (!texturesManager->contains(texture))
-                address = texturesManager->add(texture);
-            else
-                address = texturesManager->get(texture);
-
-            renderData.backgroundTextureUnit = address.unit;
-            renderData.backgroundTexturePage = address.page;
-
-            _controlsRenderData.push_back(renderData);
-        }
+        _instanceCount = static_cast<GLsizei>(_modelMatrices.size());
 
         _modelMatricesBuffer->data(sizeof(mat4) * _instanceCount, &_modelMatrices[0], bufferDataUsage::dynamicDraw);
         _controlsRenderDataBuffer->data(sizeof(controlRenderData) * _instanceCount, &_controlsRenderData[0], bufferDataUsage::dynamicDraw);
+    }
+
+    void controlsRenderPass::add(controlRenderData renderData, mat4 modelMatrix)
+    {
+        _controlsRenderData.push_back(renderData);
+        _modelMatrices.push_back(modelMatrix);
+
+        updateBuffers();
+    }
+
+    void controlsRenderPass::update()
+    {
+        //updateBuffers();
     }
 
     void controlsRenderPass::render() const
@@ -170,14 +124,14 @@ namespace phi
         _controlsRenderDataBuffer->bindBufferBase(0);
 
         glDisable(GL_DEPTH_TEST);
-
+        glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendColor(1, 1, 1, 1);
 
         _shader->bind();
-        _shader->setUniform(0, _viewMatrix);
-        _shader->setUniform(1, _projectionMatrix);
+        _shader->setUniform(0, _camera->getViewMatrix());
+        _shader->setUniform(1, _camera->getProjectionMatrix());
         _shader->setUniform(2, _gl->texturesManager->units);
 
         glBindVertexArray(_vao);
@@ -188,5 +142,6 @@ namespace phi
         glBlendColor(0, 0, 0, 0);
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
     }
 }

@@ -15,7 +15,7 @@ namespace phi
     private:
         map<uint, glyph*> _glyphCache;
         FT_Face _fontFace;
-        uint _size;
+        const uint _size;
         float _dpi;
         float _horizontalScale;
         float _baseLine;
@@ -25,7 +25,7 @@ namespace phi
         bool _hinting;
 
     public:
-        RENDERING_API font(std::string name, uint size);
+        RENDERING_API font(const string& fileName, const uint size);
         RENDERING_API ~font();
         glyph* getGlyph(const ulong& glyphChar);
         glyph* getGlyph(const uint& glyphIndex);

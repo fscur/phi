@@ -3,7 +3,8 @@
 #include "uiApi.h"
 #include <core\geometry.h>
 #include <rendering\gl.h>
-#include <rendering\fontManager.h>
+#include <rendering\camera.h>
+#include <rendering\fontsManager.h>
 #include <rendering\vertexBuffer.h>
 
 namespace phi
@@ -18,14 +19,10 @@ namespace phi
     class textRenderPass
     {
     private:
-        const gl* _gl;
-        float _w;
-        float _h;
+        gl* _gl;
+        camera* _camera;
 
-        mat4 _projectionMatrix;
-        mat4 _viewMatrix;
-
-        fontManager* _fontManager;
+        fontsManager* _fontsManager;
 
         shader* _shader;
         geometry* _quad;
@@ -42,7 +39,6 @@ namespace phi
 
     private:
         void initShader();
-        void initCamera();
         void createQuad();
         void createVao();
         void createVbo(void* const data, GLsizeiptr size);
@@ -55,9 +51,9 @@ namespace phi
         void updateBuffers();
 
     public:
-        UI_API textRenderPass(const gl* const gl, float w, float h);
+        UI_API textRenderPass(gl* gl, camera* camera);
         UI_API ~textRenderPass();
-
+        UI_API void add(textRenderData textRenderData);
         UI_API void update(const vector<textRenderData>& texts);
         UI_API void render() const;
     };

@@ -57,4 +57,14 @@ namespace phi
         _children.push_back(child);
         child->setParent(this);
     }
+
+    inline void node::setPosition(vec3 value)
+    {
+        _transform->setLocalPosition(value);
+    }
+
+    inline void node::setSize(vec3 value)
+    {
+        _transform->setLocalSize(value);
+    }
 }

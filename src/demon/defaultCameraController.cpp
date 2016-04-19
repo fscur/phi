@@ -8,7 +8,7 @@
 namespace demon
 {
     defaultCameraController::defaultCameraController(phi::scene* scene) :
-        cameraController(scene->camera),
+        cameraController(scene->getCamera()),
         _scene(scene),
         _mousePosX(0),
         _mousePosY(0),

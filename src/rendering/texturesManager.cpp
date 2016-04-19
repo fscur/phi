@@ -3,6 +3,8 @@
 
 namespace phi
 {
+    bool texturesManager::_initialized = false;
+
     texturesManager::texturesManager(
         bool bindless = false,
         bool sparse = false) :
@@ -11,6 +13,8 @@ namespace phi
         _currentTextureUnit(-1),
         _maxContainerSize(MAX_CONTAINER_ITEMS)
     {
+        assert(!_initialized);
+        _initialized = true;
         //TODO: calcular quanto de memoria tem disponivel na GPU
         //TODO: verificar quando de memoria nosso gbuffer + shadow maps usam e ver quanto sobra pra texturas
         //TODO: controlar a memoria da gpu usada
