@@ -26,8 +26,6 @@ namespace phi
     public:
         SCENES_API scene(gl* gl, float w, float h);
         SCENES_API ~scene();
-        
-        vector<node*>* getObjects() { return &_objects; }
 
         SCENES_API void update();
         SCENES_API void render();
@@ -36,6 +34,9 @@ namespace phi
         SCENES_API void remove(node* n);
 
         SCENES_API float getZBufferValue(int x, int y);
-        SCENES_API camera* getCamera() const { return _camera; }
+        
+        vector<node*>* getObjects() { return &_objects; }
+        renderer* getRenderer() const { return _renderer; }
+        camera* getCamera() const { return _camera; }
     };
 }

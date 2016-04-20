@@ -45,9 +45,9 @@ namespace phi
         _frameUniformBlockBuffer->bindBufferBase(0);
     }
 
-    void pipeline::addToBatches(node* n)
+    void pipeline::addToBatches(node* node)
     {
-        auto mesh = n->getComponent<phi::mesh>();
+        auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
             auto material = mesh->material;
@@ -60,7 +60,7 @@ namespace phi
             batchObject.mesh = mesh;
             batchObject.geometry = geometry;
             batchObject.materialId = _materialsMaterialsGpu[material];
-            batchObject.modelMatrix = n->getTransform()->getModelMatrix();
+            batchObject.modelMatrix = node->getTransform()->getModelMatrix();
 
             addToBatches(batchObject);
 
@@ -68,7 +68,7 @@ namespace phi
             _transformChangedTokens[mesh] = eventToken;
         }
 
-        auto children = n->getChildren();
+        auto children = node->getChildren();
 
         for (auto child : children)
             addToBatches(child);

@@ -11,12 +11,12 @@
 
 namespace phi
 {
-    class planeGridPass
+    class planeGridRenderPass
     {
     private:
-        phi::gl* _gl;
-        size_t _w;
-        size_t _h;
+        gl* _gl;
+        float _w;
+        float _h;
         geometry* _quad;
         uint _quadVao;
         vertexBuffer* _quadVbo;
@@ -42,8 +42,8 @@ namespace phi
         shader* shader;
 
     public:
-        RENDERING_API planeGridPass(phi::gl* gl, size_t w, size_t h);
-        RENDERING_API ~planeGridPass();
+        RENDERING_API planeGridRenderPass(gl* gl, float w, float h);
+        RENDERING_API ~planeGridRenderPass();
 
         RENDERING_API void setTexture(texture* texture);
 

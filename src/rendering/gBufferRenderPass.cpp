@@ -7,10 +7,10 @@ namespace phi
         _gl(gl),
         _w(w),
         _h(h),
-        shader(nullptr),
-        targets(vector<renderTarget*>()),
-        batches(vector<phi::batch*>()),
-        framebuffer(new phi::framebuffer())
+        _shader(nullptr),
+        _targets(vector<renderTarget*>()),
+        _batches(vector<batch*>()),
+        _framebuffer(new framebuffer())
     {
         initShader();
         initRenderTargets();
@@ -18,10 +18,10 @@ namespace phi
 
     gBufferRenderPass::~gBufferRenderPass()
     {
-        for (auto target : targets)
+        for (auto target : _targets)
             safeDelete(target);
 
-        safeDelete(framebuffer);
+        safeDelete(_framebuffer);
     }
 
     void gBufferRenderPass::initShader()
@@ -34,8 +34,8 @@ namespace phi
         attribs.push_back("inMaterialId");
         attribs.push_back("inModelMatrix");
 
-        shader = _gl->shadersManager->load("geometryPass", attribs);
-        shader->addUniform(0, "textureArrays");
+        _shader = _gl->shadersManager->load("geometryPass", attribs);
+        _shader->addUniform(0, "textureArrays");
     }
 
     void gBufferRenderPass::initRenderTargets()
@@ -75,8 +75,8 @@ namespace phi
                 textureAddress,
                 texture);
 
-            targets.push_back(renderTarget);
-            gBufferRenderPass::framebuffer->add(renderTarget);
+            _targets.push_back(renderTarget);
+            gBufferRenderPass::_framebuffer->add(renderTarget);
         };
 
         reserveContainer(GL_RGBA16F, 3);
@@ -90,19 +90,19 @@ namespace phi
 
     void gBufferRenderPass::update()
     {
-        shader->bind();
+        _shader->bind();
 
         if (_gl->currentState.useBindlessTextures)
-            shader->setUniform(0, _gl->texturesManager->handles);
+            _shader->setUniform(0, _gl->texturesManager->handles);
         else
-            shader->setUniform(0, _gl->texturesManager->units);
+            _shader->setUniform(0, _gl->texturesManager->units);
 
-        shader->unbind();
+        _shader->unbind();
     }
 
     void gBufferRenderPass::render()
     {
-        framebuffer->bindForDrawing();
+        _framebuffer->bindForDrawing();
 
         glDepthMask(GL_TRUE);
         glError::check();
@@ -111,15 +111,15 @@ namespace phi
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glError::check();
 
-        shader->bind();
+        _shader->bind();
 
-        for (auto batch : batches)
+        for (auto batch : _batches)
             batch->render();
 
-        shader->unbind();
+        _shader->unbind();
 
-        framebuffer->unbind(GL_FRAMEBUFFER);
-        framebuffer->bindForReading();
+        _framebuffer->unbind(GL_FRAMEBUFFER);
+        _framebuffer->bindForReading();
 
         auto w = static_cast<GLint>(_w);
         auto h = static_cast<GLint>(_h);

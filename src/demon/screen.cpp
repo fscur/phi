@@ -97,7 +97,7 @@ namespace demon
             auto cloned = obj->clone();
             cloned->getTransform()->setLocalPosition(vec3(i + (0.1f * i), 0.0, 0.0));
             _scene->add(cloned);
-        }
+        }/*
 
         auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
         auto clonedFloor = floor->clone();
@@ -105,7 +105,7 @@ namespace demon
 
         auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
         cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
-        _scene->add(cube);
+        _scene->add(cube);*/
     }
 
     void screen::initUi()
@@ -153,7 +153,7 @@ namespace demon
 
     void screen::onTick()
     {
-        //debug("fps:" + std::to_string(application::framesPerSecond));
+        debug("fps:" + std::to_string(application::framesPerSecond));
 #if _DEBUG
         _gl->shadersManager->reloadAllShaders();
 #endif

@@ -25,7 +25,7 @@ namespace phi
             safeDelete(object);
 
         safeDelete(_pipeline);
-        safeDelete(renderer);
+        safeDelete(_renderer);
     }
 
     void scene::update()
@@ -39,13 +39,13 @@ namespace phi
         _pipeline->updateFrameUniformBlock(frameUniformBlock);
 
         //TODO: possible design flaw ? anyway.. try to remove this slow copy assignment
-        _renderer->gBufferPass->batches = _pipeline->batches;
+        _renderer->getGBufferRenderPass()->setBatches(_pipeline->batches);
         _renderer->update();
     }
 
     void scene::render()
     {
-        renderer->render();
+        _renderer->render();
     }
 
     void scene::resize(float w, float h)
@@ -70,6 +70,6 @@ namespace phi
 
     inline float scene::getZBufferValue(int x, int y)
     {
-        return _renderer->defaultFramebuffer->getZBufferValue(x, y);
+        return _renderer->getDefaultFramebuffer()->getZBufferValue(x, y);
     }
 }

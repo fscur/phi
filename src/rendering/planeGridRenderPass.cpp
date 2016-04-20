@@ -1,10 +1,10 @@
 #include <precompiled.h>
 
-#include "planeGridPass.h"
+#include "planeGridRenderPass.h"
 
 namespace phi
 {
-    planeGridPass::planeGridPass(phi::gl* gl, size_t w, size_t h) :
+    planeGridRenderPass::planeGridRenderPass(phi::gl* gl, float w, float h) :
         _gl(gl),
         _w(w),
         _h(h),
@@ -36,13 +36,13 @@ namespace phi
         transform.setLocalSize(vec3(_scale));
     }
 
-    planeGridPass::~planeGridPass()
+    planeGridRenderPass::~planeGridRenderPass()
     {
         safeDelete(_quadVbo);
         safeDelete(_quadEbo);
     }
 
-    void planeGridPass::createQuad()
+    void planeGridRenderPass::createQuad()
     {
         _quad = geometry::quad();
 
@@ -66,7 +66,7 @@ namespace phi
         glError::check();
     }
 
-    void planeGridPass::renderQuad()
+    void planeGridRenderPass::renderQuad()
     {
         glBindVertexArray(_quadVao);
         glError::check();
@@ -80,7 +80,7 @@ namespace phi
         glError::check();
     }
 
-    void planeGridPass::setTexture(texture* texture)
+    void planeGridRenderPass::setTexture(texture* texture)
     {
         texture->wrapMode = GL_REPEAT;
         texture->minFilter = GL_LINEAR_MIPMAP_LINEAR;
@@ -88,19 +88,19 @@ namespace phi
         _textureAddress = _gl->texturesManager->add(texture);
     }
 
-    void planeGridPass::show()
+    void planeGridRenderPass::show()
     {
         _beginSeconds = (float)time::totalSeconds;
         _showing = true;
     }
 
-    void planeGridPass::hide()
+    void planeGridRenderPass::hide()
     {
         _endSeconds = (float)time::totalSeconds;
         _showing = false;
     }
 
-    void planeGridPass::update()
+    void planeGridRenderPass::update()
     {
         shader->bind();
         shader->setUniform(0, transform.getModelMatrix());
@@ -120,7 +120,7 @@ namespace phi
         shader->unbind();
     }
 
-    void planeGridPass::render()
+    void planeGridRenderPass::render()
     {
         glEnable(GL_DEPTH_TEST);
         glError::check();

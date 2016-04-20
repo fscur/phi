@@ -24,15 +24,17 @@ namespace phi
         shader->addUniform(0, "textureArrays");
 
         auto rtAddresses = phi::rtAddresses();
-        rtAddresses.rt0Unit = gBufferPass->targets[0]->textureAddress.unit;
-        rtAddresses.rt1Unit = gBufferPass->targets[1]->textureAddress.unit;
-        rtAddresses.rt2Unit = gBufferPass->targets[2]->textureAddress.unit;
-        rtAddresses.rt3Unit = gBufferPass->targets[3]->textureAddress.unit;
 
-        rtAddresses.rt0Page = gBufferPass->targets[0]->textureAddress.page;
-        rtAddresses.rt1Page = gBufferPass->targets[1]->textureAddress.page;
-        rtAddresses.rt2Page = gBufferPass->targets[2]->textureAddress.page;
-        rtAddresses.rt3Page = gBufferPass->targets[3]->textureAddress.page;
+        auto targets = gBufferPass->getTargets();
+        rtAddresses.rt0Unit = targets[0]->textureAddress.unit;
+        rtAddresses.rt1Unit = targets[1]->textureAddress.unit;
+        rtAddresses.rt2Unit = targets[2]->textureAddress.unit;
+        rtAddresses.rt3Unit = targets[3]->textureAddress.unit;
+
+        rtAddresses.rt0Page = targets[0]->textureAddress.page;
+        rtAddresses.rt1Page = targets[1]->textureAddress.page;
+        rtAddresses.rt2Page = targets[2]->textureAddress.page;
+        rtAddresses.rt3Page = targets[3]->textureAddress.page;
 
         _rtsBuffer = new buffer(bufferTarget::uniform);
 
