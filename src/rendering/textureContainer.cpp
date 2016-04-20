@@ -167,6 +167,9 @@ namespace phi
                 texture->data);
             glError::check();
 
+            glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+            glError::check();
+
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
             glError::check();
         }
