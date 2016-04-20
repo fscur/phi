@@ -1,11 +1,12 @@
 #pragma once
 #include <phi.h>
 #include "coreApi.h"
+#include "aabb.h"
 #include "vertex.h"
 
 namespace phi
 {
-    struct CORE_API geometry
+    struct geometry
     {
     private:
         static geometry* _quad;
@@ -17,16 +18,14 @@ namespace phi
         uint* eboData;
         uint vboSize;
         uint eboSize;
+        aabb* aabb;
 
     public:
-        static geometry* quad();
+        CORE_API static geometry* quad();
+        CORE_API ~geometry();
 
-    public:
-        geometry();
-        ~geometry();
-
-        static geometry* create(vector<vertex> vertices, vector<uint> indices);
-        static geometry* create(
+        CORE_API static geometry* create(vector<vertex> vertices, vector<uint> indices);
+        CORE_API static geometry* create(
             uint verticesCount,
             float* positionsBuffer,
             float* texCoordsBuffer,
@@ -34,7 +33,8 @@ namespace phi
             uint indicesCount,
             uint* indicesBuffer);
 
-        static void calcNormals(vector<vertex>& vertices, vector<uint>& indices);
-        static void calcTangents(vector<vertex>& vertices, vector<uint>& indices);
+        CORE_API static void calcNormals(vector<vertex>& vertices, vector<uint>& indices);
+        CORE_API static void calcTangents(vector<vertex>& vertices, vector<uint>& indices);
+        CORE_API static phi::aabb calcAabb(vector<vertex>& vertices);
     };
 }

@@ -4,44 +4,28 @@
 
 namespace phi
 {
-    class aabb
+    struct aabb
     {
-    private:
-        vec3 _min;
-        vec3 _max;
-        float _width;
-        float _height;
-        float _depth;
-        float _halfWidth;
-        float _halfHeight;
-        float _halfDepth;
-        vec3 _center;
-        float _radius;
+    public:
+        const vec3 min;
+        const vec3 max;
+        const float width;
+        const float height;
+        const float depth;
+        const float halfWidth;
+        const float halfHeight;
+        const float halfDepth;
+        const vec3 center;
+        const float radius;
 
     public:
+        CORE_API aabb();
         CORE_API aabb(vec3 min, vec3 max);
-        CORE_API aabb(const vector<vec3> &points);
+        CORE_API aabb(const aabb &original);
 
-        CORE_API bool contains(vec3 position) const;
-        CORE_API void update(const vector<vec3> &points);
+        CORE_API static aabb fromPoints(const vector<vec3> &points);
+        CORE_API static aabb add(const aabb a, const aabb b);
 
-        vec3 getMin() const { return _min; }
-        vec3 getMax() const { return _max; }
-        vec3 getCenter() const { return _center; }
-        float getRadius() const { return _radius; }
-
-        void setMin(vec3 min) { _min = min; }
-        void setMax(vec3 max) { _max = max; }
-        void setCenter(vec3 center) { _center = center; }
-        void setRadius(float radius) { _radius = radius; }
-
-        float getWidth() const { return _width; }
-        float getHeight() const { return _height; }
-        float getDepth() const { return _depth; }
-        float getHalfWidth() const { return _halfWidth; }
-        float getHalfHeight() const { return _halfHeight; }
-        float getHalfDepth() const { return _halfDepth; }
-
-        
+        CORE_API bool contains(const vec3 position) const;
     };
 }

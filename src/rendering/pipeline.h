@@ -19,6 +19,7 @@ namespace phi
         buffer* _materialsBuffer;
         buffer* _frameUniformBlockBuffer;
         std::map<mesh*, batch*> _meshesBatches;
+        std::map<mesh*, eventToken> _transformChangedTokens;
         std::map<batch*, vector<node*>> _nodesToUpdate;
         phi::gl* _gl;
     public:
@@ -32,6 +33,8 @@ namespace phi
 
         void updateBatches(node* n);
         void uploadMaterial(material* material);
+
+        void nodeTransformChanged(node* sender);
     public:
         RENDERING_API pipeline(gl* gl);
         RENDERING_API ~pipeline();

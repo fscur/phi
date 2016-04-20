@@ -7,8 +7,10 @@ namespace phi
         _parent(nullptr),
         _transform(new transform()),
         _components(vector<component*>()),
-        _children(vector<node*>())
+        _children(vector<node*>()),
+        _transformChanged(new eventHandler<node*>())
     {
+        _transform->getChangedEvent()->assign(std::bind(&node::transformChanged, this, std::placeholders::_1));
     }
 
     node::~node()
@@ -20,11 +22,13 @@ namespace phi
             safeDelete(component);
 
         safeDelete(_transform);
+        safeDelete(_transformChanged);
     }
 
     node::node(const node& original) :
         _parent(nullptr),
-        _transform(original._transform->clone())
+        _transform(original._transform->clone()),
+        _transformChanged(new eventHandler<node*>())
     {
         for (auto& child : original._children)
         {
@@ -39,11 +43,13 @@ namespace phi
             auto clonedComponent = component->clone();
             _components.push_back(clonedComponent);
         }
+
+        _transform->getChangedEvent()->assign(std::bind(&node::transformChanged, this, std::placeholders::_1));
     }
 
-    inline node* node::clone() const 
-    { 
-        return new node(*this); 
+    inline node* node::clone() const
+    {
+        return new node(*this);
     }
 
     inline void node::addComponent(component* const component)
@@ -56,6 +62,19 @@ namespace phi
     {
         _children.push_back(child);
         child->setParent(this);
+    }
+
+    void node::traverse(std::function<void(node*)> func)
+    {
+        func(this);
+
+        for (auto child : _children)
+            child->traverse(func);
+    }
+
+    inline void node::transformChanged(transform* sender)
+    {
+        _transformChanged->raise(this);
     }
 
     inline void node::setPosition(vec3 value)

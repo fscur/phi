@@ -27,6 +27,8 @@ namespace phi
         SCENES_API scene(gl* gl, float w, float h);
         SCENES_API ~scene();
         
+        vector<node*>* getObjects() { return &_objects; }
+
         SCENES_API void update();
         SCENES_API void render();
         SCENES_API void resize(float w, float h);

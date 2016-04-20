@@ -49,8 +49,8 @@ namespace phi
 
         vector<mat4> _modelMatrices;
         vector<geometry*> _geometries;
-        map<geometry*, vector<drawInstanceData>> _instances;
-        map<mesh*, drawInstanceData> _meshInstances;
+        map<geometry*, vector<drawInstanceData*>> _instances;
+        map<mesh*, drawInstanceData*> _meshInstances;
 
         vertexBuffer* _vbo;
         vertexBuffer* _materialsIdsBuffer;
@@ -75,6 +75,7 @@ namespace phi
         RENDERING_API batch();
         RENDERING_API ~batch();
         RENDERING_API bool add(const batchObject& batchObject);
+        RENDERING_API void update(const batchObject& batchObject);
         RENDERING_API void update(const vector<batchObject>& batchObjects);
         RENDERING_API void render();
     };

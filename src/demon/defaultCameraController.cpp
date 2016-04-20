@@ -3,7 +3,13 @@
 
 #include <core\time.h>
 
+#include <loader\importer.h>
+
 #include <rendering\camera.h>
+#include <rendering\mesh.h>
+#include <rendering\ray.h>
+
+#include <apps\application.h>
 
 namespace demon
 {
@@ -38,16 +44,28 @@ namespace demon
         _panDelta(phi::vec3()),
         _panTargetCameraPos(phi::vec3()),
         _panLastMouseMoveTime(0.0),
-        _panInertiaTime(0.0)
+        _panInertiaTime(0.0),
+        _dragging(false),
+        _dragPlaneBottomLeft(phi::vec3()),
+        _dragPlaneBottomRight(phi::vec3()),
+        _dragPlaneTopRight(phi::vec3()),
+        _dragPlaneTopLeft(phi::vec3())
     {
+        auto texturePath = phi::application::resourcesPath + "\\images\\grid.png";
+        _gridTexture = phi::importer::importImage(texturePath);
+        _scene->renderer->planeGridPass->setTexture(_gridTexture);
     }
 
     void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
     {
+        if (e->leftButtonPressed)
+            dragMouseDown(e->x, e->y);
+
+        if (e->middleButtonPressed && !_rotating)
+            panMouseDown(e->x, e->y);
+
         if (e->rightButtonPressed && !_panning)
             rotationMouseDown(e->x, e->y);
-        else if (e->middleButtonPressed && !_rotating)
-            panMouseDown(e->x, e->y);
     }
 
     void defaultCameraController::onMouseMove(phi::mouseEventArgs* e)
@@ -57,14 +75,19 @@ namespace demon
         _mousePosX = e->x;
         _mousePosY = e->y;
 
-        if (_rotating)
-            rotationMouseMove();
+        if (_dragging)
+            dragMouseMove();
         if (_panning)
             panMouseMove();
+        if (_rotating)
+            rotationMouseMove();
     }
 
     void defaultCameraController::onMouseUp(phi::mouseEventArgs* e)
     {
+        if (e->leftButtonPressed)
+            dragMouseUp();
+
         if (e->middleButtonPressed)
             panMouseUp();
 
@@ -86,6 +109,171 @@ namespace demon
 
         _lastMousePosX = _mousePosX;
         _lastMousePosY = _mousePosY;
+    }
+
+    void defaultCameraController::dragMouseDown(int mouseX, int mouseY)
+    {
+        float w = (float)_camera->getWidth();
+        float h = (float)_camera->getHeight();
+        float x = (2.0f * mouseX) / w - 1.0f;
+        float y = 1.0f - (2.0f * mouseY) / h;
+
+        auto invPersp = inverse(_camera->getProjectionMatrix());
+        auto invView = inverse(_camera->getViewMatrix());
+
+        auto rayClip = phi::vec4(x, y, -1.0f, 1.0f);
+        auto rayEye = invPersp * rayClip;
+        rayEye = phi::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+        auto rayWorld = phi::vec3(invView * rayEye);
+        rayWorld = glm::normalize(rayWorld);
+
+        auto r = phi::ray(_camera->getTransform()->getLocalPosition(), rayWorld);
+
+        auto object = _scene->getObjects()->at(1);
+        phi::aabb* aabb = new phi::aabb();
+        object->traverse
+        (
+            [&aabb](phi::node* n)
+            {
+                auto meshComponent = n->getComponent<phi::mesh>();
+                if (meshComponent)
+                {
+                    auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
+                    safeDelete(aabb);
+                    aabb = added;
+                }
+            }
+        );
+
+        auto model = object->getTransform()->getModelMatrix();
+        auto transformedMin = phi::mathUtils::multiply(model, aabb->min);
+        auto transformedMax = phi::mathUtils::multiply(model, aabb->max);
+        auto transformedAabb = phi::aabb(transformedMin, transformedMax);
+
+        phi::vec3* positions;
+        phi::vec3* normals;
+        size_t count;
+        if (r.intersects(transformedAabb, positions, normals, count))
+        {
+            auto normal = normals[0];
+
+            _dragOrigin = positions[0];
+            _dragObject = object;
+            _dragObjectStartPosition = object->getTransform()->getLocalPosition();
+
+            phi::safeDeleteArray(normals);
+            phi::safeDeleteArray(positions);
+
+            auto min = transformedAabb.min;
+            auto max = transformedAabb.max;
+            auto lbb = phi::vec3(min.x, min.y, min.z);
+            auto lbf = phi::vec3(min.x, min.y, max.z);
+            auto ltf = phi::vec3(min.x, max.y, max.z);
+            auto ltb = phi::vec3(min.x, max.y, min.z);
+            auto rbb = phi::vec3(max.x, min.y, min.z);
+            auto rbf = phi::vec3(max.x, min.y, max.z);
+            auto rtf = phi::vec3(max.x, max.y, max.z);
+            auto rtb = phi::vec3(max.x, max.y, min.z);
+
+            if (normal == phi::vec3(-1.0f, 0.0f, 0.0f))
+            {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(rbf);
+                _dragPlaneBottomLeft = lbb;
+                _dragPlaneBottomRight = lbf;
+                _dragPlaneTopRight = ltf;
+                _dragPlaneTopLeft = ltb;
+            }
+            else if (normal == phi::vec3(1.0f, 0.0f, 0.0f))
+            {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(lbb);
+                _dragPlaneBottomLeft = rbf;
+                _dragPlaneBottomRight = rbb;
+                _dragPlaneTopRight = rtb;
+                _dragPlaneTopLeft = rtf;
+            }
+            else if (normal == phi::vec3(0.0f, 0.0f, 1.0f))
+            {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(rbb);
+                _dragPlaneBottomLeft = lbf;
+                _dragPlaneBottomRight = rbf;
+                _dragPlaneTopRight = rtf;
+                _dragPlaneTopLeft = ltf;
+            }
+            else if (normal == phi::vec3(0.0f, 0.0f, -1.0f))
+            {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(lbf);
+                _dragPlaneBottomLeft = rbb;
+                _dragPlaneBottomRight = lbb;
+                _dragPlaneTopRight = ltb;
+                _dragPlaneTopLeft = rtb;
+            }
+            else if (normal == phi::vec3(0.0f, 1.0f, 0.0f))
+            {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(lbb);
+                _dragPlaneBottomLeft = ltf;
+                _dragPlaneBottomRight = rtf;
+                _dragPlaneTopRight = rtb;
+                _dragPlaneTopLeft = ltb;
+            }
+            else if (normal == phi::vec3(0.0f, -1.0f, 0.0f))
+            {
+                _scene->renderer->planeGridPass->transform.setLocalPosition(ltf);
+                _dragPlaneBottomLeft = lbb;
+                _dragPlaneBottomRight = rbb;
+                _dragPlaneTopRight = rbf;
+                _dragPlaneTopLeft = lbf;
+            }
+
+            _scene->renderer->planeGridPass->transform.setDirection(normal);
+
+            _dragging = true;
+            _scene->renderer->planeGridPass->show();
+        }
+
+        safeDelete(aabb);
+    }
+
+    void defaultCameraController::dragMouseMove()
+    {
+        auto w = (float)_camera->getWidth();
+        auto h = (float)_camera->getHeight();
+        auto x = (2.0f * _mousePosX) / w - 1.0f;
+        auto y = 1.0f - (2.0f * _mousePosY) / h;
+
+        auto invPersp = inverse(_camera->getProjectionMatrix());
+        auto invView = inverse(_camera->getViewMatrix());
+
+        auto rayClip = phi::vec4(x, y, -1.0f, 1.0f);
+        auto rayEye = invPersp * rayClip;
+        rayEye = phi::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+        auto rayWorld = phi::vec3(invView * rayEye);
+        rayWorld = glm::normalize(rayWorld);
+
+        auto r = phi::ray(_camera->getTransform()->getLocalPosition(), rayWorld);
+
+        auto bl = _dragPlaneBottomLeft;
+        auto br = _dragPlaneBottomRight;
+        auto tr = _dragPlaneTopRight;
+        auto tl = _dragPlaneTopLeft;
+        auto planeNormal = normalize(cross(bl - br, br - tr));
+        auto d = dot(planeNormal, bl);
+        auto t = (d - dot(planeNormal, r.getOrigin())) / (dot(planeNormal, (r.getDirection())));
+        auto nDotA = dot(planeNormal, r.getOrigin());
+        auto nDotBA = dot(planeNormal, r.getDirection());
+        auto point = r.getOrigin() + (((d - nDotA) / nDotBA) * r.getDirection());
+
+        auto diff = point - _dragOrigin;
+
+        _dragObject->getTransform()->setLocalPosition(_dragObjectStartPosition + diff);
+    }
+
+    void defaultCameraController::dragMouseUp()
+    {
+        if (_dragging)
+        {
+            _scene->renderer->planeGridPass->hide();
+            _dragging = false;
+        }
     }
 
     void defaultCameraController::zoomMouseWheel(int mouseX, int mouseY, float delta)

@@ -63,6 +63,9 @@ namespace phi
             batchObject.modelMatrix = n->getTransform()->getModelMatrix();
 
             addToBatches(batchObject);
+
+            auto eventToken = node->getTransformChanged()->assign(std::bind(&pipeline::nodeTransformChanged, this, std::placeholders::_1));
+            _transformChangedTokens[mesh] = eventToken;
         }
 
         auto children = n->getChildren();
@@ -173,5 +176,17 @@ namespace phi
 
             _nodesToUpdate[batch].clear();
         }
+    }
+
+    void pipeline::nodeTransformChanged(node* sender)
+    {
+        auto mesh = sender->getComponent<phi::mesh>();
+        auto batch = _meshesBatches[mesh];
+        auto batchObject = phi::batchObject();
+        batchObject.mesh = mesh;
+        batchObject.geometry = mesh->geometry;
+        batchObject.materialId = _materialsMaterialsGpu[mesh->material];
+        batchObject.modelMatrix = sender->getTransform()->getModelMatrix();
+        batch->update(batchObject);
     }
 }

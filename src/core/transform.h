@@ -19,10 +19,13 @@ namespace phi
         vec3 _up;
         vec3 _direction;
         bool _changed;
-        eventHandler<>* _changedEvent;
+        eventHandler<transform*>* _changedEvent;
+        eventToken _parentTransformChangedEventToken;
 
     private:
         void updateData();
+        void setChanged();
+        void parentTransformChanged(transform* sender);
 
     public:
         CORE_API transform();
@@ -49,7 +52,7 @@ namespace phi
         vec3 getLocalPosition() const { return _localPosition; }
         quat getLocalOrientation() const { return _localOrientation; }
         vec3 getLocalSize() const { return _localSize; }
-        eventHandler<>* getChangedEvent() const { return _changedEvent; }
+        eventHandler<transform*>* getChangedEvent() const { return _changedEvent; }
 
         void translate(vec3 translation) { setLocalPosition(_localPosition + translation); }
         void rotate(float angle, vec3 axis) { setLocalOrientation(angleAxis(angle, axis) * _localOrientation); }

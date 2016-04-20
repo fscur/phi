@@ -13,6 +13,10 @@ namespace phi
         transform* _transform;
         vector<component*> _components;
         vector<node*> _children;
+        eventHandler<node*>* _transformChanged;
+
+    private:
+        void transformChanged(transform* sender);
 
     public:
         CORE_API node();
@@ -24,9 +28,12 @@ namespace phi
         CORE_API void addComponent(component* const component);
         CORE_API void addChild(node* const child);
 
+        CORE_API void traverse(std::function<void(node*)> func);
+
         transform* getTransform() const { return _transform; }
         node* getParent() const { return _parent; }
         vector<node*>& getChildren() { return _children; }
+        eventHandler<node*>* getTransformChanged() { return _transformChanged; }
         void setParent(node* const value) { _parent = value; }
 
         CORE_API void setPosition(vec3 value);

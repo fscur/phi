@@ -98,6 +98,14 @@ namespace demon
             cloned->getTransform()->setLocalPosition(vec3(i + (0.1f * i), 0.0, 0.0));
             _scene->add(cloned);
         }
+
+        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
+        auto clonedFloor = floor->clone();
+        _scene->add(clonedFloor);
+
+        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
+        _scene->add(cube);
     }
 
     void screen::initUi()

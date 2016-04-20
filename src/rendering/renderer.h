@@ -20,31 +20,35 @@ namespace phi
 
         renderer(gl* gl, float w, float h) :
             _gl(gl),
-            gBufferPass(new gBufferRenderPass(gl, w, h)),
-            lightingPass(new lightingRenderPass(gBufferPass, gl, w, h)),
-            defaultFramebuffer(new framebuffer(true)),
             w(w),
             h(h)
         {
+            defaultFramebuffer = new framebuffer(true);
+            gBufferPass = new gBufferRenderPass(gl, w, h);
+            lightingPass = new lightingRenderPass(gBufferPass, gl, w, h);
+            planeGridPass = new phi::planeGridPass(gl, w, h);
         }
 
-        ~renderer()
+        ~renderer() 
         {
+            safeDelete(defaultFramebuffer);
             safeDelete(gBufferPass);
             safeDelete(lightingPass);
-            safeDelete(defaultFramebuffer);
+            safeDelete(planeGridPass);
         }
 
         void render()
         {
             gBufferPass->render();
             lightingPass->render();
+            planeGridPass->render();
         }
 
         void update()
         {
             gBufferPass->update();
             lightingPass->update();
+            planeGridPass->update();
         }
     };
 }

@@ -22,6 +22,7 @@ namespace demon
         int32_t _mousePosY;
         int32_t _lastMousePosX;
         int32_t _lastMousePosY;
+        phi::texture* _gridTexture;
 
         phi::vec3 _zoomDir;
         phi::vec3 _zoomCameraPos;
@@ -51,7 +52,20 @@ namespace demon
         double _panLastMouseMoveTime;
         double _panInertiaTime;
 
+        bool _dragging;
+        phi::node* _dragObject;
+        phi::vec3 _dragObjectStartPosition;
+        phi::vec3 _dragOrigin;
+        phi::vec3 _dragPlaneBottomLeft;
+        phi::vec3 _dragPlaneBottomRight;
+        phi::vec3 _dragPlaneTopRight;
+        phi::vec3 _dragPlaneTopLeft;
+
     private:
+        void dragMouseDown(int mouseX, int mouseY);
+        void dragMouseMove();
+        void dragMouseUp();
+
         void zoomMouseWheel(int mouseX, int mouseY, float delta);
         void zoomUpdate();
         void zoomCancel();
@@ -75,7 +89,10 @@ namespace demon
 
     public:
         defaultCameraController(phi::scene* scene);
-        virtual ~defaultCameraController() {}
+        virtual ~defaultCameraController()
+        {
+            safeDelete(_gridTexture);
+        }
 
         virtual void update() override;
     };
