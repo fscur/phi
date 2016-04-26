@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include <rendering\planeGridRenderPass.h>
 #include <scenes\scene.h>
 #include <ui\floatAnimator.h>
 
@@ -23,6 +24,7 @@ namespace demon
         int32_t _lastMousePosX;
         int32_t _lastMousePosY;
         phi::texture* _gridTexture;
+        phi::planeGridRenderPass* _planeGridPass;
 
         phi::vec3 _zoomDir;
         phi::vec3 _zoomCameraPos;
@@ -60,11 +62,18 @@ namespace demon
         phi::vec3 _dragPlaneBottomRight;
         phi::vec3 _dragPlaneTopRight;
         phi::vec3 _dragPlaneTopLeft;
+        bool _dragDoingInertia;
+        double _dragInertiaTime;
+        phi::vec2 _dragStartPos;
+        phi::vec2 _dragDelta;
 
     private:
+        phi::vec2 static planePointProjection2D(phi::vec3 planeOrigin, phi::vec3 planeNormal, phi::vec3 planeRight, phi::vec3 planeUp, phi::vec3 point);
+
         void dragMouseDown(int mouseX, int mouseY);
         void dragMouseMove();
         void dragMouseUp();
+        void dragUpdate();
 
         void zoomMouseWheel(int mouseX, int mouseY, float delta);
         void zoomUpdate();

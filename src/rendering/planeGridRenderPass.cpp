@@ -1,10 +1,10 @@
 #include <precompiled.h>
 
-#include "planeGridPass.h"
+#include "planeGridRenderPass.h"
 
 namespace phi
 {
-    planeGridPass::planeGridPass(phi::gl* gl, size_t w, size_t h) :
+    planeGridRenderPass::planeGridRenderPass(phi::gl* gl, size_t w, size_t h) :
         _gl(gl),
         _w(w),
         _h(h),
@@ -12,8 +12,11 @@ namespace phi
         _quadVao(0u),
         _quadVbo(nullptr),
         _quadEbo(nullptr),
-        _showing(false),
-        shader(nullptr)
+        _shader(nullptr),
+        _textureAddress(textureAddress()),
+        _radiusFadeIn(0.0f),
+        _radiusFadeOut(0.0f),
+        _showing(false)
     {
         createQuad();
 
@@ -21,28 +24,28 @@ namespace phi
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
-        shader = _gl->shadersManager->load("planeGridPass", attribs);
+        _shader = _gl->shadersManager->load("planeGridPass", attribs);
 
-        shader->addUniform(0, "m");
-        shader->addUniform(1, "radius");
-        shader->addUniform(2, "scale");
-        shader->addUniform(3, "textureArrays");
-        shader->addUniform(4, "textureArrayIndex");
-        shader->addUniform(5, "texturePageIndex");
-        shader->addUniform(6, "showing");
-        shader->addUniform(7, "radiusHiding");
+        _shader->addUniform(0, "m");
+        _shader->addUniform(1, "size");
+        _shader->addUniform(2, "radiusFadeIn");
+        _shader->addUniform(3, "radiusFadeOut");
+        _shader->addUniform(4, "radiusWave");
+        _shader->addUniform(5, "expansionPosition");
+        _shader->addUniform(6, "textureArrayIndex");
+        _shader->addUniform(7, "texturePageIndex");
+        _shader->addUniform(8, "textureArrays");
 
-        _scale = 1000.0f;
-        transform.setLocalSize(vec3(_scale));
+        transform.setLocalSize(vec3(PLANE_SIZE));
     }
 
-    planeGridPass::~planeGridPass()
+    planeGridRenderPass::~planeGridRenderPass()
     {
         safeDelete(_quadVbo);
         safeDelete(_quadEbo);
     }
 
-    void planeGridPass::createQuad()
+    void planeGridRenderPass::createQuad()
     {
         _quad = geometry::quad();
 
@@ -66,21 +69,21 @@ namespace phi
         glError::check();
     }
 
-    void planeGridPass::renderQuad()
+    void planeGridRenderPass::renderQuad()
     {
         glBindVertexArray(_quadVao);
         glError::check();
 
-        shader->bind();
+        _shader->bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glError::check();
-        shader->unbind();
+        _shader->unbind();
 
         glBindVertexArray(0);
         glError::check();
     }
 
-    void planeGridPass::setTexture(texture* texture)
+    void planeGridRenderPass::setTexture(texture* texture)
     {
         texture->wrapMode = GL_REPEAT;
         texture->minFilter = GL_LINEAR_MIPMAP_LINEAR;
@@ -88,39 +91,44 @@ namespace phi
         _textureAddress = _gl->texturesManager->add(texture);
     }
 
-    void planeGridPass::show()
+    void planeGridRenderPass::show()
     {
-        _beginSeconds = (float)time::totalSeconds;
+        _radiusFadeOut = 0.0f;
+        _radiusFadeIn = 0.0f;
         _showing = true;
     }
 
-    void planeGridPass::hide()
+    void planeGridRenderPass::hide()
     {
-        _endSeconds = (float)time::totalSeconds;
+        _radiusFadeIn = 0.0f;
         _showing = false;
     }
 
-    void planeGridPass::update()
+    void planeGridRenderPass::update()
     {
-        shader->bind();
-        shader->setUniform(0, transform.getModelMatrix());
-        shader->setUniform(1, ((float)phi::time::totalSeconds - _beginSeconds) * 20.0f);
-        shader->setUniform(2, _scale);
+        auto deltaRadius = static_cast<float>(phi::time::deltaSeconds * RADIUS_DELTA_PER_SECOND);
+        _radiusFadeOut += deltaRadius;
+        _radiusFadeIn = !_showing * (_radiusFadeIn + deltaRadius);
+
+        _shader->bind();
+        _shader->setUniform(0, transform.getModelMatrix());
+        _shader->setUniform(1, PLANE_SIZE);
+        _shader->setUniform(2, _radiusFadeIn);
+        _shader->setUniform(3, glm::min(_radiusFadeOut, MAX_RADIUS));
+        _shader->setUniform(4, _radiusFadeOut - RADIUS_WAVE_OFFSET);
+        _shader->setUniform(5, centerPosition + vec2(PLANE_SIZE * 0.5f));
+        _shader->setUniform(6, _textureAddress.unit);
+        _shader->setUniform(7, _textureAddress.page);
 
         if (_gl->currentState.useBindlessTextures)
-            shader->setUniform(3, _gl->texturesManager->handles);
+            _shader->setUniform(8, _gl->texturesManager->handles);
         else
-            shader->setUniform(3, _gl->texturesManager->units);
+            _shader->setUniform(8, _gl->texturesManager->units);
 
-        shader->setUniform(4, _textureAddress.unit);
-        shader->setUniform(5, _textureAddress.page);
-        shader->setUniform(6, _showing);
-        shader->setUniform(7, !_showing * ((float)phi::time::totalSeconds - _endSeconds) * 20.0f);
-
-        shader->unbind();
+        _shader->unbind();
     }
 
-    void planeGridPass::render()
+    void planeGridRenderPass::render()
     {
         glEnable(GL_DEPTH_TEST);
         glError::check();

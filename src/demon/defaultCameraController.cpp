@@ -49,11 +49,16 @@ namespace demon
         _dragPlaneBottomLeft(phi::vec3()),
         _dragPlaneBottomRight(phi::vec3()),
         _dragPlaneTopRight(phi::vec3()),
-        _dragPlaneTopLeft(phi::vec3())
+        _dragPlaneTopLeft(phi::vec3()),
+        _dragDoingInertia(false),
+        _dragInertiaTime(0.0),
+        _dragStartPos(phi::vec2()),
+        _dragDelta(phi::vec2())
     {
         auto texturePath = phi::application::resourcesPath + "\\images\\grid.png";
         _gridTexture = phi::importer::importImage(texturePath);
-        _scene->renderer->planeGridPass->setTexture(_gridTexture);
+        _planeGridPass = _scene->renderer->planeGridPass;
+        _planeGridPass->setTexture(_gridTexture);
     }
 
     void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
@@ -103,12 +108,21 @@ namespace demon
 
     void defaultCameraController::update()
     {
+        dragUpdate();
         zoomUpdate();
         rotationUpdate();
         panUpdate();
 
         _lastMousePosX = _mousePosX;
         _lastMousePosY = _mousePosY;
+    }
+
+    phi::vec2 defaultCameraController::planePointProjection2D(phi::vec3 planeOrigin, phi::vec3 planeNormal, phi::vec3 planeRight, phi::vec3 planeUp, phi::vec3 point)
+    {
+        auto x = dot(planeRight, point - planeOrigin);
+        auto y = dot(planeUp, point - planeOrigin);
+
+        return phi::vec2(x, y);
     }
 
     void defaultCameraController::dragMouseDown(int mouseX, int mouseY)
@@ -175,9 +189,10 @@ namespace demon
             auto rtf = phi::vec3(max.x, max.y, max.z);
             auto rtb = phi::vec3(max.x, max.y, min.z);
 
+            auto zFightAvoidingOffset = 0.01f;
             if (normal == phi::vec3(-1.0f, 0.0f, 0.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(rbf);
+                _planeGridPass->transform.setLocalPosition(phi::vec3(max.x + zFightAvoidingOffset, 0.0f, 0.0f));
                 _dragPlaneBottomLeft = lbb;
                 _dragPlaneBottomRight = lbf;
                 _dragPlaneTopRight = ltf;
@@ -185,7 +200,7 @@ namespace demon
             }
             else if (normal == phi::vec3(1.0f, 0.0f, 0.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(lbb);
+                _planeGridPass->transform.setLocalPosition(phi::vec3(min.x - zFightAvoidingOffset, 0.0f, 0.0f));
                 _dragPlaneBottomLeft = rbf;
                 _dragPlaneBottomRight = rbb;
                 _dragPlaneTopRight = rtb;
@@ -193,7 +208,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 0.0f, 1.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(rbb);
+                _planeGridPass->transform.setLocalPosition(phi::vec3(0.0f, 0.0f, min.z - zFightAvoidingOffset));
                 _dragPlaneBottomLeft = lbf;
                 _dragPlaneBottomRight = rbf;
                 _dragPlaneTopRight = rtf;
@@ -201,7 +216,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 0.0f, -1.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(lbf);
+                _planeGridPass->transform.setLocalPosition(phi::vec3(0.0f, 0.0f, max.z + zFightAvoidingOffset));
                 _dragPlaneBottomLeft = rbb;
                 _dragPlaneBottomRight = lbb;
                 _dragPlaneTopRight = ltb;
@@ -209,7 +224,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 1.0f, 0.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(lbb);
+                _planeGridPass->transform.setLocalPosition(phi::vec3(0.0f, min.y - zFightAvoidingOffset, 0.0f));
                 _dragPlaneBottomLeft = ltf;
                 _dragPlaneBottomRight = rtf;
                 _dragPlaneTopRight = rtb;
@@ -217,17 +232,25 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, -1.0f, 0.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(ltf);
+                _planeGridPass->transform.setLocalPosition(phi::vec3(0.0f, max.y + zFightAvoidingOffset, 0.0f));
                 _dragPlaneBottomLeft = lbb;
                 _dragPlaneBottomRight = rbb;
                 _dragPlaneTopRight = rbf;
                 _dragPlaneTopLeft = lbf;
             }
 
-            _scene->renderer->planeGridPass->transform.setDirection(normal);
+            _planeGridPass->transform.setDirection(normal);
 
+            auto planeOrigin = _planeGridPass->transform.getPosition();
+            auto planeRight = _planeGridPass->transform.getRight();
+            auto planeUp = _planeGridPass->transform.getUp();
+            auto point = (_dragPlaneBottomLeft + _dragPlaneTopRight) * 0.5f;
+
+            _planeGridPass->centerPosition = planePointProjection2D(planeOrigin, normal, planeRight, planeUp, point);
+            _planeGridPass->show();
+
+            _dragDoingInertia = false;
             _dragging = true;
-            _scene->renderer->planeGridPass->show();
         }
 
         safeDelete(aabb);
@@ -251,29 +274,53 @@ namespace demon
 
         auto r = phi::ray(_camera->getTransform()->getLocalPosition(), rayWorld);
 
-        auto bl = _dragPlaneBottomLeft;
-        auto br = _dragPlaneBottomRight;
-        auto tr = _dragPlaneTopRight;
-        auto tl = _dragPlaneTopLeft;
-        auto planeNormal = normalize(cross(bl - br, br - tr));
-        auto d = dot(planeNormal, bl);
-        auto t = (d - dot(planeNormal, r.getOrigin())) / (dot(planeNormal, (r.getDirection())));
-        auto nDotA = dot(planeNormal, r.getOrigin());
-        auto nDotBA = dot(planeNormal, r.getDirection());
-        auto point = r.getOrigin() + (((d - nDotA) / nDotBA) * r.getDirection());
+        float t;
+        r.intersects(_dragPlaneBottomLeft, _dragPlaneTopLeft, _dragPlaneTopRight, _dragPlaneBottomRight, t);
+        auto point = r.getOrigin() + r.getDirection() * t;
 
         auto diff = point - _dragOrigin;
-
         _dragObject->getTransform()->setLocalPosition(_dragObjectStartPosition + diff);
+
+        auto planeOrigin = _planeGridPass->transform.getPosition();
+        auto planeNormal = _planeGridPass->transform.getDirection();
+        auto planeRight = _planeGridPass->transform.getRight();
+        auto planeUp = _planeGridPass->transform.getUp();
+        auto centerBoundingBox = (_dragPlaneBottomLeft + _dragPlaneTopRight) * 0.5f + (_dragObject->getTransform()->getPosition() - _dragObjectStartPosition);
+        auto projection = planePointProjection2D(planeOrigin, planeNormal, planeRight, planeUp, centerBoundingBox);
+
+        _dragStartPos = _planeGridPass->centerPosition;
+        _dragDelta = projection - _dragStartPos;
+        _dragDoingInertia = true;
+        _dragInertiaTime = 0.0f;
     }
 
     void defaultCameraController::dragMouseUp()
     {
         if (_dragging)
         {
-            _scene->renderer->planeGridPass->hide();
+            _planeGridPass->hide();
             _dragging = false;
         }
+    }
+
+    void defaultCameraController::dragUpdate()
+    {
+        if (!_dragDoingInertia)
+            return;
+
+        auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
+        _dragInertiaTime += deltaMilliseconds;
+        auto percent = -glm::exp(_dragInertiaTime / -100.0f) + 1.0f;
+        auto delta = static_cast<float>(glm::length(_dragDelta) * percent);
+
+        if (delta == 0.0f)
+            return;
+
+        auto dir = glm::normalize(_dragDelta);
+        _planeGridPass->centerPosition = _dragStartPos + dir * delta;
+
+        if (percent >= 1.0f)
+            _dragDoingInertia = false;
     }
 
     void defaultCameraController::zoomMouseWheel(int mouseX, int mouseY, float delta)
@@ -481,7 +528,7 @@ namespace demon
         auto deltaTime = static_cast<float>(glm::max(10.0, nowMilliseconds - _panLastMouseMoveTime));
         _panCameraPos = _camera->getTransform()->getPosition();
         _panDelta = _panTargetCameraPos - _panCameraPos;
-        _panDelta += _panDelta * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f)));
+        _panDelta += _panDelta * (1.0f - glm::clamp(deltaTime / 100.0f, 0.0f, 1.0f));
     }
 
     void defaultCameraController::panUpdate()

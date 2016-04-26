@@ -11,9 +11,14 @@
 
 namespace phi
 {
-    class planeGridPass
+    class planeGridRenderPass
     {
     private:
+        const float PLANE_SIZE = 1000.0f;
+        const float RADIUS_DELTA_PER_SECOND = 20.0f;
+        const float MAX_RADIUS = 10.0f;
+        const float RADIUS_WAVE_OFFSET = 5.0f;
+
         phi::gl* _gl;
         size_t _w;
         size_t _h;
@@ -21,14 +26,15 @@ namespace phi
         uint _quadVao;
         vertexBuffer* _quadVbo;
         buffer* _quadEbo;
-        float _beginSeconds;
-        float _endSeconds;
-        float _scale;
+        shader* _shader;
         textureAddress _textureAddress;
+        float _radiusFadeIn;
+        float _radiusFadeOut;
         bool _showing;
 
     public:
         transform transform;
+        vec2 centerPosition;
 
     private:
         void createQuad();
@@ -39,11 +45,8 @@ namespace phi
         RENDERING_API void hide();
 
     public:
-        shader* shader;
-
-    public:
-        RENDERING_API planeGridPass(phi::gl* gl, size_t w, size_t h);
-        RENDERING_API ~planeGridPass();
+        RENDERING_API planeGridRenderPass(phi::gl* gl, size_t w, size_t h);
+        RENDERING_API ~planeGridRenderPass();
 
         RENDERING_API void setTexture(texture* texture);
 
