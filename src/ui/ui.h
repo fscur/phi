@@ -20,7 +20,7 @@ namespace phi
         float _h;
 
     public:
-        UI_API static node* newLabel(wstring text, vec3 position, vec3 size);
+        UI_API node* newLabel(wstring text, vec3 position);
 
     public:
         UI_API ui(gl* gl, float w, float h);

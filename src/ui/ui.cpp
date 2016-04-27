@@ -21,9 +21,9 @@ namespace phi
 
         auto camTransform = _camera->getTransform();
 
-        camTransform->setLocalPosition(vec3(0.0f, 0.0f, 1000.0f));
+        camTransform->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         camTransform->setDirection(vec3(0.0f, 0.0f, -1.0f));
-        _camera->orbit(vec3(0.0f), camTransform->getRight(), camTransform->getUp(), 0.1f, 0.4f);
+        //_camera->orbit(vec3(0.0f), camTransform->getRight(), camTransform->getUp(), 0.4f, 0.4f);
         _renderer = new uiRenderer(gl, _camera);
     }
 
@@ -35,18 +35,16 @@ namespace phi
         safeDelete(_camera);
         safeDelete(_renderer);
     }
-    float t = 0.0f;
+
+   // float t = 0.0f;
 
     void ui::update()
     {
-        auto camTransform = _camera->getTransform();
-        auto c = glm::cos(t);
-        t += 0.01f;
-
-        _camera->orbit(vec3(0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), 0.0f, c * 0.1f);
-        //camTransform->translate(vec3(c * 1.0f, 0.0f, 0.0f));
-
+        //_camera->orbit(vec3(0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), 0.0f, c * 0.1f);
+        //_camera->moveTo(vec3(0.0, 0.0, glm::abs(glm::cos(t)) * 2000.0f));
         _renderer->update();
+
+        //t += 0.02f;
     }
 
     void ui::render()
@@ -57,27 +55,32 @@ namespace phi
     void ui::add(node* n)
     {
         _controls.push_back(n);
-        //traverse node tree and find controlRenderers and textRenderers and add them
-        /*
-            if node has controlRenderer
-                _renderer->addControlRenderer(controlRenderer);
-                _renderer->addTextRenderer(textRenderer);
-        */
-
         _renderer->add(n);
     }
 
-    node* ui::newLabel(wstring text, vec3 position, vec3 size)
+    node* ui::newLabel(wstring text, vec3 position)
     {
         auto node = new phi::node();
 
-        node->addComponent(new controlRenderer("labelControlRenderer"));
+        auto resizeNode = [node](vec3 size)
+        {
+            node->setSize(size);
+        };
+
+        auto controlRenderer = new phi::controlRenderer("labelControlRenderer");
+
         auto textRenderer = new phi::textRenderer("labelTextRenderer");
+        textRenderer->setControlRenderer(controlRenderer);
+        textRenderer->setFont(_gl->defaultFont);
         textRenderer->setText(text);
+
+        node->addComponent(controlRenderer);
         node->addComponent(textRenderer);
 
         node->setPosition(position);
-        node->setSize(size);
+        node->setSize(controlRenderer->getSize());
+
+        controlRenderer->getOnSizeChanged()->assign(resizeNode);
 
         return node;
     }

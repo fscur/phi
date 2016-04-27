@@ -1,5 +1,5 @@
 #version 450
-#extension GL_ARB_bindless_texture: enable
+//#extension GL_ARB_bindless_texture: enable
 
 struct controlRenderData
 {
@@ -38,6 +38,7 @@ vec4 fetch(vec2 uv)
 
 void main(void)
 {
+    //fragColor = vec4(1.0, 0.0, 0.0, 1.0);
     fragColor = fetch(fragTexCoord);
     //fragColor = vec4(1.0f);
     //fragColor = vec4(instanceId);

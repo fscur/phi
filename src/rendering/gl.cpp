@@ -47,7 +47,6 @@ namespace phi
         safeDelete(defaultSpecularTexture);
         safeDelete(defaultEmissiveTexture);
         safeDelete(defaultMaterial);
-        safeDelete(defaultFont);
     }
 
     void gl::initOpenGLExtensions()
@@ -139,7 +138,11 @@ namespace phi
             GL_RGBA8,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
-            data);
+            data,
+            GL_REPEAT,
+            GL_NEAREST,
+            GL_NEAREST,
+            false);
     }
 
     material* gl::createDefaultMaterial()

@@ -39,15 +39,18 @@ namespace phi
         }
     }
 
+    inline uint texturesManager::getMaxLevels(const uint& w, const uint& h)
+    {
+        auto biggestTextureSize = (float)glm::max(w, h);
+        return static_cast<uint>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
+    }
+
     textureAddress texturesManager::add(const texture* const texture)
     {
         GLsizei maxLevels = 1;
 
         if (texture->generateMipmaps)
-        {
-            auto biggestTextureSize = (float)glm::max(texture->w, texture->h);
-            maxLevels = static_cast<GLsizei>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
-        }
+            maxLevels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
 
         auto layout = textureContainerLayout();
         layout.w = texture->w;

@@ -34,8 +34,8 @@ namespace phi
             if (node->_glyph != nullptr)
                 return nullptr;
 
-            auto w = static_cast<int>(glyph->width);
-            auto h = static_cast<int>(glyph->height);
+            auto w = static_cast<int>(glyph->bitmapWidth);
+            auto h = static_cast<int>(glyph->bitmapHeight);
             auto glyphRect = rectangle(0, 0, w, h);
 
             if (!node->rect.contains(glyphRect))

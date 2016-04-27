@@ -8,9 +8,15 @@ namespace phi
 
     font::font(const string& fileName, const uint size) :
         _size(size),
-        _hinting(false),
+        _baseDpi(96.0f),
+        _dpi(300.0f),
+        _dpiRatio(_baseDpi / _dpi),
         _horizontalScale(1.0f),
-        _dpi(96.0f)
+        _baseLine(0.0f),
+        _ascender(0.0f),
+        _lineHeight(0.0f),
+        _hasKerning(false),
+        _hinting(false)
     {
         if (font::FreeTypeLibrary == nullptr)
             throw phi::exception("FreeType not initialized. Inititialized Font Manager? ;)");
@@ -29,9 +35,34 @@ namespace phi
         FT_Set_Transform(_fontFace, &matrix, NULL);
 
         _hasKerning = static_cast<bool>(FT_HAS_KERNING(_fontFace));
-        _ascender = static_cast<float>(_fontFace->size->metrics.ascender >> 6);
-        _baseLine = static_cast<float>(_fontFace->size->metrics.descender >> 6);
-        _lineHeight = static_cast<float>(_fontFace->size->metrics.height >> 6);
+        _ascender = static_cast<float>(_fontFace->size->metrics.ascender >> 6) * _dpiRatio;
+        _baseLine = static_cast<float>(_fontFace->size->metrics.descender >> 6) * _dpiRatio;
+        _lineHeight = static_cast<float>(_fontFace->size->metrics.height >> 6) * _dpiRatio;
+
+        float primary = 0.33f;
+        float secondary = 0.33f;
+        float tertiary = 0.0f;
+        float norm = 1.0f / (primary + 2.0f * secondary + 2.0f * tertiary);
+
+        _lcdWeights[0] = (byte)(tertiary * norm * 255);
+        _lcdWeights[1] = (byte)(secondary * norm * 255);
+        _lcdWeights[2] = (byte)(primary * norm * 255);
+        _lcdWeights[3] = (byte)(secondary * norm * 255);
+        _lcdWeights[4] = (byte)(tertiary * norm * 255);
+
+        FT_Library_SetLcdFilter(font::FreeTypeLibrary, FT_LCD_FILTER_LIGHT);
+
+        _loadGlyphFlags = FT_LOAD_RENDER | FT_LOAD_TARGET_LCD;
+
+        if (_hinting)
+            _loadGlyphFlags |= FT_LOAD_FORCE_AUTOHINT;
+        else
+            _loadGlyphFlags |= FT_LOAD_NO_AUTOHINT | FT_LOAD_NO_HINTING;
+    }
+    
+    font::~font()
+    {
+        FT_Done_Face(_fontFace);
     }
 
     glyph* font::getGlyph(const ulong& glyphChar)
@@ -46,52 +77,40 @@ namespace phi
             return _glyphCache[glyphIndex];
 
         FT_GlyphSlot glyphSlot = _fontFace->glyph;
-        float primary = 0.33f;
-        float secondary = 0.33f;
-        float tertiary = 0.0f;
-        float norm = 1.0f / (primary + 2.0f * secondary + 2.0f * tertiary);
 
-        byte lcdWeights[5];
-        lcdWeights[0] = (byte)(tertiary * norm * 255);
-        lcdWeights[1] = (byte)(secondary * norm * 255);
-        lcdWeights[2] = (byte)(primary * norm * 255);
-        lcdWeights[3] = (byte)(secondary * norm * 255);
-        lcdWeights[4] = (byte)(tertiary * norm * 255);
+        FT_Library_SetLcdFilterWeights(font::FreeTypeLibrary, _lcdWeights);
 
-        FT_Library_SetLcdFilter(font::FreeTypeLibrary, FT_LCD_FILTER_LIGHT);
-        FT_Library_SetLcdFilterWeights(font::FreeTypeLibrary, lcdWeights);
-        int flags = FT_LOAD_RENDER | FT_LOAD_TARGET_LCD;
+        FT_Load_Glyph(_fontFace, glyphIndex, _loadGlyphFlags);
 
-        if (_hinting)
-            flags |= FT_LOAD_FORCE_AUTOHINT;
-        else
-            flags |= FT_LOAD_NO_AUTOHINT | FT_LOAD_NO_HINTING;
-
-        FT_Load_Glyph(_fontFace, glyphIndex, flags);
-
-        auto buffer = glyphSlot->bitmap.buffer;
-        auto w = glyphSlot->bitmap.width / 3;
+        auto w = glyphSlot->bitmap.width;
         auto h = glyphSlot->bitmap.rows;
+        auto size = h * glyphSlot->bitmap.pitch;
+        void* buffer = malloc(size);
+        memcpy(buffer, glyphSlot->bitmap.buffer, size);
+        
+        w /= 3;
 
         auto g = new glyph();
         g->index = glyphIndex;
-        g->width = static_cast<float>(w);
-        g->height = static_cast<float>(h);
-        g->offsetX = static_cast<float>(glyphSlot->bitmap_left);
-        g->offsetY = static_cast<float>(glyphSlot->bitmap_top);
-        g->horiBearingX = static_cast<float>((glyphSlot->metrics.horiBearingX >> 6) / _horizontalScale);
-        g->horiBearingY = static_cast<float>(glyphSlot->metrics.horiBearingY >> 6);
-        g->horiAdvance = static_cast<float>((glyphSlot->metrics.horiAdvance >> 6) / _horizontalScale);
-        g->vertBearingX = static_cast<float>(glyphSlot->metrics.vertBearingX >> 6);
-        g->vertBearingY = static_cast<float>(glyphSlot->metrics.vertBearingY >> 6);
-        g->vertAdvance = static_cast<float>(glyphSlot->metrics.vertAdvance >> 6);
+        g->width = static_cast<float>(w) * _dpiRatio;
+        g->height = static_cast<float>(h) * _dpiRatio;
+        g->bitmapWidth = static_cast<float>(w);
+        g->bitmapHeight = static_cast<float>(h);
+        g->offsetX = static_cast<float>(glyphSlot->bitmap_left) * _dpiRatio;
+        g->offsetY = static_cast<float>(glyphSlot->bitmap_top) * _dpiRatio;
+        g->horiBearingX = static_cast<float>((glyphSlot->metrics.horiBearingX >> 6) / _horizontalScale) * _dpiRatio;
+        g->horiBearingY = static_cast<float>(glyphSlot->metrics.horiBearingY >> 6) * _dpiRatio;
+        g->horiAdvance = static_cast<float>((glyphSlot->metrics.horiAdvance >> 6) / _horizontalScale) * _dpiRatio;
+        g->vertBearingX = static_cast<float>(glyphSlot->metrics.vertBearingX >> 6) * _dpiRatio;
+        g->vertBearingY = static_cast<float>(glyphSlot->metrics.vertBearingY >> 6) * _dpiRatio;
+        g->vertAdvance = static_cast<float>(glyphSlot->metrics.vertAdvance >> 6) * _dpiRatio;
         g->data = buffer;
         _glyphCache[glyphIndex] = g;
 
         return g;
     }
 
-    ivec2 font::getKerning(glyph* firstGlyph, glyph* secondGlyph)
+    vec2 font::getKerning(glyph* firstGlyph, glyph* secondGlyph)
     {
         if (_hasKerning &&
             firstGlyph != nullptr &&
@@ -105,14 +124,35 @@ namespace phi
                 FT_KERNING_DEFAULT,
                 &kern);
 
-            return ivec2((kern.x >> 6) / _horizontalScale, kern.y >> 6);
+            return vec2(((kern.x >> 6) * _dpiRatio) / _horizontalScale, (kern.y >> 6) * _dpiRatio);
         }
 
-        return ivec2(0);
+        return vec2(0);
     }
 
-    font::~font()
+    vec2 font::measureText(const wstring& text)
     {
-        FT_Done_Face(_fontFace);
+        if (text.empty())
+            return vec2(0.0f);
+
+        float spacing = 4.0f;
+        float x = spacing;
+        float maxHeight = 0.0f;
+
+        glyph* previousGlyph = nullptr;
+        size_t textLength = text.length();
+
+        for (size_t i = 0; i < textLength; i++)
+        {
+            auto glyph = getGlyph((ulong)text[i]);
+            auto kern = getKerning(previousGlyph, glyph);
+            auto h = glyph->height;
+            auto x0 = x + glyph->offsetX;
+            x += glyph->horiAdvance + kern.x;
+            maxHeight = glm::max(h, maxHeight);
+        }
+
+        return vec2(x, spacing + _lineHeight);
+        //return vec2(0.0f);
     }
 }

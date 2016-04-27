@@ -265,7 +265,7 @@ namespace phi
 
     void shader::setUniform(uint location, vector<GLint> value)
     {
-        glUniform1iv(_uniforms[location], static_cast<GLsizei>(value.size()), value.data());
+        glUniform1iv(_uniforms[location], static_cast<GLsizei>(value.size()), &value[0]);
         glError::check();
     }
 

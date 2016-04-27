@@ -114,14 +114,14 @@ namespace demon
 
         auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 20);
 
-        auto label0 = ui::newLabel(L"nando", vec3(0.0f, 0.0f, 0.0f), vec3(100.0f, 100.0f, 1.0f));
+        auto label0 = _ui->newLabel(L"Giselle galarza", vec3(0.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
-        controlRenderer->setBackgroundColor(color::fromRGBA(0.3f, 0.7f, 0.8f, 0.5f));
-        _ui->add(label0);
+        controlRenderer->setBackgroundColor(color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f));
+        //_ui->add(label0);
 
-        auto label1 = ui::newLabel(L"patricks", vec3(150.0f, 0.0f, 0.0f), vec3(100.0f, 100.0f, 1.0f));
+        auto label1 = _ui->newLabel(L"JAQUIRANA Ó", vec3(0.0f, 100.0f, 0.0f));
         controlRenderer = label1->getComponent<phi::controlRenderer>();
-        controlRenderer->setBackgroundColor(color::fromRGBA(0.8f, 0.7f, 0.3f, 0.5f));
+        controlRenderer->setBackgroundColor(color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f));
 
         auto textRenderer = label1->getComponent<phi::textRenderer>();
         textRenderer->setFont(font);

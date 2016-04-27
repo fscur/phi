@@ -134,31 +134,38 @@ namespace phi
     void textRenderPass::addText(wstring text, vec3 position, font* const font)
     {
         float lineHeight = font->getLineHeight();
-
-        float x = position.x;
-        float y = position.y + lineHeight;
+        float baseLine = font->getBaseLine();
+        float ascender = font->getAscender();
+        float spacing = 2.0f;
+        float x = position.x + spacing;
+        float y = position.y - baseLine + spacing;
         float z = position.z;
 
         glyph* previousGlyph = nullptr;
         size_t textLength = text.length();
 
+        auto glyph = _fontsManager->getGlyph(font, (ulong)text[0]);
+        x -= glyph->offsetX;
+
         for (size_t i = 0; i < textLength; i++)
         {
-            auto glyph = _fontsManager->getGlyph(font, (ulong)text[i]);
+            glyph = _fontsManager->getGlyph(font, (ulong)text[i]);
             auto kern = font->getKerning(previousGlyph, glyph);
             auto w = glyph->width;
             auto h = glyph->height;
             auto x0 = x + glyph->offsetX;
+            auto y0 = y - h + glyph->offsetY;
 
             auto modelMatrix = mat4(
-                w, 0.0f, 0.0f, 0.0f,
+                w , 0.0f, 0.0f, 0.0f,
                 0.0f, h, 0.0f, 0.0f,
                 0.0f, 0.0f, 1.0f, 0.0f,
-                x0, -y - h + glyph->offsetY, z, 1.0f);
+                x0, y0, z, 1.0f);
 
             _modelMatrices.push_back(modelMatrix);
 
             x += glyph->horiAdvance + kern.x;
+
             float shift = std::abs(x0 - static_cast<int>(x0));
 
             glyphInfo info;

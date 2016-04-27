@@ -15,9 +15,12 @@ namespace phi
 
     struct glyph
     {
+        void* data;
         uint index;
         float width;
         float height;
+        float bitmapWidth;
+        float bitmapHeight;
         float offsetX;
         float offsetY;
         float horiBearingX;
@@ -29,6 +32,5 @@ namespace phi
         vec2 texPos;
         vec2 texSize;
         float texPage;
-        void* data;
     };
 }

@@ -153,6 +153,9 @@ namespace phi
 
         if (texture->data != nullptr)
         {
+            glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+            glError::check();
+
             glTextureSubImage3D(
                 id,
                 0,
@@ -167,9 +170,6 @@ namespace phi
                 texture->data);
             glError::check();
 
-            glBindTexture(GL_TEXTURE_2D_ARRAY, id);
-            glError::check();
-
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
             glError::check();
         }
@@ -182,6 +182,7 @@ namespace phi
 
         if (phi::contains(textures, texture))
         {
+            textureAddress.containerId = texturesAddresses[texture].containerId;
             textureAddress.unit = texturesAddresses[texture].unit;
             textureAddress.page = texturesAddresses[texture].page;
             return true;
