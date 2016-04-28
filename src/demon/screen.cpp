@@ -97,15 +97,7 @@ namespace demon
             auto cloned = obj->clone();
             cloned->getTransform()->setLocalPosition(vec3(i + (0.1f * i), 0.0, 0.0));
             _scene->add(cloned);
-        }/*
-
-        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
-        auto clonedFloor = floor->clone();
-        _scene->add(clonedFloor);
-
-        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
-        cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
-        _scene->add(cube);*/
+        }
     }
 
     void screen::initUi()
@@ -114,16 +106,19 @@ namespace demon
 
         auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 20);
 
-        auto label0 = _ui->newLabel(L"Giselle galarza", vec3(0.0f, 0.0f, 0.0f));
+        auto label0 = _ui->newLabel(L"Giselle Galarza", vec3(0.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
         controlRenderer->setBackgroundColor(color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f));
-        //_ui->add(label0);
+        auto textRenderer = label0->getComponent<phi::textRenderer>();
+        textRenderer->setFont(font);
+
+        _ui->add(label0);
 
         auto label1 = _ui->newLabel(L"JAQUIRANA Ó", vec3(0.0f, 100.0f, 0.0f));
         controlRenderer = label1->getComponent<phi::controlRenderer>();
         controlRenderer->setBackgroundColor(color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f));
 
-        auto textRenderer = label1->getComponent<phi::textRenderer>();
+        textRenderer = label1->getComponent<phi::textRenderer>();
         textRenderer->setFont(font);
         _ui->add(label1);
     }
@@ -167,6 +162,7 @@ namespace demon
         safeDelete(_gl);
         safeDelete(_library);
         safeDelete(_scene);
+        safeDelete(_ui);
         //TODO: MessageBox asking if the user really wants to close the window
         //TODO: Check if we really need the above TODO
     }

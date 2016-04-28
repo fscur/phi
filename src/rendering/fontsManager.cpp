@@ -70,6 +70,9 @@ namespace phi
             safeDelete(pair.second);
         
         FT_Done_FreeType(_freeTypeLibrary);
+
+        safeDelete(_glyphAtlasRoot);
+        safeDelete(_glyphAtlasTexture);
     }
 
     glyph* fontsManager::getGlyph(font* const font, const ulong& glyphChar)

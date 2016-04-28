@@ -23,6 +23,7 @@ namespace phi
         float _baseLine;
         float _ascender;
         float _lineHeight;
+        float _spacing;
         bool _hasKerning;
         bool _hinting;
         int _loadGlyphFlags;
@@ -31,12 +32,16 @@ namespace phi
     public:
         RENDERING_API font(const string& fileName, const uint size);
         RENDERING_API ~font();
-        glyph* getGlyph(const ulong& glyphChar);
+        
+        float getLineHeight() const { return _lineHeight; }
+        float getBaseLine() const { return _baseLine; }
+        float getAscender() const { return _ascender; }
+        float getSpacing() const { return _spacing; }
+        
         glyph* getGlyph(const uint& glyphIndex);
+        glyph* getGlyph(const ulong& glyphChar);
+        
         RENDERING_API vec2 getKerning(glyph* firstGlyph, glyph* secondGlyph);
-        RENDERING_API float getLineHeight() const { return _lineHeight; }
-        RENDERING_API float getBaseLine() const { return _baseLine; }
-        RENDERING_API float getAscender() const { return _ascender; }
         RENDERING_API vec2 measureText(const wstring& text);
     };
 }

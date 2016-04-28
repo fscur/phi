@@ -16,9 +16,9 @@ namespace phi
     inline controlsRenderPass::~controlsRenderPass()
     {
         safeDelete(_quad);
-        safeDelete(_shader);
         safeDelete(_vbo);
         safeDelete(_modelMatricesBuffer);
+        safeDelete(_controlsRenderDataBuffer);
         safeDelete(_ebo);
     }
 

@@ -15,6 +15,7 @@ namespace phi
         _baseLine(0.0f),
         _ascender(0.0f),
         _lineHeight(0.0f),
+        _spacing(2.0f),
         _hasKerning(false),
         _hinting(false)
     {
@@ -37,7 +38,7 @@ namespace phi
         _hasKerning = static_cast<bool>(FT_HAS_KERNING(_fontFace));
         _ascender = static_cast<float>(_fontFace->size->metrics.ascender >> 6) * _dpiRatio;
         _baseLine = static_cast<float>(_fontFace->size->metrics.descender >> 6) * _dpiRatio;
-        _lineHeight = static_cast<float>(_fontFace->size->metrics.height >> 6) * _dpiRatio;
+        _lineHeight = static_cast<float>((_fontFace->size->metrics.ascender - _fontFace->size->metrics.descender) >> 6) * _dpiRatio;
 
         float primary = 0.33f;
         float secondary = 0.33f;
@@ -62,6 +63,9 @@ namespace phi
     
     font::~font()
     {
+        for (auto pair : _glyphCache)
+            safeDelete(pair.second);
+
         FT_Done_Face(_fontFace);
     }
 
@@ -135,9 +139,7 @@ namespace phi
         if (text.empty())
             return vec2(0.0f);
 
-        float spacing = 4.0f;
-        float x = spacing;
-        float maxHeight = 0.0f;
+        auto x = _spacing * 2.0f;
 
         glyph* previousGlyph = nullptr;
         size_t textLength = text.length();
@@ -146,13 +148,9 @@ namespace phi
         {
             auto glyph = getGlyph((ulong)text[i]);
             auto kern = getKerning(previousGlyph, glyph);
-            auto h = glyph->height;
-            auto x0 = x + glyph->offsetX;
             x += glyph->horiAdvance + kern.x;
-            maxHeight = glm::max(h, maxHeight);
         }
 
-        return vec2(x, spacing + _lineHeight);
-        //return vec2(0.0f);
+        return vec2(x , _spacing * 2.0f + _lineHeight);
     }
 }

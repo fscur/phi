@@ -32,5 +32,7 @@ namespace phi
         vec2 texPos;
         vec2 texSize;
         float texPage;
+
+        ~glyph();
     };
 }

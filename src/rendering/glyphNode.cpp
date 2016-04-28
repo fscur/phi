@@ -11,6 +11,12 @@ namespace phi
     {
     }
 
+    glyphNode::~glyphNode()
+    {
+        safeDelete(_left);
+        safeDelete(_right);
+    }
+
     inline bool glyphNode::isLeaf()
     {
         return _left == nullptr && _right == nullptr;

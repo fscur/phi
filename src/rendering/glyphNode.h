@@ -21,6 +21,7 @@ namespace phi
 
     public:
         RENDERING_API glyphNode(rectangle rect);
+        RENDERING_API ~glyphNode();
 
         RENDERING_API glyphNode* insert(glyph* glyph);
     };

@@ -23,7 +23,7 @@ namespace phi
 
         camTransform->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         camTransform->setDirection(vec3(0.0f, 0.0f, -1.0f));
-        //_camera->orbit(vec3(0.0f), camTransform->getRight(), camTransform->getUp(), 0.4f, 0.4f);
+        //_camera->orbit(vec3(0.0f), camTransform->getRight(), camTransform->getUp(), 0.4f, 0.0f);
         _renderer = new uiRenderer(gl, _camera);
     }
 
@@ -32,19 +32,18 @@ namespace phi
         for (auto controls : _controls)
             safeDelete(controls);
 
-        safeDelete(_camera);
         safeDelete(_renderer);
     }
 
-   // float t = 0.0f;
+    //float t = 0.0f;
 
     void ui::update()
     {
-        //_camera->orbit(vec3(0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), 0.0f, c * 0.1f);
-        //_camera->moveTo(vec3(0.0, 0.0, glm::abs(glm::cos(t)) * 2000.0f));
+        //_camera->orbit(vec3(0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), 0.0f, glm::cos(t) * 0.01f);
+        //_camera->moveTo(vec3(0.0, 0.0, glm::abs(glm::cos(t)) * 500.0f));
         _renderer->update();
 
-        //t += 0.02f;
+        //t += 0.0005f;
     }
 
     void ui::render()

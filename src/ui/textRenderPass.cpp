@@ -17,7 +17,6 @@ namespace phi
     inline textRenderPass::~textRenderPass()
     {
         safeDelete(_quad);
-        safeDelete(_shader);
         safeDelete(_vbo);
         safeDelete(_modelMatricesBuffer);
         safeDelete(_glyphIdsBuffer);
@@ -136,7 +135,7 @@ namespace phi
         float lineHeight = font->getLineHeight();
         float baseLine = font->getBaseLine();
         float ascender = font->getAscender();
-        float spacing = 2.0f;
+        float spacing = font->getSpacing();
         float x = position.x + spacing;
         float y = position.y - baseLine + spacing;
         float z = position.z;

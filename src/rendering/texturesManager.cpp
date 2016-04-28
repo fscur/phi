@@ -32,7 +32,7 @@ namespace phi
 
     texturesManager::~texturesManager()
     {
-        for (auto &pair : _containers)
+        for (auto& pair : _containers)
         {
             for (auto container : pair.second)
                 safeDelete(container);

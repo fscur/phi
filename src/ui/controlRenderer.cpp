@@ -15,6 +15,7 @@ namespace phi
 
     controlRenderer::~controlRenderer()
     {
+        safeDelete(_onSizeChanged);
     }
 
     void controlRenderer::setSize(vec3 value)
