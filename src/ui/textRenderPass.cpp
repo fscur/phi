@@ -132,9 +132,7 @@ namespace phi
 
     void textRenderPass::addText(wstring text, vec3 position, font* const font)
     {
-        float lineHeight = font->getLineHeight();
         float baseLine = font->getBaseLine();
-        float ascender = font->getAscender();
         float spacing = font->getSpacing();
         float x = position.x + spacing;
         float y = position.y - baseLine + spacing;

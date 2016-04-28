@@ -254,10 +254,10 @@ namespace demon
         auto bl = _dragPlaneBottomLeft;
         auto br = _dragPlaneBottomRight;
         auto tr = _dragPlaneTopRight;
-        auto tl = _dragPlaneTopLeft;
+        //auto tl = _dragPlaneTopLeft;
         auto planeNormal = normalize(cross(bl - br, br - tr));
         auto d = dot(planeNormal, bl);
-        auto t = (d - dot(planeNormal, r.getOrigin())) / (dot(planeNormal, (r.getDirection())));
+        //auto t = (d - dot(planeNormal, r.getOrigin())) / (dot(planeNormal, (r.getDirection())));
         auto nDotA = dot(planeNormal, r.getOrigin());
         auto nDotBA = dot(planeNormal, r.getDirection());
         auto point = r.getOrigin() + (((d - nDotA) / nDotBA) * r.getDirection());

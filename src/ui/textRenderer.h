@@ -13,11 +13,11 @@ namespace phi
         public component
     {
     private:
-        wstring _text;
         font* _font;
-        color _foregroundColor;
-        color _backgroundColor;
         controlRenderer* _controlRenderer;
+        wstring _text;
+        color _backgroundColor;
+        color _foregroundColor;
 
     private:
         void updateControlRenderer();

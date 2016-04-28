@@ -5,14 +5,14 @@ namespace phi
 {
     lightingRenderPass::lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, float w, float h) :
         _gl(gl),
-        _w(w),
-        _h(h),
         _quad(nullptr),
-        _quadVao(0u),
+        _shader(nullptr),
         _quadVbo(nullptr),
         _quadEbo(nullptr),
         _rtsBuffer(nullptr),
-        shader(nullptr)
+        _w(w),
+        _h(h),
+        _quadVao(0u)
     {
         createQuad();
 
@@ -20,8 +20,8 @@ namespace phi
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
-        shader = _gl->shadersManager->load("lightingPass", attribs);
-        shader->addUniform(0, "textureArrays");
+        _shader = _gl->shadersManager->load("lightingPass", attribs);
+        _shader->addUniform(0, "textureArrays");
 
         auto rtAddresses = phi::rtAddresses();
 
@@ -93,10 +93,10 @@ namespace phi
         glBindVertexArray(_quadVao);
         glError::check();
 
-        shader->bind();
+        _shader->bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glError::check();
-        shader->unbind();
+        _shader->unbind();
 
         glBindVertexArray(0);
         glError::check();
@@ -104,14 +104,14 @@ namespace phi
 
     void lightingRenderPass::update()
     {
-        shader->bind();
+        _shader->bind();
 
         if (_gl->currentState.useBindlessTextures)
-            shader->setUniform(0, _gl->texturesManager->handles);
+            _shader->setUniform(0, _gl->texturesManager->handles);
         else
-            shader->setUniform(0, _gl->texturesManager->units);
+            _shader->setUniform(0, _gl->texturesManager->units);
 
-        shader->unbind();
+        _shader->unbind();
     }
 
     void lightingRenderPass::render()

@@ -29,8 +29,8 @@ namespace phi
         RENDERING_API ~fontsManager();
         RENDERING_API font* load(string name, uint size);
         RENDERING_API glyph* getGlyph(font* const font, const ulong& glyphChar);
-        RENDERING_API GLint getGlyphAtlasSize() const { return _glyphAtlasSize; }
-        RENDERING_API texture* getGlyphTexture() const { return _glyphAtlasTexture; }
-        RENDERING_API textureAddress getGlyphAtlasTextureAdress() const { return _glyphAtlasTextureAddress; }
+        GLint getGlyphAtlasSize() const { return _glyphAtlasSize; }
+        texture* getGlyphTexture() const { return _glyphAtlasTexture; }
+        textureAddress getGlyphAtlasTextureAdress() const { return _glyphAtlasTextureAddress; }
     };
 }

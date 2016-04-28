@@ -24,7 +24,7 @@ namespace phi
     public:
         controlRenderer(string name);
         ~controlRenderer();
-        geometry* getGeometry() const { _geometry; }
+        geometry* getGeometry() const { return _geometry; }
         texture* getBackgroundTexture() const { return _backgroundTexture; }
         color getBackgroundColor() const { return _backgroundColor; }
         vec3 getSize() const { return _size; }

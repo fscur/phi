@@ -5,8 +5,9 @@ namespace phi
 {
     textRenderer::textRenderer(string name) :
         component(component::TEXT_RENDERER, name),
-        _text(L""),
         _font(nullptr),
+        _controlRenderer(nullptr),
+        _text(L""),
         _backgroundColor(color::transparent),
         _foregroundColor(color::black)
     {

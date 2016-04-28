@@ -8,9 +8,9 @@ namespace phi
     scene::scene(gl* gl, float w, float h) :
         _gl(gl),
         _objects(vector<node*>()),
-        _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
-        _pipeline(new pipeline(gl)),
         _renderer(new renderer(gl, w, h)),
+        _pipeline(new pipeline(gl)),
+        _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
         _w(w),
         _h(h)
     {

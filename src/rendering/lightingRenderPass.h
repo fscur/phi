@@ -29,6 +29,7 @@ namespace phi
     private:
         gl* _gl;
         geometry* _quad;
+        shader* _shader;
         vertexBuffer* _quadVbo;
         buffer* _quadEbo;
         buffer* _rtsBuffer;
@@ -39,9 +40,6 @@ namespace phi
     private:
         void createQuad();
         void renderQuad();
-
-    public:
-        shader* shader;
 
     public:
         RENDERING_API lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, float w, float h);
