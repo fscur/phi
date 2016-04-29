@@ -4,6 +4,7 @@
 #include <core\geometry.h>
 #include <rendering\gl.h>
 #include <rendering\camera.h>
+#include <rendering\texturesManager.h>
 #include <rendering\fontsManager.h>
 #include <rendering\vertexBuffer.h>
 
@@ -14,6 +15,7 @@ namespace phi
         font* font;
         vec3 position;
         wstring text;
+        color color;
     };
 
     class textRenderPass
@@ -23,18 +25,19 @@ namespace phi
         camera* _camera;
 
         fontsManager* _fontsManager;
+        texturesManager* _texturesManager;
 
         shader* _shader;
         geometry* _quad;
 
-        GLuint _vao;
         vertexBuffer* _vbo;
         vertexBuffer* _modelMatricesBuffer;
         vertexBuffer* _glyphIdsBuffer;
         buffer* _ebo;
-
-        vector<mat4> _modelMatrices;
         buffer* _glyphInfoBuffer;
+
+        GLuint _vao;
+        vector<mat4> _modelMatrices;
         vector<glyphInfo> _glyphInfos;
 
     private:
@@ -47,13 +50,13 @@ namespace phi
         void createModelMatricesBuffer();
         void createGlyphInfoBuffer();
 
-        void addText(wstring text, vec3 position, font* const font);
+        void addText(const textRenderData& renderData);
         void updateBuffers();
 
     public:
         UI_API textRenderPass(gl* gl, camera* camera);
         UI_API ~textRenderPass();
-        UI_API void add(textRenderData textRenderData);
+        UI_API void add(const textRenderData& renderData);
         UI_API void update(const vector<textRenderData>& texts);
         UI_API void render() const;
     };

@@ -1,12 +1,18 @@
 #version 450
+
 struct glyphInfo
 {
+    vec4 color;
     vec2 pos;
-    float page;
-    float shift;
     vec2 size;
+    float shift;
+    float page;
     float pad0;
     float pad1;
+    int unit;
+    int pad2;
+    int pad3;
+    int pad4;
 };
 
 layout (location = 0) in vec3 inPosition;
@@ -26,8 +32,11 @@ layout (std140, binding = 0) buffer GlyphInfos
 
 out vec2 fragTexCoord;
 out vec3 fragPosition;
-flat out float shift;
+
+flat out int unit;
 flat out float page;
+flat out float shift;
+flat out vec4 color;
 
 void main()
 {
@@ -35,6 +44,8 @@ void main()
     glyphInfo info = glyphs.items[inGlyphId];
 	fragTexCoord = info.pos + inTexCoord * info.size;
 	fragPosition = inPosition;
-    shift = info.shift;
+    unit = info.unit;
     page = info.page;
+    shift = info.shift;
+    color = info.color;
 }

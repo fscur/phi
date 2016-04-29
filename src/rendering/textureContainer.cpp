@@ -153,6 +153,12 @@ namespace phi
 
         if (texture->data != nullptr)
         {
+            if (!_bindless)
+            {
+                glActiveTexture(GL_TEXTURE0 + _unit);
+                glError::check();
+            }
+
             glBindTexture(GL_TEXTURE_2D_ARRAY, id);
             glError::check();
 

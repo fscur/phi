@@ -106,20 +106,25 @@ namespace demon
 
         auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 20);
 
-        auto label0 = _ui->newLabel(L"Giselle Galarza", vec3(0.0f, 0.0f, 0.0f));
+        auto label0 = _ui->newLabel(L"Giselle Galarza", vec3(-100.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
-        controlRenderer->setBackgroundColor(color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f));
+        controlRenderer->setColor(color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f));
         auto textRenderer = label0->getComponent<phi::textRenderer>();
         textRenderer->setFont(font);
+        textRenderer->setColor(color::fromRGBA(1.0f, 0.85f, 0.0f, 1.0f));
 
         _ui->add(label0);
 
-        auto label1 = _ui->newLabel(L"JAQUIRANA Ó", vec3(0.0f, 100.0f, 0.0f));
+        auto label1 = _ui->newLabel(L"JAQUIRANA Ó", vec3(-100.0f, 100.0f, 0.0f));
         controlRenderer = label1->getComponent<phi::controlRenderer>();
-        controlRenderer->setBackgroundColor(color::fromRGBA(1.0f, 0.0f, 0.0f, 0.5f));
+
+        auto texture = _library->getTexturesRepository()->getAllResources()[0]->getObject();
+        controlRenderer->setTexture(texture);
+        controlRenderer->setColor(color::fromRGBA(0.0f, 0.2f, 1.0f, 0.8f));
 
         textRenderer = label1->getComponent<phi::textRenderer>();
         textRenderer->setFont(font);
+        textRenderer->setColor(color::fromRGBA(1.0f, 0.85f, 0.0f, 1.0f));
         _ui->add(label1);
     }
 

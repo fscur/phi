@@ -5,10 +5,20 @@ namespace phi
 {
     inline textRenderPass::textRenderPass(gl* gl, camera* camera) :
         _gl(gl),
-        _camera(camera)
+        _camera(camera),
+        _fontsManager(gl->fontsManager),
+        _texturesManager(gl->texturesManager),
+        _shader(nullptr),
+        _quad(nullptr),
+        _vbo(nullptr),
+        _modelMatricesBuffer(nullptr),
+        _glyphIdsBuffer(nullptr),
+        _ebo(nullptr),
+        _glyphInfoBuffer(nullptr),
+        _vao(0u),
+        _modelMatrices(vector<mat4>()),
+        _glyphInfos(vector<glyphInfo>())
     {
-        _fontsManager = gl->fontsManager;
-
         initShader();
         createQuad();
         createVao();
@@ -37,7 +47,7 @@ namespace phi
         _shader = _gl->shadersManager->load("text", attribs);
         _shader->addUniform(0, "v");
         _shader->addUniform(1, "p");
-        _shader->addUniform(2, "glyphAtlas");
+        _shader->addUniform(2, "textureArrays");
         _shader->addUniform(3, "texelSize");
     }
 
@@ -130,23 +140,28 @@ namespace phi
         _glyphInfoBuffer->data(sizeof(glyphInfo) * glyphCount, &_glyphInfos[0], bufferDataUsage::dynamicDraw);
     }
 
-    void textRenderPass::addText(wstring text, vec3 position, font* const font)
+    void textRenderPass::addText(const textRenderData& renderData)
     {
+        auto font = renderData.font;
+
+        if (font == nullptr)
+            font = _gl->defaultFont;
+
         float baseLine = font->getBaseLine();
         float spacing = font->getSpacing();
-        float x = position.x + spacing;
-        float y = position.y - baseLine + spacing;
-        float z = position.z;
+        float x = renderData.position.x + spacing;
+        float y = renderData.position.y - baseLine + spacing;
+        float z = renderData.position.z;
 
         glyph* previousGlyph = nullptr;
-        size_t textLength = text.length();
+        size_t textLength = renderData.text.length();
 
-        auto glyph = _fontsManager->getGlyph(font, (ulong)text[0]);
+        auto glyph = _fontsManager->getGlyph(font, (ulong)renderData.text[0]);
         x -= glyph->offsetX;
 
         for (size_t i = 0; i < textLength; i++)
         {
-            glyph = _fontsManager->getGlyph(font, (ulong)text[i]);
+            glyph = _fontsManager->getGlyph(font, (ulong)renderData.text[i]);
             auto kern = font->getKerning(previousGlyph, glyph);
             auto w = glyph->width;
             auto h = glyph->height;
@@ -169,8 +184,9 @@ namespace phi
             info.pos = glyph->texPos;
             info.size = glyph->texSize;
             info.shift = shift;
-
+            info.unit = glyph->texUnit;
             info.page = glyph->texPage;
+            info.color = renderData.color;
 
             _glyphInfos.push_back(info);
 
@@ -178,14 +194,9 @@ namespace phi
         }
     }
 
-    void textRenderPass::add(textRenderData textRenderData)
+    void textRenderPass::add(const textRenderData& renderData)
     {
-        auto font = textRenderData.font;
-
-        if (font == nullptr)
-            font = _gl->defaultFont;
-
-        addText(textRenderData.text, textRenderData.position, font);
+        addText(renderData);
         updateBuffers();
     }
 
@@ -195,7 +206,7 @@ namespace phi
         _glyphInfos.clear();
 
         for (auto& item : texts)
-            addText(item.text, item.position, item.font);
+            addText(item);
 
         updateBuffers();
     }
@@ -216,7 +227,7 @@ namespace phi
         _shader->bind();
         _shader->setUniform(0, _camera->getViewMatrix());
         _shader->setUniform(1, _camera->getProjectionMatrix());
-        _shader->setUniform(2, _fontsManager->getGlyphAtlasTextureAdress().unit);
+        _shader->setUniform(2, _texturesManager->units);
         _shader->setUniform(3, glm::vec2(texelSize, texelSize));
 
         glBindVertexArray(_vao);

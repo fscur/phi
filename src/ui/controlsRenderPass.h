@@ -27,20 +27,20 @@ namespace phi
         gl* _gl;
         camera* _camera;
 
+        texturesManager* _texturesManager;
         shader* _shader;
         geometry* _quad;
 
-        GLuint _vao;
         vertexBuffer* _vbo;
         vertexBuffer* _modelMatricesBuffer;
         buffer* _ebo;
-
-        vector<mat4> _modelMatrices;
         buffer* _controlsRenderDataBuffer;
+
+        GLuint _vao;
+        vector<mat4> _modelMatrices;
         vector<controlRenderData> _controlsRenderData;
         GLsizei _instanceCount;
 
-        //vector<control*> _controls;
     private:
         void initShader();
         void createQuad();

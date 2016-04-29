@@ -16,8 +16,7 @@ namespace phi
         font* _font;
         controlRenderer* _controlRenderer;
         wstring _text;
-        color _backgroundColor;
-        color _foregroundColor;
+        color _color;
 
     private:
         void updateControlRenderer();
@@ -31,15 +30,13 @@ namespace phi
 
         wstring getText() const { return _text; }
         font* getFont() const { return  _font; }
-        color getBackgroundColor() const { return _backgroundColor; }
-        color getForegroundColor() const { return _foregroundColor; }
+        color getColor() const { return _color; }
         controlRenderer* getControlRenderer() const { return _controlRenderer; }
 
         UI_API void setText(wstring value);
         UI_API void setFont(font* value);
 
-        void setBackgroundColor(color value) { _backgroundColor = value; }
-        void setForegroundColor(color value) { _foregroundColor = value; }
+        void setColor(color value) { _color = value; }
         void setControlRenderer(controlRenderer* value) { _controlRenderer = value; }
     };
 }

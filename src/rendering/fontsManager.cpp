@@ -95,6 +95,7 @@ namespace phi
 
         glyph->texPos = vec2((float)x * r, (float)y * r);
         glyph->texSize = vec2((float)w * r, (float)h * r);
+        glyph->texUnit = _glyphAtlasTextureAddress.unit;
         glyph->texPage = _glyphAtlasTextureAddress.page;
 
         glActiveTexture(GL_TEXTURE0 + _glyphAtlasTextureAddress.unit);
@@ -117,6 +118,7 @@ namespace phi
             glyph->data);
 
         glError::check();
+        
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         glError::check();
 

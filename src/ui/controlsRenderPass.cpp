@@ -5,7 +5,17 @@ namespace phi
 { 
     controlsRenderPass::controlsRenderPass(gl* gl, camera* camera) :
         _gl(gl),
-        _camera(camera),
+        _camera(camera), 
+        _texturesManager(gl->texturesManager),
+        _shader(nullptr),
+        _quad(nullptr),
+        _vbo(nullptr),
+        _modelMatricesBuffer(nullptr),
+        _ebo(nullptr),
+        _controlsRenderDataBuffer(nullptr),
+        _vao(0u),
+        _modelMatrices(vector<mat4>()),
+        _controlsRenderData(vector<controlRenderData>()),
         _instanceCount(0)
     {
         initShader();
@@ -39,10 +49,10 @@ namespace phi
     {
         auto vertices = vector<vertex>
         {
-            vertex(vec3(0.0f, 0.0f, +0.0f), vec2(0.0f, 1.0f)),
-            vertex(vec3(1.0f, 0.0f, +0.0f), vec2(1.0f, 1.0f)),
-            vertex(vec3(1.0f, 1.0f, +0.0f), vec2(1.0f, 0.0f)),
-            vertex(vec3(0.0f, 1.0f, +0.0f), vec2(0.0f, 0.0f))
+            vertex(vec3(0.0f, 0.0f, +0.0f), vec2(0.0f, 0.0f)),
+            vertex(vec3(1.0f, 0.0f, +0.0f), vec2(1.0f, 0.0f)),
+            vertex(vec3(1.0f, 1.0f, +0.0f), vec2(1.0f, 1.0f)),
+            vertex(vec3(0.0f, 1.0f, +0.0f), vec2(0.0f, 1.0f))
         };
 
         auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
@@ -132,7 +142,7 @@ namespace phi
         _shader->bind();
         _shader->setUniform(0, _camera->getViewMatrix());
         _shader->setUniform(1, _camera->getProjectionMatrix());
-        _shader->setUniform(2, _gl->texturesManager->units);
+        _shader->setUniform(2, _texturesManager->units);
 
         glBindVertexArray(_vao);
         glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, _instanceCount);

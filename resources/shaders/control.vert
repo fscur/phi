@@ -12,7 +12,8 @@ flat out uint instanceId;
 
 void main()
 {
-	gl_Position = p * v * inModelMatrix * vec4(inPosition, 1.0);
+    gl_Position = p * v * inModelMatrix * vec4(inPosition, 1.0);
+
 	fragTexCoord = inTexCoord;
     instanceId = gl_InstanceID;
 }

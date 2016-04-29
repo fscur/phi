@@ -6,9 +6,9 @@ namespace phi
     controlRenderer::controlRenderer(string name) :
         component(component::CONTROL_RENDERER, name),
         _geometry(nullptr),
-        _backgroundTexture(nullptr),
+        _texture(nullptr),
         _onSizeChanged(new eventHandler<vec3>()),
-        _backgroundColor(color::transparent),
+        _color(color::white),
         _size(vec3(0.0f))
     {
     }

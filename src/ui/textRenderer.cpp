@@ -8,8 +8,7 @@ namespace phi
         _font(nullptr),
         _controlRenderer(nullptr),
         _text(L""),
-        _backgroundColor(color::transparent),
-        _foregroundColor(color::black)
+        _color(color::black)
     {
     }
 

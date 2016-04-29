@@ -79,7 +79,7 @@ namespace phi
         node->setPosition(position);
         node->setSize(controlRenderer->getSize());
 
-        controlRenderer->getOnSizeChanged()->assign(resizeNode);
+        controlRenderer->getOnSizeChanged()->assign(resizeNode); //TODO: this event should be unassigned.
 
         return node;
     }
