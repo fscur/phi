@@ -2,5 +2,5 @@
 
 if %1==Gcc (
     cd ..\..\..\..\build\gcc\release
-    mingw32-make
+    mingw32-make install
 )

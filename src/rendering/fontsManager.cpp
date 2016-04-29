@@ -11,6 +11,7 @@ namespace phi
         _path(path),
         _texturesManager(texturesManager),
         _fonts(map<std::tuple<string, uint>, font*>()),
+        _glyphAtlasContainer(nullptr),
         _glyphAtlas(map<glyph*, glyphNode*>()),
         _glyphAtlasRoot(nullptr),
         _glyphAtlasTexture(nullptr),
@@ -40,11 +41,13 @@ namespace phi
         layout.h = static_cast<GLsizei>(_glyphAtlasSize);
         layout.levels = maxLevels;
         layout.internalFormat = GL_RGB8;
+        layout.dataFormat = GL_RGB;
+        layout.dataType = GL_UNSIGNED_BYTE;
         layout.wrapMode = GL_CLAMP_TO_EDGE;
         layout.minFilter = GL_LINEAR;
         layout.magFilter = GL_LINEAR;
 
-        _texturesManager->reserveContainer(layout, 1);
+        _glyphAtlasContainer = _texturesManager->reserveContainer(layout, 1);
 
         _glyphAtlasTexture = new texture(
             _glyphAtlasSize,
@@ -98,29 +101,9 @@ namespace phi
         glyph->texUnit = _glyphAtlasTextureAddress.unit;
         glyph->texPage = _glyphAtlasTextureAddress.page;
 
-        glActiveTexture(GL_TEXTURE0 + _glyphAtlasTextureAddress.unit);
-        glError::check();
+        auto rect = rectangle(x, y, w, h);
 
-        glBindTexture(GL_TEXTURE_2D_ARRAY, _glyphAtlasTextureAddress.containerId);
-        glError::check();
-
-        glTextureSubImage3D(//GL_TEXTURE_2D_ARRAY,
-            _glyphAtlasTextureAddress.containerId,
-            0,
-            x,
-            y,
-            0,
-            w,
-            h,
-            1,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            glyph->data);
-
-        glError::check();
-        
-        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        glError::check();
+        _glyphAtlasContainer->subData(_glyphAtlasTextureAddress.page, rect, glyph->data);
 
         _glyphCache[key] = glyph;
 

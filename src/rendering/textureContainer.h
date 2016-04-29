@@ -2,6 +2,7 @@
 #include <phi.h>
 #include "texture.h"
 #include "textureAddress.h"
+#include "rectangle.h"
 
 namespace phi
 {
@@ -11,6 +12,8 @@ namespace phi
         GLsizei h;
         GLsizei levels;
         GLenum internalFormat;
+        GLenum dataFormat;
+        GLenum dataType;
         GLint wrapMode;
         GLint minFilter;
         GLint magFilter;
@@ -65,5 +68,10 @@ namespace phi
         ~textureContainer();
 
         bool add(const texture* const texture, textureAddress& textureAddress);
+
+        void subData(
+            const float& page,
+            const rectangle& rect,
+            const void* const data);
     };
 }

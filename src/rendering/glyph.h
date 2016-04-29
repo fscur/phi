@@ -1,6 +1,7 @@
 #pragma once
 #include <phi.h>
 #include <core\color.h>
+#include <rendering\texture.h>
 
 namespace phi
 {

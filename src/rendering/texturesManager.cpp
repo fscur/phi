@@ -57,6 +57,8 @@ namespace phi
         layout.h = texture->h;
         layout.levels = maxLevels;
         layout.internalFormat = texture->internalFormat;
+        layout.dataFormat = texture->dataFormat;
+        layout.dataType = texture->dataType;
         layout.wrapMode = texture->wrapMode;
         layout.minFilter = texture->minFilter;
         layout.magFilter = texture->magFilter;
@@ -66,6 +68,8 @@ namespace phi
             layout.h,
             layout.levels,
             layout.internalFormat,
+            layout.dataFormat,
+            layout.dataType,
             layout.wrapMode,
             layout.minFilter,
             layout.magFilter);
@@ -109,13 +113,15 @@ namespace phi
         return _textures.find(texture) != _textures.end();
     }
 
-    void texturesManager::reserveContainer(textureContainerLayout layout, size_t size)
+    textureContainer* texturesManager::reserveContainer(textureContainerLayout layout, size_t size)
     {
         auto key = std::make_tuple(
             layout.w,
             layout.h,
             layout.levels,
             layout.internalFormat,
+            layout.dataFormat,
+            layout.dataType,
             layout.wrapMode,
             layout.minFilter,
             layout.magFilter);
@@ -124,5 +130,6 @@ namespace phi
         _containers[key].push_back(container);
         handles.push_back(container->handle);
         units.push_back(_currentTextureUnit);
+        return container;
     }
 }

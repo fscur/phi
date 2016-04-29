@@ -207,4 +207,59 @@ namespace phi
 
         return true;
     }
+
+    void textureContainer::subData(
+        const float& page,
+        const rectangle& rect,
+        const void* const data)
+    {
+        if (!_bindless)
+        {
+            glActiveTexture(GL_TEXTURE0 + _unit);
+            glError::check();
+        }
+
+        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+        glError::check();
+
+        glTextureSubImage3D(
+            id,
+            0,
+            rect.x,
+            rect.y,
+            static_cast<GLint>(page),
+            rect.w,
+            rect.h,
+            1,
+            _layout.dataFormat,
+            _layout.dataType,
+            data);
+
+        glError::check();
+
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        glError::check();
+
+
+        //glBindTexture(GL_TEXTURE_2D_ARRAY, _glyphAtlasTextureAddress.containerId);
+        //glError::check();
+
+        //glTextureSubImage3D(//GL_TEXTURE_2D_ARRAY,
+        //    _glyphAtlasTextureAddress.containerId,
+        //    0,
+        //    x,
+        //    y,
+        //    0,
+        //    w,
+        //    h,
+        //    1,
+        //    GL_RGB,
+        //    GL_UNSIGNED_BYTE,
+        //    glyph->data);
+
+        //glError::check();
+        //
+        //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        //glError::check();
+    }
 }

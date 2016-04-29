@@ -48,7 +48,7 @@ if (MSVC)
     add_custom_command(
         TARGET demon
         POST_BUILD
-        COMMAND ../../../../scripts/post_build_vc++/project.bat $(Configuration) demon)
+        COMMAND ../../../../scripts/post_build_vc++/demon.bat $(Configuration) demon)
         
 endif(MSVC)
 

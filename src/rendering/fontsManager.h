@@ -17,6 +17,7 @@ namespace phi
         string _path;
         texturesManager* _texturesManager;
         map<std::tuple<string, uint>, font*> _fonts;
+        textureContainer* _glyphAtlasContainer;
         map<glyph*, glyphNode*> _glyphAtlas;
         glyphNode* _glyphAtlasRoot;
         texture* _glyphAtlasTexture;
