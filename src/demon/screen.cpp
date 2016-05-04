@@ -95,11 +95,11 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
+        auto floor = _library->getObjectsRepository()->getAllResources()[2]->getObject();
         auto clonedFloor = floor->clone();
         _scene->add(clonedFloor);
 
-        auto obj = _library->getObjectsRepository()->getAllResources()[3]->getObject();
+        auto obj = _library->getObjectsRepository()->getAllResources()[0]->getObject();
         
         for (auto i = 0; i < 5; ++i)
         {
