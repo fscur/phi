@@ -42,7 +42,7 @@ namespace demon
         application::logInfo("Initializing OpenGl");
 
         auto initState = gl::state();
-        initState.clearColor = vec4(0.0f);
+        initState.clearColor = vec4(1.0f);
         initState.frontFace = gl::frontFace::ccw;
         initState.culling = true;
         initState.cullFace = gl::cullFace::back;
@@ -91,7 +91,11 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto obj = _library->getObjectsRepository()->getAllResources()[0]->getObject();
+		auto obj = _library->getObjectsRepository()->getAllResources()[24]->getObject();
+		auto cloned = obj->clone();
+		_scene->add(cloned);
+
+        obj = _library->getObjectsRepository()->getAllResources()[3]->getObject();
         for (size_t i = 0; i < 1; i++)
         {
             auto cloned = obj->clone();
@@ -102,30 +106,33 @@ namespace demon
 
     void screen::initUi()
     {
-        _ui = new ui(_gl, static_cast<float>(_width), static_cast<float>(_height));
+        _ui = new ui(_scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
 
-        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 20);
+        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 14);
 
-        auto label0 = _ui->newLabel(L"Giselle Galarza", vec3(-100.0f, 0.0f, 0.0f));
+        auto label0 = _ui->newLabel(L"Filipe Scur", vec3(-100.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
-        controlRenderer->setColor(color::fromRGBA(0.0f, 0.0f, 1.0f, 0.5f));
+        controlRenderer->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
+		controlRenderer->setIsGlassy(true);
+
         auto textRenderer = label0->getComponent<phi::textRenderer>();
         textRenderer->setFont(font);
-        textRenderer->setColor(color::fromRGBA(1.0f, 0.85f, 0.0f, 1.0f));
+        textRenderer->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
         _ui->add(label0);
 
-        auto label1 = _ui->newLabel(L"JAQUIRANA Ó", vec3(-100.0f, 100.0f, 0.0f));
-        controlRenderer = label1->getComponent<phi::controlRenderer>();
+  //      auto label1 = _ui->newLabel(L"JAQUIRANA Ó", vec3(-100.0f, 100.0f, 0.0f));
+  //      controlRenderer = label1->getComponent<phi::controlRenderer>();
 
-        auto texture = _library->getTexturesRepository()->getAllResources()[0]->getObject();
-        controlRenderer->setTexture(texture);
-        controlRenderer->setColor(color::fromRGBA(0.0f, 0.2f, 1.0f, 0.8f));
+  //      auto texture = _library->getTexturesRepository()->getAllResources()[0]->getObject();
+  //      //controlRenderer->setTexture(texture);
+  //      //controlRenderer->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 0.4f));
+		//controlRenderer->setIsGlassy(true);
 
-        textRenderer = label1->getComponent<phi::textRenderer>();
-        textRenderer->setFont(font);
-        textRenderer->setColor(color::fromRGBA(1.0f, 0.85f, 0.0f, 1.0f));
-        _ui->add(label1);
+  //      textRenderer = label1->getComponent<phi::textRenderer>();
+  //      textRenderer->setFont(font);
+  //      textRenderer->setColor(color::fromRGBA(1.0f, 1.f, 1.0f, 1.0f));
+  //      _ui->add(label1);
     }
 
     void screen::initInput()
@@ -153,7 +160,7 @@ namespace demon
 
     void screen::onTick()
     {
-        debug("fps:" + std::to_string(application::framesPerSecond));
+        //debug("fps:" + std::to_string(application::framesPerSecond));
 #if _DEBUG
         _gl->shadersManager->reloadAllShaders();
 #endif

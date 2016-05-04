@@ -24,7 +24,7 @@ namespace phi
         RENDERING_API void bindForReading();
         RENDERING_API void bindForReading(renderTarget* sourceRenderTarget);
         RENDERING_API void unbind(GLenum target);
-        RENDERING_API void blitToDefault(renderTarget* renderTarget);
+        RENDERING_API void blitToDefault(renderTarget* renderTarget, int x = 0, int y = 0, int w = -1, int h = -1);
         RENDERING_API void blit(
             framebuffer* sourceFramebuffer,
             renderTarget* sourceRenderTarget,

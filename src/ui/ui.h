@@ -1,6 +1,7 @@
 #pragma once
 #include <phi.h>
 #include <core\node.h>
+#include <rendering\renderer.h>
 #include <rendering\gl.h>
 #include <rendering\camera.h>
 
@@ -23,7 +24,7 @@ namespace phi
         UI_API node* newLabel(wstring text, vec3 position);
 
     public:
-        UI_API ui(gl* gl, float w, float h);
+        UI_API ui(renderer* renderer, gl* gl, float w, float h);
         UI_API ~ui();
         
         UI_API void update();

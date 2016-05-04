@@ -1,6 +1,7 @@
 #pragma once
 #include <phi.h>
 #include "uiApi.h"
+#include "controlRenderData.h"
 #include <rendering\gl.h>
 #include <rendering\camera.h>
 #include <core\geometry.h>
@@ -8,19 +9,6 @@
 
 namespace phi
 {
-    struct controlRenderData
-    {
-        color backgroundColor;
-        int backgroundTextureUnit;
-        int pad0;
-        int pad1;
-        int pad2;
-        float backgroundTexturePage;
-        float pad3;
-        float pad4;
-        float pad5;
-    };
-
     class controlsRenderPass
     {
     private:

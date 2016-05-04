@@ -39,7 +39,6 @@ namespace phi
 
     private:
         void createQuad();
-        void renderQuad();
 
     public:
         RENDERING_API lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, float w, float h);

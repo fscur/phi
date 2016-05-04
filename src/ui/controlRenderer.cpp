@@ -8,8 +8,9 @@ namespace phi
         _geometry(nullptr),
         _texture(nullptr),
         _onSizeChanged(new eventHandler<vec3>()),
-        _color(color::white),
-        _size(vec3(0.0f))
+        _color(color::transparent),
+        _size(vec3(0.0f)),
+		_isGlassy(false)
     {
     }
 

@@ -31,7 +31,7 @@ namespace phi
         {
             auto msg = getErrorString(error);
             std::cout << msg << std::endl;
-            //throw exception(msg);
+            throw exception(msg);
         }
 #endif
     }

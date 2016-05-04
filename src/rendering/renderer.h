@@ -13,10 +13,15 @@ namespace phi
     {
     private:
         gl* _gl;
+
         framebuffer* _defaultFramebuffer;
+		framebuffer* _finalImageFramebuffer;
+		renderTarget* _finalImageRT;
+
         gBufferRenderPass* _gBufferRenderPass;
         lightingRenderPass* _lightingRenderPass;
         planeGridRenderPass* _planeGridRenderPass;
+
         float _w;
         float _h;
 
@@ -27,6 +32,7 @@ namespace phi
         framebuffer* getDefaultFramebuffer() const { return _defaultFramebuffer; }
         planeGridRenderPass* getPlaneGridRenderPass() const { return _planeGridRenderPass; }
         gBufferRenderPass* getGBufferRenderPass() const { return _gBufferRenderPass; }
+		renderTarget* getFinalImageRT() const { return _finalImageRT; }
 
         RENDERING_API void render();
         RENDERING_API void update();

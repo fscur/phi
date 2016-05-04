@@ -88,20 +88,6 @@ namespace phi
         safeDeleteArray(data);
     }
 
-    void lightingRenderPass::renderQuad()
-    {
-        glBindVertexArray(_quadVao);
-        glError::check();
-
-        _shader->bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glError::check();
-        _shader->unbind();
-
-        glBindVertexArray(0);
-        glError::check();
-    }
-
     void lightingRenderPass::update()
     {
         _shader->bind();
@@ -117,11 +103,19 @@ namespace phi
     void lightingRenderPass::render()
     {
         glDisable(GL_DEPTH_TEST);
-        glError::check();
+		glClear(GL_COLOR_BUFFER_BIT);
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        glError::check();
+		glBindVertexArray(_quadVao);
+		glError::check();
 
-        renderQuad();
+		_shader->bind();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glError::check();
+		_shader->unbind();
+
+		glBindVertexArray(0);
+		glError::check();
+
+		glEnable(GL_DEPTH_TEST);
     }
 }
