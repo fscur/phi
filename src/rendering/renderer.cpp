@@ -45,6 +45,7 @@ namespace phi
         safeDelete(_finalImageFramebuffer);
         safeDelete(_gBufferRenderPass);
         safeDelete(_lightingRenderPass);
+        safeDelete(_selectionRenderPass);
         safeDelete(_planeGridRenderPass);
         safeDelete(_finalImageRT);
     }
