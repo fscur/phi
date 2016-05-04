@@ -9,9 +9,11 @@ namespace phi
 {
     scene::scene(gl* gl, size_t w, size_t h) :
         _gl(gl),
+        _pipeline(new pipeline(gl)),
+        _objects(vector<node*>()),
+        _meshesIds(map<int, mesh*>()),
         w(w),
         h(h),
-        _pipeline(new pipeline(gl)),
         renderer(new phi::renderer(gl, w, h))
     {
         camera = new phi::camera(

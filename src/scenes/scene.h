@@ -16,9 +16,9 @@ namespace phi
 
     private:
         gl* _gl;
+        pipeline* _pipeline;
         vector<node*> _objects;
         map<int, mesh*> _meshesIds;
-        pipeline* _pipeline;
 
     public:
         size_t w;

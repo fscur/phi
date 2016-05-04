@@ -10,8 +10,8 @@ namespace phi
     {
     private:
         vec3 _origin;
-        vec3 _p2;
         vec3 _direction;
+        vec3 _p2;
         vec3 _inverseDirection;
 
     public:

@@ -5,11 +5,11 @@ namespace phi
 {
     mesh::mesh(string name, phi::geometry* geometry, phi::material* material) :
         component(componentType::MESH, name),
-        geometry(geometry),
-        material(material),
+        _selectionChanged(new eventHandler<mesh*>()),
         _isSelected(false),
         _id(-1),
-        _selectionChanged(new eventHandler<mesh*>())
+        geometry(geometry),
+        material(material)
     {
     }
 
@@ -20,11 +20,11 @@ namespace phi
 
     mesh::mesh(const mesh& mesh) :
         component(componentType::MESH, mesh._name),
-        geometry(mesh.geometry),
-        material(mesh.material),
+        _selectionChanged(new eventHandler<phi::mesh*>()),
         _isSelected(false),
         _id(-1),
-        _selectionChanged(new eventHandler<phi::mesh*>())
+        geometry(mesh.geometry),
+        material(mesh.material)
     {
     }
 
@@ -39,7 +39,7 @@ namespace phi
         _isSelected = isSelected;
         _selectionChanged->raise(this);
     }
-    
+
     vec4 mesh::getSelectionColor()
     {
         auto r = static_cast<float>(_id & 255);

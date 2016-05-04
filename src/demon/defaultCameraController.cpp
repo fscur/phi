@@ -241,10 +241,8 @@ namespace demon
         auto bl = _dragPlaneBottomLeft;
         auto br = _dragPlaneBottomRight;
         auto tr = _dragPlaneTopRight;
-        auto tl = _dragPlaneTopLeft;
         auto planeNormal = normalize(cross(bl - br, br - tr));
         auto d = dot(planeNormal, bl);
-        auto t = (d - dot(planeNormal, ray.getOrigin())) / (dot(planeNormal, (ray.getDirection())));
         auto nDotA = dot(planeNormal, ray.getOrigin());
         auto nDotBA = dot(planeNormal, ray.getDirection());
 
@@ -379,7 +377,6 @@ namespace demon
         panCancel();
 
         auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
-        phi::mat4 proj = _camera->getProjectionMatrix();
 
         if (zBufferValue == 1.0f)
             _panEyeZ = 20.0f;

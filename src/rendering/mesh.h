@@ -26,11 +26,11 @@ namespace phi
         RENDERING_API ~mesh();
 
         RENDERING_API component* clone() const override;
-        RENDERING_API int getId() const { return _id; }
-        RENDERING_API void setId(int id) { _id = id; }
-        RENDERING_API void setSelected(bool isSelected);
-        RENDERING_API bool getSelected() { return _isSelected; }
         RENDERING_API vec4 getSelectionColor();
+        RENDERING_API void setSelected(bool isSelected);
+        bool getSelected() { return _isSelected; }
+        void setId(int id) { _id = id; }
+        int getId() const { return _id; }
         eventHandler<mesh*>* getSelectionChanged() { return _selectionChanged; }
         static componentType getComponentType() { return componentType::MESH; }
     };

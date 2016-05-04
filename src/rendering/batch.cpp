@@ -268,10 +268,11 @@ namespace phi
         auto instance = _meshInstances[batchObject.mesh];
         instance->materialId = batchObject.materialId;
         instance->modelMatrix = batchObject.modelMatrix;
+        auto selectionColor = batchObject.mesh->getSelectionColor();
 
         _modelMatricesBuffer->subData(instance->offset * sizeof(mat4), sizeof(mat4), &instance->modelMatrix);
         _materialsIdsBuffer->subData(instance->offset * sizeof(uint), sizeof(uint), &instance->materialId);
-        _selectionBuffer->subData(instance->offset * sizeof(vec4), sizeof(vec4), &batchObject.mesh->getSelectionColor());
+        _selectionBuffer->subData(instance->offset * sizeof(vec4), sizeof(vec4), &selectionColor);
     }
 
     void batch::updateSelectionBuffer(mesh* const mesh, const vec4& selectionColor)

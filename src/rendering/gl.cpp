@@ -17,7 +17,6 @@ namespace phi
 
         auto hasBindlessTextures = extensions[BINDLESS_TEXTURE_EXTENSION] && info.state.useBindlessTextures;
         auto hasSparseTextures = extensions[SPARSE_TEXTURE_EXTENSION] && info.state.useSparseTextures;
-        auto hasSwapControl = extensions[SWAP_CONTROL_EXTENSION];
 
         currentState = gl::state(
             info.state.clearColor,

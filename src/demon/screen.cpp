@@ -91,8 +91,7 @@ namespace demon
         auto clonedFloor = floor->clone();
         _scene->add(clonedFloor);
 
-        auto chair = _library->getObjectsRepository()->getAllResources()[3]->getObject();
-        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject();
+        auto obj = _library->getObjectsRepository()->getAllResources()[3]->getObject();
         
         for (auto i = 0; i < 5; ++i)
         {
@@ -100,7 +99,7 @@ namespace demon
             for (auto j = 0; j < 5; ++j)
             {
                 auto z = j + (0.1f*j);
-                auto cloned = chair->clone();
+                auto cloned = obj->clone();
                 cloned->getTransform()->setLocalPosition(vec3(x, 0.1, z));
                 _scene->add(cloned);
             }
