@@ -4,6 +4,7 @@
 #include "material.h"
 #include "texturesManager.h"
 #include "shadersManager.h"
+#include "fontsManager.h"
 
 namespace phi
 {
@@ -62,6 +63,7 @@ namespace phi
         {
             gl::state state;
             string shadersPath;
+            string fontsPath;
 
             glInfo()
             {
@@ -83,15 +85,17 @@ namespace phi
         material* createDefaultMaterial();
 
     public:
-        phi::texturesManager* texturesManager;
-        phi::shadersManager* shadersManager;
+        texturesManager* texturesManager;
+        shadersManager* shadersManager;
+        fontsManager* fontsManager;
         gl::state currentState;
-        std::map<string, bool> extensions;
+        map<string, bool> extensions;
         material* defaultMaterial;
         texture* defaultAlbedoTexture;
         texture* defaultNormalTexture;
         texture* defaultSpecularTexture;
         texture* defaultEmissiveTexture;
+        font* defaultFont;
 
     public:
         RENDERING_API gl(gl::glInfo initInfo);

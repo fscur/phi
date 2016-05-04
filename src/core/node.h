@@ -3,8 +3,6 @@
 #include "component.h"
 #include "transform.h"
 
-#include <vector>
-
 namespace phi
 {
     class node
@@ -43,6 +41,9 @@ namespace phi
         eventHandler<node*>* getTransformChanged() { return _transformChanged; }
 
         void setParent(node* const value) { _parent = value; }
+
+        CORE_API void setPosition(vec3 value);
+        CORE_API void setSize(vec3 value);
 
         template<typename T>
         T* getComponent() const

@@ -1,11 +1,10 @@
 #pragma once
 #include <phi.h>
-#include <core\size.h>
-#include <rendering\renderer.h>
-#include <scenes\scene.h>
-
 #include <apps\window.h>
 #include <apps\commandsManager.h>
+//#include <ui\label.h>
+#include <scenes\scene.h>
+#include <ui\ui.h>
 
 #include "defaultCameraController.h"
 #include "library.h"
@@ -24,6 +23,7 @@ namespace demon
         phi::scene* _scene;
         library* _library;
 
+        phi::ui* _ui;
         phi::commandsManager* _commandsManager;
         defaultCameraController* _defaultController;
 
@@ -31,6 +31,7 @@ namespace demon
         void initGL();
         void initLibrary();
         void initScene();
+        void initUi();
         void initInput();
 
     public:

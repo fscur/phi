@@ -2,8 +2,6 @@
 #include <phi.h>
 #include "appsApi.h"
 
-#include <core\size.h>
-
 namespace phi
 {
     class commandInfo
@@ -13,7 +11,7 @@ namespace phi
         glm::vec2 mousePos;
         glm::vec2 lastMousePos;
         float wheelDelta;
-        phi::sizeui viewportSize;
+        //phi::sizeui viewportSize;
         unsigned long actionsSum;
     public:
         APPS_API virtual ~commandInfo();

@@ -1,5 +1,5 @@
 #version 450
-#extension GL_ARB_bindless_texture: enable
+//#extension GL_ARB_bindless_texture: enable
 
 struct materialGpuData
 {

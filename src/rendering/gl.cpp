@@ -30,17 +30,19 @@ namespace phi
             hasSparseTextures);
 
         initState();
-        createDefaultResources(hasSparseTextures);
-
+        
         texturesManager = new phi::texturesManager(hasBindlessTextures, hasSparseTextures);
         shadersManager = new phi::shadersManager(info.shadersPath);
+        fontsManager = new phi::fontsManager(info.fontsPath, texturesManager);
+
+        createDefaultResources(hasSparseTextures);
     }
 
     gl::~gl()
     {
         safeDelete(texturesManager);
         safeDelete(shadersManager);
-
+        safeDelete(fontsManager);
         safeDelete(defaultAlbedoTexture);
         safeDelete(defaultNormalTexture);
         safeDelete(defaultSpecularTexture);
@@ -144,7 +146,11 @@ namespace phi
             GL_RGBA8,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
-            data);
+            data,
+            GL_REPEAT,
+            GL_NEAREST,
+            GL_NEAREST,
+            false);
     }
 
     material* gl::createDefaultMaterial()
@@ -170,6 +176,7 @@ namespace phi
         defaultSpecularTexture = createDefaultTexture(hasSparseTextures, vec4(1.0f));
         defaultEmissiveTexture = createDefaultTexture(hasSparseTextures, vec4(0.0f));
         defaultMaterial = createDefaultMaterial();
+        defaultFont = fontsManager->load("Consolas.ttf", 14);
     }
 
     void gl::SyncPipeline()

@@ -43,20 +43,12 @@ namespace phi
             safeDelete(planeGridPass);
         }
 
-        void render()
-        {
-            gBufferPass->render();
-            lightingPass->render();
-            selectionPass->render();
-            planeGridPass->render();
-        }
+        framebuffer* getDefaultFramebuffer() const { return _defaultFramebuffer; }
+        planeGridRenderPass* getPlaneGridRenderPass() const { return _planeGridRenderPass; }
+        gBufferRenderPass* getGBufferRenderPass() const { return _gBufferRenderPass; }
+		renderTarget* getFinalImageRT() const { return _finalImageRT; }
 
-        void update()
-        {
-            gBufferPass->update();
-            lightingPass->update();
-            selectionPass->update();
-            planeGridPass->update();
-        }
+        RENDERING_API void render();
+        RENDERING_API void update();
     };
 }

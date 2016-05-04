@@ -37,22 +37,19 @@ namespace phi
     private:
         gl* _gl;
         geometry* _quad;
+        shader* _shader;
         vertexBuffer* _quadVbo;
         buffer* _quadEbo;
         buffer* _rtsBuffer;
-        size_t _w;
-        size_t _h;
+        float _w;
+        float _h;
         uint _quadVao;
 
     private:
         void createQuad();
-        void renderQuad();
 
     public:
-        shader* shader;
-
-    public:
-        RENDERING_API lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, size_t w, size_t h);
+        RENDERING_API lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, float w, float h);
         RENDERING_API ~lightingRenderPass();
 
         RENDERING_API void update();

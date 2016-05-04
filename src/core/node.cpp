@@ -78,4 +78,14 @@ namespace phi
     {
         _transformChanged->raise(this);
     }
+
+    inline void node::setPosition(vec3 value)
+    {
+        _transform->setLocalPosition(value);
+    }
+
+    inline void node::setSize(vec3 value)
+    {
+        _transform->setLocalSize(value);
+    }
 }

@@ -37,6 +37,6 @@ namespace phi
         public buffer
     {
     public:
-        vertexBuffer(const vector<vertexAttrib>& attribs);
+        RENDERING_API vertexBuffer(vector<vertexAttrib> attribs);
     };
 }

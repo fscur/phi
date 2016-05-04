@@ -3,6 +3,7 @@
 namespace phi
 {
     using uint = unsigned int;
+    using ulong = unsigned long;
     using uint64 = unsigned long long;
     using byte = unsigned char;
     using ivec2 = glm::ivec2;
@@ -16,6 +17,7 @@ namespace phi
     using mat4 = glm::mat4;
     using quat = glm::quat;
     using string = std::string;
+    using wstring = std::wstring;
 
     template<class T>
     using vector = std::vector<T>;

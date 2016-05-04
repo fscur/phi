@@ -3,16 +3,16 @@
 
 namespace phi
 {
-    lightingRenderPass::lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, size_t w, size_t h) :
+    lightingRenderPass::lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, float w, float h) :
         _gl(gl),
         _quad(nullptr),
+        _shader(nullptr),
         _quadVbo(nullptr),
         _quadEbo(nullptr),
         _rtsBuffer(nullptr),
         _w(w),
         _h(h),
-        _quadVao(0u),
-        shader(nullptr)
+        _quadVao(0u)
     {
         createQuad();
 
@@ -20,8 +20,8 @@ namespace phi
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
-        shader = _gl->shadersManager->load("lightingPass", attribs);
-        shader->addUniform(0, "textureArrays");
+        _shader = _gl->shadersManager->load("lightingPass", attribs);
+        _shader->addUniform(0, "textureArrays");
 
         auto rtAddresses = phi::rtAddresses();
         rtAddresses.rt0Unit = gBufferPass->rt0->textureAddress.unit;
@@ -78,40 +78,34 @@ namespace phi
         glError::check();
     }
 
-    void lightingRenderPass::renderQuad()
-    {
-        glBindVertexArray(_quadVao);
-        glError::check();
-
-        shader->bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glError::check();
-        shader->unbind();
-
-        glBindVertexArray(0);
-        glError::check();
-    }
-
     void lightingRenderPass::update()
     {
-        shader->bind();
+        _shader->bind();
 
         if (_gl->currentState.useBindlessTextures)
-            shader->setUniform(0, _gl->texturesManager->handles);
+            _shader->setUniform(0, _gl->texturesManager->handles);
         else
-            shader->setUniform(0, _gl->texturesManager->units);
+            _shader->setUniform(0, _gl->texturesManager->units);
 
-        shader->unbind();
+        _shader->unbind();
     }
 
     void lightingRenderPass::render()
     {
         glDisable(GL_DEPTH_TEST);
-        glError::check();
+		glClear(GL_COLOR_BUFFER_BIT);
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        glError::check();
+		glBindVertexArray(_quadVao);
+		glError::check();
 
-        renderQuad();
+		_shader->bind();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glError::check();
+		_shader->unbind();
+
+		glBindVertexArray(0);
+		glError::check();
+
+		glEnable(GL_DEPTH_TEST);
     }
 }

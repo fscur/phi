@@ -12,7 +12,21 @@ namespace phi
         T d;
 
     public:
-        tsize(T w = (T)0, T h = (T)0, T d = (T)0) :
+        tsize(T s) :
+            w(s),
+            h(s),
+            d(s)
+        {
+        }
+
+        tsize(T w, T h) :
+            w(s),
+            h(h),
+            d(1.0f)
+        {
+        }
+
+        tsize(T w, T h, T d) :
             w(w),
             h(h),
             d(d)

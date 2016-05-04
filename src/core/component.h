@@ -16,7 +16,9 @@ namespace phi
             CAMERA,
             DIRECTIONAL_LIGHT,
             POINT_LIGHT,
-            SPOT_LIGHT
+            SPOT_LIGHT,
+            CONTROL_RENDERER,
+            TEXT_RENDERER
         };
 
     protected:

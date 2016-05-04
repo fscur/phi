@@ -126,17 +126,20 @@ namespace phi
         glError::check();
     }
 
-    void framebuffer::blitToDefault(renderTarget * renderTarget)
-    {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        glError::check();
+	void framebuffer::blitToDefault(renderTarget * renderTarget, int x, int y, int w, int h)
+	{
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-        bindForReading(renderTarget);
-        glError::check();
+		bindForReading(renderTarget);
 
-        glBlitFramebuffer(0, 0, renderTarget->w, renderTarget->h, 0, 0, renderTarget->w, renderTarget->h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-        glError::check();
-    }
+		if (w == -1)
+			w = renderTarget->w;
+
+		if (h == -1)
+			h = renderTarget->h;
+
+		glBlitFramebuffer(0, 0, renderTarget->w, renderTarget->h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	}
 
     void framebuffer::blit(framebuffer * sourceFramebuffer, renderTarget * sourceRenderTarget, framebuffer * targetFramebuffer, renderTarget * targetRenderTarget)
     {

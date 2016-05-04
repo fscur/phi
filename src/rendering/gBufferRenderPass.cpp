@@ -27,7 +27,7 @@ namespace phi
         safeDelete(rt3);
         safeDelete(depth);
 
-        safeDelete(framebuffer);
+        safeDelete(_framebuffer);
     }
 
     void gBufferRenderPass::initShader()
@@ -40,15 +40,15 @@ namespace phi
         attribs.push_back("inMaterialId");
         attribs.push_back("inModelMatrix");
 
-        shader = _gl->shadersManager->load("geometryPass", attribs);
-        shader->addUniform(0, "textureArrays");
+        _shader = _gl->shadersManager->load("geometryPass", attribs);
+        _shader->addUniform(0, "textureArrays");
     }
 
     void gBufferRenderPass::initRenderTargets()
     {
         auto reserveContainer = [&](GLenum internalFormat, size_t size)
         {
-            auto layout = textureContainerLayout();
+            auto layout = phi::textureContainerLayout();
             layout.w = static_cast<GLsizei>(_w);
             layout.h = static_cast<GLsizei>(_h);
             layout.levels = 1;
@@ -101,19 +101,19 @@ namespace phi
 
     void gBufferRenderPass::update()
     {
-        shader->bind();
+        _shader->bind();
 
         if (_gl->currentState.useBindlessTextures)
-            shader->setUniform(0, _gl->texturesManager->handles);
+            _shader->setUniform(0, _gl->texturesManager->handles);
         else
-            shader->setUniform(0, _gl->texturesManager->units);
+            _shader->setUniform(0, _gl->texturesManager->units);
 
-        shader->unbind();
+        _shader->unbind();
     }
 
     void gBufferRenderPass::render()
     {
-        framebuffer->bindForDrawing();
+        _framebuffer->bindForDrawing();
 
         glDepthMask(GL_TRUE);
         glError::check();
@@ -128,13 +128,13 @@ namespace phi
 
         shader->bind();
 
-        for (auto batch : batches)
+        for (auto batch : _batches)
             batch->render();
 
-        shader->unbind();
+        _shader->unbind();
 
-        framebuffer->unbind(GL_FRAMEBUFFER);
-        framebuffer->bindForReading();
+        _framebuffer->unbind(GL_FRAMEBUFFER);
+        _framebuffer->bindForReading();
 
         auto w = static_cast<GLint>(_w);
         auto h = static_cast<GLint>(_h);

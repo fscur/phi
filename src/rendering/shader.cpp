@@ -215,12 +215,6 @@ namespace phi
         glError::check();
     }
     
-    void shader::setUniform(uint location, sizef value) 
-    {
-        glUniform3f(_uniforms[location], value.w, value.h, value.d);
-        glError::check();
-    }
-    
     void shader::setUniform(uint location, mat3 value)
     {
         glUniformMatrix3fv(_uniforms[location], 1, GL_FALSE, &value[0][0]);
@@ -271,7 +265,7 @@ namespace phi
 
     void shader::setUniform(uint location, vector<GLint> value)
     {
-        glUniform1iv(_uniforms[location], static_cast<GLsizei>(value.size()), value.data());
+        glUniform1iv(_uniforms[location], static_cast<GLsizei>(value.size()), &value[0]);
         glError::check();
     }
 

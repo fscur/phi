@@ -7,25 +7,18 @@
 
 namespace phi
 {
-    scene::scene(gl* gl, size_t w, size_t h) :
+    scene::scene(gl* gl, float w, float h) :
         _gl(gl),
         _pipeline(new pipeline(gl)),
+        _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
         _objects(vector<node*>()),
         _meshesIds(map<int, mesh*>()),
         w(w),
         h(h),
         renderer(new phi::renderer(gl, w, h))
     {
-        camera = new phi::camera(
-            "mainCamera",
-            static_cast<float>(w),
-            static_cast<float>(h),
-            0.1f,
-            1000.0f,
-            glm::half_pi<float>() * 0.5f);
-
         auto cameraNode = new node();
-        cameraNode->addComponent(camera);
+        cameraNode->addComponent(_camera);
         add(cameraNode);
     }
 
@@ -35,36 +28,36 @@ namespace phi
             safeDelete(object);
 
         safeDelete(_pipeline);
-        safeDelete(renderer);
+        safeDelete(_renderer);
     }
 
     void scene::update()
     {
         auto frameUniformBlock = phi::frameUniformBlock();
-        frameUniformBlock.p = camera->getProjectionMatrix();
-        frameUniformBlock.v = camera->getViewMatrix();
+        frameUniformBlock.p = _camera->getProjectionMatrix();
+        frameUniformBlock.v = _camera->getViewMatrix();
         frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
         frameUniformBlock.ip = glm::inverse(frameUniformBlock.p);
 
         _pipeline->updateFrameUniformBlock(frameUniformBlock);
 
         //TODO: possible design flaw ? anyway.. try to remove this slow copy assignment
-        renderer->gBufferPass->batches = _pipeline->batches;
-        renderer->update();
+        _renderer->getGBufferRenderPass()->setBatches(_pipeline->batches);
+        _renderer->update();
     }
 
     void scene::render()
     {
-        renderer->render();
+        _renderer->render();
     }
 
-    void scene::resize(size_t w, size_t h)
+    void scene::resize(float w, float h)
     {
-        camera->setWidth(static_cast<float>(w));
-        camera->setHeight(static_cast<float>(h));
+        _camera->setWidth(w);
+        _camera->setHeight(h);
     }
 
-    void scene::add(node* node)
+    void scene::add(node* n)
     {
         node->traverse<mesh>([&](mesh* mesh)
         {
@@ -77,9 +70,9 @@ namespace phi
         _pipeline->add(node);
     }
 
-    void scene::remove(node* node)
+    void scene::remove(node* n)
     {
-        auto position = std::find(_objects.begin(), _objects.end(), node);
+        auto position = std::find(_objects.begin(), _objects.end(), n);
 
         if (position != _objects.end())
             _objects.erase(position);
@@ -113,6 +106,6 @@ namespace phi
 
     inline float scene::getZBufferValue(int x, int y)
     {
-        return renderer->defaultFramebuffer->getZBufferValue(x, y);
+        return _renderer->getDefaultFramebuffer()->getZBufferValue(x, y);
     }
 }

@@ -3,6 +3,8 @@
 
 namespace phi
 {
+    bool texturesManager::_initialized = false;
+
     texturesManager::texturesManager(
         bool bindless = false,
         bool sparse = false) :
@@ -11,6 +13,8 @@ namespace phi
         _currentTextureUnit(-1),
         _maxContainerSize(MAX_CONTAINER_ITEMS)
     {
+        assert(!_initialized);
+        _initialized = true;
         //TODO: calcular quanto de memoria tem disponivel na GPU
         //TODO: verificar quando de memoria nosso gbuffer + shadow maps usam e ver quanto sobra pra texturas
         //TODO: controlar a memoria da gpu usada
@@ -28,28 +32,33 @@ namespace phi
 
     texturesManager::~texturesManager()
     {
-        for (auto &pair : _containers)
+        for (auto& pair : _containers)
         {
             for (auto container : pair.second)
                 safeDelete(container);
         }
     }
 
-    textureAddress texturesManager::add(texture* texture)
+    inline uint texturesManager::getMaxLevels(const uint& w, const uint& h)
+    {
+        auto biggestTextureSize = (float)glm::max(w, h);
+        return static_cast<uint>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
+    }
+
+    textureAddress texturesManager::add(const texture* const texture)
     {
         GLsizei maxLevels = 1;
 
         if (texture->generateMipmaps)
-        {
-            auto biggestTextureSize = (float)glm::max(texture->w, texture->h);
-            maxLevels = static_cast<GLsizei>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
-        }
+            maxLevels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
 
         auto layout = textureContainerLayout();
         layout.w = texture->w;
         layout.h = texture->h;
         layout.levels = maxLevels;
         layout.internalFormat = texture->internalFormat;
+        layout.dataFormat = texture->dataFormat;
+        layout.dataType = texture->dataType;
         layout.wrapMode = texture->wrapMode;
         layout.minFilter = texture->minFilter;
         layout.magFilter = texture->magFilter;
@@ -59,6 +68,8 @@ namespace phi
             layout.h,
             layout.levels,
             layout.internalFormat,
+            layout.dataFormat,
+            layout.dataType,
             layout.wrapMode,
             layout.minFilter,
             layout.magFilter);
@@ -77,7 +88,10 @@ namespace phi
                 added = containers[i++]->add(texture, textureAddress);
 
             if (added)
+            {
+                _textures[texture] = textureAddress;
                 return textureAddress;
+            }
         }
 
         auto container = new textureContainer(layout, _maxContainerSize, ++_currentTextureUnit, _bindless, _sparse);
@@ -89,13 +103,25 @@ namespace phi
         return textureAddress;
     }
 
-    void texturesManager::reserveContainer(const textureContainerLayout& layout, size_t size)
+    textureAddress texturesManager::get(const texture* const texture)
+    {
+        return _textures[texture];
+    }
+
+    bool texturesManager::contains(const texture* const texture)
+    {
+        return _textures.find(texture) != _textures.end();
+    }
+
+    textureContainer* texturesManager::reserveContainer(textureContainerLayout layout, size_t size)
     {
         auto key = std::make_tuple(
             layout.w,
             layout.h,
             layout.levels,
             layout.internalFormat,
+            layout.dataFormat,
+            layout.dataType,
             layout.wrapMode,
             layout.minFilter,
             layout.magFilter);
@@ -104,5 +130,6 @@ namespace phi
         _containers[key].push_back(container);
         handles.push_back(container->handle);
         units.push_back(_currentTextureUnit);
+        return container;
     }
 }

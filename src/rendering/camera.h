@@ -3,7 +3,6 @@
 #include "renderingApi.h"
 
 #include <core\component.h>
-#include <core\size.h>
 #include <core\eventHandler.h>
 
 #include "ray.h"

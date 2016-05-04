@@ -28,11 +28,15 @@ namespace phi
     private:
         void initShader();
         void initRenderTargets();
+
     public:
-        RENDERING_API gBufferRenderPass(gl* gl, size_t w, size_t h);
+        RENDERING_API gBufferRenderPass(gl* gl, float w, float h);
         RENDERING_API ~gBufferRenderPass();
 
         RENDERING_API void update();
         RENDERING_API void render();
+
+        vector<renderTarget*> getTargets() const { return _targets; }
+        void setBatches(vector<batch*> value) { _batches = value; }
     };
 }

@@ -14,7 +14,7 @@
 namespace demon
 {
     defaultCameraController::defaultCameraController(phi::scene* scene) :
-        cameraController(scene->camera),
+        cameraController(scene->getCamera()),
         _scene(scene),
         _selectionMouseController(new selectionMouseController(scene)),
         _mousePosX(0),
@@ -54,7 +54,7 @@ namespace demon
     {
         auto texturePath = phi::application::resourcesPath + "\\images\\grid.png";
         _gridTexture = phi::importer::importImage(texturePath);
-        _scene->renderer->planeGridPass->setTexture(_gridTexture);
+        _scene->getRenderer()->getPlaneGridRenderPass()->setTexture(_gridTexture);
     }
 
     defaultCameraController::~defaultCameraController()
@@ -180,7 +180,7 @@ namespace demon
 
             if (normal == phi::vec3(-1.0f, 0.0f, 0.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(rbf);
+                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(rbf);
                 _dragPlaneBottomLeft = lbb;
                 _dragPlaneBottomRight = lbf;
                 _dragPlaneTopRight = ltf;
@@ -188,7 +188,7 @@ namespace demon
             }
             else if (normal == phi::vec3(1.0f, 0.0f, 0.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(lbb);
+                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbb);
                 _dragPlaneBottomLeft = rbf;
                 _dragPlaneBottomRight = rbb;
                 _dragPlaneTopRight = rtb;
@@ -196,7 +196,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 0.0f, 1.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(rbb);
+                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(rbb);
                 _dragPlaneBottomLeft = lbf;
                 _dragPlaneBottomRight = rbf;
                 _dragPlaneTopRight = rtf;
@@ -204,7 +204,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 0.0f, -1.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(lbf);
+                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbf);
                 _dragPlaneBottomLeft = rbb;
                 _dragPlaneBottomRight = lbb;
                 _dragPlaneTopRight = ltb;
@@ -212,7 +212,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 1.0f, 0.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(lbb);
+                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbb);
                 _dragPlaneBottomLeft = ltf;
                 _dragPlaneBottomRight = rtf;
                 _dragPlaneTopRight = rtb;
@@ -220,17 +220,17 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, -1.0f, 0.0f))
             {
-                _scene->renderer->planeGridPass->transform.setLocalPosition(ltf);
+                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(ltf);
                 _dragPlaneBottomLeft = lbb;
                 _dragPlaneBottomRight = rbb;
                 _dragPlaneTopRight = rbf;
                 _dragPlaneTopLeft = lbf;
             }
 
-            _scene->renderer->planeGridPass->transform.setDirection(normal);
+            _scene->getRenderer()->getPlaneGridRenderPass()->transform.setDirection(normal);
 
             _dragging = true;
-            _scene->renderer->planeGridPass->show();
+            _scene->getRenderer()->getPlaneGridRenderPass()->show();
         }
     }
 
@@ -241,6 +241,7 @@ namespace demon
         auto bl = _dragPlaneBottomLeft;
         auto br = _dragPlaneBottomRight;
         auto tr = _dragPlaneTopRight;
+        //auto tl = _dragPlaneTopLeft;
         auto planeNormal = normalize(cross(bl - br, br - tr));
         auto d = dot(planeNormal, bl);
         auto nDotA = dot(planeNormal, ray.getOrigin());
@@ -257,7 +258,7 @@ namespace demon
     {
         if (_dragging)
         {
-            _scene->renderer->planeGridPass->hide();
+            _scene->getRenderer()->getPlaneGridRenderPass()->hide();
             _dragging = false;
         }
     }

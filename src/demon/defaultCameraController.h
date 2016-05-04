@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
 #include <scenes\scene.h>
-#include <ui\floatAnimator.h>
+#include <animation\floatAnimator.h>
 
 #include "cameraController.h"
 #include "selectionMouseController.h"
