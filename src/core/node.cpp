@@ -30,17 +30,19 @@ namespace phi
         _transform(original._transform->clone()),
         _transformChanged(new eventHandler<node*>())
     {
-        for (auto& child : original._children)
+        for (auto child : original._children)
         {
             auto clonedChild = child->clone();
             clonedChild->_parent = this;
             clonedChild->getTransform()->setParent(_transform);
+
             _children.push_back(clonedChild);
         }
 
-        for (auto& component : original._components)
+        for (auto component : original._components)
         {
             auto clonedComponent = component->clone();
+            clonedComponent->setNode(this);
             _components.push_back(clonedComponent);
         }
 

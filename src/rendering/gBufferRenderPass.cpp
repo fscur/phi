@@ -9,8 +9,11 @@ namespace phi
         _h(h),
         shader(nullptr),
         framebuffer(new phi::framebuffer()),
-        targets(vector<renderTarget*>()),
-        batches(vector<batch*>())
+        batches(vector<batch*>()),
+        rt0(nullptr),
+        rt1(nullptr),
+        rt2(nullptr),
+        depth(nullptr)
     {
         initShader();
         initRenderTargets();
@@ -18,8 +21,11 @@ namespace phi
 
     gBufferRenderPass::~gBufferRenderPass()
     {
-        for (auto target : targets)
-            safeDelete(target);
+        safeDelete(rt0);
+        safeDelete(rt1);
+        safeDelete(rt2);
+        safeDelete(rt3);
+        safeDelete(depth);
 
         safeDelete(framebuffer);
     }
@@ -68,24 +74,29 @@ namespace phi
             texture->data = 0;
 
             auto textureAddress = _gl->texturesManager->add(texture);
-            auto renderTarget = new phi::renderTarget(
-                attachment, 
+            return new phi::renderTarget(
+                attachment,
                 static_cast<GLint>(_w),
                 static_cast<GLint>(_h),
                 textureAddress,
                 texture);
-
-            targets.push_back(renderTarget);
-            gBufferRenderPass::framebuffer->add(renderTarget);
         };
 
         reserveContainer(GL_RGBA16F, 3);
+        reserveContainer(GL_RGBA8, 1);
         reserveContainer(GL_DEPTH_COMPONENT32, 1);
 
-        createRenderTarget(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA);
-        createRenderTarget(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA);
-        createRenderTarget(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA);
-        createRenderTarget(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT);
+        rt0 = createRenderTarget(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA);
+        rt1 = createRenderTarget(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA);
+        rt2 = createRenderTarget(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA);
+        rt3 = createRenderTarget(GL_COLOR_ATTACHMENT3, GL_RGBA8, GL_RGBA);
+        depth = createRenderTarget(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT);
+
+        framebuffer->add(rt0);
+        framebuffer->add(rt1);
+        framebuffer->add(rt2);
+        framebuffer->add(rt3);
+        framebuffer->add(depth);
     }
 
     void gBufferRenderPass::update()
@@ -109,6 +120,10 @@ namespace phi
         glEnable(GL_DEPTH_TEST);
         glError::check();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glError::check();
+
+        auto selectionClearColor = 0.0f;
+        glClearBufferfv(GL_COLOR, 3, &selectionClearColor);
         glError::check();
 
         shader->bind();

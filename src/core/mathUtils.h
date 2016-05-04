@@ -41,7 +41,7 @@ namespace phi
         static mat4 getRotationMatrixAboutAnArbitraryAxis(vec3 origin, vec3 axis, float angle);
         static quat rotationBetweenVectors(vec3 start, vec3 dest);
 
-        static vec3 multiply(const mat4 mat, const vec3 vec);
+        static vec3 multiply(const mat4& m, const vec3& v);
 
         static bool isClose(float a, float b, float error = 1e-3)
         {

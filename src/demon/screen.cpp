@@ -38,7 +38,7 @@ namespace demon
         application::logInfo("Initializing OpenGl");
 
         auto initState = gl::state();
-        initState.clearColor = vec4(0.0f);
+        initState.clearColor = vec4(1.0f);
         initState.frontFace = gl::frontFace::ccw;
         initState.culling = true;
         initState.cullFace = gl::cullFace::back;
@@ -46,6 +46,7 @@ namespace demon
         initState.depthTest = true;
         initState.useBindlessTextures = false;
         initState.useSparseTextures = false;
+        initState.swapInterval = 1;
 
         auto info = gl::glInfo();
         info.state = initState;
@@ -82,25 +83,28 @@ namespace demon
         auto camera = _scene->camera;
 
         auto cameraTransform = camera->getTransform();
-        auto cameraPos = vec3(0.0f, 0.0f, 10.0f);
+        auto cameraPos = vec3(-3.0f, 0.0f, 10.0f);
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
-
-        auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-        for (size_t i = 0; i < 1; ++i)
-        {
-            auto cloned = obj->clone();
-            cloned->getTransform()->setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
-            _scene->add(cloned);
-        }
 
         auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
         auto clonedFloor = floor->clone();
         _scene->add(clonedFloor);
 
-        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
-        cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
-        _scene->add(cube);
+        auto chair = _library->getObjectsRepository()->getAllResources()[3]->getObject();
+        auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject();
+        
+        for (auto i = 0; i < 5; ++i)
+        {
+            auto x = i + (0.1f*i);
+            for (auto j = 0; j < 5; ++j)
+            {
+                auto z = j + (0.1f*j);
+                auto cloned = chair->clone();
+                cloned->getTransform()->setLocalPosition(vec3(x, 0.1, z));
+                _scene->add(cloned);
+            }
+        }
     }
 
     void screen::initInput()
@@ -126,7 +130,7 @@ namespace demon
 
     void screen::onTick()
     {
-        debug("fps:" + std::to_string(application::framesPerSecond));
+        debug("fps: " + std::to_string(application::framesPerSecond));
 #if _DEBUG
         _gl->shadersManager->reloadAllShaders();
 #endif
@@ -134,14 +138,10 @@ namespace demon
 
     void screen::onClosing()
     {
-        debug("closing.");
         safeDelete(_commandsManager);
         safeDelete(_defaultController);
         safeDelete(_gl);
         safeDelete(_library);
         safeDelete(_scene);
-
-        //TODO: MessageBox asking if the user really wants to close the window
-        //TODO: Check if we really need the above TODO
     }
 }

@@ -17,6 +17,7 @@ namespace phi
 
         auto hasBindlessTextures = extensions[BINDLESS_TEXTURE_EXTENSION] && info.state.useBindlessTextures;
         auto hasSparseTextures = extensions[SPARSE_TEXTURE_EXTENSION] && info.state.useSparseTextures;
+        auto hasSwapControl = extensions[SWAP_CONTROL_EXTENSION];
 
         currentState = gl::state(
             info.state.clearColor,
@@ -25,6 +26,7 @@ namespace phi
             info.state.depthMask,
             info.state.frontFace,
             info.state.cullFace,
+            info.state.swapInterval,
             hasBindlessTextures,
             hasSparseTextures);
 
@@ -66,6 +68,7 @@ namespace phi
         {
             BINDLESS_TEXTURE_EXTENSION,
             SPARSE_TEXTURE_EXTENSION,
+            SWAP_CONTROL_EXTENSION,
         };
 
         for (auto phiExtension : phiExtensions)
@@ -101,6 +104,12 @@ namespace phi
         GLboolean depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
         glError::check();
+
+        if (extensions[SWAP_CONTROL_EXTENSION])
+        {
+            wglSwapIntervalEXT(currentState.swapInterval);
+            glError::check();
+        }
     }
 
     texture* gl::createDefaultTexture(bool hasSparseTextures, vec4 color)
@@ -162,5 +171,10 @@ namespace phi
         defaultSpecularTexture = createDefaultTexture(hasSparseTextures, vec4(1.0f));
         defaultEmissiveTexture = createDefaultTexture(hasSparseTextures, vec4(0.0f));
         defaultMaterial = createDefaultMaterial();
+    }
+
+    void gl::SyncPipeline()
+    {
+        glFinish();
     }
 }

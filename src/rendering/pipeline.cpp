@@ -5,7 +5,7 @@
 
 namespace phi
 {
-    pipeline::pipeline(phi::gl* gl) :
+    pipeline::pipeline(gl* gl) :
         _gl(gl)
     {
         createFrameUniformBlockBuffer();
@@ -41,7 +41,7 @@ namespace phi
         _materialsBuffer->bindBufferBase(1);
     }
 
-    void pipeline::updateFrameUniformBlock(frameUniformBlock& frameUniformBlock)
+    void pipeline::updateFrameUniformBlock(const frameUniformBlock& frameUniformBlock)
     {
         _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
     }
@@ -49,7 +49,7 @@ namespace phi
     void pipeline::addToBatches(node* node)
     {
         auto mesh = node->getComponent<phi::mesh>();
-        
+
         if (mesh)
         {
             auto material = mesh->material;
@@ -66,8 +66,17 @@ namespace phi
 
             addToBatches(batchObject);
 
-            auto eventToken = node->getTransformChanged()->assign(std::bind(&pipeline::nodeTransformChanged, this, std::placeholders::_1));
-            _transformChangedTokens[mesh] = eventToken;
+            _transformChangedTokens[node] = node->getTransformChanged()->assign(
+                std::bind(
+                    &pipeline::nodeTransformChanged,
+                    this,
+                    std::placeholders::_1));
+
+            _selectionChangedTokens[mesh] = mesh->getSelectionChanged()->assign(
+                std::bind(
+                    &pipeline::meshSelectionChanged,
+                    this,
+                    std::placeholders::_1));
         }
 
         auto children = node->getChildren();
@@ -182,12 +191,17 @@ namespace phi
     void pipeline::nodeTransformChanged(node* sender)
     {
         auto mesh = sender->getComponent<phi::mesh>();
+        auto modelMatrix = sender->getTransform()->getModelMatrix();
         auto batch = _meshesBatches[mesh];
-        auto batchObject = phi::batchObject();
-        batchObject.mesh = mesh;
-        batchObject.geometry = mesh->geometry;
-        batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-        batchObject.modelMatrix = sender->getTransform()->getModelMatrix();
-        batch->update(batchObject);
+
+        batch->updateModelMatricesBuffer(mesh, modelMatrix);
+    }
+
+    void pipeline::meshSelectionChanged(mesh* sender)
+    {
+        auto batch = _meshesBatches[sender];
+        auto color = sender->getSelectionColor();
+
+        batch->updateSelectionBuffer(sender, color);
     }
 }

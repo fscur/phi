@@ -3,10 +3,8 @@
 
 #include <core\transform.h>
 
-#include <rendering\lineMesh.h>
 #include <rendering\shader.h>
 #include <rendering\camera.h>
-
 
 #include "control.h"
 #include "rotationEventArgs.h"
@@ -18,7 +16,6 @@ namespace phi
     {
     private:
         transform* _transform;
-        lineMesh* _circleMesh;
         shader* _shader;
         camera* _camera;
         eventHandler<rotationEventArgs*>* _rotating;

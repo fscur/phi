@@ -18,11 +18,12 @@ namespace phi
         RENDERING_API ~framebuffer();
 
         RENDERING_API void add(renderTarget* renderTarget);
+        RENDERING_API vec4 readPixels(const renderTarget* const renderTarget, GLint x, GLint y, GLsizei w, GLsizei h);
         RENDERING_API void bind(GLenum target);
         RENDERING_API void bindForDrawing();
         RENDERING_API void bindForDrawing(GLenum* buffers, GLsizei buffersCount);
         RENDERING_API void bindForReading();
-        RENDERING_API void bindForReading(renderTarget* sourceRenderTarget);
+        RENDERING_API void bindForReading(const renderTarget* const sourceRenderTarget);
         RENDERING_API void unbind(GLenum target);
         RENDERING_API void blitToDefault(renderTarget* renderTarget);
         RENDERING_API void blit(

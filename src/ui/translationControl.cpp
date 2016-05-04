@@ -3,7 +3,6 @@
 
 #include <rendering\camera.h>
 #include <rendering\shadersManager.h>
-#include <rendering\lineMesh.h>
 
 #include "colorAnimator.h"
 

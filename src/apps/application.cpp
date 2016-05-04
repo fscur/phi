@@ -5,6 +5,8 @@
 
 #include <core\time.h>
 
+#include <rendering\gl.h>
+
 #include "invalidInitializationException.h"
 
 namespace phi
@@ -19,7 +21,6 @@ namespace phi
     logger application::_logger = phi::logger();
 
     application::application(const applicationStartInfo& startInfo) :
-        _running(false),
         _window(nullptr)
     {
         assert(!_initialized);
@@ -49,41 +50,42 @@ namespace phi
     void application::run(window* window)
     {
         _window = window;
-        _running = true;
 
         onInit();
 
         auto timer = 0.0;
         auto frames = 0u;
-        while (_running)
-        {
-            millisecondsPerFrame = time::deltaSeconds * 1000;
+        auto milliseconds = 0.0;
 
-            onSwapbuffers();
+        while (!_window->closed)
+        {
+            time::update();
+
             onInput();
             onUpdate();
             onClear();
             onRender();
+            onSwapbuffers();
+            gl::SyncPipeline();
 
-            time::update();
-            
+            milliseconds += time::deltaSeconds * 1000.0;
+            frames++;
+
             if (time::totalSeconds - timer > 1.0)
             {
                 timer += 1.0;
+
+                millisecondsPerFrame = milliseconds / static_cast<double>(frames);
                 framesPerSecond = frames;
+
                 frames = 0;
-                
+                milliseconds = 0.0;
+
                 onTick();
             }
-
-            frames++;
-
-            if (_window->closed)
-            {
-                onClose();
-                _running = false;
-            }
         }
+
+        onClose();
     }
 
     void application::logError(string message)

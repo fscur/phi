@@ -14,14 +14,15 @@ namespace phi
     private:
         const uint MAX_MATERIALS_COUNT = 512;
 
-        std::map<material*, uint> _materialsMaterialsGpu;
+        map<material*, uint> _materialsMaterialsGpu;
         vector<material*> _loadedMaterials;
         buffer* _materialsBuffer;
         buffer* _frameUniformBlockBuffer;
-        std::map<mesh*, batch*> _meshesBatches;
-        std::map<mesh*, eventToken> _transformChangedTokens;
-        std::map<batch*, vector<node*>> _nodesToUpdate;
-        phi::gl* _gl;
+        map<mesh*, batch*> _meshesBatches;
+        map<node*, eventToken> _transformChangedTokens;
+        map<mesh*, eventToken> _selectionChangedTokens;
+        map<batch*, vector<node*>> _nodesToUpdate;
+        gl* _gl;
     public:
         vector<batch*> batches;
     private:
@@ -35,12 +36,13 @@ namespace phi
         void uploadMaterial(material* material);
 
         void nodeTransformChanged(node* sender);
+        void meshSelectionChanged(mesh* sender);
     public:
         RENDERING_API pipeline(gl* gl);
         RENDERING_API ~pipeline();
 
         RENDERING_API void add(node* n);
         RENDERING_API void update(node* n);
-        RENDERING_API void updateFrameUniformBlock(frameUniformBlock& frameUniformBlock);
+        RENDERING_API void updateFrameUniformBlock(const frameUniformBlock& frameUniformBlock);
     };
 }

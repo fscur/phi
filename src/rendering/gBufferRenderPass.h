@@ -19,8 +19,12 @@ namespace phi
     public:
         shader* shader;
         framebuffer* framebuffer;
-        vector<renderTarget*> targets;
         vector<batch*> batches;
+        renderTarget* rt0;
+        renderTarget* rt1;
+        renderTarget* rt2;
+        renderTarget* rt3;
+        renderTarget* depth;
     private:
         void initShader();
         void initRenderTargets();

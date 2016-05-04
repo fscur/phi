@@ -57,9 +57,6 @@ namespace phi
 
         switch (status)
         {
-            case GL_FRAMEBUFFER_COMPLETE:
-                phi::debug("complete");
-                break;
             case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
                 phi::debug("incomplete attachment");;
                 break;
@@ -72,6 +69,16 @@ namespace phi
             default:
                 break;
         }
+    }
+
+    vec4 framebuffer::readPixels(const renderTarget* const renderTarget, GLint x, GLint y, GLsizei w, GLsizei h)
+    {
+        unsigned char pixels[4];
+
+        bindForReading(renderTarget);
+        glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+        return vec4(pixels[0], pixels[1], pixels[2], pixels[3]);
     }
 
     void framebuffer::bind(GLenum target)
@@ -89,7 +96,7 @@ namespace phi
         glError::check();
     }
 
-    void framebuffer::bindForDrawing(GLenum * buffers, GLsizei buffersCount)
+    void framebuffer::bindForDrawing(GLenum* buffers, GLsizei buffersCount)
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
         glError::check();
@@ -104,7 +111,7 @@ namespace phi
         glError::check();
     }
 
-    void framebuffer::bindForReading(renderTarget * sourceRenderTarget)
+    void framebuffer::bindForReading(const renderTarget* const sourceRenderTarget)
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
         glError::check();

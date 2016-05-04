@@ -80,7 +80,7 @@ namespace phi
             min.z <= pos.z && pos.z < max.z;
     }
 
-    aabb aabb::add(aabb a, aabb b)
+    aabb aabb::add(const aabb& a, const aabb& b)
     {
         auto min = vec3(
             glm::min(a.min.x, b.min.x),

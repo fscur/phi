@@ -33,12 +33,14 @@ in vec2 fragTexCoord;
 in vec3 fragNormal;
 in vec3 fragTangent;
 in flat uint materialId;
+in flat vec4 selectionColor;
 
 uniform sampler2DArray textureArrays[32];
 
 layout (location = 0) out vec4 rt0;
 layout (location = 1) out vec4 rt1;
 layout (location = 2) out vec4 rt2;
+layout (location = 3) out vec4 rt3;
 
 vec4 fetchAlbedo(materialGpuData material)
 {
@@ -96,4 +98,5 @@ void main()
     rt0 = vec4(albedoColor.xyz, encodedNormal.x); //RGBA16F
     rt1 = vec4(specularColor.xyz, encodedNormal.y); //RGBA16F
     rt2 = vec4(material.shininess, 1.0, 1.0, 1.0); //RGBA16F
+    rt3 = selectionColor; //RGBA8
 }

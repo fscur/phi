@@ -16,6 +16,7 @@ namespace demon
     defaultCameraController::defaultCameraController(phi::scene* scene) :
         cameraController(scene->camera),
         _scene(scene),
+        _selectionMouseController(new selectionMouseController(scene)),
         _mousePosX(0),
         _mousePosY(0),
         _lastMousePosX(0),
@@ -56,10 +57,25 @@ namespace demon
         _scene->renderer->planeGridPass->setTexture(_gridTexture);
     }
 
+    defaultCameraController::~defaultCameraController()
+    {
+        phi::safeDelete(_selectionMouseController);
+        phi::safeDelete(_gridTexture);
+    }
+
     void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
     {
+        _dragObject = nullptr;
+
         if (e->leftButtonPressed)
+        {
+            _selectionMouseController->onMouseDown(e->x, e->y);
+
+            if (_selectionMouseController->selectedObjects.size() > 0)
+                _dragObject = _selectionMouseController->selectedObjects[0];
+
             dragMouseDown(e->x, e->y);
+        }
 
         if (e->middleButtonPressed && !_rotating)
             panMouseDown(e->x, e->y);
@@ -113,53 +129,40 @@ namespace demon
 
     void defaultCameraController::dragMouseDown(int mouseX, int mouseY)
     {
-        float w = (float)_camera->getWidth();
-        float h = (float)_camera->getHeight();
-        float x = (2.0f * mouseX) / w - 1.0f;
-        float y = 1.0f - (2.0f * mouseY) / h;
+        if (!_dragObject)
+            return;
 
-        auto invPersp = inverse(_camera->getProjectionMatrix());
-        auto invView = inverse(_camera->getViewMatrix());
-
-        auto rayClip = phi::vec4(x, y, -1.0f, 1.0f);
-        auto rayEye = invPersp * rayClip;
-        rayEye = phi::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
-        auto rayWorld = phi::vec3(invView * rayEye);
-        rayWorld = glm::normalize(rayWorld);
-
-        auto r = phi::ray(_camera->getTransform()->getLocalPosition(), rayWorld);
-
-        auto object = _scene->getObjects()->at(1);
+        auto ray = _camera->screenPointToRay(static_cast<float>(mouseX), static_cast<float>(mouseY));
         phi::aabb* aabb = new phi::aabb();
-        object->traverse
+        _dragObject->traverse
         (
             [&aabb](phi::node* n)
+        {
+            auto meshComponent = n->getComponent<phi::mesh>();
+            if (meshComponent)
             {
-                auto meshComponent = n->getComponent<phi::mesh>();
-                if (meshComponent)
-                {
-                    auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
-                    safeDelete(aabb);
-                    aabb = added;
-                }
+                auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
+                safeDelete(aabb);
+                aabb = added;
             }
+        }
         );
 
-        auto model = object->getTransform()->getModelMatrix();
+        auto model = _dragObject->getTransform()->getModelMatrix();
         auto transformedMin = phi::mathUtils::multiply(model, aabb->min);
         auto transformedMax = phi::mathUtils::multiply(model, aabb->max);
         auto transformedAabb = phi::aabb(transformedMin, transformedMax);
+        safeDelete(aabb);
 
         phi::vec3* positions;
         phi::vec3* normals;
         size_t count;
-        if (r.intersects(transformedAabb, positions, normals, count))
+        if (ray.intersects(transformedAabb, positions, normals, count))
         {
             auto normal = normals[0];
 
             _dragOrigin = positions[0];
-            _dragObject = object;
-            _dragObjectStartPosition = object->getTransform()->getLocalPosition();
+            _dragObjectStartPosition = _dragObject->getTransform()->getLocalPosition();
 
             phi::safeDeleteArray(normals);
             phi::safeDeleteArray(positions);
@@ -229,27 +232,11 @@ namespace demon
             _dragging = true;
             _scene->renderer->planeGridPass->show();
         }
-
-        safeDelete(aabb);
     }
 
     void defaultCameraController::dragMouseMove()
     {
-        auto w = (float)_camera->getWidth();
-        auto h = (float)_camera->getHeight();
-        auto x = (2.0f * _mousePosX) / w - 1.0f;
-        auto y = 1.0f - (2.0f * _mousePosY) / h;
-
-        auto invPersp = inverse(_camera->getProjectionMatrix());
-        auto invView = inverse(_camera->getViewMatrix());
-
-        auto rayClip = phi::vec4(x, y, -1.0f, 1.0f);
-        auto rayEye = invPersp * rayClip;
-        rayEye = phi::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
-        auto rayWorld = phi::vec3(invView * rayEye);
-        rayWorld = glm::normalize(rayWorld);
-
-        auto r = phi::ray(_camera->getTransform()->getLocalPosition(), rayWorld);
+        auto ray = _camera->screenPointToRay(static_cast<float>(_mousePosX), static_cast<float>(_mousePosY));
 
         auto bl = _dragPlaneBottomLeft;
         auto br = _dragPlaneBottomRight;
@@ -257,10 +244,11 @@ namespace demon
         auto tl = _dragPlaneTopLeft;
         auto planeNormal = normalize(cross(bl - br, br - tr));
         auto d = dot(planeNormal, bl);
-        auto t = (d - dot(planeNormal, r.getOrigin())) / (dot(planeNormal, (r.getDirection())));
-        auto nDotA = dot(planeNormal, r.getOrigin());
-        auto nDotBA = dot(planeNormal, r.getDirection());
-        auto point = r.getOrigin() + (((d - nDotA) / nDotBA) * r.getDirection());
+        auto t = (d - dot(planeNormal, ray.getOrigin())) / (dot(planeNormal, (ray.getDirection())));
+        auto nDotA = dot(planeNormal, ray.getOrigin());
+        auto nDotBA = dot(planeNormal, ray.getDirection());
+
+        auto point = ray.getOrigin() + (((d - nDotA) / nDotBA) * ray.getDirection());
 
         auto diff = point - _dragOrigin;
 
@@ -292,43 +280,22 @@ namespace demon
 
         auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
 
-        phi::mat4 proj = _camera->getProjectionMatrix();
+        float z = 10.0;
+        if (zBufferValue != 1.0f)
+            z = _camera->getWorldZRelativeToCamera(mouseX, mouseY, zBufferValue);
 
-        float z;
-        if (zBufferValue == 1.0f)
-            z = 10.0f;
-        else
-            z = -proj[3].z / (zBufferValue * -2.0f + 1.0f - proj[2].z);
-
-        auto zNear = _camera->getNear();
-        auto aspect = _camera->getAspect();
-        auto fov = _camera->getFov();
-
-        auto tg = tan(fov * 0.5f) * zNear;
-
-        auto w = _camera->getWidth();
-        auto h = _camera->getHeight();
-
-        auto hh = h * 0.5f;
-        auto hw = w * 0.5f;
-
-        auto ys0 = mouseY - hh;
-        auto yp0 = ys0 / hh;
-        auto ym0 = -(yp0 * tg);
-
-        auto xs0 = mouseX - hw;
-        auto xp0 = xs0 / hw;
-        auto xm0 = xp0 * tg * aspect;
-
-        auto x = (xm0 / zNear) * z;
-        auto y = (ym0 / zNear) * z;
+        auto position = _camera->getWorldPositionRelativeToCamera(mouseX, mouseY, z);
 
         auto cameraTransform = _camera->getTransform();
-        phi::vec3 camDir = cameraTransform->getDirection();
-        phi::vec3 camRight = cameraTransform->getRight();
-        phi::vec3 camUp = cameraTransform->getUp();
+        auto camDir = cameraTransform->getDirection();
+        auto camRight = cameraTransform->getRight();
+        auto camUp = cameraTransform->getUp();
+        auto zNear = _camera->getNear();
 
-        _zoomDir = glm::normalize(camDir * z + -camRight * static_cast<float>(x) + camUp * static_cast<float>(y));
+        _zoomDir = glm::normalize(
+            camDir * z +
+            -camRight * position.x +
+            camUp * position.y);
 
         _zoomInertiaTime = 0.0;
         _zoomDistanceTraveled = 0.0f;
@@ -417,7 +384,7 @@ namespace demon
         if (zBufferValue == 1.0f)
             _panEyeZ = 20.0f;
         else
-            _panEyeZ = -proj[3].z / (zBufferValue * -2.0f + 1.0f - proj[2].z);
+            _panEyeZ = _camera->getWorldZRelativeToCamera(mouseX, mouseY, zBufferValue);
 
         auto cameraTransform = _camera->getTransform();
         _panCameraPos = _panTargetCameraPos = cameraTransform->getPosition();
@@ -517,35 +484,13 @@ namespace demon
         panCancel();
 
         auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
-        auto proj = _camera->getProjectionMatrix();
 
         if (zBufferValue == 1.0f)
             _rotationTargetPos = glm::vec3(); //_targetPos = phi::scenesManager::get()->getScene()->getAabb()->getCenter();
         else
         {
-            auto z = -proj[3].z / (zBufferValue * -2.0f + 1.0f - proj[2].z);
-            auto zNear = _camera->getNear();
-            auto aspect = _camera->getAspect();
-            auto fov = _camera->getFov();
-
-            auto tg = tan(fov * 0.5f) * zNear;
-
-            auto w = _camera->getWidth();
-            auto h = _camera->getHeight();
-
-            auto hh = h * 0.5f;
-            auto hw = w * 0.5f;
-
-            auto ys0 = mouseY - hh;
-            auto yp0 = ys0 / hh;
-            auto ym0 = -(yp0 * tg);
-
-            auto xs0 = mouseX - hw;
-            auto xp0 = xs0 / hw;
-            auto xm0 = xp0 * tg * aspect;
-
-            auto x = (xm0 / zNear) * z;
-            auto y = (ym0 / zNear) * z;
+            auto worldZ = _camera->getWorldZRelativeToCamera(mouseX, mouseY, zBufferValue);
+            auto worldPosition = _camera->getWorldPositionRelativeToCamera(mouseX, mouseY, worldZ);
 
             auto transform = _camera->getTransform();
             auto camPos = transform->getPosition();
@@ -553,7 +498,11 @@ namespace demon
             auto camRight = transform->getRight();
             auto camUp = transform->getUp();
 
-            _rotationTargetPos = camPos + camDir * z + -camRight * (float)x + camUp * (float)y;
+            _rotationTargetPos =
+                camPos +
+                (-camRight * worldPosition.x) +
+                (camUp * worldPosition.y) +
+                (camDir * worldPosition.z);
         }
 
         _rotationLastMouseMoveTime = 0.0;

@@ -4,8 +4,9 @@ layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec2 inTexCoord;
 layout (location = 2) in vec3 inNormal;
 layout (location = 3) in vec3 inTangent;
-layout (location = 4) in uint inMaterialId;
-layout (location = 5) in mat4 inModelMatrix;
+layout (location = 4) in vec4 inSelectionColor;
+layout (location = 5) in uint inMaterialId;
+layout (location = 6) in mat4 inModelMatrix;
 
 layout (std140, binding = 0) uniform FrameUniformsBufferData
 {
@@ -20,6 +21,7 @@ out vec2 fragTexCoord;
 out vec3 fragNormal;
 out vec3 fragTangent;
 out flat uint materialId;
+out flat vec4 selectionColor;
 
 void main()
 {
@@ -31,4 +33,5 @@ void main()
     fragTangent = (itmv * vec4(inTangent, 0.0)).xyz;
     fragTexCoord = inTexCoord;
     materialId = inMaterialId;
+    selectionColor = inSelectionColor;
 }

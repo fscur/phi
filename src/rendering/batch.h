@@ -1,10 +1,11 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-#include <core\geometry.h>
 #include "vertexBuffer.h"
 #include "buffer.h"
 #include "mesh.h"
+
+#include <core\geometry.h>
 
 namespace phi
 {
@@ -21,15 +22,15 @@ namespace phi
     private:
         struct drawInstanceData
         {
-            GLint id;
+            GLintptr offset;
             mat4 modelMatrix;
             GLuint materialId;
 
             drawInstanceData(
-                GLuint id = 0,
+                GLintptr offset = 0,
                 mat4 modelMatrix = mat4(), 
                 GLuint materialId = 0) :
-                id(id),
+                offset(offset),
                 modelMatrix(modelMatrix),
                 materialId(materialId)
             {
@@ -51,21 +52,24 @@ namespace phi
         vector<geometry*> _geometries;
         map<geometry*, vector<drawInstanceData*>> _instances;
         map<mesh*, drawInstanceData*> _meshInstances;
+        map<drawInstanceData*, mesh*> _instancesMesh;
 
         vertexBuffer* _vbo;
         vertexBuffer* _materialsIdsBuffer;
         vertexBuffer* _modelMatricesBuffer;
+        vertexBuffer* _selectionBuffer;
         buffer* _ebo;
         buffer* _drawCmdBuffer;
 
     private:
         void createVao();
         void createVao(const batchObject& batchObject);
-        void createVbo(void* data, GLsizeiptr size);
-        void createMaterialsIdsBuffer(void* data, GLsizeiptr size);
-        void createModelMatricesBuffer(void* data, GLsizeiptr size);
-        void createEbo(void* data, GLsizeiptr size);
-        void createDrawCmdsBuffer(void* data, GLsizeiptr size);
+        void createVbo(const void* const data, GLsizeiptr size);
+        void createSelectionColorBuffer(const void* const data, GLsizeiptr size);
+        void createMaterialsIdsBuffer(const void* const data, GLsizeiptr size);
+        void createModelMatricesBuffer(const void* const data, GLsizeiptr size);
+        void createEbo(const void* const data, GLsizeiptr size);
+        void createDrawCmdsBuffer(const void* const data, GLsizeiptr size);
 
         void addNewGeometry(const batchObject& batchObject);
         void addNewInstance(const batchObject& batchObject);
@@ -76,6 +80,8 @@ namespace phi
         RENDERING_API ~batch();
         RENDERING_API bool add(const batchObject& batchObject);
         RENDERING_API void update(const batchObject& batchObject);
+        RENDERING_API void updateSelectionBuffer(mesh* const mesh, const vec4& selectionColor);
+        RENDERING_API void updateModelMatricesBuffer(mesh* const mesh, const mat4& modelMatrix);
         RENDERING_API void update(const vector<batchObject>& batchObjects);
         RENDERING_API void render();
     };

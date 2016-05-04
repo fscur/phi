@@ -4,6 +4,7 @@
 #include <ui\floatAnimator.h>
 
 #include "cameraController.h"
+#include "selectionMouseController.h"
 
 namespace demon
 {
@@ -18,6 +19,7 @@ namespace demon
 
     private:
         phi::scene* _scene;
+        selectionMouseController* _selectionMouseController;
         int32_t _mousePosX;
         int32_t _mousePosY;
         int32_t _lastMousePosX;
@@ -89,10 +91,7 @@ namespace demon
 
     public:
         defaultCameraController(phi::scene* scene);
-        virtual ~defaultCameraController()
-        {
-            safeDelete(_gridTexture);
-        }
+        virtual ~defaultCameraController();
 
         virtual void update() override;
     };

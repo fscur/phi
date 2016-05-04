@@ -1,118 +1,60 @@
 #include <precompiled.h>
 #include "ray.h"
 
+#include <core\mathUtils.h>
+
 namespace phi
 {
-    ray::ray(vec3 origin, vec3 direction)
+    ray::ray(vec3 origin, vec3 direction) :
+        _origin(origin),
+        _direction(direction),
+        _p2(origin + direction),
+        _inverseDirection(1.0f / direction)
     {
-        _origin = origin;
-        _direction = direction;
     }
 
-    ray::~ray() {}
-
-    bool ray::intersects(aabb aabb)
+    bool ray::intersects(const aabb& aabb, float& t)
     {
-        float minX = aabb.min.x;
-        float minY = aabb.min.y;
-        float minZ = aabb.min.z;
-        float maxX = aabb.max.x;
-        float maxY = aabb.max.y;
-        float maxZ = aabb.max.z;
-        float x0 = _origin.x;
-        float y0 = _origin.y;
-        float z0 = _origin.z;
-        float xd = _direction.x;
-        float yd = _direction.y;
-        float zd = _direction.z;
+        auto t0 = (aabb.min[0] - _origin[0]) * _inverseDirection[0];
+        auto t1 = (aabb.max[0] - _origin[0]) * _inverseDirection[0];
 
-        float tx0 = std::numeric_limits<float>::min();
-        float tx1 = std::numeric_limits<float>::max();
-        float ty0 = std::numeric_limits<float>::min();
-        float ty1 = std::numeric_limits<float>::max();
-        float tz0 = std::numeric_limits<float>::min();
-        float tz1 = std::numeric_limits<float>::max();
+        auto tmin = glm::min(t0, t1);
+        auto tmax = glm::max(t0, t1);
 
-        float tMin = std::numeric_limits<float>::min();
-        float tMax = std::numeric_limits<float>::max();
-        float temp;
-
-        if (xd == 0 && (x0 < minX || x0 > maxX))
-            return false;
-        else if (xd != 0)
+        for (auto i = 1; i < 3; ++i) 
         {
-            tx0 = (minX - x0) / xd;
-            tx1 = (maxX - x0) / xd;
+            t0 = (aabb.min[i] - _origin[i]) * _inverseDirection[i];
+            t1 = (aabb.max[i] - _origin[i]) * _inverseDirection[i];
 
-            if (tx0 > tx1)
-            {
-                temp = tx0;
-                tx0 = tx1;
-                tx1 = temp;
-            }
-
-            if (tx0 > tMin)
-                tMin = tx0;
-            if (tx1 < tMax)
-                tMax = tx1;
-
-            if (tMax < 0 || tMin > tMax)
-                return false;
+            tmin = glm::max(tmin, glm::min(t0, t1));
+            tmax = glm::min(tmax, glm::max(t0, t1));
         }
 
-        if (yd == 0 && (y0 < minY || y0 > maxY))
-            return false;
-        else if (yd != 0)
-        {
-            ty0 = (minY - y0) / yd;
-            ty1 = (maxY - y0) / yd;
-
-            if (ty0 > ty1)
-            {
-                temp = ty0;
-                ty0 = ty1;
-                ty1 = temp;
-            }
-
-            if (ty0 > tMin)
-                tMin = ty0;
-            if (ty1 < tMax)
-                tMax = ty1;
-
-            if (tMax < 0 || tMin > tMax)
-                return false;
-        }
-
-        if (zd == 0 && (z0 < minZ || z0 > maxZ))
-            return false;
-        else if (zd != 0)
-        {
-            tz0 = (minZ - z0) / zd;
-            tz1 = (maxZ - z0) / zd;
-
-            if (tz0 > tz1)
-            {
-                temp = tz0;
-                tz0 = tz1;
-                tz1 = temp;
-            }
-
-            if (tz0 > tMin)
-                tMin = tz0;
-            if (tz1 < tMax)
-                tMax = tz1;
-
-            if (tMax < 0 || tMin > tMax)
-                return false;
-        }
-
-        if (tMax < 0 || tMin > tMax)
-            return false;
-
-        return true;
+        t = tmin;
+        return tmax > glm::max(tmin, 0.0f);
     }
 
-    bool ray::intersects(aabb aabb, vec3*& positions, vec3*& normals, size_t& count)
+    bool ray::intersects(const aabb& aabb)
+    {
+        auto t0 = (aabb.min[0] - _origin[0]) * _inverseDirection[0];
+        auto t1 = (aabb.max[0] - _origin[0]) * _inverseDirection[0];
+
+        auto tmin = glm::min(t0, t1);
+        auto tmax = glm::max(t0, t1);
+
+        for (auto i = 1; i < 3; ++i)
+        {
+            t0 = (aabb.min[i] - _origin[i]) * _inverseDirection[i];
+            t1 = (aabb.max[i] - _origin[i]) * _inverseDirection[i];
+
+            tmin = glm::max(tmin, glm::min(t0, t1));
+            tmax = glm::min(tmax, glm::max(t0, t1));
+        }
+
+        return tmax > glm::max(tmin, 0.0f);
+    }
+
+    bool ray::intersects(aabb& aabb, vec3*& positions, vec3*& normals, size_t& count)
     {
         if (intersects(aabb))
         {
@@ -165,14 +107,24 @@ namespace phi
         auto planeNormal = normalize(cross(bl - br, br - tr));
         auto d = dot(planeNormal, bl);
         t = (d - dot(planeNormal, _origin)) / (dot(planeNormal, (_direction)));
+
         float nDotA = dot(planeNormal, _origin);
         float nDotBA = dot(planeNormal, _direction);
+
         auto point = _origin + (((d - nDotA) / nDotBA) * _direction);
-        auto in = dot(bl, tl - bl) <= dot(point, tl - bl) &&
+
+        return  dot(bl, tl - bl) <= dot(point, tl - bl) &&
             dot(point, tl - bl) <= dot(tl, tl - bl) &&
             dot(bl, br - bl) <= dot(point, br - bl) &&
             dot(point, br - bl) <= dot(br, br - bl);
+    }
 
-        return in;
+    ray ray::operator*(mat4& matrix)
+    {
+        auto start = mathUtils::multiply(matrix, _origin);
+        auto end = mathUtils::multiply(matrix, _origin + _direction);
+        auto direction = glm::normalize(end - start);
+
+        return ray(start, direction);
     }
 }

@@ -22,6 +22,7 @@ add_library(apps SHARED ${source_files} ${header_files})
 
 target_link_libraries(apps core)
 target_link_libraries(apps io)
+target_link_libraries(apps rendering)
 
 find_package(OPENGL REQUIRED)
 find_package(GLEW REQUIRED)

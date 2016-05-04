@@ -24,15 +24,17 @@ namespace phi
         shader->addUniform(0, "textureArrays");
 
         auto rtAddresses = phi::rtAddresses();
-        rtAddresses.rt0Unit = gBufferPass->targets[0]->textureAddress.unit;
-        rtAddresses.rt1Unit = gBufferPass->targets[1]->textureAddress.unit;
-        rtAddresses.rt2Unit = gBufferPass->targets[2]->textureAddress.unit;
-        rtAddresses.rt3Unit = gBufferPass->targets[3]->textureAddress.unit;
+        rtAddresses.rt0Unit = gBufferPass->rt0->textureAddress.unit;
+        rtAddresses.rt1Unit = gBufferPass->rt1->textureAddress.unit;
+        rtAddresses.rt2Unit = gBufferPass->rt2->textureAddress.unit;
+        rtAddresses.rt3Unit = gBufferPass->rt3->textureAddress.unit;
+        rtAddresses.depthUnit = gBufferPass->depth->textureAddress.unit;
 
-        rtAddresses.rt0Page = gBufferPass->targets[0]->textureAddress.page;
-        rtAddresses.rt1Page = gBufferPass->targets[1]->textureAddress.page;
-        rtAddresses.rt2Page = gBufferPass->targets[2]->textureAddress.page;
-        rtAddresses.rt3Page = gBufferPass->targets[3]->textureAddress.page;
+        rtAddresses.rt0Page = gBufferPass->rt0->textureAddress.page;
+        rtAddresses.rt1Page = gBufferPass->rt1->textureAddress.page;
+        rtAddresses.rt2Page = gBufferPass->rt2->textureAddress.page;
+        rtAddresses.rt3Page = gBufferPass->rt3->textureAddress.page;
+        rtAddresses.depthPage = gBufferPass->depth->textureAddress.page;
 
         _rtsBuffer = new buffer(bufferTarget::uniform);
 
@@ -54,7 +56,7 @@ namespace phi
 
     void lightingRenderPass::createQuad()
     {
-        _quad = geometry::quad();
+        _quad = geometry::createQuad(2.0f);
 
         glCreateVertexArrays(1, &_quadVao);
         glError::check();
@@ -66,24 +68,14 @@ namespace phi
         attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
 
-        auto verticesCount = _quad->verticesCount;
-        auto data = new vertex[verticesCount];
-        for (uint i = 0; i < verticesCount; i++)
-        {
-            data[i] = _quad->vboData[i];
-            data[i].position *= 2;
-        }
-
         _quadVbo = new vertexBuffer(attribs);
-        _quadVbo->storage(_quad->vboSize, data, bufferStorageUsage::write);
+        _quadVbo->storage(_quad->vboSize, _quad->vboData, bufferStorageUsage::write);
 
         _quadEbo = new buffer(bufferTarget::element);
         _quadEbo->storage(_quad->eboSize, _quad->eboData, bufferStorageUsage::write);
 
         glBindVertexArray(0);
         glError::check();
-
-        safeDeleteArray(data);
     }
 
     void lightingRenderPass::renderQuad()

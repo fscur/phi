@@ -10,7 +10,6 @@ namespace phi
     rotationControl::rotationControl(sizeui viewportSize) :
         control(viewportSize),
         _transform(nullptr),
-        _circleMesh(nullptr),
         _shader(nullptr),
         _camera(nullptr),
         _rotating(new eventHandler<rotationEventArgs*>()),
@@ -61,8 +60,6 @@ namespace phi
             indices.push_back((i + 1) % n);
             a += as;
         }
-
-        _circleMesh = lineMesh::create("hi!", _zPositions, indices);
     }
 
     void rotationControl::updateModelMatrix()
@@ -460,9 +457,6 @@ namespace phi
         _shader->bind();
         //_shader->setUniform("mvp", mvp);
         //_shader->setUniform("color", color);
-        _circleMesh->bind();
-        _circleMesh->render();
-        _circleMesh->unbind();
         _shader->unbind();
     }
 }

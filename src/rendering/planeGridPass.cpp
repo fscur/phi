@@ -38,13 +38,14 @@ namespace phi
 
     planeGridPass::~planeGridPass()
     {
+        safeDelete(_quad);
         safeDelete(_quadVbo);
         safeDelete(_quadEbo);
     }
 
     void planeGridPass::createQuad()
     {
-        _quad = geometry::quad();
+        _quad = geometry::createQuad(1.0f);
 
         glCreateVertexArrays(1, &_quadVao);
         glError::check();

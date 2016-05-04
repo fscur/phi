@@ -1,4 +1,3 @@
-//#pragma once //TODO: hope this commented line never starts a two thousand errors compilation :)
 #ifdef MSVC
 #pragma message ("Compiling precompiled headers")
 #else
