@@ -41,9 +41,11 @@ namespace phi
     inline renderer::~renderer()
     {
         safeDelete(_defaultFramebuffer);
+		safeDelete(_finalImageFramebuffer);
         safeDelete(_gBufferRenderPass);
         safeDelete(_lightingRenderPass);
         safeDelete(_planeGridRenderPass);
+		safeDelete(_finalImageRT);
     }
 
     inline void renderer::render()
