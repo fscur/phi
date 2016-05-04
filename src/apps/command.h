@@ -11,7 +11,6 @@ namespace phi
         glm::vec2 mousePos;
         glm::vec2 lastMousePos;
         float wheelDelta;
-        //phi::sizeui viewportSize;
         unsigned long actionsSum;
     public:
         APPS_API virtual ~commandInfo();

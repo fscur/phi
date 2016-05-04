@@ -19,7 +19,8 @@ namespace phi
 
         pendingCommand(command* cmd, std::function<void(command*)> callback, bool isUndo) :
             cmd(cmd), callback(callback), isUndo(isUndo)
-        {}
+        {
+        }
     };
 
     class commandsManager
@@ -31,9 +32,7 @@ namespace phi
         std::stack<command*> _redo;
         bool _executingCommand;
         std::mutex _pendingCommandsMutex;
-
         std::vector<keycode> _pressedKeys;
-
         std::vector<shortcut> _commandShortcuts;
 
     private:

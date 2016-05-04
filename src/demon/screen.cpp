@@ -1,19 +1,22 @@
 ﻿#include <precompiled.h>
 #include "screen.h"
 
-#include <apps\undoCommand.h>
-#include <apps\redoCommand.h>
-
 #include <diagnostics\stopwatch.h>
 
 #include <loader\importer.h>
+
 #include <rendering\model.h>
+
+#include <animation\floatAnimator.h>
+
 #include <apps\application.h>
+#include <apps\undoCommand.h>
+#include <apps\redoCommand.h>
 
 #include <ui\controlRenderer.h>
 #include <ui\textRenderer.h>
 
-#include <animation\floatAnimator.h>
+#include "deleteObjectCommand.h"
 
 using namespace phi;
 
@@ -139,11 +142,12 @@ namespace demon
 
     void screen::initInput()
     {
-        _commandsManager = new phi::commandsManager();
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
-
         _defaultController = new defaultCameraController(_scene);
+
+        _commandsManager = new commandsManager();
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]() { return new deleteObjectCommand(); }));
     }
 
     void screen::onUpdate()
