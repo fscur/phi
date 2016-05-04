@@ -14,12 +14,12 @@ namespace phi
     {
     private:
         gl* _gl;
-        size_t _w;
-        size_t _h;
+        float _w;
+        float _h;
+        vector<batch*> _batches;
+        shader* _shader;
+        framebuffer* _framebuffer;
     public:
-        shader* shader;
-        framebuffer* framebuffer;
-        vector<batch*> batches;
         renderTarget* rt0;
         renderTarget* rt1;
         renderTarget* rt2;
@@ -36,7 +36,7 @@ namespace phi
         RENDERING_API void update();
         RENDERING_API void render();
 
-        vector<renderTarget*> getTargets() const { return _targets; }
         void setBatches(vector<batch*> value) { _batches = value; }
+        framebuffer* getFramebuffer() { return _framebuffer; }
     };
 }

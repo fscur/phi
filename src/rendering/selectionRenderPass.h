@@ -17,13 +17,13 @@ namespace phi
         buffer* _quadEbo;
         buffer* _rtsBuffer;
         uint _quadVao;
-        size_t _w;
-        size_t _h;
+        float _w;
+        float _h;
     private:
         void createQuad();
 
     public:
-        RENDERING_API selectionRenderPass(const gBufferRenderPass* const gBufferPass, const gl* const gl, size_t w, size_t h);
+        RENDERING_API selectionRenderPass(const gBufferRenderPass* const gBufferPass, const gl* const gl, float w, float h);
         RENDERING_API ~selectionRenderPass();
 
         RENDERING_API void update();

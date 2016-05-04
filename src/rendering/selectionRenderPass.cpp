@@ -4,7 +4,7 @@
 
 namespace phi
 {
-    selectionRenderPass::selectionRenderPass(const gBufferRenderPass* const gBufferPass, const gl* const gl, size_t w, size_t h) :
+    selectionRenderPass::selectionRenderPass(const gBufferRenderPass* const gBufferPass, const gl* const gl, float w, float h) :
         _gl(gl),
         _quad(nullptr),
         _quadVbo(nullptr),

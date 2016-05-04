@@ -28,7 +28,6 @@ namespace phi
         CORE_API void addChild(node* const child);
 
         CORE_API void traverse(std::function<void(node*)> func);
-        CORE_API void traverse(std::function<void(node*)> func, component::componentType type);
 
         transform* getTransform() const { return _transform; }
 

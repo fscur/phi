@@ -3,16 +3,17 @@
 
 namespace phi
 {
-    gBufferRenderPass::gBufferRenderPass(gl* gl, size_t w, size_t h) :
+    gBufferRenderPass::gBufferRenderPass(gl* gl, float w, float h) :
         _gl(gl),
         _w(w),
         _h(h),
-        shader(nullptr),
-        framebuffer(new phi::framebuffer()),
-        batches(vector<batch*>()),
+        _batches(vector<batch*>()),
+        _shader(nullptr),
+        _framebuffer(new framebuffer()),
         rt0(nullptr),
         rt1(nullptr),
         rt2(nullptr),
+        rt3(nullptr),
         depth(nullptr)
     {
         initShader();
@@ -92,11 +93,11 @@ namespace phi
         rt3 = createRenderTarget(GL_COLOR_ATTACHMENT3, GL_RGBA8, GL_RGBA);
         depth = createRenderTarget(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT);
 
-        framebuffer->add(rt0);
-        framebuffer->add(rt1);
-        framebuffer->add(rt2);
-        framebuffer->add(rt3);
-        framebuffer->add(depth);
+        _framebuffer->add(rt0);
+        _framebuffer->add(rt1);
+        _framebuffer->add(rt2);
+        _framebuffer->add(rt3);
+        _framebuffer->add(depth);
     }
 
     void gBufferRenderPass::update()
@@ -126,7 +127,7 @@ namespace phi
         glClearBufferfv(GL_COLOR, 3, &selectionClearColor);
         glError::check();
 
-        shader->bind();
+        _shader->bind();
 
         for (auto batch : _batches)
             batch->render();

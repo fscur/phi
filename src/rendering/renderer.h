@@ -5,7 +5,7 @@
 #include "gBufferRenderPass.h"
 #include "lightingRenderPass.h"
 #include "selectionRenderPass.h"
-#include "planeGridPass.h"
+#include "planeGridRenderPass.h"
 
 namespace phi
 {
@@ -13,42 +13,26 @@ namespace phi
     {
     private:
         gl* _gl;
+        gBufferRenderPass* _gBufferRenderPass;
+        lightingRenderPass* _lightingRenderPass;
+        selectionRenderPass* _selectionRenderPass;
+        planeGridRenderPass* _planeGridRenderPass;
+        framebuffer* _defaultFramebuffer;
+        framebuffer* _finalImageFramebuffer;
+        renderTarget* _finalImageRT;
+        float _w;
+        float _h;
     public:
-        size_t w;
-        size_t h;
-        gBufferRenderPass* gBufferPass;
-        lightingRenderPass* lightingPass;
-        selectionRenderPass* selectionPass;
-        planeGridPass* planeGridPass;
-        framebuffer* defaultFramebuffer;
 
-        renderer(phi::gl* gl, size_t w, size_t h) :
-            _gl(gl),
-            w(w),
-            h(h),
-            gBufferPass(new gBufferRenderPass(gl, w, h)),
-            lightingPass(new lightingRenderPass(gBufferPass, gl, w, h)),
-            selectionPass(new selectionRenderPass(gBufferPass, gl, w, h)),
-            planeGridPass(new phi::planeGridPass(gl, w, h)),
-            defaultFramebuffer(new framebuffer(true))
-        {
-        }
+        RENDERING_API renderer(gl * gl, float w, float h);
+        RENDERING_API ~renderer();
 
-        ~renderer()
-        {
-            safeDelete(defaultFramebuffer);
-            safeDelete(gBufferPass);
-            safeDelete(lightingPass);
-            safeDelete(selectionPass);
-            safeDelete(planeGridPass);
-        }
+        RENDERING_API void render();
+        RENDERING_API void update();
 
         framebuffer* getDefaultFramebuffer() const { return _defaultFramebuffer; }
         planeGridRenderPass* getPlaneGridRenderPass() const { return _planeGridRenderPass; }
         gBufferRenderPass* getGBufferRenderPass() const { return _gBufferRenderPass; }
-		renderTarget* getFinalImageRT() const { return _finalImageRT; }
-
-        RENDERING_API void render();
-        RENDERING_API void update();
+        renderTarget* getFinalImageRT() const { return _finalImageRT; }
     };
 }

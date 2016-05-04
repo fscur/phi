@@ -9,13 +9,13 @@ namespace phi
 {
     scene::scene(gl* gl, float w, float h) :
         _gl(gl),
+        _renderer(new renderer(gl, w, h)),
         _pipeline(new pipeline(gl)),
         _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
         _objects(vector<node*>()),
         _meshesIds(map<int, mesh*>()),
-        w(w),
-        h(h),
-        renderer(new phi::renderer(gl, w, h))
+        _w(w),
+        _h(h)
     {
         auto cameraNode = new node();
         cameraNode->addComponent(_camera);
@@ -57,7 +57,7 @@ namespace phi
         _camera->setHeight(h);
     }
 
-    void scene::add(node* n)
+    void scene::add(node* node)
     {
         node->traverse<mesh>([&](mesh* mesh)
         {
@@ -70,9 +70,9 @@ namespace phi
         _pipeline->add(node);
     }
 
-    void scene::remove(node* n)
+    void scene::remove(node* node)
     {
-        auto position = std::find(_objects.begin(), _objects.end(), n);
+        auto position = std::find(_objects.begin(), _objects.end(), node);
 
         if (position != _objects.end())
             _objects.erase(position);
@@ -85,10 +85,10 @@ namespace phi
 
     mesh* scene::pick(int mouseX, int mouseY)
     {
-        auto pixels = renderer->gBufferPass->framebuffer->readPixels(
-            renderer->gBufferPass->rt3,
+        auto pixels = _renderer->getGBufferRenderPass()->getFramebuffer()->readPixels(
+            _renderer->getGBufferRenderPass()->rt3,
             static_cast<GLint>(mouseX),
-            static_cast<GLint>(h - mouseY),
+            static_cast<GLint>(_h - mouseY),
             1, 1);
 
         auto r = static_cast<int>(pixels.r);

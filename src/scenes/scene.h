@@ -16,10 +16,10 @@ namespace phi
 
     private:
         gl* _gl;
-        vector<node*> _objects;
         renderer* _renderer;
         pipeline* _pipeline;
         camera* _camera;
+        vector<node*> _objects;
         map<int, mesh*> _meshesIds;
         float _w;
         float _h;
