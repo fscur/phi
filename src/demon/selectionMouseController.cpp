@@ -6,15 +6,22 @@ namespace demon
     using namespace phi;
 
     selectionMouseController::selectionMouseController(scene* scene) :
-        _scene(scene)
+        _scene(scene),
+        _selectedObjects(new vector<node*>())
     {
+    }
+
+    selectionMouseController::~selectionMouseController()
+    {
+        safeDelete(_selectedObjects);
     }
 
     bool selectionMouseController::isSelectedOrHasSelectedChildren(const node* const node)
     {
-        for (auto selectedObject : selectedObjects)
+        for (auto selectedObject : *_selectedObjects)
         {
-            if (selectedObject->getParent() == node || selectedObject == node)
+            auto parent = selectedObject->getParent();
+            if (parent == node || selectedObject == node)
             {
                 return true;
             }
@@ -25,7 +32,7 @@ namespace demon
 
     void selectionMouseController::unselectAll()
     {
-        for (auto selected : selectedObjects)
+        for (auto selected : *_selectedObjects)
         {
             selected->traverse<mesh>([](mesh* mesh)
             {
@@ -33,7 +40,7 @@ namespace demon
             });
         }
 
-        selectedObjects.clear();
+        _selectedObjects->clear();
     }
 
     void selectionMouseController::select(phi::node* const node)
@@ -43,7 +50,7 @@ namespace demon
             component->setSelected(true);
         });
 
-        selectedObjects.push_back(node);
+        _selectedObjects->push_back(node);
     }
 
     void selectionMouseController::onMouseDown(int mouseX, int mouseY)
@@ -54,7 +61,7 @@ namespace demon
         {
             auto selectedNode = selectedMesh->getNode();
 
-            auto parent = selectedNode->getParent();
+            auto parent = selectedNode;
             while (parent && !isSelectedOrHasSelectedChildren(parent))
             {
                 selectedNode = parent;

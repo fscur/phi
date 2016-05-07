@@ -75,12 +75,20 @@ namespace phi
         auto position = std::find(_objects.begin(), _objects.end(), node);
 
         if (position != _objects.end())
+        {
             _objects.erase(position);
+        }
+
+        _pipeline->remove(node);
 
         node->traverse<mesh>([&](mesh* mesh)
         {
             _meshesIds.erase(mesh->getId());
         });
+
+        auto parent = node->getParent();
+        if (parent)
+            parent->removeChild(node);
     }
 
     mesh* scene::pick(int mouseX, int mouseY)

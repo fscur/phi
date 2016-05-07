@@ -1,19 +1,23 @@
 ﻿#include <precompiled.h>
 #include "screen.h"
 
-#include <apps\undoCommand.h>
-#include <apps\redoCommand.h>
-
 #include <diagnostics\stopwatch.h>
 
 #include <loader\importer.h>
+
 #include <rendering\model.h>
+
+#include <animation\floatAnimator.h>
+
 #include <apps\application.h>
+#include <apps\undoCommand.h>
+#include <apps\redoCommand.h>
 
 #include <ui\controlRenderer.h>
 #include <ui\textRenderer.h>
 
-#include <animation\floatAnimator.h>
+#include "deleteObjectCommand.h"
+#include "addObjectCommand.h"
 
 using namespace phi;
 
@@ -104,13 +108,10 @@ namespace demon
         _scene->add(clonedFloor);
 
         auto obj = _library->getObjectsRepository()->getAllResources()[0]->getObject();
-        
-        for (auto i = 0; i < 5; ++i)
-        {
-            auto cloned = obj->clone();
-            cloned->getTransform()->setLocalPosition(vec3(i + (0.1f * i), 0.0, 0.0));
-            _scene->add(cloned);
-        }
+
+        auto obj1 = obj->clone();
+        obj1->getTransform()->setLocalPosition(vec3(0.f, .5f, 0.f));
+        _scene->add(obj1);
     }
 
     void screen::initUi()
@@ -121,7 +122,7 @@ namespace demon
 
         auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 14);
 
-        auto label0 = _ui->newLabel(L"Filipe Scur", vec3(0.0f, 0.0f, 0.0f));
+        auto label0 = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
         controlRenderer->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
 		controlRenderer->setIsGlassy(true);
@@ -131,28 +132,20 @@ namespace demon
         textRenderer->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
         _ui->add(label0);
-
-  //      auto label1 = _ui->newLabel(L"JAQUIRANA Ó", vec3(-100.0f, 100.0f, 0.0f));
-  //      controlRenderer = label1->getComponent<phi::controlRenderer>();
-
-  //      auto texture = _library->getTexturesRepository()->getAllResources()[0]->getObject();
-  //      //controlRenderer->setTexture(texture);
-  //      //controlRenderer->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 0.4f));
-		//controlRenderer->setIsGlassy(true);
-
-  //      textRenderer = label1->getComponent<phi::textRenderer>();
-  //      textRenderer->setFont(font);
-  //      textRenderer->setColor(color::fromRGBA(1.0f, 1.f, 1.0f, 1.0f));
-  //      _ui->add(label1);
     }
 
     void screen::initInput()
     {
-        _commandsManager = new phi::commandsManager();
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_z }, [&]() -> phi::command* { return new phi::undoCommand(_commandsManager); }));
-        _commandsManager->addShortcut(phi::shortcut({ PHIK_CTRL, PHIK_y }, [&]() -> phi::command* { return new phi::redoCommand(_commandsManager); }));
-
         _defaultController = new defaultCameraController(_scene);
+
+        _commandsManager = new commandsManager();
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
+        
+        _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]() 
+        {
+            return new deleteObjectCommand(_scene, _defaultController->getSelectionMouseController()); 
+        }));
     }
 
     void screen::onUpdate()

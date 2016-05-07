@@ -94,5 +94,7 @@ namespace demon
         virtual ~defaultCameraController();
 
         virtual void update() override;
+
+        selectionMouseController* getSelectionMouseController() { return _selectionMouseController; }
     };
 }

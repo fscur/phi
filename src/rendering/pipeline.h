@@ -41,8 +41,9 @@ namespace phi
         RENDERING_API pipeline(gl* gl);
         RENDERING_API ~pipeline();
 
-        RENDERING_API void add(node* n);
-        RENDERING_API void update(node* n);
+        RENDERING_API void add(node* node);
+        RENDERING_API void remove(node* node);
+        RENDERING_API void update(node* node);
         RENDERING_API void updateFrameUniformBlock(const frameUniformBlock& frameUniformBlock);
     };
 }

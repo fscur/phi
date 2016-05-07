@@ -174,6 +174,21 @@ namespace phi
         return true;
     }
 
+    void batch::remove(mesh* mesh)
+    {
+        auto instance = _meshInstances[mesh];
+
+        auto position = std::find(_instances[mesh->geometry].begin(), _instances[mesh->geometry].end(), instance);
+
+        if (position != _instances[mesh->geometry].end())
+            _instances[mesh->geometry].erase(position);
+
+        if (_instances[mesh->geometry].size() < 1)
+            _instances.erase(mesh->geometry);
+
+        updateBuffers();
+    }
+
     void batch::addNewGeometry(const batchObject& batchObject)
     {
         auto geometry = batchObject.geometry;
@@ -245,10 +260,15 @@ namespace phi
             drawCmdsBufferData.push_back(drawCmd);
         }
 
-        _drawCmdBuffer->data(sizeof(drawElementsIndirectCmd) * drawCmdsBufferData.size(), &drawCmdsBufferData[0], bufferDataUsage::dynamicDraw);
-        _modelMatricesBuffer->data(sizeof(mat4) * modelMatricesData.size(), &modelMatricesData[0], bufferDataUsage::dynamicDraw);
-        _materialsIdsBuffer->data(sizeof(uint) * materialsIdsData.size(), &materialsIdsData[0], bufferDataUsage::dynamicDraw);
-        _selectionBuffer->data(sizeof(vec4) * selectionBufferData.size(), &selectionBufferData[0], bufferDataUsage::dynamicDraw);
+        auto drawCmdData = drawCmdsBufferData.size() > 0 ? &drawCmdsBufferData[0] : nullptr;
+        auto matricesData = modelMatricesData.size() > 0 ? &modelMatricesData[0] : nullptr;
+        auto materialsData = materialsIdsData.size() > 0 ? &materialsIdsData[0] : nullptr;
+        auto selectionData = selectionBufferData.size() > 0 ? &selectionBufferData[0] : nullptr;
+
+        _drawCmdBuffer->data(sizeof(drawElementsIndirectCmd) * drawCmdsBufferData.size(), drawCmdData, bufferDataUsage::dynamicDraw);
+        _modelMatricesBuffer->data(sizeof(mat4) * modelMatricesData.size(), matricesData, bufferDataUsage::dynamicDraw);
+        _materialsIdsBuffer->data(sizeof(uint) * materialsIdsData.size(), materialsData, bufferDataUsage::dynamicDraw);
+        _selectionBuffer->data(sizeof(vec4) * selectionBufferData.size(), selectionData, bufferDataUsage::dynamicDraw);
     }
 
     void batch::update(const vector<batchObject>& batchObjects)

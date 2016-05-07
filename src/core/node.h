@@ -29,11 +29,11 @@ namespace phi
 
         CORE_API void addComponent(component* const component);
         CORE_API void addChild(node* const child);
+        CORE_API void removeChild(node* child);
 
         CORE_API void traverse(std::function<void(node*)> func);
 
         transform* getTransform() const { return _transform; }
-
         node* getParent() const { return _parent; }
 
         vector<node*>* getChildren() const { return _children; }
