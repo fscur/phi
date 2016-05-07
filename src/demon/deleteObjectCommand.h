@@ -14,10 +14,14 @@ namespace demon
     {
     private:
         phi::scene* _scene;
-        selectionMouseController* _selectionMouseController;
+        selectionMouseController* _selectionController;
+        phi::vector<phi::node*> _deletedObjects;
+
     public:
-        deleteObjectCommand(phi::scene* scene, selectionMouseController* selectionMouseController);
+        deleteObjectCommand(phi::scene* scene, selectionMouseController* selectionController);
         ~deleteObjectCommand();
+
         void execute() override;
+        void executeUndo() override;
     };
 }

@@ -1,6 +1,9 @@
 #include <precompiled.h>
 #include "selectionRenderPass.h"
-#include "lightingRenderPass.h" //REMOVE THIS BITCH
+
+#include <core\time.h>
+
+#include "lightingRenderPass.h"
 
 namespace phi
 {
@@ -23,6 +26,7 @@ namespace phi
         _shader->addUniform(0, "textureArrays");
         _shader->addUniform(1, "resolution");
         _shader->addUniform(2, "offset");
+        _shader->addUniform(3, "time");
 
         auto rtAddresses = phi::rtAddresses();
         rtAddresses.rt0Unit = gBufferPass->rt0->textureAddress.unit;
@@ -81,6 +85,7 @@ namespace phi
 
     void selectionRenderPass::update()
     {
+        const float contourOffset = 0.5f;
         _shader->bind();
 
         if (_gl->currentState.useBindlessTextures)
@@ -89,7 +94,8 @@ namespace phi
             _shader->setUniform(0, _gl->texturesManager->units);
 
         _shader->setUniform(1, vec2(_w, _h));
-        _shader->setUniform(2, 0.5f);
+        _shader->setUniform(2, contourOffset);
+        _shader->setUniform(3, static_cast<float>(time::totalSeconds));
 
         _shader->unbind();
     }

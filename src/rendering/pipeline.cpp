@@ -144,28 +144,40 @@ namespace phi
         _loadedMaterials.push_back(material);
     }
 
-    void pipeline::add(node* n)
+    void pipeline::add(node* node)
     {
-        addToBatches(n);
+        addToBatches(node);
     }
 
-    void pipeline::updateBatches(node* n)
+    void pipeline::remove(node* node)
     {
-        auto mesh = n->getComponent<phi::mesh>();
+        node->traverse<mesh>([&](mesh* mesh)
+        {
+            auto it = _meshesBatches.find(mesh);
+            if (it != _meshesBatches.end())
+            {
+                it->second->remove(mesh);
+            }
+        });
+    }
+
+    void pipeline::updateBatches(node* node)
+    {
+        auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
             auto batch = _meshesBatches[mesh];
-            _nodesToUpdate[batch].push_back(n);
+            _nodesToUpdate[batch].push_back(node);
         }
 
-        auto children = n->getChildren();
+        auto children = node->getChildren();
         for (auto child : children)
             updateBatches(child);
     }
 
-    void pipeline::update(node* n)
+    void pipeline::update(node* node)
     {
-        updateBatches(n);
+        updateBatches(node);
 
         for (auto batch : batches)
         {

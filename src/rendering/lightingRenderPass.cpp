@@ -93,19 +93,19 @@ namespace phi
     void lightingRenderPass::render()
     {
         glDisable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindVertexArray(_quadVao);
-		glError::check();
+        glBindVertexArray(_quadVao);
+        glError::check();
 
-		_shader->bind();
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glError::check();
-		_shader->unbind();
+        _shader->bind();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glError::check();
+        _shader->unbind();
 
-		glBindVertexArray(0);
-		glError::check();
+        glBindVertexArray(0);
+        glError::check();
 
-		glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
     }
 }

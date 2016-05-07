@@ -47,6 +47,11 @@ if (MSVC)
         
     add_custom_command(
         TARGET demon
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.sbr\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET demon
         POST_BUILD
         COMMAND ../../../../scripts/post_build_vc++/demon.bat $(Configuration) demon)
         

@@ -44,7 +44,16 @@ namespace phi
     }
 
     template<typename T>
-    bool contains(vector<T> vector, T value)
+    void removeIfContains(vector<T>& vector, T& value)
+    {
+        auto it = std::find(vector.begin(), vector.end(), value);
+
+        if (it != vector.end())
+            vector.erase(it);
+    }
+
+    template<typename T>
+    bool contains(const vector<T> vector, const T value)
     {
         auto it = std::find(vector.begin(), vector.end(), value);
 

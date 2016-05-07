@@ -2,7 +2,7 @@ set(CMAKE_CONFIGURATION_TYPES Debug MinSizeRel Release RelWithDebInfo DebugWithM
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "Added DebugWithMemoryTracking configuration" FORCE)
 
 set(CMAKE_CXX_FLAGS "/DMSVC /W4 /WX /Zc:wchar_t- /GR- /EHsc" CACHE STRING "c++ compiler flags" FORCE)
-set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MDd /ZI /Ob0 /Od /RTC1" CACHE STRING "c++ debug compiler flags" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /FR /MDd /ZI /Ob0 /Od /RTC1" CACHE STRING "c++ debug compiler flags" FORCE)
 set(CMAKE_CXX_FLAGS_DEBUGWITHMEMORYTRACKING "/D_DEBUG /DDETAILED_MEMORY_TRACKING /MDd /ZI /Ob0 /Od /RTC1" CACHE STRING "c++ debug with memory tracking compiler flags" FORCE)
 set(CMAKE_CXX_FLAGS_GCC "/DMSVC /W4 /WX /Zc:wchar_t- /GR- /EHsc" CACHE STRING "c++ gcc (release) compiler flags" FORCE)
 set(CMAKE_C_FLAGS "/DMSVC /W4 /WX" CACHE STRING "c compiler flags" FORCE)
