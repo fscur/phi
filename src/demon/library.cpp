@@ -41,7 +41,7 @@ namespace demon
 
         auto importModelFunction = [&](string filePath)
         {
-            return importer::importNode(filePath, _materialsRepository, _geometriesRepository);
+            return importer::loadNode(filePath, _materialsRepository, _geometriesRepository);
         };
 
         _texturesRepository = load<texture>(_libraryPath + "/textures", ".texture", importTextureFunction);

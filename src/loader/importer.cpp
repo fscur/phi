@@ -5,6 +5,7 @@
 #include <io\path.h>
 
 #include "importResourceException.h"
+#include <diagnostics\stopwatch.h>
 
 namespace phi
 {
@@ -74,7 +75,7 @@ namespace phi
         return guidBytes.data();
     }
 
-    resource<node>* importer::importNode(string fileName, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo)
+    resource<node>* importer::loadNode(string fileName, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo)
     {
         //TODO:: create load file fuction in the io API
 #ifdef _WIN32 
@@ -299,4 +300,181 @@ namespace phi
         throw importResourceException("Import material was not implemented in other platforms than Win32", fileName);
 #endif
     }
+
+	void get_bounding_box_for_node(
+		const aiScene* scene,
+		const aiNode* nd,
+		aiVector3D* min,
+		aiVector3D* max,
+		aiMatrix4x4* transform)
+	{
+		unsigned int n = 0, t;
+
+		aiMatrix4x4 prev = *transform;
+
+		aiMultiplyMatrix4(transform, &nd->mTransformation);
+
+		for (; n < nd->mNumMeshes; ++n)
+		{
+			const struct aiMesh* mesh = scene->mMeshes[nd->mMeshes[n]];
+
+			for (t = 0; t < mesh->mNumVertices; ++t)
+			{
+				aiVector3D tmp = mesh->mVertices[t];
+				aiTransformVecByMatrix4(&tmp, transform);
+
+				min->x = std::min(min->x, tmp.x);
+				min->y = std::min(min->y, tmp.y);
+				min->z = std::min(min->z, tmp.z);
+
+				max->x = std::max(max->x, tmp.x);
+				max->y = std::max(max->y, tmp.y);
+				max->z = std::max(max->z, tmp.z);
+			}
+		}
+
+		for (n = 0; n < nd->mNumChildren; ++n) 
+		{
+			get_bounding_box_for_node(scene, nd->mChildren[n], min, max, transform);
+		}
+
+		*transform = prev;
+	}
+
+	void extract3x3(aiMatrix3x3 *m3, aiMatrix4x4 *m4)
+	{
+		m3->a1 = m4->a1; m3->a2 = m4->a2; m3->a3 = m4->a3;
+		m3->b1 = m4->b1; m3->b2 = m4->b2; m3->b3 = m4->b3;
+		m3->c1 = m4->c1; m3->c2 = m4->c2; m3->c3 = m4->c3;
+	}
+
+	void importer::loadAssimpScene(
+		const aiScene* scene, 
+		const aiNode* nd, 
+		aiMatrix4x4* transform,
+		node* node)
+	{
+		aiMatrix4x4 prev = *transform;
+		aiMultiplyMatrix4(transform, &nd->mTransformation);
+
+		for (uint n = 0u; n < nd->mNumMeshes; ++n)
+		{
+			const aiMesh* assimpMesh = scene->mMeshes[nd->mMeshes[n]];
+			auto vertices = vector<vertex>();
+			auto indices = vector<uint>();
+
+			for (uint i = 0u; i < assimpMesh->mNumVertices; ++i)
+			{
+				auto position = vec3(0.0f);
+				auto texCoord = vec2(0.0f);
+				auto normal = vec3(0.0f);
+
+				if (assimpMesh->HasPositions())
+				{
+					auto assimpPosition = assimpMesh->mVertices[i];
+					aiTransformVecByMatrix4(&assimpPosition, transform);
+					position = vec3(assimpPosition.x, assimpPosition.y, assimpPosition.z);
+				}
+
+				if (assimpMesh->HasTextureCoords(0))
+				{
+					const auto assimpTexCoord = assimpMesh->mTextureCoords[0][i];
+					texCoord = vec2(assimpTexCoord.x, assimpTexCoord.y);
+				}
+
+				if (assimpMesh->HasNormals())
+				{
+					auto assimpNormal = assimpMesh->mNormals[i];
+					aiMatrix3x3 rotation;
+					extract3x3(&rotation, transform);
+					aiTransformVecByMatrix3(&assimpNormal, &rotation);
+					normal = vec3(assimpNormal.x, assimpNormal.y, assimpNormal.z);
+				}
+
+				vertices.push_back(vertex(position, texCoord, normal));
+			}
+
+			for (uint i = 0u; i < assimpMesh->mNumFaces; ++i)
+			{
+				const auto assimpFace = assimpMesh->mFaces[i];
+				
+				for (uint j = 0u; j < assimpFace.mNumIndices; ++j)
+					indices.push_back(assimpFace.mIndices[j]);
+			}
+
+			auto geometry = geometry::create(vertices, indices);
+			auto meshName = string(assimpMesh->mName.C_Str());
+			auto mesh = new phi::mesh(meshName, geometry, importer::defaultMaterial);
+
+			auto meshNode = new phi::node(meshName);
+			meshNode->addComponent(mesh);
+			node->addChild(meshNode);
+		}
+
+		for (uint n = 0u; n < nd->mNumChildren; ++n)
+		{
+			auto childAssimpNode = nd->mChildren[n];
+			auto nodeName = string(childAssimpNode->mName.C_Str());
+			auto childNode = new phi::node(nodeName);
+			node->addChild(childNode);
+			loadAssimpScene(scene, childAssimpNode, transform, childNode);
+		}
+
+		*transform = prev;
+	}
+
+	resource<node>* importer::importModel(string fileName)
+	{
+		const aiScene* assimpScene;
+
+		phi::stopwatch::measure([&]
+		{
+			auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT, NULL);
+			aiAttachLogStream(&stream);
+
+			auto flags =
+				aiProcess_JoinIdenticalVertices |
+				aiProcess_Triangulate |
+				aiProcess_GenNormals |
+				aiProcess_GenUVCoords |
+				//aiProcess_OptimizeGraph |
+				//aiProcess_ValidateDataStructure |
+				//aiProcess_ImproveCacheLocality |
+				aiProcess_FixInfacingNormals;
+
+			assimpScene = aiImportFile(fileName.c_str(), flags);
+
+		}, "assimpImportFile");
+
+		if (assimpScene)
+		{
+			aiMatrix4x4 transform;
+			aiIdentityMatrix4(&transform);
+
+			aiVector3D min = aiVector3D(1e10f);
+			aiVector3D max = aiVector3D(-1e10f);
+
+			auto rootNode = new node("rootNode");
+
+			phi::stopwatch::measure([&]
+			{
+				loadAssimpScene(assimpScene, assimpScene->mRootNode, &transform, rootNode);
+			}, "loadAssimp");
+
+			rootNode->optimize();
+
+			aiVector3D center;
+			center.x = (min.x + max.x) * 0.5f;
+			center.y = (min.y + max.y) * 0.5f;
+			center.z = (min.z + max.z) * 0.5f;
+
+			guidGenerator::newGuid();
+
+			auto name = string(assimpScene->mRootNode->mName.C_Str());
+
+			return new resource<node>(guidGenerator::newGuid(), name, rootNode);
+		}
+
+		throw importResourceException("File to load model: ", fileName);
+	}
 }

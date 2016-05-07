@@ -32,8 +32,8 @@
 #include <vector>
 #include <exception>
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <sys\types.h>
+#include <sys\stat.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -80,8 +80,11 @@
 #include FT_LCD_FILTER_H
 
 #include <gettext\libintl.h>
-
 #define _(string) gettext(string)
+
+#include <assimp\cimport.h>
+#include <assimp\scene.h>
+#include <assimp\postprocess.h>
 
 #ifdef MSVC
 #pragma warning(pop)

@@ -18,14 +18,22 @@ namespace phi
         static texture* defaultSpecularTexture;
         static texture* defaultEmissiveTexture;
         static material* defaultMaterial;
+
     private:
         static node* readNode(const rapidjson::Value& node, string currentFolder, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo);
         static guid convertToGuid(const char* bytesGuid);
+		static void loadAssimpScene(
+			const aiScene* scene, 
+			const aiNode* nd, 
+			aiMatrix4x4* transform,
+			node* node);
+
     public:
-        static resource<node>* importNode(string fileName, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo);
+        static resource<node>* loadNode(string fileName, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo);
         static resource<geometry>* importGeometry(string fileName);
         static texture* importImage(string fileName);
         static resource<texture>* importTexture(string fileName);
         static resource<material>* importMaterial(string fileName, resourcesRepository<texture>* texturesRepo);
+		static resource<node>* importModel(string fileName);
     };
 }

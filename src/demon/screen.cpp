@@ -31,6 +31,7 @@ namespace demon
     void screen::onInit()
     {
         initGL();
+		initAssimp();
         initLibrary();
         initScene(); 
         initUi();
@@ -76,6 +77,12 @@ namespace demon
         }
     }
 
+	void screen::initAssimp()
+	{
+		//auto fileName = path::combine(application::path, "objs\\suzanne.obj");
+		//importer::importModel(fileName);
+	}
+
     void screen::initLibrary()
     {
         _library = new library(_gl, application::libraryPath);
@@ -104,15 +111,23 @@ namespace demon
             cloned->getTransform()->setLocalPosition(vec3(i + (0.1f * i), 0.0, 0.0));
             _scene->add(cloned);
         }
+
+		auto fileName = path::combine(application::path, "objs\\cubes.dae");
+		auto r = importer::importModel(fileName);
+
+		auto o = r->getObject();
+		_scene->add(o);
     }
 
     void screen::initUi()
     {
-        _ui = new ui(_scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
+		camera* uiCamera = new camera("uiCamera", static_cast<float>(_width), static_cast<float>(_height), 0.1f, 10000.0f, PI_OVER_4);
 
-        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 14);
+        _ui = new ui(_scene->getCamera(), _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
 
-        auto label0 = _ui->newLabel(L"Filipe Scur", vec3(-100.0f, 0.0f, 0.0f));
+        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 1);
+
+        auto label0 = _ui->newLabel(L"Filipe Scur", vec3(0.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
         controlRenderer->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
 		controlRenderer->setIsGlassy(true);
@@ -162,7 +177,7 @@ namespace demon
 
     void screen::onTick()
     {
-        debug("fps: " + std::to_string(application::framesPerSecond));
+        //debug("fps: " + std::to_string(application::framesPerSecond));
 #if _DEBUG
         _gl->shadersManager->reloadAllShaders();
 #endif

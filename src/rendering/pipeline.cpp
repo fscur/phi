@@ -80,7 +80,7 @@ namespace phi
 
         auto children = node->getChildren();
 
-        for (auto child : children)
+        for (auto child : *children)
             addToBatches(child);
     }
 
@@ -159,7 +159,7 @@ namespace phi
         }
 
         auto children = n->getChildren();
-        for (auto child : children)
+        for (auto child : *children)
             updateBatches(child);
     }
 

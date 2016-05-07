@@ -7,16 +7,16 @@ namespace phi
     struct aabb
     {
     public:
-        const vec3 min;
-        const vec3 max;
-        const float width;
-        const float height;
-        const float depth;
-        const float halfWidth;
-        const float halfHeight;
-        const float halfDepth;
-        const vec3 center;
-        const float radius;
+        vec3 min;
+        vec3 max;
+        float width;
+        float height;
+        float depth;
+        float halfWidth;
+        float halfHeight;
+        float halfDepth;
+        vec3 center;
+        float radius;
 
     public:
         CORE_API aabb();

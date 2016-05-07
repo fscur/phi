@@ -10,15 +10,18 @@ namespace phi
     private:
         node* _parent;
         transform* _transform;
-        vector<component*> _components;
-        vector<node*> _children;
+        vector<component*>* _components;
+        vector<node*>* _children;
         eventHandler<node*>* _transformChanged;
+		string _name;
 
     private:
         void transformChanged(transform* sender);
+		void removeEmptyNodes();
+		void removeUselessNodes();
 
     public:
-        CORE_API node();
+        CORE_API node(string name = string(""));
         CORE_API node(const node& original);
         CORE_API ~node();
 
@@ -33,9 +36,9 @@ namespace phi
 
         node* getParent() const { return _parent; }
 
-        vector<node*>& getChildren() { return _children; }
+        vector<node*>* getChildren() const { return _children; }
 
-        vector<component*>& getComponents() { return _components; }
+        vector<component*>* getComponents() const { return _components; }
 
         eventHandler<node*>* getTransformChanged() { return _transformChanged; }
 
@@ -43,12 +46,12 @@ namespace phi
 
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);
-
+		
         template<typename T>
         T* getComponent() const
         {
             const component::componentType type = T::getComponentType();
-            for (auto component : _components)
+            for (auto component : *_components)
             {
                 if(component->getType() == type)
                     return static_cast<T*>(component);
@@ -64,7 +67,7 @@ namespace phi
             if(component)
                 func(component);
 
-            for (auto child : _children)
+            for (auto child : *_children)
                 child->traverse(func);
         }
 
@@ -75,9 +78,10 @@ namespace phi
             if (component)
                 func(this);
 
-            for (auto child : _children)
+            for (auto child : *_children)
                 child->traverse(func);
         }
 
+		CORE_API void optimize();
     };
 }

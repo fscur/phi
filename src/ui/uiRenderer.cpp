@@ -40,7 +40,7 @@ namespace phi
 
         auto children = node->getChildren();
 
-        for (auto child : children)
+        for (auto child : *children)
             addToLists(child);
     }
 

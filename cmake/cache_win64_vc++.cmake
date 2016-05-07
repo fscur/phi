@@ -36,3 +36,4 @@ set(BULLET_COLLISION_LIBRARY optimized "${ROOT_DIR}libs/win64/vc++/BulletDynamic
 set(BULLET_DYNAMICS_LIBRARY optimized "${ROOT_DIR}libs/win64/vc++/BulletCollision" debug "${ROOT_DIR}libs/win64/vc++/BulletCollision_Debug" CACHE PATH "")
 set(BULLET_MATH_LIBRARY optimized "${ROOT_DIR}libs/win64/vc++/LinearMath" debug "${ROOT_DIR}libs/win64/vc++/LinearMath_Debug" CACHE PATH "")
 set(BULLET_SOFTBODY_LIBRARY optimized "${ROOT_DIR}libs/win64/vc++/BulletSoftBody" debug "${ROOT_DIR}libs/win64/vc++/BulletSoftBody_Debug" CACHE PATH "")
+set(ASSIMP_LIBRARY optimized "assimp" debug "assimpd" CACHE PATH "")

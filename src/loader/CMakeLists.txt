@@ -18,6 +18,7 @@ add_library(loader SHARED ${source_files} ${header_files})
 
 target_link_libraries(loader rendering)
 target_link_libraries(loader ${FREEIMAGE_LIBRARY})
+target_link_libraries(loader ${ASSIMP_LIBRARY})
 
 if (MINGW)
     set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
