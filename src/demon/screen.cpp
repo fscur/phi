@@ -112,7 +112,6 @@ namespace demon
         auto obj1 = obj->clone();
         obj1->getTransform()->setLocalPosition(vec3(0.f, .5f, 0.f));
         _scene->add(obj1);
-    }
 
 		auto fileName = path::combine(application::path, "objs\\casa.obj");
 		auto r = importer::importModel(fileName);
