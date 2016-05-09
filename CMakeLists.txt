@@ -20,6 +20,9 @@ add_subdirectory(src/ui)
 add_subdirectory(src/scenes)
 add_subdirectory(src/demon)
 
+add_subdirectory(tests/diagnosticsTests)
+add_subdirectory(tests/coreTests)
+
 set (dlls_dir ${CMAKE_CURRENT_SOURCE_DIR}/libs/${SOLUTION_PLATFORM})
 set (library_dir ${CMAKE_CURRENT_SOURCE_DIR}/library)
 set (resources_dir ${CMAKE_CURRENT_SOURCE_DIR}/resources)

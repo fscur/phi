@@ -161,7 +161,7 @@ namespace phi
                     "memory leaks.\nDid you smoke pot again last night?\nRun in DebugWithMemoryTracking configuration for more information!!1\n\n");
 #endif
                 printf_s(messageBuffer);
-                system("pause");
+                //system("pause");
         }
     }
     public:
