@@ -1,7 +1,10 @@
 #include <precompiled.h>
 #include "importer.h"
 
+#include <core\color.h>
 #include <core\base64.h>
+#include <core\random.h>
+
 #include <io\path.h>
 
 #include "importResourceException.h"
@@ -348,11 +351,41 @@ namespace phi
 		m3->c1 = m4->c1; m3->c2 = m4->c2; m3->c3 = m4->c3;
 	}
 
+	vector<material*> importer::loadAssimpMaterials(const aiScene* scene)
+	{
+		vector<material*> materials;
+
+		for (uint i = 0; i < scene->mNumMaterials; ++i)
+		{
+			aiMaterial* assimpMaterial = scene->mMaterials[i];
+			aiString assimpMaterialName;
+			if (assimpMaterial->Get(AI_MATKEY_NAME, assimpMaterialName) == AI_SUCCESS)
+			{
+				string materialName = string(assimpMaterialName.C_Str());
+
+				auto hue = random::global->next();
+				auto albedoColor = color::fromHSL(hue, 0.92141f, 0.6667f);
+
+				auto material = new phi::material(
+					defaultAlbedoTexture,
+					defaultNormalTexture,
+					defaultSpecularTexture,
+					defaultEmissiveTexture,
+					vec3(albedoColor.r, albedoColor.g, albedoColor.b));
+
+				materials.push_back(material);
+			}
+		}
+		
+		return materials;
+	}
+
 	void importer::loadAssimpScene(
 		const aiScene* scene, 
 		const aiNode* nd, 
 		aiMatrix4x4* transform,
-		node* node)
+		node* node,
+		vector<material*> materials)
 	{
 		aiMatrix4x4 prev = *transform;
 		aiMultiplyMatrix4(transform, &nd->mTransformation);
@@ -404,7 +437,7 @@ namespace phi
 
 			auto geometry = geometry::create(vertices, indices);
 			auto meshName = string(assimpMesh->mName.C_Str());
-			auto mesh = new phi::mesh(meshName, geometry, importer::defaultMaterial);
+			auto mesh = new phi::mesh(meshName, geometry, materials[assimpMesh->mMaterialIndex]);
 
 			auto meshNode = new phi::node(meshName);
 			meshNode->addComponent(mesh);
@@ -417,7 +450,7 @@ namespace phi
 			auto nodeName = string(childAssimpNode->mName.C_Str());
 			auto childNode = new phi::node(nodeName);
 			node->addChild(childNode);
-			loadAssimpScene(scene, childAssimpNode, transform, childNode);
+			loadAssimpScene(scene, childAssimpNode, transform, childNode, materials);
 		}
 
 		*transform = prev;
@@ -426,6 +459,7 @@ namespace phi
 	resource<node>* importer::importModel(string fileName)
 	{
 		const aiScene* assimpScene;
+		vector<material*> materials;
 
 		phi::stopwatch::measure([&]
 		{
@@ -437,13 +471,12 @@ namespace phi
 				aiProcess_Triangulate |
 				aiProcess_GenNormals |
 				aiProcess_GenUVCoords |
-				//aiProcess_OptimizeGraph |
-				//aiProcess_ValidateDataStructure |
-				//aiProcess_ImproveCacheLocality |
+				aiProcess_ValidateDataStructure |
+				aiProcess_ImproveCacheLocality |
 				aiProcess_FixInfacingNormals;
 
 			assimpScene = aiImportFile(fileName.c_str(), flags);
-
+			materials = loadAssimpMaterials(assimpScene);
 		}, "assimpImportFile");
 
 		if (assimpScene)
@@ -458,7 +491,7 @@ namespace phi
 
 			phi::stopwatch::measure([&]
 			{
-				loadAssimpScene(assimpScene, assimpScene->mRootNode, &transform, rootNode);
+				loadAssimpScene(assimpScene, assimpScene->mRootNode, &transform, rootNode, materials);
 			}, "loadAssimp");
 
 			rootNode->optimize();

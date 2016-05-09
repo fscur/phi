@@ -112,7 +112,7 @@ namespace demon
             _scene->add(cloned);
         }
 
-		auto fileName = path::combine(application::path, "objs\\cubes.dae");
+		auto fileName = path::combine(application::path, "objs\\casa.obj");
 		auto r = importer::importModel(fileName);
 
 		auto o = r->getObject();
@@ -123,13 +123,13 @@ namespace demon
     {
 		camera* uiCamera = new camera("uiCamera", static_cast<float>(_width), static_cast<float>(_height), 0.1f, 10000.0f, PI_OVER_4);
 
-        _ui = new ui(_scene->getCamera(), _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
+        _ui = new ui(uiCamera, _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
 
-        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 1);
+        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 20);
 
-        auto label0 = _ui->newLabel(L"Filipe Scur", vec3(0.0f, 0.0f, 0.0f));
+        auto label0 = _ui->newLabel(L"Filipe", vec3(-100.0f, 50.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
-        controlRenderer->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
+        controlRenderer->setColor(color::fromRGBA(0.5f, 0.5f, 0.5f, 1.0f));
 		controlRenderer->setIsGlassy(true);
 
         auto textRenderer = label0->getComponent<phi::textRenderer>();
@@ -179,7 +179,7 @@ namespace demon
     {
         //debug("fps: " + std::to_string(application::framesPerSecond));
 #if _DEBUG
-        _gl->shadersManager->reloadAllShaders();
+        //_gl->shadersManager->reloadAllShaders();
 #endif
     }
 

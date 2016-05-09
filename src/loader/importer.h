@@ -22,11 +22,13 @@ namespace phi
     private:
         static node* readNode(const rapidjson::Value& node, string currentFolder, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo);
         static guid convertToGuid(const char* bytesGuid);
+		static vector<material*> loadAssimpMaterials(const aiScene* scene);
 		static void loadAssimpScene(
 			const aiScene* scene, 
 			const aiNode* nd, 
 			aiMatrix4x4* transform,
-			node* node);
+			node* node,
+			vector<material*> materials);
 
     public:
         static resource<node>* loadNode(string fileName, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo);

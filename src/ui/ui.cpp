@@ -19,10 +19,10 @@ namespace phi
         cameraNode->addComponent(_camera);
         add(cameraNode);
 
-        //auto camTransform = _camera->getTransform();
+        auto camTransform = _camera->getTransform();
 
-        //camTransform->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        //camTransform->setDirection(vec3(0.0f, 0.0f, -1.0f));
+        camTransform->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        camTransform->setDirection(vec3(0.0f, 0.0f, -1.0f));
         //_camera->orbit(vec3(0.0f), camTransform->getRight(), camTransform->getUp(), 0.4f, 0.0f);
         _renderer = new uiRenderer(renderer, gl, _camera);
     }
