@@ -72,6 +72,15 @@ namespace phi
         child->setParent(this);
     }
 
+    void node::removeChild(node* child)
+    {
+        auto it = std::find(_children->begin(), _children->end(), child);
+        if (it != _children->end())
+        {
+            _children->erase(it);
+        }
+    }
+
     void node::traverse(std::function<void(node*)> func)
     {
         func(this);

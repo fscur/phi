@@ -73,16 +73,17 @@ namespace phi
 
         void addNewGeometry(const batchObject& batchObject);
         void addNewInstance(const batchObject& batchObject);
-        void updateBuffers();
 
     public:
         RENDERING_API batch();
         RENDERING_API ~batch();
         RENDERING_API bool add(const batchObject& batchObject);
+        RENDERING_API void remove(mesh* mesh);
         RENDERING_API void update(const batchObject& batchObject);
         RENDERING_API void updateSelectionBuffer(mesh* const mesh, const vec4& selectionColor);
         RENDERING_API void updateModelMatricesBuffer(mesh* const mesh, const mat4& modelMatrix);
         RENDERING_API void update(const vector<batchObject>& batchObjects);
+        RENDERING_API void updateBuffers();
         RENDERING_API void render();
     };
 }

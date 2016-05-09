@@ -123,8 +123,9 @@ namespace phi
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glError::check();
 
+        const auto selectionRenderTargetNumber = 3;
         auto selectionClearColor = 0.0f;
-        glClearBufferfv(GL_COLOR, 3, &selectionClearColor);
+        glClearBufferfv(GL_COLOR, selectionRenderTargetNumber, &selectionClearColor);
         glError::check();
 
         _shader->bind();

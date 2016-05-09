@@ -31,6 +31,7 @@ layout (std140, binding = 2) uniform RenderTargetAddresses
 uniform sampler2DArray textureArrays[32];
 uniform vec2 resolution;
 uniform float offset;
+uniform float time;
 out vec4 fragColor;
 in vec2 fragTexCoord;
 
@@ -62,11 +63,29 @@ float gradient(float d)
     return gx*gx + gy*gy;
 }
 
+float glowness()
+{
+    return ((sin(time * 2.5 + 3.14) + 1.0) / 10.0) + 0.1;
+    //return ((sin(time * 3.0) + 1.0) / 10.0) + 0.3;
+    //return (((sin(time * 0.1)))) + 0.3;
+}
+
+vec4 getBackgroundColor()
+{
+    vec4 c = texture(textureArrays[rtAddresses.rt3Unit], vec3(fragTexCoord, rtAddresses.rt3Page));
+    float glowness = glowness();
+    vec4 glowColor = vec4(1.0, 1.0, 1.0, 0.5);
+    vec4 color = vec4(0.2, 0.2, 0.6, glowness);
+
+    return color * c.a;
+}
+
 void main()
 {
-    vec4 selectedColor = vec4(0.2, 0.7, 0.6, 1.0);
-    vec4 c = texture(textureArrays[rtAddresses.rt3Unit], vec3(fragTexCoord, rtAddresses.rt3Page));
+    vec4 backgroundColor = getBackgroundColor();
+    vec4 edgeColor = vec4(1.0, 1.0, 1.0, 1.0);
 
     float g = gradient(offset);
-    fragColor = (selectedColor * c.a * 0.5) + selectedColor * g;
+
+    fragColor = mix(backgroundColor, edgeColor, g);
 }

@@ -71,8 +71,8 @@ namespace demon
         {
             _selectionMouseController->onMouseDown(e->x, e->y);
 
-            if (_selectionMouseController->selectedObjects.size() > 0)
-                _dragObject = _selectionMouseController->selectedObjects[0];
+            if (_selectionMouseController->hasSelectedObjects())
+                _dragObject = _selectionMouseController->getSelectedObjects()->at(0);
 
             dragMouseDown(e->x, e->y);
         }
@@ -241,7 +241,6 @@ namespace demon
         auto bl = _dragPlaneBottomLeft;
         auto br = _dragPlaneBottomRight;
         auto tr = _dragPlaneTopRight;
-        //auto tl = _dragPlaneTopLeft;
         auto planeNormal = normalize(cross(bl - br, br - tr));
         auto d = dot(planeNormal, bl);
         auto nDotA = dot(planeNormal, ray.getOrigin());
@@ -484,7 +483,7 @@ namespace demon
         auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
 
         if (zBufferValue == 1.0f)
-            _rotationTargetPos = glm::vec3(); //_targetPos = phi::scenesManager::get()->getScene()->getAabb()->getCenter();
+            _rotationTargetPos = glm::vec3();
         else
         {
             auto worldZ = _camera->getWorldZRelativeToCamera(mouseX, mouseY, zBufferValue);

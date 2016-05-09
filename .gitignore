@@ -159,6 +159,10 @@ ClientBin/
 *.dbproj.schemaview
 *.pfx
 *.publishsettings
+*.db
+*.VC.db
+*.browse.VC.db
+.vscode/.browse.VC.db
 node_modules/
 
 # RIA/Silverlight projects
