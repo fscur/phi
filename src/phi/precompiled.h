@@ -44,8 +44,6 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <DbgHelp.h>
-#include <TlHelp32.h>
 #include <windows.h>
 #include <windowsx.h>
 #elif APPLE
