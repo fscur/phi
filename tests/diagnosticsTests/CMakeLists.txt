@@ -11,7 +11,7 @@ file(GLOB source_files *.cpp)
 
 add_executable(diagnosticsTests ${source_files} ${header_files})
 
-target_link_libraries(diagnosticsTests core)
+target_link_libraries(diagnosticsTests diagnostics)
 target_link_libraries(diagnosticsTests ${GTEST_LIBRARY})
 
 if (MSVC)

@@ -9,31 +9,30 @@ link_directories(${LIBS_DIRS})
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 
-add_executable(coreTests ${source_files} ${header_files})
+add_executable(scenesTests ${source_files} ${header_files})
 
-target_link_libraries(coreTests core)
-target_link_libraries(coreTests ${GTEST_LIBRARY})
+target_link_libraries(scenesTests scenes)
+target_link_libraries(scenesTests ${GTEST_LIBRARY})
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
     
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
-
     add_custom_command(
-        TARGET coreTests
+        TARGET scenesTests
         PRE_BUILD
         COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
     
     add_custom_command(
-        TARGET coreTests
+        TARGET scenesTests
         PRE_BUILD
         COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.idb\" \".\\$(IntDir)\")
         
     add_custom_command(
-        TARGET coreTests
+        TARGET scenesTests
         PRE_BUILD
-        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.sbr\" \".\\$(IntDir)\")        
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.sbr\" \".\\$(IntDir)\")
 endif(MSVC)
 
-set_target_properties(coreTests PROPERTIES FOLDER Tests)
+set_target_properties(scenesTests PROPERTIES FOLDER Tests)
