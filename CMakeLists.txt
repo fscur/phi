@@ -46,11 +46,6 @@ endif(WIN32)
 
 file(GLOB image_files ${image_dir}/*.*)
 
- file(GLOB HOOK_SCRIPTS ./git_hooks/*) 
- if (HOOK_SCRIPTS)
-    file(COPY ${HOOK_SCRIPTS} DESTINATION ${CMAKE_SOURCE_DIR}/.git/hooks)
-endif (HOOK_SCRIPTS)
-
 set_target_properties(diagnostics PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(core PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(animation PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
