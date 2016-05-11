@@ -9,7 +9,6 @@ namespace phi
     private:
         std::chrono::nanoseconds _initial;
         std::chrono::nanoseconds _stop;
-        //std::chrono::nanoseconds _currentNanoSeconds = std::chrono::nanoseconds::zero();
         bool _isRunning = false;
 
     public:

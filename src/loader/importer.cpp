@@ -33,27 +33,27 @@ namespace phi
 
             switch (type)
             {
-                case 0:
-                {
-                    component = new phi::model(components[i]["Name"].GetString());
-                    break;
-                }
-                case 1:
-                {
-                    auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
-                    auto geometry = geometriesRepo->getResource(geometryGuid)->getObject();
+            case 0:
+            {
+                component = new phi::model(components[i]["Name"].GetString());
+                break;
+            }
+            case 1:
+            {
+                auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
+                auto geometry = geometriesRepo->getResource(geometryGuid)->getObject();
 
-                    auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
-                    auto matRes = materialsRepo->getResource(materialGuid);
+                auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
+                auto matRes = materialsRepo->getResource(materialGuid);
 
                     material* mat = nullptr;
 
                     if (matRes != nullptr)
                         mat = matRes->getObject();
 
-                    component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
-                    break;
-                }
+                component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
+                break;
+            }
             }
             objectNode->addComponent(component);
         }
@@ -298,31 +298,180 @@ namespace phi
 #endif
     }
 
-    resource<node>* importer::loadNode(
-		const string& fileName,
-		const resourcesRepository<material>* materialsRepo, 
-		const resourcesRepository<geometry>* geometriesRepo)
-    {
-        //TODO:: create load file fuction in the io API
-#ifdef _WIN32 
-        FILE* file;
-        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
+	void get_bounding_box_for_node(
+		const aiScene* scene,
+		const aiNode* nd,
+		aiVector3D* min,
+		aiVector3D* max,
+		aiMatrix4x4* transform)
+	{
+		unsigned int n = 0, t;
 
-        char fileBuffer[65536];
-        FileReadStream fileStream(file, fileBuffer, sizeof(fileBuffer));
-        Document document;
-        document.ParseStream(fileStream);
+		aiMatrix4x4 prev = *transform;
 
-        fclose(file);
+		aiMultiplyMatrix4(transform, &nd->mTransformation);
 
-        auto currentFolder = path::getDirectoryFullName(fileName);
-        auto nodeName = path::getFileNameWithoutExtension(fileName);
-        auto rootNode = readNode(document["Node"], currentFolder, materialsRepo, geometriesRepo);
-        auto guid = convertToGuid(document["Guid"].GetString());
+		for (; n < nd->mNumMeshes; ++n)
+		{
+			const struct aiMesh* mesh = scene->mMeshes[nd->mMeshes[n]];
 
-        return new resource<node>(guid, nodeName, rootNode);
-#else
-        throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
-#endif
-    }
+			for (t = 0; t < mesh->mNumVertices; ++t)
+			{
+				aiVector3D tmp = mesh->mVertices[t];
+				aiTransformVecByMatrix4(&tmp, transform);
+
+				min->x = std::min(min->x, tmp.x);
+				min->y = std::min(min->y, tmp.y);
+				min->z = std::min(min->z, tmp.z);
+
+				max->x = std::max(max->x, tmp.x);
+				max->y = std::max(max->y, tmp.y);
+				max->z = std::max(max->z, tmp.z);
+			}
+		}
+
+		for (n = 0; n < nd->mNumChildren; ++n) 
+		{
+			get_bounding_box_for_node(scene, nd->mChildren[n], min, max, transform);
+		}
+
+		*transform = prev;
+	}
+
+	void extract3x3(aiMatrix3x3 *m3, aiMatrix4x4 *m4)
+	{
+		m3->a1 = m4->a1; m3->a2 = m4->a2; m3->a3 = m4->a3;
+		m3->b1 = m4->b1; m3->b2 = m4->b2; m3->b3 = m4->b3;
+		m3->c1 = m4->c1; m3->c2 = m4->c2; m3->c3 = m4->c3;
+	}
+
+	void importer::loadAssimpScene(
+		const aiScene* scene, 
+		const aiNode* nd, 
+		aiMatrix4x4* transform,
+		node* node)
+	{
+		aiMatrix4x4 prev = *transform;
+		aiMultiplyMatrix4(transform, &nd->mTransformation);
+
+		for (uint n = 0u; n < nd->mNumMeshes; ++n)
+		{
+			const aiMesh* assimpMesh = scene->mMeshes[nd->mMeshes[n]];
+			auto vertices = vector<vertex>();
+			auto indices = vector<uint>();
+
+			for (uint i = 0u; i < assimpMesh->mNumVertices; ++i)
+			{
+				auto position = vec3(0.0f);
+				auto texCoord = vec2(0.0f);
+				auto normal = vec3(0.0f);
+
+				if (assimpMesh->HasPositions())
+				{
+					auto assimpPosition = assimpMesh->mVertices[i];
+					aiTransformVecByMatrix4(&assimpPosition, transform);
+					position = vec3(assimpPosition.x, assimpPosition.y, assimpPosition.z);
+				}
+
+				if (assimpMesh->HasTextureCoords(0))
+				{
+					const auto assimpTexCoord = assimpMesh->mTextureCoords[0][i];
+					texCoord = vec2(assimpTexCoord.x, assimpTexCoord.y);
+				}
+
+				if (assimpMesh->HasNormals())
+				{
+					auto assimpNormal = assimpMesh->mNormals[i];
+					aiMatrix3x3 rotation;
+					extract3x3(&rotation, transform);
+					aiTransformVecByMatrix3(&assimpNormal, &rotation);
+					normal = vec3(assimpNormal.x, assimpNormal.y, assimpNormal.z);
+				}
+
+				vertices.push_back(vertex(position, texCoord, normal));
+			}
+
+			for (uint i = 0u; i < assimpMesh->mNumFaces; ++i)
+			{
+				const auto assimpFace = assimpMesh->mFaces[i];
+				
+				for (uint j = 0u; j < assimpFace.mNumIndices; ++j)
+					indices.push_back(assimpFace.mIndices[j]);
+			}
+
+			auto geometry = geometry::create(vertices, indices);
+			auto meshName = string(assimpMesh->mName.C_Str());
+			auto mesh = new phi::mesh(meshName, geometry, importer::defaultMaterial);
+
+			auto meshNode = new phi::node(meshName);
+			meshNode->addComponent(mesh);
+			node->addChild(meshNode);
+		}
+
+		for (uint n = 0u; n < nd->mNumChildren; ++n)
+		{
+			auto childAssimpNode = nd->mChildren[n];
+			auto nodeName = string(childAssimpNode->mName.C_Str());
+			auto childNode = new phi::node(nodeName);
+			node->addChild(childNode);
+			loadAssimpScene(scene, childAssimpNode, transform, childNode);
+		}
+
+		*transform = prev;
+	}
+
+	resource<node>* importer::importModel(string fileName)
+	{
+		const aiScene* assimpScene;
+
+		phi::stopwatch::measure([&]
+		{
+			auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT, NULL);
+			aiAttachLogStream(&stream);
+
+			auto flags =
+				aiProcess_JoinIdenticalVertices |
+				aiProcess_Triangulate |
+				aiProcess_GenNormals |
+				aiProcess_GenUVCoords |
+				//aiProcess_OptimizeGraph |
+				//aiProcess_ValidateDataStructure |
+				//aiProcess_ImproveCacheLocality |
+				aiProcess_FixInfacingNormals;
+
+			assimpScene = aiImportFile(fileName.c_str(), flags);
+
+		}, "assimpImportFile");
+
+		if (assimpScene)
+		{
+			aiMatrix4x4 transform;
+			aiIdentityMatrix4(&transform);
+
+			aiVector3D min = aiVector3D(1e10f);
+			aiVector3D max = aiVector3D(-1e10f);
+
+			auto rootNode = new node("rootNode");
+
+			phi::stopwatch::measure([&]
+			{
+				loadAssimpScene(assimpScene, assimpScene->mRootNode, &transform, rootNode);
+			}, "loadAssimp");
+
+			rootNode->optimize();
+
+			aiVector3D center;
+			center.x = (min.x + max.x) * 0.5f;
+			center.y = (min.y + max.y) * 0.5f;
+			center.z = (min.z + max.z) * 0.5f;
+
+			guidGenerator::newGuid();
+
+			auto name = string(assimpScene->mRootNode->mName.C_Str());
+
+			return new resource<node>(guidGenerator::newGuid(), name, rootNode);
+		}
+
+		throw importResourceException("File to load model: ", fileName);
+	}
 }

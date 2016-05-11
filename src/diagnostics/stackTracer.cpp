@@ -64,11 +64,12 @@ namespace phi
 
     void stackTracer::takeSnapshot(HANDLE process)
     {
-        auto snapshot = CreateToolhelp32Snapshot(debugHelp::SNAPMODULE, GetCurrentProcessId());
-        MODULEENTRY32 moduleEntry;
-        moduleEntry.dwSize = sizeof(MODULEENTRY32);
+        auto snapshot = debugHelp::createToolhelp32Snapshot(debugHelp::SNAPMODULE, GetCurrentProcessId());
 
-        auto hasModules = Module32First(snapshot, &moduleEntry);
+        debugHelp::moduleEntry32 moduleEntry;
+        moduleEntry.dwSize = sizeof(debugHelp::moduleEntry32);
+        
+        auto hasModules = debugHelp::module32First(snapshot, &moduleEntry);
         while (hasModules)
         {
             debugHelp::symLoadModule64(
@@ -77,8 +78,8 @@ namespace phi
                 (PSTR)moduleEntry.szModule,
                 (DWORD64)moduleEntry.modBaseAddr,
                 moduleEntry.modBaseSize);
-
-            hasModules = Module32Next(snapshot, &moduleEntry);
+            
+            hasModules = debugHelp::module32Next(snapshot, &moduleEntry);
         }
 
         CloseHandle(snapshot);
@@ -93,11 +94,11 @@ namespace phi
     {
         debugHelp::stackFrame stackFrame = {};
         stackFrame.AddrPC.Offset = context.Rip;
-        stackFrame.AddrPC.Mode = AddrModeFlat;
+        stackFrame.AddrPC.Mode = debugHelp::addressMode::AddrModeFlat;
         stackFrame.AddrFrame.Offset = context.Rsp;
-        stackFrame.AddrFrame.Mode = AddrModeFlat;
+        stackFrame.AddrFrame.Mode = debugHelp::addressMode::AddrModeFlat;
         stackFrame.AddrStack.Offset = context.Rsp;
-        stackFrame.AddrStack.Mode = AddrModeFlat;
+        stackFrame.AddrStack.Mode = debugHelp::addressMode::AddrModeFlat;
 
         return stackFrame;
     }
@@ -303,11 +304,11 @@ namespace phi
         
         debugHelp::stackFrame stackFrame = {};
         stackFrame.AddrPC.Offset = context.Rip;
-        stackFrame.AddrPC.Mode = AddrModeFlat;
+        stackFrame.AddrPC.Mode = debugHelp::addressMode::AddrModeFlat;
         stackFrame.AddrFrame.Offset = context.Rsp;
-        stackFrame.AddrFrame.Mode = AddrModeFlat;
+        stackFrame.AddrFrame.Mode = debugHelp::addressMode::AddrModeFlat;
         stackFrame.AddrStack.Offset = context.Rsp;
-        stackFrame.AddrStack.Mode = AddrModeFlat;
+        stackFrame.AddrStack.Mode = debugHelp::addressMode::AddrModeFlat;
 
         auto symbolPointer = (debugHelp::symbol64*)malloc(sizeof(debugHelp::symbol64) + MAX_SYMBOL_NAME_LENGTH);
         memset(symbolPointer, 0, sizeof(debugHelp::symbol64) + MAX_SYMBOL_NAME_LENGTH);
