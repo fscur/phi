@@ -142,24 +142,24 @@ namespace phi
         return new texture(
             x,
             y,
-            GL_TEXTURE_2D,
-            GL_RGBA8,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
             data,
+            GL_TEXTURE_2D,
+            GL_RGBA8,
             GL_REPEAT,
-            GL_NEAREST,
-            GL_NEAREST,
+            GL_LINEAR_MIPMAP_LINEAR,
+            GL_LINEAR,
             false);
     }
 
     material* gl::createDefaultMaterial()
     {
         return new material(
-            defaultAlbedoTexture,
-            defaultNormalTexture,
-            defaultSpecularTexture,
-            defaultEmissiveTexture,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
             vec3(1.0f),
             vec3(1.0f),
             vec3(1.0f),

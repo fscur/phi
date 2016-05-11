@@ -53,6 +53,9 @@ namespace phi
         {
             auto material = mesh->material;
 
+			if (material == nullptr)
+				material = _gl->defaultMaterial;
+
             if (!phi::contains(_loadedMaterials, material))
                 uploadMaterial(material);
 
@@ -108,6 +111,31 @@ namespace phi
         _meshesBatches[batchObject.mesh] = batch;
     }
 
+	texture* pipeline::getMaterialTexture(image* image, texture* defaultTexture)
+	{
+		phi::texture* texture = nullptr;
+
+		if (image == nullptr)
+			texture = defaultTexture;
+		else if (_imageTextures.find(image) != _imageTextures.end())
+			texture = _imageTextures[image];
+		else
+		{
+			texture = new phi::texture(
+				image,
+				GL_TEXTURE_2D,
+				GL_RGBA8,
+				GL_REPEAT,
+				GL_LINEAR_MIPMAP_LINEAR,
+				GL_LINEAR,
+				true);
+
+			_imageTextures[image] = texture;
+		}
+
+		return texture;
+	}
+
     void pipeline::uploadMaterial(material* material)
     {
         if (_materialsMaterialsGpu.find(material) == _materialsMaterialsGpu.end())
@@ -115,10 +143,15 @@ namespace phi
 
         auto texturesManager = _gl->texturesManager;
 
-        auto albedoTextureAddress = texturesManager->add(material->albedoTexture);
-        auto normalTextureAddress = texturesManager->add(material->normalTexture);
-        auto specularTextureAddress = texturesManager->add(material->specularTexture);
-        auto emissiveTextureAddress = texturesManager->add(material->emissiveTexture);
+		texture* albedoTexture = getMaterialTexture(material->albedoImage, _gl->defaultAlbedoTexture);
+		texture* normalTexture = getMaterialTexture(material->normalImage, _gl->defaultNormalTexture);
+		texture* specularTexture = getMaterialTexture(material->specularImage, _gl->defaultSpecularTexture);
+		texture* emissiveTexture = getMaterialTexture(material->emissiveImage, _gl->defaultEmissiveTexture);
+
+        auto albedoTextureAddress = texturesManager->add(albedoTexture);
+        auto normalTextureAddress = texturesManager->add(normalTexture);
+        auto specularTextureAddress = texturesManager->add(specularTexture);
+        auto emissiveTextureAddress = texturesManager->add(emissiveTexture);
 
         auto materialGpuData = phi::materialGpuData(
             albedoTextureAddress.unit,

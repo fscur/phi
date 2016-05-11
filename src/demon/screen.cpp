@@ -5,7 +5,7 @@
 
 #include <loader\importer.h>
 
-#include <rendering\model.h>
+#include <core\model.h>
 
 #include <animation\floatAnimator.h>
 
@@ -36,7 +36,7 @@ namespace demon
     {
         initGL();
 		initAssimp();
-        initLibrary();
+        initUserLibrary();
         initScene(); 
         initUi();
         initInput();
@@ -63,12 +63,6 @@ namespace demon
         info.fontsPath = application::resourcesPath + "/fonts";
         _gl = new gl(info);
 
-        importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
-        importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
-        importer::defaultNormalTexture = _gl->defaultNormalTexture;
-        importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
-        importer::defaultMaterial = _gl->defaultMaterial;
-
         application::logInfo("Vendor: " + _gl->getVendor() + ".");
         application::logInfo("Renderer: " + _gl->getRenderer() + ".");
         application::logInfo("Version: " + _gl->getVersion() + ".");
@@ -87,10 +81,10 @@ namespace demon
 		//importer::importModel(fileName);
 	}
 
-    void screen::initLibrary()
+    void screen::initUserLibrary()
     {
-        _library = new library(_gl, application::libraryPath);
-        _library->init();
+		_userLibrary = new library(application::libraryPath);
+		_userLibrary->init();
     }
 
     void screen::initScene()
@@ -103,21 +97,20 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto floor = _library->getObjectsRepository()->getAllResources()[2]->getObject();
+        auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getObject();
         auto clonedFloor = floor->clone();
         _scene->add(clonedFloor);
 
-        auto obj = _library->getObjectsRepository()->getAllResources()[0]->getObject();
+        auto obj = _userLibrary->getObjectsRepository()->getAllResources()[0]->getObject();
 
         auto obj1 = obj->clone();
         obj1->getTransform()->setLocalPosition(vec3(0.f, .5f, 0.f));
         _scene->add(obj1);
 
-		auto fileName = path::combine(application::path, "objs\\casa.obj");
+		/*auto fileName = path::combine(application::path, "objs\\cubes.dae");
 		auto r = importer::importModel(fileName);
-
 		auto o = r->getObject();
-		_scene->add(o);
+		_scene->add(o);*/
     }
 
     void screen::initUi()
@@ -181,7 +174,7 @@ namespace demon
         safeDelete(_commandsManager);
         safeDelete(_defaultController);
         safeDelete(_gl);
-        safeDelete(_library);
+        safeDelete(_userLibrary);
         safeDelete(_scene);
         safeDelete(_ui);
     }

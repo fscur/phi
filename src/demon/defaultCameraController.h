@@ -24,7 +24,7 @@ namespace demon
         int32_t _mousePosY;
         int32_t _lastMousePosX;
         int32_t _lastMousePosY;
-        phi::texture* _gridTexture;
+        phi::image* _gridImage;
 
         phi::vec3 _zoomDir;
         phi::vec3 _zoomCameraPos;

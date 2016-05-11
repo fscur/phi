@@ -1,11 +1,11 @@
 #pragma once
 #include <phi.h>
-#include "uiApi.h"
 #include <core\node.h>
 #include <rendering\gl.h>
 #include <rendering\camera.h>
 #include <rendering\renderer.h>
 
+#include "uiApi.h"
 #include "controlRenderer.h"
 #include "controlsRenderPass.h"
 #include "glassyControlsRenderPass.h"
@@ -25,6 +25,7 @@ namespace phi
         controlsRenderPass* _controlsRenderPass;
 		glassyControlsRenderPass* _glassyControlsRenderPass;
         textRenderPass* _textRenderPass;
+		map<image*, texture*> _imageTextures;
 
     private:
         void addToLists(node* node);

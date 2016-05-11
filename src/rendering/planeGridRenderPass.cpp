@@ -81,8 +81,11 @@ namespace phi
         glError::check();
     }
 
-    void planeGridRenderPass::setTexture(texture* texture)
+    void planeGridRenderPass::setImage(image* image)
     {
+		auto texture = new phi::texture(image);
+		texture->type = GL_TEXTURE_2D;
+		texture->internalFormat = GL_RGBA8;
         texture->wrapMode = GL_REPEAT;
         texture->minFilter = GL_LINEAR_MIPMAP_LINEAR;
         texture->magFilter = GL_LINEAR;

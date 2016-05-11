@@ -4,7 +4,7 @@
 
 #include <core\mathUtils.h>
 #include <core\node.h>
-#include <rendering\mesh.h>
+#include <core\mesh.h>
 #include <rendering\camera.h>
 #include <rendering\pipeline.h>
 #include <rendering\renderer.h>

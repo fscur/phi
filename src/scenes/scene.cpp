@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include "scene.h"
 
-#include <rendering\model.h>
+#include <core\model.h>
 
 #include "sceneId.h"
 

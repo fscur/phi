@@ -1,7 +1,9 @@
 #pragma once
 #include <phi.h>
+
+#include <core\material.h>
+
 #include "renderingApi.h"
-#include "material.h"
 #include "texturesManager.h"
 #include "shadersManager.h"
 #include "fontsManager.h"

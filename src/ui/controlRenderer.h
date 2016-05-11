@@ -3,7 +3,7 @@
 #include <core\component.h>
 #include <core\geometry.h>
 #include <core\color.h>
-#include <rendering\texture.h>
+#include <core\image.h>
 #include <core\eventHandler.h>
 
 namespace phi
@@ -13,7 +13,7 @@ namespace phi
     {
     private:
         geometry* _geometry;
-        texture* _texture;
+        image* _image;
         eventHandler<vec3>* _onSizeChanged;
         color _color;
         vec3 _size;
@@ -26,13 +26,13 @@ namespace phi
         controlRenderer(string name);
         ~controlRenderer();
         geometry* getGeometry() const { return _geometry; }
-        texture* getBackgroundTexture() const { return _texture; }
+        image* getBackgroundImage() const { return _image; }
         color getBackgroundColor() const { return _color; }
         vec3 getSize() const { return _size; }
 		bool getIsGlassy() const { return _isGlassy; }
 
         void setGeometry(geometry* value) { _geometry = value; }
-        void setTexture(texture* value) { _texture = value; }
+        void setImage(image* value) { _image = value; }
         void setColor(color value) { _color = value; }
         void setSize(vec3 value);
 		void setIsGlassy(bool value) { _isGlassy = value; }

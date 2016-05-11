@@ -1,8 +1,9 @@
 #pragma once
 #include <phi.h>
+#include <core\rectangle.h>
+
 #include "texture.h"
 #include "textureAddress.h"
-#include "rectangle.h"
 
 namespace phi
 {

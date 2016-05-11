@@ -44,7 +44,7 @@ namespace phi
             return _objects;
         }
 
-        resource<T>* getResource(guid guid)
+        resource<T>* getResource(guid guid) const
         {
             for (auto resource : _resources)
             {
