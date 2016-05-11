@@ -101,8 +101,6 @@ namespace phi
 
         ~texture() 
         {
-            if (data != nullptr)
-                safeDeleteArray(data);
         }
     };
 }

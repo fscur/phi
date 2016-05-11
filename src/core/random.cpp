@@ -3,18 +3,11 @@
 
 namespace phi
 {
-	random* random::global = new random();
+	phi::random random::_global = phi::random();
 	
-	inline random::random() :
-		_seed(static_cast<uint>(std::time(0)))
+	inline random::random()
 	{
-		std::srand(_seed);
-	}
-	
-	inline random::random(uint seed) :
-		_seed(seed)
-	{
-		std::srand(_seed);
+		std::srand(static_cast<uint>(std::time(0)));
 	}
 	
 	inline float random::next()

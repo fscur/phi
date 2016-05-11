@@ -19,6 +19,9 @@ namespace phi
 
         for (auto batch : batches)
             safeDelete(batch);
+
+		for (auto pair : _imageTextures)
+			safeDelete(pair.second);
     }
 
     void pipeline::createFrameUniformBlockBuffer()
@@ -111,13 +114,15 @@ namespace phi
         _meshesBatches[batchObject.mesh] = batch;
     }
 
-	texture* pipeline::getMaterialTexture(image* image, texture* defaultTexture)
+	texture* pipeline::getMaterialTexture(image* materialImage, phi::image* defaultImage)
 	{
 		phi::texture* texture = nullptr;
-
+		
+		auto image = materialImage;
 		if (image == nullptr)
-			texture = defaultTexture;
-		else if (_imageTextures.find(image) != _imageTextures.end())
+			image = _gl->defaultAlbedoImage;
+
+		if (_imageTextures.find(image) != _imageTextures.end())
 			texture = _imageTextures[image];
 		else
 		{
@@ -143,10 +148,10 @@ namespace phi
 
         auto texturesManager = _gl->texturesManager;
 
-		texture* albedoTexture = getMaterialTexture(material->albedoImage, _gl->defaultAlbedoTexture);
-		texture* normalTexture = getMaterialTexture(material->normalImage, _gl->defaultNormalTexture);
-		texture* specularTexture = getMaterialTexture(material->specularImage, _gl->defaultSpecularTexture);
-		texture* emissiveTexture = getMaterialTexture(material->emissiveImage, _gl->defaultEmissiveTexture);
+		texture* albedoTexture = getMaterialTexture(material->albedoImage, _gl->defaultAlbedoImage);
+		texture* normalTexture = getMaterialTexture(material->normalImage, _gl->defaultNormalImage);
+		texture* specularTexture = getMaterialTexture(material->specularImage, _gl->defaultSpecularImage);
+		texture* emissiveTexture = getMaterialTexture(material->emissiveImage, _gl->defaultEmissiveImage);
 
         auto albedoTextureAddress = texturesManager->add(albedoTexture);
         auto normalTextureAddress = texturesManager->add(normalTexture);

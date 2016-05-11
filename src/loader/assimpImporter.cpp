@@ -30,7 +30,7 @@ namespace phi
 			{
 				string materialName = string(assimpMaterialName.C_Str());
 
-				auto hue = i <= 8 ? static_cast<float>(i) / 8.0f : random::global->next();
+				auto hue = i <= 8 ? static_cast<float>(i) / 8.0f : random::next();
 
 				auto albedoColor = color::fromHSL(hue, 0.83333f, 0.6667f);
 

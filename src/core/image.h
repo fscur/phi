@@ -45,5 +45,10 @@ namespace phi
 			data(data)
 		{
 		}
+
+		~image()
+		{
+			safeDeleteArray(data);
+		}
 	};
 }

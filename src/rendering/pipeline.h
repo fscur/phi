@@ -34,7 +34,7 @@ namespace phi
         void addToBatches(const batchObject& batchObject);
 
         void updateBatches(node* n);
-		texture* getMaterialTexture(image* image, texture* defaultTexture);
+		texture* getMaterialTexture(image* image, phi::image* defaultImage);
         void uploadMaterial(material* material);
 
         void nodeTransformChanged(node* sender);

@@ -123,8 +123,7 @@ namespace demon
 
         auto label0 = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
-        controlRenderer->setColor(color::fromRGBA(0.5f, 0.5f, 0.5f, 1.0f));
-		controlRenderer->setIsGlassy(true);
+        controlRenderer->setColor(color::fromHSL(0.0f, 0.8333f, 0.6667f));
 
         auto textRenderer = label0->getComponent<phi::textRenderer>();
         textRenderer->setFont(font);

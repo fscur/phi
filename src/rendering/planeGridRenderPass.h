@@ -26,6 +26,7 @@ namespace phi
         float _scale;
         textureAddress _textureAddress;
         bool _showing;
+		texture* _gridTexture;
 
     public:
         transform transform;

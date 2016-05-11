@@ -5,18 +5,13 @@
 namespace phi
 {
 	class random
-	{
+	{	
 	private:
-		uint _seed;
+		static random _global;
+		random();
 
 	public:
-		CORE_API static random* global;
-
-	public:
-		CORE_API random();
-		CORE_API random(uint seed);
-
-		CORE_API float next();
-		CORE_API float next(float min, float max);
+		CORE_API static float next();
+		CORE_API static float next(float min, float max);
 	};
 }
