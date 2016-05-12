@@ -41,7 +41,7 @@ namespace phi
             case 1:
             {
                 auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
-                auto geometry = geometriesRepo->getResource(geometryGuid)->getObject();
+                auto geometry = geometriesRepo->getResource(geometryGuid)->getOriginalObject();
 
                 auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
                 auto matRes = materialsRepo->getResource(materialGuid);
@@ -49,7 +49,7 @@ namespace phi
                     material* mat = nullptr;
 
                     if (matRes != nullptr)
-                        mat = matRes->getObject();
+                        mat = matRes->getOriginalObject();
 
                 component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
                 break;
@@ -138,8 +138,8 @@ namespace phi
 	
 	resource<node>* importer::importModel(
 		const string& fileName,
-		const resourcesRepository<material>* materialsRepo,
-		const resourcesRepository<geometry>* geometriesRepo)
+		resourcesRepository<material>* materialsRepo,
+		resourcesRepository<geometry>* geometriesRepo)
 	{
 		return assimpImporter::import(
 			fileName,
@@ -264,19 +264,19 @@ namespace phi
 
 		image* albedoImage = nullptr;
 		if (albedoImageResource)
-			albedoImage = albedoImageResource->getObject();
+			albedoImage = albedoImageResource->getOriginalObject();
 
 		image* normalImage = nullptr;
 		if (normalImageResource)
-			normalImage = normalImageResource->getObject();
+			normalImage = normalImageResource->getOriginalObject();
 
 		image* specularImage = nullptr;
 		if (specularImageResource)
-			specularImage = specularImageResource->getObject();
+			specularImage = specularImageResource->getOriginalObject();
 
 		image* emissiveImage = nullptr;
 		if (emissiveImageResource)
-			emissiveImage = emissiveImageResource->getObject();
+			emissiveImage = emissiveImageResource->getOriginalObject();
 
         auto materialName = path::getFileNameWithoutExtension(fileName);
         auto mat = new material(

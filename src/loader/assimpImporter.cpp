@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "assimpImporter.h"
+#include <core\nodeOptimizer.h>
 #include <core\random.h>
 #include <core\color.h>
 #include <core\vertex.h>
@@ -17,10 +18,63 @@ namespace phi
 		m3->c1 = m4->c1; m3->c2 = m4->c2; m3->c3 = m4->c3;
 	}
 
-	vector<material*> assimpImporter::loadMaterials(const aiScene* scene)
+	void assimpImporter::loadGeometries(
+		const aiScene* scene, 
+		vector<geometry*>& geometries,
+		resourcesRepository<geometry>* geometriesRepo)
 	{
-		vector<material*> materials;
+		for (uint n = 0u; n < scene->mNumMeshes; ++n)
+		{
+			aiMesh* assimpMesh = scene->mMeshes[n];
+			auto meshName = string(scene->mMeshes[n]->mName.C_Str());
+			auto vertices = vector<vertex>();
+			auto indices = vector<uint>();
 
+			for (uint i = 0u; i < assimpMesh->mNumVertices; ++i)
+			{
+				auto position = vec3(0.0f);
+				auto texCoord = vec2(0.0f);
+				auto normal = vec3(0.0f);
+
+				auto assimpPosition = assimpMesh->mVertices[i];
+				position = vec3(assimpPosition.x, assimpPosition.y, assimpPosition.z);
+
+				if (assimpMesh->HasTextureCoords(0))
+				{
+					const auto assimpTexCoord = assimpMesh->mTextureCoords[0][i];
+					texCoord = vec2(assimpTexCoord.x, assimpTexCoord.y);
+				}
+
+				if (assimpMesh->HasNormals())
+				{
+					auto assimpNormal = assimpMesh->mNormals[i];
+					normal = vec3(assimpNormal.x, assimpNormal.y, assimpNormal.z);
+				}
+
+				vertices.push_back(vertex(position, texCoord, normal));
+			}
+
+			for (uint i = 0u; i < assimpMesh->mNumFaces; ++i)
+			{
+				const auto& assimpFace = assimpMesh->mFaces[i];
+
+				for (uint j = 0u; j < assimpFace.mNumIndices; ++j)
+					indices.push_back(assimpFace.mIndices[j]);
+			}
+
+			auto geometry = geometry::create(vertices, indices);
+			geometries.push_back(geometry);
+
+			auto geometryResource = new resource<phi::geometry>(guidGenerator::newGuid(), meshName, geometry);
+			geometriesRepo->addResource(geometryResource);
+		}
+	}
+
+	void assimpImporter::loadMaterials(
+		const aiScene* scene, 
+		vector<material*>& materials,
+		resourcesRepository<material>* materialsRepo)
+	{
 		for (uint i = 0; i < scene->mNumMaterials; ++i)
 		{
 			aiMaterial* assimpMaterial = scene->mMaterials[i];
@@ -34,18 +88,19 @@ namespace phi
 
 				auto albedoColor = color::fromHSL(hue, 0.83333f, 0.6667f);
 
-				/*auto material = new phi::material(
-					defaultAlbedoTexture,
-					defaultNormalTexture,
-					defaultSpecularTexture,
-					defaultEmissiveTexture,
-					vec3(albedoColor.r, albedoColor.g, albedoColor.b));*/
+				auto material = new phi::material(
+					nullptr,
+					nullptr,
+					nullptr,
+					nullptr,
+					vec3(albedoColor.r, albedoColor.g, albedoColor.b));
 
-				//materials.push_back(new material());
+				materials.push_back(material);
+
+				auto materialResource = new resource<phi::material>(guidGenerator::newGuid(), materialName, material);
+				materialsRepo->addResource(materialResource);
 			}
 		}
-
-		return materials;
 	}
 
 	void assimpImporter::loadScene(
@@ -53,56 +108,31 @@ namespace phi
 		const aiNode* nd,
 		aiMatrix4x4* transform,
 		node* node,
-		vector<material*> materials)
+		const vector<material*>& materials,
+		const vector<geometry*>& geometries)
 	{
 		aiMatrix4x4 prev = *transform;
 		aiMultiplyMatrix4(transform, &nd->mTransformation);
 
+		auto t = &nd->mTransformation;
+		auto rotation = aiQuaternion();
+		auto scaling = aiVector3D();
+		auto position = aiVector3D();
+
+		t->Decompose(scaling, rotation, position);
+		node->getTransform()->setLocalPosition(vec3(position.x, position.y, position.z));
+		node->getTransform()->setLocalSize(vec3(scaling.x, scaling.y, scaling.z));
+		node->getTransform()->setLocalOrientation(quat(rotation.w, rotation.x, rotation.y, rotation.z));
+		//node->
+
 		for (uint n = 0u; n < nd->mNumMeshes; ++n)
 		{
-			const aiMesh* assimpMesh = scene->mMeshes[nd->mMeshes[n]];
-			auto vertices = vector<vertex>();
-			auto indices = vector<uint>();
-
-			for (uint i = 0u; i < assimpMesh->mNumVertices; ++i)
-			{
-				auto position = vec3(0.0f);
-				auto texCoord = vec2(0.0f);
-				auto normal = vec3(0.0f);
-
-				auto assimpPosition = assimpMesh->mVertices[i];
-				aiTransformVecByMatrix4(&assimpPosition, transform);
-				position = vec3(assimpPosition.x, assimpPosition.y, assimpPosition.z);
-
-				if (assimpMesh->HasTextureCoords(0))
-				{
-					const auto assimpTexCoord = assimpMesh->mTextureCoords[0][i];
-					texCoord = vec2(assimpTexCoord.x, assimpTexCoord.y);
-				}
-
-				if (assimpMesh->HasNormals())
-				{
-					auto assimpNormal = assimpMesh->mNormals[i];
-					aiMatrix3x3 rotation;
-					extract3x3(&rotation, transform);
-					aiTransformVecByMatrix3(&assimpNormal, &rotation);
-					normal = vec3(assimpNormal.x, assimpNormal.y, assimpNormal.z);
-				}
-
-				vertices.push_back(vertex(position, texCoord, normal));
-			}
-
-			for (uint i = 0u; i < assimpMesh->mNumFaces; ++i)
-			{
-				const auto assimpFace = assimpMesh->mFaces[i];
-
-				for (uint j = 0u; j < assimpFace.mNumIndices; ++j)
-					indices.push_back(assimpFace.mIndices[j]);
-			}
-
-			auto geometry = geometry::create(vertices, indices);
-			auto meshName = string(assimpMesh->mName.C_Str());
-			auto mesh = new phi::mesh(meshName, geometry, materials[assimpMesh->mMaterialIndex]);
+			auto assimpMeshIndex = nd->mMeshes[n];
+			aiMesh* assimpMesh = scene->mMeshes[assimpMeshIndex];
+			auto geometry = geometries[assimpMeshIndex];
+			auto material = materials[assimpMesh->mMaterialIndex];
+			auto meshName = string(scene->mMeshes[n]->mName.C_Str());
+			auto mesh = new phi::mesh(meshName, geometry, material);
 
 			auto meshNode = new phi::node(meshName);
 			meshNode->addComponent(mesh);
@@ -115,7 +145,7 @@ namespace phi
 			auto nodeName = string(childAssimpNode->mName.C_Str());
 			auto childNode = new phi::node(nodeName);
 			node->addChild(childNode);
-			loadScene(scene, childAssimpNode, transform, childNode, materials);
+			loadScene(scene, childAssimpNode, transform, childNode, materials, geometries);
 		}
 
 		*transform = prev;
@@ -123,15 +153,14 @@ namespace phi
 
 	resource<node>* assimpImporter::import(
 		const string& fileName,
-		const resourcesRepository<material>* materialsRepo,
-		const resourcesRepository<geometry>* geometriesRepo)
+		resourcesRepository<material>* materialsRepo,
+		resourcesRepository<geometry>* geometriesRepo)
 	{
 #ifdef _DEBUG
 		auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT, NULL);
 		aiAttachLogStream(&stream);
 #endif
 		const aiScene* assimpScene;
-		vector<material*> materials;
 		auto flags =
 			aiProcess_JoinIdenticalVertices |
 			aiProcess_Triangulate |
@@ -142,17 +171,23 @@ namespace phi
 			aiProcess_FixInfacingNormals;
 
 		assimpScene = aiImportFile(fileName.c_str(), flags);
-		materials = loadMaterials(assimpScene);
 
 		if (assimpScene)
 		{
+			vector<geometry*> geometries;
+			loadGeometries(assimpScene, geometries, geometriesRepo);
+			
+			vector<material*> materials;
+			loadMaterials(assimpScene, materials, materialsRepo);
+			
 			aiMatrix4x4 transform;
 			aiIdentityMatrix4(&transform);
 
 			auto modelName = phi::path::getFileNameWithoutExtension(fileName);
 			auto modelNode = new node(modelName);
-			loadScene(assimpScene, assimpScene->mRootNode, &transform, modelNode, materials);
-			modelNode->optimize();
+			loadScene(assimpScene, assimpScene->mRootNode, &transform, modelNode, materials, geometries);
+			modelNode = nodeOptimizer::optimize(modelNode);
+
 			return new resource<node>(guidGenerator::newGuid(), modelName, modelNode);
 		}
 

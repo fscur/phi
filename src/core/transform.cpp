@@ -35,6 +35,8 @@ namespace phi
         _changedEvent(new eventHandler<transform*>()),
         _parentTransformChangedEventToken(eventToken())
     {
+		if (_parent)
+			_parentTransformChangedEventToken = _parent->getChangedEvent()->assign(std::bind(&transform::parentTransformChanged, this, std::placeholders::_1));
     }
 
     transform::~transform()

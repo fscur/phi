@@ -22,6 +22,7 @@ namespace demon
         phi::gl* _gl;
         phi::scene* _scene;
         library* _userLibrary;
+		library* _projectLibrary;
 
         phi::ui* _ui;
         phi::commandsManager* _commandsManager;
@@ -30,7 +31,7 @@ namespace demon
     private:
         void initGL();
 		void initAssimp();
-        void initUserLibrary();
+        void initLibraries();
         void initScene();
         void initUi();
         void initInput();

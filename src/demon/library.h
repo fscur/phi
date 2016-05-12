@@ -27,19 +27,6 @@ namespace demon
 
     private:
         template<typename T>
-        phi::resourcesRepository<T>* load(
-            phi::string directory,
-            phi::string filter,
-            std::function<phi::resource<T>*(phi::string)> importFunction)
-        {
-            auto repository = new phi::resourcesRepository<T>();
-
-            load(directory, { filter }, repository, importFunction);
-
-            return repository;
-        }
-
-        template<typename T>
         void load(phi::string directory,
             phi::vector<phi::string> filters,
             phi::resourcesRepository<T>* repository,
@@ -69,7 +56,7 @@ namespace demon
         library(phi::string resourcesPath);
         ~library();
 
-        void init();
+        void load();
 
         phi::resourcesRepository<phi::image>* getTexturesRepository() const { return _imagesRepository; }
         phi::resourcesRepository<phi::geometry>* getGeometriesRepository() const { return _geometriesRepository; }

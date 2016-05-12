@@ -36,7 +36,7 @@ namespace demon
     {
         initGL();
 		initAssimp();
-        initUserLibrary();
+        initLibraries();
         initScene(); 
         initUi();
         initInput();
@@ -81,10 +81,12 @@ namespace demon
 		//importer::importModel(fileName);
 	}
 
-    void screen::initUserLibrary()
+    void screen::initLibraries()
     {
 		_userLibrary = new library(application::libraryPath);
-		_userLibrary->init();
+		_userLibrary->load();
+
+		_projectLibrary = new library(application::path);
     }
 
     void screen::initScene()
@@ -93,24 +95,27 @@ namespace demon
         auto camera = _scene->getCamera();
 
         auto cameraTransform = camera->getTransform();
-        auto cameraPos = vec3(-3.0f, 0.0f, 10.0f);
+        auto cameraPos = vec3(0.0f, 0.0f, 10.0f);
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getObject();
-        auto clonedFloor = floor->clone();
-        _scene->add(clonedFloor);
+        auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        _scene->add(floor);
 
-        auto obj = _userLibrary->getObjectsRepository()->getAllResources()[0]->getObject();
+        auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+		chair->getTransform()->setLocalPosition(vec3(0.f, .5f, 0.f));
+        _scene->add(chair);
 
-        auto obj1 = obj->clone();
-        obj1->getTransform()->setLocalPosition(vec3(0.f, .5f, 0.f));
-        _scene->add(obj1);
+		auto fileName = path::combine(application::path, "objs\\cubes.dae");
+		auto importerResource = importer::importModel(
+			fileName, 
+			_projectLibrary->getMaterialsRepository(), 
+			_projectLibrary->getGeometriesRepository());
 
-		/*auto fileName = path::combine(application::path, "objs\\cubes.dae");
-		auto r = importer::importModel(fileName);
-		auto o = r->getObject();
-		_scene->add(o);*/
+		_projectLibrary->getObjectsRepository()->addResource(importerResource);
+
+		auto importedObject = importerResource->getClonedObject();
+		_scene->add(importedObject);
     }
 
     void screen::initUi()
@@ -119,11 +124,12 @@ namespace demon
 
         _ui = new ui(uiCamera, _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
 
-        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 14);
+        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 24);
 
         auto label0 = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
-        controlRenderer->setColor(color::fromHSL(0.0f, 0.8333f, 0.6667f));
+        controlRenderer->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
+		controlRenderer->setIsGlassy(true);
 
         auto textRenderer = label0->getComponent<phi::textRenderer>();
         textRenderer->setFont(font);
@@ -174,6 +180,7 @@ namespace demon
         safeDelete(_defaultController);
         safeDelete(_gl);
         safeDelete(_userLibrary);
+		safeDelete(_projectLibrary);
         safeDelete(_scene);
         safeDelete(_ui);
     }

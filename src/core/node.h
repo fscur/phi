@@ -17,8 +17,6 @@ namespace phi
 
     private:
         void transformChanged(transform* sender);
-		void removeEmptyNodes();
-		void removeUselessNodes();
 
     public:
         CORE_API node(string name = string(""));
@@ -42,7 +40,11 @@ namespace phi
 
         eventHandler<node*>* getTransformChanged() { return _transformChanged; }
 
-        void setParent(node* const value) { _parent = value; }
+        void setParent(node* const value) 
+		{ 
+			_parent = value; 
+			_transform->setParent(value->getTransform());
+		}
 
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);
@@ -82,6 +84,5 @@ namespace phi
                 child->traverse(func);
         }
 
-		CORE_API void optimize();
     };
 }

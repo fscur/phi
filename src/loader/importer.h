@@ -27,8 +27,8 @@ namespace phi
 
 		static resource<node>* importer::importModel(
 			const string& fileName,
-			const resourcesRepository<material>* materialsRepo,
-			const resourcesRepository<geometry>* geometriesRepo);
+			resourcesRepository<material>* materialsRepo,
+			resourcesRepository<geometry>* geometriesRepo);
 
         static resource<image>* loadImage(const string& fileName);
         static resource<geometry>* loadGeometry(const string& fileName);
