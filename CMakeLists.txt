@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 project(phi)
+set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugWithMemoryTracking")
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_SUPPRESS_REGENERATION TRUE)
