@@ -6,17 +6,17 @@ namespace phi
 {
     uiRenderer::uiRenderer(renderer* renderer, gl* gl, camera* camera) :
         _gl(gl),
-        _camera(camera), 
-		_renderer(renderer),
-		_controlsRenderPass(new controlsRenderPass(gl, _camera)),
+        _camera(camera),
+        _renderer(renderer),
+        _controlsRenderPass(new controlsRenderPass(gl, _camera)),
         _glassyControlsRenderPass(new glassyControlsRenderPass(renderer->getFinalImageRT(), gl, _camera)),
         _textRenderPass(new textRenderPass(gl, _camera))
-    {   
+    {
     }
 
     uiRenderer::~uiRenderer()
     {
-		safeDelete(_glassyControlsRenderPass);
+        safeDelete(_glassyControlsRenderPass);
         safeDelete(_controlsRenderPass);
         safeDelete(_textRenderPass);
     }
@@ -67,10 +67,10 @@ namespace phi
         renderData.backgroundTextureUnit = address.unit;
         renderData.backgroundTexturePage = address.page;
 
-		if (!controlRenderer->getIsGlassy())
-			_controlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
-		else
-			_glassyControlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
+        if (!controlRenderer->getIsGlassy())
+            _controlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
+        else
+            _glassyControlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
     }
 
     void uiRenderer::addTextRenderer(node* node, textRenderer* textRenderer)
@@ -91,8 +91,8 @@ namespace phi
     }
 
     void uiRenderer::render() const
-    {   
-		_glassyControlsRenderPass->render();
+    {
+        _glassyControlsRenderPass->render();
         _controlsRenderPass->render();
         _textRenderPass->render();
     }

@@ -29,7 +29,6 @@ namespace demon
 
     private:
         void initGL();
-		void initAssimp();
         void initLibrary();
         void initScene();
         void initUi();

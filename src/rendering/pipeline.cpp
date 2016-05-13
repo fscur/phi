@@ -5,7 +5,7 @@
 
 namespace phi
 {
-    pipeline::pipeline(gl* gl) :
+    pipeline::pipeline(const gl* gl) :
         _gl(gl)
     {
         createFrameUniformBlockBuffer();
@@ -39,52 +39,27 @@ namespace phi
         _materialsBuffer->storage(materialsBufferSize, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
-    void pipeline::updateFrameUniformBlock(const frameUniformBlock& frameUniformBlock)
+    void pipeline::updateBatches(node* node)
     {
-        _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
-        _frameUniformBlockBuffer->bindBufferBase(0);
+        //auto mesh = node->getComponent<phi::mesh>();
+        //if (mesh)
+        //{
+        //    auto batch = _meshesBatches[mesh];
+        //    _nodesToUpdate[batch].push_back(node);
+        //}
+
+        //auto children = node->getChildren();
+        //for (auto child : *children)
+        //    updateBatches(child);
     }
 
-    void pipeline::addToBatches(node* node)
+    void pipeline::add(const materialInstance& material)
     {
-        auto mesh = node->getComponent<phi::mesh>();
-
-        if (mesh)
-        {
-            auto material = mesh->material;
-
-            if (!phi::contains(_loadedMaterials, material))
-                uploadMaterial(material);
-
-            auto geometry = mesh->geometry;
-            auto batchObject = phi::batchObject();
-            batchObject.mesh = mesh;
-            batchObject.geometry = geometry;
-            batchObject.materialId = _materialsMaterialsGpu[material];
-            batchObject.modelMatrix = node->getTransform()->getModelMatrix();
-
-            addToBatches(batchObject);
-
-            _transformChangedTokens[node] = node->getTransformChanged()->assign(
-                std::bind(
-                    &pipeline::nodeTransformChanged,
-                    this,
-                    std::placeholders::_1));
-
-            _selectionChangedTokens[mesh] = mesh->getSelectionChanged()->assign(
-                std::bind(
-                    &pipeline::meshSelectionChanged,
-                    this,
-                    std::placeholders::_1));
-        }
-
-        auto children = node->getChildren();
-
-        for (auto child : *children)
-            addToBatches(child);
+        _materialsBuffer->subData(material.offset, sizeof(phi::materialGpuData), &material.materialData);
+        _materialsBuffer->bindBufferBase(1);
     }
 
-    void pipeline::addToBatches(const batchObject& batchObject)
+    void pipeline::add(const renderInstance& instance)
     {
         auto i = 0u;
         auto added = false;
@@ -95,125 +70,58 @@ namespace phi
         while (!added && i < batchesCount)
         {
             batch = batches[i++];
-            added = batch->add(batchObject);
+            added = batch->add(instance);
         }
 
         if (!added)
         {
             batch = new phi::batch();
             batches.push_back(batch);
-            batch->add(batchObject);
+            batch->add(instance);
         }
 
-        _meshesBatches[batchObject.mesh] = batch;
+        _meshesBatches[instance.mesh] = batch;
     }
 
-    void pipeline::uploadMaterial(material* material)
+    void pipeline::remove(const renderInstance& instance)
     {
-        if (_materialsMaterialsGpu.find(material) == _materialsMaterialsGpu.end())
-            _materialsMaterialsGpu[material] = static_cast<uint>(_materialsMaterialsGpu.size());
-
-        auto texturesManager = _gl->texturesManager;
-
-        auto albedoTextureAddress = texturesManager->add(material->albedoTexture);
-        auto normalTextureAddress = texturesManager->add(material->normalTexture);
-        auto specularTextureAddress = texturesManager->add(material->specularTexture);
-        auto emissiveTextureAddress = texturesManager->add(material->emissiveTexture);
-
-        auto materialGpuData = phi::materialGpuData(
-            albedoTextureAddress.unit,
-            normalTextureAddress.unit,
-            specularTextureAddress.unit,
-            emissiveTextureAddress.unit,
-            albedoTextureAddress.page,
-            normalTextureAddress.page,
-            specularTextureAddress.page,
-            emissiveTextureAddress.page,
-            material->albedoColor,
-            material->specularColor,
-            material->emissiveColor,
-            material->shininess,
-            material->reflectivity,
-            material->emission,
-            material->opacity);
-
-        auto offset = _materialsMaterialsGpu[material] * sizeof(phi::materialGpuData);
-
-        _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
-        _materialsBuffer->bindBufferBase(1);
-        _loadedMaterials.push_back(material);
+        //node->traverse<mesh>([&](mesh* mesh)
+        //{
+        //    auto it = _meshesBatches.find(mesh);
+        //    if (it != _meshesBatches.end())
+        //    {
+        //        it->second->remove(mesh);
+        //    }
+        //});
     }
 
-    void pipeline::add(node* node)
+    void pipeline::update(const renderInstance& instance)
     {
-        addToBatches(node);
-    }
-
-    void pipeline::remove(node* node)
-    {
-        node->traverse<mesh>([&](mesh* mesh)
-        {
-            auto it = _meshesBatches.find(mesh);
-            if (it != _meshesBatches.end())
-            {
-                it->second->remove(mesh);
-            }
-        });
-    }
-
-    void pipeline::updateBatches(node* node)
-    {
-        auto mesh = node->getComponent<phi::mesh>();
-        if (mesh)
-        {
-            auto batch = _meshesBatches[mesh];
-            _nodesToUpdate[batch].push_back(node);
-        }
-
-        auto children = node->getChildren();
-        for (auto child : *children)
-            updateBatches(child);
-    }
-
-    void pipeline::update(node* node)
-    {
-        updateBatches(node);
+        /*updateBatches(node);
 
         for (auto batch : batches)
         {
-            vector<batchObject> bacthObjectsToUpdade;
+            vector<renderInstance> renderInstancesToUpdate;
 
             for (auto n : _nodesToUpdate[batch])
             {
                 auto mesh = n->getComponent<phi::mesh>();
-                auto batchObject = phi::batchObject();
-                batchObject.mesh = mesh;
-                batchObject.geometry = mesh->geometry;
-                batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-                batchObject.modelMatrix = n->getTransform()->getModelMatrix();
-                bacthObjectsToUpdade.push_back(batchObject);
+                auto instance = renderInstance();
+                instance.mesh = mesh;
+                instance.materialId = _materialsMaterialsGpu[mesh->material];
+                instance.modelMatrix = n->getTransform()->getModelMatrix();
+                renderInstancesToUpdate.push_back(instance);
             }
 
-            batch->update(bacthObjectsToUpdade);
+            batch->update(renderInstancesToUpdate);
 
             _nodesToUpdate[batch].clear();
-        }
+        }*/
     }
 
-    void pipeline::nodeTransformChanged(node* sender)
+    void pipeline::update(const frameUniformBlock& frameUniformBlock)
     {
-        auto mesh = sender->getComponent<phi::mesh>();
-        auto modelMatrix = sender->getTransform()->getModelMatrix();
-        auto batch = _meshesBatches[mesh];
-
-        batch->updateModelMatricesBuffer(mesh, modelMatrix);
-    }
-
-    void pipeline::meshSelectionChanged(mesh* sender)
-    {
-        auto batch = _meshesBatches[sender];
-        auto color = sender->getSelectionColor();
-
-        batch->updateSelectionBuffer(sender, color);
+        _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
+        _frameUniformBlockBuffer->bindBufferBase(0);
     }
 }

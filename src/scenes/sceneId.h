@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include <rendering\mesh.h>
 
 namespace phi
 {
@@ -7,13 +8,10 @@ namespace phi
     {
     private:
         static int _currentId;
+        static map<int, mesh*> _meshesIds;
     public:
-        static int next()
-        {
-            ++_currentId;
-            return _currentId;
-        }
+        static void setNextId(mesh* mesh);
+        static mesh* getMesh(int id);
+        static void removeMeshId(mesh* mesh);
     };
-
-    int sceneId::_currentId = 0;
 }

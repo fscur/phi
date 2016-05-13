@@ -1,22 +1,15 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
+#include <core\geometry.h>
+
+#include "renderInstance.h"
 #include "vertexBuffer.h"
 #include "buffer.h"
 #include "mesh.h"
 
-#include <core\geometry.h>
-
 namespace phi
 {
-    struct batchObject
-    {
-        mesh* mesh;
-        geometry* geometry;
-        uint materialId;
-        mat4 modelMatrix;
-    };
-
     class batch
     {
     private:
@@ -63,7 +56,7 @@ namespace phi
 
     private:
         void createVao();
-        void createVao(const batchObject& batchObject);
+        void createVao(const renderInstance& instance);
         void createVbo(const void* const data, GLsizeiptr size);
         void createSelectionColorBuffer(const void* const data, GLsizeiptr size);
         void createMaterialsIdsBuffer(const void* const data, GLsizeiptr size);
@@ -71,18 +64,18 @@ namespace phi
         void createEbo(const void* const data, GLsizeiptr size);
         void createDrawCmdsBuffer(const void* const data, GLsizeiptr size);
 
-        void addNewGeometry(const batchObject& batchObject);
-        void addNewInstance(const batchObject& batchObject);
+        void addNewGeometry(const renderInstance& instance);
+        void addNewInstance(const renderInstance& instance);
 
     public:
         RENDERING_API batch();
         RENDERING_API ~batch();
-        RENDERING_API bool add(const batchObject& batchObject);
+        RENDERING_API bool add(const renderInstance& instance);
         RENDERING_API void remove(mesh* mesh);
-        RENDERING_API void update(const batchObject& batchObject);
+        RENDERING_API void update(const renderInstance& instance);
         RENDERING_API void updateSelectionBuffer(mesh* const mesh, const vec4& selectionColor);
         RENDERING_API void updateModelMatricesBuffer(mesh* const mesh, const mat4& modelMatrix);
-        RENDERING_API void update(const vector<batchObject>& batchObjects);
+        RENDERING_API void update(const vector<renderInstance>& instances);
         RENDERING_API void updateBuffers();
         RENDERING_API void render();
     };

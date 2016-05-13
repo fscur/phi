@@ -13,16 +13,18 @@ namespace phi
 {
     class scene
     {
-
     private:
         gl* _gl;
         renderer* _renderer;
         pipeline* _pipeline;
         camera* _camera;
         vector<node*> _objects;
-        map<int, mesh*> _meshesIds;
         float _w;
         float _h;
+
+        map<material*, uint> _materialsCache;
+    private:
+        void uploadMaterial(material * material);
 
     public:
         SCENES_API scene(gl* gl, float w, float h);
@@ -35,7 +37,7 @@ namespace phi
         SCENES_API void remove(node* node);
         SCENES_API mesh* pick(int mouseX, int mouseY);
         SCENES_API float getZBufferValue(int x, int y);
-        
+
         vector<node*>* getObjects() { return &_objects; }
         renderer* getRenderer() const { return _renderer; }
         camera* getCamera() const { return _camera; }

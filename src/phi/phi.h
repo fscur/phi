@@ -60,6 +60,13 @@ namespace phi
         return it != vector.end();
     }
 
+    template<typename T, typename R>
+    bool contains(const map<T, R> map, const T value)
+    {
+        auto it = map.find(value);
+        return it != map.end();
+    }
+
     template<typename T>
     void debug(T value)
     {

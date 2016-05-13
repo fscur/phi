@@ -35,9 +35,8 @@ namespace demon
     void screen::onInit()
     {
         initGL();
-		initAssimp();
         initLibrary();
-        initScene(); 
+        initScene();
         initUi();
         initInput();
     }
@@ -81,12 +80,6 @@ namespace demon
         }
     }
 
-	void screen::initAssimp()
-	{
-		//auto fileName = path::combine(application::path, "objs\\suzanne.obj");
-		//importer::importModel(fileName);
-	}
-
     void screen::initLibrary()
     {
         _library = new library(_gl, application::libraryPath);
@@ -99,7 +92,7 @@ namespace demon
         auto camera = _scene->getCamera();
 
         auto cameraTransform = camera->getTransform();
-        auto cameraPos = vec3(-3.0f, 0.0f, 10.0f);
+        auto cameraPos = vec3(-3.f, 0.f, 10.f);
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
@@ -110,13 +103,21 @@ namespace demon
         auto obj = _library->getObjectsRepository()->getAllResources()[0]->getObject();
 
         auto obj1 = obj->clone();
-        obj1->getTransform()->setLocalPosition(vec3(0.f, .5f, 0.f));
+        obj1->getTransform()->setLocalPosition(vec3(0.f, .2f, 0.f));
         _scene->add(obj1);
+
+        auto obj2 = obj->clone();
+        obj2->getTransform()->setLocalPosition(vec3(2.f, .2f, 0.f));
+        _scene->add(obj2);
+
+        auto obj3 = obj->clone();
+        obj3->getTransform()->setLocalPosition(vec3(4.f, .2f, 0.f));
+        _scene->add(obj3);
     }
 
     void screen::initUi()
     {
-		camera* uiCamera = new camera("uiCamera", static_cast<float>(_width), static_cast<float>(_height), 0.1f, 10000.0f, PI_OVER_4);
+        camera* uiCamera = new camera("uiCamera", static_cast<float>(_width), static_cast<float>(_height), 0.1f, 10000.0f, PI_OVER_4);
 
         _ui = new ui(uiCamera, _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
 
@@ -125,7 +126,7 @@ namespace demon
         auto label0 = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
         auto controlRenderer = label0->getComponent<phi::controlRenderer>();
         controlRenderer->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
-		controlRenderer->setIsGlassy(true);
+        controlRenderer->setIsGlassy(true);
 
         auto textRenderer = label0->getComponent<phi::textRenderer>();
         textRenderer->setFont(font);
@@ -141,10 +142,10 @@ namespace demon
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
-        
-        _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]() 
+
+        _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
         {
-            return new deleteObjectCommand(_scene, _defaultController->getSelectionMouseController()); 
+            return new deleteObjectCommand(_scene, _defaultController->getSelectionMouseController());
         }));
     }
 
@@ -164,7 +165,7 @@ namespace demon
 
     void screen::onTick()
     {
-        //debug("fps: " + std::to_string(application::framesPerSecond));
+        debug("fps: " + std::to_string(application::framesPerSecond));
 #if _DEBUG
         _gl->shadersManager->reloadAllShaders();
 #endif

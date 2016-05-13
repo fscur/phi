@@ -13,12 +13,12 @@ namespace phi
         vector<component*>* _components;
         vector<node*>* _children;
         eventHandler<node*>* _transformChanged;
-		string _name;
+        string _name;
 
     private:
         void transformChanged(transform* sender);
-		void removeEmptyNodes();
-		void removeUselessNodes();
+        void removeEmptyNodes();
+        void removeUselessNodes();
 
     public:
         CORE_API node(string name = string(""));
@@ -46,14 +46,14 @@ namespace phi
 
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);
-		
+
         template<typename T>
         T* getComponent() const
         {
             const component::componentType type = T::getComponentType();
             for (auto component : *_components)
             {
-                if(component->getType() == type)
+                if (component->getType() == type)
                     return static_cast<T*>(component);
             }
 
@@ -64,7 +64,7 @@ namespace phi
         void traverse(std::function<void(T*)> func)
         {
             auto component = getComponent<T>();
-            if(component)
+            if (component)
                 func(component);
 
             for (auto child : *_children)
@@ -72,16 +72,16 @@ namespace phi
         }
 
         template<typename T>
-        void traverseNodesContaining(std::function<void(node*)> func)
+        void traverseNodesContaining(std::function<void(node*, T*)> func)
         {
             auto component = getComponent<T>();
             if (component)
-                func(this);
+                func(this, component);
 
             for (auto child : *_children)
-                child->traverse(func);
+                child->traverseNodesContaining(func);
         }
 
-		CORE_API void optimize();
+        CORE_API void optimize();
     };
 }
