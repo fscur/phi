@@ -30,7 +30,8 @@ namespace phi
         CORE_API void removeChild(node* child);
 
         CORE_API void traverse(std::function<void(node*)> func);
-
+		
+		string getName() const { return _name; }
         transform* getTransform() const { return _transform; }
         node* getParent() const { return _parent; }
 
@@ -40,12 +41,7 @@ namespace phi
 
         eventHandler<node*>* getTransformChanged() { return _transformChanged; }
 
-        void setParent(node* const value) 
-		{ 
-			_parent = value; 
-			_transform->setParent(value->getTransform());
-		}
-
+		CORE_API void setParent(node* const value);
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);
 		

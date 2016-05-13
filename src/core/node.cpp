@@ -94,7 +94,17 @@ namespace phi
         _transformChanged->raise(this);
     }
 
-    inline void node::setPosition(vec3 value)
+	inline void node::setParent(node * const value)
+	{
+		_parent = value;
+
+		if (_parent)
+			_transform->setParent(_parent->getTransform());
+		else
+			_transform->setParent(nullptr);
+	}
+
+	inline void node::setPosition(vec3 value)
     {
         _transform->setLocalPosition(value);
     }

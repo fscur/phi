@@ -54,6 +54,7 @@ namespace phi
         auto localRotation = getLocalRotationMatrix();
         auto localScale = getLocalScaleMatrix();
         auto localTranslation = getLocalTranslationMatrix();
+		//_localModelMatrix = localScale * localRotation * localTranslation;
         _localModelMatrix = localTranslation  * localRotation * localScale;
         _changed = false;
 
@@ -189,4 +190,30 @@ namespace phi
     {
         setLocalOrientation(mathUtils::rotationBetweenVectors(_direction, direction) * _localOrientation);
     }
+
+	inline void transform::translate(vec3 translation) 
+	{ 
+		setLocalPosition(_localPosition + translation); 
+	}
+
+	inline void transform::rotate(float angle, vec3 axis) 
+	{ 
+		setLocalOrientation(angleAxis(angle, axis) * _localOrientation); 
+	}
+
+	inline void transform::pitch(float angle) { setLocalOrientation(angleAxis(angle, vec3(1.0f, 0.0f, 0.0f)) * _localOrientation); }
+	inline void transform::yaw(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 1.0f, 0.0f)) * _localOrientation); }
+	inline void transform::roll(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 0.0f, 1.0f)) * _localOrientation); }
+
+	void transform::multiply(const transform & transform)
+	{
+		_localPosition += transform._localPosition;
+		_localSize *= transform._localSize;
+		_localOrientation *= transform._localOrientation;
+		setChanged();
+
+		//setLocalPosition(_localPosition + transform._localPosition);
+		//setLocalSize(_localSize * transform._localSize);
+		//setLocalOrientation(_localOrientation * transform._localOrientation);
+	}
 }

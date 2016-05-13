@@ -5,92 +5,76 @@ namespace phi
 {
 	void nodeOptimizer::removeEmptyNodes(node* node)
 	{
-		/*vector<phi::node*> toRemove;
 		auto children = node->getChildren();
+		
+		vector<phi::node*> toRemove;
 
 		for (auto child : *children)
 		{
-			if (child->getChildren()->size() == 0 && child->getComponents()->size() == 0)
+			if (isNodeEmpty(child))
 				toRemove.push_back(child);
 
 			removeEmptyNodes(child);
 		}
 
 		for (auto nodeToRemove : toRemove)
-		{
-			auto it = std::find(children->begin(), children->end(), nodeToRemove);
-			children->erase(it);
-			safeDelete(nodeToRemove);
-		}*/
+			phi::removeIfContains(*children, nodeToRemove);
+
+		deleteNodes(toRemove);
 	}
 
-	void nodeOptimizer::removeUselessNodes(node* node)
+	node* nodeOptimizer::removeUselessNodes(node* node)
 	{
-		//auto children = node->getChildren();
-		//auto childrenCount = children->size();
+		vector<phi::node*> toRemove;
 
-		//for (size_t i = 0; i < childrenCount; ++i)
-		//{
-		//	auto child = children->at(i);
+		auto current = node;
+		auto currentTransform = current->getTransform();
 
-		//	bool doesNotHaveComponents = child->getComponents()->size() == 0;
-		//	bool hasOnlyOneChild = child->getChildren()->size() == 1;
-		//	vector<phi::node*> toRemove;
+		while (isNodeUseless(current))
+		{
+			toRemove.push_back(current);
+			current = current->getChildren()->at(0);
+			current->getTransform()->multiply(*currentTransform);
+			currentTransform = current->getTransform();
+		}
 
-		//	if (doesNotHaveComponents && hasOnlyOneChild)
-		//	{
-		//		auto next = child;
-		//		while (next->getChildren()->size() == 1 && next->getComponents()->size() == 0)
-		//		{
-		//			toRemove.push_back(next);
-		//			next = next->getChildren()->at(0);
-		//		}
+		if (current != node)
+		{
+			current->setParent(node->getParent());
+			deleteNodes(toRemove);
+		}
 
-		//		//next->_parent = this;
-		//		next->setParent(node);
-		//		(*children)[i] = child = next;
-		//	}
+		auto children = current->getChildren();
+		auto childrenCount = children->size();
 
-		//	for (auto nodeToRemove : toRemove)
-		//		nodeToRemove->getChildren()->clear();
+		for (size_t i = 0u; i < childrenCount; ++i)
+			(*children)[i] = nodeOptimizer::optimize((*children)[i]);
 
-		//	for (auto nodeToRemove : toRemove)
-		//		safeDelete(nodeToRemove);
-
-		//	removeUselessNodes(child);
-		//}
+		return current;
 	}
+
+	void nodeOptimizer::deleteNodes(vector<node*>& nodes)
+	{
+		for (auto node : nodes)
+			node->getChildren()->clear();
+
+		for (auto node : nodes)
+			safeDelete(node);
+	}
+
+	bool nodeOptimizer::isNodeEmpty(phi::node* node)
+	{
+		return node->getComponents()->size() == 0 && node->getChildren()->size() == 0;
+	};
+
+	bool nodeOptimizer::isNodeUseless(phi::node* node)
+	{
+		return node->getComponents()->size() == 0 && node->getChildren()->size() == 1;
+	};
 
 	node* nodeOptimizer::optimize(node* node)
 	{
-		/*removeEmptyNodes(node);
-		removeUselessNodes(node);
-
-		auto children = node->getChildren();
-		bool doesNotHaveComponents = node->getComponents()->size() == 0;
-		bool hasOnlyOneChild = children->size() == 1;
-
-		if (doesNotHaveComponents && hasOnlyOneChild)
-		{
-			auto child = children->at(0);
-
-			auto grandsons = children->at(0)->getChildren();
-			children->clear();
-
-			auto grandsonsCount = grandsons->size();
-			for (size_t i = 0; i < grandsonsCount; ++i)
-			{
-				auto grandson = grandsons->at(i);
-				grandson->setParent(node);
-				children->push_back(grandson);
-			}
-
-			child->getChildren()->clear();
-			safeDelete(child);
-		}
-
-		return node;*/
-
-		return nullptr;
+		removeEmptyNodes(node);
+		return removeUselessNodes(node);
 	}
 }

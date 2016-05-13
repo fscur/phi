@@ -9,7 +9,10 @@ namespace phi
 	{
 	private:
 		static void removeEmptyNodes(node* node);
-		static void removeUselessNodes(node* node);
+		static node* removeUselessNodes(node* node);
+		static void deleteNodes(vector<node*>& nodes);
+		static bool isNodeUseless(phi::node* node);
+		static bool isNodeEmpty(phi::node* node);
 
 	public:
 		CORE_API static node* optimize(node*);
