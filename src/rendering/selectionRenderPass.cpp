@@ -3,11 +3,9 @@
 
 #include <core\time.h>
 
-#include "lightingRenderPass.h"
-
 namespace phi
 {
-    selectionRenderPass::selectionRenderPass(const gBufferRenderPass* const gBufferPass, const gl* const gl, float w, float h) :
+    selectionRenderPass::selectionRenderPass(renderTargetsAddresses& rtAddresses, const gl* const gl, float w, float h) :
         _gl(gl),
         _quad(nullptr),
         _quadVbo(nullptr),
@@ -28,23 +26,10 @@ namespace phi
         _shader->addUniform(2, "offset");
         _shader->addUniform(3, "time");
 
-        auto rtAddresses = phi::rtAddresses();
-        rtAddresses.rt0Unit = gBufferPass->rt0->textureAddress.unit;
-        rtAddresses.rt1Unit = gBufferPass->rt1->textureAddress.unit;
-        rtAddresses.rt2Unit = gBufferPass->rt2->textureAddress.unit;
-        rtAddresses.rt3Unit = gBufferPass->rt3->textureAddress.unit;
-        rtAddresses.depthUnit = gBufferPass->depth->textureAddress.unit;
-
-        rtAddresses.rt0Page = gBufferPass->rt0->textureAddress.page;
-        rtAddresses.rt1Page = gBufferPass->rt1->textureAddress.page;
-        rtAddresses.rt2Page = gBufferPass->rt2->textureAddress.page;
-        rtAddresses.rt3Page = gBufferPass->rt3->textureAddress.page;
-        rtAddresses.depthPage = gBufferPass->depth->textureAddress.page;
-
         _rtsBuffer = new buffer(bufferTarget::uniform);
 
         _rtsBuffer->storage(
-            sizeof(phi::rtAddresses),
+            sizeof(renderTargetsAddresses),
             &rtAddresses,
             bufferStorageUsage::write);
 

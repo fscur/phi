@@ -3,10 +3,10 @@
 #include "renderingApi.h"
 #include <core\node.h>
 
+#include "renderer.h"
 #include "frameUniformBlock.h"
 #include "batch.h"
 #include "renderInstance.h"
-#include "materialInstance.h"
 #include "gl.h"
 
 namespace phi
@@ -20,21 +20,24 @@ namespace phi
         map<mesh*, batch*> _meshesBatches;
         map<batch*, vector<node*>> _nodesToUpdate;
         const gl* _gl;
+        map<material*, uint> _materialsCache;
+
+        vector<batch*> _batches;
     public:
-        vector<batch*> batches;
+        renderer* _renderer;
     private:
         void createFrameUniformBlockBuffer();
         void createMaterialsBuffer();
+        void uploadMaterial(material* material);
 
-        void updateBatches(node* n);
     public:
-        RENDERING_API pipeline(const gl* gl);
+        RENDERING_API pipeline(gl* gl, float w, float h);
         RENDERING_API ~pipeline();
 
-        RENDERING_API void add(const renderInstance& instance);
-        RENDERING_API void add(const materialInstance& instance);
+        RENDERING_API void add(renderInstance& instance);
         RENDERING_API void remove(const renderInstance& instance);
         RENDERING_API void update(const renderInstance& instance);
         RENDERING_API void update(const frameUniformBlock& frameUniformBlock);
+        RENDERING_API void render();
     };
 }

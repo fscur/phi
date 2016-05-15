@@ -3,7 +3,7 @@
 
 namespace phi
 {
-    lightingRenderPass::lightingRenderPass(gBufferRenderPass* gBufferPass, gl* gl, float w, float h) :
+    lightingRenderPass::lightingRenderPass(const renderTargetsAddresses& rtAddresses, gl* gl, float w, float h) :
         _gl(gl),
         _quad(nullptr),
         _shader(nullptr),
@@ -23,23 +23,10 @@ namespace phi
         _shader = _gl->shadersManager->load("lightingPass", attribs);
         _shader->addUniform(0, "textureArrays");
 
-        auto rtAddresses = phi::rtAddresses();
-        rtAddresses.rt0Unit = gBufferPass->rt0->textureAddress.unit;
-        rtAddresses.rt1Unit = gBufferPass->rt1->textureAddress.unit;
-        rtAddresses.rt2Unit = gBufferPass->rt2->textureAddress.unit;
-        rtAddresses.rt3Unit = gBufferPass->rt3->textureAddress.unit;
-        rtAddresses.depthUnit = gBufferPass->depth->textureAddress.unit;
-
-        rtAddresses.rt0Page = gBufferPass->rt0->textureAddress.page;
-        rtAddresses.rt1Page = gBufferPass->rt1->textureAddress.page;
-        rtAddresses.rt2Page = gBufferPass->rt2->textureAddress.page;
-        rtAddresses.rt3Page = gBufferPass->rt3->textureAddress.page;
-        rtAddresses.depthPage = gBufferPass->depth->textureAddress.page;
-
         _rtsBuffer = new buffer(bufferTarget::uniform);
 
         _rtsBuffer->storage(
-            sizeof(phi::rtAddresses),
+            sizeof(renderTargetsAddresses),
             &rtAddresses,
             bufferStorageUsage::write);
 

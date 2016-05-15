@@ -13,8 +13,8 @@
 #include <apps\undoCommand.h>
 #include <apps\redoCommand.h>
 
-#include <ui\controlRenderer.h>
-#include <ui\textRenderer.h>
+#include <ui\control.h>
+#include <ui\text.h>
 
 #include "deleteObjectCommand.h"
 #include "addObjectCommand.h"
@@ -124,11 +124,11 @@ namespace demon
         auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 14);
 
         auto label0 = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
-        auto controlRenderer = label0->getComponent<phi::controlRenderer>();
+        auto controlRenderer = label0->getComponent<phi::control>();
         controlRenderer->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
         controlRenderer->setIsGlassy(true);
 
-        auto textRenderer = label0->getComponent<phi::textRenderer>();
+        auto textRenderer = label0->getComponent<phi::text>();
         textRenderer->setFont(font);
         textRenderer->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 

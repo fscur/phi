@@ -1,9 +1,9 @@
 #include <precompiled.h>
-#include "controlRenderer.h"
+#include "control.h"
 
 namespace phi
 {
-    controlRenderer::controlRenderer(string name) :
+    control::control(string name) :
         component(component::CONTROL_RENDERER, name),
         _geometry(nullptr),
         _texture(nullptr),
@@ -14,12 +14,12 @@ namespace phi
     {
     }
 
-    controlRenderer::~controlRenderer()
+    control::~control()
     {
         safeDelete(_onSizeChanged);
     }
 
-    void controlRenderer::setSize(vec3 value)
+    void control::setSize(vec3 value)
     {
         _size = value;
         _onSizeChanged->raise(value);

@@ -8,7 +8,7 @@
 
 namespace phi
 {
-    class controlRenderer :
+    class control :
         public component
     {
     private:
@@ -23,8 +23,8 @@ namespace phi
         static componentType getComponentType() { return componentType::CONTROL_RENDERER; }
 
     public:
-        controlRenderer(string name);
-        ~controlRenderer();
+        control(string name);
+        ~control();
         geometry* getGeometry() const { return _geometry; }
         texture* getBackgroundTexture() const { return _texture; }
         color getBackgroundColor() const { return _color; }

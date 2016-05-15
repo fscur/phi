@@ -6,11 +6,11 @@
 #include <rendering\camera.h>
 #include <rendering\renderer.h>
 
-#include "controlRenderer.h"
+#include "control.h"
 #include "controlsRenderPass.h"
 #include "glassyControlsRenderPass.h"
 #include "textRenderPass.h"
-#include "textRenderer.h"
+#include "text.h"
 
 namespace phi
 {
@@ -19,9 +19,8 @@ namespace phi
     private:
         const gl* _gl;
         camera* _camera;
-        renderer* _renderer;
-        vector<controlRenderer*> _controlRenderers;
-        vector<textRenderer*> _textRenderers;
+        vector<control*> _controlRenderers;
+        vector<text*> _textRenderers;
         controlsRenderPass* _controlsRenderPass;
         glassyControlsRenderPass* _glassyControlsRenderPass;
         textRenderPass* _textRenderPass;
@@ -33,8 +32,8 @@ namespace phi
         uiRenderer(renderer* renderer, gl* gl, camera* camera);
         ~uiRenderer();
         void add(node* node);
-        void addControlRenderer(node* node, controlRenderer* controlRenderer);
-        void addTextRenderer(node* node, textRenderer* textRenderer);
+        void addControl(node* node, control* control);
+        void addText(node* node, text* text);
         void update();
         void render() const;
     };
