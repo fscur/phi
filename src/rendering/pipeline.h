@@ -5,8 +5,8 @@
 
 #include "renderer.h"
 #include "frameUniformBlock.h"
-#include "batch.h"
 #include "renderInstance.h"
+#include "batch.h"
 #include "gl.h"
 
 namespace phi
@@ -15,20 +15,20 @@ namespace phi
     {
     private:
         const uint MAX_MATERIALS_COUNT = 512;
+
+        const gl* _gl;
         buffer* _materialsBuffer;
         buffer* _frameUniformBlockBuffer;
-        map<mesh*, batch*> _meshesBatches;
-        map<batch*, vector<node*>> _nodesToUpdate;
-        const gl* _gl;
-        map<material*, uint> _materialsCache;
 
         vector<batch*> _batches;
+        map<mesh*, batch*> _meshesBatches;
+        map<material*, uint> _materialsIndices;
     public:
         renderer* _renderer;
     private:
         void createFrameUniformBlockBuffer();
         void createMaterialsBuffer();
-        void uploadMaterial(material* material);
+        void uploadMaterialIfNew(material* material);
 
     public:
         RENDERING_API pipeline(gl* gl, float w, float h);

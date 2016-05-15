@@ -51,6 +51,7 @@ namespace phi
         vertexBuffer* _materialsIdsBuffer;
         vertexBuffer* _modelMatricesBuffer;
         vertexBuffer* _selectionBuffer;
+
         buffer* _ebo;
         buffer* _drawCmdBuffer;
 
@@ -58,25 +59,23 @@ namespace phi
         void createVao();
         void createVao(const renderInstance& instance);
         void createVbo(const void* const data, GLsizeiptr size);
-        void createSelectionColorBuffer(const void* const data, GLsizeiptr size);
+        void createEbo(const void* const data, GLsizeiptr size);
+
+        void createDrawCmdsBuffer(const void* const data, GLsizeiptr size);
         void createMaterialsIdsBuffer(const void* const data, GLsizeiptr size);
         void createModelMatricesBuffer(const void* const data, GLsizeiptr size);
-        void createEbo(const void* const data, GLsizeiptr size);
-        void createDrawCmdsBuffer(const void* const data, GLsizeiptr size);
+        void createSelectionColorBuffer(const void* const data, GLsizeiptr size);
 
         void addNewGeometry(const renderInstance& instance);
         void addNewInstance(const renderInstance& instance);
 
+        void updateAllData();
     public:
         RENDERING_API batch();
         RENDERING_API ~batch();
         RENDERING_API bool add(const renderInstance& instance);
-        RENDERING_API void remove(mesh* mesh);
+        RENDERING_API void remove(const renderInstance& instance);
         RENDERING_API void update(const renderInstance& instance);
-        RENDERING_API void updateSelectionBuffer(mesh* const mesh, const vec4& selectionColor);
-        RENDERING_API void updateModelMatricesBuffer(mesh* const mesh, const mat4& modelMatrix);
-        RENDERING_API void update(const vector<renderInstance>& instances);
-        RENDERING_API void updateBuffers();
         RENDERING_API void render();
     };
 }

@@ -15,8 +15,8 @@ namespace phi
 
     pipeline::~pipeline()
     {
-        safeDelete(_materialsBuffer);
         safeDelete(_frameUniformBlockBuffer);
+        safeDelete(_materialsBuffer);
         safeDelete(_renderer);
 
         for (auto batch : _batches)
@@ -31,21 +31,26 @@ namespace phi
             sizeof(phi::frameUniformBlock),
             nullptr,
             bufferStorageUsage::dynamic | bufferStorageUsage::write);
-
     }
 
     void pipeline::createMaterialsBuffer()
     {
-        auto materialsBufferSize = MAX_MATERIALS_COUNT * sizeof(materialGpuData);
         _materialsBuffer = new buffer(bufferTarget::shader);
-        _materialsBuffer->storage(materialsBufferSize, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
+        
+        _materialsBuffer->storage(
+            sizeof(materialGpuData) * MAX_MATERIALS_COUNT,
+            nullptr,
+            bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
-    void pipeline::uploadMaterial(material * material)
+    void pipeline::uploadMaterialIfNew(material* material)
     {
         static uint currentId = 0;
-        if (!phi::contains(_materialsCache, material))
-            _materialsCache[material] = currentId++;
+
+        if (phi::contains(_materialsIndices, material))
+            return;
+
+        _materialsIndices[material] = currentId++;
 
         auto albedoTextureAddress = _gl->texturesManager->add(material->albedoTexture);
         auto normalTextureAddress = _gl->texturesManager->add(material->normalTexture);
@@ -53,39 +58,27 @@ namespace phi
         auto emissiveTextureAddress = _gl->texturesManager->add(material->emissiveTexture);
 
         auto materialGpuData = phi::materialGpuData(
-            albedoTextureAddress.unit,
-            normalTextureAddress.unit,
-            specularTextureAddress.unit,
-            emissiveTextureAddress.unit,
-            albedoTextureAddress.page,
-            normalTextureAddress.page,
-            specularTextureAddress.page,
-            emissiveTextureAddress.page,
-            material->albedoColor,
-            material->specularColor,
-            material->emissiveColor,
-            material->shininess,
-            material->reflectivity,
-            material->emission,
-            material->opacity);
+            albedoTextureAddress,
+            normalTextureAddress,
+            specularTextureAddress,
+            emissiveTextureAddress,
+            material);
 
-        auto offset = _materialsCache[material] * sizeof(phi::materialGpuData);
-
+        auto offset = _materialsIndices[material] * sizeof(phi::materialGpuData);
         _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
         _materialsBuffer->bindBufferBase(1);
     }
 
     void pipeline::add(renderInstance& instance)
     {
-        if (!phi::contains(_materialsCache, instance.mesh->material))
-            uploadMaterial(instance.mesh->material);
-        instance.materialId = _materialsCache[instance.mesh->material];
+        uploadMaterialIfNew(instance.mesh->material);
+        instance.materialId = _materialsIndices[instance.mesh->material];
 
         auto i = 0u;
         auto added = false;
         auto batchesCount = _batches.size();
 
-        phi::batch* batch = nullptr;
+        batch* batch = nullptr;
 
         while (!added && i < batchesCount)
         {
