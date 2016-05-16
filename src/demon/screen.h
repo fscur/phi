@@ -9,40 +9,45 @@
 #include "defaultCameraController.h"
 #include "library.h"
 
+#ifdef _DEBUG
+#include <io/watcher.h>
+#endif 
 namespace demon
 {
-    class screen :
-        public phi::window
-    {
-    private:
-        bool _isMouseDown;
-        phi::vec2 _mouseDownPos;
-        phi::vec2 _lastMousePos;
+	class screen :
+		public phi::window
+	{
+	private:
+		bool _isMouseDown;
+		phi::vec2 _mouseDownPos;
+		phi::vec2 _lastMousePos;
 
-        phi::gl* _gl;
-        phi::scene* _scene;
-        library* _library;
+		phi::gl* _gl;
+		phi::scene* _scene;
+		library* _library;
 
-        phi::ui* _ui;
-        phi::commandsManager* _commandsManager;
-        defaultCameraController* _defaultController;
-
-    private:
-        void initGL();
+		phi::ui* _ui;
+		phi::commandsManager* _commandsManager;
+		defaultCameraController* _defaultController;
+#ifdef _DEBUG
+		phi::blockingQueue<phi::watcherMessage>* _messageQueue;
+#endif 
+	private:
+		void initGL();
 		void initAssimp();
-        void initLibrary();
-        void initScene();
-        void initUi();
-        void initInput();
+		void initLibrary();
+		void initScene();
+		void initUi();
+		void initInput();
 
-    public:
-        screen(phi::string name, phi::uint witdh, phi::uint height);
-        ~screen(void);
+	public:
+		screen(phi::string name, phi::uint witdh, phi::uint height);
+		~screen(void);
 
-        void onInit() override;
-        void onClosing() override;
-        void onUpdate() override;
-        void onRender() override;
-        void onTick() override;
-    };
+		void onInit() override;
+		void onClosing() override;
+		void onUpdate() override;
+		void onRender() override;
+		void onTick() override;
+	};
 }
