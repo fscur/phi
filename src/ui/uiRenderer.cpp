@@ -19,6 +19,9 @@ namespace phi
 		safeDelete(_glassyControlsRenderPass);
         safeDelete(_controlsRenderPass);
         safeDelete(_textRenderPass);
+
+		for (auto pair : _imageTextures)
+			safeDelete(pair.second);
     }
 
     void uiRenderer::add(node* node)
@@ -51,13 +54,31 @@ namespace phi
         auto renderData = controlRenderData();
         renderData.backgroundColor = controlRenderer->getBackgroundColor();
 
-        auto texture = controlRenderer->getBackgroundTexture();
+        auto image = controlRenderer->getBackgroundImage();
+		if (image == nullptr)
+			image = _gl->defaultAlbedoImage;
+
+		phi::texture* texture = nullptr;
+
+		if (_imageTextures.find(image) != _imageTextures.end())
+			texture = _imageTextures[image];
+		else
+		{
+			texture = new phi::texture(
+				image,
+				GL_TEXTURE_2D,
+				GL_RGBA8,
+				GL_REPEAT,
+				GL_LINEAR_MIPMAP_LINEAR,
+				GL_LINEAR,
+				true);
+
+			_imageTextures[image] = texture;
+		}
+
         textureAddress address;
 
         auto texturesManager = _gl->texturesManager;
-
-        if (texture == nullptr)
-            texture = _gl->defaultAlbedoTexture;
 
         if (!texturesManager->contains(texture))
             address = texturesManager->add(texture);

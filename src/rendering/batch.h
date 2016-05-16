@@ -1,11 +1,11 @@
 #pragma once
 #include <phi.h>
+#include <core\mesh.h>
+#include <core\geometry.h>
+
 #include "renderingApi.h"
 #include "vertexBuffer.h"
 #include "buffer.h"
-#include "mesh.h"
-
-#include <core\geometry.h>
 
 namespace phi
 {

@@ -26,6 +26,7 @@ namespace phi
         float _scale;
         textureAddress _textureAddress;
         bool _showing;
+		texture* _gridTexture;
 
     public:
         transform transform;
@@ -45,7 +46,7 @@ namespace phi
         RENDERING_API planeGridRenderPass(gl* gl, float w, float h);
         RENDERING_API ~planeGridRenderPass();
 
-        RENDERING_API void setTexture(texture* texture);
+        RENDERING_API void setImage(image* image);
 
         RENDERING_API void update();
         RENDERING_API void render();

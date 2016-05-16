@@ -31,7 +31,7 @@ namespace phi
         void addResource(resource<T>* r)
         {
             _resources.push_back(r);
-            _objects.push_back((T*)r->getObject());
+            _objects.push_back((T*)r->getOriginalObject());
         }
 
         vector<resource<T>*> getAllResources()
@@ -44,7 +44,7 @@ namespace phi
             return _objects;
         }
 
-        resource<T>* getResource(guid guid)
+        resource<T>* getResource(guid guid) const
         {
             for (auto resource : _resources)
             {
