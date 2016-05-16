@@ -21,8 +21,8 @@ namespace demon
     private:
         phi::string _libraryPath;
         phi::resourcesRepository<phi::image>* _imagesRepository;
-        phi::resourcesRepository<phi::geometry>* _geometriesRepository;
         phi::resourcesRepository<phi::material>* _materialsRepository;
+        phi::resourcesRepository<phi::geometry>* _geometriesRepository;
         phi::resourcesRepository<phi::node>* _nodesRepository;
 
     private:

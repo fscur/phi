@@ -106,24 +106,22 @@ namespace phi
 	void assimpImporter::loadScene(
 		const aiScene* scene,
 		const aiNode* nd,
-		aiMatrix4x4* transform,
 		node* node,
 		const vector<material*>& materials,
 		const vector<geometry*>& geometries)
 	{
-		aiMatrix4x4 prev = *transform;
-		aiMultiplyMatrix4(transform, &nd->mTransformation);
+		//aiMatrix4x4 prev = *transform;
+		//aiMultiplyMatrix4(transform, &nd->mTransformation);
 
-		auto t = &nd->mTransformation;
+		auto assimpTransform = &nd->mTransformation;
 		auto rotation = aiQuaternion();
 		auto scaling = aiVector3D();
 		auto position = aiVector3D();
 
-		t->Decompose(scaling, rotation, position);
+		assimpTransform->Decompose(scaling, rotation, position);
 		node->getTransform()->setLocalPosition(vec3(position.x, position.y, position.z));
 		node->getTransform()->setLocalSize(vec3(scaling.x, scaling.y, scaling.z));
 		node->getTransform()->setLocalOrientation(quat(rotation.w, rotation.x, rotation.y, rotation.z));
-		//node->
 
 		for (uint n = 0u; n < nd->mNumMeshes; ++n)
 		{
@@ -145,10 +143,10 @@ namespace phi
 			auto nodeName = string(childAssimpNode->mName.C_Str());
 			auto childNode = new phi::node(nodeName);
 			node->addChild(childNode);
-			loadScene(scene, childAssimpNode, transform, childNode, materials, geometries);
+			loadScene(scene, childAssimpNode, childNode, materials, geometries);
 		}
 
-		*transform = prev;
+		//*transform = prev;
 	}
 
 	resource<node>* assimpImporter::import(
@@ -180,12 +178,9 @@ namespace phi
 			vector<material*> materials;
 			loadMaterials(assimpScene, materials, materialsRepo);
 			
-			aiMatrix4x4 transform;
-			aiIdentityMatrix4(&transform);
-
 			auto modelName = phi::path::getFileNameWithoutExtension(fileName);
 			auto modelNode = new node(modelName);
-			loadScene(assimpScene, assimpScene->mRootNode, &transform, modelNode, materials, geometries);
+			loadScene(assimpScene, assimpScene->mRootNode, modelNode, materials, geometries);
 			modelNode = nodeOptimizer::optimize(modelNode);
 
 			return new resource<node>(guidGenerator::newGuid(), modelName, modelNode);

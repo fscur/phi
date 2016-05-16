@@ -67,12 +67,12 @@ namespace phi
 	bool nodeOptimizer::isNodeEmpty(phi::node* node)
 	{
 		return node->getComponents()->size() == 0 && node->getChildren()->size() == 0;
-	};
+	}
 
 	bool nodeOptimizer::isNodeUseless(phi::node* node)
 	{
 		return node->getComponents()->size() == 0 && node->getChildren()->size() == 1;
-	};
+	}
 
 	node* nodeOptimizer::optimize(node* node)
 	{

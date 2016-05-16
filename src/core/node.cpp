@@ -16,8 +16,6 @@ namespace phi
 
     node::~node()
     {
-        safeDelete(_transform);
-
         for (auto child : *_children)
             safeDelete(child);
 
@@ -28,6 +26,7 @@ namespace phi
 
         safeDelete(_components);
 
+        safeDelete(_transform);
         safeDelete(_transformChanged);
     }
 

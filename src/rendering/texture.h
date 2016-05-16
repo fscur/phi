@@ -11,11 +11,11 @@ namespace phi
         GLuint64 handle;
         GLuint w;
         GLuint h;
-        GLenum type;
-        GLenum internalFormat;
         GLenum dataFormat;
         GLenum dataType;
         byte* data;
+        GLenum type;
+        GLenum internalFormat;
         GLint wrapMode;
         GLint minFilter;
         GLint magFilter;

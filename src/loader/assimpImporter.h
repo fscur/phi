@@ -24,7 +24,6 @@ namespace phi
 		static void loadScene(
 			const aiScene* scene,
 			const aiNode* nd,
-			aiMatrix4x4* transform,
 			node* node,
 			const vector<material*>& materials,
 			const vector<geometry*>& geometries);
