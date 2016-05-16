@@ -41,6 +41,9 @@ namespace phi
 
     transform::~transform()
     {
+		if (_parent)
+			_parent->getChangedEvent()->unassign(_parentTransformChangedEventToken);
+
         safeDelete(_changedEvent);
     }
 

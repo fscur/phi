@@ -38,10 +38,12 @@ namespace phi
 			currentTransform = current->getTransform();
 		}
 
+		auto nodeParent = node->getParent();
+
 		if (current != node)
 		{
-			current->setParent(node->getParent());
 			deleteNodes(toRemove);
+			current->setParent(nodeParent);
 		}
 
 		auto children = current->getChildren();
@@ -56,7 +58,7 @@ namespace phi
 	void nodeOptimizer::deleteNodes(vector<node*>& nodes)
 	{
 		for (auto node : nodes)
-			node->getChildren()->clear();
+			node->clearChildren();
 
 		for (auto node : nodes)
 			safeDelete(node);

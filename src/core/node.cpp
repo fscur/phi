@@ -16,15 +16,18 @@ namespace phi
 
     node::~node()
     {
+        safeDelete(_transform);
+
         for (auto child : *_children)
             safeDelete(child);
+
+        safeDelete(_children);
 
         for (auto component : *_components)
             safeDelete(component);
 
-        safeDelete(_children);
         safeDelete(_components);
-        safeDelete(_transform);
+
         safeDelete(_transformChanged);
     }
 
@@ -80,6 +83,14 @@ namespace phi
             _children->erase(it);
         }
     }
+
+	void node::clearChildren()
+	{
+		for (auto child : *_children)
+			child->setParent(nullptr);
+
+		_children->clear();
+	}
 
     void node::traverse(std::function<void(node*)> func)
     {
