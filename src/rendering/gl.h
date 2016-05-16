@@ -1,7 +1,9 @@
 #pragma once
 #include <phi.h>
+
+#include <core\material.h>
+
 #include "renderingApi.h"
-#include "material.h"
 #include "texturesManager.h"
 #include "shadersManager.h"
 #include "fontsManager.h"
@@ -80,8 +82,8 @@ namespace phi
     private:
         void initOpenGLExtensions();
         void initState();
-        void createDefaultResources(bool hasSparseTextures);
-        texture* createDefaultTexture(bool hasSparseTextures, vec4 color);
+        void createDefaultResources(const bool& hasSparseTextures);
+		image* createDefaultMaterialImage(const bool& hasSparseTextures, const vec4& color);
         material* createDefaultMaterial();
 
     public:
@@ -91,10 +93,10 @@ namespace phi
         gl::state currentState;
         map<string, bool> extensions;
         material* defaultMaterial;
-        texture* defaultAlbedoTexture;
-        texture* defaultNormalTexture;
-        texture* defaultSpecularTexture;
-        texture* defaultEmissiveTexture;
+        image* defaultAlbedoImage;
+        image* defaultNormalImage;
+        image* defaultSpecularImage;
+        image* defaultEmissiveImage;
         font* defaultFont;
 
     public:

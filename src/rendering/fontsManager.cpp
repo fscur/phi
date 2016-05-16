@@ -52,11 +52,11 @@ namespace phi
         _glyphAtlasTexture = new texture(
             _glyphAtlasSize,
             _glyphAtlasSize,
-            GL_TEXTURE_2D,
-            GL_RGB8,
             GL_RGB,
             GL_UNSIGNED_BYTE,
             nullptr,
+            GL_TEXTURE_2D,
+            GL_RGB8,
             GL_CLAMP_TO_EDGE,
             GL_LINEAR,
             GL_LINEAR,

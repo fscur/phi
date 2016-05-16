@@ -8,46 +8,50 @@ using namespace phi;
 
 namespace demon
 {
-    library::library(gl* gl, string resourcesPath) :
-        _gl(gl),
-        _libraryPath(resourcesPath)
+    library::library(string resourcesPath) :
+        _libraryPath(resourcesPath),
+		_imagesRepository(new phi::resourcesRepository<image>()),
+		_materialsRepository(new phi::resourcesRepository<material>()),
+		_geometriesRepository(new phi::resourcesRepository<geometry>()),
+		_nodesRepository(new phi::resourcesRepository<node>())
     {
     }
 
     library::~library()
     {
-        safeDelete(_texturesRepository);
+        safeDelete(_imagesRepository);
         safeDelete(_materialsRepository);
         safeDelete(_geometriesRepository);
         safeDelete(_nodesRepository);
     }
 
-    void library::init()
-    {
-        auto importTextureFunction = [](string filePath)
-        {
-            return importer::importTexture(filePath);
-        };
+	void library::load()
+	{
+		auto importTextureFunction = [](string filePath)
+		{
+			return importer::loadImage(filePath);
+		};
 
-        auto importGeometryFunction = [](string filePath)
-        {
-            return importer::importGeometry(filePath);
-        };
+		auto importGeometryFunction = [](string filePath)
+		{
+			return importer::loadGeometry(filePath);
+		};
 
-        auto importMaterialFunction = [&](string filePath)
-        {
-            return importer::importMaterial(filePath, _texturesRepository);
-        };
+		auto importMaterialFunction = [&](string filePath)
+		{
+			return importer::loadMaterial(filePath, _imagesRepository);
+		};
 
-        auto importModelFunction = [&](string filePath)
-        {
-            return importer::loadNode(filePath, _materialsRepository, _geometriesRepository);
-        };
+		auto importModelFunction = [&](string filePath)
+		{
+			return importer::loadNode(filePath, _materialsRepository, _geometriesRepository);
+		};
 
-        _texturesRepository = load<texture>(_libraryPath + "/textures", ".texture", importTextureFunction);
-        _geometriesRepository = load<geometry>(_libraryPath + "/models", ".geometry", importGeometryFunction);
-        _materialsRepository = load<material>(_libraryPath + "/materials", ".material", importMaterialFunction);
-        _nodesRepository = load<node>(_libraryPath + "/models", ".model", importModelFunction);
+		load<image>(_libraryPath + "/textures", { ".texture" }, _imagesRepository, importTextureFunction);
+		load<geometry>(_libraryPath + "/models", { ".geometry" }, _geometriesRepository, importGeometryFunction);
+		load<material>(_libraryPath + "/materials", { ".material" }, _materialsRepository, importMaterialFunction);
+		load<node>(_libraryPath + "/models", { ".model" }, _nodesRepository, importModelFunction);
+
         debug(_("Library initialized."));
     }
 }

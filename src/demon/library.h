@@ -4,12 +4,12 @@
 #include <core\resourcesRepository.h>
 #include <core\node.h>
 #include <core\geometry.h>
+#include <core\material.h>
 
 #include <io\path.h>
 
 #include <loader\importResourceException.h>
 
-#include <rendering\material.h>
 #include <rendering\gl.h>
 
 #include <apps\application.h>
@@ -19,26 +19,13 @@ namespace demon
     class library
     {
     private:
-        phi::gl* _gl;
         phi::string _libraryPath;
-        phi::resourcesRepository<phi::texture>* _texturesRepository;
-        phi::resourcesRepository<phi::geometry>* _geometriesRepository;
+        phi::resourcesRepository<phi::image>* _imagesRepository;
         phi::resourcesRepository<phi::material>* _materialsRepository;
+        phi::resourcesRepository<phi::geometry>* _geometriesRepository;
         phi::resourcesRepository<phi::node>* _nodesRepository;
+
     private:
-        template<typename T>
-        phi::resourcesRepository<T>* load(
-            phi::string directory,
-            phi::string filter,
-            std::function<phi::resource<T>*(phi::string)> importFunction)
-        {
-            auto repository = new phi::resourcesRepository<T>();
-
-            load(directory, { filter }, repository, importFunction);
-
-            return repository;
-        }
-
         template<typename T>
         void load(phi::string directory,
             phi::vector<phi::string> filters,
@@ -66,12 +53,12 @@ namespace demon
 
     public:
 
-        library(phi::gl* gl, phi::string resourcesPath);
+        library(phi::string resourcesPath);
         ~library();
 
-        void init();
+        void load();
 
-        phi::resourcesRepository<phi::texture>* getTexturesRepository() const { return _texturesRepository; }
+        phi::resourcesRepository<phi::image>* getTexturesRepository() const { return _imagesRepository; }
         phi::resourcesRepository<phi::geometry>* getGeometriesRepository() const { return _geometriesRepository; }
         phi::resourcesRepository<phi::material>* getMaterialsRepository() const { return _materialsRepository; }
         phi::resourcesRepository<phi::node>* getObjectsRepository() const { return _nodesRepository; }

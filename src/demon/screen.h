@@ -22,9 +22,10 @@ namespace demon
 		phi::vec2 _mouseDownPos;
 		phi::vec2 _lastMousePos;
 
-		phi::gl* _gl;
-		phi::scene* _scene;
-		library* _library;
+        phi::gl* _gl;
+        phi::scene* _scene;
+        library* _userLibrary;
+		library* _projectLibrary;
 
 		phi::ui* _ui;
 		phi::commandsManager* _commandsManager;
@@ -35,10 +36,10 @@ namespace demon
 	private:
 		void initGL();
 		void initAssimp();
-		void initLibrary();
-		void initScene();
-		void initUi();
-		void initInput();
+        void initLibraries();
+        void initScene();
+        void initUi();
+        void initInput();
 
 	public:
 		screen(phi::string name, phi::uint witdh, phi::uint height);

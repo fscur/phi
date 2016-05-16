@@ -44,8 +44,6 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <DbgHelp.h>
-#include <TlHelp32.h>
 #include <windows.h>
 #include <windowsx.h>
 #elif APPLE
@@ -63,6 +61,7 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\constants.hpp>
 #include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\quaternion.hpp>
 #include <glm\gtc\type_precision.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtx\norm.hpp>
