@@ -54,10 +54,11 @@ namespace phi
         vec3 getLocalSize() const { return _localSize; }
         eventHandler<transform*>* getChangedEvent() const { return _changedEvent; }
 
-        void translate(vec3 translation) { setLocalPosition(_localPosition + translation); }
-        void rotate(float angle, vec3 axis) { setLocalOrientation(angleAxis(angle, axis) * _localOrientation); }
-        void pitch(float angle) { setLocalOrientation(angleAxis(angle, vec3(1.0f, 0.0f, 0.0f)) * _localOrientation); }
-        void yaw(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 1.0f, 0.0f)) * _localOrientation); }
-        void roll(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 0.0f, 1.0f)) * _localOrientation); }
+		CORE_API void translate(vec3 translation);
+		CORE_API void rotate(float angle, vec3 axis);
+		CORE_API void pitch(float angle);
+		CORE_API void yaw(float angle);
+		CORE_API void roll(float angle);
+		CORE_API void multiply(const transform& transform);
     };
 }

@@ -105,11 +105,11 @@ namespace phi
         auto finalImageTexture = new texture(
             static_cast<uint>(_w),
             static_cast<uint>(_h),
-            GL_TEXTURE_2D,
-            GL_RGBA8,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
             nullptr,
+            GL_TEXTURE_2D,
+            GL_RGBA8,
             GL_CLAMP_TO_EDGE,
             GL_LINEAR_MIPMAP_LINEAR,
             GL_LINEAR,

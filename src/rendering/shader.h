@@ -57,7 +57,7 @@ namespace phi
         RENDERING_API void bind();
         RENDERING_API void unbind();
         RENDERING_API bool reload();
-
+		RENDERING_API bool canCompileShader();
         GLuint getId() const { return _programId; }
     };
 }

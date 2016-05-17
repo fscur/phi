@@ -47,13 +47,7 @@ namespace phi
                 mesh->selectionChanged += std::bind(&scene::meshSelectionChanged, this, std::placeholders::_1);
 
                 sceneId::setNextId(mesh);
-
-                renderInstance instance = { 0 };
-                instance.mesh = mesh;
-                instance.modelMatrix = node->getTransform()->getModelMatrix();
-                instance.materialId = -1; //gambis
-
-                _pipeline->add(instance);
+                _pipeline->add(mesh, node->getTransform()->getModelMatrix());
             }
         });
     }

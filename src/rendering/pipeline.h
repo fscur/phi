@@ -2,6 +2,7 @@
 #include <phi.h>
 #include "renderingApi.h"
 #include <core\node.h>
+#include <core\image.h>
 
 #include "renderer.h"
 #include "frameUniformBlock.h"
@@ -15,7 +16,8 @@ namespace phi
     {
     private:
         const uint MAX_MATERIALS_COUNT = 512;
-
+        map<image*, texture*> _imageTextures;
+        map<material*, uint> _materialsMaterialsGpu;
         const gl* _gl;
         buffer* _materialsBuffer;
         buffer* _frameUniformBlockBuffer;
@@ -31,12 +33,12 @@ namespace phi
         void createFrameUniformBlockBuffer();
         void createMaterialsBuffer();
         void uploadMaterialIfNew(material* material);
-
+        texture* getMaterialTexture(image* image, phi::image* defaultImage);
     public:
         RENDERING_API pipeline(gl* gl, float w, float h);
         RENDERING_API ~pipeline();
 
-        RENDERING_API void add(renderInstance& instance);
+        RENDERING_API void add(mesh* mesh, mat4 modelMatrix);
         RENDERING_API void remove(const renderInstance& instance);
         RENDERING_API void update(const renderInstance& instance);
         RENDERING_API void remove(mesh* mesh);

@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include <rendering\mesh.h>
+#include <core\mesh.h>
 
 namespace phi
 {

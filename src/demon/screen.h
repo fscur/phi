@@ -2,13 +2,15 @@
 #include <phi.h>
 #include <apps\window.h>
 #include <apps\commandsManager.h>
-//#include <ui\label.h>
 #include <scenes\scene.h>
 #include <ui\ui.h>
 
 #include "defaultCameraController.h"
 #include "library.h"
 
+#ifdef _DEBUG
+#include <io/watcher.h>
+#endif 
 namespace demon
 {
     class screen :
@@ -21,15 +23,18 @@ namespace demon
 
         phi::gl* _gl;
         phi::scene* _scene;
-        library* _library;
+        library* _userLibrary;
+        library* _projectLibrary;
 
         phi::ui* _ui;
         phi::commandsManager* _commandsManager;
         defaultCameraController* _defaultController;
-
+#ifdef _DEBUG
+        phi::blockingQueue<phi::watcherMessage>* _messageQueue;
+#endif 
     private:
         void initGL();
-        void initLibrary();
+        void initLibraries();
         void initScene();
         void initUi();
         void initInput();

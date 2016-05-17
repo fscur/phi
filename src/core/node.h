@@ -21,8 +21,6 @@ namespace phi
 
     private:
         void raiseTransformChanged(transform* sender);
-        void removeEmptyNodes();
-        void removeUselessNodes();
 
     public:
         CORE_API node(string name = string(""));
@@ -33,13 +31,15 @@ namespace phi
         CORE_API void addComponent(component* const component);
         CORE_API void addChild(node* const child);
         CORE_API void removeChild(node* child);
+        CORE_API void clearChildren();
 
+        string getName() const { return _name; }
         transform* getTransform() const { return _transform; }
         node* getParent() const { return _parent; }
         vector<node*>* getChildren() const { return _children; }
         vector<component*>* getComponents() const { return _components; }
-        void setParent(node* const value) { _parent = value; }
 
+        CORE_API void setParent(node* const value);
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);
         CORE_API void traverse(std::function<void(node*)> func);
@@ -78,7 +78,5 @@ namespace phi
             for (auto child : *_children)
                 child->traverseNodesContaining(func);
         }
-
-        CORE_API void optimize();
     };
 }

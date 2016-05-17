@@ -1,7 +1,7 @@
 #pragma once
 #include "renderingApi.h"
 #include "glyph.h"
-#include "rectangle.h"
+#include <core\rectangle.h>
 
 namespace phi
 {

@@ -5,7 +5,7 @@
 
 #include <loader\importer.h>
 
-#include <rendering\model.h>
+#include <core\model.h>
 
 #include <animation\floatAnimator.h>
 
@@ -35,10 +35,24 @@ namespace demon
     void screen::onInit()
     {
         initGL();
-        initLibrary();
+        initLibraries();
         initScene();
         initUi();
         initInput();
+
+#ifdef _DEBUG
+        _messageQueue = new blockingQueue<phi::watcherMessage>();
+        watcher::watchDirAsync(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
+        {
+            auto fileExtension = path::getExtension(shaderFileName);
+            if (fileExtension == phi::shadersManager::FRAG_EXT ||
+                fileExtension == phi::shadersManager::VERT_EXT)
+            {
+                auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
+                _gl->shadersManager->reloadShader(shaderName);
+            }
+        });
+#endif
     }
 
     void screen::initGL()
@@ -62,12 +76,6 @@ namespace demon
         info.fontsPath = application::resourcesPath + "/fonts";
         _gl = new gl(info);
 
-        importer::defaultAlbedoTexture = _gl->defaultAlbedoTexture;
-        importer::defaultEmissiveTexture = _gl->defaultEmissiveTexture;
-        importer::defaultNormalTexture = _gl->defaultNormalTexture;
-        importer::defaultSpecularTexture = _gl->defaultSpecularTexture;
-        importer::defaultMaterial = _gl->defaultMaterial;
-
         application::logInfo("Vendor: " + _gl->getVendor() + ".");
         application::logInfo("Renderer: " + _gl->getRenderer() + ".");
         application::logInfo("Version: " + _gl->getVersion() + ".");
@@ -80,10 +88,12 @@ namespace demon
         }
     }
 
-    void screen::initLibrary()
+    void screen::initLibraries()
     {
-        _library = new library(_gl, application::libraryPath);
-        _library->init();
+        _userLibrary = new library(application::libraryPath);
+        _userLibrary->load();
+
+        _projectLibrary = new library(application::path);
     }
 
     void screen::initScene()
@@ -92,27 +102,16 @@ namespace demon
         auto camera = _scene->getCamera();
 
         auto cameraTransform = camera->getTransform();
-        auto cameraPos = vec3(-3.f, 0.f, 10.f);
+        auto cameraPos = vec3(0.0f, 0.0f, 10.0f);
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto floor = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-        auto clonedFloor = floor->clone();
-        _scene->add(clonedFloor);
+        auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        _scene->add(floor);
 
-        auto obj = _library->getObjectsRepository()->getAllResources()[0]->getObject();
-
-        auto obj1 = obj->clone();
-        obj1->getTransform()->setLocalPosition(vec3(0.f, .2f, 0.f));
-        _scene->add(obj1);
-
-        auto obj2 = obj->clone();
-        obj2->getTransform()->setLocalPosition(vec3(2.f, .2f, 0.f));
-        _scene->add(obj2);
-
-        auto obj3 = obj->clone();
-        obj3->getTransform()->setLocalPosition(vec3(4.f, .2f, 0.f));
-        _scene->add(obj3);
+        auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair->getTransform()->setLocalPosition(vec3(0.f, .5f, 0.f));
+        _scene->add(chair);
     }
 
     void screen::initUi()
@@ -121,16 +120,16 @@ namespace demon
 
         _ui = new ui(uiCamera, _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
 
-        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 14);
+        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 24);
 
         auto label0 = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
-        auto controlRenderer = label0->getComponent<phi::control>();
-        controlRenderer->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
-        controlRenderer->setIsGlassy(true);
+        auto control = label0->getComponent<phi::control>();
+        control->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
+        control->setIsGlassy(true);
 
-        auto textRenderer = label0->getComponent<phi::text>();
-        textRenderer->setFont(font);
-        textRenderer->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+        auto text = label0->getComponent<phi::text>();
+        text->setFont(font);
+        text->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
         _ui->add(label0);
     }
@@ -165,9 +164,14 @@ namespace demon
 
     void screen::onTick()
     {
-        debug("fps: " + std::to_string(application::framesPerSecond));
-#if _DEBUG
-        _gl->shadersManager->reloadAllShaders();
+        //debug("fps: " + std::to_string(application::framesPerSecond));
+#ifdef _DEBUG
+        while (!_messageQueue->empty())
+        {
+            auto message = _messageQueue->front();
+            message.callback(message.fileChanged);
+            _messageQueue->pop();
+        }
 #endif
     }
 
@@ -176,8 +180,12 @@ namespace demon
         safeDelete(_commandsManager);
         safeDelete(_defaultController);
         safeDelete(_gl);
-        safeDelete(_library);
+        safeDelete(_userLibrary);
+        safeDelete(_projectLibrary);
         safeDelete(_scene);
         safeDelete(_ui);
+#ifdef _DEBUG
+        safeDelete(_messageQueue);
+#endif 
     }
 }

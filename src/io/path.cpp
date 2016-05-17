@@ -43,7 +43,7 @@ namespace phi
         auto dotIndex = path.find_last_of('.');
 
         if (dotIndex < slashIndex)
-            return "";
+            return path.substr(0, dotIndex);
 
         return path.substr(slashIndex + 1, dotIndex - slashIndex - 1);
     }

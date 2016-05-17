@@ -5,7 +5,7 @@
 #include <core\component.h>
 #include <core\eventHandler.h>
 
-#include "ray.h"
+#include <core\ray.h>
 
 #undef near
 #undef far

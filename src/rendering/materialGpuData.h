@@ -1,6 +1,6 @@
 #pragma once
 
-#include "material.h"
+#include <core\material.h>
 
 namespace phi
 {

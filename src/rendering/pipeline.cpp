@@ -21,6 +21,9 @@ namespace phi
 
         for (auto batch : _batches)
             safeDelete(batch);
+
+        for (auto pair : _imageTextures)
+            safeDelete(pair.second);
     }
 
     void pipeline::createFrameUniformBlockBuffer()
@@ -36,7 +39,7 @@ namespace phi
     void pipeline::createMaterialsBuffer()
     {
         _materialsBuffer = new buffer(bufferTarget::shader);
-        
+
         _materialsBuffer->storage(
             sizeof(materialGpuData) * MAX_MATERIALS_COUNT,
             nullptr,
@@ -52,10 +55,15 @@ namespace phi
 
         _materialsIndices[material] = currentId++;
 
-        auto albedoTextureAddress = _gl->texturesManager->add(material->albedoTexture);
-        auto normalTextureAddress = _gl->texturesManager->add(material->normalTexture);
-        auto specularTextureAddress = _gl->texturesManager->add(material->specularTexture);
-        auto emissiveTextureAddress = _gl->texturesManager->add(material->emissiveTexture);
+        auto albedoTexture = getMaterialTexture(material->albedoImage, _gl->defaultAlbedoImage);
+        auto normalTexture = getMaterialTexture(material->normalImage, _gl->defaultNormalImage);
+        auto specularTexture = getMaterialTexture(material->specularImage, _gl->defaultSpecularImage);
+        auto emissiveTexture = getMaterialTexture(material->emissiveImage, _gl->defaultEmissiveImage);
+
+        auto albedoTextureAddress = _gl->texturesManager->add(albedoTexture);
+        auto normalTextureAddress = _gl->texturesManager->add(normalTexture);
+        auto specularTextureAddress = _gl->texturesManager->add(specularTexture);
+        auto emissiveTextureAddress = _gl->texturesManager->add(emissiveTexture);
 
         auto materialGpuData = phi::materialGpuData(
             albedoTextureAddress,
@@ -69,10 +77,19 @@ namespace phi
         _materialsBuffer->bindBufferBase(1);
     }
 
-    void pipeline::add(renderInstance& instance)
+    void pipeline::add(mesh* mesh, mat4 modelMatrix)
     {
-        uploadMaterialIfNew(instance.mesh->material);
-        instance.materialId = _materialsIndices[instance.mesh->material];
+        if (mesh->material == nullptr)
+            mesh->material = _gl->defaultMaterial;
+
+        uploadMaterialIfNew(mesh->material);
+        
+        renderInstance instance = 
+        {
+            mesh,
+            _materialsIndices[instance.mesh->material],
+            modelMatrix
+        };
 
         auto i = 0u;
         auto added = false;
@@ -96,8 +113,32 @@ namespace phi
         _meshesBatches[instance.mesh] = batch;
     }
 
-    void pipeline::remove(const renderInstance& instance)
+    texture* pipeline::getMaterialTexture(image* materialImage, phi::image* defaultImage)
     {
+        phi::texture* texture = nullptr;
+
+        if (materialImage == nullptr)
+            materialImage = defaultImage;
+
+        if (_imageTextures.find(materialImage) != _imageTextures.end())
+        {
+            texture = _imageTextures[materialImage];
+        }
+        else
+        {
+            texture = new phi::texture(
+                materialImage,
+                GL_TEXTURE_2D,
+                GL_RGBA8,
+                GL_REPEAT,
+                GL_LINEAR_MIPMAP_LINEAR,
+                GL_LINEAR,
+                true);
+
+            _imageTextures[materialImage] = texture;
+        }
+
+        return texture;
     }
 
     void pipeline::remove(mesh* mesh)

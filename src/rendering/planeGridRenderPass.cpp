@@ -41,6 +41,7 @@ namespace phi
         safeDelete(_quad);
         safeDelete(_quadVbo);
         safeDelete(_quadEbo);
+		safeDelete(_gridTexture);
     }
 
     void planeGridRenderPass::createQuad()
@@ -81,12 +82,15 @@ namespace phi
         glError::check();
     }
 
-    void planeGridRenderPass::setTexture(texture* texture)
+    void planeGridRenderPass::setImage(image* image)
     {
-        texture->wrapMode = GL_REPEAT;
-        texture->minFilter = GL_LINEAR_MIPMAP_LINEAR;
-        texture->magFilter = GL_LINEAR;
-        _textureAddress = _gl->texturesManager->add(texture);
+		_gridTexture = new phi::texture(image);
+		_gridTexture->type = GL_TEXTURE_2D;
+		_gridTexture->internalFormat = GL_RGBA8;
+        _gridTexture->wrapMode = GL_REPEAT;
+        _gridTexture->minFilter = GL_LINEAR_MIPMAP_LINEAR;
+        _gridTexture->magFilter = GL_LINEAR;
+        _textureAddress = _gl->texturesManager->add(_gridTexture);
     }
 
     void planeGridRenderPass::show()
