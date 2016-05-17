@@ -83,13 +83,11 @@ namespace phi
             mesh->material = _gl->defaultMaterial;
 
         uploadMaterialIfNew(mesh->material);
-        
-        renderInstance instance = 
-        {
-            mesh,
-            _materialsIndices[instance.mesh->material],
-            modelMatrix
-        };
+
+        renderInstance instance = { 0 };
+        instance.mesh = mesh;
+        instance.modelMatrix = modelMatrix;
+        instance.materialId = _materialsIndices[instance.mesh->material];
 
         auto i = 0u;
         auto added = false;
