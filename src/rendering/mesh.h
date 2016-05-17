@@ -12,11 +12,11 @@ namespace phi
         public component
     {
     private:
-        eventHandler<mesh*>* _selectionChanged;
         bool _isSelected;
         int _id;
 
     public:
+        eventHandler<mesh*> selectionChanged;
         geometry* geometry;
         material* material;
 
@@ -31,7 +31,6 @@ namespace phi
         bool getSelected() { return _isSelected; }
         void setId(int id) { _id = id; }
         int getId() const { return _id; }
-        eventHandler<mesh*>* getSelectionChanged() { return _selectionChanged; }
         static componentType getComponentType() { return componentType::MESH; }
     };
 }

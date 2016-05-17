@@ -12,11 +12,15 @@ namespace phi
         transform* _transform;
         vector<component*>* _components;
         vector<node*>* _children;
-        eventHandler<node*>* _transformChanged;
         string _name;
 
+    public:
+        eventHandler<node*> childAdded;
+        eventHandler<node*> childRemoved;
+        eventHandler<node*> transformChanged;
+
     private:
-        void transformChanged(transform* sender);
+        void raiseTransformChanged(transform* sender);
         void removeEmptyNodes();
         void removeUselessNodes();
 
@@ -24,28 +28,21 @@ namespace phi
         CORE_API node(string name = string(""));
         CORE_API node(const node& original);
         CORE_API ~node();
-
         CORE_API node* clone() const;
 
         CORE_API void addComponent(component* const component);
         CORE_API void addChild(node* const child);
         CORE_API void removeChild(node* child);
 
-        CORE_API void traverse(std::function<void(node*)> func);
-
         transform* getTransform() const { return _transform; }
         node* getParent() const { return _parent; }
-
         vector<node*>* getChildren() const { return _children; }
-
         vector<component*>* getComponents() const { return _components; }
-
-        eventHandler<node*>* getTransformChanged() { return _transformChanged; }
-
         void setParent(node* const value) { _parent = value; }
 
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);
+        CORE_API void traverse(std::function<void(node*)> func);
 
         template<typename T>
         T* getComponent() const

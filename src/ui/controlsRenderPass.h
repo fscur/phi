@@ -44,7 +44,6 @@ namespace phi
         UI_API ~controlsRenderPass();
         UI_API void add(controlRenderData renderData, mat4 modelMatrix);
         UI_API void update();
-        //UI_API void update(const vector<control*>& controls);
         UI_API void render() const;
     };
 }

@@ -100,8 +100,24 @@ namespace phi
     {
     }
 
+    void pipeline::remove(mesh* mesh)
+    {
+        _meshesBatches[mesh]->remove(mesh);
+    }
+
     void pipeline::update(const renderInstance& instance)
     {
+        _meshesBatches[instance.mesh]->update(instance);
+    }
+
+    void pipeline::updateTranformBuffer(mesh* mesh, const mat4& modelMatrix)
+    {
+        _meshesBatches[mesh]->updateTransformBuffer(mesh, modelMatrix);
+    }
+
+    void pipeline::updateSelectionBuffer(mesh* mesh)
+    {
+        _meshesBatches[mesh]->updateSelectionBuffer(mesh);
     }
 
     void pipeline::update(const frameUniformBlock& frameUniformBlock)

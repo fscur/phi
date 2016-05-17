@@ -15,7 +15,7 @@ namespace demon
     private:
         phi::scene* _scene;
         selectionMouseController* _selectionController;
-        phi::vector<phi::node*> _deletedObjects;
+        phi::map<phi::node*, phi::node*> _nodesParents;
 
     public:
         deleteObjectCommand(phi::scene* scene, selectionMouseController* selectionController);

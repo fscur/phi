@@ -6,7 +6,8 @@ namespace phi
     struct shortcut
     {
         shortcut(std::vector<keycode> keys, std::function<command*(void)> commandFunc) :
-            keys(keys), commandFunc(commandFunc)
+            keys(keys),
+            commandFunc(commandFunc)
         {
         }
 

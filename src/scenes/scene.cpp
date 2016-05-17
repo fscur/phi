@@ -11,10 +11,12 @@ namespace phi
         _gl(gl),
         _pipeline(new pipeline(gl, w, h)),
         _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
-        _objects(vector<node*>()),
+        _sceneRoot(new node("sceneRoot")),
         _w(w),
         _h(h)
     {
+        trackNode(_sceneRoot);
+
         auto cameraNode = new node();
         cameraNode->addComponent(_camera);
         add(cameraNode);
@@ -22,10 +24,64 @@ namespace phi
 
     scene::~scene()
     {
-        for (auto object : _objects)
-            safeDelete(object);
-
+        safeDelete(_sceneRoot);
         safeDelete(_pipeline);
+    }
+
+    void scene::trackNode(node* node)
+    {
+        node->childAdded += std::bind(&scene::nodeChildAdded, this, std::placeholders::_1);
+        node->childRemoved += std::bind(&scene::nodeChildRemoved, this, std::placeholders::_1);
+        node->transformChanged += std::bind(&scene::nodeTransformChanged, this, std::placeholders::_1);
+    }
+
+    void scene::nodeChildAdded(node* addedChild)
+    {
+        addedChild->traverse([&](phi::node* node)
+        {
+            trackNode(node);
+
+            auto mesh = node->getComponent<phi::mesh>();
+            if (mesh)
+            {
+                mesh->selectionChanged += std::bind(&scene::meshSelectionChanged, this, std::placeholders::_1);
+
+                sceneId::setNextId(mesh);
+
+                renderInstance instance = { 0 };
+                instance.mesh = mesh;
+                instance.modelMatrix = node->getTransform()->getModelMatrix();
+                instance.materialId = -1; //gambis
+
+                _pipeline->add(instance);
+            }
+        });
+    }
+
+    void scene::nodeChildRemoved(node* removedChild)
+    {
+        removedChild->traverse([&](node* node) 
+        {
+            //unnassign events
+            auto mesh = node->getComponent<phi::mesh>();
+            if (mesh)
+            {
+                _pipeline->remove(mesh);
+            }
+        });
+    }
+
+    void scene::nodeTransformChanged(node* changedNode)
+    {
+        changedNode->traverseNodesContaining<mesh>([&](node* node, mesh* mesh)
+        {
+            _pipeline->updateTranformBuffer(mesh, node->getTransform()->getModelMatrix());
+        });
+    }
+
+    void scene::meshSelectionChanged(mesh* mesh)
+    {
+        _pipeline->updateSelectionBuffer(mesh);
     }
 
     void scene::update()
@@ -52,29 +108,12 @@ namespace phi
 
     void scene::add(node* node)
     {
-        node->traverseNodesContaining<mesh>([&](phi::node* currentNode, mesh* mesh)
-        {
-            sceneId::setNextId(mesh);
-
-            renderInstance instance = { 0 };
-            instance.mesh = mesh;
-            instance.modelMatrix = currentNode->getTransform()->getModelMatrix();
-            instance.materialId = -1; //gambis
-
-            _pipeline->add(instance);
-        });
-
-        _objects.push_back(node);
+        _sceneRoot->addChild(node);
     }
 
     void scene::remove(node* node)
     {
-        phi::removeIfContains(_objects, node);
-
-        node->traverse<mesh>([&](mesh* mesh)
-        {
-            sceneId::removeMeshId(mesh);
-        });
+        _sceneRoot->removeChild(node);
     }
 
     mesh* scene::pick(int mouseX, int mouseY)

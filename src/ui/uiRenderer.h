@@ -19,8 +19,8 @@ namespace phi
     private:
         const gl* _gl;
         camera* _camera;
-        vector<control*> _controlRenderers;
-        vector<text*> _textRenderers;
+        vector<control*> _controls;
+        vector<text*> _labels;
         controlsRenderPass* _controlsRenderPass;
         glassyControlsRenderPass* _glassyControlsRenderPass;
         textRenderPass* _textRenderPass;

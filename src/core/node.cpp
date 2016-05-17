@@ -8,24 +8,9 @@ namespace phi
         _transform(new transform()),
         _components(new vector<component*>()),
         _children(new vector<node*>()),
-        _transformChanged(new eventHandler<node*>()),
         _name(name)
     {
-        _transform->getChangedEvent()->assign(std::bind(&node::transformChanged, this, std::placeholders::_1));
-    }
-
-    node::~node()
-    {
-        for (auto child : *_children)
-            safeDelete(child);
-
-        for (auto component : *_components)
-            safeDelete(component);
-
-        safeDelete(_children);
-        safeDelete(_components);
-        safeDelete(_transform);
-        safeDelete(_transformChanged);
+        _transform->getChangedEvent()->assign(std::bind(&node::raiseTransformChanged, this, std::placeholders::_1));
     }
 
     node::node(const node& original) :
@@ -33,7 +18,6 @@ namespace phi
         _transform(original._transform->clone()),
         _components(new vector<component*>()),
         _children(new vector<node*>()),
-        _transformChanged(new eventHandler<node*>()),
         _name(original._name)
     {
         for (auto child : *(original._children))
@@ -52,7 +36,20 @@ namespace phi
             _components->push_back(clonedComponent);
         }
 
-        _transform->getChangedEvent()->assign(std::bind(&node::transformChanged, this, std::placeholders::_1));
+        _transform->getChangedEvent()->assign(std::bind(&node::raiseTransformChanged, this, std::placeholders::_1));
+    }
+
+    node::~node()
+    {
+        for (auto child : *_children)
+            safeDelete(child);
+
+        for (auto component : *_components)
+            safeDelete(component);
+
+        safeDelete(_children);
+        safeDelete(_components);
+        safeDelete(_transform);
     }
 
     inline node* node::clone() const
@@ -70,14 +67,17 @@ namespace phi
     {
         _children->push_back(child);
         child->setParent(this);
+
+        childAdded.raise(child);
     }
 
     void node::removeChild(node* child)
     {
-        auto it = std::find(_children->begin(), _children->end(), child);
-        if (it != _children->end())
+        auto iterator = std::find(_children->begin(), _children->end(), child);
+        if (iterator != _children->end())
         {
-            _children->erase(it);
+            _children->erase(iterator);
+            childRemoved.raise(child);
         }
     }
 
@@ -89,9 +89,9 @@ namespace phi
             child->traverse(func);
     }
 
-    inline void node::transformChanged(transform* sender)
+    inline void node::raiseTransformChanged(transform* sender)
     {
-        _transformChanged->raise(this);
+        transformChanged.raise(this);
     }
 
     inline void node::setPosition(vec3 value)

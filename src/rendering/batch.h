@@ -74,8 +74,10 @@ namespace phi
         RENDERING_API batch();
         RENDERING_API ~batch();
         RENDERING_API bool add(const renderInstance& instance);
-        RENDERING_API void remove(const renderInstance& instance);
+        RENDERING_API void remove(mesh* mesh);
         RENDERING_API void update(const renderInstance& instance);
+        RENDERING_API void updateSelectionBuffer(mesh* mesh);
+        RENDERING_API void updateTransformBuffer(mesh* mesh, const mat4& modelMatrix);
         RENDERING_API void render();
     };
 }

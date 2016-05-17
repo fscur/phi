@@ -10,7 +10,7 @@ namespace phi
         _onSizeChanged(new eventHandler<vec3>()),
         _color(color::transparent),
         _size(vec3(0.0f)),
-		_isGlassy(false)
+        _isGlassy(false)
     {
     }
 

@@ -253,8 +253,18 @@ namespace phi
         return true;
     }
 
-    void batch::remove(const renderInstance& instance)
+    void batch::remove(mesh* mesh)
     {
+        auto instance = _meshInstances[mesh];
+        phi::removeIfContains(_instances[mesh->geometry], instance);
+        
+        if (_instances[mesh->geometry].size() == 0)
+            _instances.erase(mesh->geometry);
+
+        _instancesMesh.erase(instance);
+        _meshInstances.erase(mesh);
+
+        updateAllData();
     }
 
     void batch::update(const renderInstance& instance)
@@ -267,6 +277,22 @@ namespace phi
         _modelMatricesBuffer->subData(drawInstance->offset * sizeof(mat4), sizeof(mat4), &drawInstance->modelMatrix);
         _materialsIdsBuffer->subData(drawInstance->offset * sizeof(uint), sizeof(uint), &drawInstance->materialId);
         _selectionBuffer->subData(drawInstance->offset * sizeof(vec4), sizeof(vec4), &selectionColor);
+    }
+
+    void batch::updateSelectionBuffer(mesh* mesh)
+    {
+        auto drawInstance = _meshInstances[mesh];
+        auto selectionColor = mesh->getSelectionColor();
+
+        _selectionBuffer->subData(drawInstance->offset * sizeof(vec4), sizeof(vec4), &selectionColor);
+    }
+
+    void batch::updateTransformBuffer(mesh* mesh, const mat4& modelMatrix)
+    {
+        auto drawInstance = _meshInstances[mesh];
+        drawInstance->modelMatrix = modelMatrix;
+
+        _modelMatricesBuffer->subData(drawInstance->offset * sizeof(mat4), sizeof(mat4), &modelMatrix);
     }
 
     void batch::render()

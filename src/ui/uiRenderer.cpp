@@ -42,14 +42,14 @@ namespace phi
             addToLists(child);
     }
 
-    void uiRenderer::addControl(node* node, control* controlRenderer)
+    void uiRenderer::addControl(node* node, control* control)
     {
-        _controlRenderers.push_back(controlRenderer);
+        _controls.push_back(control);
 
         auto renderData = controlRenderData();
-        renderData.backgroundColor = controlRenderer->getBackgroundColor();
+        renderData.backgroundColor = control->getBackgroundColor();
 
-        auto texture = controlRenderer->getBackgroundTexture();
+        auto texture = control->getBackgroundTexture();
         textureAddress address;
 
         auto texturesManager = _gl->texturesManager;
@@ -65,7 +65,7 @@ namespace phi
         renderData.backgroundTextureUnit = address.unit;
         renderData.backgroundTexturePage = address.page;
 
-        if (!controlRenderer->getIsGlassy())
+        if (!control->getIsGlassy())
             _controlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
         else
             _glassyControlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
@@ -73,7 +73,7 @@ namespace phi
 
     void uiRenderer::addText(node* node, text* text)
     {
-        _textRenderers.push_back(text);
+        _labels.push_back(text);
         auto renderData = textRenderData();
         renderData.text = text->getText();
         renderData.position = node->getTransform()->getPosition();
@@ -85,7 +85,6 @@ namespace phi
 
     void uiRenderer::update()
     {
-        _controlsRenderPass->update();
     }
 
     void uiRenderer::render() const
