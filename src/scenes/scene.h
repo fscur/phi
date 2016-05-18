@@ -24,6 +24,7 @@ namespace phi
         size_t h;
         camera* camera;
         renderer* renderer;
+        std::vector<node*> colliderNodes;
 
     public:
         SCENES_API scene(gl* gl, size_t w, size_t h);

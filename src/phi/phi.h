@@ -27,6 +27,9 @@ namespace phi
     static const float PI_OVER_2 = 1.5707963268f;
     static const float PI_OVER_4 = 0.7853981634f;
 
+    static const float DECIMAL_TRUNCATION = 1e-4f;
+    static const float DECIMAL_TRUNCATION_INV = 1.0f / DECIMAL_TRUNCATION;
+
     template<typename T>
     void safeDelete(T value)
     {

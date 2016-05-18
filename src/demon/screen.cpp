@@ -86,21 +86,49 @@ namespace demon
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
-        auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
-        for (size_t i = 0; i < 1; ++i)
-        {
-            auto cloned = obj->clone();
-            cloned->getTransform()->setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
-            _scene->add(cloned);
-        }
-
-        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject();
-        auto clonedFloor = floor->clone();
-        _scene->add(clonedFloor);
+        //auto obj = _library->getObjectsRepository()->getAllResources()[2]->getObject();
+        //for (size_t i = 0; i < 1; ++i)
+        //{
+        //    auto cloned = obj->clone();
+        //    cloned->getTransform()->setLocalPosition(vec3(i + (0.1f*i), 0.0, 0.0));
+        //    _scene->add(cloned);
+        //}
 
         auto cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
-        cube->getTransform()->setLocalPosition(vec3(-3.0f, 0.5f, 0.0f));
+        cube->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 0.0f));
         _scene->add(cube);
+
+        cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform()->setLocalPosition(vec3(2.9f, 0.9f , 0.0f));
+        //cube->getTransform()->setLocalSize(vec3(2.0f));
+        _scene->add(cube);
+
+        cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform()->setLocalPosition(vec3(4.5f, 0.0f, 0.0f));
+        cube->getTransform()->setLocalSize(vec3(2.0f));
+        _scene->add(cube);
+
+        cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform()->setLocalPosition(vec3(1.5f, 5.0f, 0.0f));
+        cube->getTransform()->roll(PI_OVER_4);
+        cube->getTransform()->pitch(PI_OVER_4);
+        cube->getTransform()->setLocalSize(vec3(2.0f));
+        _scene->add(cube);
+
+        cube = _library->getObjectsRepository()->getAllResources()[7]->getObject()->clone();
+        cube->getTransform()->setLocalPosition(vec3(4.5f, 1.0f, 0.0f));
+        cube->getTransform()->roll(PI_OVER_4);
+        //cube->getTransform()->setLocalSize(vec3(2.0f));
+        _scene->add(cube);
+
+        auto floor = _library->getObjectsRepository()->getAllResources()[24]->getObject()->clone();
+        floor->getTransform()->yaw(PI_OVER_4);
+        _scene->add(floor);
+
+        floor = _library->getObjectsRepository()->getAllResources()[24]->getObject()->clone();
+        floor->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
+        floor->getTransform()->pitch(PI_OVER_2);
+        _scene->add(floor);
     }
 
     void screen::initInput()
@@ -126,7 +154,7 @@ namespace demon
 
     void screen::onTick()
     {
-        debug("fps:" + std::to_string(application::framesPerSecond));
+        //debug("fps:" + std::to_string(application::framesPerSecond));
 #if _DEBUG
         _gl->shadersManager->reloadAllShaders();
 #endif

@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "scene.h"
+#include "boxCollider.h"
 
+#include <core\obb.h>
 #include <rendering\model.h>
 
 namespace phi
@@ -65,6 +67,38 @@ namespace phi
     {
         _objects.push_back(node);
         _pipeline->add(node);
+
+        phi::aabb* aabb = new phi::aabb();
+        node->traverse
+        (
+            [&aabb](phi::node* n)
+        {
+            auto meshComponent = n->getComponent<phi::mesh>();
+            if (meshComponent)
+            {
+                auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
+                safeDelete(aabb);
+                aabb = added;
+            }
+        }
+        );
+
+        if (aabb->min == aabb->max)
+        {
+            safeDelete(aabb);
+            return;
+        }
+
+        auto transform = node->getTransform();
+        auto pos = transform->getPosition();
+        auto scale = transform->getLocalSize();
+
+        auto collider = new boxCollider("obbCollider", aabb->center, vec3(aabb->halfWidth * scale.x, aabb->halfHeight * scale.y, aabb->halfDepth * scale.z));
+        node->addComponent(collider);
+
+        colliderNodes.push_back(node);
+
+        safeDelete(aabb);
     }
 
     void scene::remove(node* node)

@@ -1,6 +1,8 @@
 #pragma once
 #include <phi.h>
+#include <core\obb.h>
 #include <rendering\planeGridRenderPass.h>
+#include <scenes\boxCollider.h>
 #include <scenes\scene.h>
 #include <ui\floatAnimator.h>
 
@@ -8,6 +10,46 @@
 
 namespace demon
 {
+    struct contactTestResult
+    {
+        std::vector<phi::obb> contacts;
+    };
+
+    struct continuousCollisionResult
+    {
+        continuousCollisionResult(phi::obb obb, float time, phi::vec3 normal) :
+            obb(obb),
+            time(time),
+            normal(normal)
+        {
+        }
+
+        phi::obb obb;
+        float time;
+        phi::vec3 normal;
+    };
+
+    struct continuousContactTestResult
+    {
+        std::vector<continuousCollisionResult> contacts;
+    };
+
+    struct lineIntersectionResult
+    {
+        lineIntersectionResult()
+        {
+            point = phi::vec2();
+            onLine1 = false;
+            onLine2 = false;
+            parallel = false;
+        }
+
+        phi::vec2 point;
+        bool onLine1;
+        bool onLine2;
+        bool parallel;
+    };
+
     class defaultCameraController :
         public cameraController
     {
@@ -68,7 +110,15 @@ namespace demon
         phi::vec2 _dragDelta;
 
     private:
-        phi::vec2 static planePointProjection2D(phi::vec3 planeOrigin, phi::vec3 planeNormal, phi::vec3 planeRight, phi::vec3 planeUp, phi::vec3 point);
+        static phi::vec2 planePointProjection2D(phi::vec3 planeOrigin, phi::vec3 planeNormal, phi::vec3 planeRight, phi::vec3 planeUp, phi::vec3 point);
+        static phi::aabb* getTransformedAabb(phi::node* node, phi::transform* transform);
+        static phi::obb getTransformedObb(phi::boxCollider* collider, phi::transform* transform);
+        lineIntersectionResult static lineIntersection(phi::vec2 line1Start, phi::vec2 line1End, phi::vec2 line2Start, phi::vec2 line2End);
+
+        contactTestResult testContacts(phi::node* testNode, phi::obb obb);
+        continuousContactTestResult testContinuousContacts(phi::node* testNode, phi::obb obb, phi::vec3 offset);
+
+        void moveObject(phi::node* object, phi::vec3 offset, phi::vec3 planeNormal);
 
         void dragMouseDown(int mouseX, int mouseY);
         void dragMouseMove();
