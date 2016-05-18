@@ -94,7 +94,7 @@ namespace phi
 			}
 			else
 			{
-				debug("<watcher> couldnt close watch handle");
+				debug("<watcher> couldnt close watch handle: " + GetLastError());
 			}
 		}
 	}
