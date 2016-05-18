@@ -3,6 +3,7 @@
 namespace phi
 {
     using uint = unsigned int;
+    using ulong = unsigned long;
     using uint64 = unsigned long long;
     using byte = unsigned char;
     using ivec2 = glm::ivec2;
@@ -16,6 +17,7 @@ namespace phi
     using mat4 = glm::mat4;
     using quat = glm::quat;
     using string = std::string;
+    using wstring = std::wstring;
 
     template<class T>
     using vector = std::vector<T>;
@@ -45,11 +47,33 @@ namespace phi
     }
 
     template<typename T>
-    bool contains(vector<T> vector, T value)
+    void removeIfContains(vector<T>& vector, T& value)
     {
         auto it = std::find(vector.begin(), vector.end(), value);
 
+        if (it != vector.end())
+            vector.erase(it);
+    }
+
+    template<typename T>
+    bool contains(const vector<T>& vector, const T value)
+    {
+        auto it = std::find(vector.begin(), vector.end(), value);
         return it != vector.end();
+    }
+
+    template<typename T>
+    bool contains(const vector<T>* const vector, const T value)
+    {
+        auto it = std::find(vector->begin(), vector->end(), value);
+        return it != vector->end();
+    }
+
+    template<typename T, typename R>
+    bool contains(const map<T, R> map, const T value)
+    {
+        auto it = map.find(value);
+        return it != map.end();
     }
 
     template<typename T>

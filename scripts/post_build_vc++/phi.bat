@@ -1,17 +1,14 @@
-if %1==Debug goto :eof
-
-if %1==Debug (
-cd ..\..\..\..\
-cd .\src\phi\\.
-g++ -DMINGW -D_DEBUG -std=c++11 -Dapi_EXPORTS -g -I../../inc -I../../inc/freetype precompiled.h
-cd ..\..\
-goto :eof
-)
-
-if %1==Release (
+if %1==Gcc (
 cd ..\..\..\..\
 cd .\src\phi
-g++ -DMINGW -DNDEBUG -Dapi_EXPORTS -std=c++11 -O3 -I../../inc -I../../inc/freetype precompiled.h
-cd ..\..
-goto :eof
+g++ -DMINGW -DNDEBUG -std=c++11 -Wall -Werror -pedantic -Dapi_EXPORTS -O3 -I../../inc -I../../inc/freetype precompiled.h
+cd ..\..\
+
+
+if not exist build\gcc\release (
+ 	mkdir build\gcc\release
+)
+
+cd build\gcc\release
+cmake -C ../../../cmake/cache_win64_gcc_release.cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" ../../../
 )

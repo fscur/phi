@@ -16,6 +16,7 @@ add_executable(demon ${source_files} ${header_files})
 target_link_libraries(demon apps)
 target_link_libraries(demon scenes)
 target_link_libraries(demon ui)
+target_link_libraries(demon animation)
 
 find_package(FREETYPE REQUIRED)
 link_directories(${FREETYPE_LIBRARIES})
@@ -46,8 +47,13 @@ if (MSVC)
         
     add_custom_command(
         TARGET demon
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.sbr\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET demon
         POST_BUILD
-        COMMAND ../../../../scripts/post_build_vc++/project.bat $(Configuration) demon)
+        COMMAND ../../../../scripts/post_build_vc++/demon.bat $(Configuration) demon)
         
 endif(MSVC)
 

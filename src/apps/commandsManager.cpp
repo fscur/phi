@@ -8,41 +8,30 @@ namespace phi
 {
     commandsManager::commandsManager()
     {
-        phi::input::keyDown->assign(std::bind(&commandsManager::onKeyDown, this, std::placeholders::_1));
-        phi::input::keyUp->assign(std::bind(&commandsManager::onKeyUp, this, std::placeholders::_1));
-        _executingCommand = false;
+        input::keyDown->assign(std::bind(&commandsManager::onKeyDown, this, std::placeholders::_1));
+        input::keyUp->assign(std::bind(&commandsManager::onKeyUp, this, std::placeholders::_1));
     }
 
     commandsManager::~commandsManager()
     {
+        while (_undo.size())
+        {
+            auto undoCmd = _undo.top();
+            _undo.pop();
+            safeDelete(undoCmd);
+        }
+
+        while (_redo.size())
+        {
+            auto redoCmd = _redo.top();
+            _redo.pop();
+            safeDelete(redoCmd);
+        }
     }
 
     void commandsManager::addShortcut(shortcut shortcut)
     {
         _shortcuts.push_back(shortcut);
-    }
-
-    void commandsManager::enqueueCommand(command* cmd, std::function<void(command*)> callback, bool isUndo)
-    {
-        _pendingCommandsMutex.lock();
-        _pendingCommands.push(new pendingCommand(cmd, callback, isUndo));
-        _pendingCommandsMutex.unlock();
-    }
-
-    void commandsManager::startNextCommand()
-    {
-        _pendingCommandsMutex.lock();
-        if (!_executingCommand && !_pendingCommands.empty())
-        {
-            _executingCommand = true;
-            pendingCommand* pendingCmd = _pendingCommands.front();
-            if (!pendingCmd->isUndo)
-                pendingCmd->cmd->startAsync(pendingCmd->callback);
-            else
-                pendingCmd->cmd->startUndoAsync(pendingCmd->callback);
-            _pendingCommands.pop();
-        }
-        _pendingCommandsMutex.unlock();
     }
 
     void commandsManager::undo()
@@ -53,13 +42,8 @@ namespace phi
         auto cmd = _undo.top();
         _undo.pop();
 
-        auto callback = [&](command* c)
-        {
-            _redo.push(c);
-            _executingCommand = false;
-            startNextCommand();
-        };
-        enqueueCommand(cmd, callback, true);
+        _redo.push(cmd);
+        cmd->executeUndo();
     }
 
     void commandsManager::redo()
@@ -70,32 +54,21 @@ namespace phi
         auto cmd = _redo.top();
         _redo.pop();
 
-        auto callback = [&](command* c)
-        {
-            _undo.push(c);
-            _executingCommand = false;
-            startNextCommand();
-        };
-        enqueueCommand(cmd, callback, false);
+        _undo.push(cmd);
+        cmd->execute();
     }
 
     void commandsManager::executeCommand(command* cmd)
     {
-        auto callback = [&](command* c)
+        if (cmd->getIsUndoable())
         {
-            if (c->getIsUndoable())
-            {
-                _undo.push(c);
+            _undo.push(cmd);
 
-                while (!_redo.empty())
-                    _redo.pop();
-            }
+            while (!_redo.empty())
+                _redo.pop();
+        }
 
-            _executingCommand = false;
-            startNextCommand();
-        };
-        enqueueCommand(cmd, callback, false);
-        startNextCommand();
+        cmd->execute();
     }
 
     void commandsManager::onKeyDown(phi::keyboardEventArgs* e)
@@ -122,10 +95,8 @@ namespace phi
         }
 
         for (size_t j = 0u; j < shortcutsCopy.size(); ++j)
-        {
             if (shortcutsCopy[j].keys.size() == i)
                 executeCommand(shortcutsCopy[j].commandFunc());
-        }
     }
 
     void commandsManager::onKeyUp(phi::keyboardEventArgs* e)

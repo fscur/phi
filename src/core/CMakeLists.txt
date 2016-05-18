@@ -37,6 +37,11 @@ if (MSVC)
         
     add_custom_command(
         TARGET core
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.sbr\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET core
         POST_BUILD
         COMMAND ../../../../scripts/post_build_vc++/project.bat $(Configuration) core)
 endif(MSVC)

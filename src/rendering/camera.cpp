@@ -173,4 +173,50 @@ namespace phi
 
         _changedView = true;
     }
+    
+    vec3 camera::getWorldPositionRelativeToCamera(int mouseX, int mouseY, float z)
+    {
+        auto tg = tan(_fov * 0.5f) * _near;
+
+        auto hw = _width * 0.5f;
+        auto hh = _height * 0.5f;
+
+        auto ys0 = mouseY - hh;
+        auto yp0 = ys0 / hh;
+        auto ym0 = -(yp0 * tg);
+
+        auto xs0 = mouseX - hw;
+        auto xp0 = xs0 / hw;
+        auto xm0 = xp0 * tg * _aspect;
+
+        auto x = (xm0 / _near) * z;
+        auto y = (ym0 / _near) * z;
+
+        return vec3(x, y, z);
+    }
+
+    float camera::getWorldZRelativeToCamera(int mouseX, int mouseY, float zBufferValue)
+    {
+        return -_projectionMatrix[3].z / (zBufferValue * -2.0f + 1.0f - _projectionMatrix[2].z);
+    }
+
+    ray camera::screenPointToRay(float mouseX, float mouseY)
+    {
+        float x = (2.0f * mouseX) / _width - 1.0f;
+        float y = 1.0f - (2.0f * mouseY) / _height;
+
+        auto ip = inverse(_projectionMatrix);
+        auto iv = inverse(_viewMatrix);
+
+        auto rayClip = vec4(x, y, -1.0f, 1.0f);
+
+        auto rayEye = ip * rayClip;
+        rayEye = vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+        auto rayWorld = vec3(iv * rayEye);
+        rayWorld = glm::normalize(rayWorld);
+
+        auto origin = getTransform()->getLocalPosition();
+        return ray(origin, rayWorld);
+    }
 }

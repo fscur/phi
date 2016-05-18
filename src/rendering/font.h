@@ -1,51 +1,47 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-#include <core\resource.h>
 #include "texture.h"
+#include "glyphNode.h"
+#include "glyph.h"
 
 namespace phi
 {
-    class RENDERING_API font
+    class font
     {
+    public:
+        static FT_Library FreeTypeLibrary;
+
     private:
-        static const int MAX_WIDTH = 1024;
-
-        int _size;
-        int _texWidth;
-        int _texHeight;
-        int _baseLine;
-        int _ascender;
-        int _lineHeight;
-        texture* _texture;
-
-    public:
-        struct
-        {
-            float ax; // advance.x
-            float ay; // advance.y
-
-            float bw; // bitmap.width
-            float bh; // bitmap.height
-
-            float bl; // bitmap_left
-            float bt; // bitmap_top (distance from baseline to the top of the glyph)
-
-            float tx; // x offset of glyph in texture coordinates
-            float ty; // y offset of glyph in texture coordinates
-        } c[128];
+        map<uint, glyph*> _glyphCache;
+        FT_Face _fontFace;
+        const uint _size;
+        float _baseDpi;
+        float _dpi;
+        float _dpiRatio;
+        float _horizontalScale;
+        float _baseLine;
+        float _ascender;
+        float _lineHeight;
+        float _spacing;
+        bool _hasKerning;
+        bool _hinting;
+        int _loadGlyphFlags;
+        byte _lcdWeights[5];
 
     public:
-        font(std::string name, std::string path, int size, FT_Library library);
-        ~font();
-
-        static font* fromFile(string fileName);//TODO: unimplemented method
-
-        int getTexWidth() { return _texWidth; }
-        int getTexHeight() { return _texHeight; }
-        int getBaseLine() { return _baseLine; }
-        int getAscender() { return _ascender; }
-        int getLineHeight() { return _lineHeight; }
-        texture* getTexture() { return _texture; }
+        RENDERING_API font(const string& fileName, const uint size);
+        RENDERING_API ~font();
+        
+        float getLineHeight() const { return _lineHeight; }
+        float getBaseLine() const { return _baseLine; }
+        float getAscender() const { return _ascender; }
+        float getSpacing() const { return _spacing; }
+        
+        glyph* getGlyph(const uint& glyphIndex);
+        glyph* getGlyph(const ulong& glyphChar);
+        
+        RENDERING_API vec2 getKerning(glyph* firstGlyph, glyph* secondGlyph);
+        RENDERING_API vec2 measureText(const wstring& text);
     };
 }

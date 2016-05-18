@@ -22,6 +22,7 @@ add_library(apps SHARED ${source_files} ${header_files})
 
 target_link_libraries(apps core)
 target_link_libraries(apps io)
+target_link_libraries(apps rendering)
 
 find_package(OPENGL REQUIRED)
 find_package(GLEW REQUIRED)
@@ -48,6 +49,11 @@ if (MSVC)
         TARGET apps
         PRE_BUILD
         COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.idb\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET apps
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.sbr\" \".\\$(IntDir)\")
         
     add_custom_command(
         TARGET apps

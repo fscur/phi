@@ -1,10 +1,14 @@
 #include <precompiled.h>
 #include "importer.h"
 
+#include <core\color.h>
 #include <core\base64.h>
+#include <core\random.h>
+
 #include <io\path.h>
 
 #include "importResourceException.h"
+#include <diagnostics\stopwatch.h>
 
 namespace phi
 {
@@ -12,13 +16,11 @@ namespace phi
     using rapidjson::Document;
     using rapidjson::Value;
 
-    texture* importer::defaultAlbedoTexture = nullptr;
-    texture* importer::defaultNormalTexture = nullptr;
-    texture* importer::defaultSpecularTexture = nullptr;
-    texture* importer::defaultEmissiveTexture = nullptr;
-    material* importer::defaultMaterial = nullptr;
-
-    node* importer::readNode(const rapidjson::Value& jsonNode, string currentFolder, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo)
+    node* importer::readNode(
+		const rapidjson::Value& jsonNode, 
+		const string& currentFolder, 
+		const resourcesRepository<material>* materialsRepo, 
+		const resourcesRepository<geometry>* geometriesRepo)
     {
         auto objectNode = new node();
 
@@ -31,28 +33,27 @@ namespace phi
 
             switch (type)
             {
-                case 0:
-                {
-                    component = new phi::model(components[i]["Name"].GetString());
-                    break;
-                }
-                case 1:
-                {
-                    auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
-                    auto geometry = geometriesRepo->getResource(geometryGuid)->getObject();
+            case 0:
+            {
+                component = new phi::model(components[i]["Name"].GetString());
+                break;
+            }
+            case 1:
+            {
+                auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
+                auto geometry = geometriesRepo->getResource(geometryGuid)->getOriginalObject();
 
-                    auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
-                    auto matRes = materialsRepo->getResource(materialGuid);
+                auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
+                auto matRes = materialsRepo->getResource(materialGuid);
 
-                    material* mat;
-                    if (matRes == nullptr)
-                        mat = defaultMaterial;
-                    else
-                        mat = matRes->getObject();
+                    material* mat = nullptr;
 
-                    component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
-                    break;
-                }
+                    if (matRes != nullptr)
+                        mat = matRes->getOriginalObject();
+
+                component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
+                break;
+            }
             }
             objectNode->addComponent(component);
         }
@@ -74,32 +75,7 @@ namespace phi
         return guidBytes.data();
     }
 
-    resource<node>* importer::importNode(string fileName, resourcesRepository<material>* materialsRepo, resourcesRepository<geometry>* geometriesRepo)
-    {
-        //TODO:: create load file fuction in the io API
-#ifdef _WIN32 
-        FILE* file;
-        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
-
-        char fileBuffer[65536];
-        FileReadStream fileStream(file, fileBuffer, sizeof(fileBuffer));
-        Document document;
-        document.ParseStream(fileStream);
-
-        fclose(file);
-
-        auto currentFolder = path::getDirectoryFullName(fileName);
-        auto nodeName = path::getFileNameWithoutExtension(fileName);
-        auto rootNode = readNode(document["Node"], currentFolder, materialsRepo, geometriesRepo);
-        auto guid = convertToGuid(document["Guid"].GetString());
-
-        return new resource<node>(guid, nodeName, rootNode);
-#else
-        throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
-#endif
-    }
-
-    texture* importer::importImage(string fileName)
+    image* importer::importImage(const string& fileName)
     {
         auto fileNameChar = fileName.c_str();
         auto imageFormat = FreeImage_GetFileType(fileNameChar, 0);
@@ -124,7 +100,8 @@ namespace phi
         if (dataPtr == nullptr || width == 0 || height == 0)
             throw importResourceException("Failed loading image data of", fileName);
 
-        auto format = GL_BGRA;
+        //auto format = GL_BGRA;
+		auto format = imageDataFormat::bgra;
         auto bpp = FreeImage_GetBPP(imagePointer);
         auto redMask = FreeImage_GetRedMask(imagePointer);
 
@@ -132,15 +109,15 @@ namespace phi
         {
         case 24:
             if (redMask == 255)
-                format = GL_RGB;
+                format = imageDataFormat::rgb;
             else
-                format = GL_BGR;
+                format = imageDataFormat::bgr;
             break;
         case 32:
             if (redMask == 255)
-                format = GL_RGBA;
+                format = imageDataFormat::rgba;
             else
-                format = GL_BGRA;
+                format = imageDataFormat::bgra;
             break;
         }
 
@@ -151,17 +128,26 @@ namespace phi
 
         FreeImage_Unload(imagePointer);
 
-        return new texture(
+        return new image(
             width,
             height,
-            GL_TEXTURE_2D,
-            GL_RGBA8,
             format,
-            GL_UNSIGNED_BYTE,
+			imageDataType::ubyte_dataType,
             data);
     }
+	
+	resource<node>* importer::importModel(
+		const string& fileName,
+		resourcesRepository<material>* materialsRepo,
+		resourcesRepository<geometry>* geometriesRepo)
+	{
+		return assimpImporter::import(
+			fileName,
+			materialsRepo,
+			geometriesRepo);
+	}
 
-    resource<texture>* importer::importTexture(string fileName)
+    resource<image>* importer::loadImage(const string& fileName)
     {
 #ifdef _WIN32
         FILE* file;
@@ -181,13 +167,13 @@ namespace phi
         auto textureName = path::getFileNameWithoutExtension(fileName);
         auto tex = importImage(imageFileName);
 
-        return new resource<texture>(guid, textureName, tex);
+        return new resource<image>(guid, textureName, tex);
 #else
         throw importResourceException("Import texture was not implemented in other platforms than Win32", fileName);
 #endif
     }
 
-    resource<geometry>* importer::importGeometry(string fileName)
+    resource<geometry>* importer::loadGeometry(const string& fileName)
     {
 #ifdef _WIN32
         std::ifstream file;
@@ -240,7 +226,7 @@ namespace phi
 #endif
     }
 
-    resource<material>* importer::importMaterial(string fileName, resourcesRepository<texture>* texturesRepo)
+    resource<material>* importer::loadMaterial(const string& fileName, const resourcesRepository<image>* texturesRepo)
     {
 #ifdef _WIN32
         FILE* file;
@@ -253,15 +239,16 @@ namespace phi
 
         fclose(file);
 
+		//TODO: change texture to image into the converter
         auto guid = convertToGuid(document["Guid"].GetString());
-        auto albedoTextureGuid = convertToGuid(document["AlbedoTextureGuid"].GetString());
-        auto normalTextureGuid = convertToGuid(document["NormalTextureGuid"].GetString());
-        auto specularTextureGuid = convertToGuid(document["SpecularTextureGuid"].GetString());
-        auto emissiveTextureGuid = convertToGuid(document["EmissiveTextureGuid"].GetString());
-        auto albedoTextureResource = texturesRepo->getResource(albedoTextureGuid);
-        auto normalTextureResource = texturesRepo->getResource(normalTextureGuid);
-        auto specularTextureResource = texturesRepo->getResource(specularTextureGuid);
-        auto emissiveTextureResource = texturesRepo->getResource(emissiveTextureGuid);
+        auto albedoImageGuid = convertToGuid(document["AlbedoTextureGuid"].GetString());
+        auto normalImageGuid = convertToGuid(document["NormalTextureGuid"].GetString());
+        auto specularImageGuid = convertToGuid(document["SpecularTextureGuid"].GetString());
+        auto emissiveImageGuid = convertToGuid(document["EmissiveTextureGuid"].GetString());
+        auto albedoImageResource = texturesRepo->getResource(albedoImageGuid);
+        auto normalImageResource = texturesRepo->getResource(normalImageGuid);
+        auto specularImageResource = texturesRepo->getResource(specularImageGuid);
+        auto emissiveImageResource = texturesRepo->getResource(emissiveImageGuid);
 
         const Value& albedoColorNode = document["AlbedoColor"];
         const Value& specularColorNode = document["SpecularColor"];
@@ -275,17 +262,28 @@ namespace phi
         auto emission = static_cast<float>(document["Emission"].GetDouble());
         auto opacity = static_cast<float>(document["Opacity"].GetDouble());
 
-        auto albedoTexture = albedoTextureResource == nullptr ? defaultAlbedoTexture : albedoTextureResource->getObject();
-        auto normalTexture = normalTextureResource == nullptr ? defaultNormalTexture : normalTextureResource->getObject();
-        auto specularTexture = specularTextureResource == nullptr ? defaultSpecularTexture : specularTextureResource->getObject();
-        auto emissiveTexture = emissiveTextureResource == nullptr ? defaultEmissiveTexture : emissiveTextureResource->getObject();
+		image* albedoImage = nullptr;
+		if (albedoImageResource)
+			albedoImage = albedoImageResource->getOriginalObject();
+
+		image* normalImage = nullptr;
+		if (normalImageResource)
+			normalImage = normalImageResource->getOriginalObject();
+
+		image* specularImage = nullptr;
+		if (specularImageResource)
+			specularImage = specularImageResource->getOriginalObject();
+
+		image* emissiveImage = nullptr;
+		if (emissiveImageResource)
+			emissiveImage = emissiveImageResource->getOriginalObject();
 
         auto materialName = path::getFileNameWithoutExtension(fileName);
         auto mat = new material(
-            albedoTexture,
-            normalTexture,
-            specularTexture,
-            emissiveTexture,
+            albedoImage,
+            normalImage,
+            specularImage,
+            emissiveImage,
             albedoColor,
             specularColor,
             emissiveColor,
@@ -299,4 +297,33 @@ namespace phi
         throw importResourceException("Import material was not implemented in other platforms than Win32", fileName);
 #endif
     }
+
+	resource<node>* importer::loadNode(
+		const string& fileName, 
+		const resourcesRepository<material>* materialsRepo, 
+		const resourcesRepository<geometry>* geometriesRepo)
+	{
+		//TODO:: create load file fuction in the io API
+#ifdef _WIN32 
+		FILE* file;
+		fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
+
+		char fileBuffer[65536];
+		FileReadStream fileStream(file, fileBuffer, sizeof(fileBuffer));
+		Document document;
+		document.ParseStream(fileStream);
+
+		fclose(file);
+
+		auto currentFolder = path::getDirectoryFullName(fileName);
+		auto nodeName = path::getFileNameWithoutExtension(fileName);
+		auto rootNode = readNode(document["Node"], currentFolder, materialsRepo, geometriesRepo);
+		auto guid = convertToGuid(document["Guid"].GetString());
+
+		return new resource<node>(guid, nodeName, rootNode);
+#else
+		throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
+#endif
+	}
+
 }

@@ -1,13 +1,14 @@
-#include "precompiled.h"
+#include <precompiled.h>
 #include "vertexBuffer.h"
 
 namespace phi
 {
-    vertexBuffer::vertexBuffer(const vector<vertexAttrib>& attribs) :
+    vertexBuffer::vertexBuffer(vector<vertexAttrib> attribs) :
         buffer(bufferTarget::array)
     {
-        auto attribsCount = attribs.size();
-        for (GLuint i = 0; i < attribsCount; i++)
+        auto s = attribs.size();
+
+        for (GLuint i = 0; i < s; i++)
         {
             auto location = attribs[i].location;
 

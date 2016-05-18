@@ -103,6 +103,7 @@ namespace phi
     private:
         linkedList _heapBuffer;
     public:
+        bool shouldDump;
         size_t allocationCount;
     private:
         void initializeStackTracer()
@@ -127,7 +128,7 @@ namespace phi
                     "\nHey bro, apparently you have deleted %zd pointers that had already been deleted.\nAre you high on crack?\n\n",
                     allocationCount);
 
-                OutputDebugString(messageBuffer);
+                printf_s(messageBuffer);
             }
             else
             {
@@ -162,11 +163,12 @@ namespace phi
 #endif
                 printf_s(messageBuffer);
                 system("pause");
+            }
         }
-    }
     public:
         HeapDumper() :
-            allocationCount(0)
+            allocationCount(0),
+            shouldDump(false)
         {
 #ifdef DETAILED_MEMORY_TRACKING
             initializeStackTracer();
@@ -175,7 +177,8 @@ namespace phi
 
         ~HeapDumper()
         {
-            dumpMemory();
+            if (shouldDump)
+                dumpMemory();
         }
 
         void addEntry(linkedList::node* entry)
@@ -187,7 +190,7 @@ namespace phi
         {
             _heapBuffer.removeEntry(address);
         }
-} heap;
+    } heap;
 
     void* allocate(size_t size)
     {
@@ -213,6 +216,11 @@ namespace phi
 #endif
         --heap.allocationCount;
         free(address);
+    }
+
+    void setDumpMemory(bool shouldDump)
+    {
+        heap.shouldDump = shouldDump;
     }
 }
 #endif

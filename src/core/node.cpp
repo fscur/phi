@@ -3,48 +3,55 @@
 
 namespace phi
 {
-    node::node() :
+    node::node(string name) :
         _parent(nullptr),
         _transform(new transform()),
-        _components(vector<component*>()),
-        _children(vector<node*>()),
-        _transformChanged(new eventHandler<node*>())
+        _components(new vector<component*>()),
+        _children(new vector<node*>()),
+        _name(name)
     {
-        _transform->getChangedEvent()->assign(std::bind(&node::transformChanged, this, std::placeholders::_1));
-    }
-
-    node::~node()
-    {
-        for (auto child : _children)
-            safeDelete(child);
-
-        for (auto component : _components)
-            safeDelete(component);
-
-        safeDelete(_transform);
-        safeDelete(_transformChanged);
+        _transform->getChangedEvent()->assign(std::bind(&node::raiseTransformChanged, this, std::placeholders::_1));
     }
 
     node::node(const node& original) :
         _parent(nullptr),
         _transform(original._transform->clone()),
-        _transformChanged(new eventHandler<node*>())
+        _components(new vector<component*>()),
+        _children(new vector<node*>()),
+        _name(original._name)
     {
-        for (auto& child : original._children)
+        for (auto child : *(original._children))
         {
             auto clonedChild = child->clone();
             clonedChild->_parent = this;
             clonedChild->getTransform()->setParent(_transform);
-            _children.push_back(clonedChild);
+
+            _children->push_back(clonedChild);
         }
 
-        for (auto& component : original._components)
+        for (auto component : *(original._components))
         {
             auto clonedComponent = component->clone();
-            _components.push_back(clonedComponent);
+            clonedComponent->setNode(this);
+            _components->push_back(clonedComponent);
         }
 
-        _transform->getChangedEvent()->assign(std::bind(&node::transformChanged, this, std::placeholders::_1));
+        _transform->getChangedEvent()->assign(std::bind(&node::raiseTransformChanged, this, std::placeholders::_1));
+    }
+
+    node::~node()
+    {
+        for (auto child : *_children)
+            safeDelete(child);
+
+        safeDelete(_children);
+
+        for (auto component : *_components)
+            safeDelete(component);
+
+        safeDelete(_components);
+
+        safeDelete(_transform);
     }
 
     inline node* node::clone() const
@@ -54,26 +61,66 @@ namespace phi
 
     inline void node::addComponent(component* const component)
     {
-        _components.push_back(component);
+        _components->push_back(component);
         component->setNode(this);
     }
 
     inline void node::addChild(node* const child)
     {
-        _children.push_back(child);
+        _children->push_back(child);
         child->setParent(this);
+
+        childAdded.raise(child);
+    }
+
+    void node::removeChild(node* child)
+    {
+        auto iterator = std::find(_children->begin(), _children->end(), child);
+        if (iterator != _children->end())
+        {
+            _children->erase(iterator);
+            childRemoved.raise(child);
+        }
+    }
+
+    void node::clearChildren()
+    {
+        for (auto child : *_children)
+            child->setParent(nullptr);
+
+        _children->clear();
     }
 
     void node::traverse(std::function<void(node*)> func)
     {
         func(this);
 
-        for (auto child : _children)
+        for (auto child : *_children)
             child->traverse(func);
     }
 
-    inline void node::transformChanged(transform* sender)
+    inline void node::raiseTransformChanged(transform* sender)
     {
-        _transformChanged->raise(this);
+        transformChanged.raise(this);
+    }
+
+    inline void node::setParent(node * const value)
+    {
+        _parent = value;
+
+        if (_parent)
+            _transform->setParent(_parent->getTransform());
+        else
+            _transform->setParent(nullptr);
+    }
+
+    inline void node::setPosition(vec3 value)
+    {
+        _transform->setLocalPosition(value);
+    }
+
+    inline void node::setSize(vec3 value)
+    {
+        _transform->setLocalSize(value);
     }
 }

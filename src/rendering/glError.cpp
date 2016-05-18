@@ -28,7 +28,11 @@ namespace phi
 #ifdef _DEBUG
         GLenum error = glGetError();
         if (error != GL_NO_ERROR)
-            throw exception(getErrorString(error));
+        {
+            auto msg = getErrorString(error);
+            std::cout << msg << std::endl;
+            throw exception(msg);
+        }
 #endif
     }
 }

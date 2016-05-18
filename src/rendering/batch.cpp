@@ -24,19 +24,16 @@ namespace phi
         _ebo(nullptr),
         _drawCmdBuffer(nullptr)
     {
-        //auto gpuMaxVboIndices = 0;
-        //glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &gpuMaxVboIndices);
-
-        //_maxIndices = std::min(maxIndices, static_cast<size_t>(gpuMaxVboIndices));
     }
 
     batch::~batch()
     {
         glDeleteVertexArrays(1, &_vao);
         safeDelete(_vbo);
+        safeDelete(_ebo);
         safeDelete(_materialsIdsBuffer);
         safeDelete(_modelMatricesBuffer);
-        safeDelete(_ebo);
+        safeDelete(_selectionBuffer);
         safeDelete(_drawCmdBuffer);
 
         for (auto geometry : _geometries)
@@ -47,16 +44,17 @@ namespace phi
         }
     }
 
-    void batch::createVao(const batchObject &batchObject)
+    void batch::createVao(const renderInstance& instance)
     {
         glCreateVertexArrays(1, &_vao);
         glError::check();
         glBindVertexArray(_vao);
         glError::check();
 
-        auto geometry = batchObject.geometry;
+        auto geometry = instance.mesh->geometry;
         createVbo(geometry->vboData, geometry->vboSize);
         createEbo(geometry->eboData, geometry->eboSize);
+        createSelectionColorBuffer(nullptr, sizeof(uint));
         createMaterialsIdsBuffer(nullptr, sizeof(uint));
         createModelMatricesBuffer(nullptr, sizeof(mat4));
         createDrawCmdsBuffer(nullptr, sizeof(drawElementsIndirectCmd));
@@ -67,7 +65,7 @@ namespace phi
         _objectsCount = 1;
         _freeSpace = 0;
         _geometries.push_back(geometry);
-        addNewInstance(batchObject);
+        addNewInstance(instance);
     }
 
     void batch::createVao()
@@ -79,6 +77,7 @@ namespace phi
 
         createVbo(nullptr, MAX_VBO_SIZE);
         createEbo(nullptr, MAX_VBO_SIZE);
+        createSelectionColorBuffer(nullptr, sizeof(uint));
         createMaterialsIdsBuffer(nullptr, sizeof(uint));
         createModelMatricesBuffer(nullptr, sizeof(mat4));
         createDrawCmdsBuffer(nullptr, sizeof(drawElementsIndirectCmd));
@@ -87,7 +86,7 @@ namespace phi
         glError::check();
     }
 
-    void batch::createVbo(void* data, GLsizeiptr size)
+    void batch::createVbo(const void* const data, GLsizeiptr size)
     {
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
@@ -99,76 +98,50 @@ namespace phi
         _vbo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
-    void batch::createMaterialsIdsBuffer(void* data, GLsizeiptr size)
-    {
-        vector<vertexAttrib> attribs;
-        attribs.push_back(vertexAttrib(4, 1, GL_UNSIGNED_INT, 0, 0, 1));
-
-        _materialsIdsBuffer = new vertexBuffer(attribs);
-        _materialsIdsBuffer->data(size, data, bufferDataUsage::dynamicDraw);
-    }
-
-    void batch::createModelMatricesBuffer(void* data, GLsizeiptr size)
-    {
-        vector<vertexAttrib> attribs;
-
-        for (uint i = 0; i < 4; ++i)
-            attribs.push_back(vertexAttrib(5 + i, 4, GL_FLOAT, sizeof(glm::mat4), (const void *)(sizeof(GLfloat) * i * 4), 1));
-
-        _modelMatricesBuffer = new vertexBuffer(attribs);
-        _modelMatricesBuffer->data(size, data, bufferDataUsage::dynamicDraw);
-    }
-
-    void batch::createEbo(void* data, GLsizeiptr size)
+    void batch::createEbo(const void* const data, GLsizeiptr size)
     {
         _ebo = new buffer(bufferTarget::element);
         _ebo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
-    void batch::createDrawCmdsBuffer(void* data, GLsizeiptr size)
+    void batch::createDrawCmdsBuffer(const void* const data, GLsizeiptr size)
     {
         _drawCmdBuffer = new buffer(bufferTarget::drawIndirect);
         _drawCmdBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
-    bool batch::add(const batchObject &batchObject)
+    void batch::createMaterialsIdsBuffer(const void* const data, GLsizeiptr size)
     {
-        auto geometry = batchObject.geometry;
-        auto vboSize = geometry->vboSize;
-        auto eboSize = geometry->eboSize;
+        vector<vertexAttrib> attribs;
+        attribs.push_back(vertexAttrib(5, 1, GL_UNSIGNED_INT, 0, 0, 1));
 
-        if (_vao == 0)
-        {
-            if (vboSize > _freeSpace || eboSize > _freeSpace)
-            {
-                createVao(batchObject);
-                return true;
-            }
-
-            createVao();
-        }
-
-        auto found = phi::contains(_geometries, geometry);
-
-        if (!found && (_freeSpace < vboSize || _freeSpace < eboSize))
-            return false;
-
-        if (!found)
-        {
-            addNewGeometry(batchObject);
-            addNewInstance(batchObject);
-        }
-        else
-        {
-            addNewInstance(batchObject);
-        }
-
-        return true;
+        _materialsIdsBuffer = new vertexBuffer(attribs);
+        _materialsIdsBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
-    void batch::addNewGeometry(const batchObject& batchObject)
+    void batch::createModelMatricesBuffer(const void* const data, GLsizeiptr size)
     {
-        auto geometry = batchObject.geometry;
+        vector<vertexAttrib> attribs;
+
+        for (uint i = 0; i < 4; ++i)
+            attribs.push_back(vertexAttrib(6 + i, 4, GL_FLOAT, sizeof(glm::mat4), (const void *)(sizeof(GLfloat) * i * 4), 1));
+
+        _modelMatricesBuffer = new vertexBuffer(attribs);
+        _modelMatricesBuffer->data(size, data, bufferDataUsage::dynamicDraw);
+    }
+
+    void batch::createSelectionColorBuffer(const void* const data, GLsizeiptr size)
+    {
+        vector<vertexAttrib> attribs;
+        attribs.push_back(vertexAttrib(4, 4, GL_FLOAT, 0, 0, 1));
+
+        _selectionBuffer = new vertexBuffer(attribs);
+        _selectionBuffer->data(size, data, bufferDataUsage::dynamicDraw);
+    }
+
+    void batch::addNewGeometry(const renderInstance& instance)
+    {
+        auto geometry = instance.mesh->geometry;
         auto vboSize = geometry->vboSize;
         auto eboSize = geometry->eboSize;
 
@@ -178,23 +151,25 @@ namespace phi
         _ebo->subData(_eboOffset, eboSize, geometry->eboData);
         _eboOffset += eboSize;
 
-        _geometries.push_back(batchObject.geometry);
+        _geometries.push_back(instance.mesh->geometry);
 
         ++_objectsCount;
         _freeSpace -= std::max(geometry->vboSize, geometry->eboSize);
     }
 
-    void batch::addNewInstance(const batchObject& batchObject)
+    void batch::addNewInstance(const renderInstance& instance)
     {
-        auto geometry = batchObject.geometry;
-        auto instance = new drawInstanceData(0, batchObject.modelMatrix, batchObject.materialId);
-        _instances[geometry].push_back(instance);
-        _meshInstances[batchObject.mesh] = instance;
+        auto geometry = instance.mesh->geometry;
+        auto drawInstance = new drawInstanceData(0, instance.modelMatrix, instance.materialId);
 
-        updateBuffers();
+        _instances[geometry].push_back(drawInstance);
+        _meshInstances[instance.mesh] = drawInstance;
+        _instancesMesh[drawInstance] = instance.mesh;
+
+        updateAllData();
     }
 
-    void batch::updateBuffers()
+    void batch::updateAllData()
     {
         auto indicesOffset = 0;
         auto verticesOffset = 0;
@@ -202,7 +177,8 @@ namespace phi
         vector<drawElementsIndirectCmd> drawCmdsBufferData;
         vector<mat4> modelMatricesData;
         vector<GLuint> materialsIdsData;
-        uint instanceId = 0;
+        vector<vec4> selectionBufferData;
+        GLintptr offset = 0;
 
         for (auto geometry : _geometries)
         {
@@ -211,9 +187,11 @@ namespace phi
 
             for (auto instance : instances)
             {
-                instance->id = instanceId++;
+                auto mesh = _instancesMesh[instance];
+                instance->offset = offset++;
                 modelMatricesData.push_back(instance->modelMatrix);
                 materialsIdsData.push_back(instance->materialId);
+                selectionBufferData.push_back(mesh->getSelectionColor());
             }
 
             GLuint indicesCount = geometry->indicesCount;
@@ -232,45 +210,91 @@ namespace phi
             drawCmdsBufferData.push_back(drawCmd);
         }
 
-        _drawCmdBuffer->data(sizeof(drawElementsIndirectCmd) * drawCmdsBufferData.size(), &drawCmdsBufferData[0], bufferDataUsage::dynamicDraw);
-        _modelMatricesBuffer->data(sizeof(mat4) * modelMatricesData.size(), &modelMatricesData[0], bufferDataUsage::dynamicDraw);
-        _materialsIdsBuffer->data(sizeof(uint) * materialsIdsData.size(), &materialsIdsData[0], bufferDataUsage::dynamicDraw);
+        auto drawCmdData = drawCmdsBufferData.size() > 0 ? &drawCmdsBufferData[0] : nullptr;
+        auto matricesData = modelMatricesData.size() > 0 ? &modelMatricesData[0] : nullptr;
+        auto materialsData = materialsIdsData.size() > 0 ? &materialsIdsData[0] : nullptr;
+        auto selectionData = selectionBufferData.size() > 0 ? &selectionBufferData[0] : nullptr;
+
+        _drawCmdBuffer->data(sizeof(drawElementsIndirectCmd) * drawCmdsBufferData.size(), drawCmdData, bufferDataUsage::dynamicDraw);
+        _modelMatricesBuffer->data(sizeof(mat4) * modelMatricesData.size(), matricesData, bufferDataUsage::dynamicDraw);
+        _materialsIdsBuffer->data(sizeof(uint) * materialsIdsData.size(), materialsData, bufferDataUsage::dynamicDraw);
+        _selectionBuffer->data(sizeof(vec4) * selectionBufferData.size(), selectionData, bufferDataUsage::dynamicDraw);
     }
 
-    void batch::update(const vector<batchObject>& batchObjects)
+    bool batch::add(const renderInstance& instance)
     {
-        for (auto &batchObject : batchObjects)
+        auto geometry = instance.mesh->geometry;
+        auto vboSize = geometry->vboSize;
+        auto eboSize = geometry->eboSize;
+
+        if (_vao == 0)
         {
-            auto instance = _meshInstances[batchObject.mesh];
-            instance->materialId = batchObject.materialId;
-            instance->modelMatrix = batchObject.modelMatrix;
+            if (vboSize > _freeSpace || eboSize > _freeSpace)
+            {
+                createVao(instance);
+                return true;
+            }
+
+            createVao();
         }
 
-        updateBuffers();
+        auto alreadyHasGeometry = phi::contains(_geometries, geometry);
+
+        if (!alreadyHasGeometry && (_freeSpace < vboSize || _freeSpace < eboSize))
+            return false;
+
+        if (!alreadyHasGeometry)
+        {
+            addNewGeometry(instance);
+        }
+
+        addNewInstance(instance);
+
+        return true;
     }
 
-    void batch::update(const batchObject& batchObject)
+    void batch::remove(mesh* mesh)
     {
-        auto instance = _meshInstances[batchObject.mesh];
-        instance->materialId = batchObject.materialId;
-        instance->modelMatrix = batchObject.modelMatrix;
+        auto instance = _meshInstances[mesh];
+        phi::removeIfContains(_instances[mesh->geometry], instance);
+        
+        if (_instances[mesh->geometry].size() == 0)
+            _instances.erase(mesh->geometry);
 
-        GLintptr offset = 0;
-        for (auto geometry : _geometries)
-        {
-            if (geometry == batchObject.geometry)
-            {
-                offset += std::distance(_instances[geometry].begin(), std::find(_instances[geometry].begin(), _instances[geometry].end(), instance));
-                break;
-            }
-            else
-            {
-                offset += _instances[geometry].size();
-            }
-        }
+        _instancesMesh.erase(instance);
+        _meshInstances.erase(mesh);
 
-        _modelMatricesBuffer->subData(offset * sizeof(mat4), sizeof(mat4), &instance->modelMatrix);
-        _materialsIdsBuffer->subData(offset * sizeof(uint), sizeof(uint), &instance->materialId);
+        safeDelete(instance);
+
+        updateAllData();
+    }
+
+    void batch::update(const renderInstance& instance)
+    {
+        auto drawInstance = _meshInstances[instance.mesh];
+        drawInstance->materialId = instance.materialId;
+        drawInstance->modelMatrix = instance.modelMatrix;
+        auto selectionColor = instance.mesh->getSelectionColor();
+
+        _modelMatricesBuffer->subData(drawInstance->offset * sizeof(mat4), sizeof(mat4), &drawInstance->modelMatrix);
+        _materialsIdsBuffer->subData(drawInstance->offset * sizeof(uint), sizeof(uint), &drawInstance->materialId);
+        _selectionBuffer->subData(drawInstance->offset * sizeof(vec4), sizeof(vec4), &selectionColor);
+    }
+
+    void batch::updateSelectionBuffer(mesh* mesh)
+    {
+        auto drawInstance = _meshInstances[mesh];
+        auto selectionColor = mesh->getSelectionColor();
+
+        _selectionBuffer->subData(drawInstance->offset * sizeof(vec4), sizeof(vec4), &selectionColor);
+    }
+
+    void batch::updateTransformBuffer(mesh* mesh, const mat4& modelMatrix)
+    {
+        auto drawInstance = _meshInstances[mesh];
+        drawInstance->modelMatrix = modelMatrix;
+
+        _modelMatricesBuffer->subData(drawInstance->offset * sizeof(mat4), sizeof(mat4), &modelMatrix);
     }
 
     void batch::render()

@@ -128,10 +128,9 @@ int main(int argc, char* args[])
 
     try
     {
-        auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, _libraryPath);
+        auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
         auto application = phi::application(appStartInfo);
-        auto screen = demon::screen("?", 1024, 768);
-
+        auto screen = demon::screen("?", 1920, 1080);
 
         application.run(&screen);
     }

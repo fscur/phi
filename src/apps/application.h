@@ -36,7 +36,6 @@ namespace phi
         APPS_API static double millisecondsPerFrame;
 
     private:
-        bool _running;
         window* _window;
         static logger _logger;
 

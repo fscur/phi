@@ -1,4 +1,4 @@
-#include "precompiled.h"
+﻿#include "precompiled.h"
 #include "buffer.h"
 #include "glError.h"
 
@@ -35,19 +35,19 @@ namespace phi
         glError::check();
     }
 
-    inline void buffer::storage(GLsizeiptr size, void* data, bufferStorageUsage::bufferStorageUsage usage)
+    inline void buffer::storage(GLsizeiptr size, const void* const data, bufferStorageUsage::bufferStorageUsage usage)
     {
         glNamedBufferStorage(id, size, data == nullptr ? NULL : data, usage);
         glError::check();
     }
 
-    inline void buffer::data(GLsizeiptr size, void* data, bufferDataUsage::bufferDataUsage usage)
+    inline void buffer::data(GLsizeiptr size, const void* const data, bufferDataUsage::bufferDataUsage usage)
     {
         glNamedBufferData(id, size, data == nullptr ? NULL : data, usage);
         glError::check();
     }
 
-    inline void buffer::subData(GLintptr offset, GLintptr size, void* data)
+    inline void buffer::subData(GLintptr offset, GLintptr size, const void* const data)
     {
         glNamedBufferSubData(id, offset, size, data);
         glError::check();

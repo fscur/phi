@@ -1,16 +1,13 @@
 #pragma once
 #include <phi.h>
 #include "coreApi.h"
-#include "aabb.h"
 #include "vertex.h"
+#include "aabb.h"
 
 namespace phi
 {
     struct geometry
     {
-    private:
-        static geometry* _quad;
-
     public:
         uint verticesCount;
         uint indicesCount;
@@ -21,7 +18,7 @@ namespace phi
         aabb* aabb;
 
     public:
-        CORE_API static geometry* quad();
+        CORE_API static geometry* createQuad(float size);
         CORE_API ~geometry();
 
         CORE_API static geometry* create(vector<vertex> vertices, vector<uint> indices);

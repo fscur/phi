@@ -25,25 +25,28 @@ namespace phi
             info.state.depthMask,
             info.state.frontFace,
             info.state.cullFace,
+            info.state.swapInterval,
             hasBindlessTextures,
             hasSparseTextures);
 
         initState();
-        createDefaultResources(hasSparseTextures);
-
+        
         texturesManager = new phi::texturesManager(hasBindlessTextures, hasSparseTextures);
         shadersManager = new phi::shadersManager(info.shadersPath);
+        fontsManager = new phi::fontsManager(info.fontsPath, texturesManager);
+
+        createDefaultResources(hasSparseTextures);
     }
 
     gl::~gl()
     {
         safeDelete(texturesManager);
         safeDelete(shadersManager);
-
-        safeDelete(defaultAlbedoTexture);
-        safeDelete(defaultNormalTexture);
-        safeDelete(defaultSpecularTexture);
-        safeDelete(defaultEmissiveTexture);
+        safeDelete(fontsManager);
+        safeDelete(defaultAlbedoImage);
+        safeDelete(defaultNormalImage);
+        safeDelete(defaultSpecularImage);
+        safeDelete(defaultEmissiveImage);
         safeDelete(defaultMaterial);
     }
 
@@ -66,6 +69,7 @@ namespace phi
         {
             BINDLESS_TEXTURE_EXTENSION,
             SPARSE_TEXTURE_EXTENSION,
+            SWAP_CONTROL_EXTENSION,
         };
 
         for (auto phiExtension : phiExtensions)
@@ -101,26 +105,32 @@ namespace phi
         GLboolean depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
         glError::check();
+
+        if (extensions[SWAP_CONTROL_EXTENSION])
+        {
+            wglSwapIntervalEXT(currentState.swapInterval);
+            glError::check();
+        }
     }
 
-    texture* gl::createDefaultTexture(bool hasSparseTextures, vec4 color)
+    image* gl::createDefaultMaterialImage(const bool& hasSparseTextures, const vec4& color)
     {
-        auto x = 1u;
-        auto y = 1u;
+        auto w = 1u;
+        auto h = 1u;
 
         if (hasSparseTextures)
         {
-            x = 128u;
-            y = 128u;
+            w = 128u;
+            h = 128u;
         }
 
-        auto data = new byte[x * y * 4];
+        auto data = new byte[w * h * 4];
 
-        for (size_t i = 0; i < x; ++i)
+        for (size_t x = 0; x < w; ++x)
         {
-            for (size_t j = 0; j < y * 4; j += 4)
+            for (size_t y = 0; y < h * 4; y += 4)
             {
-                auto index = (j + y * i * 4);
+                auto index = (y + h * x * 4);
 
                 data[index + 0] = static_cast<byte>(color.r * 255);
                 data[index + 1] = static_cast<byte>(color.g * 255);
@@ -129,23 +139,16 @@ namespace phi
             }
         }
 
-        return new texture(
-            x,
-            y,
-            GL_TEXTURE_2D,
-            GL_RGBA8,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            data);
+		return new image(w, h, imageDataFormat::rgba, imageDataType::ubyte_dataType, data);
     }
 
     material* gl::createDefaultMaterial()
     {
         return new material(
-            defaultAlbedoTexture,
-            defaultNormalTexture,
-            defaultSpecularTexture,
-            defaultEmissiveTexture,
+			defaultAlbedoImage,
+			defaultNormalImage,
+			defaultSpecularImage,
+			defaultEmissiveImage,
             vec3(1.0f),
             vec3(1.0f),
             vec3(1.0f),
@@ -155,12 +158,18 @@ namespace phi
             1.0f);
     }
 
-    void gl::createDefaultResources(bool hasSparseTextures)
+    void gl::createDefaultResources(const bool& hasSparseTextures)
     {
-        defaultAlbedoTexture = createDefaultTexture(hasSparseTextures, vec4(1.0f));
-        defaultNormalTexture = createDefaultTexture(hasSparseTextures, vec4(0.5f, 0.5f, 1.0f, 1.0f));
-        defaultSpecularTexture = createDefaultTexture(hasSparseTextures, vec4(1.0f));
-        defaultEmissiveTexture = createDefaultTexture(hasSparseTextures, vec4(0.0f));
+        defaultAlbedoImage = createDefaultMaterialImage(hasSparseTextures, vec4(1.0f));
+        defaultNormalImage = createDefaultMaterialImage(hasSparseTextures, vec4(0.5f, 0.5f, 1.0f, 1.0f));
+        defaultSpecularImage = createDefaultMaterialImage(hasSparseTextures, vec4(1.0f));
+        defaultEmissiveImage = createDefaultMaterialImage(hasSparseTextures, vec4(0.0f));
         defaultMaterial = createDefaultMaterial();
+        defaultFont = fontsManager->load("Consolas.ttf", 14);
+    }
+
+    void gl::SyncPipeline()
+    {
+        glFinish();
     }
 }

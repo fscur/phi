@@ -6,8 +6,6 @@
 
 namespace phi
 {
-    geometry* geometry::_quad = nullptr;
-
     geometry::~geometry()
     {
         safeDeleteArray(vboData);
@@ -19,24 +17,24 @@ namespace phi
     {
         calcTangents(vertices, indices);
 
-        auto data = new geometry();
+        auto geometry = new phi::geometry();
         auto verticesCount = vertices.size();
         auto indicesCount = indices.size();
 
-        data->verticesCount = (uint)verticesCount;
-        data->indicesCount = (uint)indicesCount;
-        data->vboSize = (uint)(verticesCount * sizeof(vertex));
-        data->eboSize = (uint)(data->indicesCount * sizeof(uint));
+        geometry->verticesCount = (uint)verticesCount;
+        geometry->indicesCount = (uint)indicesCount;
+        geometry->vboSize = (uint)(verticesCount * sizeof(vertex));
+        geometry->eboSize = (uint)(geometry->indicesCount * sizeof(uint));
 
-        data->vboData = new vertex[verticesCount];
-        data->eboData = new uint[indicesCount];
+        geometry->vboData = new vertex[verticesCount];
+        geometry->eboData = new uint[indicesCount];
 
-        memcpy(data->vboData, &vertices[0], data->vboSize);
-        memcpy(data->eboData, &indices[0], data->eboSize);
+        memcpy(geometry->vboData, &vertices[0], geometry->vboSize);
+        memcpy(geometry->eboData, &indices[0], geometry->eboSize);
 
-        data->aabb = new phi::aabb(calcAabb(vertices));
+        geometry->aabb = new phi::aabb(calcAabb(vertices));
 
-        return data;
+        return geometry;
     }
 
     geometry* geometry::create(
@@ -196,23 +194,18 @@ namespace phi
         return phi::aabb(vec3(minX, minY, minZ), vec3(maxX, maxY, maxZ));
     }
 
-    geometry* geometry::quad()
+    geometry* geometry::createQuad(float size)
     {
-        if (_quad == nullptr)
+        vector<vertex> vertices
         {
-            vector<vertex> vertices
-            {
-                vertex(vec3(-0.5f, -0.5f, 0.0f), vec2(0.0f, 0.0f)),
-                vertex(vec3(+0.5f, -0.5f, 0.0f), vec2(1.0f, 0.0f)),
-                vertex(vec3(+0.5f, +0.5f, 0.0f), vec2(1.0f, 1.0f)),
-                vertex(vec3(-0.5f, +0.5f, 0.0f), vec2(0.0f, 1.0f)),
-            };
+            vertex(vec3(-0.5f * size, -0.5f * size, 0.0f), vec2(0.0f, 0.0f)),
+            vertex(vec3(+0.5f * size, -0.5f * size, 0.0f), vec2(1.0f, 0.0f)),
+            vertex(vec3(+0.5f * size, +0.5f * size, 0.0f), vec2(1.0f, 1.0f)),
+            vertex(vec3(-0.5f * size, +0.5f * size, 0.0f), vec2(0.0f, 1.0f)),
+        };
 
-            vector<uint> indices { 0, 1, 2, 2, 3, 0 };
+        vector<uint> indices{ 0, 1, 2, 2, 3, 0 };
 
-            _quad = create(vertices, indices);
-        }
-
-        return _quad;
+        return create(vertices, indices);
     }
 }

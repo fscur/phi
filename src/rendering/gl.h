@@ -1,9 +1,12 @@
 #pragma once
 #include <phi.h>
+
+#include <core\material.h>
+
 #include "renderingApi.h"
-#include "material.h"
 #include "texturesManager.h"
 #include "shadersManager.h"
+#include "fontsManager.h"
 
 namespace phi
 {
@@ -31,6 +34,7 @@ namespace phi
             bool depthMask;
             frontFace frontFace;
             cullFace cullFace;
+            int16_t swapInterval;
             bool useBindlessTextures;
             bool useSparseTextures;
 
@@ -42,6 +46,7 @@ namespace phi
                 bool depthMask = true,
                 gl::frontFace frontFace = gl::frontFace::ccw,
                 gl::cullFace cullFace = gl::cullFace::back,
+                int16_t swapInterval = 1,
                 bool useBindlessTextures = false,
                 bool useSparseTextures = false) :
                 clearColor(clearColor),
@@ -50,6 +55,7 @@ namespace phi
                 depthMask(depthMask),
                 frontFace(frontFace),
                 cullFace(cullFace),
+                swapInterval(swapInterval),
                 useBindlessTextures(useBindlessTextures),
                 useSparseTextures(useSparseTextures)
             {}
@@ -59,6 +65,7 @@ namespace phi
         {
             gl::state state;
             string shadersPath;
+            string fontsPath;
 
             glInfo()
             {
@@ -68,32 +75,37 @@ namespace phi
     private:
         const string BINDLESS_TEXTURE_EXTENSION = "GL_ARB_bindless_texture";
         const string SPARSE_TEXTURE_EXTENSION = "GL_ARB_sparse_texture";
+        const string SWAP_CONTROL_EXTENSION = "WGL_EXT_swap_control";
 
         static bool _initialized;
 
     private:
         void initOpenGLExtensions();
         void initState();
-        void createDefaultResources(bool hasSparseTextures);
-        texture* createDefaultTexture(bool hasSparseTextures, vec4 color);
+        void createDefaultResources(const bool& hasSparseTextures);
+		image* createDefaultMaterialImage(const bool& hasSparseTextures, const vec4& color);
         material* createDefaultMaterial();
 
     public:
-        phi::texturesManager* texturesManager;
-        phi::shadersManager* shadersManager;
+        texturesManager* texturesManager;
+        shadersManager* shadersManager;
+        fontsManager* fontsManager;
         gl::state currentState;
-        std::map<string, bool> extensions;
+        map<string, bool> extensions;
         material* defaultMaterial;
-        texture* defaultAlbedoTexture;
-        texture* defaultNormalTexture;
-        texture* defaultSpecularTexture;
-        texture* defaultEmissiveTexture;
+        image* defaultAlbedoImage;
+        image* defaultNormalImage;
+        image* defaultSpecularImage;
+        image* defaultEmissiveImage;
+        font* defaultFont;
 
     public:
         RENDERING_API gl(gl::glInfo initInfo);
         RENDERING_API ~gl();
+
         string getVendor() { return string((char*)glGetString(GL_VENDOR)); };
         string getRenderer() { return string((char*)glGetString(GL_RENDERER)); };
         string getVersion() { return string((char*)glGetString(GL_VERSION)); };
+        RENDERING_API static void SyncPipeline();
     };
 }

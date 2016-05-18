@@ -21,10 +21,18 @@ layout (std140, binding = 2) uniform RenderTargetAddresses
     int rt1Unit;
     int rt2Unit;
     int rt3Unit;
+    int depthUnit;
+    int pad0;
+    int pad1;
+    int pad2;
     float rt0Page;
     float rt1Page;
     float rt2Page;
     float rt3Page;
+    float depthPage;
+    float pad3;
+    float pad4;
+    float pad5;
 } rtAddresses;
 
 uniform sampler2DArray textureArrays[32];
@@ -48,7 +56,7 @@ vec4 fetchRt2()
 
 float fetchDepth()
 {
-    return texture(textureArrays[rtAddresses.rt3Unit], vec3(fragTexCoord, rtAddresses.rt3Page)).r;
+    return texture(textureArrays[rtAddresses.depthUnit], vec3(fragTexCoord, rtAddresses.depthPage)).r;
 }
 
 vec3 decodePosition(vec2 texCoord, float depth)
@@ -100,6 +108,5 @@ void main()
     vec4 specularComponent = lightColor * diffuseColor * spec;
 
     fragColor = ambientComponent + diffuseComponent + specularComponent;
-
-    //fragColor = vec4(fragNormal, 1.0);
+    //fragColor = diffuseComponent + ambientComponent;
 }

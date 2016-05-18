@@ -1,12 +1,13 @@
 #include <precompiled.h>
 #include "pipeline.h"
+
 #include "materialGpuData.h"
-#include "drawElementsIndirectCmd.h"
 
 namespace phi
 {
-    pipeline::pipeline(phi::gl* gl) :
-        _gl(gl)
+    pipeline::pipeline(gl* gl, float w, float h) :
+        _gl(gl),
+        _renderer(new renderer(gl, w, h))
     {
         createFrameUniformBlockBuffer();
         createMaterialsBuffer();
@@ -14,11 +15,15 @@ namespace phi
 
     pipeline::~pipeline()
     {
-        safeDelete(_materialsBuffer);
         safeDelete(_frameUniformBlockBuffer);
+        safeDelete(_materialsBuffer);
+        safeDelete(_renderer);
 
-        for (auto batch : batches)
+        for (auto batch : _batches)
             safeDelete(batch);
+
+        for (auto pair : _imageTextures)
+            safeDelete(pair.second);
     }
 
     void pipeline::createFrameUniformBlockBuffer()
@@ -29,165 +34,141 @@ namespace phi
             sizeof(phi::frameUniformBlock),
             nullptr,
             bufferStorageUsage::dynamic | bufferStorageUsage::write);
-
-        _frameUniformBlockBuffer->bindBufferBase(0);
     }
 
     void pipeline::createMaterialsBuffer()
     {
-        auto materialsBufferSize = MAX_MATERIALS_COUNT * sizeof(materialGpuData);
         _materialsBuffer = new buffer(bufferTarget::shader);
-        _materialsBuffer->storage(materialsBufferSize, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
+
+        _materialsBuffer->storage(
+            sizeof(materialGpuData) * MAX_MATERIALS_COUNT,
+            nullptr,
+            bufferStorageUsage::dynamic | bufferStorageUsage::write);
+    }
+
+    void pipeline::uploadMaterialIfNew(material* material)
+    {
+        static uint currentId = 0;
+
+        if (phi::contains(_materialsIndices, material))
+            return;
+
+        _materialsIndices[material] = currentId++;
+
+        auto albedoTexture = getMaterialTexture(material->albedoImage, _gl->defaultAlbedoImage);
+        auto normalTexture = getMaterialTexture(material->normalImage, _gl->defaultNormalImage);
+        auto specularTexture = getMaterialTexture(material->specularImage, _gl->defaultSpecularImage);
+        auto emissiveTexture = getMaterialTexture(material->emissiveImage, _gl->defaultEmissiveImage);
+
+        auto albedoTextureAddress = _gl->texturesManager->add(albedoTexture);
+        auto normalTextureAddress = _gl->texturesManager->add(normalTexture);
+        auto specularTextureAddress = _gl->texturesManager->add(specularTexture);
+        auto emissiveTextureAddress = _gl->texturesManager->add(emissiveTexture);
+
+        auto materialGpuData = phi::materialGpuData(
+            albedoTextureAddress,
+            normalTextureAddress,
+            specularTextureAddress,
+            emissiveTextureAddress,
+            material);
+
+        auto offset = _materialsIndices[material] * sizeof(phi::materialGpuData);
+        _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
         _materialsBuffer->bindBufferBase(1);
     }
 
-    void pipeline::updateFrameUniformBlock(frameUniformBlock& frameUniformBlock)
+    void pipeline::add(mesh* mesh, mat4 modelMatrix)
     {
-        _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
-    }
+        if (mesh->material == nullptr)
+            mesh->material = _gl->defaultMaterial;
 
-    void pipeline::addToBatches(node* node)
-    {
-        auto mesh = node->getComponent<phi::mesh>();
-        
-        if (mesh)
-        {
-            auto material = mesh->material;
+        uploadMaterialIfNew(mesh->material);
 
-            if (!phi::contains(_loadedMaterials, material))
-                uploadMaterial(material);
+        renderInstance instance = { 0 };
+        instance.mesh = mesh;
+        instance.modelMatrix = modelMatrix;
+        instance.materialId = _materialsIndices[instance.mesh->material];
 
-            auto geometry = mesh->geometry;
-            auto batchObject = phi::batchObject();
-            batchObject.mesh = mesh;
-            batchObject.geometry = geometry;
-            batchObject.materialId = _materialsMaterialsGpu[material];
-            batchObject.modelMatrix = node->getTransform()->getModelMatrix();
-
-            addToBatches(batchObject);
-
-            auto eventToken = node->getTransformChanged()->assign(std::bind(&pipeline::nodeTransformChanged, this, std::placeholders::_1));
-            _transformChangedTokens[mesh] = eventToken;
-        }
-
-        auto children = node->getChildren();
-
-        for (auto child : children)
-            addToBatches(child);
-    }
-
-    void pipeline::addToBatches(const batchObject& batchObject)
-    {
         auto i = 0u;
         auto added = false;
-        auto batchesCount = batches.size();
+        auto batchesCount = _batches.size();
 
         batch* batch = nullptr;
 
         while (!added && i < batchesCount)
         {
-            batch = batches[i++];
-            added = batch->add(batchObject);
+            batch = _batches[i++];
+            added = batch->add(instance);
         }
 
         if (!added)
         {
             batch = new phi::batch();
-            batches.push_back(batch);
-            batch->add(batchObject);
+            _batches.push_back(batch);
+            batch->add(instance);
         }
 
-        _meshesBatches[batchObject.mesh] = batch;
+        _meshesBatches[instance.mesh] = batch;
     }
 
-    void pipeline::uploadMaterial(material* material)
+    texture* pipeline::getMaterialTexture(image* materialImage, phi::image* defaultImage)
     {
-        if (_materialsMaterialsGpu.find(material) == _materialsMaterialsGpu.end())
-            _materialsMaterialsGpu[material] = static_cast<uint>(_materialsMaterialsGpu.size());
+        phi::texture* texture = nullptr;
 
-        auto texturesManager = _gl->texturesManager;
+        if (materialImage == nullptr)
+            materialImage = defaultImage;
 
-        auto albedoTextureAddress = texturesManager->add(material->albedoTexture);
-        auto normalTextureAddress = texturesManager->add(material->normalTexture);
-        auto specularTextureAddress = texturesManager->add(material->specularTexture);
-        auto emissiveTextureAddress = texturesManager->add(material->emissiveTexture);
-
-        auto materialGpuData = phi::materialGpuData(
-            albedoTextureAddress.unit,
-            normalTextureAddress.unit,
-            specularTextureAddress.unit,
-            emissiveTextureAddress.unit,
-            albedoTextureAddress.page,
-            normalTextureAddress.page,
-            specularTextureAddress.page,
-            emissiveTextureAddress.page,
-            material->albedoColor,
-            material->specularColor,
-            material->emissiveColor,
-            material->shininess,
-            material->reflectivity,
-            material->emission,
-            material->opacity);
-
-        auto offset = _materialsMaterialsGpu[material] * sizeof(phi::materialGpuData);
-
-        _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
-
-        _loadedMaterials.push_back(material);
-    }
-
-    void pipeline::add(node* node)
-    {
-        addToBatches(node);
-    }
-
-    void pipeline::updateBatches(node* node)
-    {
-        auto mesh = node->getComponent<phi::mesh>();
-        if (mesh)
+        if (_imageTextures.find(materialImage) != _imageTextures.end())
         {
-            auto batch = _meshesBatches[mesh];
-            _nodesToUpdate[batch].push_back(node);
+            texture = _imageTextures[materialImage];
         }
-
-        auto children = node->getChildren();
-        for (auto child : children)
-            updateBatches(child);
-    }
-
-    void pipeline::update(node* node)
-    {
-        updateBatches(node);
-
-        for (auto batch : batches)
+        else
         {
-            vector<batchObject> bacthObjectsToUpdade;
+            texture = new phi::texture(
+                materialImage,
+                GL_TEXTURE_2D,
+                GL_RGBA8,
+                GL_REPEAT,
+                GL_LINEAR_MIPMAP_LINEAR,
+                GL_LINEAR,
+                true);
 
-            for (auto node : _nodesToUpdate[batch])
-            {
-                auto mesh = node->getComponent<phi::mesh>();
-                auto batchObject = phi::batchObject();
-                batchObject.mesh = mesh;
-                batchObject.geometry = mesh->geometry;
-                batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-                batchObject.modelMatrix = node->getTransform()->getModelMatrix();
-                bacthObjectsToUpdade.push_back(batchObject);
-            }
-
-            batch->update(bacthObjectsToUpdade);
-            _nodesToUpdate[batch].clear();
+            _imageTextures[materialImage] = texture;
         }
+
+        return texture;
     }
 
-    void pipeline::nodeTransformChanged(node* sender)
+    void pipeline::remove(mesh* mesh)
     {
-        auto mesh = sender->getComponent<phi::mesh>();
-        auto batch = _meshesBatches[mesh];
-        auto batchObject = phi::batchObject();
-        batchObject.mesh = mesh;
-        batchObject.geometry = mesh->geometry;
-        batchObject.materialId = _materialsMaterialsGpu[mesh->material];
-        batchObject.modelMatrix = sender->getTransform()->getModelMatrix();
-        batch->update(batchObject);
+        _meshesBatches[mesh]->remove(mesh);
+    }
+
+    void pipeline::update(const renderInstance& instance)
+    {
+        _meshesBatches[instance.mesh]->update(instance);
+    }
+
+    void pipeline::updateTranformBuffer(mesh* mesh, const mat4& modelMatrix)
+    {
+        _meshesBatches[mesh]->updateTransformBuffer(mesh, modelMatrix);
+    }
+
+    void pipeline::updateSelectionBuffer(mesh* mesh)
+    {
+        _meshesBatches[mesh]->updateSelectionBuffer(mesh);
+    }
+
+    void pipeline::update(const frameUniformBlock& frameUniformBlock)
+    {
+        _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
+        _frameUniformBlockBuffer->bindBufferBase(0);
+
+        _renderer->update();
+    }
+
+    void pipeline::render()
+    {
+        _renderer->render(_batches);
     }
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "material.h"
+#include <core\material.h>
 
 namespace phi
 {
@@ -61,6 +61,32 @@ namespace phi
             pad0(0.0f),
             pad1(0.0f),
             pad2(0.0f)
-        {}
+        {
+        }
+
+        materialGpuData(
+            const textureAddress& albedoTextureAddress,
+            const textureAddress& normalTextureAddress,
+            const textureAddress& specularTextureAddress,
+            const textureAddress& emissiveTextureAddress,
+            const material* const material)
+            : materialGpuData::materialGpuData(
+                albedoTextureAddress.unit,
+                normalTextureAddress.unit,
+                specularTextureAddress.unit,
+                emissiveTextureAddress.unit,
+                albedoTextureAddress.page,
+                normalTextureAddress.page,
+                specularTextureAddress.page,
+                emissiveTextureAddress.page,
+                material->albedoColor,
+                material->specularColor,
+                material->emissiveColor,
+                material->shininess,
+                material->reflectivity,
+                material->emission,
+                material->opacity)
+        {
+        }
     };
 }

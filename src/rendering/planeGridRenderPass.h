@@ -20,8 +20,8 @@ namespace phi
         const float RADIUS_WAVE_OFFSET = 5.0f;
 
         phi::gl* _gl;
-        size_t _w;
-        size_t _h;
+        float _w;
+        float _h;
         geometry* _quad;
         uint _quadVao;
         vertexBuffer* _quadVbo;
@@ -31,6 +31,7 @@ namespace phi
         float _radiusFadeIn;
         float _radiusFadeOut;
         bool _showing;
+		texture* _gridTexture;
 
     public:
         transform transform;
@@ -45,10 +46,13 @@ namespace phi
         RENDERING_API void hide();
 
     public:
-        RENDERING_API planeGridRenderPass(phi::gl* gl, size_t w, size_t h);
+        shader* shader;
+
+    public:
+        RENDERING_API planeGridRenderPass(gl* gl, float w, float h);
         RENDERING_API ~planeGridRenderPass();
 
-        RENDERING_API void setTexture(texture* texture);
+        RENDERING_API void setImage(image* image);
 
         RENDERING_API void update();
         RENDERING_API void render();

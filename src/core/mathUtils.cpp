@@ -9,7 +9,7 @@ namespace phi
         double dy = v1.y - v0.y;
         double dz = v1.z - v0.z;
 
-        double x2 = pow(dx, 2.0f); 
+        double x2 = pow(dx, 2.0f);
         double y2 = pow(dy, 2.0f);
         double z2 = pow(dz, 2.0f);
 
@@ -98,7 +98,7 @@ namespace phi
         //undo t2 rotation
         mat4 t4 = mat4(
             a, l, 0.0f, 0.0f,
-           -l, a, 0.0f, 0.0f,
+            -l, a, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -140,7 +140,7 @@ namespace phi
             // there is no "ideal" rotation axis
             // So guess one; any will do as long as it's perpendicular to start
             rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
-            if (length(rotationAxis) < 0.01f ) // bad luck, they were parallel, try again!
+            if (length(rotationAxis) < 0.01f) // bad luck, they were parallel, try again!
                 rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
 
             rotationAxis = glm::normalize(rotationAxis);
@@ -153,16 +153,16 @@ namespace phi
         float invs = 1.0f / s;
 
         return quat(
-            s * 0.5f, 
+            s * 0.5f,
             rotationAxis.x * invs,
             rotationAxis.y * invs,
             rotationAxis.z * invs
-            );
+        );
     }
 
-    vec3 mathUtils::multiply(const mat4 m, const vec3 v)
+    vec3 mathUtils::multiply(const mat4& m, const vec3& v)
     {
-        auto a = vec4(v.x, v.y, v.z, 1.0f);
+        auto a = vec4(v, 1.0f);
         auto b = m * a;
         return vec3(b.x, b.y, b.z);
     }

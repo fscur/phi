@@ -10,38 +10,18 @@
 
 namespace phi
 {
-    struct pendingCommand
-    {
-    public:
-        command* cmd;
-        std::function<void(command*)> callback;
-        bool isUndo;
-
-        pendingCommand(command* cmd, std::function<void(command*)> callback, bool isUndo) :
-            cmd(cmd), callback(callback), isUndo(isUndo)
-        {}
-    };
-
     class commandsManager
     {
     private:
-        std::vector<shortcut> _shortcuts;
-        std::queue<pendingCommand*> _pendingCommands;
+        vector<shortcut> _shortcuts;
         std::stack<command*> _undo;
         std::stack<command*> _redo;
-        bool _executingCommand;
-        std::mutex _pendingCommandsMutex;
-
-        std::vector<keycode> _pressedKeys;
-
-        std::vector<shortcut> _commandShortcuts;
+        vector<keycode> _pressedKeys;
+        vector<shortcut> _commandShortcuts;
 
     private:
         void onKeyDown(phi::keyboardEventArgs* e);
         void onKeyUp(phi::keyboardEventArgs* e);
-        void enqueueCommand(command* cmd, std::function<void(command*)> callback, bool isUndo);
-        void startNextCommand();
-
     public:
         APPS_API commandsManager();
         APPS_API ~commandsManager();

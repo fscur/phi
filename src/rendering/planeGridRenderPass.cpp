@@ -4,7 +4,7 @@
 
 namespace phi
 {
-    planeGridRenderPass::planeGridRenderPass(phi::gl* gl, size_t w, size_t h) :
+    planeGridRenderPass::planeGridRenderPass(phi::gl* gl, float w, float h) :
         _gl(gl),
         _w(w),
         _h(h),
@@ -41,13 +41,15 @@ namespace phi
 
     planeGridRenderPass::~planeGridRenderPass()
     {
+        safeDelete(_quad);
         safeDelete(_quadVbo);
         safeDelete(_quadEbo);
+        safeDelete(_gridTexture);
     }
 
     void planeGridRenderPass::createQuad()
     {
-        _quad = geometry::quad();
+        _quad = geometry::createQuad(1.0f);
 
         glCreateVertexArrays(1, &_quadVao);
         glError::check();
@@ -83,12 +85,15 @@ namespace phi
         glError::check();
     }
 
-    void planeGridRenderPass::setTexture(texture* texture)
+    void planeGridRenderPass::setImage(image* image)
     {
-        texture->wrapMode = GL_REPEAT;
-        texture->minFilter = GL_LINEAR_MIPMAP_LINEAR;
-        texture->magFilter = GL_LINEAR;
-        _textureAddress = _gl->texturesManager->add(texture);
+        _gridTexture = new phi::texture(image);
+        _gridTexture->type = GL_TEXTURE_2D;
+        _gridTexture->internalFormat = GL_RGBA8;
+        _gridTexture->wrapMode = GL_REPEAT;
+        _gridTexture->minFilter = GL_LINEAR_MIPMAP_LINEAR;
+        _gridTexture->magFilter = GL_LINEAR;
+        _textureAddress = _gl->texturesManager->add(_gridTexture);
     }
 
     void planeGridRenderPass::show()
@@ -137,10 +142,16 @@ namespace phi
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glError::check();
         glDisable(GL_CULL_FACE);
+        glError::check();
         glDepthMask(GL_FALSE);
+        glError::check();
+
         renderQuad();
+
         glDepthMask(GL_TRUE);
+        glError::check();
         glEnable(GL_CULL_FACE);
+        glError::check();
         glDisable(GL_BLEND);
         glError::check();
     }

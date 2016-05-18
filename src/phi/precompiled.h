@@ -1,4 +1,3 @@
-//#pragma once //TODO: hope this commented line never starts a two thousand errors compilation :)
 #ifdef MSVC
 #pragma message ("Compiling precompiled headers")
 #else
@@ -33,8 +32,8 @@
 #include <vector>
 #include <exception>
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <sys\types.h>
+#include <sys\stat.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -45,8 +44,6 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <DbgHelp.h>
-#include <TlHelp32.h>
 #include <windows.h>
 #include <windowsx.h>
 #elif APPLE
@@ -64,6 +61,7 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\constants.hpp>
 #include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\quaternion.hpp>
 #include <glm\gtc\type_precision.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtx\norm.hpp>
@@ -78,10 +76,14 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_LCD_FILTER_H
 
 #include <gettext\libintl.h>
-
 #define _(string) gettext(string)
+
+#include <assimp\cimport.h>
+#include <assimp\scene.h>
+#include <assimp\postprocess.h>
 
 #ifdef MSVC
 #pragma warning(pop)
