@@ -30,6 +30,7 @@ namespace demon
         phi::commandsManager* _commandsManager;
         defaultCameraController* _defaultController;
 #ifdef _DEBUG
+        phi::watcher* _watcher;
         phi::blockingQueue<phi::watcherMessage>* _messageQueue;
 #endif 
     private:

@@ -41,17 +41,18 @@ namespace demon
         initInput();
 
 #ifdef _DEBUG
-        //_messageQueue = new blockingQueue<phi::watcherMessage>();
-        //watcher::watchDirAsync(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
-        //{
-        //    auto fileExtension = path::getExtension(shaderFileName);
-        //    if (fileExtension == phi::shadersManager::FRAG_EXT ||
-        //        fileExtension == phi::shadersManager::VERT_EXT)
-        //    {
-        //        auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
-        //        _gl->shadersManager->reloadShader(shaderName);
-        //    }
-        //});
+        _messageQueue = new blockingQueue<phi::watcherMessage>();
+        _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
+        {
+            auto fileExtension = path::getExtension(shaderFileName);
+            if (fileExtension == phi::shadersManager::FRAG_EXT ||
+                fileExtension == phi::shadersManager::VERT_EXT)
+            {
+                auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
+                _gl->shadersManager->reloadShader(shaderName);
+            }
+        });
+        _watcher->startWatch();
 #endif
     }
 
@@ -185,7 +186,7 @@ namespace demon
         safeDelete(_scene);
         safeDelete(_ui);
 #ifdef _DEBUG
-        //safeDelete(_messageQueue);
+        safeDelete(_messageQueue);
 #endif 
     }
 }
