@@ -43,7 +43,7 @@ namespace demon
 
 #ifdef _DEBUG
 		_messageQueue = new blockingQueue<phi::watcherMessage>();
-		watcher::watchDirAsync(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
+		_watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
 		{
 			auto fileExtension = path::getExtension(shaderFileName);
 			if (fileExtension == phi::shadersManager::FRAG_EXT ||
@@ -53,6 +53,7 @@ namespace demon
 				_gl->shadersManager->reloadShader(shaderName);
 			}
 		});
+		_watcher->startWatch();
 #endif
 	}
 
@@ -186,12 +187,14 @@ namespace demon
 	{
 		safeDelete(_commandsManager);
 		safeDelete(_defaultController);
-		safeDelete(_gl);
+		safeDelete(_gl);	
 		safeDelete(_userLibrary);
 		safeDelete(_projectLibrary);
 		safeDelete(_scene);
 		safeDelete(_ui);
 #ifdef _DEBUG
+		_watcher->endWatch();
+		safeDelete(_watcher);
 		safeDelete(_messageQueue);
 #endif 
 	}
