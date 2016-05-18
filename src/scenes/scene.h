@@ -14,15 +14,49 @@ namespace phi
     class scene
     {
     private:
+        struct nodeEventTokens
+        {
+            nodeEventTokens(
+                eventToken childAdded,
+                eventToken childRemoved,
+                eventToken transformChanged) :
+                childAdded(childAdded),
+                childRemoved(childRemoved),
+                transformChanged(transformChanged)
+            {
+            }
+
+            eventToken childAdded;
+            eventToken childRemoved;
+            eventToken transformChanged;
+        };
+
+        struct meshEventTokens
+        {
+            meshEventTokens(eventToken selectionChanged) :
+                selectionChanged(selectionChanged)
+            {
+            }
+
+            eventToken selectionChanged;
+        };
+
+    private:
         gl* _gl;
         pipeline* _pipeline;
         camera* _camera;
         node* _sceneRoot;
         float _w;
         float _h;
-    
+
+        phi::map<node*, nodeEventTokens*> _nodeTokens;
+        phi::map<mesh*, meshEventTokens*> _meshTokens;
+
     private:
         void trackNode(node* node);
+        void trackMesh(mesh * mesh);
+        void untrackNode(node * node);
+        void untrackMesh(mesh * mesh);
         void nodeChildAdded(node* addedChild);
         void nodeChildRemoved(node* removedChild);
         void nodeTransformChanged(node* changedNode);

@@ -264,6 +264,8 @@ namespace phi
         _instancesMesh.erase(instance);
         _meshInstances.erase(mesh);
 
+        safeDelete(instance);
+
         updateAllData();
     }
 

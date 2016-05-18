@@ -41,17 +41,17 @@ namespace demon
         initInput();
 
 #ifdef _DEBUG
-        _messageQueue = new blockingQueue<phi::watcherMessage>();
-        watcher::watchDirAsync(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
-        {
-            auto fileExtension = path::getExtension(shaderFileName);
-            if (fileExtension == phi::shadersManager::FRAG_EXT ||
-                fileExtension == phi::shadersManager::VERT_EXT)
-            {
-                auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
-                _gl->shadersManager->reloadShader(shaderName);
-            }
-        });
+        //_messageQueue = new blockingQueue<phi::watcherMessage>();
+        //watcher::watchDirAsync(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
+        //{
+        //    auto fileExtension = path::getExtension(shaderFileName);
+        //    if (fileExtension == phi::shadersManager::FRAG_EXT ||
+        //        fileExtension == phi::shadersManager::VERT_EXT)
+        //    {
+        //        auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
+        //        _gl->shadersManager->reloadShader(shaderName);
+        //    }
+        //});
 #endif
     }
 
@@ -166,12 +166,12 @@ namespace demon
     {
         //debug("fps: " + std::to_string(application::framesPerSecond));
 #ifdef _DEBUG
-        while (!_messageQueue->empty())
-        {
-            auto message = _messageQueue->front();
-            message.callback(message.fileChanged);
-            _messageQueue->pop();
-        }
+        //while (!_messageQueue->empty())
+        //{
+        //    auto message = _messageQueue->front();
+        //    message.callback(message.fileChanged);
+        //    _messageQueue->pop();
+        //}
 #endif
     }
 
@@ -185,7 +185,7 @@ namespace demon
         safeDelete(_scene);
         safeDelete(_ui);
 #ifdef _DEBUG
-        safeDelete(_messageQueue);
+        //safeDelete(_messageQueue);
 #endif 
     }
 }

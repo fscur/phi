@@ -13,11 +13,11 @@ namespace phi
     class commandsManager
     {
     private:
-        std::vector<shortcut> _shortcuts;
+        vector<shortcut> _shortcuts;
         std::stack<command*> _undo;
         std::stack<command*> _redo;
-        std::vector<keycode> _pressedKeys;
-        std::vector<shortcut> _commandShortcuts;
+        vector<keycode> _pressedKeys;
+        vector<shortcut> _commandShortcuts;
 
     private:
         void onKeyDown(phi::keyboardEventArgs* e);

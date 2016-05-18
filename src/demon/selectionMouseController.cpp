@@ -62,7 +62,7 @@ namespace demon
             auto selectedNode = selectedMesh->getNode();
 
             auto parent = selectedNode;
-            while (parent && !isSelectedOrHasSelectedChildren(parent))
+            while (parent && !isSelectedOrHasSelectedChildren(parent) && parent->getParent())
             {
                 selectedNode = parent;
                 parent = parent->getParent();

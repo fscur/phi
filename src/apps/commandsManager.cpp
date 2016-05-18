@@ -14,6 +14,19 @@ namespace phi
 
     commandsManager::~commandsManager()
     {
+        while (_undo.size())
+        {
+            auto undoCmd = _undo.top();
+            _undo.pop();
+            safeDelete(undoCmd);
+        }
+
+        while (_redo.size())
+        {
+            auto redoCmd = _redo.top();
+            _redo.pop();
+            safeDelete(redoCmd);
+        }
     }
 
     void commandsManager::addShortcut(shortcut shortcut)

@@ -7,7 +7,11 @@ namespace phi
     class command
     {
     public:
-        command() {};
+        command() 
+        {
+        };
+
+        virtual ~command() { };
         virtual bool getIsUndoable() { return true; }
 
         virtual void execute() { };

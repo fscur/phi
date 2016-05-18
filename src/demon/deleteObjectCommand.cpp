@@ -47,5 +47,7 @@ namespace demon
             pair.second->addChild(pair.first);
             selectedObjects->push_back(pair.first);
         }
+
+        _nodesParents.clear();
     }
 }
