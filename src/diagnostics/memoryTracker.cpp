@@ -3,6 +3,7 @@
 
 #include "stackSymbol.h"
 #include "stackTracer.h"
+#include "windowsProcLoader.h"
 
 #ifdef _DEBUG
 
@@ -110,7 +111,7 @@ namespace phi
         {
             char currentDirectoryPath[FILENAME_MAX];
             assert(GetModuleFileName(NULL, currentDirectoryPath, FILENAME_MAX));
-            stackTracer::LoadLibraries(currentDirectoryPath);
+            windowsProcLoader::load(currentDirectoryPath);
         }
 
         void dumpMemory()

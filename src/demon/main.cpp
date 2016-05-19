@@ -3,6 +3,7 @@
 
 #include <diagnostics\stackTracer.h>
 #include <diagnostics\stopwatch.h>
+#include <diagnostics\windowsProcLoader.h>
 
 #include <io\path.h>
 
@@ -112,7 +113,10 @@ void initializeGetText()
 
 void initializeDiagnostics(const char* executableFileName)
 {
-    phi::stackTracer::LoadLibraries(executableFileName);
+#ifdef _WIN32
+	//TODO create multiOS versions
+	phi::windowsProcLoader::load(executableFileName);
+#endif 
 }
 
 int main(int argc, char* args[])

@@ -2,8 +2,7 @@
 #include <phi.h>
 #include "diagnosticsApi.h"
 #include "stackSymbol.h"
-
-#include "debugHelp.h"
+#include "windowsDataDefinitions.h"
 
 namespace phi
 {
@@ -18,11 +17,10 @@ namespace phi
         static symbolModule symbolModuleFromAddress(HANDLE process, uintptr_t symbolAddress);
         static void takeSnapshot(HANDLE process);
         static DWORD getPcImageType();
-        static debugHelp::stackFrame buildStackFrame(CONTEXT context);
-        static debugHelp::symbol64* buildSymbolPointer();
+        static windowsDataDefinitions::stackFrame buildStackFrame(CONTEXT context);
+        static windowsDataDefinitions::symbol64* buildSymbolPointer();
         static stackSymbol buildStackSymbolFromAddress(HANDLE process, uintptr_t callAddress);
     public:
-        DIAGNOSTICS_API static void LoadLibraries(const char* executableFilePath);
         DIAGNOSTICS_API static vector<stackSymbol> captureStackBackTrace();
         DIAGNOSTICS_API static vector<stackSymbol> stackWalk64();
         DIAGNOSTICS_API static stackSymbol captureAllocationSight();
