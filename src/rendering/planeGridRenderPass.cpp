@@ -154,5 +154,7 @@ namespace phi
         glError::check();
         glDisable(GL_BLEND);
         glError::check();
+        glDisable(GL_DEPTH_TEST);
+        glError::check();
     }
 }

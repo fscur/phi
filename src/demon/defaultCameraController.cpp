@@ -481,6 +481,7 @@ namespace demon
             _planeGridPass->centerPosition = planePointProjection2D(planeOrigin, normal, planeRight, planeUp, point);
             _planeGridPass->show();
 
+            _dragDelta = vec2();
             _dragDoingInertia = false;
             _dragging = true;
 
@@ -512,7 +513,7 @@ namespace demon
         auto planeNormal = _planeGridPass->transform.getDirection();
         auto planeRight = _planeGridPass->transform.getRight();
         auto planeUp = _planeGridPass->transform.getUp();
-        auto centerBoundingBox = (_dragPlaneBottomLeft + _dragPlaneTopRight) * 0.5f + (_dragObject->getTransform()->getPosition() - _dragObjectStartPosition);
+        auto centerBoundingBox = (_dragPlaneBottomLeft + _dragPlaneTopRight) * 0.5f + (newPosition - _dragObjectStartPosition);
         auto projection = planePointProjection2D(planeOrigin, planeNormal, planeRight, planeUp, centerBoundingBox);
 
         _dragStartPos = _planeGridPass->centerPosition;
@@ -540,13 +541,8 @@ namespace demon
         auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
         _dragInertiaTime += deltaMilliseconds;
         auto percent = -glm::exp(_dragInertiaTime / -100.0f) + 1.0f;
-        auto delta = static_cast<float>(glm::length(_dragDelta) * percent);
-
-        if (delta == 0.0f)
-            return;
-
-        auto dir = glm::normalize(_dragDelta);
-        _planeGridPass->centerPosition = _dragStartPos + dir * delta;
+        auto delta = _dragDelta * static_cast<float>(percent);
+        _planeGridPass->centerPosition = _dragStartPos + delta;
 
         if (percent >= 1.0f)
             _dragDoingInertia = false;

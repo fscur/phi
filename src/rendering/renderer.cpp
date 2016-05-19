@@ -126,6 +126,7 @@ namespace phi
 
         _finalImageFramebuffer = new framebuffer();
         _finalImageFramebuffer->add(_finalImageRT);
+        _finalImageFramebuffer->add(depth);
     }
 
     void renderer::blitGBufferDepthToDefaultFrameBuffer()
@@ -170,15 +171,15 @@ namespace phi
         clearGBufferFrameBuffer();
 
         _gBufferRenderPass->render(batches);
-        
+
         _gBufferFramebuffer->unbind(GL_FRAMEBUFFER);
         blitGBufferDepthToDefaultFrameBuffer();
 
         _finalImageFramebuffer->bindForDrawing();
 
         _lightingRenderPass->render();
-        _selectionRenderPass->render();
         _planeGridRenderPass->render();
+        _selectionRenderPass->render();
 
         _finalImageFramebuffer->blitToDefault(_finalImageRT);
         generateFinalImageMipMaps();
