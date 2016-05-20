@@ -4,7 +4,7 @@
 
 namespace phi
 {
-	class windowsDataDefinitions
+	class win64DataDefinitions
 	{
 	public:
 		typedef enum

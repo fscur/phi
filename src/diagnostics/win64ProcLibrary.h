@@ -2,19 +2,12 @@
 #include <phi.h>
 
 #include "diagnosticsApi.h"
-#include "windowsDataDefinitions.h"
+#include "win64DataDefinitions.h"
 
 namespace phi
 {
-	class windowsProcLoader
-	{
-	private:
-		static const char* _dbgHelpLibraryName;
-		static const char* _kernelLibraryName;
-		static bool _areLibrariesLoaded;
-		static void loadKernel32Procs(const char* executableName);
-		static void loadDbgHelpProcs(const char* executableName);
-	
+	class win64ProcLibrary
+	{	
 	public:
 		typedef BOOL(__stdcall *dbgHelpSymInitilizeFunction)(
 			_In_ HANDLE process,
@@ -39,13 +32,13 @@ namespace phi
 		typedef DWORD64(__stdcall *dbgHelpTranlateAddressRoutine64)(
 			_In_ HANDLE process,
 			_In_ HANDLE thread,
-			_In_ windowsDataDefinitions::lpaddress64 lpaddr);
+			_In_ win64DataDefinitions::lpaddress64 lpaddr);
 
 		typedef BOOL(__stdcall *dbgHelpStackWalk64Function)(
 			_In_ DWORD machineType,
 			_In_ HANDLE process,
 			_In_ HANDLE thread,
-			_Inout_ windowsDataDefinitions::stackFrame* stackFrame,
+			_Inout_ win64DataDefinitions::stackFrame* stackFrame,
 			_Inout_ PVOID contextRecord,
 			_In_opt_ dbgHelpReadProcessMemoryRoutine64 readMemoryRoutine,
 			_In_opt_ dbgHelpSymFunctionTableAccess64Function functionTableAccessRoutine,
@@ -56,18 +49,18 @@ namespace phi
 			_In_ HANDLE process,
 			_In_ DWORD64 qwAddr,
 			_Out_ PDWORD pdwDisplacement,
-			_Out_ windowsDataDefinitions::line64* line64);
+			_Out_ win64DataDefinitions::line64* line64);
 
 		typedef BOOL(__stdcall *dbgHelpGetSymbolFromAddressFunction)(
 			_In_ HANDLE process,
 			_In_ DWORD64 address,
 			_Out_ PDWORD64 displacement,
-			_Out_ windowsDataDefinitions::symbol64* symbol);
+			_Out_ win64DataDefinitions::symbol64* symbol);
 
 		typedef BOOL(__stdcall *dbgHelpSymGetModuleInfo64Function)(
 			_In_ HANDLE hProcess,
 			_In_ DWORD64 qwAddr,
-			_Out_ windowsDataDefinitions::module64* moduleInfo);
+			_Out_ win64DataDefinitions::module64* moduleInfo);
 
 		typedef DWORD64(__stdcall *dbgHelpSymLoadModule64Function)(
 			_In_ HANDLE process,
@@ -83,11 +76,11 @@ namespace phi
 
 		typedef BOOL(__stdcall *kernel32Module32FirstFunction)(
 			HANDLE hSnapshot,
-			windowsDataDefinitions::moduleEntry32* lpme);
+			win64DataDefinitions::moduleEntry32* lpme);
 
 		typedef BOOL(__stdcall *kernel32Module32NextFunction)(
 			HANDLE hSnapshot,
-			windowsDataDefinitions::moduleEntry32* lpme);
+			win64DataDefinitions::moduleEntry32* lpme);
 
 		typedef BOOL(__stdcall *kernel32CloseHandleFunction)(
 			_In_ HANDLE handle);
@@ -109,6 +102,5 @@ namespace phi
 		DIAGNOSTICS_API static kernel32Module32NextFunction module32Next;
 		DIAGNOSTICS_API static kernel32CloseHandleFunction closeHandle;
 		DIAGNOSTICS_API static kernel32CancelIoExFunction cancelIoEx;
-		DIAGNOSTICS_API static void load(const char* executableFileName);
 	};
 }

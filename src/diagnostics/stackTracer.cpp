@@ -1,6 +1,6 @@
 #include <precompiled.h>
 #include "stackTracer.h"
-#include "windowsProcLoader.h"
+#include "win64ProcLibrary.h"
 #include "fileUtils.h"
 
 
@@ -17,10 +17,10 @@ namespace phi
     symbolFile stackTracer::symbolFileFromAddress(HANDLE process, uintptr_t symbolAddress)
     {
         DWORD displacement;
-		windowsDataDefinitions::line64 line = {};
-        line.sizeOfStruct = sizeof(windowsDataDefinitions::line64);
+		win64DataDefinitions::line64 line = {};
+        line.sizeOfStruct = sizeof(win64DataDefinitions::line64);
 
-        if (windowsProcLoader::symGetLineFromAddr64(process, symbolAddress, &displacement, &line))
+        if (win64ProcLibrary::symGetLineFromAddr64(process, symbolAddress, &displacement, &line))
         {
             auto fileNameSize = strlen(line.fileName) + 1;
             auto symbolFile = phi::symbolFile();
@@ -40,10 +40,10 @@ namespace phi
 
     symbolModule stackTracer::symbolModuleFromAddress(HANDLE process, uintptr_t symbolAddress)
     {
-        windowsDataDefinitions::module64 module = {};
-        module.sizeOfStruct = sizeof(windowsDataDefinitions::module64);
+        win64DataDefinitions::module64 module = {};
+        module.sizeOfStruct = sizeof(win64DataDefinitions::module64);
 
-        if (windowsProcLoader::symGetModuleInfo64(process, symbolAddress, &module))
+        if (win64ProcLibrary::symGetModuleInfo64(process, symbolAddress, &module))
         {
             auto moduleNameSize = strlen(module.moduleName) + 1;
             auto modulePathSize = strlen(module.loadedImageName) + 1;
@@ -65,22 +65,22 @@ namespace phi
 
     void stackTracer::takeSnapshot(HANDLE process)
     {
-        auto snapshot = windowsProcLoader::createToolhelp32Snapshot(windowsDataDefinitions::SNAPMODULE, GetCurrentProcessId());
+        auto snapshot = win64ProcLibrary::createToolhelp32Snapshot(win64DataDefinitions::SNAPMODULE, GetCurrentProcessId());
 
-        windowsDataDefinitions::moduleEntry32 moduleEntry;
-        moduleEntry.dwSize = sizeof(windowsDataDefinitions::moduleEntry32);
+        win64DataDefinitions::moduleEntry32 moduleEntry;
+        moduleEntry.dwSize = sizeof(win64DataDefinitions::moduleEntry32);
         
-        auto hasModules = windowsProcLoader::module32First(snapshot, &moduleEntry);
+        auto hasModules = win64ProcLibrary::module32First(snapshot, &moduleEntry);
         while (hasModules)
         {
-			windowsProcLoader::symLoadModule64(
+			win64ProcLibrary::symLoadModule64(
                 process, 0,
                 (PSTR)moduleEntry.szExePath,
                 (PSTR)moduleEntry.szModule,
                 (DWORD64)moduleEntry.modBaseAddr,
                 moduleEntry.modBaseSize);
             
-            hasModules = windowsProcLoader::module32Next(snapshot, &moduleEntry);
+            hasModules = win64ProcLibrary::module32Next(snapshot, &moduleEntry);
         }
 
         CloseHandle(snapshot);
@@ -91,24 +91,24 @@ namespace phi
         return IMAGE_FILE_MACHINE_AMD64; //TODO: check all pc image types
     }
 
-    windowsDataDefinitions::stackFrame stackTracer::buildStackFrame(CONTEXT context)
+    win64DataDefinitions::stackFrame stackTracer::buildStackFrame(CONTEXT context)
     {
-        windowsDataDefinitions::stackFrame stackFrame = {};
+        win64DataDefinitions::stackFrame stackFrame = {};
         stackFrame.AddrPC.Offset = context.Rip;
-        stackFrame.AddrPC.Mode = windowsDataDefinitions::addressMode::AddrModeFlat;
+        stackFrame.AddrPC.Mode = win64DataDefinitions::addressMode::AddrModeFlat;
         stackFrame.AddrFrame.Offset = context.Rsp;
-        stackFrame.AddrFrame.Mode = windowsDataDefinitions::addressMode::AddrModeFlat;
+        stackFrame.AddrFrame.Mode = win64DataDefinitions::addressMode::AddrModeFlat;
         stackFrame.AddrStack.Offset = context.Rsp;
-        stackFrame.AddrStack.Mode = windowsDataDefinitions::addressMode::AddrModeFlat;
+        stackFrame.AddrStack.Mode = win64DataDefinitions::addressMode::AddrModeFlat;
 
         return stackFrame;
     }
 
-    windowsDataDefinitions::symbol64* stackTracer::buildSymbolPointer()
+    win64DataDefinitions::symbol64* stackTracer::buildSymbolPointer()
     {
-        auto symbolPointer = (windowsDataDefinitions::symbol64*)malloc(sizeof(windowsDataDefinitions::symbol64) + MAX_SYMBOL_NAME_LENGTH);
-        memset(symbolPointer, 0, sizeof(windowsDataDefinitions::symbol64) + MAX_SYMBOL_NAME_LENGTH);
-        symbolPointer->sizeOfStruct = sizeof(windowsDataDefinitions::symbol64);
+        auto symbolPointer = (win64DataDefinitions::symbol64*)malloc(sizeof(win64DataDefinitions::symbol64) + MAX_SYMBOL_NAME_LENGTH);
+        memset(symbolPointer, 0, sizeof(win64DataDefinitions::symbol64) + MAX_SYMBOL_NAME_LENGTH);
+        symbolPointer->sizeOfStruct = sizeof(win64DataDefinitions::symbol64);
         symbolPointer->maxNameLength = MAX_SYMBOL_NAME_LENGTH;
 
         return symbolPointer;
@@ -117,7 +117,7 @@ namespace phi
     stackSymbol stackTracer::buildStackSymbolFromAddress(HANDLE process, uintptr_t callAddress)
     {
         auto symbol = buildSymbolPointer();
-		windowsProcLoader::symGetSymFromAddr64(process, callAddress, 0, symbol);
+		win64ProcLibrary::symGetSymFromAddr64(process, callAddress, 0, symbol);
 
         auto symbolNameSize = strlen(symbol->name) + 1;
         auto stackSymbol = phi::stackSymbol();
@@ -140,7 +140,7 @@ namespace phi
         auto process = GetCurrentProcess();
         auto callsCount = CaptureStackBackTrace(0, maxCallsToCapture, stackCalls, NULL);
 
-		windowsProcLoader::symInitialize(process, NULL, TRUE);
+		win64ProcLibrary::symInitialize(process, NULL, TRUE);
         takeSnapshot(process);
 
         auto stack = vector<stackSymbol>();
@@ -165,22 +165,22 @@ namespace phi
         context.ContextFlags = CONTEXT_FULL;
         RtlCaptureContext(&context);
 
-		windowsProcLoader::symInitialize(process, NULL, FALSE);
+		win64ProcLibrary::symInitialize(process, NULL, FALSE);
         takeSnapshot(process);
 
         auto imageType = getPcImageType();
         auto stackFrame = buildStackFrame(context);
         auto stack = vector<stackSymbol>();
         auto framesToSkip = 1;
-        while (windowsProcLoader::stackWalk64(
+        while (win64ProcLibrary::stackWalk64(
             imageType,
             process,
             thread,
             &stackFrame,
             &context,
             NULL,
-			windowsProcLoader::symFunctionTableAccess64,
-			windowsProcLoader::symGetModuleBase64,
+			win64ProcLibrary::symFunctionTableAccess64,
+			win64ProcLibrary::symGetModuleBase64,
             NULL))
         {
             if (framesToSkip > 0)
@@ -211,7 +211,7 @@ namespace phi
         context.ContextFlags = CONTEXT_FULL;
         RtlCaptureContext(&context);
 
-		windowsProcLoader::symInitialize(process, NULL, FALSE);
+		win64ProcLibrary::symInitialize(process, NULL, FALSE);
         takeSnapshot(process);
 
         auto imageType = getPcImageType();
@@ -223,15 +223,15 @@ namespace phi
         char const* headerExtension = ".h";
 
         int framesToSkip = 3;
-        while (windowsProcLoader::stackWalk64(
+        while (win64ProcLibrary::stackWalk64(
             imageType,
             process,
             thread,
             &stackFrame,
             &context,
             NULL,
-			windowsProcLoader::symFunctionTableAccess64,
-			windowsProcLoader::symGetModuleBase64,
+			win64ProcLibrary::symFunctionTableAccess64,
+			win64ProcLibrary::symGetModuleBase64,
             NULL))
         {
             if (framesToSkip > 0)
@@ -252,7 +252,7 @@ namespace phi
             if (strcmp(endOfFileName - 4, cppExtension) == 0 ||
                 strcmp(endOfFileName - 2, headerExtension) == 0)
             {
-				windowsProcLoader::symGetSymFromAddr64(process, symbolAddress, 0, symbol);
+				win64ProcLibrary::symGetSymFromAddr64(process, symbolAddress, 0, symbol);
                 stackSymbol.name = _strdup(symbol->name);
                 stackSymbol.address = symbolAddress;
                 stackSymbol.file.line = file.line;
@@ -275,40 +275,40 @@ namespace phi
         context.ContextFlags = CONTEXT_FULL;
         RtlCaptureContext(&context);
 
-		windowsProcLoader::symInitialize(process, nullptr, false);
+		win64ProcLibrary::symInitialize(process, nullptr, false);
 
-        auto snapshot = windowsProcLoader::createToolhelp32Snapshot(windowsDataDefinitions::SNAPMODULE, GetCurrentProcessId());
-        windowsDataDefinitions::moduleEntry32 moduleEntry;
-        moduleEntry.dwSize = sizeof(windowsDataDefinitions::moduleEntry32);
+        auto snapshot = win64ProcLibrary::createToolhelp32Snapshot(win64DataDefinitions::SNAPMODULE, GetCurrentProcessId());
+        win64DataDefinitions::moduleEntry32 moduleEntry;
+        moduleEntry.dwSize = sizeof(win64DataDefinitions::moduleEntry32);
 
-        auto hasModules = windowsProcLoader::module32First(snapshot, &moduleEntry);
+        auto hasModules = win64ProcLibrary::module32First(snapshot, &moduleEntry);
         while (hasModules)
         {
-			windowsProcLoader::symLoadModule64(
+			win64ProcLibrary::symLoadModule64(
                 process, 0,
                 (PSTR)moduleEntry.szExePath,
                 (PSTR)moduleEntry.szModule,
                 (DWORD64)moduleEntry.modBaseAddr,
                 moduleEntry.modBaseSize);
 
-            hasModules = windowsProcLoader::module32Next(snapshot, &moduleEntry);
+            hasModules = win64ProcLibrary::module32Next(snapshot, &moduleEntry);
         }
 
-		windowsProcLoader::closeHandle(snapshot);
+		win64ProcLibrary::closeHandle(snapshot);
 
         auto imageType = IMAGE_FILE_MACHINE_AMD64;
         
-        windowsDataDefinitions::stackFrame stackFrame = {};
+        win64DataDefinitions::stackFrame stackFrame = {};
         stackFrame.AddrPC.Offset = context.Rip;
-        stackFrame.AddrPC.Mode = windowsDataDefinitions::addressMode::AddrModeFlat;
+        stackFrame.AddrPC.Mode = win64DataDefinitions::addressMode::AddrModeFlat;
         stackFrame.AddrFrame.Offset = context.Rsp;
-        stackFrame.AddrFrame.Mode = windowsDataDefinitions::addressMode::AddrModeFlat;
+        stackFrame.AddrFrame.Mode = win64DataDefinitions::addressMode::AddrModeFlat;
         stackFrame.AddrStack.Offset = context.Rsp;
-        stackFrame.AddrStack.Mode = windowsDataDefinitions::addressMode::AddrModeFlat;
+        stackFrame.AddrStack.Mode = win64DataDefinitions::addressMode::AddrModeFlat;
 
-        auto symbolPointer = (windowsDataDefinitions::symbol64*)malloc(sizeof(windowsDataDefinitions::symbol64) + MAX_SYMBOL_NAME_LENGTH);
-        memset(symbolPointer, 0, sizeof(windowsDataDefinitions::symbol64) + MAX_SYMBOL_NAME_LENGTH);
-        symbolPointer->sizeOfStruct = sizeof(windowsDataDefinitions::symbol64);
+        auto symbolPointer = (win64DataDefinitions::symbol64*)malloc(sizeof(win64DataDefinitions::symbol64) + MAX_SYMBOL_NAME_LENGTH);
+        memset(symbolPointer, 0, sizeof(win64DataDefinitions::symbol64) + MAX_SYMBOL_NAME_LENGTH);
+        symbolPointer->sizeOfStruct = sizeof(win64DataDefinitions::symbol64);
         symbolPointer->maxNameLength = MAX_SYMBOL_NAME_LENGTH;
 
         auto stackSymbol = phi::stackSymbol();
@@ -317,15 +317,15 @@ namespace phi
         char const* headerExtension = ".h";
 
         int framesToSkip = 3;
-        while (windowsProcLoader::stackWalk64(
+        while (win64ProcLibrary::stackWalk64(
             imageType,
             process,
             thread,
             &stackFrame,
             &context,
             NULL,
-			windowsProcLoader::symFunctionTableAccess64,
-			windowsProcLoader::symGetModuleBase64,
+			win64ProcLibrary::symFunctionTableAccess64,
+			win64ProcLibrary::symGetModuleBase64,
             NULL))
         {
             if (framesToSkip > 0)
@@ -341,17 +341,17 @@ namespace phi
                 break;
 
             DWORD displacement;
-            windowsDataDefinitions::line64 line = {};
-            line.sizeOfStruct = sizeof(windowsDataDefinitions::line64);
+            win64DataDefinitions::line64 line = {};
+            line.sizeOfStruct = sizeof(win64DataDefinitions::line64);
 
-            if (windowsProcLoader::symGetLineFromAddr64(process, symbolAddress, &displacement, &line))
+            if (win64ProcLibrary::symGetLineFromAddr64(process, symbolAddress, &displacement, &line))
             {
                 auto endOfFileName = line.fileName + strlen(line.fileName);
 
                 if (strcmp(endOfFileName - 4, cppExtension) == 0 ||
                     strcmp(endOfFileName - 2, headerExtension) == 0)
                 {
-					windowsProcLoader::symGetSymFromAddr64(process, symbolAddress, 0, symbolPointer);
+					win64ProcLibrary::symGetSymFromAddr64(process, symbolAddress, 0, symbolPointer);
                     stackSymbol.name = _strdup(symbolPointer->name);
                     stackSymbol.address = symbolAddress;
                     stackSymbol.file.line = line.lineNumber;

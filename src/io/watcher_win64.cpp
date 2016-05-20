@@ -1,7 +1,7 @@
 #include <precompiled.h>
 
 #include "watcher.h"
-#include <diagnostics\windowsProcLoader.h>
+#include <diagnostics\win64ProcLibrary.h>
 
 namespace phi
 {
@@ -89,7 +89,7 @@ namespace phi
         {
             _programRunning = false;
 
-            if (windowsProcLoader::cancelIoEx(_hDir, NULL))
+            if (win64ProcLibrary::cancelIoEx(_hDir, NULL))
             {
                 _watcherThread.join();
             }
