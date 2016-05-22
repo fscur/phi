@@ -1,5 +1,5 @@
 #pragma once
-#include "command.h"
+#include <core\command.h>
 
 namespace phi
 {

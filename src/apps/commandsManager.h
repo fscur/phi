@@ -2,10 +2,9 @@
 #include <phi.h>
 #include "appsApi.h"
 
-#include <core/mouseEventArgs.h>
-#include <core/keyboardEventArgs.h>
-
-#include "command.h"
+#include <core\command.h>
+#include <core\mouseEventArgs.h>
+#include <core\keyboardEventArgs.h>
 #include "shortcut.h"
 
 namespace phi
