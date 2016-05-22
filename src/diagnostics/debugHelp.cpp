@@ -35,7 +35,6 @@ namespace phi
         auto debugHelpLibrary = LoadLibrary(dbgHelpPath);
         auto kernel32Library = LoadLibrary(kernelLibraryName);
 
-        //symCleanup = GetProcAddress(debugHelpLibrary, "SymCleanup");
         symInitialize = (symInitilizeFunction)GetProcAddress(debugHelpLibrary, "SymInitialize");
         stackWalk64 = (stackWalk64Function)GetProcAddress(debugHelpLibrary, "StackWalk64");
         symFunctionTableAccess64 = (symFunctionTableAccess64Function)GetProcAddress(debugHelpLibrary, "SymFunctionTableAccess64");

@@ -1,9 +1,9 @@
 #include <precompiled.h>
 #include <gtest\gtest.h>
 
-#include <core/blockingQueue.h>
+#include <core\blockingQueue.h>
 
-TEST(blockingQueueTest, pushRef)
+TEST(blockingQueue, pushRef)
 {
     //arrange
     phi::blockingQueue<std::string> queue;
@@ -16,7 +16,7 @@ TEST(blockingQueueTest, pushRef)
     ASSERT_EQ(queue.size(), 1u);
 }
 
-TEST(blockingQueueTest, pushValue)
+TEST(blockingQueue, pushValue)
 {
     //arrange
     phi::blockingQueue<int> queue;
@@ -28,7 +28,7 @@ TEST(blockingQueueTest, pushValue)
     ASSERT_EQ(queue.size(), 1u);
 }
 
-TEST(blockingQueueTest, notEmpty)
+TEST(blockingQueue, notEmpty)
 {
     //arrange
     phi::blockingQueue<int> queue;
@@ -38,7 +38,7 @@ TEST(blockingQueueTest, notEmpty)
     ASSERT_FALSE(queue.empty());
 }
 
-TEST(blockingQueueTest, empty)
+TEST(blockingQueue, empty)
 {
     //arrange
     phi::blockingQueue<int> queue;
@@ -47,7 +47,7 @@ TEST(blockingQueueTest, empty)
     ASSERT_TRUE(queue.empty());
 }
 
-TEST(blockingQueueTest, size)
+TEST(blockingQueue, size)
 {
     //arrange
     phi::blockingQueue<int> queue;
@@ -59,7 +59,7 @@ TEST(blockingQueueTest, size)
     ASSERT_EQ(queue.size(), 3u);
 }
 
-TEST(blockingQueueTest, back)
+TEST(blockingQueue, back)
 {
     //arrange
     phi::blockingQueue<int> queue;
@@ -74,7 +74,7 @@ TEST(blockingQueueTest, back)
     ASSERT_EQ(backMember, 2);
 }
 
-TEST(blockingQueueTest, emplace)
+TEST(blockingQueue, emplace)
 {
     //arrange
     phi::blockingQueue<int> queue;
@@ -89,7 +89,7 @@ TEST(blockingQueueTest, emplace)
     ASSERT_EQ(queue.back(), 0);
 }
 
-TEST(blockingQueueTest, front)
+TEST(blockingQueue, front)
 {
     //arrange
     phi::blockingQueue<int> queue;
@@ -105,7 +105,7 @@ TEST(blockingQueueTest, front)
     ASSERT_EQ(queue.size(), 3u);
 }
 
-TEST(blockingQueueTest, pop)
+TEST(blockingQueue, pop)
 {
     //arrange
     phi::blockingQueue<int> queue;
@@ -122,7 +122,7 @@ TEST(blockingQueueTest, pop)
     ASSERT_EQ(queue.size(), 2u);
 }
 
-TEST(blockingQueueTest, producerConsumer)
+TEST(blockingQueue, producerConsumer)
 {
     //arrange & act
     phi::blockingQueue<int> queue;
