@@ -22,7 +22,7 @@ namespace phi
     }
 
     transform::transform(const transform& original) :
-        _parent(original._parent), 
+        _parent(original._parent),
         _localModelMatrix(original._localModelMatrix),
         _localPosition(original._localPosition),
         _localOrientation(original._localOrientation),
@@ -35,14 +35,14 @@ namespace phi
         _changedEvent(new eventHandler<transform*>()),
         _parentTransformChangedEventToken(eventToken())
     {
-		if (_parent)
-			_parentTransformChangedEventToken = _parent->getChangedEvent()->assign(std::bind(&transform::parentTransformChanged, this, std::placeholders::_1));
+        if (_parent)
+            _parentTransformChangedEventToken = _parent->getChangedEvent()->assign(std::bind(&transform::parentTransformChanged, this, std::placeholders::_1));
     }
 
     transform::~transform()
     {
-		if (_parent)
-			_parent->getChangedEvent()->unassign(_parentTransformChangedEventToken);
+        if (_parent)
+            _parent->getChangedEvent()->unassign(_parentTransformChangedEventToken);
 
         safeDelete(_changedEvent);
     }
@@ -57,7 +57,6 @@ namespace phi
         auto localRotation = getLocalRotationMatrix();
         auto localScale = getLocalScaleMatrix();
         auto localTranslation = getLocalTranslationMatrix();
-		//_localModelMatrix = localScale * localRotation * localTranslation;
         _localModelMatrix = localTranslation  * localRotation * localScale;
         _changed = false;
 
@@ -146,7 +145,7 @@ namespace phi
     {
         if (_changed)
             updateData();
-        
+
         return _up;
     }
 
@@ -194,29 +193,55 @@ namespace phi
         setLocalOrientation(mathUtils::rotationBetweenVectors(_direction, direction) * _localOrientation);
     }
 
-	inline void transform::translate(vec3 translation) 
-	{ 
-		setLocalPosition(_localPosition + translation); 
-	}
+    inline void transform::translate(vec3 translation)
+    {
+        setLocalPosition(_localPosition + translation);
+    }
 
-	inline void transform::rotate(float angle, vec3 axis) 
-	{ 
-		setLocalOrientation(angleAxis(angle, axis) * _localOrientation); 
-	}
+    inline void transform::rotate(float angle, vec3 axis)
+    {
+        setLocalOrientation(angleAxis(angle, axis) * _localOrientation);
+    }
 
-	inline void transform::pitch(float angle) { setLocalOrientation(angleAxis(angle, vec3(1.0f, 0.0f, 0.0f)) * _localOrientation); }
-	inline void transform::yaw(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 1.0f, 0.0f)) * _localOrientation); }
-	inline void transform::roll(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 0.0f, 1.0f)) * _localOrientation); }
+    inline void transform::pitch(float angle) { setLocalOrientation(angleAxis(angle, vec3(1.0f, 0.0f, 0.0f)) * _localOrientation); }
+    inline void transform::yaw(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 1.0f, 0.0f)) * _localOrientation); }
+    inline void transform::roll(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 0.0f, 1.0f)) * _localOrientation); }
 
-	void transform::multiply(const transform & transform)
-	{
-		_localPosition += transform._localPosition;
-		_localSize *= transform._localSize;
-		_localOrientation *= transform._localOrientation;
-		setChanged();
+    void transform::multiply(const transform & transform)
+    {
+        _localPosition += transform._localPosition;
+        _localSize *= transform._localSize;
+        _localOrientation *= transform._localOrientation;
+        setChanged();
+    }
 
-		//setLocalPosition(_localPosition + transform._localPosition);
-		//setLocalSize(_localSize * transform._localSize);
-		//setLocalOrientation(_localOrientation * transform._localOrientation);
-	}
+    bool transform::operator==(transform& other)
+    {
+        if (_parent && other._parent)
+        {
+            if (*_parent != *other._parent)
+                return false;
+        }
+        else if (_parent != other._parent)
+        {
+            return false;
+        }
+
+        return
+            getModelMatrix() == other.getModelMatrix() &&
+            _localModelMatrix == other._localModelMatrix &&
+            _localOrientation == other._localOrientation &&
+            _localPosition == other._localPosition &&
+            _localSize == other._localSize &&
+            _position == other._position &&
+            _direction == other._direction &&
+            _right == other._right &&
+            _up == other._up &&
+            _changed == other._changed;
+    }
+
+    bool transform::operator!=(transform& other)
+    {
+        return !this->operator==(other);
+    }
 }
