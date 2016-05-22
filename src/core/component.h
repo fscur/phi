@@ -34,10 +34,10 @@ namespace phi
         {
         }
 
-        void virtual onNodeChanged(node* previousValue) {}
-
     public:
-        virtual ~component() {}
+        virtual ~component() 
+        {
+        }
 
         virtual component* clone() const { return new component(*this); }
 
@@ -45,13 +45,13 @@ namespace phi
 
         string getName() const { return _name; }
 
-        void setNode(node* value)
-        {
-            auto previousValue = _node;
-            _node = value;
-            onNodeChanged(previousValue);
-        }
+        void virtual onNodeChanged(node* previousValue) { }
 
         node* getNode() { return _node; }
+
+        CORE_API void setNode(node* value);
+
+        CORE_API virtual bool operator==(const component& other);
+        CORE_API virtual bool operator!=(const component& other);
     };
 }
