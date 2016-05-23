@@ -25,6 +25,8 @@ TEST(selectSceneObjectCommand, execute_unselectedNode_selectTheNode)
     //Assert
     ASSERT_TRUE(nodeToSelect->getIsSelected());
     ASSERT_TRUE(eventRaised);
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_unselectedNode_leavesNodeUnselected)
@@ -49,6 +51,8 @@ TEST(selectSceneObjectCommand, executeUndo_unselectedNode_leavesNodeUnselected)
     //Assert
     ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
     ASSERT_FALSE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, execute_nodeToSelectHasChild_selectsTheParentAndTheChild)
@@ -76,6 +80,8 @@ TEST(selectSceneObjectCommand, execute_nodeToSelectHasChild_selectsTheParentAndT
     ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
     ASSERT_TRUE(nodeToSelect->getIsSelected());
     ASSERT_TRUE(child->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasChild_leavesParentAndChildUnselected)
@@ -104,6 +110,8 @@ TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasChild_leavesParentAndC
     ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
     ASSERT_FALSE(nodeToSelect->getIsSelected());
     ASSERT_FALSE(child->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, execute_nodeToSelectHasParent_selectsTheParentAndTheChild)
@@ -131,6 +139,8 @@ TEST(selectSceneObjectCommand, execute_nodeToSelectHasParent_selectsTheParentAnd
     ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
     ASSERT_TRUE(parent->getIsSelected());
     ASSERT_TRUE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasParent_leavesParentAndChildUnselected)
@@ -159,6 +169,8 @@ TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasParent_leavesParentAnd
     ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
     ASSERT_FALSE(parent->getIsSelected());
     ASSERT_FALSE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, execute_nodeToSelectHasSelectedParent_selectsChildAndUnselectParent)
@@ -189,6 +201,8 @@ TEST(selectSceneObjectCommand, execute_nodeToSelectHasSelectedParent_selectsChil
     ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
     ASSERT_FALSE(parent->getIsSelected());
     ASSERT_TRUE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasSelectedParent_leavesParentSelectedAndChildUnselected)
@@ -220,6 +234,8 @@ TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasSelectedParent_leavesP
     ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
     ASSERT_TRUE(parent->getIsSelected());
     ASSERT_TRUE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, execute_nodeToSelectHasUnselectedGrandparent_selectsGrandparentTree)
@@ -251,6 +267,8 @@ TEST(selectSceneObjectCommand, execute_nodeToSelectHasUnselectedGrandparent_sele
     ASSERT_TRUE(grandparent->getIsSelected());
     ASSERT_TRUE(parent->getIsSelected());
     ASSERT_TRUE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasUnselectedGrandparent_leavesAllUnselected)
@@ -283,6 +301,8 @@ TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasUnselectedGrandparent_
     ASSERT_FALSE(grandparent->getIsSelected());
     ASSERT_FALSE(parent->getIsSelected());
     ASSERT_FALSE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, execute_nodeToSelectHasSelectedGrandparent_selectsParentTreeAndUnselectGrandparent)
@@ -318,6 +338,8 @@ TEST(selectSceneObjectCommand, execute_nodeToSelectHasSelectedGrandparent_select
     ASSERT_FALSE(grandparent->getIsSelected());
     ASSERT_TRUE(parent->getIsSelected());
     ASSERT_TRUE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasSelectedGrandparent_leavesGrandparentTreeSelected)
@@ -354,6 +376,8 @@ TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasSelectedGrandparent_le
     ASSERT_TRUE(grandparent->getIsSelected());
     ASSERT_TRUE(parent->getIsSelected());
     ASSERT_TRUE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, execute_nodeToSelectHasUnselectedGrandparentAndSelectedParent_selectsChildAndUnselectParent)
@@ -388,6 +412,8 @@ TEST(selectSceneObjectCommand, execute_nodeToSelectHasUnselectedGrandparentAndSe
     ASSERT_FALSE(grandparent->getIsSelected());
     ASSERT_FALSE(parent->getIsSelected());
     ASSERT_TRUE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasUnselectedGrandparentAndSelectedParent_leavesParentTreeSelected)
@@ -423,6 +449,8 @@ TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasUnselectedGrandparentA
     ASSERT_FALSE(grandparent->getIsSelected());
     ASSERT_TRUE(parent->getIsSelected());
     ASSERT_TRUE(nodeToSelect->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, execute_nodeToSelectHasSelectedBrother_selectesNode)
@@ -456,6 +484,8 @@ TEST(selectSceneObjectCommand, execute_nodeToSelectHasSelectedBrother_selectesNo
     ASSERT_FALSE(parent->getIsSelected());
     ASSERT_TRUE(child1->getIsSelected());
     ASSERT_FALSE(child2->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasSelectedBrother_leavesTreeUntouched)
@@ -490,6 +520,8 @@ TEST(selectSceneObjectCommand, executeUndo_nodeToSelectHasSelectedBrother_leaves
     ASSERT_FALSE(parent->getIsSelected());
     ASSERT_FALSE(child1->getIsSelected());
     ASSERT_TRUE(child2->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, execute_groupOfNodeToSelectHasBrotherGroupContainingOneSelectedNode_selectsBrotherGroup)
@@ -541,6 +573,8 @@ TEST(selectSceneObjectCommand, execute_groupOfNodeToSelectHasBrotherGroupContain
     ASSERT_TRUE(group2->getIsSelected());
     ASSERT_TRUE(child3->getIsSelected());
     ASSERT_TRUE(child4->getIsSelected());
+
+    safeDelete(sceneRoot);
 }
 
 TEST(selectSceneObjectCommand, executeUndo_groupOfNodeToSelectHasBrotherGroupContainingOneSelectedNode_leavesTreeUntouched)
@@ -593,4 +627,6 @@ TEST(selectSceneObjectCommand, executeUndo_groupOfNodeToSelectHasBrotherGroupCon
     ASSERT_FALSE(group2->getIsSelected());
     ASSERT_FALSE(child3->getIsSelected());
     ASSERT_FALSE(child4->getIsSelected());
+
+    safeDelete(sceneRoot);
 }

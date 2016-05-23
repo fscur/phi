@@ -3,11 +3,14 @@
 
 #include <diagnostics\stopwatch.h>
 
+#include <core\multiCommand.h>
+
 #include <loader\importer.h>
 
-#include <core\model.h>
-
 #include <animation\floatAnimator.h>
+
+#include <scenes\unselectSceneObjectCommand.h>
+#include <scenes\deleteSceneObjectCommand.h>
 
 #include <apps\application.h>
 #include <apps\undoCommand.h>
@@ -16,7 +19,6 @@
 #include <ui\control.h>
 #include <ui\text.h>
 
-#include "deleteObjectCommand.h"
 #include "addObjectCommand.h"
 
 using namespace phi;
@@ -110,9 +112,32 @@ namespace demon
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         _scene->add(floor);
 
-        auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair->getTransform()->setLocalPosition(vec3(0.f, .5f, 0.f));
-        _scene->add(chair);
+        auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair0->getTransform()->setLocalPosition(vec3(0.f, .5f, .0f));
+
+        auto chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair1->getTransform()->setLocalPosition(vec3(2.0f, .5f, 0.f));
+
+        auto chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair2->getTransform()->setLocalPosition(vec3(0.f, .5f, 2.0f));
+
+        auto chair3 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair3->getTransform()->setLocalPosition(vec3(2.0f, .5f, 2.0f));
+        
+        auto group0 = new node();
+        auto group1 = new node();
+        auto group2 = new node();
+
+        group1->addChild(chair0);
+        group1->addChild(chair1);
+
+        group2->addChild(chair2);
+        group2->addChild(chair3);
+        
+        group0->addChild(group1);
+        group0->addChild(group2);
+
+        _scene->add(group0);
     }
 
     void screen::initUi()
@@ -137,16 +162,19 @@ namespace demon
 
     void screen::initInput()
     {
-        _defaultController = new defaultCameraController(_scene);
-
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
-
         _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
         {
-            return new deleteObjectCommand(_scene, _defaultController->getSelectionMouseController());
+            return new multiCommand(vector<command*>
+            {
+                new unselectSceneObjectCommand(_scene->getSelectedObjects()),
+                new deleteSceneObjectCommand(_scene->getSelectedObjects())
+            });
         }));
+
+        _defaultController = new defaultCameraController(_scene, _commandsManager);
     }
 
     void screen::onUpdate()

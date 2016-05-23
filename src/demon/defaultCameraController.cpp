@@ -1,22 +1,28 @@
 #include <precompiled.h>
 #include "defaultCameraController.h"
 
+#include <core\input.h>
 #include <core\time.h>
-
-#include <loader\importer.h>
-
-#include <rendering\camera.h>
 #include <core\mesh.h>
 #include <core\ray.h>
+#include <core\multiCommand.h>
+
+#include <rendering\camera.h>
+#include <loader\importer.h>
+
+#include <scenes\selectSceneObjectCommand.h>
+#include <scenes\unselectSceneObjectCommand.h>
 
 #include <apps\application.h>
 
 namespace demon
 {
-    defaultCameraController::defaultCameraController(phi::scene* scene) :
+    using namespace phi;
+
+    defaultCameraController::defaultCameraController(scene* scene, commandsManager* commandsManager) :
         cameraController(scene->getCamera()),
         _scene(scene),
-        _selectionMouseController(new selectionMouseController(scene)),
+        _commandsManager(commandsManager),
         _mousePosX(0),
         _mousePosY(0),
         _lastMousePosX(0),
@@ -59,7 +65,6 @@ namespace demon
 
     defaultCameraController::~defaultCameraController()
     {
-        phi::safeDelete(_selectionMouseController);
         phi::safeDelete(_gridImage);
     }
 
@@ -69,12 +74,26 @@ namespace demon
 
         if (e->leftButtonPressed)
         {
-            _selectionMouseController->onMouseDown(e->x, e->y);
+            auto selectedMesh = _scene->pick(e->x, e->y);
 
-            if (_selectionMouseController->hasSelectedObjects())
-                _dragObject = _selectionMouseController->getSelectedObjects()->at(0);
+            auto selectedObjects = _scene->getSelectedObjects();
+            auto shouldUnselect = selectedObjects.size() > 0u;
 
-            dragMouseDown(e->x, e->y);
+            if (selectedMesh)
+            {
+                _commandsManager->executeCommand(new selectSceneObjectCommand(selectedMesh->getNode(), selectedObjects));
+            }
+            else if(shouldUnselect)
+            {
+                _commandsManager->executeCommand(
+                    new unselectSceneObjectCommand(selectedObjects));
+            }
+
+            if (_scene->getSelectedObjects().size() > 0)
+            {
+                _dragObject = _scene->getSelectedObjects().at(0);
+                dragMouseDown(e->x, e->y);
+            }
         }
 
         if (e->middleButtonPressed && !_rotating)
