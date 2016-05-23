@@ -65,6 +65,7 @@ namespace demon
 
     defaultCameraController::~defaultCameraController()
     {
+        zoomCancel();
         phi::safeDelete(_gridImage);
     }
 
@@ -395,7 +396,7 @@ namespace demon
         if (_zoomBounceAnimation)
         {
             phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
-            _zoomBounceAnimation = nullptr;
+            safeDelete(_zoomBounceAnimation);
         }
 
         _zoomSpeed = 0.0f;

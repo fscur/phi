@@ -2,6 +2,7 @@
 #include <phi.h>
 #include "renderingApi.h"
 
+#include <core\node.h>
 #include <core\component.h>
 #include <core\eventHandler.h>
 
@@ -48,7 +49,7 @@ namespace phi
             float far,
             float fov);
 
-        RENDERING_API  ~camera();
+        RENDERING_API virtual ~camera();
 
         RENDERING_API  mat4 getViewMatrix();
         RENDERING_API  mat4 getProjectionMatrix();

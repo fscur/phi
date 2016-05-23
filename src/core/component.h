@@ -35,9 +35,7 @@ namespace phi
         }
 
     public:
-        virtual ~component() 
-        {
-        }
+        virtual ~component() {};
 
         virtual component* clone() const { return new component(*this); }
 
@@ -49,9 +47,22 @@ namespace phi
 
         node* getNode() { return _node; }
 
-        CORE_API void setNode(node* value);
+        void setNode(node* value)
+        {
+            auto previousValue = _node;
+            _node = value;
+            onNodeChanged(previousValue);
+        }
 
-        CORE_API virtual bool operator==(const component& other);
-        CORE_API virtual bool operator!=(const component& other);
+        virtual bool operator==(const component& other)
+        {
+            return _name == other._name &&
+                _type == other._type;
+        }
+        
+        virtual bool operator!=(const component& other)
+        {
+            return !(*this == other);
+        }
     };
 }
