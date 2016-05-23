@@ -154,9 +154,9 @@ namespace phi
         _meshesBatches[mesh]->updateTransformBuffer(mesh, modelMatrix);
     }
 
-    void pipeline::updateSelectionBuffer(mesh* mesh)
+    void pipeline::updateSelectionBuffer(mesh* mesh, bool isSelected)
     {
-        _meshesBatches[mesh]->updateSelectionBuffer(mesh);
+        _meshesBatches[mesh]->updateSelectionBuffer(mesh, isSelected);
     }
 
     void pipeline::update(const frameUniformBlock& frameUniformBlock)
