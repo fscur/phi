@@ -11,7 +11,6 @@
 #include <loader\importer.h>
 
 #include <scenes\selectSceneObjectCommand.h>
-#include <scenes\unselectSceneObjectCommand.h>
 
 #include <apps\application.h>
 
@@ -23,6 +22,7 @@ namespace demon
         cameraController(scene->getCamera()),
         _scene(scene),
         _commandsManager(commandsManager),
+        _isCtrlPressed(false),
         _mousePosX(0),
         _mousePosY(0),
         _lastMousePosX(0),
@@ -68,6 +68,17 @@ namespace demon
         phi::safeDelete(_gridImage);
     }
 
+    void defaultCameraController::onKeyDown(keyboardEventArgs * e)
+    {
+        _isCtrlPressed = e->key == PHIK_CTRL;
+    }
+
+    void defaultCameraController::onKeyUp(keyboardEventArgs * e)
+    {
+        if (e->key == PHIK_CTRL)
+            _isCtrlPressed = false;
+    }
+
     void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
     {
         _dragObject = nullptr;
@@ -81,9 +92,10 @@ namespace demon
 
             if (selectedMesh)
             {
-                _commandsManager->executeCommand(new selectSceneObjectCommand(selectedMesh->getNode(), selectedObjects));
+                _commandsManager->executeCommand(
+                    new selectSceneObjectCommand(selectedMesh->getNode(), selectedObjects));
             }
-            else if(shouldUnselect)
+            else if (shouldUnselect)
             {
                 _commandsManager->executeCommand(
                     new unselectSceneObjectCommand(selectedObjects));

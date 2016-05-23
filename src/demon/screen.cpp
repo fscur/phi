@@ -124,21 +124,11 @@ namespace demon
 
         auto chair3 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair3->getTransform()->setLocalPosition(vec3(2.0f, .5f, 2.0f));
-        
-        auto group0 = new node();
-        auto group1 = new node();
-        auto group2 = new node();
 
-        group1->addChild(chair0);
-        group1->addChild(chair1);
-
-        group2->addChild(chair2);
-        group2->addChild(chair3);
-        
-        group0->addChild(group1);
-        group0->addChild(group2);
-
-        _scene->add(group0);
+        _scene->add(chair0);
+        _scene->add(chair1);
+        _scene->add(chair2);
+        _scene->add(chair3);
     }
 
     void screen::initUi()
@@ -166,10 +156,6 @@ namespace demon
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_g }, [&]()
-        {
-            return new groupSceneObjectsCommand(_scene->getSelectedObjects());
-        }));
         _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
         {
             return new multiCommand(vector<command*>

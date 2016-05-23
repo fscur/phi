@@ -17,9 +17,10 @@ namespace phi
         if (_nodesToGroup.size() < 2)
             return;
 
+        _group = new node("group");
+
         auto parent = _nodesToGroup.at(0)->getParent();
 
-        _group = new node("group");
         for (auto node : _nodesToGroup)
         {
             parent->removeChild(node);

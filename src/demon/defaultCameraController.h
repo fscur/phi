@@ -20,6 +20,7 @@ namespace demon
     private:
         phi::scene* _scene;
         phi::commandsManager* _commandsManager;
+        bool _isCtrlPressed;
         int32_t _mousePosX;
         int32_t _mousePosY;
         int32_t _lastMousePosX;
@@ -83,6 +84,9 @@ namespace demon
         void rotationMouseUp();
         void rotationUpdate();
         void rotationCancel();
+
+        virtual void onKeyDown(phi::keyboardEventArgs* e) override;
+        virtual void onKeyUp(phi::keyboardEventArgs* e) override;
 
         virtual void onMouseDown(phi::mouseEventArgs* e) override;
         virtual void onMouseMove(phi::mouseEventArgs* e) override;

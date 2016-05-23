@@ -14,7 +14,6 @@ namespace phi
 
     void deleteSceneObjectCommand::execute()
     {
-        debug("delete");
         for (auto node : _nodesToDelete)
         {
             auto parent = node->getParent();
@@ -26,7 +25,6 @@ namespace phi
 
     void deleteSceneObjectCommand::executeUndo()
     {
-        debug("undelete");
         for (auto pair : _nodesParents)
         {
             pair.second->addChild(pair.first);
