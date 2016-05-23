@@ -138,17 +138,28 @@ namespace demon
         _ui = new ui(uiCamera, _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
 
         auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 24);
+        auto fontFps = _gl->fontsManager->load("Roboto-Thin.ttf", 12);
 
-        auto label0 = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
-        auto control = label0->getComponent<phi::control>();
+        auto labelNandinho = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
+        auto control = labelNandinho->getComponent<phi::control>();
         control->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
         control->setIsGlassy(true);
 
-        auto text = label0->getComponent<phi::text>();
+        auto text = labelNandinho->getComponent<phi::text>();
         text->setFont(font);
         text->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-        _ui->add(label0);
+        _labelFps = _ui->newLabel(L"Fps: ", vec3(-200.f, 100.f, 0.f));
+        auto fpsControl = _labelFps->getComponent<phi::control>();
+        fpsControl->setColor(color::fromRGBA(.7f, .5f, .9f, 1.0f));
+        fpsControl->setIsGlassy(true);
+
+        auto textFps = _labelFps->getComponent<phi::text>();
+        textFps->setFont(fontFps);
+        textFps->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+
+        _ui->add(labelNandinho);
+        _ui->add(_labelFps);
     }
 
     void screen::initInput()
@@ -184,7 +195,11 @@ namespace demon
 
     void screen::onTick()
     {
-        //debug("fps: " + std::to_string(application::framesPerSecond));
+        auto label = _labelFps->getComponent<phi::text>();
+        auto str = "fps: " + std::to_string(application::framesPerSecond);
+
+        label->setText(wstring(str.begin(), str.end()));
+
 #ifdef _DEBUG
         while (!_messageQueue->empty())
         {
