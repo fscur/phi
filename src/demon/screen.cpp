@@ -10,6 +10,7 @@
 #include <animation\floatAnimator.h>
 
 #include <scenes\unselectSceneObjectCommand.h>
+#include <scenes\groupSceneObjectsCommand.h>
 #include <scenes\deleteSceneObjectCommand.h>
 
 #include <apps\application.h>
@@ -165,6 +166,10 @@ namespace demon
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_g }, [&]()
+        {
+            return new groupSceneObjectsCommand(_scene->getSelectedObjects());
+        }));
         _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
         {
             return new multiCommand(vector<command*>
