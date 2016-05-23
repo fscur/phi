@@ -33,14 +33,7 @@ namespace phi
             safeDelete(pair.second);
         }
 
-        for (auto pair : _meshTokens)
-        {
-            pair.first->selectionChanged.unassign(pair.second->selectionChanged);
-            safeDelete(pair.second);
-        }
-
         _nodeTokens.clear();
-        _meshTokens.clear();
 
         safeDelete(_sceneRoot);
         safeDelete(_pipeline);
@@ -51,22 +44,13 @@ namespace phi
         auto childAddedToken = node->childAdded.assign(std::bind(&scene::nodeChildAdded, this, std::placeholders::_1));
         auto childRemovedToken = node->childRemoved.assign(std::bind(&scene::nodeChildRemoved, this, std::placeholders::_1));
         auto transformChangedToken = node->transformChanged.assign(std::bind(&scene::nodeTransformChanged, this, std::placeholders::_1));
+        auto selectionChangedToken = node->selectionChanged.assign(std::bind(&scene::nodeSelectionChanged, this, std::placeholders::_1));
 
         _nodeTokens[node] = new nodeEventTokens(
             childAddedToken,
             childRemovedToken,
-            transformChangedToken);
-    }
-
-    void scene::trackMesh(mesh* mesh)
-    {
-        auto selectionChangedToken = mesh->selectionChanged
-            .assign(std::bind(
-                &scene::meshSelectionChanged,
-                this,
-                std::placeholders::_1));
-
-        _meshTokens[mesh] = new meshEventTokens(selectionChangedToken);
+            transformChangedToken,
+            selectionChangedToken);
     }
 
     void scene::untrackNode(node* node)
@@ -74,17 +58,10 @@ namespace phi
         node->childAdded.unassign(_nodeTokens[node]->childAdded);
         node->childRemoved.unassign(_nodeTokens[node]->childRemoved);
         node->transformChanged.unassign(_nodeTokens[node]->transformChanged);
+        node->selectionChanged.unassign(_nodeTokens[node]->selectionChanged);
 
         safeDelete(_nodeTokens[node]);
         _nodeTokens.erase(node);
-    }
-
-    void scene::untrackMesh(mesh* mesh)
-    {
-        mesh->selectionChanged.unassign(_meshTokens[mesh]->selectionChanged);
-
-        safeDelete(_meshTokens[mesh]);
-        _meshTokens.erase(mesh);
     }
 
     void scene::nodeChildAdded(node* addedChild)
@@ -96,8 +73,6 @@ namespace phi
             auto mesh = node->getComponent<phi::mesh>();
             if (mesh)
             {
-                trackMesh(mesh);
-
                 sceneId::setNextId(mesh);
                 _pipeline->add(mesh, node->getTransform()->getModelMatrix());
             }
@@ -106,15 +81,13 @@ namespace phi
 
     void scene::nodeChildRemoved(node* removedChild)
     {
-        removedChild->traverse([&](node* node) 
+        removedChild->traverse([&](node* node)
         {
             untrackNode(node);
             auto mesh = node->getComponent<phi::mesh>();
+
             if (mesh)
-            {
-                untrackMesh(mesh);
                 _pipeline->remove(mesh);
-            }
         });
     }
 
@@ -126,9 +99,17 @@ namespace phi
         });
     }
 
-    void scene::meshSelectionChanged(mesh* mesh)
+    void scene::nodeSelectionChanged(node* node)
     {
-        _pipeline->updateSelectionBuffer(mesh);
+        auto isSelected = node->getIsSelected();
+        if (isSelected)
+            _selectedNodes.push_back(node);
+        else
+            phi::removeIfContains(_selectedNodes, node);
+
+        auto mesh = node->getComponent<phi::mesh>();
+        if (mesh)
+            _pipeline->updateSelectionBuffer(mesh, isSelected);
     }
 
     void scene::update()
