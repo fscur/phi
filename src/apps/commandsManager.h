@@ -21,6 +21,7 @@ namespace phi
     private:
         void onKeyDown(phi::keyboardEventArgs* e);
         void onKeyUp(phi::keyboardEventArgs* e);
+        void clearRedo();
     public:
         APPS_API commandsManager();
         APPS_API ~commandsManager();

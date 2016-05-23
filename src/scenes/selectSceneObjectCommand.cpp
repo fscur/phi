@@ -12,6 +12,7 @@ namespace phi
 
     selectSceneObjectCommand::~selectSceneObjectCommand()
     {
+        safeDelete(_unselectCommand);
     }
 
     bool selectSceneObjectCommand::isSelectedOrHasSelectedChildren(const node* const node)

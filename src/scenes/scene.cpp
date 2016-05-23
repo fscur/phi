@@ -39,6 +39,8 @@ namespace phi
         safeDelete(_pipeline);
     }
 
+    //TODO: keep a list of dirty nodes to prevent traversing and some hard to fix buggy bugs
+    //TODO: after this fix, grouping should work correctly and nodes pointer should be deleted on deleteSceneObjectCommand
     void scene::trackNode(node* node)
     {
         auto childAddedToken = node->childAdded.assign(std::bind(&scene::nodeChildAdded, this, std::placeholders::_1));
