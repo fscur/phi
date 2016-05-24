@@ -13,16 +13,45 @@ namespace phi
 {
     class scene
     {
+    private:
+        struct nodeEventTokens
+        {
+            nodeEventTokens(
+                eventToken childAdded,
+                eventToken childRemoved,
+                eventToken transformChanged,
+                eventToken selectionChanged) :
+                childAdded(childAdded),
+                childRemoved(childRemoved),
+                transformChanged(transformChanged),
+                selectionChanged(selectionChanged)
+            {
+            }
+
+            eventToken childAdded;
+            eventToken childRemoved;
+            eventToken transformChanged;
+            eventToken selectionChanged;
+        };
 
     private:
         gl* _gl;
-        renderer* _renderer;
         pipeline* _pipeline;
         camera* _camera;
-        vector<node*> _objects;
-        map<int, mesh*> _meshesIds;
+        node* _sceneRoot;
         float _w;
         float _h;
+
+        phi::map<node*, nodeEventTokens*> _nodeTokens;
+        vector<node*> _selectedNodes;
+
+    private:
+        void trackNode(node* node);
+        void untrackNode(node * node);
+        void nodeChildAdded(node* addedChild);
+        void nodeChildRemoved(node* removedChild);
+        void nodeTransformChanged(node* changedNode);
+        void nodeSelectionChanged(node * node);
 
     public:
         SCENES_API scene(gl* gl, float w, float h);
@@ -31,13 +60,14 @@ namespace phi
         SCENES_API void update();
         SCENES_API void render();
         SCENES_API void resize(float w, float h);
-        SCENES_API void add(node* n);
+        SCENES_API void add(node* node);
         SCENES_API void remove(node* node);
         SCENES_API mesh* pick(int mouseX, int mouseY);
         SCENES_API float getZBufferValue(int x, int y);
-        
-        vector<node*>* getObjects() { return &_objects; }
-        renderer* getRenderer() const { return _renderer; }
+
+        vector<node*> getSelectedObjects() { return _selectedNodes; }
+        vector<node*>* getObjects() { return _sceneRoot->getChildren(); } //gambis
+        renderer* getRenderer() const { return _pipeline->_renderer; }
         camera* getCamera() const { return _camera; }
     };
 }

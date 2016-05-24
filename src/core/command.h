@@ -1,13 +1,14 @@
 #pragma once
 #include <phi.h>
-#include "appsApi.h"
+#include "coreApi.h"
 
 namespace phi
 {
     class command
     {
     public:
-        command() {};
+        command() { };
+        virtual ~command() { };
         virtual bool getIsUndoable() { return true; }
 
         virtual void execute() { };

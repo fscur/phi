@@ -4,6 +4,7 @@
 #include "shader.h"
 #include "gl.h"
 #include "gBufferRenderPass.h"
+#include "renderTargetsAddresses.h"
 
 namespace phi
 {
@@ -23,7 +24,7 @@ namespace phi
         void createQuad();
 
     public:
-        RENDERING_API selectionRenderPass(const gBufferRenderPass* const gBufferPass, const gl* const gl, float w, float h);
+        RENDERING_API selectionRenderPass(renderTargetsAddresses& rtAddresses, const gl* const gl, float w, float h);
         RENDERING_API ~selectionRenderPass();
 
         RENDERING_API void update();

@@ -1,9 +1,9 @@
 #include <precompiled.h>
-#include "textRenderer.h"
+#include "text.h"
 
 namespace phi
 {
-    textRenderer::textRenderer(string name) :
+    text::text(string name) :
         component(component::TEXT_RENDERER, name),
         _font(nullptr),
         _controlRenderer(nullptr),
@@ -12,23 +12,23 @@ namespace phi
     {
     }
 
-    textRenderer::~textRenderer()
+    text::~text()
     {
     }
 
-    void textRenderer::updateControlRenderer()
+    void text::updateControlRenderer()
     {
         vec2 t = _font->measureText(_text);
         _controlRenderer->setSize(vec3(t, 0.0f));
     }
 
-    inline void textRenderer::setText(wstring value) 
+    inline void text::setText(wstring value) 
     { 
         _text = value; 
         updateControlRenderer();
     }
 
-    inline void textRenderer::setFont(font * value)
+    inline void text::setFont(font * value)
     { 
         _font = value; 
         updateControlRenderer();

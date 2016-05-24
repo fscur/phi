@@ -53,11 +53,24 @@ namespace phi
     }
 
     template<typename T>
-    bool contains(const vector<T> vector, const T value)
+    bool contains(const vector<T>& vector, const T value)
     {
         auto it = std::find(vector.begin(), vector.end(), value);
-
         return it != vector.end();
+    }
+
+    template<typename T>
+    bool contains(const vector<T>* const vector, const T value)
+    {
+        auto it = std::find(vector->begin(), vector->end(), value);
+        return it != vector->end();
+    }
+
+    template<typename T, typename R>
+    bool contains(const map<T, R> map, const T value)
+    {
+        auto it = map.find(value);
+        return it != map.end();
     }
 
     template<typename T>

@@ -1,11 +1,8 @@
 #pragma once
 #include <phi.h>
 
+#include <core\command.h>
 #include <scenes\scene.h>
-
-#include <apps\command.h>
-
-#include "selectionMouseController.h"
 
 namespace demon
 {

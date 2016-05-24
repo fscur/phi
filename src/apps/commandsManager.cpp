@@ -14,6 +14,26 @@ namespace phi
 
     commandsManager::~commandsManager()
     {
+        while (_undo.size())
+        {
+            safeDelete(_undo.top());
+            _undo.pop();
+        }
+
+        while (_redo.size())
+        {
+            safeDelete(_redo.top());
+            _redo.pop();
+        }
+    }
+
+    void commandsManager::clearRedo()
+    {
+        while (!_redo.empty())
+        {
+            safeDelete(_redo.top());
+            _redo.pop();
+        }
     }
 
     void commandsManager::addShortcut(shortcut shortcut)
@@ -49,18 +69,20 @@ namespace phi
     {
         if (cmd->getIsUndoable())
         {
+            cmd->execute();
             _undo.push(cmd);
-
-            while (!_redo.empty())
-                _redo.pop();
+            clearRedo();
         }
-
-        cmd->execute();
+        else
+        {
+            cmd->execute();
+            safeDelete(cmd);
+        }
     }
 
     void commandsManager::onKeyDown(phi::keyboardEventArgs* e)
     {
-        size_t pressedKeysCount = _pressedKeys.size();
+        auto pressedKeysCount = _pressedKeys.size();
 
         if (pressedKeysCount == 0u || _pressedKeys.back() != e->key)
         {
@@ -69,11 +91,11 @@ namespace phi
         }
 
         auto shortcutsCopy = _shortcuts;
-        size_t i = 0u;
+        auto i = 0u;
 
         while (i < pressedKeysCount)
         {
-            for (size_t j = 0u; j < shortcutsCopy.size(); ++j)
+            for (auto j = 0u; j < shortcutsCopy.size(); ++j)
             {
                 if (i >= shortcutsCopy[j].keys.size() || shortcutsCopy[j].keys[i] != _pressedKeys[i])
                     shortcutsCopy.erase(shortcutsCopy.begin() + j--);
@@ -81,15 +103,13 @@ namespace phi
             ++i;
         }
 
-        for (size_t j = 0u; j < shortcutsCopy.size(); ++j)
+        for (auto j = 0u; j < shortcutsCopy.size(); ++j)
             if (shortcutsCopy[j].keys.size() == i)
                 executeCommand(shortcutsCopy[j].commandFunc());
     }
 
     void commandsManager::onKeyUp(phi::keyboardEventArgs* e)
     {
-        auto index = std::find(_pressedKeys.begin(), _pressedKeys.end(), e->key);
-        while (index != _pressedKeys.end())
-            index = _pressedKeys.erase(index);
+        phi::removeIfContains(_pressedKeys, e->key);
     }
 }

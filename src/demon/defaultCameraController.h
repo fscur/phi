@@ -2,9 +2,9 @@
 #include <phi.h>
 #include <scenes\scene.h>
 #include <animation\floatAnimator.h>
+#include <apps\commandsManager.h>
 
 #include "cameraController.h"
-#include "selectionMouseController.h"
 
 namespace demon
 {
@@ -19,7 +19,8 @@ namespace demon
 
     private:
         phi::scene* _scene;
-        selectionMouseController* _selectionMouseController;
+        phi::commandsManager* _commandsManager;
+        bool _isCtrlPressed;
         int32_t _mousePosX;
         int32_t _mousePosY;
         int32_t _lastMousePosX;
@@ -84,17 +85,18 @@ namespace demon
         void rotationUpdate();
         void rotationCancel();
 
+        virtual void onKeyDown(phi::keyboardEventArgs* e) override;
+        virtual void onKeyUp(phi::keyboardEventArgs* e) override;
+
         virtual void onMouseDown(phi::mouseEventArgs* e) override;
         virtual void onMouseMove(phi::mouseEventArgs* e) override;
         virtual void onMouseUp(phi::mouseEventArgs* e) override;
         virtual void onMouseWheel(phi::mouseEventArgs* e) override;
 
     public:
-        defaultCameraController(phi::scene* scene);
+        defaultCameraController(phi::scene* scene, phi::commandsManager* commandsManager);
         virtual ~defaultCameraController();
 
         virtual void update() override;
-
-        selectionMouseController* getSelectionMouseController() { return _selectionMouseController; }
     };
 }

@@ -126,7 +126,6 @@ namespace phi
 
     void controlsRenderPass::update()
     {
-        //updateBuffers();
     }
 
     void controlsRenderPass::render() const

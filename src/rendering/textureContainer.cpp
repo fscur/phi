@@ -239,27 +239,5 @@ namespace phi
 
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         glError::check();
-
-
-        //glBindTexture(GL_TEXTURE_2D_ARRAY, _glyphAtlasTextureAddress.containerId);
-        //glError::check();
-
-        //glTextureSubImage3D(//GL_TEXTURE_2D_ARRAY,
-        //    _glyphAtlasTextureAddress.containerId,
-        //    0,
-        //    x,
-        //    y,
-        //    0,
-        //    w,
-        //    h,
-        //    1,
-        //    GL_RGB,
-        //    GL_UNSIGNED_BYTE,
-        //    glyph->data);
-
-        //glError::check();
-        //
-        //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        //glError::check();
     }
 }

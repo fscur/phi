@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include "scene.h"
-
-#include <core\model.h>
+#include <rendering\materialGpuData.h>
+#include <rendering\renderInstance.h>
 
 #include "sceneId.h"
 
@@ -9,14 +9,14 @@ namespace phi
 {
     scene::scene(gl* gl, float w, float h) :
         _gl(gl),
-        _renderer(new renderer(gl, w, h)),
-        _pipeline(new pipeline(gl)),
+        _pipeline(new pipeline(gl, w, h)),
         _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
-        _objects(vector<node*>()),
-        _meshesIds(map<int, mesh*>()),
+        _sceneRoot(new node("sceneRoot")),
         _w(w),
         _h(h)
     {
+        trackNode(_sceneRoot);
+
         auto cameraNode = new node();
         cameraNode->addComponent(_camera);
         add(cameraNode);
@@ -24,31 +24,110 @@ namespace phi
 
     scene::~scene()
     {
-        for (auto object : _objects)
-            safeDelete(object);
+        for (auto pair : _nodeTokens)
+        {
+            pair.first->childAdded.unassign(pair.second->childAdded);
+            pair.first->childRemoved.unassign(pair.second->childRemoved);
+            pair.first->transformChanged.unassign(pair.second->transformChanged);
 
+            safeDelete(pair.second);
+        }
+
+        _nodeTokens.clear();
+
+        safeDelete(_sceneRoot);
         safeDelete(_pipeline);
-        safeDelete(_renderer);
+    }
+
+    //TODO: keep a list of dirty nodes to prevent traversing and some hard to fix buggy bugs
+    //TODO: after this fix, grouping should work correctly and nodes pointer should be deleted on deleteSceneObjectCommand
+    void scene::trackNode(node* node)
+    {
+        auto childAddedToken = node->childAdded.assign(std::bind(&scene::nodeChildAdded, this, std::placeholders::_1));
+        auto childRemovedToken = node->childRemoved.assign(std::bind(&scene::nodeChildRemoved, this, std::placeholders::_1));
+        auto transformChangedToken = node->transformChanged.assign(std::bind(&scene::nodeTransformChanged, this, std::placeholders::_1));
+        auto selectionChangedToken = node->selectionChanged.assign(std::bind(&scene::nodeSelectionChanged, this, std::placeholders::_1));
+
+        _nodeTokens[node] = new nodeEventTokens(
+            childAddedToken,
+            childRemovedToken,
+            transformChangedToken,
+            selectionChangedToken);
+    }
+
+    void scene::untrackNode(node* node)
+    {
+        node->childAdded.unassign(_nodeTokens[node]->childAdded);
+        node->childRemoved.unassign(_nodeTokens[node]->childRemoved);
+        node->transformChanged.unassign(_nodeTokens[node]->transformChanged);
+        node->selectionChanged.unassign(_nodeTokens[node]->selectionChanged);
+
+        safeDelete(_nodeTokens[node]);
+        _nodeTokens.erase(node);
+    }
+
+    void scene::nodeChildAdded(node* addedChild)
+    {
+        addedChild->traverse([&](phi::node* node)
+        {
+            trackNode(node);
+
+            auto mesh = node->getComponent<phi::mesh>();
+            if (mesh)
+            {
+                sceneId::setNextId(mesh);
+                _pipeline->add(mesh, node->getTransform()->getModelMatrix());
+            }
+        });
+    }
+
+    void scene::nodeChildRemoved(node* removedChild)
+    {
+        removedChild->traverse([&](node* node)
+        {
+            untrackNode(node);
+            auto mesh = node->getComponent<phi::mesh>();
+
+            if (mesh)
+                _pipeline->remove(mesh);
+        });
+    }
+
+    void scene::nodeTransformChanged(node* changedNode)
+    {
+        changedNode->traverseNodesContaining<mesh>([&](node* node, mesh* mesh)
+        {
+            _pipeline->updateTranformBuffer(mesh, node->getTransform()->getModelMatrix());
+        });
+    }
+
+    void scene::nodeSelectionChanged(node* node)
+    {
+        auto isSelected = node->getIsSelected();
+        if (isSelected)
+            _selectedNodes.push_back(node);
+        else
+            phi::removeIfContains(_selectedNodes, node);
+
+        auto mesh = node->getComponent<phi::mesh>();
+        if (mesh)
+            _pipeline->updateSelectionBuffer(mesh, isSelected);
     }
 
     void scene::update()
     {
-        auto frameUniformBlock = phi::frameUniformBlock();
-        frameUniformBlock.p = _camera->getProjectionMatrix();
-        frameUniformBlock.v = _camera->getViewMatrix();
-        frameUniformBlock.vp = frameUniformBlock.p * frameUniformBlock.v;
-        frameUniformBlock.ip = glm::inverse(frameUniformBlock.p);
+        auto frameUniform = frameUniformBlock();
+        frameUniform.p = _camera->getProjectionMatrix();
+        frameUniform.v = _camera->getViewMatrix();
+        frameUniform.vp = frameUniform.p * frameUniform.v;
+        frameUniform.ip = glm::inverse(frameUniform.p);
 
-        _pipeline->updateFrameUniformBlock(frameUniformBlock);
-
-        //TODO: possible design flaw ? anyway.. try to remove this slow copy assignment
-        _renderer->getGBufferRenderPass()->setBatches(_pipeline->batches);
-        _renderer->update();
+        _pipeline->update(frameUniform);
     }
 
     void scene::render()
     {
-        _renderer->render();
+        _pipeline->render();
     }
 
     void scene::resize(float w, float h)
@@ -59,45 +138,21 @@ namespace phi
 
     void scene::add(node* node)
     {
-        node->traverse<mesh>([&](mesh* mesh)
-        {
-            auto id = sceneId::next();
-            mesh->setId(id);
-            _meshesIds[id] = mesh;
-        });
-
-        _objects.push_back(node);
-        _pipeline->add(node);
+        _sceneRoot->addChild(node);
     }
 
     void scene::remove(node* node)
     {
-        auto position = std::find(_objects.begin(), _objects.end(), node);
-
-        if (position != _objects.end())
-        {
-            _objects.erase(position);
-        }
-
-        _pipeline->remove(node);
-
-        node->traverse<mesh>([&](mesh* mesh)
-        {
-            _meshesIds.erase(mesh->getId());
-        });
-
-        auto parent = node->getParent();
-        if (parent)
-            parent->removeChild(node);
+        _sceneRoot->removeChild(node);
     }
 
     mesh* scene::pick(int mouseX, int mouseY)
     {
-        auto pixels = _renderer->getGBufferRenderPass()->getFramebuffer()->readPixels(
-            _renderer->getGBufferRenderPass()->rt3,
+        auto pixels = _pipeline->_renderer->getGBufferFramebuffer()->readPixels(
+            _pipeline->_renderer->rt3,
             static_cast<GLint>(mouseX),
             static_cast<GLint>(_h - mouseY),
-            1, 1);
+            1, 1); // What a shitty shit, right ?
 
         auto r = static_cast<int>(pixels.r);
         auto g = static_cast<int>(pixels.g) << 8;
@@ -107,13 +162,13 @@ namespace phi
 
         mesh* mesh = nullptr;
         if (id)
-            mesh = _meshesIds[id];
+            mesh = sceneId::getMesh(id);
 
         return mesh;
     }
 
     inline float scene::getZBufferValue(int x, int y)
     {
-        return _renderer->getDefaultFramebuffer()->getZBufferValue(x, y);
+        return _pipeline->_renderer->getDefaultFramebuffer()->getZBufferValue(x, y);
     }
 }

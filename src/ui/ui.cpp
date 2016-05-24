@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include "ui.h"
-#include "controlRenderer.h"
-#include "textRenderer.h"
+#include "control.h"
+#include "text.h"
 
 namespace phi
 {   
@@ -9,7 +9,6 @@ namespace phi
         _gl(gl),
         _controls(vector<node*>()),
         _camera(camera),
-        _renderer(nullptr),
         _w(w),
         _h(h)
     {
@@ -66,20 +65,20 @@ namespace phi
             node->setSize(size);
         };
 
-        auto controlRenderer = new phi::controlRenderer("labelControlRenderer");
+        auto control = new phi::control("labelControl");
 
-        auto textRenderer = new phi::textRenderer("labelTextRenderer");
-        textRenderer->setControlRenderer(controlRenderer);
-        textRenderer->setFont(_gl->defaultFont);
-        textRenderer->setText(text);
+        auto label = new phi::text("labelText");
+        label->setControlRenderer(control);
+        label->setFont(_gl->defaultFont);
+        label->setText(text);
 
-        node->addComponent(controlRenderer);
-        node->addComponent(textRenderer);
+        node->addComponent(control);
+        node->addComponent(label);
 
         node->setPosition(position);
-        node->setSize(controlRenderer->getSize());
+        node->setSize(control->getSize());
 
-        controlRenderer->getOnSizeChanged()->assign(resizeNode); //TODO: this event should be unassigned.
+        control->getOnSizeChanged()->assign(resizeNode); //TODO: this event should be unassigned.
 
         return node;
     }

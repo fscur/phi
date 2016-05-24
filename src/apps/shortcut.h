@@ -1,12 +1,13 @@
 #pragma once
-#include "command.h"
+#include <core\command.h>
 
 namespace phi
 {
     struct shortcut
     {
         shortcut(std::vector<keycode> keys, std::function<command*(void)> commandFunc) :
-            keys(keys), commandFunc(commandFunc)
+            keys(keys),
+            commandFunc(commandFunc)
         {
         }
 
