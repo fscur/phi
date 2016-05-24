@@ -1,1 +1,38 @@
-{"Guid":"wK/c5+j94UqjU9TtkJfmNw==","Node":{"Components":[{"Name":"floor.model","ThumbnailFileName":"floor.th","AnimatedThumbnailFileName":"floor.ath","Type":0}],"Children":[{"Components":[{"Name":"floor_mesh_0","MaterialResourceGuid":"AAAAAAAAAAAAAAAAAAAAAA==","GeometryResourceGuid":"bGQ7RR756Eqc0IRK6natwQ==","Type":1}],"Children":[]},{"Components":[{"Name":"floor_mesh_1","MaterialResourceGuid":"Rd6Jbtni5E20qQAiuuDAlw==","GeometryResourceGuid":"jT3h2Vi3gEO+ga6YTqzqdQ==","Type":1}],"Children":[]}]}}
+{
+    "Guid": "wK/c5+j94UqjU9TtkJfmNw==",
+    "Node": {
+        "Name": "Floor",
+        "Components": [
+            {
+                "Name": "floor.model",
+                "ThumbnailFileName": "floor.th",
+                "AnimatedThumbnailFileName": "floor.ath",
+                "Type": 0
+            }
+        ],
+        "Children": [
+            {
+                "Components": [
+                    {
+                        "Name": "floor_mesh_0",
+                        "MaterialResourceGuid": "AAAAAAAAAAAAAAAAAAAAAA==",
+                        "GeometryResourceGuid": "bGQ7RR756Eqc0IRK6natwQ==",
+                        "Type": 1
+                    }
+                ],
+                "Children": []
+            },
+            {
+                "Components": [
+                    {
+                        "Name": "floor_mesh_1",
+                        "MaterialResourceGuid": "Rd6Jbtni5E20qQAiuuDAlw==",
+                        "GeometryResourceGuid": "jT3h2Vi3gEO+ga6YTqzqdQ==",
+                        "Type": 1
+                    }
+                ],
+                "Children": []
+            }
+        ]
+    }
+}

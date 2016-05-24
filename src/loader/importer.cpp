@@ -22,7 +22,16 @@ namespace phi
 		const resourcesRepository<material>* materialsRepo, 
 		const resourcesRepository<geometry>* geometriesRepo)
     {
-        auto objectNode = new node();
+
+		string nodeName;
+
+		if (jsonNode.HasMember("Name"))
+		{
+			const rapidjson::Value& name = jsonNode["Name"];
+			nodeName = name.GetString();
+		}
+
+        auto objectNode = new node(nodeName);
 
         const rapidjson::Value& components = jsonNode["Components"];
         auto componentsCount = components.Size();
@@ -325,5 +334,4 @@ namespace phi
 		throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
 #endif
 	}
-
 }

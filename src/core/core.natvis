@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="glm::tvec4&lt;float,0&gt;">
+    <DisplayString>[{x}; {y}; {z}; {w}]</DisplayString>
+    <Expand HideRawView="true" />
+  </Type>
+
+  <Type Name="glm::tvec2&lt;float,0&gt;">
+    <DisplayString>[{x}; {y};]</DisplayString>
+    <Expand HideRawView="true" />
+  </Type>
+
+  <Type Name="glm::tquat&lt;float,0&gt;">
+    <DisplayString>[{x}; {y}; {z}; {w}]</DisplayString>
+    <Expand HideRawView="true" />
+  </Type>
+
+  <Type Name="glm::tmat4x4&lt;float,0&gt;" >
+    <DisplayString
+      Condition=
+        "value[0].x==1 &amp;&amp; value[0].y==0 &amp;&amp;value[0].z ==0 &amp;&amp;value[0].w ==0 &amp;&amp; 
+         value[1].x==0 &amp;&amp; value[1].y==1 &amp;&amp;value[1].z ==0 &amp;&amp;value[1].w ==0 &amp;&amp; 
+         value[2].x==0 &amp;&amp; value[2].y==0 &amp;&amp;value[2].z ==1 &amp;&amp;value[2].w ==0 &amp;&amp; 
+         value[3].x==0 &amp;&amp; value[3].y==0 &amp;&amp;value[3].z ==0 &amp;&amp;value[3].w ==1">
+      Identity
+    </DisplayString>
+    <DisplayString>...</DisplayString>
+    <Expand HideRawView="true">
+      <ExpandedItem>value</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <Type Name="glm::tvec3&lt;float,0&gt;">
+    <DisplayString Condition="x==0 &amp;&amp; y==0 &amp;&amp; z==0">[{x}; {y}; {z}] (Zero Vector) </DisplayString>
+    <DisplayString Condition="x==1 &amp;&amp; y==0 &amp;&amp; z==0">[{x}; {y}; {z}] (I Vector) </DisplayString>
+    <DisplayString Condition="x==0 &amp;&amp; y==1 &amp;&amp; z==0">[{x}; {y}; {z}] (J Vector) </DisplayString>
+    <DisplayString Condition="x==0 &amp;&amp; y==0 &amp;&amp; z==1">[{x}; {y}; {z}] (K Vector) </DisplayString>
+    <DisplayString>[{x}; {y}; {z}]</DisplayString>
+    <Expand HideRawView="true" />
+  </Type>
+
+  <Type Name="std::vector&lt;phi::component*,*&gt;">
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 0">No components</DisplayString>
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 1">Forever alone ({(*this)[0],na})</DisplayString>
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst > 1">{_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst} fancy components</DisplayString>
+    <Expand HideRawView="true">
+      <ArrayItems>
+        <Size>_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>_Mypair._Myval2._Myfirst,na</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  
+  <Type Name="std::vector&lt;phi::node*,*&gt;">
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 1">Lonely child ({(*this)[0],na})</DisplayString>
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst > 0">{_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst} crazy children</DisplayString>
+    <Expand HideRawView="true">
+      <ArrayItems>
+        <Size>_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>_Mypair._Myval2._Myfirst, na</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <Type Name="phi::transform">
+    <DisplayString>...</DisplayString>
+    <Expand HideRawView="true">
+      <Item Name="Local Model Matrix">_localModelMatrix, na</Item>
+      <Item Name="Local Position">_localPosition, na</Item>
+      <Item Name="Local Size">_localSize, na</Item>
+      <Item Name="Local Orientation">_localOrientation, na</Item>
+      <Item Name="Right (X axis)">_right, na</Item>
+      <Item Name="Up (Y axis)">_up, na</Item>
+      <Item Name="Direction (Z axis)">_direction, na</Item>
+      <Item Name="Changed">_changed, na</Item>
+      <Item Name="Parent Transform" Condition="_parent != nullptr">_parent,na</Item>
+    </Expand>
+  </Type>
+  
+  <Type Name="phi::component" Inheritable="true">
+    <DisplayString Condition="_name._Mypair._Myval2._Mysize > 0">({_type,en}) {_name,sb}</DisplayString>
+    <DisplayString Condition="_name._Mypair._Myval2._Mysize == 0">({_type,en}) Ow Nando! Pq um componente tem nome mesmo???</DisplayString>
+    <!--<DisplayString >{type, en} {_name}</DisplayString>-->
+    <Expand HideRawView="true" />
+  </Type>
+
+  <Type Name="phi::mesh">
+    <DisplayString >{*(phi::component*)this,nd}</DisplayString>
+    <Expand HideRawView="true">
+      <Item Name="Geometry">geometry,na</Item>
+      <Item Name="Material">material,na</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="phi::geometry">
+    <DisplayString >Vertices: {verticesCount}; Indices: {indicesCount}</DisplayString>
+  </Type>
+  
+  <Type Name="phi::material">
+    <DisplayString >...</DisplayString>
+    <Expand HideRawView="true">
+      <Item Name="Albedo Image">albedoImage,na</Item>
+      <Item Name="Normal Image">normalImage,na</Item>
+      <Item Name="Specular Image">specularImage,na</Item>
+      <Item Name="Emissive Image">emissiveImage,na</Item>
+      <Item Name="Albedo Color">albedoColor,na</Item>
+      <Item Name="Specular Color">specularColor,na</Item>
+      <Item Name="Emissive Color">emissiveColor,na</Item>
+      <Item Name="Shininess">shininess,na</Item>
+      <Item Name="Reflectivity">reflectivity,na</Item>
+      <Item Name="Emission">emission,na</Item>
+      <Item Name="Opacity">opacity,na</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="phi::image">
+    <DisplayString >{w} x {h}; {dataFormat, en}; {dataType, en}</DisplayString>
+  </Type>
+  
+  <Type Name="phi::node">
+    <DisplayString Condition="_name._Mypair._Myval2._Mysize == 0"> GIVE ME A NAME NANDIIIINHO!</DisplayString>
+    <DisplayString Condition="_name._Mypair._Myval2._Mysize > 0">{_name, sb}</DisplayString>
+    <DisplayString Condition="_children-&gt;_Mypair._Myval2._Mylast - _children-&gt;_Mypair._Myval2._Myfirst == 0 &amp;&amp; _components-&gt;_Mypair._Myval2._Mylast - _components-&gt;_Mypair._Myval2._Myfirst == 0">EMPTY NODE</DisplayString>
+    <DisplayString Condition="_children-&gt;_Mypair._Myval2._Mylast - _children-&gt;_Mypair._Myval2._Myfirst == 1 &amp;&amp; _components-&gt;_Mypair._Myval2._Mylast - _components-&gt;_Mypair._Myval2._Myfirst == 0">USELESS NODE</DisplayString>
+    <Expand HideRawView="true">
+      <!--<Item Name="Children" Condition="_children-&gt;_Mypair._Myval2._Mylast - _children-&gt;_Mypair._Myval2._Myfirst > 0">_children, view(phi)na</Item>-->
+      <ExpandedItem>_children,na</ExpandedItem>
+      <Item Name="Components">_components,na</Item>
+      <Item Name="Transform">_transform,na</Item>
+      <Item Name="Parent Node" Condition="_parent != nullptr">_parent,na</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
