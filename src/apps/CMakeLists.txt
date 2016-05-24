@@ -12,13 +12,14 @@ link_directories(${LIBS_DIRS})
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
+file(GLOB natvis_files *.natvis)
 
 if (WIN32)
 file(GLOB source_files_platform ./win64/*.cpp)
 set(source_files ${source_files} ${source_files_platform})
 endif(WIN32)
 
-add_library(apps SHARED ${source_files} ${header_files})
+add_library(apps SHARED ${source_files} ${header_files} ${natvis_files})
 
 target_link_libraries(apps core)
 target_link_libraries(apps io)

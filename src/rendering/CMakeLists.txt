@@ -23,9 +23,10 @@ endif(NOT GLEW_FOUND)
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
+file(GLOB natvis_files *.natvis)
 file(GLOB shader_files ../../resources/shaders/*)
 
-add_library(rendering SHARED ${source_files} ${header_files} ${shader_files})
+add_library(rendering SHARED ${source_files} ${header_files} ${shader_files} ${natvis_files})
 source_group(Shaders FILES ${shader_files})
 target_link_libraries(rendering core)
 target_link_libraries(rendering io)

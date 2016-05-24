@@ -40,29 +40,11 @@
     <Expand HideRawView="true" />
   </Type>
 
-  <Type Name="std::vector&lt;phi::component*,*&gt;">
-    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 0">No components</DisplayString>
-    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 1">Forever alone ({(*this)[0],na})</DisplayString>
-    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst > 1">{_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst} fancy components</DisplayString>
-    <Expand HideRawView="true">
-      <ArrayItems>
-        <Size>_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst</Size>
-        <ValuePointer>_Mypair._Myval2._Myfirst,na</ValuePointer>
-      </ArrayItems>
-    </Expand>
+  <Type Name="phi::aabb">
+    <DisplayString>{min} >> {max}  </DisplayString>
+    <Expand HideRawView="true" />
   </Type>
   
-  <Type Name="std::vector&lt;phi::node*,*&gt;">
-    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 1">Lonely child ({(*this)[0],na})</DisplayString>
-    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst > 0">{_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst} crazy children</DisplayString>
-    <Expand HideRawView="true">
-      <ArrayItems>
-        <Size>_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst</Size>
-        <ValuePointer>_Mypair._Myval2._Myfirst, na</ValuePointer>
-      </ArrayItems>
-    </Expand>
-  </Type>
-
   <Type Name="phi::transform">
     <DisplayString>...</DisplayString>
     <Expand HideRawView="true">
@@ -94,7 +76,7 @@
   </Type>
 
   <Type Name="phi::geometry">
-    <DisplayString >Vertices: {verticesCount}; Indices: {indicesCount}</DisplayString>
+    <DisplayString >Vertices: {verticesCount}; Indices: {indicesCount}; Aabb: {aabb}</DisplayString>
   </Type>
   
   <Type Name="phi::material">
@@ -129,6 +111,29 @@
       <Item Name="Components">_components,na</Item>
       <Item Name="Transform">_transform,na</Item>
       <Item Name="Parent Node" Condition="_parent != nullptr">_parent,na</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="std::vector&lt;phi::component*,*&gt;">
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 0">No components</DisplayString>
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 1">Forever alone ({(*this)[0],na})</DisplayString>
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst > 1">{_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst} fancy components</DisplayString>
+    <Expand HideRawView="true">
+      <ArrayItems>
+        <Size>_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>_Mypair._Myval2._Myfirst,na</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <Type Name="std::vector&lt;phi::node*,*&gt;">
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst == 1">Lonely child ({(*this)[0],na})</DisplayString>
+    <DisplayString Condition="_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst > 0">{_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst} crazy children</DisplayString>
+    <Expand HideRawView="true">
+      <ArrayItems>
+        <Size>_Mypair._Myval2._Mylast - _Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>_Mypair._Myval2._Myfirst, na</ValuePointer>
+      </ArrayItems>
     </Expand>
   </Type>
 </AutoVisualizer>

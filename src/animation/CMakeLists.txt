@@ -10,8 +10,9 @@ include_directories(${PHI_INCLUDE_DIRS}/phi)
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
+file(GLOB natvis_files *.natvis)
 
-add_library(animation SHARED ${source_files} ${header_files})
+add_library(animation SHARED ${source_files} ${header_files} ${natvis_files})
 
 target_link_libraries(animation diagnostics)
 target_link_libraries(animation core)

@@ -13,8 +13,9 @@ find_package(FREEIMAGE REQUIRED)
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
+file(GLOB natvis_files *.natvis)
 
-add_library(loader SHARED ${source_files} ${header_files})
+add_library(loader SHARED ${source_files} ${header_files} ${natvis_files})
 
 target_link_libraries(loader io)
 target_link_libraries(loader ${FREEIMAGE_LIBRARY})
