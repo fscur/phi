@@ -19,25 +19,18 @@ namespace phi
             nodeEventTokens(
                 eventToken childAdded,
                 eventToken childRemoved,
-                eventToken transformChanged) :
+                eventToken transformChanged,
+                eventToken selectionChanged) :
                 childAdded(childAdded),
                 childRemoved(childRemoved),
-                transformChanged(transformChanged)
+                transformChanged(transformChanged),
+                selectionChanged(selectionChanged)
             {
             }
 
             eventToken childAdded;
             eventToken childRemoved;
             eventToken transformChanged;
-        };
-
-        struct meshEventTokens
-        {
-            meshEventTokens(eventToken selectionChanged) :
-                selectionChanged(selectionChanged)
-            {
-            }
-
             eventToken selectionChanged;
         };
 
@@ -55,13 +48,11 @@ namespace phi
 
     private:
         void trackNode(node* node);
-        void trackMesh(mesh * mesh);
         void untrackNode(node * node);
-        void untrackMesh(mesh * mesh);
         void nodeChildAdded(node* addedChild);
         void nodeChildRemoved(node* removedChild);
         void nodeTransformChanged(node* changedNode);
-        void meshSelectionChanged(mesh* mesh);
+        void nodeSelectionChanged(node * node);
 
     public:
         SCENES_API scene(gl* gl, float w, float h);
@@ -75,6 +66,7 @@ namespace phi
         SCENES_API mesh* pick(int mouseX, int mouseY);
         SCENES_API float getZBufferValue(int x, int y);
 
+        vector<node*> getSelectedObjects() { return _selectedNodes; }
         vector<node*>* getObjects() { return _sceneRoot->getChildren(); } //gambis
         renderer* getRenderer() const { return _pipeline->_renderer; }
         camera* getCamera() const { return _camera; }

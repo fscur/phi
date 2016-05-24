@@ -1,1 +1,27 @@
-{"Guid":"IUYV6Y6K5U+c9b8TWW/K/A==","Node":{"Components":[{"Name":"cube.model","ThumbnailFileName":"cube.th","AnimatedThumbnailFileName":"cube.ath","Type":0}],"Children":[{"Components":[{"Name":"cube_mesh_0","MaterialResourceGuid":"K1Ahf4eSg02fstdjkp2O8Q==","GeometryResourceGuid":"FfO0PLlZ/0WbQOnQEmelUA==","Type":1}],"Children":[]}]}}
+{
+    "Guid": "IUYV6Y6K5U+c9b8TWW/K/A==",
+    "Node": {
+        "Name": "Cube",
+        "Components": [
+            {
+                "Name": "cube.model",
+                "ThumbnailFileName": "cube.th",
+                "AnimatedThumbnailFileName": "cube.ath",
+                "Type": 0
+            }
+        ],
+        "Children": [
+            {
+                "Components": [
+                    {
+                        "Name": "cube_mesh_0",
+                        "MaterialResourceGuid": "K1Ahf4eSg02fstdjkp2O8Q==",
+                        "GeometryResourceGuid": "FfO0PLlZ/0WbQOnQEmelUA==",
+                        "Type": 1
+                    }
+                ],
+                "Children": []
+            }
+        ]
+    }
+}

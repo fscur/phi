@@ -8,7 +8,8 @@ namespace phi
         _transform(new transform()),
         _components(new vector<component*>()),
         _children(new vector<node*>()),
-        _name(name)
+        _name(name),
+        _isSelected(false)
     {
         _transform->getChangedEvent()->assign(std::bind(&node::raiseTransformChanged, this, std::placeholders::_1));
     }
@@ -18,9 +19,10 @@ namespace phi
         _transform(original._transform->clone()),
         _components(new vector<component*>()),
         _children(new vector<node*>()),
-        _name(original._name)
+        _name(original._name),
+        _isSelected(original._isSelected)
     {
-        for (auto child : *(original._children))
+        for (auto child : *original._children)
         {
             auto clonedChild = child->clone();
             clonedChild->_parent = this;
@@ -29,7 +31,7 @@ namespace phi
             _children->push_back(clonedChild);
         }
 
-        for (auto component : *(original._components))
+        for (auto component : *original._components)
         {
             auto clonedComponent = component->clone();
             clonedComponent->setNode(this);
@@ -50,7 +52,6 @@ namespace phi
             safeDelete(component);
 
         safeDelete(_components);
-
         safeDelete(_transform);
     }
 
@@ -104,6 +105,12 @@ namespace phi
         transformChanged.raise(this);
     }
 
+    inline void node::setIsSelected(bool isSelected) 
+    {
+        _isSelected = isSelected;
+        selectionChanged.raise(this);
+    }
+
     inline void node::setParent(node * const value)
     {
         _parent = value;
@@ -122,5 +129,68 @@ namespace phi
     inline void node::setSize(vec3 value)
     {
         _transform->setLocalSize(value);
+    }
+
+    bool node::operator==(const node& other)
+    {
+        auto otherComponents = other.getComponents();
+        auto componentsCount = _components->size();
+        auto otherComponentsCount = otherComponents->size();
+
+        if (componentsCount != otherComponentsCount)
+            return false;
+
+        for (auto i = 0u; i < componentsCount; i++)
+        {
+            if (*(_components->at(i)) != *(otherComponents->at(i)))
+                return false;
+        }
+
+        auto otherChildren = other.getChildren();
+        auto childrenCount = _children->size();
+        auto otherChildrenCount = otherChildren->size();
+
+        if (childrenCount != otherChildrenCount)
+            return false;
+
+        for (auto i = 0u; i < childrenCount; i++)
+        {
+            if (*(_children->at(i)) != *(otherChildren->at(i)))
+                return false;
+        }
+
+        if (*_transform != *other._transform)
+            return false;
+
+        if (_parent && other._parent)
+        {
+            auto parent = _parent;
+            auto otherParent = other._parent;
+            while (parent && otherParent)
+            {
+                if (parent->_name != otherParent->_name)
+                    return false;
+
+                parent = parent->_parent;
+                otherParent = otherParent->_parent;
+            }
+
+            if (parent != otherParent)
+                return false;
+        }
+        else if (_parent != other.getParent())
+        {
+            return false;
+        }
+
+        if (_name != other._name)
+            return false;
+
+        return true;
+    }
+
+    bool node::operator!=(const node& other)
+    {
+        return !(*this == other);
     }
 }

@@ -19,6 +19,7 @@ namespace phi
             GLintptr offset;
             mat4 modelMatrix;
             GLuint materialId;
+            bool isSelected;
 
             drawInstanceData(
                 GLintptr offset = 0,
@@ -26,7 +27,8 @@ namespace phi
                 GLuint materialId = 0) :
                 offset(offset),
                 modelMatrix(modelMatrix),
-                materialId(materialId)
+                materialId(materialId),
+                isSelected(false)
             {
             }
         };
@@ -42,7 +44,6 @@ namespace phi
         GLuint _drawCount;
         GLuint _objectsCount;
 
-        vector<mat4> _modelMatrices;
         vector<geometry*> _geometries;
         map<geometry*, vector<drawInstanceData*>> _instances;
         map<mesh*, drawInstanceData*> _meshInstances;
@@ -77,7 +78,7 @@ namespace phi
         RENDERING_API bool add(const renderInstance& instance);
         RENDERING_API void remove(mesh* mesh);
         RENDERING_API void update(const renderInstance& instance);
-        RENDERING_API void updateSelectionBuffer(mesh* mesh);
+        RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
         RENDERING_API void updateTransformBuffer(mesh* mesh, const mat4& modelMatrix);
         RENDERING_API void render();
     };

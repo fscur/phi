@@ -14,7 +14,6 @@ namespace phi
         _verticesOffset(0),
         _drawCount(0),
         _objectsCount(0),
-        _modelMatrices(vector<mat4>()),
         _geometries(vector<geometry*>()),
         _instances(map<geometry*, vector<drawInstanceData*>>()),
         _meshInstances(map<mesh*, drawInstanceData*>()),
@@ -191,7 +190,7 @@ namespace phi
                 instance->offset = offset++;
                 modelMatricesData.push_back(instance->modelMatrix);
                 materialsIdsData.push_back(instance->materialId);
-                selectionBufferData.push_back(mesh->getSelectionColor());
+                selectionBufferData.push_back(vec4(mesh->getSelectionColor(),instance->isSelected));
             }
 
             GLuint indicesCount = geometry->indicesCount;
@@ -281,10 +280,11 @@ namespace phi
         _selectionBuffer->subData(drawInstance->offset * sizeof(vec4), sizeof(vec4), &selectionColor);
     }
 
-    void batch::updateSelectionBuffer(mesh* mesh)
+    void batch::updateSelectionBuffer(mesh* mesh, bool isSelected)
     {
         auto drawInstance = _meshInstances[mesh];
-        auto selectionColor = mesh->getSelectionColor();
+        drawInstance->isSelected = isSelected;
+        auto selectionColor = vec4(mesh->getSelectionColor(), isSelected);
 
         _selectionBuffer->subData(drawInstance->offset * sizeof(vec4), sizeof(vec4), &selectionColor);
     }

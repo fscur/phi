@@ -54,11 +54,14 @@ namespace phi
         vec3 getLocalSize() const { return _localSize; }
         eventHandler<transform*>* getChangedEvent() const { return _changedEvent; }
 
-		CORE_API void translate(vec3 translation);
-		CORE_API void rotate(float angle, vec3 axis);
-		CORE_API void pitch(float angle);
-		CORE_API void yaw(float angle);
-		CORE_API void roll(float angle);
-		CORE_API void multiply(const transform& transform);
+        CORE_API void translate(vec3 translation);
+        CORE_API void rotate(float angle, vec3 axis);
+        CORE_API void pitch(float angle);
+        CORE_API void yaw(float angle);
+        CORE_API void roll(float angle);
+        CORE_API void multiply(const transform& transform);
+
+        CORE_API bool operator ==(transform& other);
+        CORE_API bool operator !=(transform& other);
     };
 }

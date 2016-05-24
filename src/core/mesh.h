@@ -12,11 +12,9 @@ namespace phi
         public component
     {
     private:
-        bool _isSelected;
         int _id;
 
     public:
-        eventHandler<mesh*> selectionChanged;
         geometry* geometry;
         material* material;
 
@@ -26,10 +24,8 @@ namespace phi
         CORE_API ~mesh();
 
         CORE_API component* clone() const override;
-        CORE_API vec4 getSelectionColor();
-        CORE_API void setSelected(bool isSelected);
-
-        bool getSelected() { return _isSelected; }
+        CORE_API vec3 getSelectionColor();
+        
         void setId(int id) { _id = id; }
         int getId() const { return _id; }
         static componentType getComponentType() { return componentType::MESH; }

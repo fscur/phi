@@ -27,6 +27,7 @@ namespace demon
         library* _projectLibrary;
 
         phi::ui* _ui;
+        phi::node* _labelFps;
         phi::commandsManager* _commandsManager;
         defaultCameraController* _defaultController;
 #ifdef _DEBUG

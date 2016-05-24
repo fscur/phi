@@ -10,13 +10,14 @@ include_directories(${PHI_INCLUDE_DIRS}/phi)
 
 file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
+file(GLOB natvis_files *.natvis)
 
 if(WIN32)
 file(GLOB source_files_platform ./win64/*.cpp)
 set(source_files ${source_files} ${source_files_platform})
 endif(WIN32)
 
-add_library(diagnostics SHARED ${source_files} ${header_files})
+add_library(diagnostics SHARED ${source_files} ${header_files} ${natvis_files})
 
 target_link_libraries(diagnostics phi)
 

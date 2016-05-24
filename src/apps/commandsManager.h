@@ -2,10 +2,9 @@
 #include <phi.h>
 #include "appsApi.h"
 
-#include <core/mouseEventArgs.h>
-#include <core/keyboardEventArgs.h>
-
-#include "command.h"
+#include <core\command.h>
+#include <core\mouseEventArgs.h>
+#include <core\keyboardEventArgs.h>
 #include "shortcut.h"
 
 namespace phi
@@ -22,6 +21,7 @@ namespace phi
     private:
         void onKeyDown(phi::keyboardEventArgs* e);
         void onKeyUp(phi::keyboardEventArgs* e);
+        void clearRedo();
     public:
         APPS_API commandsManager();
         APPS_API ~commandsManager();

@@ -13,11 +13,13 @@ namespace phi
         vector<component*>* _components;
         vector<node*>* _children;
         string _name;
+        bool _isSelected;
 
     public:
         eventHandler<node*> childAdded;
         eventHandler<node*> childRemoved;
         eventHandler<node*> transformChanged;
+        eventHandler<node*> selectionChanged;
 
     private:
         void raiseTransformChanged(transform* sender);
@@ -38,11 +40,16 @@ namespace phi
         node* getParent() const { return _parent; }
         vector<node*>* getChildren() const { return _children; }
         vector<component*>* getComponents() const { return _components; }
+        bool getIsSelected() const { return _isSelected; }
 
+        CORE_API void setIsSelected(bool isSelected);
         CORE_API void setParent(node* const value);
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);
         CORE_API void traverse(std::function<void(node*)> func);
+
+        CORE_API bool operator ==(const node& other);
+        CORE_API bool operator !=(const node& other);
 
         template<typename T>
         T* getComponent() const

@@ -29,7 +29,7 @@ namespace phi
         updateProjectionMatrix();
     }
 
-    camera::~camera()
+    inline camera::~camera()
     {
         if (_node)
             _node->getTransform()->getChangedEvent()->unassign(_transformChangedEventToken);

@@ -3,6 +3,7 @@
 
 #include <diagnostics\stackTracer.h>
 #include <diagnostics\stopwatch.h>
+#include <diagnostics\platformProcLoader.h>
 
 #include <io\path.h>
 
@@ -112,7 +113,7 @@ void initializeGetText()
 
 void initializeDiagnostics(const char* executableFileName)
 {
-    phi::stackTracer::LoadLibraries(executableFileName);
+    phi::platformProcLoader::load(executableFileName);
 }
 
 int main(int argc, char* args[])
