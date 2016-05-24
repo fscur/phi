@@ -1,8 +1,6 @@
 #include <precompiled.h>
 #include "transform.h"
 
-#include <glm\gtx\quaternion.hpp>
-
 namespace phi
 {
     transform::transform() :

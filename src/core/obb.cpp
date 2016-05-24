@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "obb.h"
 
+using namespace glm;
+
 namespace phi
 {
     void obb::project(const vec3& axis, float& min, float& max) const
@@ -224,5 +226,99 @@ namespace phi
 
         // return intersection or collision.
         return result;
+    }
+
+    bool obb::intersects(const obb& a, const obb& b)
+    {
+        auto T = b.center - a.center;
+        auto Wa = a.halfSizes.x;
+        auto Ha = a.halfSizes.y;
+        auto Da = a.halfSizes.z;
+        auto Ax = a.axes[0];
+        auto Ay = a.axes[1];
+        auto Az = a.axes[2];
+        auto Wb = b.halfSizes.x;
+        auto Hb = b.halfSizes.y;
+        auto Db = b.halfSizes.z;
+        auto Bx = b.axes[0];
+        auto By = b.axes[1];
+        auto Bz = b.axes[2];
+
+        std::vector<vec3> Ls
+        {
+            Ax,
+            Ay,
+            Az,
+            Bx,
+            By,
+            Bz,
+            cross(Ax, Bx),
+            cross(Ax, By),
+            cross(Ax, Bz),
+            cross(Ay, Bx),
+            cross(Ay, By),
+            cross(Ay, Bz),
+            cross(Az, Bx),
+            cross(Az, By),
+            cross(Az, Bz)
+        };
+
+        size_t i = 0;
+
+        Ls.erase(
+            std::remove_if(Ls.begin(), Ls.end(),
+                [&Ls, &i](vec3 va)
+        {
+            i++;
+            auto r = std::any_of(Ls.begin() + i, Ls.end(),
+                [va](vec3 vb) -> bool
+            {
+                auto d = abs(dot(va, vb));
+                return d > 1.0f - DECIMAL_TRUNCATION;
+            }) || abs(length(va)) < DECIMAL_TRUNCATION;
+
+            return r;
+        }),
+            Ls.end());
+
+        auto truncate = [](float v) -> float
+        {
+            return round(v * DECIMAL_TRUNCATION_INV) / DECIMAL_TRUNCATION_INV;
+        };
+
+        auto LsCount = Ls.size();
+        auto outputLsCount = std::to_string(LsCount) + "\n";
+        OutputDebugString(outputLsCount.c_str());
+        for (int i = 0; i < LsCount; i++)
+        {
+            auto L = Ls[i];
+
+            string outputL = "L = " + std::to_string(L.x) + ";" + std::to_string(L.y) + ";" + std::to_string(L.z) + "\n";
+            OutputDebugString(outputL.c_str());
+
+            auto sumA = abs(dot(T, L));
+            auto sumB =
+                abs(dot(Wa * Ax, L)) +
+                abs(dot(Ha * Ay, L)) +
+                abs(dot(Da * Az, L)) +
+                abs(dot(Wb * Bx, L)) +
+                abs(dot(Hb * By, L)) +
+                abs(dot(Db * Bz, L));
+
+            auto hehe = [](float v) -> string
+            {
+                std::stringstream stream;
+                stream << std::fixed << std::setprecision(30) << v;
+                return stream.str();
+            };
+
+            string outputComp = hehe(truncate(sumA)) + " >= " + hehe(truncate(sumB)) + " = " + (truncate(sumA) >= truncate(sumB) ? "true" : "false") + "\n";
+            OutputDebugString(outputComp.c_str());
+
+            if (truncate(sumA) >= truncate(sumB))
+                return false;
+        }
+
+        return true;
     }
 }

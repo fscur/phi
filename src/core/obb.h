@@ -53,5 +53,7 @@ namespace phi
         CORE_API ~obb() {}
 
         CORE_API static intersectionResult interesects(const obb& a, const vec3& va, const obb& b, const vec3& vb);
+
+        CORE_API static bool intersects(const obb& a, const obb& b);
     };
 }
