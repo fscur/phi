@@ -85,7 +85,7 @@ namespace phi
         glError::check();
     }
 
-    void batch::createVbo(const void* const data, GLsizeiptr size)
+    void batch::createVbo(const vertex* const data, GLsizeiptr size)
     {
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
@@ -97,19 +97,19 @@ namespace phi
         _vbo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
-    void batch::createEbo(const void* const data, GLsizeiptr size)
+    void batch::createEbo(const uint* const data, GLsizeiptr size)
     {
-        _ebo = new buffer(bufferTarget::element);
+        _ebo = new buffer<uint>(bufferTarget::element);
         _ebo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
-    void batch::createDrawCmdsBuffer(const void* const data, GLsizeiptr size)
+    void batch::createDrawCmdsBuffer(const drawElementsIndirectCmd* const data, GLsizeiptr size)
     {
-        _drawCmdBuffer = new buffer(bufferTarget::drawIndirect);
+        _drawCmdBuffer = new buffer<drawElementsIndirectCmd>(bufferTarget::drawIndirect);
         _drawCmdBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
-    void batch::createMaterialsIdsBuffer(const void* const data, GLsizeiptr size)
+    void batch::createMaterialsIdsBuffer(const uint* const data, GLsizeiptr size)
     {
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(5, 1, GL_UNSIGNED_INT, 0, 0, 1));

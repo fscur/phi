@@ -93,7 +93,7 @@ namespace phi
         texture->magFilter = GL_LINEAR;
         texture->generateMipmaps = false;
 
-        auto textureAddress = _gl->texturesManager->add(texture);
+        auto textureAddress = _gl->texturesManager->get(texture);
 
         _result = new phi::renderTarget(
             GL_COLOR_ATTACHMENT0,

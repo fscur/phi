@@ -5,6 +5,8 @@
 
 namespace phi
 {
+    map<image*, texture*> pipeline::_imageTextures = map<image*, texture*>();
+
     pipeline::pipeline(gl* gl, float w, float h) :
         _gl(gl),
         _renderer(new renderer(gl, w, h))
@@ -55,15 +57,15 @@ namespace phi
 
         _materialsIndices[material] = currentId++;
 
-        auto albedoTexture = getMaterialTexture(material->albedoImage, _gl->defaultAlbedoImage);
-        auto normalTexture = getMaterialTexture(material->normalImage, _gl->defaultNormalImage);
-        auto specularTexture = getMaterialTexture(material->specularImage, _gl->defaultSpecularImage);
-        auto emissiveTexture = getMaterialTexture(material->emissiveImage, _gl->defaultEmissiveImage);
+        auto albedoTexture = pipeline::getTextureFromImage(material->albedoImage, _gl->defaultAlbedoImage);
+        auto normalTexture = pipeline::getTextureFromImage(material->normalImage, _gl->defaultNormalImage);
+        auto specularTexture = pipeline::getTextureFromImage(material->specularImage, _gl->defaultSpecularImage);
+        auto emissiveTexture = pipeline::getTextureFromImage(material->emissiveImage, _gl->defaultEmissiveImage);
 
-        auto albedoTextureAddress = _gl->texturesManager->add(albedoTexture);
-        auto normalTextureAddress = _gl->texturesManager->add(normalTexture);
-        auto specularTextureAddress = _gl->texturesManager->add(specularTexture);
-        auto emissiveTextureAddress = _gl->texturesManager->add(emissiveTexture);
+        auto albedoTextureAddress = _gl->texturesManager->get(albedoTexture);
+        auto normalTextureAddress = _gl->texturesManager->get(normalTexture);
+        auto specularTextureAddress = _gl->texturesManager->get(specularTexture);
+        auto emissiveTextureAddress = _gl->texturesManager->get(emissiveTexture);
 
         auto materialGpuData = phi::materialGpuData(
             albedoTextureAddress,
@@ -111,7 +113,7 @@ namespace phi
         _meshesBatches[instance.mesh] = batch;
     }
 
-    texture* pipeline::getMaterialTexture(image* materialImage, phi::image* defaultImage)
+    texture* pipeline::getTextureFromImage(image* materialImage, phi::image* defaultImage)
     {
         phi::texture* texture = nullptr;
 

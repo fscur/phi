@@ -64,7 +64,7 @@ namespace phi
 
         glError::check();
 
-        _glyphAtlasTextureAddress = _texturesManager->add(_glyphAtlasTexture);
+        _glyphAtlasTextureAddress = _texturesManager->get(_glyphAtlasTexture);
     }
 
     fontsManager::~fontsManager()

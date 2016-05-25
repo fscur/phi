@@ -45,7 +45,7 @@ namespace phi
         return static_cast<uint>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
     }
 
-    textureAddress texturesManager::add(const texture* const texture)
+    void texturesManager::add(const texture* const texture)
     {
         GLsizei maxLevels = 1;
 
@@ -90,7 +90,7 @@ namespace phi
             if (added)
             {
                 _textures[texture] = textureAddress;
-                return textureAddress;
+                return;
             }
         }
 
@@ -99,18 +99,19 @@ namespace phi
         _containers[key].push_back(container);
         handles.push_back(container->handle);
         units.push_back(_currentTextureUnit);
-
-        return textureAddress;
     }
 
     textureAddress texturesManager::get(const texture* const texture)
     {
+        if (!contains(texture))
+            add(texture);
+
         return _textures[texture];
     }
 
     bool texturesManager::contains(const texture* const texture)
     {
-        return _textures.find(texture) != _textures.end();
+        return phi::contains(_textures, texture);
     }
 
     textureContainer* texturesManager::reserveContainer(textureContainerLayout layout, size_t size)

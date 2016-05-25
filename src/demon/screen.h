@@ -8,6 +8,9 @@
 #include "defaultCameraController.h"
 #include "library.h"
 
+#include "layer.h"
+#include "context.h"
+
 #ifdef _DEBUG
 #include <io/watcher.h>
 #endif 
@@ -25,6 +28,8 @@ namespace demon
         phi::scene* _scene;
         library* _userLibrary;
         library* _projectLibrary;
+
+        context* _designContext;
 
         phi::ui* _ui;
         phi::node* _labelFps;

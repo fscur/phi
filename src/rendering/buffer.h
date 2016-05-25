@@ -54,21 +54,64 @@ namespace phi
         return static_cast<bufferStorageUsage::bufferStorageUsage>(static_cast<int>(a) | static_cast<int>(b));
     }
 
+    template<typename T>
     class buffer
     {
+    private:
+        vector<T> _items;
+
     protected:
         GLuint id;
         bufferTarget::bufferTarget target;
 
     public:
-        RENDERING_API buffer(bufferTarget::bufferTarget  target);
-        RENDERING_API virtual ~buffer();
+        buffer::buffer(bufferTarget::bufferTarget target) :
+            id(-1),
+            target(target)
+        {
+            glCreateBuffers(1, &id);
+            bind();
+        }
 
-        RENDERING_API void bind();
-        RENDERING_API void unbind();
-        RENDERING_API void bindBufferBase(GLuint location);
-        RENDERING_API void storage(GLsizeiptr size, const void* const data, bufferStorageUsage::bufferStorageUsage usage);
-        RENDERING_API void data(GLsizeiptr size, const void* const data, bufferDataUsage::bufferDataUsage usage);
-        RENDERING_API void subData(GLintptr offset, GLintptr size, const void* const data);
+        buffer::~buffer()
+        {
+            glDeleteBuffers(1, &id);
+        }
+
+        inline void buffer::bind()
+        {
+            glBindBuffer(target, id);
+            glError::check();
+        }
+
+        inline void buffer::unbind()
+        {
+            glBindBuffer(target, 0);
+            glError::check();
+        }
+
+        inline void buffer::bindBufferBase(GLuint location)
+        {
+            glBindBufferBase(target, location, id);
+            glError::check();
+        }
+
+        inline void buffer::storage(GLsizeiptr size, const T* const data, bufferStorageUsage::bufferStorageUsage usage)
+        {
+            glNamedBufferStorage(id, size, data == nullptr ? NULL : data, usage);
+            glError::check();
+        }
+
+        inline void buffer::data(GLsizeiptr size, const T* const data, bufferDataUsage::bufferDataUsage usage)
+        {
+            glNamedBufferData(id, size, data == nullptr ? NULL : data, usage);
+            glError::check();
+        }
+
+        inline void buffer::subData(GLintptr offset, GLintptr size, const T* const data)
+        {
+            glNamedBufferSubData(id, offset, size, data);
+            glError::check();
+        }
     };
 }

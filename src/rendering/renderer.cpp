@@ -65,7 +65,7 @@ namespace phi
             texture->generateMipmaps = false;
             texture->data = 0;
 
-            auto textureAddress = _gl->texturesManager->add(texture);
+            auto textureAddress = _gl->texturesManager->get(texture);
             return new phi::renderTarget(
                 attachment,
                 static_cast<GLint>(_w),
@@ -115,7 +115,7 @@ namespace phi
             GL_LINEAR,
             true);
 
-        auto finalImageTexAddress = _gl->texturesManager->add(finalImageTexture);
+        auto finalImageTexAddress = _gl->texturesManager->get(finalImageTexture);
 
         _finalImageRT = new renderTarget(
             GL_COLOR_ATTACHMENT0,

@@ -54,16 +54,16 @@ namespace phi
         vertexBuffer* _modelMatricesBuffer;
         vertexBuffer* _selectionBuffer;
 
-        buffer* _ebo;
-        buffer* _drawCmdBuffer;
+        buffer<uint>* _ebo;
+        buffer<drawElementsIndirectCmd>* _drawCmdBuffer;
 
     private:
         void createVao();
         void createVao(const renderInstance& instance);
-        void createVbo(const void* const data, GLsizeiptr size);
-        void createEbo(const void* const data, GLsizeiptr size);
+        void createVbo(const vertex* const data, GLsizeiptr size);
+        void createEbo(const uint* const data, GLsizeiptr size);
 
-        void createDrawCmdsBuffer(const void* const data, GLsizeiptr size);
+        void createDrawCmdsBuffer(const drawElementsIndirectCmd* const data, GLsizeiptr size);
         void createMaterialsIdsBuffer(const void* const data, GLsizeiptr size);
         void createModelMatricesBuffer(const void* const data, GLsizeiptr size);
         void createSelectionColorBuffer(const void* const data, GLsizeiptr size);

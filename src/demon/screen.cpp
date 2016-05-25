@@ -22,6 +22,9 @@
 
 #include "addObjectCommand.h"
 
+#include <rendering\renderPass.h>
+#include <rendering\shader.h>
+
 using namespace phi;
 
 namespace demon
@@ -33,6 +36,7 @@ namespace demon
 
     screen::~screen()
     {
+        safeDelete(_designContext);
     }
 
     void screen::onInit()
@@ -143,7 +147,7 @@ namespace demon
         auto labelNandinho = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
         auto control = labelNandinho->getComponent<phi::control>();
         control->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
-        control->setIsGlassy(true);
+        control->setIsGlassy(false);
 
         auto text = labelNandinho->getComponent<phi::text>();
         text->setFont(font);
@@ -152,14 +156,88 @@ namespace demon
         _labelFps = _ui->newLabel(L"Fps: ", vec3(-200.f, 100.f, 0.f));
         auto fpsControl = _labelFps->getComponent<phi::control>();
         fpsControl->setColor(color::fromRGBA(.7f, .5f, .9f, 1.0f));
-        fpsControl->setIsGlassy(true);
+        fpsControl->setIsGlassy(false);
 
         auto textFps = _labelFps->getComponent<phi::text>();
         textFps->setFont(fontFps);
         textFps->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-        _ui->add(labelNandinho);
-        _ui->add(_labelFps);
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        auto controlsRenderDataBuffer = new buffer(bufferTarget::shader);
+        controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
+        //bindBufferBase(0) ?
+
+
+        vector<string> attribs;
+        attribs.push_back("inPosition");
+        attribs.push_back("inTexCoord");
+        attribs.push_back("inModelMatrix");
+        auto shader = _gl->shadersManager->load("control", attribs);
+
+        shader->addUniform(0, "v");
+        shader->addUniform(1, "p");
+        shader->addUniform(2, "textureArrays");
+
+        auto controlRenderPass = new renderPass(shader);
+
+        controlRenderPass->setOnRender([&](phi::shader* shader)
+        {
+            controlsRenderDataBuffer->bindBufferBase(0);
+
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glBlendColor(1, 1, 1, 1);
+
+            shader->bind();
+            shader->setUniform(0, _camera->getViewMatrix());
+            shader->setUniform(1, _camera->getProjectionMatrix());
+            shader->setUniform(2, _texturesManager->units);
+
+            glBindVertexArray(_vao);
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, _instanceCount);
+            glBindVertexArray(0);
+
+            shader->unbind();
+            glBlendColor(0, 0, 0, 0);
+            glDisable(GL_BLEND);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+        });
+
+
+        //auto textRenderPass = new renderPass();
+
+        auto nandinhoLayer = new layer({ controlRenderPass });
+        nandinhoLayer->setOnNodeAdded([&](node* node)
+        {
+            node->traverse<phi::control>([&](phi::control* control)
+            {
+                auto texture = pipeline::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
+                textureAddress address = _gl->texturesManager->get(texture);
+
+                auto renderData = controlRenderData();
+                renderData.backgroundColor = control->getBackgroundColor();
+                renderData.backgroundTextureUnit = address.unit;
+                renderData.backgroundTexturePage = address.page;
+
+
+
+                if (!control->getIsGlassy())
+                    _controlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
+                else
+                    _glassyControlsRenderPass->add(renderData, node->getTransform()->getModelMatrix());
+            });
+        });
+
+        vector<layer*> layers = { nandinhoLayer };
+        _designContext = new context(layers);
+
+        nandinhoLayer->add(labelNandinho);
+        nandinhoLayer->add(_labelFps);
     }
 
     void screen::initInput()
@@ -183,14 +261,18 @@ namespace demon
     {
         phi::floatAnimator::update();
         _defaultController->update();
-        _scene->update();
-        _ui->update();
+        _designContext->update();
+
+        //_scene->update();
+        //_ui->update();
     }
 
     void screen::onRender()
     {
-        _scene->render();
-        _ui->render();
+        //_scene->render();
+        //_ui->render();
+
+        _designContext->render();
     }
 
     void screen::onTick()

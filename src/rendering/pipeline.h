@@ -15,8 +15,10 @@ namespace phi
     class pipeline
     {
     private:
+        static map<image*, texture*> _imageTextures;
+
+    private:
         const uint MAX_MATERIALS_COUNT = 512;
-        map<image*, texture*> _imageTextures;
         map<material*, uint> _materialsMaterialsGpu;
         const gl* _gl;
         buffer* _materialsBuffer;
@@ -33,7 +35,6 @@ namespace phi
         void createFrameUniformBlockBuffer();
         void createMaterialsBuffer();
         void uploadMaterialIfNew(material* material);
-        texture* getMaterialTexture(image* image, phi::image* defaultImage);
     public:
         RENDERING_API pipeline(gl* gl, float w, float h);
         RENDERING_API ~pipeline();
@@ -46,5 +47,8 @@ namespace phi
         RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
         RENDERING_API void update(const frameUniformBlock& frameUniformBlock);
         RENDERING_API void render();
+
+    public:
+        RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);
     };
 }
