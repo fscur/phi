@@ -48,6 +48,7 @@ namespace phi
         RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
         RENDERING_API void update(const frameUniformBlock& frameUniformBlock);
         RENDERING_API void render();
+        vector<batch*> getBatches() { return _batches; }
 
     public:
         RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);

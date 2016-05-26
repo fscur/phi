@@ -14,7 +14,7 @@ namespace phi
 
     void renderPass::update()
     {
-        _onUpdate();
+        _onUpdate(_shader);
     }
 
     void renderPass::render()

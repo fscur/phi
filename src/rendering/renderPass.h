@@ -10,7 +10,7 @@ namespace phi
     {
     private:
         shader* _shader;
-        std::function<void(void)> _onUpdate;
+        std::function<void(shader*)> _onUpdate;
         std::function<void(shader*)> _onRender;
     public:
     public:
@@ -20,7 +20,7 @@ namespace phi
         RENDERING_API void update();
         RENDERING_API void render();
 
-        void setOnRender(std::function<void(void)> onUpdate) { _onUpdate = onUpdate; }
+        void setOnUpdate(std::function<void(shader*)> onUpdate) { _onUpdate = onUpdate; }
         void setOnRender(std::function<void(shader*)> onRender) { _onRender = onRender; }
     };
 }

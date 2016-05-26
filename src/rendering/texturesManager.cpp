@@ -99,6 +99,8 @@ namespace phi
         _containers[key].push_back(container);
         handles.push_back(container->handle);
         units.push_back(_currentTextureUnit);
+
+        _textures[texture] = textureAddress;
     }
 
     textureAddress texturesManager::get(const texture* const texture)
