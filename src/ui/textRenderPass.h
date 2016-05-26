@@ -30,11 +30,11 @@ namespace phi
         shader* _shader;
         geometry* _quad;
 
-        vertexBuffer* _vbo;
-        vertexBuffer* _modelMatricesBuffer;
-        vertexBuffer* _glyphIdsBuffer;
-        buffer* _ebo;
-        buffer* _glyphInfoBuffer;
+        vertexBuffer<vertex>* _vbo;
+        vertexBuffer<mat4>* _modelMatricesBuffer;
+        vertexBuffer<uint>* _glyphIdsBuffer;
+        buffer<uint>* _ebo;
+        buffer<glyphInfo>* _glyphInfoBuffer;
 
         GLuint _vao;
         vector<mat4> _modelMatrices;
@@ -44,8 +44,8 @@ namespace phi
         void initShader();
         void createQuad();
         void createVao();
-        void createVbo(void* const data, GLsizeiptr size);
-        void createEbo(void* const data, GLsizeiptr size);
+        void createVbo(vertex* const data, GLsizeiptr size);
+        void createEbo(uint* const data, GLsizeiptr size);
         void createGlyphIdsBuffer();
         void createModelMatricesBuffer();
         void createGlyphInfoBuffer();

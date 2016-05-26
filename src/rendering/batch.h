@@ -8,6 +8,7 @@
 #include "renderInstance.h"
 #include "vertexBuffer.h"
 #include "buffer.h"
+#include "drawElementsIndirectCmd.h"
 
 namespace phi
 {
@@ -49,10 +50,10 @@ namespace phi
         map<mesh*, drawInstanceData*> _meshInstances;
         map<drawInstanceData*, mesh*> _instancesMesh;
 
-        vertexBuffer* _vbo;
-        vertexBuffer* _materialsIdsBuffer;
-        vertexBuffer* _modelMatricesBuffer;
-        vertexBuffer* _selectionBuffer;
+        vertexBuffer<vertex>* _vbo;
+        vertexBuffer<uint>* _materialsIdsBuffer;
+        vertexBuffer<mat4>* _modelMatricesBuffer;
+        vertexBuffer<vec4>* _selectionBuffer;
 
         buffer<uint>* _ebo;
         buffer<drawElementsIndirectCmd>* _drawCmdBuffer;
@@ -64,9 +65,9 @@ namespace phi
         void createEbo(const uint* const data, GLsizeiptr size);
 
         void createDrawCmdsBuffer(const drawElementsIndirectCmd* const data, GLsizeiptr size);
-        void createMaterialsIdsBuffer(const void* const data, GLsizeiptr size);
-        void createModelMatricesBuffer(const void* const data, GLsizeiptr size);
-        void createSelectionColorBuffer(const void* const data, GLsizeiptr size);
+        void createMaterialsIdsBuffer(const uint* const data, GLsizeiptr size);
+        void createModelMatricesBuffer(const mat4* const data, GLsizeiptr size);
+        void createSelectionColorBuffer(const vec4* const data, GLsizeiptr size);
 
         void addNewGeometry(const renderInstance& instance);
         void addNewInstance(const renderInstance& instance);

@@ -9,6 +9,7 @@
 #include "renderInstance.h"
 #include "batch.h"
 #include "gl.h"
+#include "materialGpuData.h"
 
 namespace phi
 {
@@ -21,8 +22,8 @@ namespace phi
         const uint MAX_MATERIALS_COUNT = 512;
         map<material*, uint> _materialsMaterialsGpu;
         const gl* _gl;
-        buffer* _materialsBuffer;
-        buffer* _frameUniformBlockBuffer;
+        buffer<materialGpuData>* _materialsBuffer;
+        buffer<frameUniformBlock>* _frameUniformBlockBuffer;
 
         vector<batch*> _batches;
         map<mesh*, batch*> _meshesBatches;

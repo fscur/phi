@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
-#include "buffer.h"
 #include <core\vertex.h>
+#include "buffer.h"
 
 namespace phi
 {
@@ -35,10 +35,10 @@ namespace phi
 
     template <typename T>
     class vertexBuffer :
-        public virtual buffer<T>
+        public buffer<T>
     {
     public:
-        vertexBuffer::vertexBuffer(vector<vertexAttrib> attribs) :
+        vertexBuffer(vector<vertexAttrib> attribs) :
             buffer<T>(bufferTarget::array)
         {
             auto s = attribs.size();

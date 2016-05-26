@@ -164,8 +164,8 @@ namespace demon
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        auto controlsRenderDataBuffer = new buffer(bufferTarget::shader);
+        
+        auto controlsRenderDataBuffer = new buffer<controlRenderData>(bufferTarget::shader);
         controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
         //bindBufferBase(0) ?
 
@@ -238,6 +238,7 @@ namespace demon
 
         nandinhoLayer->add(labelNandinho);
         nandinhoLayer->add(_labelFps);
+        
     }
 
     void screen::initInput()

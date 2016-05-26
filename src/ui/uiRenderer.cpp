@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "uiRenderer.h"
+#include <rendering\pipeline.h>
 
 namespace phi
 {
@@ -52,37 +53,9 @@ namespace phi
         auto renderData = controlRenderData();
         renderData.backgroundColor = control->getBackgroundColor();
 
-        auto image = control->getBackgroundImage();
-        if (image == nullptr)
-            image = _gl->defaultAlbedoImage;
+        phi::texture* texture = pipeline::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
 
-        phi::texture* texture = nullptr;
-
-        if (_imageTextures.find(image) != _imageTextures.end())
-            texture = _imageTextures[image];
-        else
-        {
-            texture = new phi::texture(
-                image,
-                GL_TEXTURE_2D,
-                GL_RGBA8,
-                GL_REPEAT,
-                GL_LINEAR_MIPMAP_LINEAR,
-                GL_LINEAR,
-                true);
-
-            _imageTextures[image] = texture;
-        }
-
-        textureAddress address;
-
-        auto texturesManager = _gl->texturesManager;
-
-        if (!texturesManager->contains(texture))
-            address = texturesManager->add(texture);
-        else
-            address = texturesManager->get(texture);
-
+        auto address = _gl->texturesManager->get(texture);
         renderData.backgroundTextureUnit = address.unit;
         renderData.backgroundTexturePage = address.page;
 

@@ -19,8 +19,8 @@ namespace phi
         float _h;
         geometry* _quad;
         uint _quadVao;
-        vertexBuffer* _quadVbo;
-        buffer* _quadEbo;
+        vertexBuffer<vertex>* _quadVbo;
+        buffer<uint>* _quadEbo;
         float _beginSeconds;
         float _endSeconds;
         float _scale;

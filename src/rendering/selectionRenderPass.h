@@ -14,9 +14,9 @@ namespace phi
         const gl* _gl;
         shader* _shader;
         geometry* _quad;
-        vertexBuffer* _quadVbo;
-        buffer* _quadEbo;
-        buffer* _rtsBuffer;
+        vertexBuffer<vertex>* _quadVbo;
+        buffer<uint>* _quadEbo;
+        buffer<renderTargetsAddresses>* _rtsBuffer;
         uint _quadVao;
         float _w;
         float _h;

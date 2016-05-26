@@ -20,8 +20,8 @@ namespace phi
 		gl* _gl;
 		geometry* _quad;
 		shader* _shader;
-		vertexBuffer* _quadVbo;
-		buffer* _quadEbo;
+		vertexBuffer<vertex>* _quadVbo;
+		buffer<uint>* _quadEbo;
 		float _w;
 		float _h;
 		uint _quadVao;

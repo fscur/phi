@@ -17,7 +17,7 @@ namespace demon
             safeDelete(renderPass);
     }
 
-    void layer::add(phi::node* node)
+    void layer::add(node* node)
     {
         _onNodeAdded(node);
     }

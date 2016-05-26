@@ -93,7 +93,7 @@ namespace phi
         attribs.push_back(vertexAttrib(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
         attribs.push_back(vertexAttrib(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
-        _vbo = new vertexBuffer(attribs);
+        _vbo = new vertexBuffer<vertex>(attribs);
         _vbo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
@@ -114,27 +114,27 @@ namespace phi
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(5, 1, GL_UNSIGNED_INT, 0, 0, 1));
 
-        _materialsIdsBuffer = new vertexBuffer(attribs);
+        _materialsIdsBuffer = new vertexBuffer<uint>(attribs);
         _materialsIdsBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
-    void batch::createModelMatricesBuffer(const void* const data, GLsizeiptr size)
+    void batch::createModelMatricesBuffer(const mat4* const data, GLsizeiptr size)
     {
         vector<vertexAttrib> attribs;
 
         for (uint i = 0; i < 4; ++i)
             attribs.push_back(vertexAttrib(6 + i, 4, GL_FLOAT, sizeof(glm::mat4), (const void *)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new vertexBuffer(attribs);
+        _modelMatricesBuffer = new vertexBuffer<mat4>(attribs);
         _modelMatricesBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
-    void batch::createSelectionColorBuffer(const void* const data, GLsizeiptr size)
+    void batch::createSelectionColorBuffer(const vec4* const data, GLsizeiptr size)
     {
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(4, 4, GL_FLOAT, 0, 0, 1));
 
-        _selectionBuffer = new vertexBuffer(attribs);
+        _selectionBuffer = new vertexBuffer<vec4>(attribs);
         _selectionBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
@@ -273,7 +273,7 @@ namespace phi
         auto drawInstance = _meshInstances[instance.mesh];
         drawInstance->materialId = instance.materialId;
         drawInstance->modelMatrix = instance.modelMatrix;
-        auto selectionColor = instance.mesh->getSelectionColor();
+        auto selectionColor = vec4(instance.mesh->getSelectionColor(), 0.0); //TODO: ??????
 
         _modelMatricesBuffer->subData(drawInstance->offset * sizeof(mat4), sizeof(mat4), &drawInstance->modelMatrix);
         _materialsIdsBuffer->subData(drawInstance->offset * sizeof(uint), sizeof(uint), &drawInstance->materialId);

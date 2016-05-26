@@ -1,8 +1,6 @@
 #include <precompiled.h>
 #include "pipeline.h"
 
-#include "materialGpuData.h"
-
 namespace phi
 {
     map<image*, texture*> pipeline::_imageTextures = map<image*, texture*>();
@@ -30,7 +28,7 @@ namespace phi
 
     void pipeline::createFrameUniformBlockBuffer()
     {
-        _frameUniformBlockBuffer = new buffer(bufferTarget::uniform);
+        _frameUniformBlockBuffer = new buffer<frameUniformBlock>(bufferTarget::uniform);
 
         _frameUniformBlockBuffer->storage(
             sizeof(phi::frameUniformBlock),
@@ -40,7 +38,7 @@ namespace phi
 
     void pipeline::createMaterialsBuffer()
     {
-        _materialsBuffer = new buffer(bufferTarget::shader);
+        _materialsBuffer = new buffer<materialGpuData>(bufferTarget::shader);
 
         _materialsBuffer->storage(
             sizeof(materialGpuData) * MAX_MATERIALS_COUNT,

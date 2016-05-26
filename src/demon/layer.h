@@ -11,7 +11,8 @@ namespace demon
     private:
         phi::vector<phi::renderPass*> _renderPasses;
         phi::node* _root;
-        std::function<void(node*)> _onNodeAdded;
+        std::function<void(phi::node*)> _onNodeAdded;
+
     public:
         layer(phi::vector<phi::renderPass*> renderPasses);
         ~layer();
@@ -21,6 +22,6 @@ namespace demon
         void update();
         void render();
 
-        void setOnNodeAdded(std::function<void(node*)> onNodeAdded) { _onNodeAdded = onNodeAdded; }
+        void setOnNodeAdded(std::function<void(phi::node*)> onNodeAdded) { _onNodeAdded = onNodeAdded; }
     };
 }

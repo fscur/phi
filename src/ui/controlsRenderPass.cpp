@@ -74,13 +74,13 @@ namespace phi
         glBindVertexArray(0);
     }
 
-    void controlsRenderPass::createVbo(void* const data, GLsizeiptr size)
+    void controlsRenderPass::createVbo(vertex* const data, GLsizeiptr size)
     {
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
 
-        _vbo = new vertexBuffer(attribs);
+        _vbo = new vertexBuffer<vertex>(attribs);
         _vbo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
@@ -91,19 +91,19 @@ namespace phi
         for (uint i = 0; i < 4; ++i)
             attribs.push_back(vertexAttrib(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new vertexBuffer(attribs);
+        _modelMatricesBuffer = new vertexBuffer<mat4>(attribs);
         _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
     }
 
-    void controlsRenderPass::createEbo(void* const data, GLsizeiptr size)
+    void controlsRenderPass::createEbo(uint* const data, GLsizeiptr size)
     {
-        _ebo = new buffer(bufferTarget::element);
+        _ebo = new buffer<uint>(bufferTarget::element);
         _ebo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
     void controlsRenderPass::createControlsRenderDataBuffer()
     {
-        _controlsRenderDataBuffer = new buffer(bufferTarget::shader);
+        _controlsRenderDataBuffer = new buffer<controlRenderData>(bufferTarget::shader);
         _controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
         _controlsRenderDataBuffer->bindBufferBase(0);
     }

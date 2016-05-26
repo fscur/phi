@@ -23,7 +23,7 @@ namespace phi
         _shader = _gl->shadersManager->load("lightingPass", attribs);
         _shader->addUniform(0, "textureArrays");
 
-        _rtsBuffer = new buffer(bufferTarget::uniform);
+        _rtsBuffer = new buffer<renderTargetsAddresses>(bufferTarget::uniform);
 
         _rtsBuffer->storage(
             sizeof(renderTargetsAddresses),
@@ -55,10 +55,10 @@ namespace phi
         attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
 
-        _quadVbo = new vertexBuffer(attribs);
+        _quadVbo = new vertexBuffer<vertex>(attribs);
         _quadVbo->storage(_quad->vboSize, _quad->vboData, bufferStorageUsage::write);
 
-        _quadEbo = new buffer(bufferTarget::element);
+        _quadEbo = new buffer<uint>(bufferTarget::element);
         _quadEbo->storage(_quad->eboSize, _quad->eboData, bufferStorageUsage::write);
 
         glBindVertexArray(0);

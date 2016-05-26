@@ -19,10 +19,10 @@ namespace phi
         shader* _shader;
         geometry* _quad;
 
-        vertexBuffer* _vbo;
-        vertexBuffer* _modelMatricesBuffer;
-        buffer* _ebo;
-        buffer* _controlsRenderDataBuffer;
+        vertexBuffer<vertex>* _vbo;
+        vertexBuffer<mat4>* _modelMatricesBuffer;
+        buffer<uint>* _ebo;
+        buffer<controlRenderData>* _controlsRenderDataBuffer;
 
         GLuint _vao;
         vector<mat4> _modelMatrices;
@@ -33,8 +33,8 @@ namespace phi
         void initShader();
         void createQuad();
         void createVao();
-        void createVbo(void* const data, GLsizeiptr size);
-        void createEbo(void* const data, GLsizeiptr size);
+        void createVbo(vertex* const data, GLsizeiptr size);
+        void createEbo(uint* const data, GLsizeiptr size);
         void createModelMatricesBuffer();
         void createControlsRenderDataBuffer();
         void updateBuffers();

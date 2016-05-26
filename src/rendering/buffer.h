@@ -65,7 +65,7 @@ namespace phi
         bufferTarget::bufferTarget target;
 
     public:
-        buffer::buffer(bufferTarget::bufferTarget target) :
+        buffer(bufferTarget::bufferTarget target) :
             id(-1),
             target(target)
         {
@@ -73,42 +73,42 @@ namespace phi
             bind();
         }
 
-        buffer::~buffer()
+        ~buffer()
         {
             glDeleteBuffers(1, &id);
         }
 
-        inline void buffer::bind()
+        void bind()
         {
             glBindBuffer(target, id);
             glError::check();
         }
 
-        inline void buffer::unbind()
+        void unbind()
         {
             glBindBuffer(target, 0);
             glError::check();
         }
 
-        inline void buffer::bindBufferBase(GLuint location)
+        void bindBufferBase(GLuint location)
         {
             glBindBufferBase(target, location, id);
             glError::check();
         }
 
-        inline void buffer::storage(GLsizeiptr size, const T* const data, bufferStorageUsage::bufferStorageUsage usage)
+        void storage(GLsizeiptr size, const T* const data, bufferStorageUsage::bufferStorageUsage usage)
         {
             glNamedBufferStorage(id, size, data == nullptr ? NULL : data, usage);
             glError::check();
         }
 
-        inline void buffer::data(GLsizeiptr size, const T* const data, bufferDataUsage::bufferDataUsage usage)
+        void data(GLsizeiptr size, const T* const data, bufferDataUsage::bufferDataUsage usage)
         {
             glNamedBufferData(id, size, data == nullptr ? NULL : data, usage);
             glError::check();
         }
 
-        inline void buffer::subData(GLintptr offset, GLintptr size, const T* const data)
+        void subData(GLintptr offset, GLintptr size, const T* const data)
         {
             glNamedBufferSubData(id, offset, size, data);
             glError::check();

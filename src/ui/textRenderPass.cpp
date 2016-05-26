@@ -81,7 +81,7 @@ namespace phi
         glBindVertexArray(0);
     }
 
-    void textRenderPass::createVbo(void* const data, GLsizeiptr size)
+    void textRenderPass::createVbo(vertex* const data, GLsizeiptr size)
     {
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
@@ -89,7 +89,7 @@ namespace phi
         attribs.push_back(vertexAttrib(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
         attribs.push_back(vertexAttrib(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
-        _vbo = new vertexBuffer(attribs);
+        _vbo = new vertexBuffer<vertex>(attribs);
         _vbo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
@@ -98,7 +98,7 @@ namespace phi
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(4, 1, GL_UNSIGNED_INT, 0, 0, 1));
 
-        _glyphIdsBuffer = new vertexBuffer(attribs);
+        _glyphIdsBuffer = new vertexBuffer<uint>(attribs);
         _glyphIdsBuffer->data(sizeof(uint), nullptr, bufferDataUsage::dynamicDraw);
     }
 
@@ -109,19 +109,19 @@ namespace phi
         for (uint i = 0; i < 4; ++i)
             attribs.push_back(vertexAttrib(5 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new vertexBuffer(attribs);
+        _modelMatricesBuffer = new vertexBuffer<mat4>(attribs);
         _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
     }
 
-    void textRenderPass::createEbo(void* const data, GLsizeiptr size)
+    void textRenderPass::createEbo(uint* const data, GLsizeiptr size)
     {
-        _ebo = new buffer(bufferTarget::element);
+        _ebo = new buffer<uint>(bufferTarget::element);
         _ebo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
     void textRenderPass::createGlyphInfoBuffer()
     {
-        _glyphInfoBuffer = new buffer(bufferTarget::shader);
+        _glyphInfoBuffer = new buffer<glyphInfo>(bufferTarget::shader);
         _glyphInfoBuffer->data(sizeof(glyphInfo), nullptr, bufferDataUsage::dynamicDraw);
     }
 
