@@ -31,8 +31,8 @@ namespace phi
 
     public:
         RENDERING_API shader(
-            string vertFile, 
-            string fragFile, 
+            string vertFile,
+            string fragFile,
             const vector<string>& attributes);
         RENDERING_API ~shader();
 
@@ -57,7 +57,7 @@ namespace phi
         RENDERING_API void bind();
         RENDERING_API void unbind();
         RENDERING_API bool reload();
-		RENDERING_API bool canCompileShader();
+        RENDERING_API bool canCompileShader();
         GLuint getId() const { return _programId; }
     };
 }

@@ -3,6 +3,8 @@
 
 #include <loader\importer.h>
 
+#include "glDebugger.h"
+
 namespace phi
 {
     bool gl::_initialized = false;
@@ -10,10 +12,13 @@ namespace phi
     gl::gl(gl::glInfo info)
     {
         assert(!_initialized);
-
         _initialized = true;
 
         initOpenGLExtensions();
+
+#if _DEBUG
+        glDebugger::enable();
+#endif
 
         auto hasBindlessTextures = extensions[BINDLESS_TEXTURE_EXTENSION] && info.state.useBindlessTextures;
         auto hasSparseTextures = extensions[SPARSE_TEXTURE_EXTENSION] && info.state.useSparseTextures;
@@ -52,17 +57,16 @@ namespace phi
 
     void gl::initOpenGLExtensions()
     {
-        const GLubyte* glExtension = nullptr;
-        auto i = -1;
-
-        vector<string> glExtensions;
+        auto i = 0;
         string currentExtension;
+        vector<string> glExtensions;
+        auto glExtension = glGetStringi(GL_EXTENSIONS, i++);
 
         do
         {
-            auto glExtension = glGetStringi(GL_EXTENSIONS, ++i);
             currentExtension = string((char*)glExtension);
             glExtensions.push_back(currentExtension);
+            glExtension = glGetStringi(GL_EXTENSIONS, i++);
         } while (glExtension != NULL && !currentExtension.empty());
         glGetError(); //cleaning error from loading the last (inexistent) extension
 

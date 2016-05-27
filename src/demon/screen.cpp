@@ -480,7 +480,7 @@ namespace demon
         sceneLayer->add(floor);
 
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair->getTransform()->setLocalPosition(vec3(0.f, 5.5f, .0f));
+        chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
         sceneLayer->add(chair);
 
         vector<layer*> layers = { sceneLayer };
