@@ -69,7 +69,7 @@ namespace phi
         auto msg = functionName + " took: ";
         auto elapsedSeconds = stopwatch::measure(function);
         std::cout << msg + std::to_string(elapsedSeconds) << std::endl;
-        
+
         return elapsedSeconds;
     }
 
