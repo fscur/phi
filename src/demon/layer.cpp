@@ -5,7 +5,13 @@ namespace demon
 {
     using namespace phi;
 
-    layer::layer(vector<renderPass*> renderPasses) :
+    layer::layer(vector<renderPass*>& renderPasses) :
+        _renderPasses(renderPasses),
+        _root(new node("root"))
+    {
+    }
+
+    layer::layer(phi::vector<phi::renderPass*>&& renderPasses) :
         _renderPasses(renderPasses),
         _root(new node("root"))
     {
@@ -19,6 +25,7 @@ namespace demon
 
     void layer::add(node* node)
     {
+        _root->addChild(node);
         _onNodeAdded(node);
     }
     

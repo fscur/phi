@@ -23,7 +23,7 @@ namespace phi
         controlsRenderPass* _controlsRenderPass;
         glassyControlsRenderPass* _glassyControlsRenderPass;
         textRenderPass* _textRenderPass;
-		map<image*, texture*> _imageTextures;
+        map<image*, texture*> _imageTextures;
 
     private:
         void addToLists(node* node);

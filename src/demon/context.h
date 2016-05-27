@@ -11,6 +11,7 @@ namespace demon
         phi::vector<layer*> _layers;
     public:
         context(phi::vector<layer*>& layers);
+        context(phi::vector<layer*>&& layers);
         ~context();
 
         void update();

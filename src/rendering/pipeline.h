@@ -24,6 +24,7 @@ namespace phi
         const gl* _gl;
         buffer<materialGpuData>* _materialsBuffer;
         buffer<frameUniformBlock>* _frameUniformBlockBuffer;
+        buffer<vector<GLuint64>>* _texturesHandlesBuffer;
 
         vector<batch*> _batches;
         map<mesh*, batch*> _meshesBatches;
@@ -41,14 +42,15 @@ namespace phi
         RENDERING_API ~pipeline();
 
         RENDERING_API void add(mesh* mesh, mat4 modelMatrix);
-        RENDERING_API void remove(const renderInstance& instance);
         RENDERING_API void update(const renderInstance& instance);
         RENDERING_API void remove(mesh* mesh);
         RENDERING_API void updateTranformBuffer(mesh* mesh, const mat4& modelMatrix);
         RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
         RENDERING_API void update(const frameUniformBlock& frameUniformBlock);
         RENDERING_API void render();
+
         vector<batch*> getBatches() { return _batches; }
+        void bindMaterialsIdsBuffer() { _materialsBuffer->bindBufferBase(1); }
 
     public:
         RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);

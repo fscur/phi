@@ -22,10 +22,15 @@ layout (location = 3) in vec3 inTangent;
 layout (location = 4) in uint inGlyphId;
 layout (location = 5) in mat4 inModelMatrix;
 
-uniform mat4 v;
-uniform mat4 p;
+layout (std140, binding = 0) uniform FrameUniformsBufferData
+{
+    mat4 p;
+    mat4 v;
+    mat4 vp;
+    mat4 ip;
+} frameUniforms;
 
-layout (std140, binding = 0) buffer GlyphInfos
+layout (std140, binding = 1) buffer GlyphInfos
 {
     glyphInfo items[];
 } glyphs;
@@ -40,10 +45,10 @@ flat out vec4 color;
 
 void main()
 {
-	gl_Position = p * v * inModelMatrix * vec4(inPosition, 1.0);
+    gl_Position = frameUniforms.p * frameUniforms.v * inModelMatrix * vec4(inPosition, 1.0);
     glyphInfo info = glyphs.items[inGlyphId];
-	fragTexCoord = info.pos + inTexCoord * info.size;
-	fragPosition = inPosition;
+    fragTexCoord = info.pos + inTexCoord * info.size;
+    fragPosition = inPosition;
     unit = info.unit;
     page = info.page;
     shift = info.shift;
