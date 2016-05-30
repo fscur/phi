@@ -21,9 +21,6 @@ namespace phi
         float _h;
 
     public:
-        UI_API node* newLabel(wstring text, vec3 position);
-
-    public:
         UI_API ui(camera* camera, renderer* renderer, gl* gl, float w, float h);
         UI_API ~ui();
         

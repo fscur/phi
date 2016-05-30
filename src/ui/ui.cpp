@@ -12,8 +12,6 @@ namespace phi
         _w(w),
         _h(h)
     {
-        //_camera = new camera("uiCamera", w, h, 0.1f, 10000.0f, PI_OVER_4);
-
         auto cameraNode = new node();
         cameraNode->addComponent(_camera);
         add(cameraNode);
@@ -22,7 +20,6 @@ namespace phi
 
         camTransform->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         camTransform->setDirection(vec3(0.0f, 0.0f, -1.0f));
-        //_camera->orbit(vec3(0.0f), camTransform->getRight(), camTransform->getUp(), 0.4f, 0.0f);
         _renderer = new uiRenderer(renderer, gl, _camera);
     }
 
@@ -34,15 +31,9 @@ namespace phi
         safeDelete(_renderer);
     }
 
-    // float t = 0.0f;
-
     void ui::update()
     {
-        //_camera->orbit(vec3(0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), 0.0f, glm::cos(t) * 0.1f);
-        //_camera->moveTo(vec3(0.0, 0.0, glm::abs(glm::cos(t)) * 500.0f));
         _renderer->update();
-
-        //t += 0.0005f;
     }
 
     void ui::render()
@@ -54,32 +45,5 @@ namespace phi
     {
         _controls.push_back(n);
         _renderer->add(n);
-    }
-
-    node* ui::newLabel(wstring text, vec3 position)
-    {
-        auto node = new phi::node();
-
-        auto resizeNode = [node](vec3 size)
-        {
-            node->setSize(size);
-        };
-
-        auto control = new phi::control("labelControl");
-
-        auto label = new phi::text("labelText");
-        label->setControl(control);
-        label->setFont(_gl->defaultFont);
-        label->setText(text);
-
-        node->addComponent(control);
-        node->addComponent(label);
-
-        node->setPosition(position);
-        node->setSize(control->getSize());
-
-        control->getOnSizeChanged()->assign(resizeNode); //TODO: this event should be unassigned.
-
-        return node;
     }
 }

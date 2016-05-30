@@ -25,17 +25,14 @@ namespace demon
         phi::vec2 _lastMousePos;
 
         phi::gl* _gl;
-        phi::scene* _scene;
         library* _userLibrary;
         library* _projectLibrary;
 
         context* _designContext;
         context* _constructionContext;
 
-        phi::ui* _ui;
         phi::node* _labelFps;
         phi::commandsManager* _commandsManager;
-        defaultCameraController* _defaultController;
 #ifdef _DEBUG
         phi::watcher* _watcher;
         phi::blockingQueue<phi::watcherMessage>* _messageQueue;
