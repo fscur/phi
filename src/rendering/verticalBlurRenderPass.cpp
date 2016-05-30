@@ -6,7 +6,7 @@ namespace phi
     verticalBlurRenderPass::verticalBlurRenderPass(renderTarget* source, gl* gl, float w, float h) :
         _gl(gl),
         _quad(nullptr),
-        _shader(nullptr),
+        _program(nullptr),
         _quadVbo(nullptr),
         _quadEbo(nullptr),
         _w(w),
@@ -59,12 +59,12 @@ namespace phi
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
-        _shader = _gl->shadersManager->load("blurV", attribs);
+        _program = _gl->shadersManager->load("blurV", attribs);
 
-        _shader->addUniform(0, "textureArrays");
-        _shader->addUniform(1, "unit");
-        _shader->addUniform(2, "page");
-        _shader->addUniform(3, "resolution");
+        _program->addUniform(0, "textureArrays");
+        _program->addUniform(1, "unit");
+        _program->addUniform(2, "page");
+        _program->addUniform(3, "resolution");
     }
 
     void verticalBlurRenderPass::initFramebuffer()
@@ -104,11 +104,11 @@ namespace phi
         glClear(GL_COLOR_BUFFER_BIT);
         glError::check();
 
-        _shader->bind();
-        _shader->setUniform(0, _gl->texturesManager->units);
-        _shader->setUniform(1, _source->textureAddress.unit);
-        _shader->setUniform(2, _source->textureAddress.page);
-        _shader->setUniform(3, _resolution);
+        _program->bind();
+        _program->setUniform(0, _gl->texturesManager->units);
+        _program->setUniform(1, _source->textureAddress.unit);
+        _program->setUniform(2, _source->textureAddress.page);
+        _program->setUniform(3, _resolution);
 
         glBindVertexArray(_quadVao);
         glError::check();
@@ -116,7 +116,7 @@ namespace phi
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glError::check();
 
-        _shader->unbind();
+        _program->unbind();
 
         glBindVertexArray(0);
         glError::check();

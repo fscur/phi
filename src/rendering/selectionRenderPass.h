@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-#include "shader.h"
+#include "program.h"
 #include "gl.h"
 #include "gBufferRenderPass.h"
 #include "renderTargetsAddresses.h"
@@ -12,7 +12,7 @@ namespace phi
     {
     private:
         const gl* _gl;
-        shader* _shader;
+        program* _program;
         geometry* _quad;
         vertexBuffer<vertex>* _quadVbo;
         buffer<uint>* _quadEbo;

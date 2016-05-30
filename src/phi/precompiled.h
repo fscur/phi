@@ -85,6 +85,9 @@
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 
+#include <glslang\Include\ResourceLimits.h>
+#include <glslang\Public\ShaderLang.h>
+
 #ifdef MSVC
 #pragma warning(pop)
 #endif

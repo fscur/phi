@@ -20,11 +20,11 @@ namespace phi
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
-        _shader = _gl->shadersManager->load("selectionPass", attribs);
-        _shader->addUniform(0, "textureArrays");
-        _shader->addUniform(1, "resolution");
-        _shader->addUniform(2, "offset");
-        _shader->addUniform(3, "time");
+        _program = _gl->shadersManager->load("selectionPass", attribs);
+        _program->addUniform(0, "textureArrays");
+        _program->addUniform(1, "resolution");
+        _program->addUniform(2, "offset");
+        _program->addUniform(3, "time");
 
         _rtsBuffer = new buffer<renderTargetsAddresses>(bufferTarget::uniform);
 
@@ -71,18 +71,18 @@ namespace phi
     void selectionRenderPass::update()
     {
         const float contourOffset = 0.5f;
-        _shader->bind();
+        _program->bind();
 
         if (_gl->currentState.useBindlessTextures)
-            _shader->setUniform(0, _gl->texturesManager->handles);
+            _program->setUniform(0, _gl->texturesManager->handles);
         else
-            _shader->setUniform(0, _gl->texturesManager->units);
+            _program->setUniform(0, _gl->texturesManager->units);
 
-        _shader->setUniform(1, vec2(_w, _h));
-        _shader->setUniform(2, contourOffset);
-        _shader->setUniform(3, static_cast<float>(time::totalSeconds));
+        _program->setUniform(1, vec2(_w, _h));
+        _program->setUniform(2, contourOffset);
+        _program->setUniform(3, static_cast<float>(time::totalSeconds));
 
-        _shader->unbind();
+        _program->unbind();
     }
 
     void selectionRenderPass::render()
@@ -96,12 +96,12 @@ namespace phi
         glBindVertexArray(_quadVao);
         glError::check();
 
-        _shader->bind();
+        _program->bind();
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glError::check();
         
-        _shader->unbind();
+        _program->unbind();
 
         glBindVertexArray(0);
         glError::check();

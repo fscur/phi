@@ -3,7 +3,7 @@
 #include "renderingApi.h"
 #include "gl.h"
 #include "batch.h"
-#include "shader.h"
+#include "program.h"
 #include "renderTarget.h"
 #include "framebuffer.h"
 #include "batch.h"
@@ -14,7 +14,7 @@ namespace phi
     {
     private:
         gl* _gl;
-        shader* _shader;
+        program* _program;
 
     private:
         void initShader();

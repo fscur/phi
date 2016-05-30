@@ -5,7 +5,7 @@
 #include "renderTargetsAddresses.h"
 #include "vertexBuffer.h"
 #include "buffer.h"
-#include "shader.h"
+#include "program.h"
 #include "batch.h"
 
 #include <core\geometry.h>
@@ -17,7 +17,7 @@ namespace phi
     private:
         gl* _gl;
         geometry* _quad;
-        shader* _shader;
+        program* _program;
         vertexBuffer<vertex>* _quadVbo;
         buffer<uint>* _quadEbo;
         buffer<renderTargetsAddresses>* _rtsBuffer;

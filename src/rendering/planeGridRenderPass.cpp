@@ -13,7 +13,7 @@ namespace phi
         _quadVbo(nullptr),
         _quadEbo(nullptr),
         _showing(false),
-        shader(nullptr)
+        program(nullptr)
     {
         createQuad();
 
@@ -21,16 +21,16 @@ namespace phi
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
 
-        shader = _gl->shadersManager->load("planeGridPass", attribs);
+        program = _gl->shadersManager->load("planeGridPass", attribs);
 
-        shader->addUniform(0, "m");
-        shader->addUniform(1, "radius");
-        shader->addUniform(2, "scale");
-        shader->addUniform(3, "textureArrays");
-        shader->addUniform(4, "textureArrayIndex");
-        shader->addUniform(5, "texturePageIndex");
-        shader->addUniform(6, "showing");
-        shader->addUniform(7, "radiusHiding");
+        program->addUniform(0, "m");
+        program->addUniform(1, "radius");
+        program->addUniform(2, "scale");
+        program->addUniform(3, "textureArrays");
+        program->addUniform(4, "textureArrayIndex");
+        program->addUniform(5, "texturePageIndex");
+        program->addUniform(6, "showing");
+        program->addUniform(7, "radiusHiding");
 
         _scale = 1000.0f;
         transform.setLocalSize(vec3(_scale));
@@ -73,10 +73,10 @@ namespace phi
         glBindVertexArray(_quadVao);
         glError::check();
 
-        shader->bind();
+        program->bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glError::check();
-        shader->unbind();
+        program->unbind();
 
         glBindVertexArray(0);
         glError::check();
@@ -107,22 +107,22 @@ namespace phi
 
     void planeGridRenderPass::update()
     {
-        shader->bind();
-        shader->setUniform(0, transform.getModelMatrix());
-        shader->setUniform(1, ((float)phi::time::totalSeconds - _beginSeconds) * 20.0f);
-        shader->setUniform(2, _scale);
+        program->bind();
+        program->setUniform(0, transform.getModelMatrix());
+        program->setUniform(1, ((float)phi::time::totalSeconds - _beginSeconds) * 20.0f);
+        program->setUniform(2, _scale);
 
         if (_gl->currentState.useBindlessTextures)
-            shader->setUniform(3, _gl->texturesManager->handles);
+            program->setUniform(3, _gl->texturesManager->handles);
         else
-            shader->setUniform(3, _gl->texturesManager->units);
+            program->setUniform(3, _gl->texturesManager->units);
 
-        shader->setUniform(4, _textureAddress.unit);
-        shader->setUniform(5, _textureAddress.page);
-        shader->setUniform(6, _showing);
-        shader->setUniform(7, !_showing * ((float)phi::time::totalSeconds - _endSeconds) * 20.0f);
+        program->setUniform(4, _textureAddress.unit);
+        program->setUniform(5, _textureAddress.page);
+        program->setUniform(6, _showing);
+        program->setUniform(7, !_showing * ((float)phi::time::totalSeconds - _endSeconds) * 20.0f);
 
-        shader->unbind();
+        program->unbind();
     }
 
     void planeGridRenderPass::render()

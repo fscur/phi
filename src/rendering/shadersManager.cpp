@@ -5,68 +5,74 @@
 
 namespace phi
 {
-	shadersManager::shadersManager(string path) :
-		_path(path)
-	{
-	}
+    shadersManager::shadersManager(string path) :
+        _path(path)
+    {
+    }
 
-	shadersManager::~shadersManager()
-	{
-		for (auto& pair : _shaders)
-			safeDelete(pair.second);
-	}
+    shadersManager::~shadersManager()
+    {
+        for (auto& pair : _programs)
+            safeDelete(pair.second);
+    }
 
-	shader* shadersManager::load(string name, const vector<string>& attributes)
-	{
-		auto vertFile = path::combine(_path, name, shadersManager::VERT_EXT);
-		auto fragFile = path::combine(_path, name, shadersManager::FRAG_EXT);
+    program* shadersManager::load(string name, const vector<string>& attributes)
+    {
+        auto vertFile = path::combine(_path, name, shadersManager::VERT_EXT);
+        auto fragFile = path::combine(_path, name, shadersManager::FRAG_EXT);
 
-		auto shader = new phi::shader(vertFile, fragFile, attributes);
-		shader->init();
-		_shaders[name] = shader;
+        auto vertexShader = new phi::shader(vertFile);
+        auto fragmentShader = new phi::shader(fragFile);
 
-		return shader;
-	}
+        auto program = new phi::program();
 
-	shader* shadersManager::get(string name)
-	{
-		if (_shaders.find(name) == _shaders.end())
-			return nullptr;
-		else
-			return _shaders[name];
-	}
+        program->add(vertexShader);
+        program->add(fragmentShader);
 
-	void shadersManager::reloadAllShaders()
-	{
-		for (auto& pair : _shaders)
-		{
-			auto shader = pair.second;
-			while (!shader->reload())
-			{
-				phi::debug("\nFailed \"" + pair.first + "\" shader compilation.\nPress enter to try again...\n");
-				std::cin.get();
-			}
-		}
-	}
+        _programs[name] = program;
 
-	void shadersManager::reloadShader(string shaderName)
-	{
-		auto selectedShader = _shaders[shaderName];
-		if (selectedShader)
-		{
-			if (selectedShader->canCompileShader())
-			{
-				selectedShader->reload();
-				debug("<shadersManager> " + shaderName + " reloaded");
-			}
-			else
-			{
-				debug("<shaderManager> shader validation error");
-			}
-		}
-		else
-		{
-			debug("<shadersManager>: shader not found");
-		}
-	}
+        return program;
+    }
+
+    program* shadersManager::get(string name)
+    {
+        if (_programs.find(name) == _programs.end())
+            return nullptr;
+        else
+            return _programs[name];
+    }
+
+    void shadersManager::reloadAllPrograms()
+    {
+        for (auto& pair : _programs)
+        {
+            auto program = pair.second;
+            while (!program->reload())
+            {
+                phi::debug("\n[reloadAllShaders] Failed \"" + pair.first + "\" program compilation.\nPress enter to try again...\n");
+                std::cin.get();
+            }
+        }
+    }
+
+    void shadersManager::reloadProgram(string programName)
+    {
+        auto selectedProgram = _programs[programName];
+        if (selectedProgram)
+        {
+            if (selectedProgram->canCompile())
+            {
+                selectedProgram->reload();
+                debug("<shadersManager> " + programName + " reloaded.");
+            }
+            else
+            {
+                debug("<shaderManager> program validation error.");
+            }
+        }
+        else
+        {
+            debug("<shadersManager>: program not found.");
+        }
+    }
 }

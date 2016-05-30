@@ -40,7 +40,7 @@ namespace phi
         RENDERING_API void hide();
 
     public:
-        shader* shader;
+        program* program;
 
     public:
         RENDERING_API planeGridRenderPass(gl* gl, float w, float h);

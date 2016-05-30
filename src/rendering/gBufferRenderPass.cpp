@@ -5,7 +5,7 @@ namespace phi
 {
     gBufferRenderPass::gBufferRenderPass(gl* gl) :
         _gl(gl),
-        _shader(nullptr)
+        _program(nullptr)
     {
         initShader();
     }
@@ -24,29 +24,29 @@ namespace phi
         attribs.push_back("inMaterialId");
         attribs.push_back("inModelMatrix");
 
-        _shader = _gl->shadersManager->load("geometryPass", attribs);
-        _shader->addUniform(0, "textureArrays");
+        _program = _gl->shadersManager->load("geometryPass", attribs);
+        _program->addUniform(0, "textureArrays");
     }
 
     void gBufferRenderPass::update()
     {
-        _shader->bind();
+        _program->bind();
 
         if (_gl->currentState.useBindlessTextures)
-            _shader->setUniform(0, _gl->texturesManager->handles);
+            _program->setUniform(0, _gl->texturesManager->handles);
         else
-            _shader->setUniform(0, _gl->texturesManager->units);
+            _program->setUniform(0, _gl->texturesManager->units);
 
-        _shader->unbind();
+        _program->unbind();
     }
 
     void gBufferRenderPass::render(const vector<batch*>& batches)
     {
-        _shader->bind();
+        _program->bind();
 
         for (auto batch : batches)
             batch->render();
 
-        _shader->unbind();
+        _program->unbind();
     }
 }
