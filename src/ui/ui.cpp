@@ -68,7 +68,7 @@ namespace phi
         auto control = new phi::control("labelControl");
 
         auto label = new phi::text("labelText");
-        label->setControlRenderer(control);
+        label->setControl(control);
         label->setFont(_gl->defaultFont);
         label->setText(text);
 

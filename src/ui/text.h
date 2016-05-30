@@ -14,15 +14,15 @@ namespace phi
     {
     private:
         font* _font;
-        control* _controlRenderer;
+        control* _control;
         wstring _text;
         color _color;
 
     private:
-        void updateControlRenderer();
+        void updateControl();
 
     public:
-        static componentType getComponentType() { return componentType::TEXT_RENDERER; }
+        static componentType getComponentType() { return componentType::TEXT; }
 
     public:
         text(string name);
@@ -31,12 +31,12 @@ namespace phi
         wstring getText() const { return _text; }
         font* getFont() const { return  _font; }
         color getColor() const { return _color; }
-        control* getControlRenderer() const { return _controlRenderer; }
+        control* getControl() const { return _control; }
 
         UI_API void setText(wstring value);
         UI_API void setFont(font* value);
 
         void setColor(color value) { _color = value; }
-        void setControlRenderer(control* value) { _controlRenderer = value; }
+        void setControl(control* value) { _control = value; }
     };
 }

@@ -249,7 +249,7 @@ namespace demon
         return sceneLayer;
     }
 
-    layer * layerBuilder::buildUI(gl* gl, float width, float height)
+    layer* layerBuilder::buildUI(gl* gl, float width, float height)
     {
         /////////////// BUFFERS ///////////////
 
@@ -282,15 +282,6 @@ namespace demon
             vertex(vec3(0.0f, 1.0f, +0.0f), vec2(0.0f, 1.0f))
         };
         auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
-
-        auto textVertices = vector<vertex>
-        {
-            vertex(vec3(0.0f, 0.0f, +0.0f), vec2(0.0f, 1.0f)),
-            vertex(vec3(1.0f, 0.0f, +0.0f), vec2(1.0f, 1.0f)),
-            vertex(vec3(1.0f, 1.0f, +0.0f), vec2(1.0f, 0.0f)),
-            vertex(vec3(0.0f, 1.0f, +0.0f), vec2(0.0f, 0.0f))
-        };
-        auto textIndices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
         auto controlQuad = geometry::create(vertices, indices);
 
         GLuint controlVao;
@@ -362,7 +353,7 @@ namespace demon
         glCreateVertexArrays(1, &textVao);
         glBindVertexArray(textVao);
 
-        auto textQuad = geometry::create(textVertices, textIndices);
+        auto textQuad = geometry::create(vertices, indices);
 
         vector<vertexAttrib> textVboAttribs;
         textVboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
@@ -389,15 +380,15 @@ namespace demon
         auto textModelMatricesBuffer = new vertexBuffer<mat4>(textModelMatricesAttribs);
         textModelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
 
-        auto glyphInfoBuffer = new buffer<glyphInfo>(bufferTarget::shader);
-        glyphInfoBuffer->data(sizeof(glyphInfo), nullptr, bufferDataUsage::dynamicDraw);
+        auto glyphInfoBuffer = new buffer<glyphRenderData>(bufferTarget::shader);
+        glyphInfoBuffer->data(sizeof(glyphRenderData), nullptr, bufferDataUsage::dynamicDraw);
 
         glBindVertexArray(0);
 
         /////////////// TEXT BUFFER ///////////////
 
         auto textModelMatrices = new vector<mat4>();
-        auto glyphInfos = new vector<glyphInfo>();
+        auto glyphInfos = new vector<glyphRenderData>();
 
         auto textRenderPass = new renderPass(gl->shadersManager->loadCrazyFuckerSpecificShader("text"));
         textRenderPass->setOnUpdate([=](shader* shader) {});
@@ -432,7 +423,7 @@ namespace demon
             glEnable(GL_CULL_FACE);
         });
 
-        auto uiLayer = new layer({controlRenderPass, textRenderPass});
+        auto uiLayer = new layer({ controlRenderPass, textRenderPass });
 
         auto labels = new vector<text*>();
 
@@ -446,7 +437,7 @@ namespace demon
                 {
                     controls->push_back(control);
 
-                    phi::texture* texture = pipeline::getTextureFromImage(control->getBackgroundImage(), gl->defaultAlbedoImage);
+                    auto texture = pipeline::getTextureFromImage(control->getBackgroundImage(), gl->defaultAlbedoImage);
                     auto address = gl->texturesManager->get(texture);
 
                     auto renderData = controlRenderData();
@@ -498,9 +489,9 @@ namespace demon
 
                         auto modelMatrix = mat4(
                             w, 0.0f, 0.0f, 0.0f,
-                            0.0f, h, 0.0f, 0.0f,
+                            0.0f, -h, 0.0f, 0.0f,
                             0.0f, 0.0f, 1.0f, 0.0f,
-                            x0, y0, z, 1.0f);
+                            x0, y0 + h, z, 1.0f);
 
                         textModelMatrices->push_back(modelMatrix);
 
@@ -508,8 +499,8 @@ namespace demon
 
                         float shift = std::abs(x0 - static_cast<int>(x0));
 
-                        glyphInfo info;
-                        info.pos = glyph->texPos;
+                        glyphRenderData info;
+                        info.position = glyph->texPosition;
                         info.size = glyph->texSize;
                         info.shift = shift;
                         info.unit = glyph->texUnit;
@@ -529,7 +520,7 @@ namespace demon
 
                     glyphIdsBuffer->data(sizeof(uint) * glyphCount, &glyphIds[0], bufferDataUsage::dynamicDraw);
                     textModelMatricesBuffer->data(sizeof(mat4) * textModelMatrices->size(), &textModelMatrices->at(0), bufferDataUsage::dynamicDraw);
-                    glyphInfoBuffer->data(sizeof(glyphInfo) * glyphCount, &glyphInfos->at(0), bufferDataUsage::dynamicDraw);
+                    glyphInfoBuffer->data(sizeof(glyphRenderData) * glyphCount, &glyphInfos->at(0), bufferDataUsage::dynamicDraw);
                 }
             });
         });

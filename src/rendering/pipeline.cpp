@@ -16,7 +16,7 @@ namespace phi
     pipeline::~pipeline()
     {
         safeDelete(_frameUniformBlockBuffer);
-        safeDelete(_materialsBuffer);
+        safeDelete(_materialRenderDataBuffer);
         safeDelete(_renderer);
 
         for (auto batch : _batches)
@@ -38,10 +38,10 @@ namespace phi
 
     void pipeline::createMaterialsBuffer()
     {
-        _materialsBuffer = new buffer<materialGpuData>(bufferTarget::shader);
+        _materialRenderDataBuffer = new buffer<materialRenderData>(bufferTarget::shader);
 
-        _materialsBuffer->storage(
-            sizeof(materialGpuData) * MAX_MATERIALS_COUNT,
+        _materialRenderDataBuffer->storage(
+            sizeof(materialRenderData) * MAX_MATERIALS_COUNT,
             nullptr,
             bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
@@ -65,16 +65,16 @@ namespace phi
         auto specularTextureAddress = _gl->texturesManager->get(specularTexture);
         auto emissiveTextureAddress = _gl->texturesManager->get(emissiveTexture);
 
-        auto materialGpuData = phi::materialGpuData(
+        auto materialGpuData = phi::materialRenderData(
             albedoTextureAddress,
             normalTextureAddress,
             specularTextureAddress,
             emissiveTextureAddress,
             material);
 
-        auto offset = _materialsIndices[material] * sizeof(phi::materialGpuData);
-        _materialsBuffer->subData(offset, sizeof(phi::materialGpuData), &materialGpuData);
-        _materialsBuffer->bindBufferBase(1);
+        auto offset = _materialsIndices[material] * sizeof(phi::materialRenderData);
+        _materialRenderDataBuffer->subData(offset, sizeof(phi::materialRenderData), &materialGpuData);
+        _materialRenderDataBuffer->bindBufferBase(1);
     }
 
     void pipeline::add(mesh* mesh, mat4 modelMatrix)

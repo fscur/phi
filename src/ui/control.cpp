@@ -4,8 +4,7 @@
 namespace phi
 {
     control::control(string name) :
-        component(component::CONTROL_RENDERER, name),
-        _geometry(nullptr),
+        component(component::CONTROL, name),
         _image(nullptr),
         _onSizeChanged(new eventHandler<vec3>()),
         _color(color::transparent),

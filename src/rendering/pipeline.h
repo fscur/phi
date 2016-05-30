@@ -9,7 +9,7 @@
 #include "renderInstance.h"
 #include "batch.h"
 #include "gl.h"
-#include "materialGpuData.h"
+#include "materialRenderData.h"
 
 namespace phi
 {
@@ -22,9 +22,8 @@ namespace phi
         const uint MAX_MATERIALS_COUNT = 512;
         map<material*, uint> _materialsMaterialsGpu;
         const gl* _gl;
-        buffer<materialGpuData>* _materialsBuffer;
+        buffer<materialRenderData>* _materialRenderDataBuffer;
         buffer<frameUniformBlock>* _frameUniformBlockBuffer;
-        buffer<vector<GLuint64>>* _texturesHandlesBuffer;
 
         vector<batch*> _batches;
         map<mesh*, batch*> _meshesBatches;
@@ -50,7 +49,7 @@ namespace phi
         RENDERING_API void render();
 
         vector<batch*> getBatches() { return _batches; }
-        void bindMaterialsIdsBuffer() { _materialsBuffer->bindBufferBase(1); }
+        void bindMaterialsIdsBuffer() { _materialRenderDataBuffer->bindBufferBase(1); }
 
     public:
         RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);

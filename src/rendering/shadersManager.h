@@ -19,8 +19,6 @@ namespace phi
 
         RENDERING_API shader* loadCrazyFuckerSpecificShader(const string& name);
         RENDERING_API shader* load(string name, const vector<string>& attributes);
-        RENDERING_API shader* get(string name);
-        RENDERING_API void reloadAllShaders();
         RENDERING_API void reloadShader(string vertFileName);
     };
 }

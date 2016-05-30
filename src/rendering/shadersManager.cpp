@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "shadersManager.h"
 
+#include <diagnostics\stopwatch.h>
+
 #include <io\path.h>
 
 namespace phi
@@ -24,8 +26,8 @@ namespace phi
             attribs.push_back("inPosition");
             attribs.push_back("inTexCoord");
             attribs.push_back("inModelMatrix");
-            auto shader = load(name, attribs);
 
+            auto shader = load(name, attribs);
             shader->addUniform(0, "textureArrays");
 
             return shader;
@@ -56,10 +58,10 @@ namespace phi
             gBufferShaderAttribs.push_back("inMaterialId");
             gBufferShaderAttribs.push_back("inModelMatrix");
 
-            auto gBufferShader = load(name, gBufferShaderAttribs);
-            gBufferShader->addUniform(0, "textureArrays");
+            auto shader = load(name, gBufferShaderAttribs);
+            shader->addUniform(0, "textureArrays");
 
-            return gBufferShader;
+            return shader;
         }
         else if (name == "lightingPass")
         {
@@ -67,10 +69,10 @@ namespace phi
             lightingShaderAttribs.push_back("inPosition");
             lightingShaderAttribs.push_back("inTexCoord");
 
-            auto lightingShader = load(name, lightingShaderAttribs);
-            lightingShader->addUniform(0, "textureArrays");
+            auto shader = load(name, lightingShaderAttribs);
+            shader->addUniform(0, "textureArrays");
 
-            return lightingShader;
+            return shader;
         }
 
         return nullptr;
@@ -86,27 +88,6 @@ namespace phi
         _shaders[name] = shader;
 
         return shader;
-    }
-
-    shader* shadersManager::get(string name)
-    {
-        if (_shaders.find(name) == _shaders.end())
-            return nullptr;
-        else
-            return _shaders[name];
-    }
-
-    void shadersManager::reloadAllShaders()
-    {
-        for (auto& pair : _shaders)
-        {
-            auto shader = pair.second;
-            while (!shader->reload())
-            {
-                phi::debug("\nFailed \"" + pair.first + "\" shader compilation.\nPress enter to try again...\n");
-                std::cin.get();
-            }
-        }
     }
 
     void shadersManager::reloadShader(string shaderName)

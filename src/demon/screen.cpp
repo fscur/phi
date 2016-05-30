@@ -152,11 +152,11 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneLayer = layerBuilder::buildScene(_gl, (float) _width, float(_height));
+        auto sceneLayer = layerBuilder::buildScene(_gl, (float) _width, (float)_height);
         sceneLayer->add(floor);
         sceneLayer->add(chair);
 
-        auto nandinhoLayer = layerBuilder::buildUI(_gl, (float) _width, float(_height));
+        auto nandinhoLayer = layerBuilder::buildUI(_gl, (float) _width/5, (float)_height/5);
         nandinhoLayer->add(labelNandinho);
         nandinhoLayer->add(_labelFps);
 
@@ -197,7 +197,6 @@ namespace demon
     void screen::onUpdate()
     {
         _scene->update();
-        //_ui->update();
 
         phi::floatAnimator::update();
         _defaultController->update();
@@ -210,9 +209,6 @@ namespace demon
 
     void screen::onRender()
     {
-        //_scene->render();
-        //_ui->render();
-
         if(_design)
             _designContext->render();
         else

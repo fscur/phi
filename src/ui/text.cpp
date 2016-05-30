@@ -4,9 +4,9 @@
 namespace phi
 {
     text::text(string name) :
-        component(component::TEXT_RENDERER, name),
+        component(component::TEXT, name),
         _font(nullptr),
-        _controlRenderer(nullptr),
+        _control(nullptr),
         _text(L""),
         _color(color::black)
     {
@@ -16,21 +16,21 @@ namespace phi
     {
     }
 
-    void text::updateControlRenderer()
+    void text::updateControl()
     {
-        vec2 t = _font->measureText(_text);
-        _controlRenderer->setSize(vec3(t, 0.0f));
+        vec2 textSize = _font->measureText(_text);
+        _control->setSize(vec3(textSize, 0.0f));
     }
 
     inline void text::setText(wstring value) 
     { 
         _text = value; 
-        updateControlRenderer();
+        updateControl();
     }
 
     inline void text::setFont(font * value)
     { 
         _font = value; 
-        updateControlRenderer();
+        updateControl();
     }
 }

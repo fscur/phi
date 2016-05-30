@@ -1,7 +1,5 @@
 #include <precompiled.h>
 #include "scene.h"
-#include <rendering\materialGpuData.h>
-#include <rendering\renderInstance.h>
 
 #include "sceneId.h"
 

@@ -7,6 +7,7 @@
 #include <rendering\texturesManager.h>
 #include <rendering\fontsManager.h>
 #include <rendering\vertexBuffer.h>
+#include <rendering\glyphRenderData.h>
 
 namespace phi
 {
@@ -34,11 +35,11 @@ namespace phi
         vertexBuffer<mat4>* _modelMatricesBuffer;
         vertexBuffer<uint>* _glyphIdsBuffer;
         buffer<uint>* _ebo;
-        buffer<glyphInfo>* _glyphInfoBuffer;
+        buffer<glyphRenderData>* _glyphRenderDataBuffer;
 
         GLuint _vao;
         vector<mat4> _modelMatrices;
-        vector<glyphInfo> _glyphInfos;
+        vector<glyphRenderData> _glyphRenderData;
 
     private:
         void initShader();

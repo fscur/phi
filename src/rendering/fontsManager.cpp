@@ -96,7 +96,7 @@ namespace phi
         auto h = static_cast<GLsizei>(glyph->bitmapHeight);
         auto r = 1.0f / (float)_glyphAtlasSize;
 
-        glyph->texPos = vec2((float)x * r, (float)y * r);
+        glyph->texPosition = vec2((float)x * r, (float)y * r);
         glyph->texSize = vec2((float)w * r, (float)h * r);
         glyph->texUnit = _glyphAtlasTextureAddress.unit;
         glyph->texPage = _glyphAtlasTextureAddress.page;
