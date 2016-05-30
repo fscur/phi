@@ -144,16 +144,16 @@ namespace phi
             }
         }
 
-		return new image(w, h, imageDataFormat::rgba, imageDataType::ubyte_dataType, data);
+        return new image(w, h, imageDataFormat::rgba, imageDataType::ubyte_dataType, data);
     }
 
     material* gl::createDefaultMaterial()
     {
         return new material(
-			defaultAlbedoImage,
-			defaultNormalImage,
-			defaultSpecularImage,
-			defaultEmissiveImage,
+            defaultAlbedoImage,
+            defaultNormalImage,
+            defaultSpecularImage,
+            defaultEmissiveImage,
             vec3(1.0f),
             vec3(1.0f),
             vec3(1.0f),

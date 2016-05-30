@@ -14,10 +14,10 @@ namespace phi
         _modelMatricesBuffer(nullptr),
         _glyphIdsBuffer(nullptr),
         _ebo(nullptr),
-        _glyphInfoBuffer(nullptr),
+        _glyphRenderDataBuffer(nullptr),
         _vao(0u),
         _modelMatrices(vector<mat4>()),
-        _glyphInfos(vector<glyphInfo>())
+        _glyphRenderData(vector<glyphRenderData>())
     {
         initShader();
         createQuad();
@@ -31,7 +31,7 @@ namespace phi
         safeDelete(_modelMatricesBuffer);
         safeDelete(_glyphIdsBuffer);
         safeDelete(_ebo);
-        safeDelete(_glyphInfoBuffer);
+        safeDelete(_glyphRenderDataBuffer);
     }
 
     void textRenderPass::initShader()
@@ -121,13 +121,13 @@ namespace phi
 
     void textRenderPass::createGlyphInfoBuffer()
     {
-        _glyphInfoBuffer = new buffer<glyphInfo>(bufferTarget::shader);
-        _glyphInfoBuffer->data(sizeof(glyphInfo), nullptr, bufferDataUsage::dynamicDraw);
+        _glyphRenderDataBuffer = new buffer<glyphRenderData>(bufferTarget::shader);
+        _glyphRenderDataBuffer->data(sizeof(glyphRenderData), nullptr, bufferDataUsage::dynamicDraw);
     }
 
     void textRenderPass::updateBuffers()
     {
-        size_t glyphCount = _glyphInfos.size();
+        size_t glyphCount = _glyphRenderData.size();
         vector<uint> glyphIds;
 
         for (uint i = 0u; i < glyphCount; i++)
@@ -135,7 +135,7 @@ namespace phi
 
         _glyphIdsBuffer->data(sizeof(uint) * glyphCount, &glyphIds[0], bufferDataUsage::dynamicDraw);
         _modelMatricesBuffer->data(sizeof(mat4) * _modelMatrices.size(), &_modelMatrices[0], bufferDataUsage::dynamicDraw);
-        _glyphInfoBuffer->data(sizeof(glyphInfo) * glyphCount, &_glyphInfos[0], bufferDataUsage::dynamicDraw);
+        _glyphRenderDataBuffer->data(sizeof(glyphRenderData) * glyphCount, &_glyphRenderData[0], bufferDataUsage::dynamicDraw);
     }
 
     void textRenderPass::addText(const textRenderData& renderData)
@@ -178,15 +178,15 @@ namespace phi
 
             float shift = std::abs(x0 - static_cast<int>(x0));
 
-            glyphInfo info;
-            info.pos = glyph->texPos;
+            glyphRenderData info;
+            info.position = glyph->texPosition;
             info.size = glyph->texSize;
             info.shift = shift;
             info.unit = glyph->texUnit;
             info.page = glyph->texPage;
             info.color = renderData.color;
 
-            _glyphInfos.push_back(info);
+            _glyphRenderData.push_back(info);
 
             previousGlyph = glyph;
         }
@@ -201,7 +201,7 @@ namespace phi
     void textRenderPass::update(const vector<textRenderData>& texts)
     {
         _modelMatrices.clear();
-        _glyphInfos.clear();
+        _glyphRenderData.clear();
 
         for (auto& item : texts)
             addText(item);
@@ -211,7 +211,7 @@ namespace phi
 
     void textRenderPass::render() const
     {
-        _glyphInfoBuffer->bindBufferBase(0);
+        _glyphRenderDataBuffer->bindBufferBase(0);
 
         auto texelSize = 1.0f / (float)_fontsManager->getGlyphAtlasSize();
 
@@ -228,7 +228,7 @@ namespace phi
         _shader->setUniform(3, glm::vec2(texelSize, texelSize));
 
         glBindVertexArray(_vao);
-        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_glyphInfos.size()));
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_glyphRenderData.size()));
         glBindVertexArray(0);
 
         _shader->unbind();

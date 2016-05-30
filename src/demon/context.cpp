@@ -10,6 +10,11 @@ namespace demon
     {
     }
 
+    context::context(vector<layer*>&& layers) :
+        _layers(layers)
+    {
+    }
+
     context::~context()
     {
         for (auto& layer : _layers)

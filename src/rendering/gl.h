@@ -83,7 +83,7 @@ namespace phi
         void initOpenGLExtensions();
         void initState();
         void createDefaultResources(const bool& hasSparseTextures);
-		image* createDefaultMaterialImage(const bool& hasSparseTextures, const vec4& color);
+        image* createDefaultMaterialImage(const bool& hasSparseTextures, const vec4& color);
         material* createDefaultMaterial();
 
     public:

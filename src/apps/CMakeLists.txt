@@ -22,7 +22,6 @@ endif(WIN32)
 add_library(apps SHARED ${source_files} ${header_files} ${natvis_files})
 
 target_link_libraries(apps core)
-target_link_libraries(apps io)
 target_link_libraries(apps rendering)
 
 find_package(OPENGL REQUIRED)

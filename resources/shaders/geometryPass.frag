@@ -1,5 +1,5 @@
 #version 450
-//#extension GL_ARB_bindless_texture: enable
+#extension GL_ARB_bindless_texture: enable
 
 struct materialGpuData
 {
@@ -21,8 +21,8 @@ struct materialGpuData
     float pad0;
     float pad1;
     float pad2;
-}
-;
+};
+
 layout (std140, binding = 1) buffer Materials
 {
     materialGpuData items[];

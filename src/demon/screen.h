@@ -30,6 +30,7 @@ namespace demon
         library* _projectLibrary;
 
         context* _designContext;
+        context* _constructionContext;
 
         phi::ui* _ui;
         phi::node* _labelFps;
