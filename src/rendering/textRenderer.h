@@ -32,6 +32,6 @@ namespace phi
         RENDERING_API ~textRenderer();
 
         RENDERING_API void add(textRenderData* renderData);
-        RENDERING_API void render(shader* shader);
+        RENDERING_API void render(program* program);
     };
 }

@@ -40,3 +40,9 @@ set(BULLET_DYNAMICS_LIBRARY optimized "${ROOT_DIR}libs/win64/vc++/BulletCollisio
 set(BULLET_MATH_LIBRARY optimized "${ROOT_DIR}libs/win64/vc++/LinearMath" debug "${ROOT_DIR}libs/win64/vc++/LinearMath_Debug" CACHE PATH "")
 set(BULLET_SOFTBODY_LIBRARY optimized "${ROOT_DIR}libs/win64/vc++/BulletSoftBody" debug "${ROOT_DIR}libs/win64/vc++/BulletSoftBody_Debug" CACHE PATH "")
 set(ASSIMP_LIBRARY optimized "assimp" debug "assimpd" CACHE PATH "")
+
+set(GLSLANG_LIBRARY optimized "glslang" debug "glslang" CACHE PATH "")
+set(GLSLANG_OSDEPENDENT_LIBRARY optimized "OSDependent" debug "OSDependent" CACHE PATH "")
+set(GLSLANG_OGLCOMPILER_LIBRARY optimized "OGLCompiler" debug "OGLCompiler" CACHE PATH "")
+set(GLSLANG_HLSL_LIBRARY optimized "HLSL" debug "HLSL" CACHE PATH "")
+

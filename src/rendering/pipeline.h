@@ -4,7 +4,6 @@
 #include <core\node.h>
 #include <core\image.h>
 
-#include "renderer.h"
 #include "frameUniformBlock.h"
 #include "renderInstance.h"
 #include "batch.h"
@@ -28,9 +27,6 @@ namespace phi
         vector<batch*> _batches;
         map<mesh*, batch*> _meshesBatches;
         map<material*, uint> _materialsIndices;
-
-    public:
-        renderer* _renderer;
 
     private:
         void createFrameUniformBlockBuffer();

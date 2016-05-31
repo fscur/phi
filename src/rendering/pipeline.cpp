@@ -6,8 +6,7 @@ namespace phi
     map<image*, texture*> pipeline::_imageTextures = map<image*, texture*>();
 
     pipeline::pipeline(gl* gl, float w, float h) :
-        _gl(gl),
-        _renderer(new renderer(gl, w, h))
+        _gl(gl)
     {
         createFrameUniformBlockBuffer();
         createMaterialsBuffer();
@@ -17,7 +16,6 @@ namespace phi
     {
         safeDelete(_frameUniformBlockBuffer);
         safeDelete(_materialRenderDataBuffer);
-        safeDelete(_renderer);
 
         for (auto batch : _batches)
             safeDelete(batch);
@@ -163,12 +161,9 @@ namespace phi
     {
         _frameUniformBlockBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniformBlock);
         _frameUniformBlockBuffer->bindBufferBase(0);
-
-        _renderer->update();
     }
 
     void pipeline::render()
     {
-        _renderer->render(_batches);
     }
 }

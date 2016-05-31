@@ -1,104 +1,81 @@
 #include <precompiled.h>
 #include "shader.h"
 #include "glError.h"
+#include "glslCompiler.h"
 
 namespace phi
 {
-    shader::shader(
-        string vertexFile,
-        string fragmentFile,
-        const vector<string>& attributes) :
-        _programId(0u),
-        _vertexShaderId(0u),
-        _fragmentShaderId(0u),
-        _vertexFile(vertexFile),
-        _fragmentFile(fragmentFile),
-        _initialized(false),
-        _uniforms(map<uint, GLuint>()),
-        _attributes(attributes)
+    shader::shader(const string& fileName) :
+        _fileName(fileName)
     {
+        _stage = getStage(fileName);
+
+        switch (_stage)
+        {
+        case phi::shaderStage::vertex:
+            _id = glCreateShader(GL_VERTEX_SHADER);
+            break;
+        case phi::shaderStage::tesselationControl:
+            _id = glCreateShader(GL_TESS_CONTROL_SHADER);
+            break;
+        case phi::shaderStage::tesselationEvaluation:
+            _id = glCreateShader(GL_TESS_EVALUATION_SHADER);
+            break;
+        case phi::shaderStage::geometry:
+            _id = glCreateShader(GL_GEOMETRY_SHADER);
+            break;
+        case phi::shaderStage::fragment:
+            _id = glCreateShader(GL_FRAGMENT_SHADER);
+            break;
+        case phi::shaderStage::compute:
+            _id = glCreateShader(GL_COMPUTE_SHADER);
+            break;
+        default:
+            break;
+        }
+
+        _content = load(fileName);
+
+        compile();
+
+#if _DEBUG
+        validate();
+#endif
     }
 
     shader::~shader()
     {
-        if (!_initialized)
-            return;
-
-        unbind();
-
-        glDetachShader(_programId, _vertexShaderId);
-        glError::check();
-        glDetachShader(_programId, _fragmentShaderId);
-        glError::check();
-
-        glDeleteShader(_vertexShaderId);
-        glError::check();
-        glDeleteShader(_fragmentShaderId);
-        glError::check();
-
-        glDeleteProgram(_programId);
+        glDeleteShader(_id);
         glError::check();
     }
 
-    bool shader::init()
+    shaderStage::shaderStage shader::getStage(const string& fileName)
     {
-        if (_initialized)
-            return true;
+        size_t ext = fileName.rfind('.');
+        if (ext == string::npos)
+        {
+            return shaderStage::vertex;
+        }
 
-        bool result = true;
+        string suffix = fileName.substr(ext + 1, string::npos);
 
-        _vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-        glError::check();
+        if (suffix == "vert")
+            return shaderStage::vertex;
+        else if (suffix == "tesc")
+            return shaderStage::tesselationControl;
+        else if (suffix == "tese")
+            return shaderStage::tesselationEvaluation;
+        else if (suffix == "geom")
+            return shaderStage::geometry;
+        else if (suffix == "frag")
+            return shaderStage::fragment;
+        else if (suffix == "comp")
+            return shaderStage::compute;
 
-        _fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-        glError::check();
-
-        result = compileShader(_vertexShaderId, _vertexFile);
-        result = compileShader(_fragmentShaderId, _fragmentFile);
-
-        _programId = glCreateProgram();
-        glError::check();
-
-        glAttachShader(_programId, _vertexShaderId);
-        glError::check();
-
-        glAttachShader(_programId, _fragmentShaderId);
-        glError::check();
-
-        initializeAttributes();
-
-        glLinkProgram(_programId);
-        glError::check();
-
-#if _DEBUG
-        result = validateProgram(_programId);
-        if (!result)
-            return false;
-#endif
-        _initialized = true;
-
-        return result;
+        return shaderStage::vertex;
     }
 
-    bool shader::compileShader(GLuint shaderId, string& file)
-    {
-        auto result = true;
-        auto content = loadShaderFile(file.c_str());
-        auto contentText = content.c_str();
-        glShaderSource(shaderId, 1, &contentText, 0);
-        glError::check();
-
-        glCompileShader(shaderId);
-        glError::check();
-
-#if _DEBUG
-        result = validateShader(shaderId, _fragmentFile.c_str());
-#endif
-
-        return result;
-    }
-
-    string shader::loadShaderFile(string fileName)
+    string shader::load(const string& fileName)
     {
         string fileString;
         string line;
@@ -120,202 +97,40 @@ namespace phi
         return fileString;
     }
 
-    bool shader::validateShader(GLuint shader, const string& file)
+    bool shader::compile()
     {
-        GLint success = 0;
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        auto result = true;
+        auto source = _content.c_str();
+        glShaderSource(_id, 1, &source, 0);
         glError::check();
 
-        const unsigned int BUFFER_SIZE = 512;
-        char buffer[BUFFER_SIZE];
-        memset(buffer, 0, BUFFER_SIZE);
-        GLsizei length = 0;
-
-        glGetShaderInfoLog(shader, BUFFER_SIZE, &length, buffer);
+        glCompileShader(_id);
         glError::check();
 
-        if (length > 0)
-            std::cout << "shader " << shader << " (" << (file.c_str() ? file : "") << ") compile info:\n" << buffer << std::endl;
-
-        return success == GL_TRUE && length == 0;
-    }
-
-    bool shader::validateProgram(GLuint program)
-    {
-        const unsigned int BUFFER_SIZE = 512;
-        char buffer[BUFFER_SIZE];
-        memset(buffer, 0, BUFFER_SIZE);
-        GLsizei length = 0;
-
-        glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer);
-        glError::check();
-
-        if (length > 0)
-            std::cout << "Program " << program << " link info:\n" << buffer << std::endl;
-
-        GLint isLinked = 0;
-
-        glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
-        glError::check();
-
-        return isLinked == GL_TRUE;
-    }
-
-    void shader::createUniform(uint location, const string & name)
-    {
-        _uniforms[location] = glGetUniformLocation(_programId, name.c_str());
-        glError::check();
-    }
-
-    void shader::initializeAttributes()
-    {
-        for (uint i = 0; i < _attributes.size(); ++i)
-        {
-            glBindAttribLocation(_programId, i, _attributes[i].c_str());
-            glError::check();
-        }
-    }
-
-    void shader::addUniform(uint location, string name)
-    {
-        if (!_initialized)
-            return;
-
-        _uniformsNames[location] = name;
-        createUniform(location, name);
-    }
-
-    void shader::setUniform(uint location, texture* value, GLuint index)
-    {
-        glActiveTexture(GL_TEXTURE0 + index);
-        glError::check();
-
-        glBindTexture(value->type, value->id);
-        glError::check();
-
-        glUniform1i(_uniforms[location], index);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, GLuint value)
-    {
-        glUniform1i(_uniforms[location], value);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, GLfloat value)
-    {
-        glUniform1f(_uniforms[location], value);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, color value)
-    {
-        glUniform4f(_uniforms[location], value.r, value.g, value.b, value.a);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, mat3 value)
-    {
-        glUniformMatrix3fv(_uniforms[location], 1, GL_FALSE, &value[0][0]);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, mat4 value)
-    {
-        glUniformMatrix4fv(_uniforms[location], 1, GL_FALSE, &value[0][0]);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, vec2 value)
-    {
-        glUniform2f(_uniforms[location], value.x, value.y);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, vec3 value)
-    {
-        glUniform3f(_uniforms[location], value.x, value.y, value.z);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, vec4 value)
-    {
-        glUniform4f(_uniforms[location], value.x, value.y, value.z, value.w);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, bool value)
-    {
-        glUniform1f(_uniforms[location], value ? 1.0f : 0.0f);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, int value)
-    {
-        glUniform1i(_uniforms[location], value);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, GLuint64 value)
-    {
-        glUniformHandleui64ARB(_uniforms[location], value);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, vector<GLint> value)
-    {
-        glUniform1iv(_uniforms[location], static_cast<GLsizei>(value.size()), &value[0]);
-        glError::check();
-    }
-
-    void shader::setUniform(uint location, vector<GLuint64> value)
-    {
-        glUniformHandleui64vARB(_uniforms[location], static_cast<GLsizei>(value.size()), value.data());
-        glError::check();
-    }
-
-    void shader::bind()
-    {
-        if (!_initialized)
-            return;
-
-        glUseProgram(_programId);
-        glError::check();
-    }
-
-    void shader::unbind()
-    {
-        if (!_initialized)
-            return;
-
-        glUseProgram(0);
-        glError::check();
-    }
-
-    bool shader::reload()
-    {
-        unbind();
-        glLinkProgram(_programId);
-        glError::check();
-        bool result = validateProgram(_programId);
-
-        if (result)
-        {
-            for (auto& pair : _uniformsNames)
-            {
-                createUniform(pair.first, pair.second);
-            }
-        }
+#if _DEBUG
+        result = validate();
+#endif
 
         return result;
     }
 
-    bool shader::canCompileShader()
+    bool shader::validate()
     {
-        auto canCompileFragment = compileShader(_fragmentShaderId, _fragmentFile);
-        auto canCompileVertex = compileShader(_vertexShaderId, _vertexFile);
+        GLint success = 0;
+        glGetShaderiv(_id, GL_COMPILE_STATUS, &success);
+        glError::check();
 
-        return canCompileFragment && canCompileVertex;
+        const unsigned int BUFFER_SIZE = 512;
+        char buffer[BUFFER_SIZE];
+        memset(buffer, 0, BUFFER_SIZE);
+        GLsizei length = 0;
+
+        glGetShaderInfoLog(_id, BUFFER_SIZE, &length, buffer);
+        glError::check();
+
+        if (length > 0)
+            std::cout << "shader " << _id << " (" << (!_fileName.empty() ? _fileName : "") << ") compile info:\n" << buffer << std::endl;
+
+        return success == GL_TRUE && length == 0;
     }
 }

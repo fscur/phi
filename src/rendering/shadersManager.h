@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-#include "shader.h"
+#include "program.h"
 
 namespace phi
 {
@@ -9,7 +9,7 @@ namespace phi
     {
     private:
         string _path;
-        std::map<string, shader*> _shaders;
+        std::map<string, program*> _programs;
 
     public:
         shadersManager(string path);
@@ -17,8 +17,10 @@ namespace phi
         static constexpr const char* VERT_EXT = ".vert";
         static constexpr const char* FRAG_EXT = ".frag";
 
-        RENDERING_API shader* loadCrazyFuckerSpecificShader(const string& name);
-        RENDERING_API shader* load(string name, const vector<string>& attributes);
-        RENDERING_API void reloadShader(string vertFileName);
+        //RENDERING_API program* loadCrazyFuckerSpecificShader(const string& name);
+
+        //RENDERING_API program* load(const string& name);
+        RENDERING_API void reloadAllPrograms();
+		RENDERING_API void reloadProgram(string name);
     };
 }

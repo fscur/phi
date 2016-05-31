@@ -34,6 +34,6 @@ namespace phi
 
 
         RENDERING_API void add(controlRenderData* renderData, transform* transform);
-        RENDERING_API void render(shader* shader);
+        RENDERING_API void render(program* shader);
     };
 }

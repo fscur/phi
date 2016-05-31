@@ -1,12 +1,12 @@
 #version 450
 
-uniform float radius;
-uniform float radiusHiding;
-uniform float scale;
-uniform bool showing;
-uniform int textureArrayIndex;
-uniform float texturePageIndex;
-uniform sampler2DArray textureArrays[32];
+layout (location = 1) uniform float radius;
+layout (location = 2) uniform float radiusHiding;
+layout (location = 3) uniform float scale;
+layout (location = 4) uniform bool showing;
+layout (location = 5) uniform int textureArrayIndex;
+layout (location = 6) uniform float texturePageIndex;
+layout (location = 7) uniform sampler2DArray textureArrays[32];
 
 //layout (std140, binding = 0) uniform FrameUniformsBufferData
 //{

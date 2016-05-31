@@ -65,7 +65,7 @@ namespace phi
         _controlsRenderDataBuffer->data(sizeof(controlRenderData) * _controlsCount, &_renderData[0], bufferDataUsage::dynamicDraw);
     }
 
-    void controlRenderer::render(shader* shader)
+    void controlRenderer::render(program* program)
     {
         _controlsRenderDataBuffer->bindBufferBase(1);
 
@@ -75,14 +75,14 @@ namespace phi
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendColor(1, 1, 1, 1);
 
-        shader->bind();
-        shader->setUniform(0, _gl->texturesManager->units);
+        program->bind();
+        program->setUniform(0, _gl->texturesManager->units);
 
         glBindVertexArray(_vao);
         glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_controlsCount));
         glBindVertexArray(0);
 
-        shader->unbind();
+        program->unbind();
 
         glBlendColor(0, 0, 0, 0);
         glDisable(GL_BLEND);

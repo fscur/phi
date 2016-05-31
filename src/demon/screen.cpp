@@ -56,13 +56,13 @@ namespace demon
         _messageQueue = new blockingQueue<phi::watcherMessage>();
         _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
         {
-            auto fileExtension = path::getExtension(shaderFileName);
+            /*auto fileExtension = path::getExtension(shaderFileName);
             if (fileExtension == phi::shadersManager::FRAG_EXT ||
                 fileExtension == phi::shadersManager::VERT_EXT)
             {
                 auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
                 _gl->shadersManager->reloadShader(shaderName);
-            }
+            }*/
         });
         _watcher->startWatch();
 #endif
@@ -143,19 +143,20 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneLayer = layerBuilder::buildScene(_gl, (float) _width, (float)_height);
+        auto sceneLayer = layerBuilder::buildScene(application::resourcesPath, _gl, (float) _width, (float)_height);
         sceneLayer->add(floor);
         sceneLayer->add(chair);
 
-        auto nandinhoLayer = layerBuilder::buildUI(_gl, (float) _width, (float)_height);
+        auto nandinhoLayer = layerBuilder::buildUI(application::resourcesPath, _gl, (float) _width, (float)_height);
         nandinhoLayer->add(labelNandinho);
         nandinhoLayer->add(_labelFps);
 
-        auto constructionLayer = layerBuilder::buildUI(_gl, (float)_width, float(_height));
+        auto constructionLayer = layerBuilder::buildUI(application::resourcesPath, _gl, (float)_width, float(_height));
         constructionLayer->add(constructionLabel);
 
         _designContext = new context({ sceneLayer, nandinhoLayer });
         _constructionContext = new context({ sceneLayer, constructionLayer });
+
     }
 
     bool _design = true;

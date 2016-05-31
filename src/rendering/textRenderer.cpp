@@ -33,8 +33,6 @@ namespace phi
         vector<vertexAttrib> textVboAttribs;
         textVboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         textVboAttribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-        textVboAttribs.push_back(vertexAttrib(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
-        textVboAttribs.push_back(vertexAttrib(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
         auto textVbo = new vertexBuffer<vertex>(textVboAttribs);
         textVbo->storage(textQuad->vboSize, textQuad->vboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
@@ -43,14 +41,14 @@ namespace phi
         textEbo->storage(textQuad->eboSize, textQuad->eboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
         vector<vertexAttrib> glyphsIdsAttribs;
-        glyphsIdsAttribs.push_back(vertexAttrib(4, 1, GL_UNSIGNED_INT, 0, 0, 1));
+        glyphsIdsAttribs.push_back(vertexAttrib(2, 1, GL_UNSIGNED_INT, 0, 0, 1));
         _glyphIdsBuffer = new vertexBuffer<uint>(glyphsIdsAttribs);
         _glyphIdsBuffer->data(sizeof(uint), nullptr, bufferDataUsage::dynamicDraw);
 
         vector<vertexAttrib> textModelMatricesAttribs;
 
         for (uint i = 0; i < 4; ++i)
-            textModelMatricesAttribs.push_back(vertexAttrib(5 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
+            textModelMatricesAttribs.push_back(vertexAttrib(3 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
         _modelMatricesBuffer = new vertexBuffer<mat4>(textModelMatricesAttribs);
         _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
@@ -121,7 +119,7 @@ namespace phi
         _renderDataBuffer->data(sizeof(glyphRenderData) * glyphCount, &_renderData[0], bufferDataUsage::dynamicDraw);
     }
 
-    void textRenderer::render(shader * shader)
+    void textRenderer::render(program * program)
     {
         _renderDataBuffer->bindBufferBase(1);
 
@@ -133,15 +131,15 @@ namespace phi
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBlendColor(1, 1, 1, 1);
 
-        shader->bind();
-        shader->setUniform(0, _gl->texturesManager->units);
-        shader->setUniform(1, glm::vec2(texelSize, texelSize));
+        program->bind();
+        program->setUniform(0, glm::vec2(texelSize, texelSize));
+        program->setUniform(1, _gl->texturesManager->units);
 
         glBindVertexArray(_vao);
         glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_renderData.size()));
         glBindVertexArray(0);
 
-        shader->unbind();
+        program->unbind();
 
         glBlendColor(0, 0, 0, 0);
         glDisable(GL_BLEND);
