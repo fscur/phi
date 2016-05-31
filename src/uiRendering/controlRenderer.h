@@ -30,11 +30,11 @@ namespace phi
         void createBuffers();
 
     public:
-        RENDERING_API controlRenderer(gl* gl);
-        RENDERING_API ~controlRenderer();
+        UI_RENDERING_API controlRenderer(gl* gl);
+        UI_RENDERING_API ~controlRenderer();
 
 
-        RENDERING_API void add(controlRenderData* renderData, transform* transform);
-        RENDERING_API void render(program* shader);
+        UI_RENDERING_API void add(controlRenderData* renderData, transform* transform);
+        UI_RENDERING_API void render(program* shader);
     };
 }

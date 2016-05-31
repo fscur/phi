@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include "contextApi.h"
 
 #include <rendering\gl.h>
 #include <rendering\program.h>
@@ -17,7 +18,7 @@ namespace demon
         static phi::program* buildLightingRenderPassProgram(const phi::string& shadersPath);
 
     public:
-        static layer* buildScene(const phi::string& resourcesPath, phi::gl* gl, float width, float height);
-        static layer* buildUI(const phi::string& resourcesPath, phi::gl* gl, float width, float height);
+        CONTEXT_API static layer* buildScene(const phi::string& resourcesPath, phi::gl* gl, float width, float height);
+        CONTEXT_API static layer* buildUI(const phi::string& resourcesPath, phi::gl* gl, float width, float height);
     };
 }

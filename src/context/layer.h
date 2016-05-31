@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include "contextApi.h"
 
 #include <core\node.h>
 #include <rendering\renderPass.h>
@@ -29,7 +30,7 @@ namespace demon
         layer(phi::camera* camera, phi::vector<phi::renderPass*>&& renderPasses);
         ~layer();
 
-        void add(phi::node* node);
+        CONTEXT_API void add(phi::node* node);
 
         void update();
         void render();

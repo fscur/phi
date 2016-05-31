@@ -14,7 +14,7 @@ file(GLOB natvis_files *.natvis)
 
 add_library(animation SHARED ${source_files} ${header_files} ${natvis_files})
 
-target_link_libraries(animation diagnostics)
+target_link_libraries(animation diagnostic)
 target_link_libraries(animation core)
 
 if (MINGW)

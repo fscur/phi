@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include "contextApi.h"
 
 #include "layer.h"
 
@@ -10,11 +11,11 @@ namespace demon
     private:
         phi::vector<layer*> _layers;
     public:
-        context(phi::vector<layer*>& layers);
-        context(phi::vector<layer*>&& layers);
-        ~context();
+        CONTEXT_API context(phi::vector<layer*>& layers);
+        CONTEXT_API context(phi::vector<layer*>&& layers);
+        CONTEXT_API ~context();
 
-        void update();
-        void render();
+        CONTEXT_API void update();
+        CONTEXT_API void render();
     };
 }
