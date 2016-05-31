@@ -2,23 +2,17 @@
 #include <phi.h>
 #include "uiApi.h"
 #include <core\geometry.h>
+
 #include <rendering\gl.h>
 #include <rendering\camera.h>
 #include <rendering\texturesManager.h>
 #include <rendering\fontsManager.h>
 #include <rendering\vertexBuffer.h>
 #include <rendering\glyphRenderData.h>
+#include <rendering\textRenderData.h>
 
 namespace phi
 {
-    struct textRenderData
-    {
-        font* font;
-        vec3 position;
-        wstring text;
-        color color;
-    };
-
     class textRenderPass
     {
     private:

@@ -119,24 +119,24 @@ namespace demon
         auto fontFps = _gl->fontsManager->load("Roboto-Thin.ttf", 12);
 
         auto labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1", _gl)
-            .withPosition(vec3(-100.0f, 0.0f, 0.0f))
+            .withPosition(vec3(-100.f, 0.f, 0.f))
+            .withControlColor(.4f, .7f, .9f, 1.f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
-            .withControlColor(0.4f, 0.7f, 0.9f, 1.0f)
-            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
             .build();
 
         _labelFps = labelBuilder::newLabel(L"press ctrl + space to change context bro \\m/", _gl)
-            .withPosition(vec3(-200.0f, 100.0f, 0.0f))
+            .withPosition(vec3(-200.f, 100.f, 0.f))
+            .withControlColor(.7f, .5f, .9f, 1.f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(fontFps)
-            .withControlColor(.7f, .5f, .9f, 1.0f)
-            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
             .build();
 
         auto constructionLabel = labelBuilder::newLabel(L"construction layer says hello!1", _gl)
             .withPosition(vec3(-200.f, 100.f, 0.f))
+            .withControlColor(.9f, .6f, .9f, 1.f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
-            .withControlColor(.9f, .6f, .9f, 1.0f)
-            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
             .build();
 
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();

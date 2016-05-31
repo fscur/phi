@@ -1,10 +1,13 @@
 #pragma once
 #include <phi.h>
 #include "uiApi.h"
-#include "controlRenderData.h"
+
+#include <core\geometry.h>
+
+#include <rendering\controlRenderData.h>
 #include <rendering\gl.h>
 #include <rendering\camera.h>
-#include <core\geometry.h>
+
 #include <rendering\vertexBuffer.h>
 
 namespace phi

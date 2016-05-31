@@ -35,7 +35,7 @@ namespace phi
         return _label;
     }
 
-    inline labelBuilder phi::labelBuilder::newLabel(wstring text, gl* gl)
+    labelBuilder phi::labelBuilder::newLabel(wstring text, gl* gl)
     {
         auto node = new phi::node("label");
         auto control = new phi::control("labelControl");

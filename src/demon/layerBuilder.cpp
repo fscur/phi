@@ -5,13 +5,16 @@
 #include <rendering\frameBuffer.h>
 #include <rendering\texture.h>
 #include <rendering\camera.h>
+#include <rendering\controlRenderer.h>
+#include <rendering\textRenderer.h>
+
+#include <rendering\controlRenderData.h>
+#include <rendering\textRenderData.h>
 
 #include <scenes\sceneId.h>
 
 #include <ui\control.h>
-#include <ui\controlRenderData.h>
 #include <ui\text.h>
-#include <ui\textRenderPass.h>
 
 namespace demon
 {
@@ -232,7 +235,12 @@ namespace demon
         //_finalImageFramebuffer->blitToDefault(_finalImageRT);
         //generateFinalImageMipMaps();
 
-        auto sceneLayer = new layer({ gBuffer, lighting });
+        auto sceneCamera = new camera("sceneCamera", width, height, 0.1f, 10000.0f, PI_OVER_4);
+        auto sceneLayer = new layer(sceneCamera, { gBuffer, lighting });
+        auto cameraPosition = vec3(0.0f, 0.0f, 10.0f);
+        sceneCamera->getTransform()->setLocalPosition(cameraPosition);
+        sceneCamera->getTransform()->setDirection(-cameraPosition);
+
         sceneLayer->setOnNodeAdded([=](node* addedChild)
         {
             addedChild->traverse([=](phi::node* node)
@@ -251,181 +259,27 @@ namespace demon
 
     layer* layerBuilder::buildUI(gl* gl, float width, float height)
     {
-        /////////////// BUFFERS ///////////////
-
-        auto uiCamera = new camera("uiCamera", width, height, 0.1f, 10000.0f, PI_OVER_4);
-
-        auto cameraNode = new node("uiCamera");
-        cameraNode->addComponent(uiCamera);
-
-        uiCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        uiCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
-
-        auto frameUniformBlockBuffer = new buffer<frameUniformBlock>(bufferTarget::uniform);
-
-        auto frameUniform = frameUniformBlock();
-        frameUniform.p = uiCamera->getProjectionMatrix();
-        frameUniform.v = uiCamera->getViewMatrix();
-        frameUniform.vp = frameUniform.p * frameUniform.v;
-        frameUniform.ip = glm::inverse(frameUniform.p);
-
-        frameUniformBlockBuffer->storage(
-            sizeof(phi::frameUniformBlock),
-            &frameUniform,
-            bufferStorageUsage::dynamic | bufferStorageUsage::write);
-
-        auto vertices = vector<vertex>
-        {
-            vertex(vec3(0.0f, 0.0f, +0.0f), vec2(0.0f, 0.0f)),
-            vertex(vec3(1.0f, 0.0f, +0.0f), vec2(1.0f, 0.0f)),
-            vertex(vec3(1.0f, 1.0f, +0.0f), vec2(1.0f, 1.0f)),
-            vertex(vec3(0.0f, 1.0f, +0.0f), vec2(0.0f, 1.0f))
-        };
-        auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
-        auto controlQuad = geometry::create(vertices, indices);
-
-        GLuint controlVao;
-        glCreateVertexArrays(1, &controlVao);
-        glBindVertexArray(controlVao);
-
-        vector<vertexAttrib> controlsVboAttribs;
-        controlsVboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
-        controlsVboAttribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-        auto controlsVbo = new vertexBuffer<vertex>(controlsVboAttribs);
-        controlsVbo->storage(controlQuad->vboSize, controlQuad->vboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
-
-        auto controlsEbo = new buffer<uint>(bufferTarget::element);
-        controlsEbo->storage(controlQuad->eboSize, controlQuad->eboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
-
-        vector<vertexAttrib> controlsModelMatricesAttribs;
-        for (uint i = 0; i < 4; ++i)
-            controlsModelMatricesAttribs.push_back(vertexAttrib(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
-        auto controlsModelMatricesBuffer = new vertexBuffer<mat4>(controlsModelMatricesAttribs);
-        controlsModelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
-
-        glBindVertexArray(0);
-
-        auto controlsRenderDataBuffer = new buffer<controlRenderData>(bufferTarget::shader);
-        controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
-        controlsRenderDataBuffer->bindBufferBase(1);
-
-        /////////////// BUFFERS ///////////////
-
-        auto controlsRenderData = new vector<controlRenderData>();
-        auto controlsModelMatrices = new vector<mat4>();
-        auto controls = new vector<control*>();
+        auto controlRenderer = new phi::controlRenderer(gl);
+        auto textRenderer = new phi::textRenderer(gl);
 
         auto controlRenderPass = new renderPass(gl->shadersManager->loadCrazyFuckerSpecificShader("control"));
-
-        controlRenderPass->setOnUpdate([=](phi::shader* shader)
-        {
-        });
-
+        controlRenderPass->setOnUpdate([=](phi::shader* shader) {});
         controlRenderPass->setOnRender([=](phi::shader* shader)
         {
-            frameUniformBlockBuffer->bindBufferBase(0);
-            controlsRenderDataBuffer->bindBufferBase(1);
-
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glBlendColor(1, 1, 1, 1);
-
-            shader->bind();
-            shader->setUniform(0, gl->texturesManager->units);
-
-            glBindVertexArray(controlVao);
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, (GLsizei)controls->size());
-            glBindVertexArray(0);
-
-            shader->unbind();
-
-            glBlendColor(0, 0, 0, 0);
-            glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
+            controlRenderer->render(shader);
         });
-
-        /////////////// TEXT BUFFER ///////////////
-
-        GLuint textVao;
-        glCreateVertexArrays(1, &textVao);
-        glBindVertexArray(textVao);
-
-        auto textQuad = geometry::create(vertices, indices);
-
-        vector<vertexAttrib> textVboAttribs;
-        textVboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
-        textVboAttribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-        textVboAttribs.push_back(vertexAttrib(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
-        textVboAttribs.push_back(vertexAttrib(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
-
-        auto textVbo = new vertexBuffer<vertex>(textVboAttribs);
-        textVbo->storage(textQuad->vboSize, textQuad->vboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
-
-        auto textEbo = new buffer<uint>(bufferTarget::element);
-        textEbo->storage(textQuad->eboSize, textQuad->eboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
-
-        vector<vertexAttrib> glyphsIdsAttribs;
-        glyphsIdsAttribs.push_back(vertexAttrib(4, 1, GL_UNSIGNED_INT, 0, 0, 1));
-        auto glyphIdsBuffer = new vertexBuffer<uint>(glyphsIdsAttribs);
-        glyphIdsBuffer->data(sizeof(uint), nullptr, bufferDataUsage::dynamicDraw);
-
-        vector<vertexAttrib> textModelMatricesAttribs;
-
-        for (uint i = 0; i < 4; ++i)
-            textModelMatricesAttribs.push_back(vertexAttrib(5 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
-
-        auto textModelMatricesBuffer = new vertexBuffer<mat4>(textModelMatricesAttribs);
-        textModelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
-
-        auto glyphInfoBuffer = new buffer<glyphRenderData>(bufferTarget::shader);
-        glyphInfoBuffer->data(sizeof(glyphRenderData), nullptr, bufferDataUsage::dynamicDraw);
-
-        glBindVertexArray(0);
-
-        /////////////// TEXT BUFFER ///////////////
-
-        auto textModelMatrices = new vector<mat4>();
-        auto glyphInfos = new vector<glyphRenderData>();
 
         auto textRenderPass = new renderPass(gl->shadersManager->loadCrazyFuckerSpecificShader("text"));
-        textRenderPass->setOnUpdate([=](shader* shader) {});
-
-        textRenderPass->setOnRender([=](shader* shader)
+        textRenderPass->setOnUpdate([=](phi::shader* shader) {});
+        textRenderPass->setOnRender([=](phi::shader* shader)
         {
-            frameUniformBlockBuffer->bindBufferBase(0);
-            glyphInfoBuffer->bindBufferBase(1);
-
-            auto texelSize = 1.0f / (float)gl->fontsManager->getGlyphAtlasSize();
-
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glBlendColor(1, 1, 1, 1);
-
-            shader->bind();
-            shader->setUniform(0, gl->texturesManager->units);
-            shader->setUniform(1, glm::vec2(texelSize, texelSize));
-
-            glBindVertexArray(textVao);
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(glyphInfos->size()));
-            glBindVertexArray(0);
-
-            shader->unbind();
-
-            glBlendColor(0, 0, 0, 0);
-            glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
-
-            glEnable(GL_CULL_FACE);
+            textRenderer->render(shader);
         });
 
-        auto uiLayer = new layer({ controlRenderPass, textRenderPass });
-
-        auto labels = new vector<text*>();
+        auto uiCamera = new camera("uiCamera", width, height, 0.1f, 10000.0f, PI_OVER_4);
+        auto uiLayer = new layer(uiCamera, { controlRenderPass, textRenderPass });
+        uiCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        uiCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
         uiLayer->setOnNodeAdded([=](node* node)
         {
@@ -435,92 +289,27 @@ namespace demon
                 auto text = currentNode->getComponent<phi::text>();
                 if (control)
                 {
-                    controls->push_back(control);
-
                     auto texture = pipeline::getTextureFromImage(control->getBackgroundImage(), gl->defaultAlbedoImage);
                     auto address = gl->texturesManager->get(texture);
 
-                    auto renderData = controlRenderData();
-                    renderData.backgroundColor = control->getBackgroundColor();
-                    renderData.backgroundTextureUnit = address.unit;
-                    renderData.backgroundTexturePage = address.page;
+                    auto renderData = new controlRenderData();
+                    renderData->backgroundColor = control->getBackgroundColor();
+                    renderData->backgroundTextureUnit = address.unit;
+                    renderData->backgroundTexturePage = address.page;
 
-                    controlsRenderData->push_back(renderData);
-                    controlsModelMatrices->push_back(currentNode->getTransform()->getModelMatrix());
-
-                    controlsModelMatricesBuffer->data(sizeof(mat4) * controls->size(), &controlsModelMatrices->at(0), bufferDataUsage::dynamicDraw);
-                    controlsRenderDataBuffer->data(sizeof(controlRenderData) * controls->size(), &controlsRenderData->at(0), bufferDataUsage::dynamicDraw);
+                    controlRenderer->add(renderData, currentNode->getTransform());
                 }
                 if (text)
                 {
-                    labels->push_back(text);
+                    auto font = text->getFont();
 
-                    auto renderData = textRenderData();
-                    renderData.text = text->getText();
-                    renderData.position = node->getTransform()->getPosition();
-                    renderData.font = text->getFont();
-                    renderData.color = text->getColor();
+                    auto renderData = new textRenderData();
+                    renderData->text = text->getText();
+                    renderData->position = currentNode->getTransform()->getPosition();
+                    renderData->font = font;
+                    renderData->color = text->getColor();
 
-                    auto font = renderData.font;
-
-                    if (font == nullptr)
-                        font = gl->defaultFont;
-
-                    float baseLine = font->getBaseLine();
-                    float spacing = font->getSpacing();
-                    float x = renderData.position.x + spacing;
-                    float y = renderData.position.y - baseLine + spacing;
-                    float z = renderData.position.z;
-
-                    glyph* previousGlyph = nullptr;
-                    size_t textLength = renderData.text.length();
-
-                    auto glyph = gl->fontsManager->getGlyph(font, (ulong)renderData.text[0]);
-                    x -= glyph->offsetX;
-
-                    for (size_t i = 0; i < textLength; i++)
-                    {
-                        glyph = gl->fontsManager->getGlyph(font, (ulong)renderData.text[i]);
-                        auto kern = font->getKerning(previousGlyph, glyph);
-                        auto w = glyph->width;
-                        auto h = glyph->height;
-                        auto x0 = x + glyph->offsetX;
-                        auto y0 = y - h + glyph->offsetY;
-
-                        auto modelMatrix = mat4(
-                            w, 0.0f, 0.0f, 0.0f,
-                            0.0f, -h, 0.0f, 0.0f,
-                            0.0f, 0.0f, 1.0f, 0.0f,
-                            x0, y0 + h, z, 1.0f);
-
-                        textModelMatrices->push_back(modelMatrix);
-
-                        x += glyph->horiAdvance + kern.x;
-
-                        float shift = std::abs(x0 - static_cast<int>(x0));
-
-                        glyphRenderData info;
-                        info.position = glyph->texPosition;
-                        info.size = glyph->texSize;
-                        info.shift = shift;
-                        info.unit = glyph->texUnit;
-                        info.page = glyph->texPage;
-                        info.color = renderData.color;
-
-                        glyphInfos->push_back(info);
-
-                        previousGlyph = glyph;
-                    }
-
-                    size_t glyphCount = glyphInfos->size();
-                    vector<uint> glyphIds;
-
-                    for (uint i = 0u; i < glyphCount; i++)
-                        glyphIds.push_back(i);
-
-                    glyphIdsBuffer->data(sizeof(uint) * glyphCount, &glyphIds[0], bufferDataUsage::dynamicDraw);
-                    textModelMatricesBuffer->data(sizeof(mat4) * textModelMatrices->size(), &textModelMatrices->at(0), bufferDataUsage::dynamicDraw);
-                    glyphInfoBuffer->data(sizeof(glyphRenderData) * glyphCount, &glyphInfos->at(0), bufferDataUsage::dynamicDraw);
+                    textRenderer->add(renderData);
                 }
             });
         });
