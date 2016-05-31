@@ -351,15 +351,7 @@ namespace demon
                 auto text = currentNode->getComponent<phi::text>();
                 if (control)
                 {
-                    auto texture = pipeline::getTextureFromImage(control->getBackgroundImage(), gl->defaultAlbedoImage);
-                    auto address = gl->texturesManager->get(texture);
-
-                    auto renderData = new controlRenderData();
-                    renderData->backgroundColor = control->getBackgroundColor();
-                    renderData->backgroundTextureUnit = address.unit;
-                    renderData->backgroundTexturePage = address.page;
-
-                    controlRenderer->add(renderData, currentNode->getTransform());
+                    controlRenderer->add(control);
                 }
                 if (text)
                 {

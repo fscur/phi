@@ -9,6 +9,8 @@
 #include <rendering\buffer.h>
 #include <rendering\vertexBuffer.h>
 
+#include <ui\control.h>
+
 #include "controlRenderData.h"
 
 namespace phi
@@ -16,8 +18,16 @@ namespace phi
     class controlRenderer
     {
     private:
+        struct controlInstance
+        {
+            uint bufferOffset;
+            mat4 modelMatrix;
+            controlRenderData renderData;
+        };
+
+    private:
         gl* _gl;
-        uint _controlsCount;
+        map<control*, controlInstance*> _instances;
 
         vector<mat4> _modelMatrices;
         vector<controlRenderData> _renderData;
@@ -33,8 +43,9 @@ namespace phi
         UI_RENDERING_API controlRenderer(gl* gl);
         UI_RENDERING_API ~controlRenderer();
 
-
-        UI_RENDERING_API void add(controlRenderData* renderData, transform* transform);
+        UI_RENDERING_API void add(control* control);
+        UI_RENDERING_API void remove(control* control);
+        UI_RENDERING_API void update(control* control);
         UI_RENDERING_API void render(program* shader);
     };
 }

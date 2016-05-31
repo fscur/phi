@@ -1,14 +1,15 @@
 #include <precompiled.h>
 #include "controlRenderer.h"
 
+#include <core\notImplementedException.h>
+#include <core\node.h>
 #include <core\vertex.h>
 #include <core\geometry.h>
 
 namespace phi
 {
     controlRenderer::controlRenderer(gl* gl) :
-        _gl(gl),
-        _controlsCount(0)
+        _gl(gl)
     {
         createBuffers();
     }
@@ -54,15 +55,38 @@ namespace phi
         _controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
     }
 
-    void controlRenderer::add(controlRenderData* renderData, transform* transform)
+    void controlRenderer::add(control* control)
     {
-        _controlsCount++;
+        auto texture = pipeline::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
+        auto address = _gl->texturesManager->get(texture);
 
-        _modelMatrices.push_back(transform->getModelMatrix());
-        _renderData.push_back(*renderData);
+        auto renderData = controlRenderData();
+        renderData.backgroundColor = control->getBackgroundColor();
+        renderData.backgroundTextureUnit = address.unit;
+        renderData.backgroundTexturePage = address.page;
 
-        _controlsModelMatricesBuffer->data(sizeof(mat4) * _controlsCount, &_modelMatrices[0], bufferDataUsage::dynamicDraw);
-        _controlsRenderDataBuffer->data(sizeof(controlRenderData) * _controlsCount, &_renderData[0], bufferDataUsage::dynamicDraw);
+        auto instance = new controlInstance();
+        instance->bufferOffset = _instances.size();
+        instance->modelMatrix = control->getNode()->getTransform()->getModelMatrix();
+        instance->renderData = renderData;
+
+        _instances[control] = instance;
+
+        _modelMatrices.push_back(instance->modelMatrix);
+        _renderData.push_back(instance->renderData);
+
+        _controlsModelMatricesBuffer->data(sizeof(mat4) * _instances.size(), &_modelMatrices[0], bufferDataUsage::dynamicDraw);
+        _controlsRenderDataBuffer->data(sizeof(controlRenderData) * _instances.size(), &_renderData[0], bufferDataUsage::dynamicDraw);
+    }
+
+    void controlRenderer::remove(control * control)
+    {
+        throw new notImplementedException();
+    }
+
+    void controlRenderer::update(control* control)
+    {
+        throw new notImplementedException();
     }
 
     void controlRenderer::render(program* program)
@@ -79,7 +103,7 @@ namespace phi
         program->setUniform(0, _gl->texturesManager->units);
 
         glBindVertexArray(_vao);
-        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_controlsCount));
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_instances.size()));
         glBindVertexArray(0);
 
         program->unbind();
