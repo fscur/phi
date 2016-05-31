@@ -2,7 +2,7 @@
 #include <phi.h>
 #include <core\color.h>
 
-#include "font.h"
+#include <rendering\font.h>
 
 namespace phi
 {

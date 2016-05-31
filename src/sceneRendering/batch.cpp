@@ -1,7 +1,8 @@
 #include <precompiled.h>
 #include "batch.h"
-#include "drawElementsIndirectCmd.h"
-#include "gl.h"
+
+#include <rendering\drawElementsIndirectCmd.h>
+#include <rendering\gl.h>
 
 namespace phi
 {

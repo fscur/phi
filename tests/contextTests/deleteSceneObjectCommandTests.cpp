@@ -1,7 +1,8 @@
 #include <precompiled.h>
 #include <gtest\gtest.h>
 
-#include <scenes\deleteSceneObjectCommand.h>
+#include <core\node.h>
+#include <context\deleteSceneObjectCommand.h>
 
 using namespace phi;
 

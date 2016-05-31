@@ -1,13 +1,14 @@
 #pragma once
 #include <phi.h>
-#include "renderingApi.h"
+#include "uiRenderingApi.h"
 
 #include <core\transform.h>
 
-#include "gl.h"
-#include "shader.h"
-#include "buffer.h"
-#include "vertexBuffer.h"
+#include <rendering\gl.h>
+#include <rendering\shader.h>
+#include <rendering\buffer.h>
+#include <rendering\vertexBuffer.h>
+
 #include "controlRenderData.h"
 
 namespace phi

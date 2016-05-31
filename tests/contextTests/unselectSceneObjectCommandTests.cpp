@@ -2,7 +2,7 @@
 #include <gtest\gtest.h>
 
 #include <core\node.h>
-#include <scenes\unselectSceneObjectCommand.h>
+#include <context\unselectSceneObjectCommand.h>
 
 using namespace phi;
 

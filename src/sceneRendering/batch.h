@@ -1,14 +1,15 @@
 #pragma once
 #include <phi.h>
-#include "renderingApi.h"
+#include "sceneRenderingApi.h"
 
 #include <core\mesh.h>
 #include <core\geometry.h>
 
+#include <rendering\vertexBuffer.h>
+#include <rendering\buffer.h>
+#include <rendering\drawElementsIndirectCmd.h>
+
 #include "renderInstance.h"
-#include "vertexBuffer.h"
-#include "buffer.h"
-#include "drawElementsIndirectCmd.h"
 
 namespace phi
 {
@@ -74,13 +75,13 @@ namespace phi
 
         void updateAllData();
     public:
-        RENDERING_API batch();
-        RENDERING_API ~batch();
-        RENDERING_API bool add(const renderInstance& instance);
-        RENDERING_API void remove(mesh* mesh);
-        RENDERING_API void update(const renderInstance& instance);
-        RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
-        RENDERING_API void updateTransformBuffer(mesh* mesh, const mat4& modelMatrix);
-        RENDERING_API void render();
+        SCENE_RENDERING_API batch();
+        SCENE_RENDERING_API ~batch();
+        SCENE_RENDERING_API bool add(const renderInstance& instance);
+        SCENE_RENDERING_API void remove(mesh* mesh);
+        SCENE_RENDERING_API void update(const renderInstance& instance);
+        SCENE_RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
+        SCENE_RENDERING_API void updateTransformBuffer(mesh* mesh, const mat4& modelMatrix);
+        SCENE_RENDERING_API void render();
     };
 }

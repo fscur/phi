@@ -1,11 +1,8 @@
 #pragma once
-
 #include <phi.h>
-#ifdef _WIN32
-#include<Windows.h>
-#endif
-#include <core/blockingQueue.h>
 #include "ioApi.h"
+
+#include <core/blockingQueue.h>
 
 namespace phi
 {

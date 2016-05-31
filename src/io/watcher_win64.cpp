@@ -1,7 +1,7 @@
 #include <precompiled.h>
-
 #include "watcher.h"
-#include <diagnostics\win64ProcLibrary.h>
+
+#include <diagnostic\win64ProcLibrary.h>
 
 namespace phi
 {

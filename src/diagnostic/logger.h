@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "diagnosticsApi.h"
+#include "diagnosticApi.h"
 
 #include "loggerDevice.h"
 
@@ -16,13 +16,13 @@ namespace phi
     private:
         loggerDevice* _device;
     public:
-        DIAGNOSTICS_API logger();
-        DIAGNOSTICS_API logger(loggerDevice* device);
-        DIAGNOSTICS_API ~logger();
+        DIAGNOSTIC_API logger();
+        DIAGNOSTIC_API logger(loggerDevice* device);
+        DIAGNOSTIC_API ~logger();
 
-        DIAGNOSTICS_API void logError(string message) const;
-        DIAGNOSTICS_API void logWarning(string message) const;
-        DIAGNOSTICS_API void logInfo(string message) const;
+        DIAGNOSTIC_API void logError(string message) const;
+        DIAGNOSTIC_API void logWarning(string message) const;
+        DIAGNOSTIC_API void logInfo(string message) const;
 
         void setDevice(loggerDevice* device) { _device = device; }
     };

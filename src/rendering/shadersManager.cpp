@@ -1,8 +1,6 @@
 #include <precompiled.h>
 #include "shadersManager.h"
 
-#include <diagnostics\stopwatch.h>
-
 #include <io\path.h>
 #include "glslCompiler.h"
 

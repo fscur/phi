@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "diagnosticsApi.h"
+#include "diagnosticApi.h"
 
 namespace phi
 {
@@ -15,6 +15,6 @@ namespace phi
         static void loadKernel32Procs(const char *executableFileName);
 #endif
     public:
-        DIAGNOSTICS_API static void load(const char* executableFileName);
+        DIAGNOSTIC_API static void load(const char* executableFileName);
     };
 }

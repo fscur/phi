@@ -1,14 +1,16 @@
 #pragma once
 #include <phi.h>
-#include "renderingApi.h"
+#include "sceneRenderingApi.h"
+
 #include <core\node.h>
 #include <core\image.h>
 
-#include "frameUniformBlock.h"
+#include <rendering\frameUniformBlock.h>
+#include <rendering\gl.h>
+
+#include "materialRenderData.h"
 #include "renderInstance.h"
 #include "batch.h"
-#include "gl.h"
-#include "materialRenderData.h"
 
 namespace phi
 {
@@ -33,21 +35,21 @@ namespace phi
         void createMaterialsBuffer();
         void uploadMaterialIfNew(material* material);
     public:
-        RENDERING_API pipeline(gl* gl, float w, float h);
-        RENDERING_API ~pipeline();
+        SCENE_RENDERING_API pipeline(gl* gl, float w, float h);
+        SCENE_RENDERING_API ~pipeline();
 
-        RENDERING_API void add(mesh* mesh, mat4 modelMatrix);
-        RENDERING_API void update(const renderInstance& instance);
-        RENDERING_API void remove(mesh* mesh);
-        RENDERING_API void updateTranformBuffer(mesh* mesh, const mat4& modelMatrix);
-        RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
-        RENDERING_API void update(const frameUniformBlock& frameUniformBlock);
-        RENDERING_API void render();
+        SCENE_RENDERING_API void add(mesh* mesh, mat4 modelMatrix);
+        SCENE_RENDERING_API void update(const renderInstance& instance);
+        SCENE_RENDERING_API void remove(mesh* mesh);
+        SCENE_RENDERING_API void updateTranformBuffer(mesh* mesh, const mat4& modelMatrix);
+        SCENE_RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
+        SCENE_RENDERING_API void update(const frameUniformBlock& frameUniformBlock);
+        SCENE_RENDERING_API void render();
 
         vector<batch*> getBatches() { return _batches; }
         void bindMaterialsIdsBuffer() { _materialRenderDataBuffer->bindBufferBase(1); }
 
     public:
-        RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);
+        SCENE_RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);
     };
 }

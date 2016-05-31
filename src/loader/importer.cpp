@@ -8,7 +8,6 @@
 #include <io\path.h>
 
 #include "importResourceException.h"
-#include <diagnostics\stopwatch.h>
 
 namespace phi
 {
@@ -17,19 +16,19 @@ namespace phi
     using rapidjson::Value;
 
     node* importer::readNode(
-		const rapidjson::Value& jsonNode, 
-		const string& currentFolder, 
-		const resourcesRepository<material>* materialsRepo, 
-		const resourcesRepository<geometry>* geometriesRepo)
+        const rapidjson::Value& jsonNode,
+        const string& currentFolder,
+        const resourcesRepository<material>* materialsRepo,
+        const resourcesRepository<geometry>* geometriesRepo)
     {
 
-		string nodeName;
+        string nodeName;
 
-		if (jsonNode.HasMember("Name"))
-		{
-			const rapidjson::Value& name = jsonNode["Name"];
-			nodeName = name.GetString();
-		}
+        if (jsonNode.HasMember("Name"))
+        {
+            const rapidjson::Value& name = jsonNode["Name"];
+            nodeName = name.GetString();
+        }
 
         auto objectNode = new node(nodeName);
 
@@ -55,10 +54,10 @@ namespace phi
                 auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
                 auto matRes = materialsRepo->getResource(materialGuid);
 
-                    material* mat = nullptr;
+                material* mat = nullptr;
 
-                    if (matRes != nullptr)
-                        mat = matRes->getOriginalObject();
+                if (matRes != nullptr)
+                    mat = matRes->getOriginalObject();
 
                 component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
                 break;
@@ -110,7 +109,7 @@ namespace phi
             throw importResourceException("Failed loading image data of", fileName);
 
         //auto format = GL_BGRA;
-		auto format = imageDataFormat::bgra;
+        auto format = imageDataFormat::bgra;
         auto bpp = FreeImage_GetBPP(imagePointer);
         auto redMask = FreeImage_GetRedMask(imagePointer);
 
@@ -141,20 +140,20 @@ namespace phi
             width,
             height,
             format,
-			imageDataType::ubyte_dataType,
+            imageDataType::ubyte_dataType,
             data);
     }
-	
-	resource<node>* importer::importModel(
-		const string& fileName,
-		resourcesRepository<material>* materialsRepo,
-		resourcesRepository<geometry>* geometriesRepo)
-	{
-		return assimpImporter::import(
-			fileName,
-			materialsRepo,
-			geometriesRepo);
-	}
+
+    resource<node>* importer::importModel(
+        const string& fileName,
+        resourcesRepository<material>* materialsRepo,
+        resourcesRepository<geometry>* geometriesRepo)
+    {
+        return assimpImporter::import(
+            fileName,
+            materialsRepo,
+            geometriesRepo);
+    }
 
     resource<image>* importer::loadImage(const string& fileName)
     {
@@ -248,7 +247,7 @@ namespace phi
 
         fclose(file);
 
-		//TODO: change texture to image into the converter
+        //TODO: change texture to image into the converter
         auto guid = convertToGuid(document["Guid"].GetString());
         auto albedoImageGuid = convertToGuid(document["AlbedoTextureGuid"].GetString());
         auto normalImageGuid = convertToGuid(document["NormalTextureGuid"].GetString());
@@ -271,21 +270,21 @@ namespace phi
         auto emission = static_cast<float>(document["Emission"].GetDouble());
         auto opacity = static_cast<float>(document["Opacity"].GetDouble());
 
-		image* albedoImage = nullptr;
-		if (albedoImageResource)
-			albedoImage = albedoImageResource->getOriginalObject();
+        image* albedoImage = nullptr;
+        if (albedoImageResource)
+            albedoImage = albedoImageResource->getOriginalObject();
 
-		image* normalImage = nullptr;
-		if (normalImageResource)
-			normalImage = normalImageResource->getOriginalObject();
+        image* normalImage = nullptr;
+        if (normalImageResource)
+            normalImage = normalImageResource->getOriginalObject();
 
-		image* specularImage = nullptr;
-		if (specularImageResource)
-			specularImage = specularImageResource->getOriginalObject();
+        image* specularImage = nullptr;
+        if (specularImageResource)
+            specularImage = specularImageResource->getOriginalObject();
 
-		image* emissiveImage = nullptr;
-		if (emissiveImageResource)
-			emissiveImage = emissiveImageResource->getOriginalObject();
+        image* emissiveImage = nullptr;
+        if (emissiveImageResource)
+            emissiveImage = emissiveImageResource->getOriginalObject();
 
         auto materialName = path::getFileNameWithoutExtension(fileName);
         auto mat = new material(
@@ -307,31 +306,31 @@ namespace phi
 #endif
     }
 
-	resource<node>* importer::loadNode(
-		const string& fileName, 
-		const resourcesRepository<material>* materialsRepo, 
-		const resourcesRepository<geometry>* geometriesRepo)
-	{
-		//TODO:: create load file fuction in the io API
+    resource<node>* importer::loadNode(
+        const string& fileName,
+        const resourcesRepository<material>* materialsRepo,
+        const resourcesRepository<geometry>* geometriesRepo)
+    {
+        //TODO:: create load file fuction in the io API
 #ifdef _WIN32 
-		FILE* file;
-		fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
+        FILE* file;
+        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
 
-		char fileBuffer[65536];
-		FileReadStream fileStream(file, fileBuffer, sizeof(fileBuffer));
-		Document document;
-		document.ParseStream(fileStream);
+        char fileBuffer[65536];
+        FileReadStream fileStream(file, fileBuffer, sizeof(fileBuffer));
+        Document document;
+        document.ParseStream(fileStream);
 
-		fclose(file);
+        fclose(file);
 
-		auto currentFolder = path::getDirectoryFullName(fileName);
-		auto nodeName = path::getFileNameWithoutExtension(fileName);
-		auto rootNode = readNode(document["Node"], currentFolder, materialsRepo, geometriesRepo);
-		auto guid = convertToGuid(document["Guid"].GetString());
+        auto currentFolder = path::getDirectoryFullName(fileName);
+        auto nodeName = path::getFileNameWithoutExtension(fileName);
+        auto rootNode = readNode(document["Node"], currentFolder, materialsRepo, geometriesRepo);
+        auto guid = convertToGuid(document["Guid"].GetString());
 
-		return new resource<node>(guid, nodeName, rootNode);
+        return new resource<node>(guid, nodeName, rootNode);
 #else
-		throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
+        throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
 #endif
-	}
+    }
 }

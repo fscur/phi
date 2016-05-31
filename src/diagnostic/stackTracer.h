@@ -1,6 +1,7 @@
 #pragma once
 #include <phi.h>
-#include "diagnosticsApi.h"
+#include "diagnosticApi.h"
+
 #include "stackSymbol.h"
 #include "win64DataDefinitions.h"
 
@@ -21,10 +22,10 @@ namespace phi
         static win64DataDefinitions::symbol64* buildSymbolPointer();
         static stackSymbol buildStackSymbolFromAddress(HANDLE process, uintptr_t callAddress);
     public:
-        DIAGNOSTICS_API static vector<stackSymbol> captureStackBackTrace();
-        DIAGNOSTICS_API static vector<stackSymbol> stackWalk64();
-        DIAGNOSTICS_API static stackSymbol captureAllocationSight();
-        DIAGNOSTICS_API static stackSymbol optimizedCaptureAllocationSight();
-        DIAGNOSTICS_API static void printStackTrace(vector<stackSymbol> stack);
+        DIAGNOSTIC_API static vector<stackSymbol> captureStackBackTrace();
+        DIAGNOSTIC_API static vector<stackSymbol> stackWalk64();
+        DIAGNOSTIC_API static stackSymbol captureAllocationSight();
+        DIAGNOSTIC_API static stackSymbol optimizedCaptureAllocationSight();
+        DIAGNOSTIC_API static void printStackTrace(vector<stackSymbol> stack);
     };
 }

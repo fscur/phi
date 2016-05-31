@@ -12,30 +12,30 @@
 namespace phi
 {
     class LOADER_API importer
-    {	
+    {
     private:
         static node* readNode(
-			const rapidjson::Value& node, 
-			const string& currentFolder, 
-			const resourcesRepository<material>* materialsRepo, 
-			const resourcesRepository<geometry>* geometriesRepo);
+            const rapidjson::Value& node,
+            const string& currentFolder,
+            const resourcesRepository<material>* materialsRepo,
+            const resourcesRepository<geometry>* geometriesRepo);
 
         static guid convertToGuid(const char* bytesGuid);
 
     public:
-		static image* importImage(const string& fileName);
+        static image* importImage(const string& fileName);
 
-		static resource<node>* importModel(
-			const string& fileName,
-			resourcesRepository<material>* materialsRepo,
-			resourcesRepository<geometry>* geometriesRepo);
+        static resource<node>* importModel(
+            const string& fileName,
+            resourcesRepository<material>* materialsRepo,
+            resourcesRepository<geometry>* geometriesRepo);
 
         static resource<image>* loadImage(const string& fileName);
         static resource<geometry>* loadGeometry(const string& fileName);
         static resource<material>* loadMaterial(const string& fileName, const resourcesRepository<image>* texturesRepo);
         static resource<node>* loadNode(
-			const string& fileName, 
-			const resourcesRepository<material>* materialsRepo, 
-			const resourcesRepository<geometry>* geometriesRepo);        
+            const string& fileName,
+            const resourcesRepository<material>* materialsRepo,
+            const resourcesRepository<geometry>* geometriesRepo);
     };
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
+#include "diagnosticApi.h"
 
-#include "diagnosticsApi.h"
 #include "win64DataDefinitions.h"
 
 namespace phi
@@ -89,18 +89,18 @@ namespace phi
             _In_ HANDLE hFile,
             _In_opt_ LPOVERLAPPED lpOverlapped);
 
-        DIAGNOSTICS_API static dbgHelpSymInitilizeFunction symInitialize;
-        DIAGNOSTICS_API static dbgHelpStackWalk64Function stackWalk64;
-        DIAGNOSTICS_API static dbgHelpSymFunctionTableAccess64Function symFunctionTableAccess64;
-        DIAGNOSTICS_API static dbgHelpSymGetLineFromAddr64Function symGetLineFromAddr64;
-        DIAGNOSTICS_API static dbgHelpGetSymbolFromAddressFunction symGetSymFromAddr64;
-        DIAGNOSTICS_API static dbgHelpSymGetModuleBase64Function symGetModuleBase64;
-        DIAGNOSTICS_API static dbgHelpSymGetModuleInfo64Function symGetModuleInfo64;
-        DIAGNOSTICS_API static dbgHelpSymLoadModule64Function symLoadModule64;
-        DIAGNOSTICS_API static kernel32CreateToolhelp32SnapshotFunction createToolhelp32Snapshot;
-        DIAGNOSTICS_API static kernel32Module32FirstFunction module32First;
-        DIAGNOSTICS_API static kernel32Module32NextFunction module32Next;
-        DIAGNOSTICS_API static kernel32CloseHandleFunction closeHandle;
-        DIAGNOSTICS_API static kernel32CancelIoExFunction cancelIoEx;
+        DIAGNOSTIC_API static dbgHelpSymInitilizeFunction symInitialize;
+        DIAGNOSTIC_API static dbgHelpStackWalk64Function stackWalk64;
+        DIAGNOSTIC_API static dbgHelpSymFunctionTableAccess64Function symFunctionTableAccess64;
+        DIAGNOSTIC_API static dbgHelpSymGetLineFromAddr64Function symGetLineFromAddr64;
+        DIAGNOSTIC_API static dbgHelpGetSymbolFromAddressFunction symGetSymFromAddr64;
+        DIAGNOSTIC_API static dbgHelpSymGetModuleBase64Function symGetModuleBase64;
+        DIAGNOSTIC_API static dbgHelpSymGetModuleInfo64Function symGetModuleInfo64;
+        DIAGNOSTIC_API static dbgHelpSymLoadModule64Function symLoadModule64;
+        DIAGNOSTIC_API static kernel32CreateToolhelp32SnapshotFunction createToolhelp32Snapshot;
+        DIAGNOSTIC_API static kernel32Module32FirstFunction module32First;
+        DIAGNOSTIC_API static kernel32Module32NextFunction module32Next;
+        DIAGNOSTIC_API static kernel32CloseHandleFunction closeHandle;
+        DIAGNOSTIC_API static kernel32CancelIoExFunction cancelIoEx;
     };
 }

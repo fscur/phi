@@ -1,13 +1,14 @@
 #pragma once
 #include <phi.h>
-#include "renderingApi.h"
+#include "uiRenderingApi.h"
 
-#include "textRenderData.h"
+#include <rendering\vertexBuffer.h>
+#include <rendering\buffer.h>
+#include <rendering\shader.h>
+#include <rendering\gl.h>
+
 #include "glyphRenderData.h"
-#include "vertexBuffer.h"
-#include "buffer.h"
-#include "shader.h"
-#include "gl.h"
+#include "textRenderData.h"
 
 namespace phi
 {
@@ -28,10 +29,10 @@ namespace phi
     private:
         void createBuffers();
     public:
-        RENDERING_API textRenderer(gl* gl);
-        RENDERING_API ~textRenderer();
+        UI_RENDERING_API textRenderer(gl* gl);
+        UI_RENDERING_API ~textRenderer();
 
-        RENDERING_API void add(textRenderData* renderData);
-        RENDERING_API void render(program* program);
+        UI_RENDERING_API void add(textRenderData* renderData);
+        UI_RENDERING_API void render(program* program);
     };
 }

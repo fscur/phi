@@ -1,7 +1,8 @@
 #include <precompiled.h>
 #include <gtest\gtest.h>
 
-#include <scenes\groupSceneObjectsCommand.h>
+#include <core\node.h>
+#include <context\groupSceneObjectsCommand.h>
 
 using namespace phi;
 

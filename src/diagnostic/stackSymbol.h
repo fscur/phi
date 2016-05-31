@@ -1,5 +1,5 @@
 #pragma once
-#include "diagnosticsApi.h"
+#include "diagnosticApi.h"
 #include <phi.h>
 
 namespace phi
