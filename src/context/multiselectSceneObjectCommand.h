@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "scenesApi.h"
+#include "contextApi.h"
 
 #include <core\command.h>
 #include <core\node.h>
@@ -16,11 +16,11 @@ namespace phi
     private:
         node * getSonOfRoot(node* node);
     public:
-        SCENES_API multiselectSceneObjectCommand(node* nodeToSelect);
-        SCENES_API ~multiselectSceneObjectCommand();
+        CONTEXT_API multiselectSceneObjectCommand(node* nodeToSelect);
+        CONTEXT_API ~multiselectSceneObjectCommand();
 
 
-        SCENES_API virtual void execute();
-        SCENES_API virtual void executeUndo();
+        CONTEXT_API virtual void execute();
+        CONTEXT_API virtual void executeUndo();
     };
 }

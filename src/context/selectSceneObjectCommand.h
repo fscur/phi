@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "scenesApi.h"
+#include "contextApi.h"
 
 #include <core\command.h>
 #include <core\node.h>
@@ -23,10 +23,10 @@ namespace phi
         bool hasSelectedChildren(const node* const node);
         node * getSonOfFirstSelected(node* const node);
     public:
-        SCENES_API selectSceneObjectCommand(node* nodeToSelect, const vector<node*>& selectedObjects);
-        SCENES_API ~selectSceneObjectCommand();
+        CONTEXT_API selectSceneObjectCommand(node* nodeToSelect, const vector<node*>& selectedObjects);
+        CONTEXT_API ~selectSceneObjectCommand();
 
-        SCENES_API virtual void execute();
-        SCENES_API virtual void executeUndo();
+        CONTEXT_API virtual void execute();
+        CONTEXT_API virtual void executeUndo();
     };
 }

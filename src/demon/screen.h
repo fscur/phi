@@ -1,15 +1,15 @@
 #pragma once
 #include <phi.h>
-#include <apps\window.h>
-#include <apps\commandsManager.h>
-#include <scenes\scene.h>
+#include <application\window.h>
+#include <application\commandsManager.h>
+#include <context\scene.h>
 #include <ui\ui.h>
 
 #include "defaultCameraController.h"
 #include "library.h"
 
-#include "layer.h"
-#include "context.h"
+#include <context\layer.h>
+#include <context\context.h>
 
 #ifdef _DEBUG
 #include <io/watcher.h>

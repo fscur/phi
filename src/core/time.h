@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
 #include "coreApi.h"
-#include <diagnostics\stopwatch.h>
+#include <diagnostic\stopwatch.h>
 
 namespace phi
 {

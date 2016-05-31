@@ -3,13 +3,13 @@
 #include <core\invalidInitializationException.h>
 #include <core\eventHandler.h>
 
-#include <diagnostics\stackTracer.h>
-#include <diagnostics\stopwatch.h>
-#include <diagnostics\platformProcLoader.h>
+#include <diagnostic\stackTracer.h>
+#include <diagnostic\stopwatch.h>
+#include <diagnostic\platformProcLoader.h>
 
 #include <io\path.h>
 
-#include <apps\application.h>
+#include <application\application.h>
 
 #include "screen.h"
 #include "demonApi.h"

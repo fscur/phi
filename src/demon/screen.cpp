@@ -1,7 +1,7 @@
 ﻿#include <precompiled.h>
 #include "screen.h"
 
-#include <diagnostics\stopwatch.h>
+#include <diagnostic\stopwatch.h>
 
 #include <core\multiCommand.h>
 
@@ -9,13 +9,13 @@
 
 #include <animation\floatAnimator.h>
 
-#include <scenes\unselectSceneObjectCommand.h>
-#include <scenes\groupSceneObjectsCommand.h>
-#include <scenes\deleteSceneObjectCommand.h>
+#include <context\unselectSceneObjectCommand.h>
+#include <context\groupSceneObjectsCommand.h>
+#include <context\deleteSceneObjectCommand.h>
 
-#include <apps\application.h>
-#include <apps\undoCommand.h>
-#include <apps\redoCommand.h>
+#include <application\application.h>
+#include <application\undoCommand.h>
+#include <application\redoCommand.h>
 
 #include <ui\labelBuilder.h>
 #include <ui\control.h>
@@ -26,9 +26,8 @@
 #include <rendering\renderPass.h>
 #include <rendering\shader.h>
 
-#include "layerBuilder.h"
-#include "contextBuilder.h"
-
+#include <context\layerBuilder.h>
+#include <context\contextBuilder.h>
 
 using namespace phi;
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "appsApi.h"
+#include "applicationApi.h"
 
 #include <core\command.h>
 #include <core\mouseEventArgs.h>
@@ -23,12 +23,12 @@ namespace phi
         void onKeyUp(phi::keyboardEventArgs* e);
         void clearRedo();
     public:
-        APPS_API commandsManager();
-        APPS_API ~commandsManager();
+        APPLICATION_API commandsManager();
+        APPLICATION_API ~commandsManager();
 
-        APPS_API void addShortcut(shortcut shortcut);
-        APPS_API void undo();
-        APPS_API void redo();
-        APPS_API void executeCommand(command* cmd);
+        APPLICATION_API void addShortcut(shortcut shortcut);
+        APPLICATION_API void undo();
+        APPLICATION_API void redo();
+        APPLICATION_API void executeCommand(command* cmd);
     };
 }

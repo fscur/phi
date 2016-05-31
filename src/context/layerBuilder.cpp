@@ -1,21 +1,22 @@
 #include <precompiled.h>
 #include "layerBuilder.h"
 
-#include <rendering\pipeline.h>
 #include <rendering\frameBuffer.h>
 #include <rendering\texture.h>
 #include <rendering\camera.h>
-#include <rendering\renderTargetsAddresses.h>
-#include <rendering\textRenderData.h>
-#include <rendering\glyphRenderData.h>
 #include <rendering\glslCompiler.h>
-#include <rendering\controlRenderer.h>
-#include <rendering\textRenderer.h>
+#include <rendering\renderTargetsAddresses.h>
+#include <rendering\vertexBuffer.h>
 
-#include <rendering\controlRenderData.h>
-#include <rendering\textRenderData.h>
+#include <sceneRendering\pipeline.h>
 
-#include <scenes\sceneId.h>
+#include <uiRendering\glyphRenderData.h>
+#include <uiRendering\controlRenderer.h>
+#include <uiRendering\controlRenderData.h>
+#include <uiRendering\textRenderer.h>
+#include <uiRendering\textRenderData.h>
+
+#include <context\sceneId.h>
 
 #include <ui\control.h>
 #include <ui\text.h>

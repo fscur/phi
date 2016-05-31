@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "scenesApi.h"
+#include "contextApi.h"
 
 #include <core\command.h>
 #include <core\node.h>
@@ -15,10 +15,10 @@ namespace phi
         map<node*, node*> _nodesParents;
 
     public:
-        SCENES_API deleteSceneObjectCommand(const vector<node*>& nodesToDelete);
-        SCENES_API ~deleteSceneObjectCommand();
+        CONTEXT_API deleteSceneObjectCommand(const vector<node*>& nodesToDelete);
+        CONTEXT_API ~deleteSceneObjectCommand();
 
-        SCENES_API void execute() override;
-        SCENES_API void executeUndo() override;
+        CONTEXT_API void execute() override;
+        CONTEXT_API void executeUndo() override;
     };
 }

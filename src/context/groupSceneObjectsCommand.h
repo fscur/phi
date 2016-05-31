@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "scenesApi.h"
+#include "contextApi.h"
 
 #include <core\command.h>
 #include <core\node.h>
@@ -16,10 +16,10 @@ namespace phi
         node* _group;
 
     public:
-        SCENES_API groupSceneObjectsCommand(vector<node*>& nodesToGroup);
-        SCENES_API ~groupSceneObjectsCommand();
+        CONTEXT_API groupSceneObjectsCommand(vector<node*>& nodesToGroup);
+        CONTEXT_API ~groupSceneObjectsCommand();
 
-        SCENES_API virtual void execute();
-        SCENES_API virtual void executeUndo();
+        CONTEXT_API virtual void execute();
+        CONTEXT_API virtual void executeUndo();
     };
 }

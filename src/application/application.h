@@ -1,8 +1,8 @@
 #pragma once
 #include <phi.h>
-#include "appsApi.h"
+#include "applicationApi.h"
 
-#include <diagnostics\logger.h>
+#include <diagnostic\logger.h>
 
 #include "window.h"
 
@@ -28,12 +28,12 @@ namespace phi
         static bool _initialized;
 
     public:
-        APPS_API static string executableFileName;
-        APPS_API static string path;
-        APPS_API static string resourcesPath;
-        APPS_API static string libraryPath;
-        APPS_API static uint framesPerSecond;
-        APPS_API static double millisecondsPerFrame;
+        APPLICATION_API static string executableFileName;
+        APPLICATION_API static string path;
+        APPLICATION_API static string resourcesPath;
+        APPLICATION_API static string libraryPath;
+        APPLICATION_API static uint framesPerSecond;
+        APPLICATION_API static double millisecondsPerFrame;
 
     private:
         window* _window;
@@ -50,12 +50,12 @@ namespace phi
         void onClose();
 
     public:
-        APPS_API application(const applicationStartInfo& startInfo);
-        APPS_API ~application();
+        APPLICATION_API application(const applicationStartInfo& startInfo);
+        APPLICATION_API ~application();
 
-        APPS_API void run(window* window);
-        APPS_API static void logError(string message);
-        APPS_API static void logWarning(string message);
-        APPS_API static void logInfo(string message);
+        APPLICATION_API void run(window* window);
+        APPLICATION_API static void logError(string message);
+        APPLICATION_API static void logWarning(string message);
+        APPLICATION_API static void logInfo(string message);
     };
 }

@@ -7,12 +7,8 @@
 #include <core\material.h>
 
 #include <io\path.h>
-
 #include <loader\importResourceException.h>
-
-#include <rendering\gl.h>
-
-#include <apps\application.h>
+#include <application\application.h>
 
 namespace demon
 {

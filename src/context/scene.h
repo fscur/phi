@@ -1,12 +1,13 @@
 #pragma once
 #include <phi.h>
-#include "scenesApi.h"
+#include "contextApi.h"
 
 #include <core\mathUtils.h>
 #include <core\node.h>
 #include <core\mesh.h>
 #include <rendering\camera.h>
-#include <rendering\pipeline.h>
+
+#include <sceneRendering\pipeline.h>
 
 namespace phi
 {
@@ -53,16 +54,16 @@ namespace phi
         void nodeSelectionChanged(node * node);
 
     public:
-        SCENES_API scene(gl* gl, float w, float h);
-        SCENES_API ~scene();
+        CONTEXT_API scene(gl* gl, float w, float h);
+        CONTEXT_API ~scene();
 
-        SCENES_API void update();
-        SCENES_API void render();
-        SCENES_API void resize(float w, float h);
-        SCENES_API void add(node* node);
-        SCENES_API void remove(node* node);
-        SCENES_API mesh* pick(int mouseX, int mouseY);
-        SCENES_API float getZBufferValue(int x, int y);
+        CONTEXT_API void update();
+        CONTEXT_API void render();
+        CONTEXT_API void resize(float w, float h);
+        CONTEXT_API void add(node* node);
+        CONTEXT_API void remove(node* node);
+        CONTEXT_API mesh* pick(int mouseX, int mouseY);
+        CONTEXT_API float getZBufferValue(int x, int y);
 
         vector<node*> getSelectedObjects() { return _selectedNodes; }
         vector<node*>* getObjects() { return _sceneRoot->getChildren(); } //gambis

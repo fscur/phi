@@ -1,8 +1,8 @@
 #include <precompiled.h>
 #include "exception.h"
 
-#include <diagnostics\stackTracer.h>
-#include <diagnostics\stopwatch.h>
+#include <diagnostic\stackTracer.h>
+#include <diagnostic\stopwatch.h>
 
 namespace phi
 {
