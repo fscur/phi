@@ -7,6 +7,10 @@ namespace phi
 {
     shader::shader(const string& fileName) :
         _fileName(fileName)
+#ifdef _DEBUG
+        , _isDirty(true)
+        , _onIsDirtyChanged(new eventHandler<shader*>())
+#endif 
     {
         _stage = getStage(fileName);
 
@@ -133,4 +137,12 @@ namespace phi
 
         return success == GL_TRUE && length == 0;
     }
+
+#ifdef _DEBUG
+    void shader::setIsDirty()
+    {
+        _isDirty = true;
+        _onIsDirtyChanged->raise(this);
+    }
+#endif
 }

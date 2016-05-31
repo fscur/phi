@@ -4,6 +4,10 @@
 #include <core\color.h>
 #include "texture.h"
 
+#ifdef _DEBUG
+#include <core\eventHandler.h>
+#endif
+
 namespace phi
 {
     namespace shaderStage
@@ -27,8 +31,12 @@ namespace phi
         string _content;
         string _fileName;
 
-    private:
+#ifdef _DEBUG
+        bool _isDirty;
+        eventHandler<shader*>* _onIsDirtyChanged;
+#endif
 
+    private:
         shaderStage::shaderStage getStage(const string& fileName);
         string load(const string& fileName);
         bool validate();
@@ -41,5 +49,10 @@ namespace phi
         shaderStage::shaderStage getStage() const { return _stage; }
         GLuint getId() const { return _id; }
         string getContent() const { return _content; }
+
+#ifdef _DEBUG
+        void setIsDirty();
+        eventHandler<shader*>* getOnIsDirtyChanged() const { return _onIsDirtyChanged; }
+#endif
     };
 }

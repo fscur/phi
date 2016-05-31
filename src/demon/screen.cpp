@@ -28,6 +28,7 @@
 
 #include <context\layerBuilder.h>
 #include <context\contextBuilder.h>
+#include <rendering\liveShaderReloader.h>
 
 using namespace phi;
 
@@ -55,6 +56,8 @@ namespace demon
         _messageQueue = new blockingQueue<phi::watcherMessage>();
         _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
         {
+            liveShaderReloader::reloadShader(shaderFileName);
+
             /*auto fileExtension = path::getExtension(shaderFileName);
             if (fileExtension == phi::shadersManager::FRAG_EXT ||
                 fileExtension == phi::shadersManager::VERT_EXT)

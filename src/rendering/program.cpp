@@ -29,9 +29,22 @@ namespace phi
         glError::check();
     }
 
+#ifdef _DEBUG
+    map<shader*, eventToken> _dirtyShadersTokens;
+#endif
+
     void program::addShader(shader * shader)
     {
         _shaders.push_back(shader);
+
+#ifdef _DEBUG
+        auto token = shader->getOnIsDirtyChanged()->assign([&](phi::shader* shader)
+        {
+            reload();
+        });
+
+        _dirtyShadersTokens[shader] = token;
+#endif
 
         glAttachShader(_id, shader->getId());
         glError::check();

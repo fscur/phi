@@ -1,18 +1,16 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-#include "program.h"
+#include "shader.h"
 
 namespace phi
 {
     class liveShaderReloader
     {
-    private:
-        static std::map<string, program*> _programs;
+    public:
+        static map<string, shader*> shaders;
 
     public:
-        
-        RENDERING_API static void reloadAllPrograms();
-		RENDERING_API static void reloadProgram(string name);
+        RENDERING_API static void reloadShader(string name);
     };
 }
