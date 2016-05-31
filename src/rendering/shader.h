@@ -42,6 +42,10 @@ namespace phi
         bool validate();
 
     public:
+        static constexpr const char* VERT_EXT = ".vert";
+        static constexpr const char* FRAG_EXT = ".frag";
+
+    public:
         RENDERING_API shader(const string& fileName);
         RENDERING_API ~shader();
         RENDERING_API bool compile();
