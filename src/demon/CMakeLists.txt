@@ -14,8 +14,8 @@ file(GLOB natvis_files *.natvis)
 
 add_executable(demon ${source_files} ${header_files} ${natvis_files})
 
-target_link_libraries(demon apps)
-target_link_libraries(demon scenes)
+target_link_libraries(demon application)
+target_link_libraries(demon context)
 target_link_libraries(demon ui)
 target_link_libraries(demon animation)
 
