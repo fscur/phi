@@ -16,8 +16,6 @@ namespace phi
 {
     class pipeline
     {
-    private:
-        static map<image*, texture*> _imageTextures;
 
     private:
         const uint MAX_MATERIALS_COUNT = 512;

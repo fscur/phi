@@ -3,8 +3,6 @@
 
 namespace phi
 {
-    map<image*, texture*> pipeline::_imageTextures = map<image*, texture*>();
-
     pipeline::pipeline(gl* gl, float w, float h) :
         _gl(gl)
     {
@@ -107,34 +105,6 @@ namespace phi
         }
 
         _meshesBatches[instance.mesh] = batch;
-    }
-
-    texture* pipeline::getTextureFromImage(image* materialImage, phi::image* defaultImage)
-    {
-        phi::texture* texture = nullptr;
-
-        if (materialImage == nullptr)
-            materialImage = defaultImage;
-
-        if (_imageTextures.find(materialImage) != _imageTextures.end())
-        {
-            texture = _imageTextures[materialImage];
-        }
-        else
-        {
-            texture = new phi::texture(
-                materialImage,
-                GL_TEXTURE_2D,
-                GL_RGBA8,
-                GL_REPEAT,
-                GL_LINEAR_MIPMAP_LINEAR,
-                GL_LINEAR,
-                true);
-
-            _imageTextures[materialImage] = texture;
-        }
-
-        return texture;
     }
 
     void pipeline::remove(mesh* mesh)
