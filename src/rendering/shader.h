@@ -36,8 +36,10 @@ namespace phi
     public:
         RENDERING_API shader(const string& fileName);
         RENDERING_API ~shader();
-        bool compile();
+        RENDERING_API bool compile();
 
+        shaderStage::shaderStage getStage() const { return _stage; }
         GLuint getId() const { return _id; }
+        string getContent() const { return _content; }
     };
 }

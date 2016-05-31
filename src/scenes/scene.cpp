@@ -146,27 +146,30 @@ namespace phi
 
     mesh* scene::pick(int mouseX, int mouseY)
     {
-        auto pixels = _pipeline->_renderer->getGBufferFramebuffer()->readPixels(
-            _pipeline->_renderer->rt3,
-            static_cast<GLint>(mouseX),
-            static_cast<GLint>(_h - mouseY),
-            1, 1); // What a shitty shit, right ?
+        //auto pixels = _pipeline->_renderer->getGBufferFramebuffer()->readPixels(
+        //    _pipeline->_renderer->rt3,
+        //    static_cast<GLint>(mouseX),
+        //    static_cast<GLint>(_h - mouseY),
+        //    1, 1); // What a shitty shit, right ?
 
-        auto r = static_cast<int>(pixels.r);
-        auto g = static_cast<int>(pixels.g) << 8;
-        auto b = static_cast<int>(pixels.b) << 16;
+        //auto r = static_cast<int>(pixels.r);
+        //auto g = static_cast<int>(pixels.g) << 8;
+        //auto b = static_cast<int>(pixels.b) << 16;
 
-        auto id = r | g | b;
+        //auto id = r | g | b;
 
-        mesh* mesh = nullptr;
-        if (id)
-            mesh = sceneId::getMesh(id);
+        //mesh* mesh = nullptr;
+        //if (id)
+        //    mesh = sceneId::getMesh(id);
 
-        return mesh;
+        //return mesh;
+
+        return nullptr;
     }
 
     inline float scene::getZBufferValue(int x, int y)
     {
-        return _pipeline->_renderer->getDefaultFramebuffer()->getZBufferValue(x, y);
+        return 0.0f;
+        //return _pipeline->_renderer->getDefaultFramebuffer()->getZBufferValue(x, y);
     }
 }

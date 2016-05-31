@@ -5,30 +5,25 @@ namespace phi
 {
     using namespace glslang;
 
-    EShLanguage glslCompiler::getLanguage(const string & name)
+    EShLanguage glslCompiler::translateState(const shaderStage::shaderStage& stage)
     {
-        size_t ext = name.rfind('.');
-        if (ext == string::npos)
+        switch (stage)
         {
+        case phi::shaderStage::vertex:
+            return EShLangVertex;
+        case phi::shaderStage::tesselationControl:
+            return EShLangTessControl;
+        case phi::shaderStage::tesselationEvaluation:
+            return EShLangTessEvaluation;
+        case phi::shaderStage::geometry:
+            return EShLangGeometry;
+        case phi::shaderStage::fragment:
+            return EShLangFragment;
+        case phi::shaderStage::compute:
+            return EShLangCompute;
+        default:
             return EShLangVertex;
         }
-
-        string suffix = name.substr(ext + 1, string::npos);
-
-        if (suffix == "vert")
-            return EShLangVertex;
-        else if (suffix == "tesc")
-            return EShLangTessControl;
-        else if (suffix == "tese")
-            return EShLangTessEvaluation;
-        else if (suffix == "geom")
-            return EShLangGeometry;
-        else if (suffix == "frag")
-            return EShLangFragment;
-        else if (suffix == "comp")
-            return EShLangCompute;
-
-        return EShLangVertex;
     }
 
     string glslCompiler::getDataType(int type)
@@ -159,7 +154,7 @@ namespace phi
         return resources;
     }
     
-    TShader * glslCompiler::parse(EShLanguage language, const string fileName)
+    TShader* glslCompiler::parse(EShLanguage language, const string fileName)
     {
         auto shader = new TShader(language);
         auto messages = EShMessages::EShMsgDefault;
@@ -177,34 +172,57 @@ namespace phi
         return shader;
     }
 
-    glslang::TProgram glslCompiler::compile(const string vertFile, const string fragFile)
+    program* glslCompiler::compile(vector<shader*>&& shaders)
     {
         InitializeProcess();
-
-        auto vertexShader = parse(EShLanguage::EShLangVertex, vertFile);
-        auto fragmentShader = parse(EShLanguage::EShLangFragment, fragFile);
+        
+        auto tProgram = TProgram();
         auto messages = EShMessages::EShMsgDefault;
-        auto program = TProgram();
+        auto program = new phi::program();
 
-        program.addShader(vertexShader);
-        program.addShader(fragmentShader);
+        for (auto shader : shaders)
+        {
+            auto tShader = parse(translateState(shader->getStage()), shader->getContent());
+            tProgram.addShader(tShader);
+        }
 
-        if (!program.link(messages))
-            phi::debug("glslCompiler::compile: unable to link program;");
+        if (!tProgram.link(messages))
+            phi::debug("[glslCompiler::compile]: unable to link program;");
+        
+        for (auto shader : shaders)
+            program->addShader(shader);
 
-        program.buildReflection();
+        program->link();
 
-        auto sizeU = program.getNumLiveUniformVariables();
+        tProgram.buildReflection();
+        
+        auto attributesCount = tProgram.getNumLiveAttributes();
 
-        for (auto i = 0; i < sizeU; i++)
-            phi::debug(program.getUniformName(i));
+        for (auto i = 0; i < attributesCount; i++)
+        {
+            auto attributeName = tProgram.getAttributeName(i);
+            auto attributeType = tProgram.getAttributeType(i);
+            auto attributeLocation = glGetAttribLocation(program->getId(), attributeName);
 
-        sizeU = program.getNumLiveAttributes();
+            //phi::debug(getDataType(attributeType) + ": " + attributeName + "[" + std::to_string(attributeLocation) + "]");
 
-        for (auto i = 0; i < sizeU; i++)
-            phi::debug(getDataType(program.getAttributeType(i)) + ": " + program.getAttributeName(i));
+            program->addAttribute(string(attributeName));
+        }
 
-        program.dumpReflection();
+        auto uniformsCount = tProgram.getNumLiveUniformVariables();
+        for (auto i = 0; i < uniformsCount; i++)
+        {
+            auto uniformName = tProgram.getUniformName(i);
+            auto uniformLocation = glGetUniformLocation(program->getId(), uniformName);
+
+            if (uniformLocation >= 0)
+            {
+                //phi::debug(string(tProgram.getUniformName(i)) + "[" + std::to_string(uniformLocation)+"]");
+                program->addUniform(uniformLocation, uniformName);
+            }
+        }
+
+        //tProgram.dumpReflection();
 
         FinalizeProcess();
 

@@ -7,7 +7,6 @@
 #include <core\mesh.h>
 #include <rendering\camera.h>
 #include <rendering\pipeline.h>
-#include <rendering\renderer.h>
 
 namespace phi
 {
@@ -67,7 +66,6 @@ namespace phi
 
         vector<node*> getSelectedObjects() { return _selectedNodes; }
         vector<node*>* getObjects() { return _sceneRoot->getChildren(); } //gambis
-        renderer* getRenderer() const { return _pipeline->_renderer; }
         camera* getCamera() const { return _camera; }
     };
 }

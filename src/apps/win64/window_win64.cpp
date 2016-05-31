@@ -3,7 +3,7 @@
 #include <core\input.h>
 #include <core\exception.h>
 
-#include "..\invalidInitializationException.h"
+#include <core\invalidInitializationException.h>
 
 namespace phi
 {

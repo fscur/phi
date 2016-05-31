@@ -5,7 +5,7 @@
 
 namespace phi
 {   
-    ui::ui(camera* camera, renderer* renderer, gl* gl, float w, float h) :
+    ui::ui(camera* camera, gl* gl, float w, float h) :
         _gl(gl),
         _controls(vector<node*>()),
         _camera(camera),
@@ -23,15 +23,12 @@ namespace phi
         camTransform->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         camTransform->setDirection(vec3(0.0f, 0.0f, -1.0f));
         //_camera->orbit(vec3(0.0f), camTransform->getRight(), camTransform->getUp(), 0.4f, 0.0f);
-        _renderer = new uiRenderer(renderer, gl, _camera);
     }
 
     ui::~ui()
     {
         for (auto controls : _controls)
             safeDelete(controls);
-
-        safeDelete(_renderer);
     }
 
     // float t = 0.0f;
@@ -40,20 +37,17 @@ namespace phi
     {
         //_camera->orbit(vec3(0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), 0.0f, glm::cos(t) * 0.1f);
         //_camera->moveTo(vec3(0.0, 0.0, glm::abs(glm::cos(t)) * 500.0f));
-        _renderer->update();
 
         //t += 0.0005f;
     }
 
     void ui::render()
     {
-        _renderer->render();
     }
 
     void ui::add(node* n)
     {
         _controls.push_back(n);
-        _renderer->add(n);
     }
 
     node* ui::newLabel(wstring text, vec3 position)

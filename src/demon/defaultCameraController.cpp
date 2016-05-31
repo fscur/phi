@@ -60,7 +60,7 @@ namespace demon
     {
         auto texturePath = phi::application::resourcesPath + "\\images\\grid.png";
         _gridImage = phi::importer::importImage(texturePath);
-        _scene->getRenderer()->getPlaneGridRenderPass()->setImage(_gridImage);
+        //_scene->getRenderer()->getPlaneGridRenderPass()->setImage(_gridImage);
     }
 
     defaultCameraController::~defaultCameraController()
@@ -212,7 +212,7 @@ namespace demon
 
             if (normal == phi::vec3(-1.0f, 0.0f, 0.0f))
             {
-                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(rbf);
+                //_scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(rbf);
                 _dragPlaneBottomLeft = lbb;
                 _dragPlaneBottomRight = lbf;
                 _dragPlaneTopRight = ltf;
@@ -220,7 +220,7 @@ namespace demon
             }
             else if (normal == phi::vec3(1.0f, 0.0f, 0.0f))
             {
-                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbb);
+                //_scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbb);
                 _dragPlaneBottomLeft = rbf;
                 _dragPlaneBottomRight = rbb;
                 _dragPlaneTopRight = rtb;
@@ -228,7 +228,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 0.0f, 1.0f))
             {
-                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(rbb);
+                //_scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(rbb);
                 _dragPlaneBottomLeft = lbf;
                 _dragPlaneBottomRight = rbf;
                 _dragPlaneTopRight = rtf;
@@ -236,7 +236,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 0.0f, -1.0f))
             {
-                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbf);
+                //_scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbf);
                 _dragPlaneBottomLeft = rbb;
                 _dragPlaneBottomRight = lbb;
                 _dragPlaneTopRight = ltb;
@@ -244,7 +244,7 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, 1.0f, 0.0f))
             {
-                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbb);
+                //_scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(lbb);
                 _dragPlaneBottomLeft = ltf;
                 _dragPlaneBottomRight = rtf;
                 _dragPlaneTopRight = rtb;
@@ -252,17 +252,17 @@ namespace demon
             }
             else if (normal == phi::vec3(0.0f, -1.0f, 0.0f))
             {
-                _scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(ltf);
+                //_scene->getRenderer()->getPlaneGridRenderPass()->transform.setLocalPosition(ltf);
                 _dragPlaneBottomLeft = lbb;
                 _dragPlaneBottomRight = rbb;
                 _dragPlaneTopRight = rbf;
                 _dragPlaneTopLeft = lbf;
             }
 
-            _scene->getRenderer()->getPlaneGridRenderPass()->transform.setDirection(normal);
+            //_scene->getRenderer()->getPlaneGridRenderPass()->transform.setDirection(normal);
 
             _dragging = true;
-            _scene->getRenderer()->getPlaneGridRenderPass()->show();
+            //_scene->getRenderer()->getPlaneGridRenderPass()->show();
         }
     }
 
@@ -289,7 +289,7 @@ namespace demon
     {
         if (_dragging)
         {
-            _scene->getRenderer()->getPlaneGridRenderPass()->hide();
+            //_scene->getRenderer()->getPlaneGridRenderPass()->hide();
             _dragging = false;
         }
     }

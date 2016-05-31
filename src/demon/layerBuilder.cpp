@@ -5,20 +5,73 @@
 #include <rendering\frameBuffer.h>
 #include <rendering\texture.h>
 #include <rendering\camera.h>
-
+#include <rendering\renderTargetsAddresses.h>
+#include <rendering\textRenderData.h>
+#include <rendering\glyphRenderData.h>
+#include <rendering\glslCompiler.h>
 #include <scenes\sceneId.h>
 
 #include <ui\control.h>
 #include <ui\controlRenderData.h>
 #include <ui\text.h>
-#include <ui\textRenderPass.h>
+
+#include <io\path.h>
 
 namespace demon
 {
     using namespace phi;
 
-    layer* layerBuilder::buildScene(gl* gl, float width, float height)
+    program* layerBuilder::buildControlRenderPassProgram(const string& shadersPath)
     {
+        auto vertFile = path::combine(shadersPath, "control", shadersManager::VERT_EXT);
+        auto fragFile = path::combine(shadersPath, "control", shadersManager::FRAG_EXT);
+
+        auto vertexShader = new phi::shader(vertFile);
+        auto fragmentShader = new phi::shader(fragFile);
+        auto program = glslCompiler::compile({ vertexShader, fragmentShader });
+
+        return program;
+    }
+
+    program* layerBuilder::buildTextRenderPassProgram(const string& shadersPath)
+    {
+        auto vertFile = path::combine(shadersPath, "text", shadersManager::VERT_EXT);
+        auto fragFile = path::combine(shadersPath, "text", shadersManager::FRAG_EXT);
+
+        auto vertexShader = new phi::shader(vertFile);
+        auto fragmentShader = new phi::shader(fragFile);
+        auto program = glslCompiler::compile({vertexShader, fragmentShader});
+
+        return program;
+    }
+
+    program* layerBuilder::buildGBufferRenderPassProgram(const string& shadersPath)
+    {
+        auto vertFile = path::combine(shadersPath, "gBuffer", shadersManager::VERT_EXT);
+        auto fragFile = path::combine(shadersPath, "gBuffer", shadersManager::FRAG_EXT);
+
+        auto vertexShader = new phi::shader(vertFile);
+        auto fragmentShader = new phi::shader(fragFile);
+        auto program = glslCompiler::compile({ vertexShader, fragmentShader });
+        
+        return program;
+    }
+
+    program* layerBuilder::buildLightingRenderPassProgram(const string& shadersPath)
+    {
+        auto vertFile = path::combine(shadersPath, "lighting", shadersManager::VERT_EXT);
+        auto fragFile = path::combine(shadersPath, "lighting", shadersManager::FRAG_EXT);
+
+        auto vertexShader = new phi::shader(vertFile);
+        auto fragmentShader = new phi::shader(fragFile);
+        auto program = glslCompiler::compile({ vertexShader, fragmentShader });
+
+        return program;
+    }
+
+    layer* layerBuilder::buildScene(const string& resourcesPath, gl* gl, float width, float height)
+    {
+        auto shadersPath = path::combine(resourcesPath, "shaders");
         auto pipeline = new phi::pipeline(gl, width, height);
 
         auto reserveContainer = [&](GLenum internalFormat, size_t size)
@@ -110,21 +163,23 @@ namespace demon
 
         auto finalImageFramebuffer = new framebuffer();
         finalImageFramebuffer->add(finalImageRT);
-
-        auto gBuffer = new renderPass(gl->shadersManager->loadCrazyFuckerSpecificShader("geometryPass"));
-        gBuffer->setOnUpdate([=](shader* shader)
+        
+        auto gBufferRenderPassProgram = buildGBufferRenderPassProgram(shadersPath);
+        auto gBuffer = new renderPass(gBufferRenderPassProgram);
+        
+        gBuffer->setOnUpdate([=](program* program)
         {
-            shader->bind();
+            program->bind();
 
             if (gl->currentState.useBindlessTextures)
-                shader->setUniform(0, gl->texturesManager->handles);
+                program->setUniform(0, gl->texturesManager->handles);
             else
-                shader->setUniform(0, gl->texturesManager->units);
+                program->setUniform(0, gl->texturesManager->units);
 
-            shader->unbind();
+            program->unbind();
         });
 
-        gBuffer->setOnRender([=](shader* shader)
+        gBuffer->setOnRender([=](program* program)
         {
             gBufferFramebuffer->bindForDrawing();
             pipeline->bindMaterialsIdsBuffer();
@@ -141,12 +196,12 @@ namespace demon
             glClearBufferfv(GL_COLOR, selectionRenderTargetNumber, &selectionClearColor);
             glError::check();
 
-            shader->bind();
+            program->bind();
 
             for (auto batch : pipeline->getBatches())
                 batch->render();
 
-            shader->unbind();
+            program->unbind();
 
             gBufferFramebuffer->unbind(GL_FRAMEBUFFER);
 
@@ -191,21 +246,22 @@ namespace demon
             bufferStorageUsage::write);
         rtsBuffer->bindBufferBase(2);
 
-        auto lighting = new renderPass(gl->shadersManager->loadCrazyFuckerSpecificShader("lightingPass"));
+        auto lightingRenderPassProgram = buildLightingRenderPassProgram(shadersPath);
+        auto lighting = new renderPass(lightingRenderPassProgram);
 
-        lighting->setOnUpdate([=](shader* shader)
+        lighting->setOnUpdate([=](program* program)
         {
-            shader->bind();
+            program->bind();
 
             if (gl->currentState.useBindlessTextures)
-                shader->setUniform(0, gl->texturesManager->handles);
+                program->setUniform(0, gl->texturesManager->handles);
             else
-                shader->setUniform(0, gl->texturesManager->units);
+                program->setUniform(0, gl->texturesManager->units);
 
-            shader->unbind();
+            program->unbind();
         });
 
-        lighting->setOnRender([=](shader* shader)
+        lighting->setOnRender([=](program* program)
         {
             glDisable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -213,10 +269,10 @@ namespace demon
             glBindVertexArray(quadVao);
             glError::check();
 
-            shader->bind();
+            program->bind();
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             glError::check();
-            shader->unbind();
+            program->unbind();
 
             glBindVertexArray(0);
             glError::check();
@@ -249,10 +305,11 @@ namespace demon
         return sceneLayer;
     }
 
-    layer* layerBuilder::buildUI(gl* gl, float width, float height)
+    layer* layerBuilder::buildUI(const string& resourcesPath, gl* gl, float width, float height)
     {
         /////////////// BUFFERS ///////////////
 
+        auto shadersPath = path::combine(resourcesPath, "shaders");
         auto uiCamera = new camera("uiCamera", width, height, 0.1f, 10000.0f, PI_OVER_4);
 
         auto cameraNode = new node("uiCamera");
@@ -315,13 +372,14 @@ namespace demon
         auto controlsModelMatrices = new vector<mat4>();
         auto controls = new vector<control*>();
 
-        auto controlRenderPass = new renderPass(gl->shadersManager->loadCrazyFuckerSpecificShader("control"));
+        auto controlRenderPassProgram = buildControlRenderPassProgram(shadersPath);
+        auto controlRenderPass = new renderPass(controlRenderPassProgram);
 
-        controlRenderPass->setOnUpdate([=](phi::shader* shader)
+        controlRenderPass->setOnUpdate([=](phi::program* program)
         {
         });
 
-        controlRenderPass->setOnRender([=](phi::shader* shader)
+        controlRenderPass->setOnRender([=](phi::program* program)
         {
             frameUniformBlockBuffer->bindBufferBase(0);
             controlsRenderDataBuffer->bindBufferBase(1);
@@ -332,14 +390,14 @@ namespace demon
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBlendColor(1, 1, 1, 1);
 
-            shader->bind();
-            shader->setUniform(0, gl->texturesManager->units);
+            program->bind();
+            program->setUniform(0, gl->texturesManager->units);
 
             glBindVertexArray(controlVao);
             glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, (GLsizei)controls->size());
             glBindVertexArray(0);
 
-            shader->unbind();
+            program->unbind();
 
             glBlendColor(0, 0, 0, 0);
             glDisable(GL_BLEND);
@@ -358,8 +416,6 @@ namespace demon
         vector<vertexAttrib> textVboAttribs;
         textVboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         textVboAttribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-        textVboAttribs.push_back(vertexAttrib(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
-        textVboAttribs.push_back(vertexAttrib(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
         auto textVbo = new vertexBuffer<vertex>(textVboAttribs);
         textVbo->storage(textQuad->vboSize, textQuad->vboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
@@ -368,14 +424,14 @@ namespace demon
         textEbo->storage(textQuad->eboSize, textQuad->eboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
         vector<vertexAttrib> glyphsIdsAttribs;
-        glyphsIdsAttribs.push_back(vertexAttrib(4, 1, GL_UNSIGNED_INT, 0, 0, 1));
+        glyphsIdsAttribs.push_back(vertexAttrib(2, 1, GL_UNSIGNED_INT, 0, 0, 1));
         auto glyphIdsBuffer = new vertexBuffer<uint>(glyphsIdsAttribs);
         glyphIdsBuffer->data(sizeof(uint), nullptr, bufferDataUsage::dynamicDraw);
 
         vector<vertexAttrib> textModelMatricesAttribs;
 
         for (uint i = 0; i < 4; ++i)
-            textModelMatricesAttribs.push_back(vertexAttrib(5 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
+            textModelMatricesAttribs.push_back(vertexAttrib(3 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
         auto textModelMatricesBuffer = new vertexBuffer<mat4>(textModelMatricesAttribs);
         textModelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
@@ -390,10 +446,12 @@ namespace demon
         auto textModelMatrices = new vector<mat4>();
         auto glyphInfos = new vector<glyphRenderData>();
 
-        auto textRenderPass = new renderPass(gl->shadersManager->loadCrazyFuckerSpecificShader("text"));
-        textRenderPass->setOnUpdate([=](shader* shader) {});
+        auto textRenderPassProgram = buildTextRenderPassProgram(shadersPath);
+        auto textRenderPass = new renderPass(textRenderPassProgram);
 
-        textRenderPass->setOnRender([=](shader* shader)
+        textRenderPass->setOnUpdate([=](program* program) {});
+
+        textRenderPass->setOnRender([=](program* program)
         {
             frameUniformBlockBuffer->bindBufferBase(0);
             glyphInfoBuffer->bindBufferBase(1);
@@ -406,15 +464,15 @@ namespace demon
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBlendColor(1, 1, 1, 1);
 
-            shader->bind();
-            shader->setUniform(0, gl->texturesManager->units);
-            shader->setUniform(1, glm::vec2(texelSize, texelSize));
+            program->bind();
+            program->setUniform(0, glm::vec2(texelSize, texelSize));
+            program->setUniform(1, gl->texturesManager->units);
 
             glBindVertexArray(textVao);
             glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(glyphInfos->size()));
             glBindVertexArray(0);
 
-            shader->unbind();
+            program->unbind();
 
             glBlendColor(0, 0, 0, 0);
             glDisable(GL_BLEND);

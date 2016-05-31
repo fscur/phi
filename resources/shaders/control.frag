@@ -19,7 +19,7 @@ layout (std140, binding = 1) buffer ControlRenderData
     controlRenderData items[];
 } renderData;
 
-uniform sampler2DArray textureArrays[32];
+layout (location = 0) uniform sampler2DArray textureArrays[32];
 
 in vec2 fragTexCoord;
 flat in uint instanceId;

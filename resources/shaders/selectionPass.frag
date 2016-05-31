@@ -28,10 +28,11 @@ layout (std140, binding = 2) uniform RenderTargetAddresses
     float pad5;
 } rtAddresses;
 
-uniform sampler2DArray textureArrays[32];
-uniform vec2 resolution;
-uniform float offset;
-uniform float time;
+layout (location = 0) uniform sampler2DArray textureArrays[32];
+layout (location = 1) uniform vec2 resolution;
+layout (location = 2) uniform float offset;
+layout (location = 3) uniform float time;
+
 out vec4 fragColor;
 in vec2 fragTexCoord;
 

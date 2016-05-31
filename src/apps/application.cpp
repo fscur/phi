@@ -7,7 +7,7 @@
 
 #include <rendering\gl.h>
 
-#include "invalidInitializationException.h"
+#include <core\invalidInitializationException.h>
 
 namespace phi
 {

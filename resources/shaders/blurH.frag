@@ -3,11 +3,11 @@
 in vec3 fragPosition;
 in vec2 fragTexCoord;
 
-uniform sampler2DArray textureArrays[32];
-uniform int unit;
-uniform float page;
-uniform vec2 resolution; 
-uniform int level;
+layout (location = 0) uniform sampler2DArray textureArrays[32];
+layout (location = 1) uniform int unit;
+layout (location = 2) uniform float page;
+layout (location = 3) uniform vec2 resolution; 
+layout (location = 4) uniform int level;
 
 float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308);
 float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703);

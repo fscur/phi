@@ -5,11 +5,14 @@
 
 namespace phi
 {
+    struct uniform
+    {
+        GLint location;
+        string name;
+    };
+
     class program
     {
-    public:
-        static string shadersPath;
-
     private:
         uint _id;
         vector<shader*> _shaders;
@@ -23,10 +26,11 @@ namespace phi
         void createUniform(uint location, const string& name);
 
     public:
-        program();
-        ~program();
+        RENDERING_API program();
+        RENDERING_API ~program();
 
-        void add(shader* shader);
+        RENDERING_API void addShader(shader* shader);
+        RENDERING_API void addAttribute(const string& attribute);
 
         RENDERING_API void addUniform(uint location, string name);
         RENDERING_API void setUniform(uint location, texture* value, GLuint index);
@@ -44,7 +48,7 @@ namespace phi
         RENDERING_API void setUniform(uint location, vector<GLint> value);
         RENDERING_API void setUniform(uint location, vector<GLuint64> value);
 
-        RENDERING_API void initializeAttributes();
+        RENDERING_API void link();
         RENDERING_API void bind();
         RENDERING_API void unbind();
         RENDERING_API bool reload();

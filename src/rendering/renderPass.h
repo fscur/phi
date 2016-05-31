@@ -2,25 +2,25 @@
 #include <phi.h>
 #include "renderingApi.h"
 
-#include "shader.h"
+#include "program.h"
 
 namespace phi
 {
     class renderPass
     {
     private:
-        shader* _shader;
-        std::function<void(shader*)> _onUpdate;
-        std::function<void(shader*)> _onRender;
+        program* _program;
+        std::function<void(program*)> _onUpdate;
+        std::function<void(program*)> _onRender;
+
     public:
-    public:
-        RENDERING_API renderPass(shader* shader);
+        RENDERING_API renderPass(program* program);
         RENDERING_API ~renderPass();
 
         RENDERING_API void update();
         RENDERING_API void render();
 
-        void setOnUpdate(std::function<void(shader*)> onUpdate) { _onUpdate = onUpdate; }
-        void setOnRender(std::function<void(shader*)> onRender) { _onRender = onRender; }
+        void setOnUpdate(std::function<void(program*)> onUpdate) { _onUpdate = onUpdate; }
+        void setOnRender(std::function<void(program*)> onRender) { _onRender = onRender; }
     };
 }

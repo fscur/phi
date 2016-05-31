@@ -4,6 +4,7 @@
 #include <diagnostics\stopwatch.h>
 
 #include <io\path.h>
+#include "glslCompiler.h"
 
 namespace phi
 {
@@ -18,85 +19,82 @@ namespace phi
             safeDelete(pair.second);
     }
 
-    shader * shadersManager::loadCrazyFuckerSpecificShader(const string& name)
-    {
-        if (name == "control")
-        {
-            vector<string> attribs;
-            attribs.push_back("inPosition");
-            attribs.push_back("inTexCoord");
-            attribs.push_back("inModelMatrix");
+    //program* shadersManager::loadCrazyFuckerSpecificShader(const string& name)
+    //{
+    //    return load(name);
 
-            auto shader = load(name, attribs);
-            shader->addUniform(0, "textureArrays");
+    //    //if (name == "control")
+    //    //{
+    //    //    vector<string> attribs;
+    //    //    attribs.push_back("inPosition");
+    //    //    attribs.push_back("inTexCoord");
+    //    //    attribs.push_back("inModelMatrix");
 
+    //    //    auto program = load(name, attribs);
+    //    //    program->addUniform(0, "textureArrays");
 
-            return shader;
-        }
-        else if (name == "text")
-        {
-            vector<string> attribs;
-            attribs.push_back("inPosition");
-            attribs.push_back("inTexCoord");
-            attribs.push_back("inNormal");
-            attribs.push_back("inTangent");
-            attribs.push_back("inGlyphId");
-            attribs.push_back("inModelMatrix");
+    //    //    return program;
+    //    //}
+    //    //else if (name == "text")
+    //    //{
+    //    //    vector<string> attribs;
+    //    //    attribs.push_back("inPosition");
+    //    //    attribs.push_back("inTexCoord");
+    //    //    attribs.push_back("inNormal");
+    //    //    attribs.push_back("inTangent");
+    //    //    attribs.push_back("inGlyphId");
+    //    //    attribs.push_back("inModelMatrix");
 
-            auto shader = load(name, attribs);
-            shader->addUniform(0, "textureArrays");
-            shader->addUniform(1, "texelSize");
-        
-            
+    //    //    auto program = load(name, attribs);
+    //    //    program->addUniform(0, "textureArrays");
+    //    //    program->addUniform(1, "texelSize");
 
-            return shader;
-        }
-        else if (name == "geometryPass")
-        {
-            vector<string> gBufferShaderAttribs;
-            gBufferShaderAttribs.push_back("inPosition");
-            gBufferShaderAttribs.push_back("inTexCoord");
-            gBufferShaderAttribs.push_back("inNormal");
-            gBufferShaderAttribs.push_back("inTangent");
-            gBufferShaderAttribs.push_back("inMaterialId");
-            gBufferShaderAttribs.push_back("inModelMatrix");
+    //    //    return program;
+    //    //}
+    //    //else if (name == "geometryPass")
+    //    //{
+    //    //    vector<string> gBufferShaderAttribs;
+    //    //    gBufferShaderAttribs.push_back("inPosition");
+    //    //    gBufferShaderAttribs.push_back("inTexCoord");
+    //    //    gBufferShaderAttribs.push_back("inNormal");
+    //    //    gBufferShaderAttribs.push_back("inTangent");
+    //    //    gBufferShaderAttribs.push_back("inMaterialId");
+    //    //    gBufferShaderAttribs.push_back("inModelMatrix");
 
-            auto shader = load(name, gBufferShaderAttribs);
-            shader->addUniform(0, "textureArrays");
+    //    //    auto program = load(name, gBufferShaderAttribs);
+    //    //    //program->addUniform(0, "textureArrays");
 
-            return shader;
-        }
-        else if (name == "lightingPass")
-        {
-            vector<string> lightingShaderAttribs;
-            lightingShaderAttribs.push_back("inPosition");
-            lightingShaderAttribs.push_back("inTexCoord");
+    //    //    return program;
+    //    //}
+    //    //else if (name == "lightingPass")
+    //    //{
+    //    //    vector<string> lightingShaderAttribs;
+    //    //    lightingShaderAttribs.push_back("inPosition");
+    //    //    lightingShaderAttribs.push_back("inTexCoord");
 
-            auto shader = load(name, lightingShaderAttribs);
-            shader->addUniform(0, "textureArrays");
+    //    //    auto program = load(name, lightingShaderAttribs);
+    //    //    program->addUniform(0, "textureArrays");
+    //    //    
+    //    //    return program;
+    //    //}
 
-            return shader;
-        }
+    //    //return nullptr;
+    //}
 
-        return nullptr;
-    }
+    //program* shadersManager::load(const string& name)
+    //{
+    //    auto vertFile = path::combine(_path, name, shadersManager::VERT_EXT);
+    //    auto fragFile = path::combine(_path, name, shadersManager::FRAG_EXT);
 
-    program* shadersManager::load(string name, const vector<string>& attributes)
-    {
-        auto vertFile = path::combine(_path, name, shadersManager::VERT_EXT);
-        auto fragFile = path::combine(_path, name, shadersManager::FRAG_EXT);
+    //    auto vertexShader = new phi::shader(vertFile);
+    //    auto fragmentShader = new phi::shader(fragFile);
 
-        auto vertexShader = new phi::shader(vertFile);
-        auto fragmentShader = new phi::shader(fragFile);
-        auto program = new phi::program();
+    //    auto program = glslCompiler::compile({vertexShader, fragmentShader});
 
-        program->add(vertexShader);
-        program->add(fragmentShader);
+    //    _programs[name] = program;
 
-        _programs[name] = program;
-
-        return program;
-    }
+    //    return program;
+    //}
 
     void shadersManager::reloadAllPrograms()
     {

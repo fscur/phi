@@ -1,5 +1,7 @@
 #include <precompiled.h>
-#include "demonApi.h"
+
+#include <core\invalidInitializationException.h>
+#include <core\eventHandler.h>
 
 #include <diagnostics\stackTracer.h>
 #include <diagnostics\stopwatch.h>
@@ -8,11 +10,9 @@
 #include <io\path.h>
 
 #include <apps\application.h>
-#include <apps\invalidInitializationException.h>
 
-#include <demon\screen.h>
-
-#include <core\eventHandler.h>
+#include "screen.h"
+#include "demonApi.h"
 
 using namespace phi;
 

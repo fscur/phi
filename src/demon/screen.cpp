@@ -54,13 +54,13 @@ namespace demon
         _messageQueue = new blockingQueue<phi::watcherMessage>();
         _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
         {
-            auto fileExtension = path::getExtension(shaderFileName);
+            /*auto fileExtension = path::getExtension(shaderFileName);
             if (fileExtension == phi::shadersManager::FRAG_EXT ||
                 fileExtension == phi::shadersManager::VERT_EXT)
             {
                 auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
                 _gl->shadersManager->reloadShader(shaderName);
-            }
+            }*/
         });
         _watcher->startWatch();
 #endif
@@ -122,7 +122,7 @@ namespace demon
     {
         camera* uiCamera = new camera("uiCamera", static_cast<float>(_width), static_cast<float>(_height), 0.1f, 10000.0f, PI_OVER_4);
 
-        _ui = new ui(uiCamera, _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
+        _ui = new ui(uiCamera, _gl, static_cast<float>(_width), static_cast<float>(_height));
 
         auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 14);
         auto fontFps = _gl->fontsManager->load("Roboto-Thin.ttf", 12);
@@ -152,19 +152,22 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneLayer = layerBuilder::buildScene(_gl, (float) _width, (float)_height);
+        auto sceneLayer = layerBuilder::buildScene(application::resourcesPath, _gl, (float) _width, (float)_height);
         sceneLayer->add(floor);
         sceneLayer->add(chair);
 
-        auto nandinhoLayer = layerBuilder::buildUI(_gl, (float) _width/5, (float)_height/5);
+        auto nandinhoLayer = layerBuilder::buildUI(application::resourcesPath, _gl, (float) _width/5, (float)_height/5);
         nandinhoLayer->add(labelNandinho);
         nandinhoLayer->add(_labelFps);
 
-        auto constructionLayer = layerBuilder::buildUI(_gl, (float)_width, float(_height));
+        auto constructionLayer = layerBuilder::buildUI(application::resourcesPath, _gl, (float)_width, float(_height));
         constructionLayer->add(constructionLabel);
 
         _designContext = new context({ sceneLayer, nandinhoLayer });
-        _constructionContext = new context({ sceneLayer, constructionLayer });
+        //_constructionContext = new context({ sceneLayer, constructionLayer });
+
+        //_designContext = new context({ sceneLayer});
+        _constructionContext = new context({ sceneLayer });
     }
 
     bool _design = true;

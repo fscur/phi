@@ -22,11 +22,12 @@ layout (std140, binding = 0) buffer ControlRenderData
 in vec2 fragTexCoord;
 flat in uint instanceId;
 
-uniform sampler2DArray textureArrays[32];
-uniform int backgroundUnit;
-uniform float backgroundPage;
-uniform vec2 resolution;
-uniform int level;
+layout (location = 2) uniform sampler2DArray textureArrays[32];
+layout (location = 3) uniform int backgroundUnit;
+layout (location = 4) uniform float backgroundPage;
+layout (location = 5) uniform vec2 resolution;
+layout (location = 6) uniform int level;
+
 out vec4 fragColor;
 
 vec3 fetchGlassyBackground(vec2 uv)

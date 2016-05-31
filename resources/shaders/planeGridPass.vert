@@ -13,7 +13,7 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     mat4 ip;
 } frameUniforms;
 
-uniform mat4 m;
+layout (location = 0) uniform mat4 m;
 
 out vec2 fragTexCoord;
 
