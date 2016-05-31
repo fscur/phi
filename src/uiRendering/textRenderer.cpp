@@ -119,7 +119,7 @@ namespace phi
         _renderDataBuffer->data(sizeof(glyphRenderData) * glyphCount, &_renderData[0], bufferDataUsage::dynamicDraw);
     }
 
-    void textRenderer::render(program * program)
+    void textRenderer::render(program* program)
     {
         _renderDataBuffer->bindBufferBase(1);
 

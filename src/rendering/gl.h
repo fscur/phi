@@ -5,7 +5,6 @@
 
 #include "renderingApi.h"
 #include "texturesManager.h"
-#include "shadersManager.h"
 #include "fontsManager.h"
 
 namespace phi
@@ -88,7 +87,6 @@ namespace phi
 
     public:
         texturesManager* texturesManager;
-        shadersManager* shadersManager;
         fontsManager* fontsManager;
         gl::state currentState;
         map<string, bool> extensions;

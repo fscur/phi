@@ -6,6 +6,7 @@
 #include <rendering\buffer.h>
 #include <rendering\shader.h>
 #include <rendering\gl.h>
+#include <rendering\program.h>
 
 #include "glyphRenderData.h"
 #include "textRenderData.h"

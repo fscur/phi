@@ -16,7 +16,6 @@ namespace phi
 {
     class pipeline
     {
-
     private:
         const uint MAX_MATERIALS_COUNT = 512;
         map<material*, uint> _materialsMaterialsGpu;

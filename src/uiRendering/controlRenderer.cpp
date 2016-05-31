@@ -57,7 +57,7 @@ namespace phi
 
     void controlRenderer::add(control* control)
     {
-        auto texture = pipeline::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
+        auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
         auto address = _gl->texturesManager->get(texture);
 
         auto renderData = controlRenderData();

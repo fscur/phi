@@ -17,9 +17,6 @@ namespace phi
 
         for (auto batch : _batches)
             safeDelete(batch);
-
-        for (auto pair : _imageTextures)
-            safeDelete(pair.second);
     }
 
     void pipeline::createFrameUniformBlockBuffer()
@@ -51,10 +48,10 @@ namespace phi
 
         _materialsIndices[material] = currentId++;
 
-        auto albedoTexture = pipeline::getTextureFromImage(material->albedoImage, _gl->defaultAlbedoImage);
-        auto normalTexture = pipeline::getTextureFromImage(material->normalImage, _gl->defaultNormalImage);
-        auto specularTexture = pipeline::getTextureFromImage(material->specularImage, _gl->defaultSpecularImage);
-        auto emissiveTexture = pipeline::getTextureFromImage(material->emissiveImage, _gl->defaultEmissiveImage);
+        auto albedoTexture = texturesManager::getTextureFromImage(material->albedoImage, _gl->defaultAlbedoImage);
+        auto normalTexture = texturesManager::getTextureFromImage(material->normalImage, _gl->defaultNormalImage);
+        auto specularTexture = texturesManager::getTextureFromImage(material->specularImage, _gl->defaultSpecularImage);
+        auto emissiveTexture = texturesManager::getTextureFromImage(material->emissiveImage, _gl->defaultEmissiveImage);
 
         auto albedoTextureAddress = _gl->texturesManager->get(albedoTexture);
         auto normalTextureAddress = _gl->texturesManager->get(normalTexture);

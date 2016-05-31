@@ -8,6 +8,7 @@
 #include <rendering\shader.h>
 #include <rendering\buffer.h>
 #include <rendering\vertexBuffer.h>
+#include <rendering\program.h>
 
 #include <ui\control.h>
 
@@ -20,7 +21,7 @@ namespace phi
     private:
         struct controlInstance
         {
-            uint bufferOffset;
+            size_t bufferOffset;
             mat4 modelMatrix;
             controlRenderData renderData;
         };

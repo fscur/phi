@@ -29,8 +29,8 @@ namespace demon
 
     program* layerBuilder::buildControlRenderPassProgram(const string& shadersPath)
     {
-        auto vertFile = path::combine(shadersPath, "control", shadersManager::VERT_EXT);
-        auto fragFile = path::combine(shadersPath, "control", shadersManager::FRAG_EXT);
+        auto vertFile = path::combine(shadersPath, "control", shader::VERT_EXT);
+        auto fragFile = path::combine(shadersPath, "control", shader::FRAG_EXT);
 
         auto vertexShader = new phi::shader(vertFile);
         auto fragmentShader = new phi::shader(fragFile);
@@ -41,8 +41,8 @@ namespace demon
 
     program* layerBuilder::buildTextRenderPassProgram(const string& shadersPath)
     {
-        auto vertFile = path::combine(shadersPath, "text", shadersManager::VERT_EXT);
-        auto fragFile = path::combine(shadersPath, "text", shadersManager::FRAG_EXT);
+        auto vertFile = path::combine(shadersPath, "text", shader::VERT_EXT);
+        auto fragFile = path::combine(shadersPath, "text", shader::FRAG_EXT);
 
         auto vertexShader = new phi::shader(vertFile);
         auto fragmentShader = new phi::shader(fragFile);
@@ -53,8 +53,8 @@ namespace demon
 
     program* layerBuilder::buildGBufferRenderPassProgram(const string& shadersPath)
     {
-        auto vertFile = path::combine(shadersPath, "gBuffer", shadersManager::VERT_EXT);
-        auto fragFile = path::combine(shadersPath, "gBuffer", shadersManager::FRAG_EXT);
+        auto vertFile = path::combine(shadersPath, "gBuffer", shader::VERT_EXT);
+        auto fragFile = path::combine(shadersPath, "gBuffer", shader::FRAG_EXT);
 
         auto vertexShader = new phi::shader(vertFile);
         auto fragmentShader = new phi::shader(fragFile);
@@ -65,8 +65,8 @@ namespace demon
 
     program* layerBuilder::buildLightingRenderPassProgram(const string& shadersPath)
     {
-        auto vertFile = path::combine(shadersPath, "lighting", shadersManager::VERT_EXT);
-        auto fragFile = path::combine(shadersPath, "lighting", shadersManager::FRAG_EXT);
+        auto vertFile = path::combine(shadersPath, "lighting", shader::VERT_EXT);
+        auto fragFile = path::combine(shadersPath, "lighting", shader::FRAG_EXT);
 
         auto vertexShader = new phi::shader(vertFile);
         auto fragmentShader = new phi::shader(fragFile);

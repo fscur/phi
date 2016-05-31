@@ -8,11 +8,10 @@ namespace phi
     class liveShaderReloader
     {
     private:
-        static std::map<string, program*> _programs;
+        //static std::map<string, program*> _programs;
 
     public:
-        
         RENDERING_API static void reloadAllPrograms();
-		RENDERING_API static void reloadProgram(string name);
+        RENDERING_API static void reloadProgram(string name);
     };
 }

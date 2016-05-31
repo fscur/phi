@@ -37,7 +37,6 @@ namespace phi
         initState();
 
         texturesManager = new phi::texturesManager(hasBindlessTextures, hasSparseTextures);
-        shadersManager = new phi::shadersManager(info.shadersPath);
         fontsManager = new phi::fontsManager(info.fontsPath, texturesManager);
 
         createDefaultResources(hasSparseTextures);
@@ -46,7 +45,6 @@ namespace phi
     gl::~gl()
     {
         safeDelete(texturesManager);
-        safeDelete(shadersManager);
         safeDelete(fontsManager);
         safeDelete(defaultAlbedoImage);
         safeDelete(defaultNormalImage);

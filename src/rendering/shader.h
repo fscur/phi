@@ -28,10 +28,13 @@ namespace phi
         string _fileName;
 
     private:
-
         shaderStage::shaderStage getStage(const string& fileName);
         string load(const string& fileName);
         bool validate();
+
+    public:
+        static constexpr const char* VERT_EXT = ".vert";
+        static constexpr const char* FRAG_EXT = ".frag";
 
     public:
         RENDERING_API shader(const string& fileName);
