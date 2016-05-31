@@ -10,9 +10,9 @@
 #include <rendering\camera.h>
 #include <loader\importer.h>
 
-#include <scenes\selectSceneObjectCommand.h>
+#include <context\selectSceneObjectCommand.h>
 
-#include <apps\application.h>
+#include <application\application.h>
 
 namespace demon
 {

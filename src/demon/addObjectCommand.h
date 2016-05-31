@@ -2,7 +2,7 @@
 #include <phi.h>
 
 #include <core\command.h>
-#include <scenes\scene.h>
+#include <context\scene.h>
 
 namespace demon
 {

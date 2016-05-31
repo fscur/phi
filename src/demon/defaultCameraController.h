@@ -1,8 +1,8 @@
 #pragma once
 #include <phi.h>
-#include <scenes\scene.h>
+#include <context\scene.h>
 #include <animation\floatAnimator.h>
-#include <apps\commandsManager.h>
+#include <application\commandsManager.h>
 
 #include "cameraController.h"
 

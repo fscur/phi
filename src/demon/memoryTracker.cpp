@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include <diagnostics\memoryTracker.h>
+#include <diagnostic\memoryTracker.h>
 
 static class dumper
 {
