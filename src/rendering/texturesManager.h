@@ -10,6 +10,7 @@ namespace phi
     {
     private:
         static bool _initialized;
+        static map<image*, texture*> _imageTextures;
 
     private:
         const size_t MAX_CONTAINER_ITEMS = 10;
@@ -41,5 +42,8 @@ namespace phi
         RENDERING_API textureAddress get(const texture* const texture);
         RENDERING_API bool contains(const texture* const texture);
         RENDERING_API textureContainer* reserveContainer(textureContainerLayout layout, size_t size);
+
+    public:
+        RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);
     };
 }

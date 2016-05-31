@@ -4,6 +4,7 @@
 namespace phi
 {
     bool texturesManager::_initialized = false;
+    map<image*, texture*> texturesManager::_imageTextures = map<image*, texture*>();
 
     texturesManager::texturesManager(
         bool bindless = false,
@@ -109,6 +110,35 @@ namespace phi
             add(texture);
 
         return _textures[texture];
+    }
+
+
+    texture* texturesManager::getTextureFromImage(image* materialImage, phi::image* defaultImage)
+    {
+        phi::texture* texture = nullptr;
+
+        if (materialImage == nullptr)
+            materialImage = defaultImage;
+
+        if (_imageTextures.find(materialImage) != _imageTextures.end())
+        {
+            texture = _imageTextures[materialImage];
+        }
+        else
+        {
+            texture = new phi::texture(
+                materialImage,
+                GL_TEXTURE_2D,
+                GL_RGBA8,
+                GL_REPEAT,
+                GL_LINEAR_MIPMAP_LINEAR,
+                GL_LINEAR,
+                true);
+
+            _imageTextures[materialImage] = texture;
+        }
+
+        return texture;
     }
 
     bool texturesManager::contains(const texture* const texture)
