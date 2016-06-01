@@ -11,7 +11,6 @@
 #include <ui\text.h>
 
 #include "glyphRenderData.h"
-#include "textRenderData.h"
 
 namespace phi
 {
@@ -38,11 +37,11 @@ namespace phi
         GLuint _vao;
         vertexBuffer<uint>* _glyphIdsBuffer;
         vertexBuffer<mat4>* _modelMatricesBuffer;
-        buffer<glyphRenderData>* _renderDataBuffer;
+        buffer<glyphRenderData>* _glyphRenderDataBuffer;
 
     private:
         void createBuffers();
-        void updateBuffers();
+        void recreateBuffers();
         textInstance* buildTextInstance(text* text);
 
     public:

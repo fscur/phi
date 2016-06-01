@@ -14,11 +14,8 @@
 
 #include <sceneRendering\pipeline.h>
 
-#include <uiRendering\glyphRenderData.h>
 #include <uiRendering\controlRenderer.h>
-#include <uiRendering\controlRenderData.h>
 #include <uiRendering\textRenderer.h>
-#include <uiRendering\textRenderData.h>
 
 #include <context\sceneId.h>
 

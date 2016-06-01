@@ -15,6 +15,12 @@ namespace phi
 
     textRenderer::~textRenderer()
     {
+        for (auto pair : _instances)
+            safeDelete(pair.second);
+
+        safeDelete(_glyphIdsBuffer);
+        safeDelete(_glyphRenderDataBuffer);
+        safeDelete(_modelMatricesBuffer);
     }
 
     void textRenderer::createBuffers()
@@ -55,13 +61,13 @@ namespace phi
         _modelMatricesBuffer = new vertexBuffer<mat4>(textModelMatricesAttribs);
         _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
 
-        _renderDataBuffer = new buffer<glyphRenderData>(bufferTarget::shader);
-        _renderDataBuffer->data(sizeof(glyphRenderData), nullptr, bufferDataUsage::dynamicDraw);
+        _glyphRenderDataBuffer = new buffer<glyphRenderData>(bufferTarget::shader);
+        _glyphRenderDataBuffer->data(sizeof(glyphRenderData), nullptr, bufferDataUsage::dynamicDraw);
 
         glBindVertexArray(0);
     }
 
-    void textRenderer::updateBuffers()
+    void textRenderer::recreateBuffers()
     {
         auto glyphsIds = vector<uint>();
         auto modelMatrices = vector<mat4>();
@@ -82,7 +88,7 @@ namespace phi
 
         _glyphIdsBuffer->data(sizeof(uint) * _glyphCount, &glyphsIds[0], bufferDataUsage::dynamicDraw);
         _modelMatricesBuffer->data(sizeof(mat4) * _glyphCount, &modelMatrices[0], bufferDataUsage::dynamicDraw);
-        _renderDataBuffer->data(sizeof(glyphRenderData) * _glyphCount, &renderData[0], bufferDataUsage::dynamicDraw);
+        _glyphRenderDataBuffer->data(sizeof(glyphRenderData) * _glyphCount, &renderData[0], bufferDataUsage::dynamicDraw);
     }
 
     textRenderer::textInstance* textRenderer::buildTextInstance(text* text)
@@ -125,17 +131,17 @@ namespace phi
 
             float shift = std::abs(x0 - static_cast<int>(x0));
 
-            auto glyphData = glyphRenderData();
-            glyphData.position = glyph->texPosition;
-            glyphData.size = glyph->texSize;
-            glyphData.shift = shift;
-            glyphData.unit = glyph->texUnit;
-            glyphData.page = glyph->texPage;
-            glyphData.color = color;
+            auto renderData = glyphRenderData();
+            renderData.position = glyph->texPosition;
+            renderData.size = glyph->texSize;
+            renderData.shift = shift;
+            renderData.unit = glyph->texUnit;
+            renderData.page = glyph->texPage;
+            renderData.color = color;
 
             auto glyphInstance = new textRenderer::glyphInstance();
             glyphInstance->modelMatrix = modelMatrix;
-            glyphInstance->renderData = glyphData;
+            glyphInstance->renderData = renderData;
 
             glyphInstances.push_back(glyphInstance);
 
@@ -151,23 +157,24 @@ namespace phi
     void textRenderer::add(text* text)
     {
         _instances[text] = buildTextInstance(text);
-        updateBuffers();
+        recreateBuffers();
     }
 
     void textRenderer::remove(text* text)
     {
-        throw notImplementedException();
+        _instances.erase(text);
+        recreateBuffers();
     }
 
     void textRenderer::update(text* text)
     {
         _instances[text] = buildTextInstance(text);
-        updateBuffers();
+        recreateBuffers();
     }
 
     void textRenderer::render(program* program)
     {
-        _renderDataBuffer->bindBufferBase(1);
+        _glyphRenderDataBuffer->bindBufferBase(1);
 
         auto texelSize = 1.0f / (float)_gl->fontsManager->getGlyphAtlasSize();
 

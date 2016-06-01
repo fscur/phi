@@ -34,7 +34,7 @@ namespace phi
         vector<controlRenderData> _renderData;
 
         GLuint _vao;
-        vertexBuffer<mat4>* _controlsModelMatricesBuffer;
+        vertexBuffer<mat4>* _modelMatricesBuffer;
         buffer<controlRenderData>* _controlsRenderDataBuffer;
 
     private:

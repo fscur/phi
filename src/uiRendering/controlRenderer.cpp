@@ -16,6 +16,11 @@ namespace phi
 
     controlRenderer::~controlRenderer()
     {
+        for (auto pair : _instances)
+            safeDelete(pair.second);
+
+        safeDelete(_modelMatricesBuffer);
+        safeDelete(_controlsRenderDataBuffer);
     }
 
     void controlRenderer::createBuffers()
@@ -46,8 +51,8 @@ namespace phi
         for (uint i = 0; i < 4; ++i)
             controlsModelMatricesAttribs.push_back(vertexAttrib(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _controlsModelMatricesBuffer = new vertexBuffer<mat4>(controlsModelMatricesAttribs);
-        _controlsModelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
+        _modelMatricesBuffer = new vertexBuffer<mat4>(controlsModelMatricesAttribs);
+        _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
         
         glBindVertexArray(0);
         
@@ -75,7 +80,7 @@ namespace phi
         _modelMatrices.push_back(instance->modelMatrix);
         _renderData.push_back(instance->renderData);
 
-        _controlsModelMatricesBuffer->data(sizeof(mat4) * _instances.size(), &_modelMatrices[0], bufferDataUsage::dynamicDraw);
+        _modelMatricesBuffer->data(sizeof(mat4) * _instances.size(), &_modelMatrices[0], bufferDataUsage::dynamicDraw);
         _controlsRenderDataBuffer->data(sizeof(controlRenderData) * _instances.size(), &_renderData[0], bufferDataUsage::dynamicDraw);
     }
 
