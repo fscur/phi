@@ -21,9 +21,12 @@ namespace phi
         map<uint, string> _uniformsNames;
         vector<string> _attributes;
 
+#ifdef _DEBUG
+        map<shader*, eventToken> _dirtyShadersTokens;
+#endif
+
     private:
         bool validate();
-        void createUniform(uint location, const string& name);
 
     public:
         RENDERING_API program();
