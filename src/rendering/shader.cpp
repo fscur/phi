@@ -38,8 +38,6 @@ namespace phi
             break;
         }
 
-        _content = load(fileName);
-
         compile();
 
 #if _DEBUG
@@ -103,6 +101,12 @@ namespace phi
 
     bool shader::compile()
     {
+#ifdef _DEBUG
+        if (!_isDirty)
+            return true;
+#endif
+        _content = load(_fileName);
+
         auto result = true;
         auto source = _content.c_str();
         glShaderSource(_id, 1, &source, 0);
@@ -113,6 +117,9 @@ namespace phi
 
 #if _DEBUG
         result = validate();
+
+        if (result)
+            _isDirty = false;
 #endif
 
         return result;

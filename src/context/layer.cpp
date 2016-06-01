@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include "layer.h"
 
-namespace demon
+namespace phi
 {
     using namespace phi;
 

@@ -8,6 +8,10 @@
 #include <rendering\renderTargetsAddresses.h>
 #include <rendering\vertexBuffer.h>
 
+#ifdef _DEBUG
+#include <rendering\liveShaderReloader.h>
+#endif
+
 #include <sceneRendering\pipeline.h>
 
 #include <uiRendering\glyphRenderData.h>
@@ -23,54 +27,49 @@
 
 #include <io\path.h>
 
-namespace demon
+namespace phi
 {
-    using namespace phi;
+    map<string, shader*> layerBuilder::_shadersCache = map<string, shader*>();
+    map<string, program*> layerBuilder::_programsCache = map<string, program*>();
 
-    program* layerBuilder::buildControlRenderPassProgram(const string& shadersPath)
+    program* layerBuilder::buildProgram(
+        const string& shadersPath,
+        const string& programName,
+        const string& vertexShaderName,
+        const string& fragmentShaderName)
     {
-        auto vertFile = path::combine(shadersPath, "control", shader::VERT_EXT);
-        auto fragFile = path::combine(shadersPath, "control", shader::FRAG_EXT);
+        auto vertexShaderFileName = path::combine(shadersPath, vertexShaderName, shader::VERT_EXT);
+        auto fragmentShaderFileName = path::combine(shadersPath, fragmentShaderName, shader::FRAG_EXT);
 
-        auto vertexShader = new phi::shader(vertFile);
-        auto fragmentShader = new phi::shader(fragFile);
-        auto program = glslCompiler::compile({ vertexShader, fragmentShader });
+        auto newShader = [&] (string fileName)
+        {
+            phi::shader* shader = nullptr;
 
-        return program;
-    }
+            if (_shadersCache.find(fileName) != _shadersCache.end())
+            {
+                shader = _shadersCache[fileName];
+            }
+            else
+            {
+                shader = new phi::shader(fileName);
+                _shadersCache[fileName] = shader;
+#ifdef _DEBUG
+                liveShaderReloader::shaders[fileName] = shader;
+#endif
+            }
 
-    program* layerBuilder::buildTextRenderPassProgram(const string& shadersPath)
-    {
-        auto vertFile = path::combine(shadersPath, "text", shader::VERT_EXT);
-        auto fragFile = path::combine(shadersPath, "text", shader::FRAG_EXT);
+            return shader;
+        };
 
-        auto vertexShader = new phi::shader(vertFile);
-        auto fragmentShader = new phi::shader(fragFile);
-        auto program = glslCompiler::compile({vertexShader, fragmentShader});
+        auto vertexShader = newShader(vertexShaderFileName);
+        auto fragmentShader = newShader(fragmentShaderFileName);
 
-        return program;
-    }
+        phi::program* program = nullptr;
 
-    program* layerBuilder::buildGBufferRenderPassProgram(const string& shadersPath)
-    {
-        auto vertFile = path::combine(shadersPath, "gBuffer", shader::VERT_EXT);
-        auto fragFile = path::combine(shadersPath, "gBuffer", shader::FRAG_EXT);
-
-        auto vertexShader = new phi::shader(vertFile);
-        auto fragmentShader = new phi::shader(fragFile);
-        auto program = glslCompiler::compile({ vertexShader, fragmentShader });
-        
-        return program;
-    }
-
-    program* layerBuilder::buildLightingRenderPassProgram(const string& shadersPath)
-    {
-        auto vertFile = path::combine(shadersPath, "lighting", shader::VERT_EXT);
-        auto fragFile = path::combine(shadersPath, "lighting", shader::FRAG_EXT);
-
-        auto vertexShader = new phi::shader(vertFile);
-        auto fragmentShader = new phi::shader(fragFile);
-        auto program = glslCompiler::compile({ vertexShader, fragmentShader });
+        if (_programsCache.find(programName) != _programsCache.end())
+            program = _programsCache[programName];
+        else
+            program = glslCompiler::compile({ vertexShader, fragmentShader });
 
         return program;
     }
@@ -170,7 +169,7 @@ namespace demon
         auto finalImageFramebuffer = new framebuffer();
         finalImageFramebuffer->add(finalImageRT);
         
-        auto gBufferRenderPassProgram = buildGBufferRenderPassProgram(shadersPath);
+        auto gBufferRenderPassProgram = buildProgram(shadersPath, "gBuffer", "gBuffer", "gBuffer");
         auto gBuffer = new renderPass(gBufferRenderPassProgram);
         
         gBuffer->setOnUpdate([=](program* program)
@@ -252,7 +251,7 @@ namespace demon
             bufferStorageUsage::write);
         rtsBuffer->bindBufferBase(2);
 
-        auto lightingRenderPassProgram = buildLightingRenderPassProgram(shadersPath);
+        auto lightingRenderPassProgram = buildProgram(shadersPath, "lighting", "lighting", "lighting");
         auto lighting = new renderPass(lightingRenderPassProgram);
 
         lighting->setOnUpdate([=](program* program)
@@ -322,7 +321,7 @@ namespace demon
         auto controlRenderer = new phi::controlRenderer(gl);
         auto textRenderer = new phi::textRenderer(gl);
 
-        auto controlRenderPassProgram = buildControlRenderPassProgram(shadersPath);
+        auto controlRenderPassProgram = buildProgram(shadersPath, "control", "control", "control");
         auto controlRenderPass = new renderPass(controlRenderPassProgram);
         controlRenderPass->setOnUpdate([=](phi::program* program) {});
         controlRenderPass->setOnRender([=](phi::program* program)
@@ -330,7 +329,7 @@ namespace demon
             controlRenderer->render(program);
         });
 
-        auto textRenderPassProgram = buildTextRenderPassProgram(shadersPath);
+        auto textRenderPassProgram = buildProgram(shadersPath, "text", "text", "text");
         auto textRenderPass = new renderPass(textRenderPassProgram);
         textRenderPass->setOnUpdate([=](phi::program* program) {});
         textRenderPass->setOnRender([=](phi::program* program)

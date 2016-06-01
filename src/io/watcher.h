@@ -1,20 +1,43 @@
 #pragma once
 #include <phi.h>
 #include "ioApi.h"
+#include "fileInfo.h"
 
 #include <core/blockingQueue.h>
 
 namespace phi
 {
-    typedef	std::function<void(const string&)> watchCallback;
+    typedef	std::function<void(const fileInfo&)> watchCallback;
+
+    namespace watcherMessageStatus
+    {
+        enum watcherMessageStatus
+        {
+            success,
+            error
+        };
+    }
 
     struct watcherMessage
     {
-        watcherMessage(phi::watchCallback cb, string fileChanged) :
-            callback(cb), fileChanged(fileChanged) {}
+        watcherMessage(phi::watchCallback cb, fileInfo fileChanged) :
+            callback(cb), 
+            fileChanged(fileChanged),
+            status(watcherMessageStatus::success),
+            error("")
+        {}
+
+        watcherMessage(phi::watchCallback cb, string error) :
+            callback(cb),
+            fileChanged(fileInfo()),
+            status(watcherMessageStatus::error),
+            error(error)
+        {}
 
         phi::watchCallback callback;
-        string fileChanged;
+        fileInfo fileChanged;
+        watcherMessageStatus::watcherMessageStatus status;
+        string error;
     };
 
     class watcher

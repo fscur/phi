@@ -28,8 +28,8 @@ namespace demon
         library* _userLibrary;
         library* _projectLibrary;
 
-        context* _designContext;
-        context* _constructionContext;
+        phi::context* _designContext;
+        phi::context* _constructionContext;
 
         phi::node* _labelFps;
         phi::commandsManager* _commandsManager;

@@ -8,7 +8,7 @@ namespace phi
     class liveShaderReloader
     {
     public:
-        static map<string, shader*> shaders;
+        RENDERING_API static map<string, shader*> shaders;
 
     public:
         RENDERING_API static void reloadShader(string name);

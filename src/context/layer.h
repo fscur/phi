@@ -8,17 +8,17 @@
 #include <rendering\buffer.h>
 #include <rendering\frameUniformBlock.h>
 
-namespace demon
+namespace phi
 {
     class layer
     {
     private:
-        phi::camera* _camera;
-        phi::node* _root;
-        phi::vector<phi::renderPass*> _renderPasses;
-        std::function<void(phi::node*)> _onNodeAdded;
+        camera* _camera;
+        node* _root;
+        vector<renderPass*> _renderPasses;
+        std::function<void(node*)> _onNodeAdded;
 
-        phi::buffer<phi::frameUniformBlock>* _frameUniformsBuffer;
+        buffer<frameUniformBlock>* _frameUniformsBuffer;
 
     private:
         void initialize();
@@ -26,17 +26,17 @@ namespace demon
         void updateFrameUniforms();
 
     public:
-        layer(phi::camera* camera, phi::vector<phi::renderPass*>& renderPasses);
-        layer(phi::camera* camera, phi::vector<phi::renderPass*>&& renderPasses);
+        layer(camera* camera, vector<renderPass*>& renderPasses);
+        layer(camera* camera, vector<renderPass*>&& renderPasses);
         ~layer();
 
-        CONTEXT_API void add(phi::node* node);
+        CONTEXT_API void add(node* node);
 
         void update();
         void render();
 
-        void setOnNodeAdded(std::function<void(phi::node*)> onNodeAdded) { _onNodeAdded = onNodeAdded; }
+        void setOnNodeAdded(std::function<void(node*)> onNodeAdded) { _onNodeAdded = onNodeAdded; }
 
-        phi::camera* getCamera() { return _camera; }
+        camera* getCamera() { return _camera; }
     };
 }

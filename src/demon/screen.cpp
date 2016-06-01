@@ -28,7 +28,10 @@
 
 #include <context\layerBuilder.h>
 #include <context\contextBuilder.h>
+
+#ifdef _DEBUG
 #include <rendering\liveShaderReloader.h>
+#endif
 
 using namespace phi;
 
@@ -54,9 +57,9 @@ namespace demon
 
 #ifdef _DEBUG
         _messageQueue = new blockingQueue<phi::watcherMessage>();
-        _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
+        _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](fileInfo shaderFileInfo)
         {
-            liveShaderReloader::reloadShader(shaderFileName);
+            liveShaderReloader::reloadShader(shaderFileInfo.path);
 
             /*auto fileExtension = path::getExtension(shaderFileName);
             if (fileExtension == phi::shadersManager::FRAG_EXT ||
@@ -145,15 +148,15 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneLayer = layerBuilder::buildScene(application::resourcesPath, _gl, (float) _width, (float)_height);
+        auto sceneLayer = phi::layerBuilder::buildScene(application::resourcesPath, _gl, (float) _width, (float)_height);
         sceneLayer->add(floor);
         sceneLayer->add(chair);
 
-        auto nandinhoLayer = layerBuilder::buildUI(application::resourcesPath, _gl, (float) _width, (float)_height);
+        auto nandinhoLayer = phi::layerBuilder::buildUI(application::resourcesPath, _gl, (float) _width, (float)_height);
         nandinhoLayer->add(labelNandinho);
         nandinhoLayer->add(_labelFps);
 
-        auto constructionLayer = layerBuilder::buildUI(application::resourcesPath, _gl, (float)_width, float(_height));
+        auto constructionLayer = phi::layerBuilder::buildUI(application::resourcesPath, _gl, (float)_width, float(_height));
         constructionLayer->add(constructionLabel);
 
         _designContext = new context({ sceneLayer, nandinhoLayer });
