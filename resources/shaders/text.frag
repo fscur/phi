@@ -61,6 +61,7 @@ void main(void)
 
    fragColor = vec4(gcolor.rgb, color.a * gcolor.a);
    //fragColor = fetch(fragTexCoord);
+   //fragColor = vec4(0.0);
    //fragColor = vec4((1.0 + float(unit))/4.0);
    //fragColor = color;
 }

@@ -7,6 +7,10 @@ namespace phi
 {
     shader::shader(const string& fileName) :
         _fileName(fileName)
+#ifdef _DEBUG
+        , _isDirty(true)
+        , _onIsDirtyChanged(new eventHandler<shader*>())
+#endif 
     {
         _stage = getStage(fileName);
 
@@ -33,8 +37,6 @@ namespace phi
         default:
             break;
         }
-
-        _content = load(fileName);
 
         compile();
 
@@ -99,6 +101,12 @@ namespace phi
 
     bool shader::compile()
     {
+#ifdef _DEBUG
+        if (!_isDirty)
+            return true;
+#endif
+        _content = load(_fileName);
+
         auto result = true;
         auto source = _content.c_str();
         glShaderSource(_id, 1, &source, 0);
@@ -109,6 +117,9 @@ namespace phi
 
 #if _DEBUG
         result = validate();
+
+        if (result)
+            _isDirty = false;
 #endif
 
         return result;
@@ -133,4 +144,12 @@ namespace phi
 
         return success == GL_TRUE && length == 0;
     }
+
+#ifdef _DEBUG
+    void shader::setIsDirty()
+    {
+        _isDirty = true;
+        _onIsDirtyChanged->raise(this);
+    }
+#endif
 }

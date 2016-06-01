@@ -7,18 +7,22 @@
 
 #include "layer.h"
 
-namespace demon
+namespace phi
 {
     class layerBuilder
     {
     private:
-        static phi::program* buildControlRenderPassProgram(const phi::string& shadersPath);
-        static phi::program* buildTextRenderPassProgram(const phi::string& shadersPath);
-        static phi::program* buildGBufferRenderPassProgram(const phi::string& shadersPath);
-        static phi::program* buildLightingRenderPassProgram(const phi::string& shadersPath);
+        static program* buildProgram(
+            const string& shadersPath, 
+            const string& programName,
+            const string& vertexShaderName, 
+            const string& fragmentShaderName);
+
+        static map<string, shader*> _shadersCache;
+        static map<string, program*> _programsCache;
 
     public:
-        CONTEXT_API static layer* buildScene(const phi::string& resourcesPath, phi::gl* gl, float width, float height);
-        CONTEXT_API static layer* buildUI(const phi::string& resourcesPath, phi::gl* gl, float width, float height);
+        CONTEXT_API static layer* buildScene(const string& resourcesPath, gl* gl, float width, float height);
+        CONTEXT_API static layer* buildUI(const string& resourcesPath, gl* gl, float width, float height);
     };
 }

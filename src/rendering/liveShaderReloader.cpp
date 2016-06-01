@@ -5,37 +5,14 @@
 
 namespace phi
 {
-    void liveShaderReloader::reloadAllPrograms()
-    {
-        //for (auto& pair : _programs)
-        //{
-        //    auto program = pair.second;
-        //    while (!program->reload())
-        //    {
-        //        phi::debug("\n[reloadAllShaders] Failed \"" + pair.first + "\" program compilation.\nPress enter to try again...\n");
-        //        std::cin.get();
-        //    }
-        //}
-    }
+    map<string, shader*> liveShaderReloader::shaders = map<string, shader*>();
 
-    void liveShaderReloader::reloadProgram(string programName)
+    void liveShaderReloader::reloadShader(string fileName)
     {
-        //auto selectedProgram = _programs[programName];
-        //if (selectedProgram)
-        //{
-        //    if (selectedProgram->canCompile())
-        //    {
-        //        selectedProgram->reload();
-        //        debug("<shadersManager> " + programName + " reloaded.");
-        //    }
-        //    else
-        //    {
-        //        debug("<shaderManager> program validation error.");
-        //    }
-        //}
-        //else
-        //{
-        //    debug("<shadersManager>: program not found.");
-        //}
+        if (phi::contains(shaders, fileName))
+        {
+            auto shader = shaders[fileName];
+            shader->setIsDirty();
+        }
     }
 }

@@ -1,5 +1,7 @@
 #include <precompiled.h>
 #include "watcher.h"
+#include "fileInfo.h"
+#include "path.h"
 
 #include <diagnostic\win64ProcLibrary.h>
 
@@ -22,7 +24,7 @@ namespace phi
 
         if (!_hDir || _hDir == INVALID_HANDLE_VALUE)
         {
-            _queue->push(watcherMessage(_callback, "CreateFile failed"));
+            _queue->push(watcherMessage(_callback, "CreateFile failed."));
             return;
         }
 
@@ -50,11 +52,16 @@ namespace phi
                         filename[fni->FileNameLength / 2] = 0;
                         filenameWStr = filename;
                         filenameStr = string(filenameWStr.begin(), filenameWStr.end());
-                        _queue->push(watcherMessage(_callback, filenameStr));
+
+                        auto fileInfo = phi::fileInfo();
+                        fileInfo.name = path::getFileName(filenameStr);
+                        fileInfo.path = path::combine(_path, filenameStr);
+
+                        _queue->push(watcherMessage(_callback, fileInfo));
                     }
                     else
                     {
-                        _queue->push(watcherMessage(_callback, "undefined action"));
+                        _queue->push(watcherMessage(_callback, "Undefined behaviour."));
                     }
 
                     if (fni->NextEntryOffset)
@@ -71,7 +78,7 @@ namespace phi
             }
             else
             {
-                _queue->push(watcherMessage(_callback, "ReadDirectoryChangesW failed"));
+                _queue->push(watcherMessage(_callback, "ReadDirectoryChangesW failed."));
             }
         }
 

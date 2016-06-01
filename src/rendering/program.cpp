@@ -29,9 +29,22 @@ namespace phi
         glError::check();
     }
 
+#ifdef _DEBUG
+    map<shader*, eventToken> _dirtyShadersTokens;
+#endif
+
     void program::addShader(shader * shader)
     {
         _shaders.push_back(shader);
+
+#ifdef _DEBUG
+        auto token = shader->getOnIsDirtyChanged()->assign([&](phi::shader* shader)
+        {
+            reload();
+        });
+
+        _dirtyShadersTokens[shader] = token;
+#endif
 
         glAttachShader(_id, shader->getId());
         glError::check();
@@ -190,21 +203,27 @@ namespace phi
     bool program::reload()
     {
         unbind();
-        glLinkProgram(_id);
-        glError::check();
 
-        if (!validate())
-            return false;
+        if (canCompile())
+        {
+            glLinkProgram(_id);
+            glError::check();
 
-        for (auto& pair : _uniformsNames)
-            createUniform(pair.first, pair.second);
+            if (!validate())
+                return false;
 
-        return true;
+            for (auto& pair : _uniformsNames)
+                createUniform(pair.first, pair.second);
+
+            return true;
+        }
+
+        return false;
     }
 
     bool program::canCompile()
     {
-        bool result = false;
+        bool result = true;
 
         for (auto shader : _shaders)
             result &= shader->compile();
