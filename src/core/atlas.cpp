@@ -1,56 +1,57 @@
 #include <precompiled.h>
-#include "glyphNode.h"
+#include "atlas.h"
 
 namespace phi
 {
-    inline glyphNode::glyphNode(rectangle rect) :
+    inline atlasNode::atlasNode(rectangle rect) :
         _left(nullptr),
         _right(nullptr),
-        _glyph(nullptr),
-        rect(rect) 
+        _item(nullptr),
+        rect(rect)
     {
     }
 
-    glyphNode::~glyphNode()
+    inline atlasNode::~atlasNode()
     {
         safeDelete(_left);
         safeDelete(_right);
     }
 
-    inline bool glyphNode::isLeaf()
+    inline bool atlasNode::isLeaf()
     {
         return _left == nullptr && _right == nullptr;
     }
 
-    glyphNode* glyphNode::insert(glyph* glyph, glyphNode* node)
+    atlasNode* atlasNode::insert(atlasItem* item, atlasNode* node)
     {
-        glyphNode* newNode = nullptr;
+        atlasNode* newNode = nullptr;
 
         if (!isLeaf())
         {
-            newNode = _left->insert(glyph);
+            newNode = _left->insert(item);
 
             if (newNode != nullptr)
                 return newNode;
 
-            return _right->insert(glyph);
+            return _right->insert(item);
         }
         else
         {
-            if (node->_glyph != nullptr)
+            if (node->_item != nullptr)
                 return nullptr;
 
-            auto w = static_cast<int>(glyph->bitmapWidth);
-            auto h = static_cast<int>(glyph->bitmapHeight);
-            auto glyphRect = rectangle(0, 0, w, h);
+            auto w = item->rect.w;
+            auto h = item->rect.h;
 
-            if (!node->rect.contains(glyphRect))
+            auto atlasRect = rectangle(0, 0, w, h);
+
+            if (!node->rect.contains(atlasRect))
                 return nullptr;
 
-            if (glyphRect.w == rect.w &&
-                glyphRect.h == rect.h)
+            if (atlasRect.w == rect.w &&
+                atlasRect.h == rect.h)
             {
-                node->_glyph = glyph;
+                node->_item = item;
                 return node;
             }
 
@@ -71,8 +72,8 @@ namespace phi
                     node->rect.w - w - 1,
                     node->rect.h);
 
-                node->_left = new glyphNode(leftRect);
-                node->_right = new glyphNode(rightRect);
+                node->_left = new atlasNode(leftRect);
+                node->_right = new atlasNode(rightRect);
             }
             else
             {
@@ -88,16 +89,27 @@ namespace phi
                     node->rect.w,
                     node->rect.h - h - 1);
 
-                node->_left = new glyphNode(leftRect);
-                node->_right = new glyphNode(rightRect);
+                node->_left = new atlasNode(leftRect);
+                node->_right = new atlasNode(rightRect);
             }
 
-            return insert(glyph, _left);
+            return insert(item, _left);
         }
     }
 
-    inline glyphNode* glyphNode::insert(glyph* glyph)
+    inline atlasNode* atlasNode::insert(atlasItem* item)
     {
-        return insert(glyph, this);
+        return insert(item, this);
+    }
+
+    inline atlas::atlas(int width, int height)
+    {
+        _root = new atlasNode(rectangle(0, 0, width, height));
+    }
+
+    inline atlasNode* atlas::insert(atlasItem* item)
+    {
+        auto node = _root->insert(item);
+        return node;
     }
 }

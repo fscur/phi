@@ -12,12 +12,11 @@ namespace phi
         _texturesManager(texturesManager),
         _fonts(map<std::tuple<string, uint>, font*>()),
         _glyphAtlasContainer(nullptr),
-        _glyphAtlas(map<glyph*, glyphNode*>()),
-        _glyphAtlasRoot(nullptr),
         _glyphAtlasTexture(nullptr),
         _glyphCache(map<std::tuple<const font*, ulong>, glyph*>()),
         _glyphAtlasSize(-1),
-        _glyphAtlasTextureAddress(textureAddress())
+        _glyphAtlasTextureAddress(textureAddress()),
+        _glyphAtlas(nullptr)
     {
         assert(!_initialized);
 
@@ -28,11 +27,12 @@ namespace phi
             font::FreeTypeLibrary = _freeTypeLibrary;
         }
 
-        auto glyphAtlasSize = 0;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glyphAtlasSize);
+        auto tempGlyphAtlasSize = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &tempGlyphAtlasSize);
 
-        _glyphAtlasSize = std::min(glyphAtlasSize, 1024);
-        _glyphAtlasRoot = new glyphNode(rectangle(0, 0, _glyphAtlasSize, _glyphAtlasSize));
+        _glyphAtlasSize = std::min(tempGlyphAtlasSize, 1024);
+
+        _glyphAtlas = new atlas(_glyphAtlasSize, _glyphAtlasSize);
 
         auto maxLevels = texturesManager::getMaxLevels(_glyphAtlasSize, _glyphAtlasSize);
 
@@ -74,7 +74,7 @@ namespace phi
         
         FT_Done_FreeType(_freeTypeLibrary);
 
-        safeDelete(_glyphAtlasRoot);
+        safeDelete(_glyphAtlas);
         safeDelete(_glyphAtlasTexture);
     }
 
@@ -87,21 +87,25 @@ namespace phi
 
         auto glyph = font->getGlyph(glyphChar);
 
-        auto glyphNode = _glyphAtlasRoot->insert(glyph);
-        _glyphAtlas[glyph] = glyphNode;
+        auto glyphRect = rectangle(
+            0, 
+            0, 
+            static_cast<int>(glyph->bitmapWidth), 
+            static_cast<int>(glyph->bitmapHeight));
 
-        auto x = glyphNode->rect.x;
-        auto y = glyphNode->rect.y;
-        auto w = static_cast<GLsizei>(glyph->bitmapWidth);
-        auto h = static_cast<GLsizei>(glyph->bitmapHeight);
-        auto r = 1.0f / (float)_glyphAtlasSize;
+        auto rect = _glyphAtlas->insert(new atlasItem(glyphRect, glyph))->rect;
 
-        glyph->texPosition = vec2((float)x * r, (float)y * r);
-        glyph->texSize = vec2((float)w * r, (float)h * r);
+        auto x = rect.x;
+        auto y = rect.y;
+        auto w = rect.w;
+        auto h = rect.h;
+
+        auto texelSize = 1.0f / (float)_glyphAtlasSize;
+
+        glyph->texPosition = vec2((float)rect.x * texelSize, (float)rect.y * texelSize);
+        glyph->texSize = vec2((float)rect.w * texelSize, (float)rect.h * texelSize);
         glyph->texUnit = _glyphAtlasTextureAddress.unit;
         glyph->texPage = _glyphAtlasTextureAddress.page;
-
-        auto rect = rectangle(x, y, w, h);
 
         _glyphAtlasContainer->subData(_glyphAtlasTextureAddress.page, rect, glyph->data);
 
