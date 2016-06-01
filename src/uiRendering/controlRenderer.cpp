@@ -79,7 +79,7 @@ namespace phi
         _controlsRenderDataBuffer->data(sizeof(controlRenderData) * _instances.size(), &_renderData[0], bufferDataUsage::dynamicDraw);
     }
 
-    void controlRenderer::remove(control * control)
+    void controlRenderer::remove(control* control)
     {
         throw new notImplementedException();
     }

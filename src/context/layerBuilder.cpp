@@ -349,21 +349,14 @@ namespace demon
             {
                 auto control = currentNode->getComponent<phi::control>();
                 auto text = currentNode->getComponent<phi::text>();
+
                 if (control)
                 {
                     controlRenderer->add(control);
                 }
                 if (text)
                 {
-                    auto font = text->getFont();
-
-                    auto renderData = new textRenderData();
-                    renderData->text = text->getText();
-                    renderData->position = currentNode->getTransform()->getPosition();
-                    renderData->font = font;
-                    renderData->color = text->getColor();
-
-                    textRenderer->add(renderData);
+                    textRenderer->add(text);
                 }
             });
         });
