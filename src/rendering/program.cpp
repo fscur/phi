@@ -21,17 +21,12 @@ namespace phi
         {
             glDetachShader(_id, shader->getId());
             glError::check();
-
-            safeDelete(shader);
+            shader->getOnIsDirtyChanged()->unassign(_dirtyShadersTokens[shader]);
         }
 
         glDeleteProgram(_id);
         glError::check();
     }
-
-#ifdef _DEBUG
-    map<shader*, eventToken> _dirtyShadersTokens;
-#endif
 
     void program::addShader(shader * shader)
     {
@@ -53,44 +48,6 @@ namespace phi
     void program::addAttribute(const string& attribute)
     {
         _attributes.push_back(attribute);
-    }
-
-    void program::link()
-    {
-        glLinkProgram(_id);
-        glError::check();
-
-#if _DEBUG
-        if (!validate())
-            throw invalidInitializationException("[program::validate]: program not linked; ");
-#endif
-    }
-
-    bool program::validate()
-    {
-        const unsigned int BUFFER_SIZE = 512;
-        char buffer[BUFFER_SIZE];
-        memset(buffer, 0, BUFFER_SIZE);
-        GLsizei length = 0;
-
-        glGetProgramInfoLog(_id, BUFFER_SIZE, &length, buffer);
-        glError::check();
-
-        if (length > 0)
-            phi::debug("Program " + std::to_string(_id) + " link info:\n" + buffer);
-
-        GLint isLinked = 0;
-
-        glGetProgramiv(_id, GL_LINK_STATUS, &isLinked);
-        glError::check();
-
-        return isLinked == GL_TRUE;
-    }
-
-    void program::createUniform(uint location, const string & name)
-    {
-        _uniforms[location] = glGetUniformLocation(_id, name.c_str());
-        glError::check();
     }
 
     void program::addUniform(uint location, string name)
@@ -188,6 +145,38 @@ namespace phi
         glError::check();
     }
 
+    void program::link()
+    {
+        glLinkProgram(_id);
+        glError::check();
+
+#if _DEBUG
+        if (!validate())
+            throw invalidInitializationException("<program::link>: program not linked; ");
+#endif
+    }
+
+    bool program::validate()
+    {
+        const unsigned int BUFFER_SIZE = 512;
+        char buffer[BUFFER_SIZE];
+        memset(buffer, 0, BUFFER_SIZE);
+        GLsizei length = 0;
+
+        glGetProgramInfoLog(_id, BUFFER_SIZE, &length, buffer);
+        glError::check();
+
+        if (length > 0)
+            phi::debug("Program " + std::to_string(_id) + " link info:\n" + buffer);
+
+        GLint isLinked = 0;
+
+        glGetProgramiv(_id, GL_LINK_STATUS, &isLinked);
+        glError::check();
+
+        return isLinked == GL_TRUE;
+    }
+
     inline void program::bind()
     {
         glUseProgram(_id);
@@ -211,9 +200,6 @@ namespace phi
 
             if (!validate())
                 return false;
-
-            for (auto& pair : _uniformsNames)
-                createUniform(pair.first, pair.second);
 
             return true;
         }

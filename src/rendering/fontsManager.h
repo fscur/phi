@@ -4,6 +4,7 @@
 #include "glyph.h"
 #include "font.h"
 #include "texturesManager.h"
+#include <core\atlas.h>
 
 namespace phi
 {
@@ -18,12 +19,11 @@ namespace phi
         texturesManager* _texturesManager;
         map<std::tuple<string, uint>, font*> _fonts;
         textureContainer* _glyphAtlasContainer;
-        map<glyph*, glyphNode*> _glyphAtlas;
-        glyphNode* _glyphAtlasRoot;
         texture* _glyphAtlasTexture;
         map<std::tuple<const font*, ulong>, glyph*> _glyphCache;
         GLint _glyphAtlasSize;
         textureAddress _glyphAtlasTextureAddress;
+        atlas* _glyphAtlas;
 
     public:
         RENDERING_API fontsManager(string path, texturesManager* texturesManager);
