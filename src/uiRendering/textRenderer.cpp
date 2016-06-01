@@ -1,7 +1,9 @@
 #include <precompiled.h>
 #include "textRenderer.h"
 
+#include <core\node.h>
 #include <core\geometry.h>
+#include <core\notImplementedException.h>
 
 namespace phi
 {
@@ -59,24 +61,54 @@ namespace phi
         glBindVertexArray(0);
     }
 
-    void textRenderer::add(textRenderData* renderData)
+    void textRenderer::updateBuffers()
     {
-        auto font = renderData->font;
+        auto glyphsIds = vector<uint>();
+        auto modelMatrices = vector<mat4>();
+        auto renderData = vector<glyphRenderData>();
+
+        auto glyphId = 0u;
+        for (auto pair : _instances)
+        {
+            for (auto instance : pair.second->glyphs)
+            {
+                glyphsIds.push_back(glyphId++);
+                modelMatrices.push_back(instance->modelMatrix);
+                renderData.push_back(instance->renderData);
+            }
+        }
+
+        _glyphCount = glyphsIds.size();
+
+        _glyphIdsBuffer->data(sizeof(uint) * _glyphCount, &glyphsIds[0], bufferDataUsage::dynamicDraw);
+        _modelMatricesBuffer->data(sizeof(mat4) * _glyphCount, &modelMatrices[0], bufferDataUsage::dynamicDraw);
+        _renderDataBuffer->data(sizeof(glyphRenderData) * _glyphCount, &renderData[0], bufferDataUsage::dynamicDraw);
+    }
+
+    textRenderer::textInstance* textRenderer::buildTextInstance(text* text)
+    {
+        vector<glyphInstance*> glyphInstances;
+
+        auto font = text->getFont();
+        auto textString = text->getText();
+        auto position = text->getNode()->getTransform()->getPosition();
+        auto color = text->getColor();
+
         float baseLine = font->getBaseLine();
         float spacing = font->getSpacing();
-        float x = renderData->position.x + spacing;
-        float y = renderData->position.y - baseLine + spacing;
-        float z = renderData->position.z;
+        float x = position.x + spacing;
+        float y = position.y - baseLine + spacing;
+        float z = position.z;
 
         glyph* previousGlyph = nullptr;
-        auto textLength = renderData->text.length();
+        auto textLength = textString.length();
 
-        auto glyph = _gl->fontsManager->getGlyph(font, (ulong)renderData->text[0]);
+        auto glyph = _gl->fontsManager->getGlyph(font, (ulong)textString[0]);
         x -= glyph->offsetX;
 
         for (auto i = 0; i < textLength; i++)
         {
-            glyph = _gl->fontsManager->getGlyph(font, (ulong)renderData->text[i]);
+            glyph = _gl->fontsManager->getGlyph(font, (ulong)textString[i]);
             auto kern = font->getKerning(previousGlyph, glyph);
             auto w = glyph->width;
             auto h = glyph->height;
@@ -89,34 +121,48 @@ namespace phi
                 0.0f, 0.0f, 1.0f, 0.0f,
                 x0, y0 + h, z, 1.0f);
 
-            _modelMatrices.push_back(modelMatrix);
-
             x += glyph->horiAdvance + kern.x;
 
             float shift = std::abs(x0 - static_cast<int>(x0));
 
-            glyphRenderData info;
-            info.position = glyph->texPosition;
-            info.size = glyph->texSize;
-            info.shift = shift;
-            info.unit = glyph->texUnit;
-            info.page = glyph->texPage;
-            info.color = renderData->color;
+            auto glyphData = glyphRenderData();
+            glyphData.position = glyph->texPosition;
+            glyphData.size = glyph->texSize;
+            glyphData.shift = shift;
+            glyphData.unit = glyph->texUnit;
+            glyphData.page = glyph->texPage;
+            glyphData.color = color;
 
-            _renderData.push_back(info);
+            auto glyphInstance = new textRenderer::glyphInstance();
+            glyphInstance->modelMatrix = modelMatrix;
+            glyphInstance->renderData = glyphData;
+
+            glyphInstances.push_back(glyphInstance);
 
             previousGlyph = glyph;
         }
 
-        size_t glyphCount = _renderData.size();
-        vector<uint> glyphIds;
+        auto instance = new textInstance();
+        instance->glyphs = glyphInstances;
 
-        for (uint i = 0u; i < glyphCount; i++)
-            glyphIds.push_back(i);
+        return instance;
+    }
 
-        _glyphIdsBuffer->data(sizeof(uint) * glyphCount, &glyphIds[0], bufferDataUsage::dynamicDraw);
-        _modelMatricesBuffer->data(sizeof(mat4) * _modelMatrices.size(), &_modelMatrices[0], bufferDataUsage::dynamicDraw);
-        _renderDataBuffer->data(sizeof(glyphRenderData) * glyphCount, &_renderData[0], bufferDataUsage::dynamicDraw);
+    void textRenderer::add(text* text)
+    {
+        _instances[text] = buildTextInstance(text);
+        updateBuffers();
+    }
+
+    void textRenderer::remove(text* text)
+    {
+        throw notImplementedException();
+    }
+
+    void textRenderer::update(text* text)
+    {
+        _instances[text] = buildTextInstance(text);
+        updateBuffers();
     }
 
     void textRenderer::render(program* program)
@@ -136,7 +182,7 @@ namespace phi
         program->setUniform(1, _gl->texturesManager->units);
 
         glBindVertexArray(_vao);
-        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_renderData.size()));
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_glyphCount));
         glBindVertexArray(0);
 
         program->unbind();
