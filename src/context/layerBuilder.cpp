@@ -32,7 +32,6 @@ namespace phi
 
     program* layerBuilder::buildProgram(
         const string& shadersPath,
-        const string& programName,
         const string& vertexShaderName,
         const string& fragmentShaderName)
     {
@@ -112,8 +111,8 @@ namespace phi
 
         auto controlRenderer = new phi::controlRenderer(gl);
         auto textRenderer = new phi::textRenderer(gl);
-        auto controlRenderPassProgram = buildProgram(shadersPath, "control", "control", "control");
-        auto textRenderPassProgram = buildProgram(shadersPath, "text", "text", "text");
+        auto controlRenderPassProgram = buildProgram(shadersPath, "control", "control");
+        auto textRenderPassProgram = buildProgram(shadersPath, "text", "text");
 
         auto uiCamera = new camera("uiCamera", width, height, 0.1f, 10000.0f, PI_OVER_4);
         auto uiLayer = new layer(uiCamera);

@@ -13,8 +13,7 @@ namespace phi
     {
     private:
         static program* buildProgram(
-            const string& shadersPath, 
-            const string& programName,
+            const string& shadersPath,
             const string& vertexShaderName, 
             const string& fragmentShaderName);
 
