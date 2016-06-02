@@ -20,7 +20,6 @@ namespace phi
         map<std::tuple<string, uint>, font*> _fonts;
         textureContainer* _glyphAtlasContainer;
         texture* _glyphAtlasTexture;
-        map<std::tuple<const font*, ulong>, glyph*> _glyphCache;
         GLint _glyphAtlasSize;
         textureAddress _glyphAtlasTextureAddress;
         atlas* _glyphAtlas;

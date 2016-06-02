@@ -22,7 +22,7 @@ vec4 fetch(vec2 uv)
 
 void main(void)
 {
-    float gamma = 1.75;
+    float gamma = 2.25;
     vec4 current = fetch(fragTexCoord);
     vec4 previous= fetch(fragTexCoord + vec2(-1.0, 0.0) * texelSize.xy);
 

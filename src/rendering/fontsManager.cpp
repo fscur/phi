@@ -13,7 +13,6 @@ namespace phi
         _fonts(map<std::tuple<string, uint>, font*>()),
         _glyphAtlasContainer(nullptr),
         _glyphAtlasTexture(nullptr),
-        _glyphCache(map<std::tuple<const font*, ulong>, glyph*>()),
         _glyphAtlasSize(-1),
         _glyphAtlasTextureAddress(textureAddress()),
         _glyphAtlas(nullptr)
@@ -32,7 +31,7 @@ namespace phi
 
         _glyphAtlasSize = std::min(tempGlyphAtlasSize, 1024);
 
-        _glyphAtlas = new atlas(_glyphAtlasSize, _glyphAtlasSize);
+        _glyphAtlas = new atlas(sizeui(_glyphAtlasSize, _glyphAtlasSize));
 
         auto maxLevels = texturesManager::getMaxLevels(_glyphAtlasSize, _glyphAtlasSize);
 
@@ -52,14 +51,14 @@ namespace phi
         _glyphAtlasTexture = new texture(
             _glyphAtlasSize,
             _glyphAtlasSize,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
+            layout.dataFormat,
+            layout.dataType,
             nullptr,
             GL_TEXTURE_2D,
-            GL_RGB8,
-            GL_CLAMP_TO_EDGE,
-            GL_LINEAR,
-            GL_LINEAR,
+            layout.internalFormat,
+            layout.wrapMode,
+            layout.minFilter,
+            layout.magFilter,
             true);
 
         glError::check();
@@ -80,19 +79,14 @@ namespace phi
 
     glyph* fontsManager::getGlyph(font* const font, const ulong& glyphChar)
     {
-        std::tuple<phi::font*, ulong> key(font, glyphChar);
-
-        if (_glyphCache.find(key) != _glyphCache.end())
-            return _glyphCache[key];
-
         auto glyph = font->getGlyph(glyphChar);
 
-        auto glyphRect = rectangle(
-            0, 
-            0, 
-            static_cast<int>(glyph->bitmapWidth), 
-            static_cast<int>(glyph->bitmapHeight));
-
+        auto glyphRect = rectangle<uint>(
+            0u,
+            0u,
+            glyph->image->w, 
+            glyph->image->h);
+        
         auto rect = _glyphAtlas->insert(new atlasItem(glyphRect, glyph))->rect;
 
         auto x = rect.x;
@@ -107,9 +101,8 @@ namespace phi
         glyph->texUnit = _glyphAtlasTextureAddress.unit;
         glyph->texPage = _glyphAtlasTextureAddress.page;
 
-        _glyphAtlasContainer->subData(_glyphAtlasTextureAddress.page, rect, glyph->data);
-
-        _glyphCache[key] = glyph;
+        auto subDataRect = rectangle<GLint>(x,y,w,h);
+        _glyphAtlasContainer->subData(_glyphAtlasTextureAddress.page, subDataRect, glyph->image->data);
 
         return glyph;
     }

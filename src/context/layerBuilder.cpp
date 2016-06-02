@@ -28,7 +28,7 @@
 namespace phi
 {
     map<string, shader*> layerBuilder::_shadersCache = map<string, shader*>();
-    map<string, program*> layerBuilder::_programsCache = map<string, program*>();
+    map<std::tuple<shader*, shader*>, program*> layerBuilder::_programsCache = map<std::tuple<shader*, shader*>, program*>();
 
     program* layerBuilder::buildProgram(
         const string& shadersPath,
@@ -63,11 +63,15 @@ namespace phi
         auto fragmentShader = newShader(fragmentShaderFileName);
 
         phi::program* program = nullptr;
+        auto key = std::tuple<shader*, shader*>(vertexShader, fragmentShader);
 
-        if (_programsCache.find(programName) != _programsCache.end())
-            program = _programsCache[programName];
+        if (_programsCache.find(key) != _programsCache.end())
+            program = _programsCache[key];
         else
+        {
             program = glslCompiler::compile({ vertexShader, fragmentShader });
+            _programsCache[key] = program;
+        }
 
         return program;
     }

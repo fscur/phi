@@ -20,9 +20,9 @@ namespace phi
         }
 
         tsize(T w, T h) :
-            w(s),
+            w(w),
             h(h),
-            d(1.0f)
+            d(1)
         {
         }
 

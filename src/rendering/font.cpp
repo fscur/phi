@@ -89,29 +89,34 @@ namespace phi
         auto w = glyphSlot->bitmap.width;
         auto h = glyphSlot->bitmap.rows;
         auto size = h * glyphSlot->bitmap.pitch;
-        void* buffer = malloc(size);
+
+        void* buffer = new char[size];
         memcpy(buffer, glyphSlot->bitmap.buffer, size);
         
         w /= 3;
 
-        auto g = new glyph();
-        g->index = glyphIndex;
-        g->width = static_cast<float>(w) * _dpiRatio;
-        g->height = static_cast<float>(h) * _dpiRatio;
-        g->bitmapWidth = static_cast<float>(w);
-        g->bitmapHeight = static_cast<float>(h);
-        g->offsetX = static_cast<float>(glyphSlot->bitmap_left) * _dpiRatio;
-        g->offsetY = static_cast<float>(glyphSlot->bitmap_top) * _dpiRatio;
-        g->horiBearingX = static_cast<float>((glyphSlot->metrics.horiBearingX >> 6) / _horizontalScale) * _dpiRatio;
-        g->horiBearingY = static_cast<float>(glyphSlot->metrics.horiBearingY >> 6) * _dpiRatio;
-        g->horiAdvance = static_cast<float>((glyphSlot->metrics.horiAdvance >> 6) / _horizontalScale) * _dpiRatio;
-        g->vertBearingX = static_cast<float>(glyphSlot->metrics.vertBearingX >> 6) * _dpiRatio;
-        g->vertBearingY = static_cast<float>(glyphSlot->metrics.vertBearingY >> 6) * _dpiRatio;
-        g->vertAdvance = static_cast<float>(glyphSlot->metrics.vertAdvance >> 6) * _dpiRatio;
-        g->data = buffer;
-        _glyphCache[glyphIndex] = g;
+        auto glyphImage = new image(
+            w,
+            h,
+            imageDataFormat::rgb,
+            imageDataType::ubyte_dataType,
+            buffer);
+            
+        auto glyph = new phi::glyph(glyphImage);
+        glyph->index = glyphIndex;
+        glyph->width = static_cast<float>(w) * _dpiRatio;
+        glyph->height = static_cast<float>(h) * _dpiRatio;
+        glyph->offsetX = static_cast<float>(glyphSlot->bitmap_left) * _dpiRatio;
+        glyph->offsetY = static_cast<float>(glyphSlot->bitmap_top) * _dpiRatio;
+        glyph->horiBearingX = static_cast<float>((glyphSlot->metrics.horiBearingX >> 6) / _horizontalScale) * _dpiRatio;
+        glyph->horiBearingY = static_cast<float>(glyphSlot->metrics.horiBearingY >> 6) * _dpiRatio;
+        glyph->horiAdvance = static_cast<float>((glyphSlot->metrics.horiAdvance >> 6) / _horizontalScale) * _dpiRatio;
+        glyph->vertBearingX = static_cast<float>(glyphSlot->metrics.vertBearingX >> 6) * _dpiRatio;
+        glyph->vertBearingY = static_cast<float>(glyphSlot->metrics.vertBearingY >> 6) * _dpiRatio;
+        glyph->vertAdvance = static_cast<float>(glyphSlot->metrics.vertAdvance >> 6) * _dpiRatio;
+        _glyphCache[glyphIndex] = glyph;
 
-        return g;
+        return glyph;
     }
 
     vec2 font::getKerning(glyph* firstGlyph, glyph* secondGlyph)

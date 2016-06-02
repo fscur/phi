@@ -19,8 +19,6 @@ namespace phi
         bool _bindless;
         bool _sparse;
 
-        GLint _currentTextureUnit;
-        GLint _maxTextureUnits;
         size_t _maxContainerSize;
 
         map<const texture*, textureAddress> _textures;
@@ -34,6 +32,7 @@ namespace phi
 
     public:
         RENDERING_API static uint getMaxLevels(const uint& w, const uint& h);
+        RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);
 
     public:
         RENDERING_API texturesManager(bool bindless, bool sparse);
@@ -42,8 +41,5 @@ namespace phi
         RENDERING_API textureAddress get(const texture* const texture);
         RENDERING_API bool contains(const texture* const texture);
         RENDERING_API textureContainer* reserveContainer(textureContainerLayout layout, size_t size);
-
-    public:
-        RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);
     };
 }

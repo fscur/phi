@@ -5,6 +5,7 @@
 
 #include "renderingApi.h"
 #include "texturesManager.h"
+#include "textureUnits.h"
 #include "fontsManager.h"
 
 namespace phi
@@ -105,5 +106,6 @@ namespace phi
         string getRenderer() { return string((char*)glGetString(GL_RENDERER)); };
         string getVersion() { return string((char*)glGetString(GL_VERSION)); };
         RENDERING_API static void SyncPipeline();
+
     };
 }
