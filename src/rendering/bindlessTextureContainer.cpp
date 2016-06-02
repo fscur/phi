@@ -6,24 +6,23 @@ namespace phi
 {
     bindlessTextureContainer::bindlessTextureContainer(
         textureContainerLayout layout,
-        size_t maxTextures,
-        GLint unit) :
-        textureContainer(layout, maxTextures, unit)
+        size_t maxTextures) :
+        textureContainer(layout, maxTextures)
     {
     }
 
     bindlessTextureContainer::~bindlessTextureContainer()
     {
-        glMakeTextureHandleNonResidentARB(handle);
+        glMakeTextureHandleNonResidentARB(_handle);
         glError::check();
     }
 
     void bindlessTextureContainer::onCreate()
     {
-        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
         glError::check();
 
-        glTextureStorage3D(id,
+        glTextureStorage3D(_id,
             _layout.levels,
             _layout.internalFormat,
             _layout.w,
@@ -31,32 +30,32 @@ namespace phi
             static_cast<GLsizei>(_maxTextures));
         glError::check();
 
-        glTextureParameteri(id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
+        glTextureParameteri(_id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
         glError::check();
-        glTextureParameteri(id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
+        glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
         glError::check();
-        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
+        glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
         glError::check();
-        glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
+        glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
         glError::check();
 
-        handle = glGetTextureHandleARB(id);
+        _handle = glGetTextureHandleARB(_id);
         glError::check();
-        glMakeTextureHandleResidentARB(handle);
+        glMakeTextureHandleResidentARB(_handle);
         glError::check();
     }
 
     void bindlessTextureContainer::onLoadTexture(const texture* const texture)
     {
-        auto textureAddress = texturesAddresses[texture];
+        auto textureAddress = _texturesAddresses[texture];
 
         if (texture->data != nullptr)
         {
-            glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
             glError::check();
 
             glTextureSubImage3D(
-                id,
+                _id,
                 0,
                 0,
                 0,
@@ -79,11 +78,11 @@ namespace phi
         const rectangle<GLint>& rect,
         const void* const data)
     {
-        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
         glError::check();
 
         glTextureSubImage3D(
-            id,
+            _id,
             0,
             rect.x,
             rect.y,

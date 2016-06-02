@@ -10,8 +10,7 @@ namespace phi
     public:
         sparseBindlessTextureContainer(
             textureContainerLayout layout,
-            size_t maxTextures,
-            GLint unit);
+            size_t maxTextures);
 
         ~sparseBindlessTextureContainer();
 

@@ -3,6 +3,7 @@
 #include "bindlessTextureContainer.h"
 #include "sparseTextureContainer.h"
 #include "sparseBindlessTextureContainer.h"
+#include "textureUnits.h"
 
 namespace phi
 {
@@ -14,11 +15,11 @@ namespace phi
         bool sparse = false) :
         _bindless(bindless),
         _sparse(sparse),
-        _currentTextureUnit(-1),
         _maxContainerSize(MAX_CONTAINER_ITEMS)
     {
         assert(!_initialized);
         _initialized = true;
+
         //TODO: calcular quanto de memoria tem disponivel na GPU
         //TODO: verificar quando de memoria nosso gbuffer + shadow maps usam e ver quanto sobra pra texturas
         //TODO: controlar a memoria da gpu usada
@@ -31,9 +32,7 @@ namespace phi
             _maxContainerSize = static_cast<size_t>(maxContainerSize);
         }
 
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
-
-        _maxTextureUnits -= 1;
+        textureUnits::init();
     }
 
     texturesManager::~texturesManager()
@@ -103,18 +102,18 @@ namespace phi
         textureContainer* container;
 
         if (_sparse && _bindless)
-            container = new sparseBindlessTextureContainer(layout, _maxContainerSize, ++_currentTextureUnit);
+            container = new sparseBindlessTextureContainer(layout, _maxContainerSize);
         else if (_sparse)
-            container = new sparseTextureContainer(layout, _maxContainerSize, ++_currentTextureUnit);
+            container = new sparseTextureContainer(layout, _maxContainerSize);
         else if (_bindless)
-            container = new bindlessTextureContainer(layout, _maxContainerSize, ++_currentTextureUnit);
+            container = new bindlessTextureContainer(layout, _maxContainerSize);
         else
-            container = new textureContainer(layout, _maxContainerSize, ++_currentTextureUnit);
+            container = new textureContainer(layout, _maxContainerSize);
 
         container->add(texture, textureAddress);
         _containers[key].push_back(container);
-        handles.push_back(container->handle);
-        units.push_back(_currentTextureUnit);
+        handles.push_back(container->getHandle());
+        units.push_back(container->getUnit());
 
         _textures[texture] = textureAddress;
     }
@@ -178,17 +177,17 @@ namespace phi
         textureContainer* container;
 
         if (_sparse && _bindless)
-            container = new sparseBindlessTextureContainer(layout, maxTextures, ++_currentTextureUnit);
+            container = new sparseBindlessTextureContainer(layout, maxTextures);
         else if (_sparse)
-            container = new sparseTextureContainer(layout, maxTextures, ++_currentTextureUnit);
+            container = new sparseTextureContainer(layout, maxTextures);
         else if (_bindless)
-            container = new bindlessTextureContainer(layout, maxTextures, ++_currentTextureUnit);
+            container = new bindlessTextureContainer(layout, maxTextures);
         else
-            container = new textureContainer(layout, maxTextures, ++_currentTextureUnit);
+            container = new textureContainer(layout, maxTextures);
 
         _containers[key].push_back(container);
-        handles.push_back(container->handle);
-        units.push_back(_currentTextureUnit);
+        handles.push_back(container->getHandle());
+        units.push_back(container->getUnit());
         return container;
     }
 }

@@ -10,8 +10,7 @@ namespace phi
     public:
         bindlessTextureContainer(
             textureContainerLayout layout,
-            size_t maxTextures,
-            GLint unit);
+            size_t maxTextures);
 
         ~bindlessTextureContainer();
 

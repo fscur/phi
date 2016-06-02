@@ -10,8 +10,7 @@ namespace phi
     public:
         sparseTextureContainer(
             textureContainerLayout layout,
-            size_t maxTextures,
-            GLint unit);
+            size_t maxTextures);
 
         void onCreate() override;
         void onLoadTexture(const texture* const texture) override;

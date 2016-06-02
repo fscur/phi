@@ -18,13 +18,11 @@ namespace phi
         size_t _maxTextures;
         textureContainerLayout _layout;
         GLint _unit;
+        GLuint _id;
+        GLuint64 _handle;
+        vector<const texture*> _textures;
+        map<const texture*, phi::textureAddress> _texturesAddresses;
 
-    public:
-        GLuint id;
-        GLuint64 handle;
-        map<const texture*, phi::textureAddress> texturesAddresses;
-        vector<const texture*> textures;
-    
     private:
         void create();
         void loadTexture(const texture* const texture);
@@ -40,8 +38,7 @@ namespace phi
     public:
         textureContainer(
             textureContainerLayout layout,
-            size_t maxTextures,
-            GLint unit);
+            size_t maxTextures);
 
         virtual ~textureContainer();
 
@@ -50,5 +47,8 @@ namespace phi
             const float& page,
             const rectangle<GLint>& rect,
             const void* const data);
+
+        GLint getUnit() const { return _unit; }
+        GLuint64 getHandle() const { return _handle; }
     };
 }

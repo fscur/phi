@@ -6,27 +6,26 @@ namespace phi
 {
     sparseBindlessTextureContainer::sparseBindlessTextureContainer(
         textureContainerLayout layout,
-        size_t maxTextures,
-        GLint unit) :
-        textureContainer(layout, maxTextures, unit)
+        size_t maxTextures) :
+        textureContainer(layout, maxTextures)
     {
     }
 
     sparseBindlessTextureContainer::~sparseBindlessTextureContainer()
     {
-        glMakeTextureHandleNonResidentARB(handle);
+        glMakeTextureHandleNonResidentARB(_handle);
         glError::check();
     }
 
     void sparseBindlessTextureContainer::onCreate()
     {
-        glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &id);
+        glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_id);
         glError::check();
 
-        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
         glError::check();
 
-        glTextureParameteri(id, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
+        glTextureParameteri(_id, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
         glError::check();
 
         // TODO: This could be done once per internal format. For now, just do it every time.
@@ -46,7 +45,7 @@ namespace phi
 
         for (GLint i = 0; i < indexCount; ++i)
         {
-            glTextureParameteri(id, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, i);
+            glTextureParameteri(_id, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, i);
             glError::check();
             glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_VIRTUAL_PAGE_SIZE_X_ARB, 1, &xSize);
             glError::check();
@@ -67,11 +66,11 @@ namespace phi
 
         if (bestIndex != -1)
         {
-            glTextureParameteri(id, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, bestIndex);
+            glTextureParameteri(_id, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, bestIndex);
             glError::check();
         }
 
-        glTextureStorage3D(id,
+        glTextureStorage3D(_id,
             _layout.levels,
             _layout.internalFormat,
             _layout.w,
@@ -79,24 +78,24 @@ namespace phi
             static_cast<GLsizei>(_maxTextures));
         glError::check();
 
-        glTextureParameteri(id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
+        glTextureParameteri(_id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
         glError::check();
-        glTextureParameteri(id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
+        glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
         glError::check();
-        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
+        glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
         glError::check();
-        glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
+        glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
         glError::check();
 
-        handle = glGetTextureHandleARB(id);
+        _handle = glGetTextureHandleARB(_id);
         glError::check();
-        glMakeTextureHandleResidentARB(handle);
+        glMakeTextureHandleResidentARB(_handle);
         glError::check();
     }
 
     void sparseBindlessTextureContainer::onLoadTexture(const texture* const texture)
     {
-        auto textureAddress = texturesAddresses[texture];
+        auto textureAddress = _texturesAddresses[texture];
 
         GLsizei levelWidth = _layout.w;
         GLsizei levelHeight = _layout.h;
@@ -104,7 +103,7 @@ namespace phi
         for (auto mipLevel = 0; mipLevel < _layout.levels; ++mipLevel)
         {
             glTexturePageCommitmentEXT(
-                id,
+                _id,
                 mipLevel,
                 0,
                 0,
@@ -121,11 +120,11 @@ namespace phi
 
         if (texture->data != nullptr)
         {
-            glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
             glError::check();
 
             glTextureSubImage3D(
-                id,
+                _id,
                 0,
                 0,
                 0,
@@ -148,11 +147,11 @@ namespace phi
         const rectangle<GLint>& rect,
         const void* const data)
     {
-        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
         glError::check();
 
         glTextureSubImage3D(
-            id,
+            _id,
             0,
             rect.x,
             rect.y,
