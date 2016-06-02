@@ -2,7 +2,6 @@
 #include <phi.h>
 #include "renderingApi.h"
 #include "texture.h"
-#include "glyphNode.h"
 #include "glyph.h"
 
 namespace phi
@@ -32,15 +31,15 @@ namespace phi
     public:
         RENDERING_API font(const string& fileName, const uint size);
         RENDERING_API ~font();
-        
+
         float getLineHeight() const { return _lineHeight; }
         float getBaseLine() const { return _baseLine; }
         float getAscender() const { return _ascender; }
         float getSpacing() const { return _spacing; }
-        
+
         glyph* getGlyph(const uint& glyphIndex);
         glyph* getGlyph(const ulong& glyphChar);
-        
+
         RENDERING_API vec2 getKerning(glyph* firstGlyph, glyph* secondGlyph);
         RENDERING_API vec2 measureText(const wstring& text);
     };

@@ -32,7 +32,7 @@ namespace phi
     private:
         gl* _gl;
         size_t _glyphCount;
-        map<text*, textInstance*> _instances;
+        unordered_map<text*, textInstance*> _instances;
 
         GLuint _vao;
         vertexBuffer<uint>* _glyphIdsBuffer;

@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "frameBuffer.h"
+#include "framebuffer.h"
 #include "glError.h"
 
 namespace phi
@@ -34,6 +34,7 @@ namespace phi
             return;
         }
 
+        _renderTargets.push_back(renderTarget);
         auto att = renderTarget->attachment;
 
         if (!(att == GL_DEPTH_ATTACHMENT ||

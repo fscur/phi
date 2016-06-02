@@ -22,7 +22,6 @@ file(GLOB source_files *.cpp)
 file(GLOB natvis_files *.natvis)
 
 add_library(uiRendering SHARED ${source_files} ${header_files} ${shader_files} ${natvis_files})
-source_group(Shaders FILES ${shader_files})
 target_link_libraries(uiRendering ui)
 target_link_libraries(uiRendering rendering)
 

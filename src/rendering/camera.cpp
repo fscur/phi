@@ -6,12 +6,12 @@
 namespace phi
 {
     camera::camera(
-        std::string name, 
-        float width, 
-        float height, 
-        float near, 
-        float far, 
-        float fov) : 
+        std::string name,
+        float width,
+        float height,
+        float near,
+        float far,
+        float fov) :
         component(component::componentType::CAMERA, name),
         _width(width),
         _height(height),

@@ -25,6 +25,9 @@ namespace phi
     template<class T, class R>
     using map = std::map<T, R>;
 
+    template<class T, class R>
+    using unordered_map = std::unordered_map<T, R>;
+
     static const float PI = 3.1415926536f;
     static const float PI_OVER_2 = 1.5707963268f;
     static const float PI_OVER_4 = 0.7853981634f;
@@ -68,6 +71,13 @@ namespace phi
 
     template<typename T, typename R>
     bool contains(const map<T, R> map, const T value)
+    {
+        auto it = map.find(value);
+        return it != map.end();
+    }
+
+    template<typename T, typename R>
+    bool contains(const unordered_map<T, R> map, const T value)
     {
         auto it = map.find(value);
         return it != map.end();
