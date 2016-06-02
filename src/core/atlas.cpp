@@ -3,7 +3,7 @@
 
 namespace phi
 {
-    inline atlasNode::atlasNode(rectangle rect) :
+    inline atlasNode::atlasNode(rectangle<uint> rect) :
         _left(nullptr),
         _right(nullptr),
         _item(nullptr),
@@ -43,7 +43,7 @@ namespace phi
             auto w = item->rect.w;
             auto h = item->rect.h;
 
-            auto atlasRect = rectangle(0, 0, w, h);
+            auto atlasRect = rectangle<uint>(0, 0, w, h);
 
             if (!node->rect.contains(atlasRect))
                 return nullptr;
@@ -60,13 +60,13 @@ namespace phi
 
             if (dw > dh)
             {
-                auto leftRect = rectangle(
+                auto leftRect = rectangle<uint>(
                     node->rect.x,
                     node->rect.y,
                     w,
                     node->rect.h);
 
-                auto rightRect = rectangle(
+                auto rightRect = rectangle<uint>(
                     node->rect.x + w + 1,
                     node->rect.y,
                     node->rect.w - w - 1,
@@ -77,13 +77,13 @@ namespace phi
             }
             else
             {
-                auto leftRect = rectangle(
+                auto leftRect = rectangle<uint>(
                     node->rect.x,
                     node->rect.y,
                     node->rect.w,
                     h);
 
-                auto rightRect = rectangle(
+                auto rightRect = rectangle<uint>(
                     node->rect.x,
                     node->rect.y + h + 1,
                     node->rect.w,
@@ -102,14 +102,13 @@ namespace phi
         return insert(item, this);
     }
 
-    inline atlas::atlas(int width, int height)
+    inline atlas::atlas(sizeui size)
     {
-        _root = new atlasNode(rectangle(0, 0, width, height));
+        _root = new atlasNode(rectangle<uint>(0u, 0u, size.w, size.h));
     }
 
     inline atlasNode* atlas::insert(atlasItem* item)
     {
-        auto node = _root->insert(item);
-        return node;
+        return _root->insert(item);
     }
 }

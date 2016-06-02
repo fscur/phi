@@ -19,7 +19,7 @@ namespace phi
             const string& fragmentShaderName);
 
         static map<string, shader*> _shadersCache;
-        static map<string, program*> _programsCache;
+        static map<std::tuple<shader*, shader*>, program*> _programsCache;
 
     public:
         CONTEXT_API static layer* buildScene(const string& resourcesPath, gl* gl, float width, float height);

@@ -4,75 +4,51 @@
 
 #include "texture.h"
 #include "textureAddress.h"
+#include "textureContainerLayout.h"
 
 namespace phi
 {
-    struct textureContainerLayout
-    {
-        GLsizei w;
-        GLsizei h;
-        GLsizei levels;
-        GLenum internalFormat;
-        GLenum dataFormat;
-        GLenum dataType;
-        GLint wrapMode;
-        GLint minFilter;
-        GLint magFilter;
-
-        textureContainerLayout(
-            GLsizei w = 0,
-            GLsizei h = 0,
-            GLsizei levels = 0,
-            GLenum internalFormat = GL_RGBA8,
-            GLint wrapMode = GL_REPEAT,
-            GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
-            GLint magFilter = GL_LINEAR) :
-            w(w),
-            h(h),
-            levels(levels),
-            internalFormat(internalFormat),
-            wrapMode(wrapMode),
-            minFilter(minFilter),
-            magFilter(magFilter)
-        {
-        }
-    };
-
     class textureContainer
     {
     private:
-        textureContainerLayout _layout;
-        size_t _maxTextures;
         size_t _freeSpace;
-        GLint _unit;
-        bool _bindless;
-        bool _sparse;
+        bool _created;
 
-    private:
-        void create();
-        void load(const texture* const texture);
+    protected:
+        size_t _maxTextures;
+        textureContainerLayout _layout;
+        GLint _unit;
 
     public:
         GLuint id;
         GLuint64 handle;
-        std::map<const texture*, phi::textureAddress> texturesAddresses;
+        map<const texture*, phi::textureAddress> texturesAddresses;
         vector<const texture*> textures;
+    
+    private:
+        void create();
+        void loadTexture(const texture* const texture);
+
+    protected:
+        virtual void onCreate();
+        virtual void onLoadTexture(const texture* const texture);
+        virtual void onSubData(
+            const float& page,
+            const rectangle<GLint>& rect,
+            const void* const data);
 
     public:
         textureContainer(
             textureContainerLayout layout,
             size_t maxTextures,
-            GLint unit,
-            bool bindless,
-            bool sparse);
+            GLint unit);
 
-        ~textureContainer();
+        virtual ~textureContainer();
 
         bool add(const texture* const texture, textureAddress& textureAddress);
-
         void subData(
             const float& page,
-            const rectangle& rect,
+            const rectangle<GLint>& rect,
             const void* const data);
     };
 }

@@ -13,7 +13,7 @@ namespace phi
         GLuint h;
         GLenum dataFormat;
         GLenum dataType;
-        byte* data;
+        void* data;
         GLenum type;
         GLenum internalFormat;
         GLint wrapMode;
@@ -77,8 +77,8 @@ namespace phi
 			uint w,
 			uint h,
 			GLenum dataFormat = GL_BGRA,
-			GLenum dataType = GL_UNSIGNED_BYTE,
-			byte* data = nullptr,
+            GLenum dataType = GL_UNSIGNED_BYTE,
+			void* data = nullptr,
 			GLenum type = GL_TEXTURE_2D,
 			GLenum internalFormat = GL_RGBA8,
 			GLint wrapMode = GL_REPEAT,

@@ -27,7 +27,7 @@
 namespace phi
 {
     map<string, shader*> layerBuilder::_shadersCache = map<string, shader*>();
-    map<string, program*> layerBuilder::_programsCache = map<string, program*>();
+    map<std::tuple<shader*, shader*>, program*> layerBuilder::_programsCache = map<std::tuple<shader*, shader*>, program*>();
 
     program* layerBuilder::buildProgram(
         const string& shadersPath,
@@ -62,11 +62,15 @@ namespace phi
         auto fragmentShader = newShader(fragmentShaderFileName);
 
         phi::program* program = nullptr;
+        auto key = std::tuple<shader*, shader*>(vertexShader, fragmentShader);
 
-        if (_programsCache.find(programName) != _programsCache.end())
-            program = _programsCache[programName];
+        if (_programsCache.find(key) != _programsCache.end())
+            program = _programsCache[key];
         else
+        {
             program = glslCompiler::compile({ vertexShader, fragmentShader });
+            _programsCache[key] = program;
+        }
 
         return program;
     }
@@ -76,13 +80,15 @@ namespace phi
         auto shadersPath = path::combine(resourcesPath, "shaders");
         auto pipeline = new phi::pipeline(gl, width, height);
 
-        auto reserveContainer = [&](GLenum internalFormat, size_t size)
+        auto reserveContainer = [&](GLenum internalFormat, GLenum dataFormat, size_t size)
         {
             auto layout = phi::textureContainerLayout();
             layout.w = static_cast<GLsizei>(width);
             layout.h = static_cast<GLsizei>(height);
             layout.levels = 1;
             layout.internalFormat = internalFormat;
+            layout.dataFormat = dataFormat;
+            layout.dataType = GL_UNSIGNED_BYTE;
             layout.wrapMode = GL_REPEAT;
             layout.minFilter = GL_NEAREST;
             layout.magFilter = GL_NEAREST;
@@ -98,6 +104,8 @@ namespace phi
             auto texture = new phi::texture(static_cast<uint>(width), static_cast<uint>(height));
             texture->internalFormat = internalFormat;
             texture->dataFormat = dataFormat;
+            texture->dataType = GL_UNSIGNED_BYTE;
+            texture->wrapMode = GL_REPEAT;
             texture->minFilter = GL_NEAREST;
             texture->magFilter = GL_NEAREST;
             texture->generateMipmaps = false;
@@ -112,9 +120,9 @@ namespace phi
                 texture);
         };
 
-        reserveContainer(GL_RGBA16F, 3);
-        reserveContainer(GL_RGBA8, 1);
-        reserveContainer(GL_DEPTH_COMPONENT32, 1);
+        reserveContainer(GL_RGBA16F, GL_RGBA, 3);
+        reserveContainer(GL_RGBA8, GL_RGBA, 1);
+        reserveContainer(GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, 1);
 
         auto rt0 = createRenderTarget(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA);
         auto rt1 = createRenderTarget(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA);
@@ -165,7 +173,7 @@ namespace phi
 
         auto finalImageFramebuffer = new framebuffer();
         finalImageFramebuffer->add(finalImageRT);
-        
+
         auto gBufferRenderPassProgram = buildProgram(shadersPath, "gBuffer", "gBuffer", "gBuffer");
         auto gBuffer = new renderPass(gBufferRenderPassProgram);
         
@@ -253,25 +261,24 @@ namespace phi
 
         lighting->setOnUpdate([=](program* program)
         {
-            program->bind();
-
-            if (gl->currentState.useBindlessTextures)
-                program->setUniform(0, gl->texturesManager->handles);
-            else
-                program->setUniform(0, gl->texturesManager->units);
-
-            program->unbind();
         });
 
         lighting->setOnRender([=](program* program)
         {
             glDisable(GL_DEPTH_TEST);
+            glError::check();
             glClear(GL_COLOR_BUFFER_BIT);
-
+            glError::check();
             glBindVertexArray(quadVao);
             glError::check();
 
             program->bind();
+            
+            if (gl->currentState.useBindlessTextures)
+                program->setUniform(0, gl->texturesManager->handles);
+            else
+                program->setUniform(0, gl->texturesManager->units);
+
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             glError::check();
             program->unbind();

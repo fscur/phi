@@ -1,5 +1,8 @@
 #include <precompiled.h>
 #include "texturesManager.h"
+#include "bindlessTextureContainer.h"
+#include "sparseTextureContainer.h"
+#include "sparseBindlessTextureContainer.h"
 
 namespace phi
 {
@@ -23,12 +26,14 @@ namespace phi
         if (_sparse)
         {
             GLint maxContainerSize;
-            glGetIntegerv(GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS_ARB, &maxContainerSize);
+            glGetIntegerv(GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS, &maxContainerSize);
             phi::glError::check();
             _maxContainerSize = static_cast<size_t>(maxContainerSize);
         }
 
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB, &_maxTextureUnits);
+        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
+
+        _maxTextureUnits -= 1;
     }
 
     texturesManager::~texturesManager()
@@ -95,7 +100,17 @@ namespace phi
             }
         }
 
-        auto container = new textureContainer(layout, _maxContainerSize, ++_currentTextureUnit, _bindless, _sparse);
+        textureContainer* container;
+
+        if (_sparse && _bindless)
+            container = new sparseBindlessTextureContainer(layout, _maxContainerSize, ++_currentTextureUnit);
+        else if (_sparse)
+            container = new sparseTextureContainer(layout, _maxContainerSize, ++_currentTextureUnit);
+        else if (_bindless)
+            container = new bindlessTextureContainer(layout, _maxContainerSize, ++_currentTextureUnit);
+        else
+            container = new textureContainer(layout, _maxContainerSize, ++_currentTextureUnit);
+
         container->add(texture, textureAddress);
         _containers[key].push_back(container);
         handles.push_back(container->handle);
@@ -111,7 +126,6 @@ namespace phi
 
         return _textures[texture];
     }
-
 
     texture* texturesManager::getTextureFromImage(image* materialImage, phi::image* defaultImage)
     {
@@ -159,7 +173,19 @@ namespace phi
             layout.minFilter,
             layout.magFilter);
 
-        auto container = new textureContainer(layout, std::min(_maxContainerSize, size), ++_currentTextureUnit, _bindless, _sparse);
+        auto maxTextures = std::min(_maxContainerSize, size);
+
+        textureContainer* container;
+
+        if (_sparse && _bindless)
+            container = new sparseBindlessTextureContainer(layout, maxTextures, ++_currentTextureUnit);
+        else if (_sparse)
+            container = new sparseTextureContainer(layout, maxTextures, ++_currentTextureUnit);
+        else if (_bindless)
+            container = new bindlessTextureContainer(layout, maxTextures, ++_currentTextureUnit);
+        else
+            container = new textureContainer(layout, maxTextures, ++_currentTextureUnit);
+
         _containers[key].push_back(container);
         handles.push_back(container->handle);
         units.push_back(_currentTextureUnit);

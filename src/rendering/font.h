@@ -2,7 +2,6 @@
 #include <phi.h>
 #include "renderingApi.h"
 #include "texture.h"
-#include "glyphNode.h"
 #include "glyph.h"
 
 namespace phi

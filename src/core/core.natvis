@@ -137,7 +137,7 @@
     </Expand>
   </Type>
 
-  <Type Name="phi::rectangle">
+  <Type Name="phi::rectangle&lt;*&gt;">
     <DisplayString>({x}; {y}) [{w}; {h}] </DisplayString>
     <Expand HideRawView="true" />
   </Type>
