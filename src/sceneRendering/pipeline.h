@@ -18,7 +18,6 @@ namespace phi
     {
     private:
         const uint MAX_MATERIALS_COUNT = 512;
-        map<material*, uint> _materialsMaterialsGpu;
         const gl* _gl;
         buffer<materialRenderData>* _materialRenderDataBuffer;
         buffer<frameUniformBlock>* _frameUniformBlockBuffer;

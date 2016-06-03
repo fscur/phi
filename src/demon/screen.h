@@ -3,7 +3,6 @@
 #include <application\window.h>
 #include <application\commandsManager.h>
 #include <context\scene.h>
-#include <ui\ui.h>
 
 #include "defaultCameraController.h"
 #include "library.h"
@@ -36,7 +35,7 @@ namespace demon
 #ifdef _DEBUG
         phi::watcher* _watcher;
         phi::blockingQueue<phi::watcherMessage>* _messageQueue;
-#endif 
+#endif
     private:
         void initGL();
         void initLibraries();

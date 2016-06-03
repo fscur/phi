@@ -99,7 +99,6 @@ namespace phi
         auto font = text->getFont();
         auto textString = text->getText();
         auto position = text->getNode()->getTransform()->getPosition();
-        auto color = text->getColor();
 
         float baseLine = font->getBaseLine();
         float spacing = font->getSpacing();
@@ -138,7 +137,7 @@ namespace phi
             renderData.shift = shift;
             renderData.unit = glyph->texUnit;
             renderData.page = glyph->texPage;
-            renderData.color = color;
+            renderData.color = text->getColor();;
 
             auto glyphInstance = new textRenderer::glyphInstance();
             glyphInstance->modelMatrix = modelMatrix;

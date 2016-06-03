@@ -12,6 +12,7 @@ namespace phi
         GLint _maxColorAttachments;
         GLint _currentAttachment;
         vector<GLenum> _drawBuffers;
+        vector<renderTarget*> _renderTargets;
 
     public:
         RENDERING_API framebuffer(bool isDefaultFramebuffer = false);
@@ -33,5 +34,6 @@ namespace phi
             renderTarget* targetRenderTarget);
 
         RENDERING_API GLfloat getZBufferValue(int x, int y);
+        vector<renderTarget*> getRenderTargets() { return _renderTargets; }
     };
 }

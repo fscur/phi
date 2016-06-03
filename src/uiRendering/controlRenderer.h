@@ -28,7 +28,7 @@ namespace phi
 
     private:
         gl* _gl;
-        map<control*, controlInstance*> _instances;
+        unordered_map<control*, controlInstance*> _instances;
 
         vector<mat4> _modelMatrices;
         vector<controlRenderData> _renderData;

@@ -15,8 +15,10 @@ namespace phi
     private:
         camera* _camera;
         node* _root;
-        vector<renderPass*> _renderPasses;
-        std::function<void(node*)> _onNodeAdded;
+
+        vector<std::function<void(void)>> _onUpdate;
+        vector<std::function<void(void)>> _onRender;
+        vector<std::function<void(node*)>> _onNodeAdded;
 
         buffer<frameUniformBlock>* _frameUniformsBuffer;
 
@@ -26,16 +28,16 @@ namespace phi
         void updateFrameUniforms();
 
     public:
-        layer(camera* camera, vector<renderPass*>& renderPasses);
-        layer(camera* camera, vector<renderPass*>&& renderPasses);
+        layer(camera* camera);
         ~layer();
 
+        CONTEXT_API void addOnUpdate(std::function<void(void)> updateFunction);
+        CONTEXT_API void addOnRender(std::function<void(void)> renderFunction);
+        CONTEXT_API void addOnNodeAdded(std::function<void(node*)> onNodeAdded);
+
         CONTEXT_API void add(node* node);
-
-        void update();
-        void render();
-
-        void setOnNodeAdded(std::function<void(node*)> onNodeAdded) { _onNodeAdded = onNodeAdded; }
+        CONTEXT_API void update();
+        CONTEXT_API void render();
 
         camera* getCamera() { return _camera; }
     };

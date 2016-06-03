@@ -5,20 +5,15 @@ namespace phi
 {
     using namespace phi;
 
-    layer::layer(camera* camera, vector<renderPass*>& renderPasses) :
+    layer::layer(camera* camera) :
         _camera(camera),
-        _renderPasses(renderPasses),
         _root(new node("root"))
     {
         initialize();
     }
 
-    layer::layer(camera* camera, phi::vector<phi::renderPass*>&& renderPasses) :
-        _camera(camera),
-        _renderPasses(renderPasses),
-        _root(new node("root"))
+    layer::~layer()
     {
-        initialize();
     }
 
     void layer::initialize()
@@ -44,31 +39,45 @@ namespace phi
         _frameUniformsBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniform);
     }
 
-    layer::~layer()
+    void layer::addOnUpdate(std::function<void(void)> updateFunction)
     {
-        for (auto renderPass : _renderPasses)
-            safeDelete(renderPass);
+        _onUpdate.push_back(updateFunction);
+    }
+
+    void layer::addOnRender(std::function<void(void)> renderFunction)
+    {
+        _onRender.push_back(renderFunction);
+    }
+
+    void layer::addOnNodeAdded(std::function<void(node*)> onNodeAdded)
+    {
+        _onNodeAdded.push_back(onNodeAdded);
     }
 
     void layer::add(node* node)
     {
         _root->addChild(node);
-        _onNodeAdded(node); //TODO: do with events
+
+        node->traverse([&](phi::node* currentNode)
+        {
+            for (auto onNodeAddedFunction : _onNodeAdded)
+                onNodeAddedFunction(currentNode); //TODO: do with events
+        });
     }
 
     void layer::update()
     {
         updateFrameUniforms();
 
-        for (auto renderPass : _renderPasses)
-            renderPass->update();
+        for (auto updateFunction : _onUpdate)
+            updateFunction();
     }
-    
+
     void layer::render()
     {
         _frameUniformsBuffer->bindBufferBase(0);
 
-        for (auto renderPass : _renderPasses)
-            renderPass->render();
+        for (auto renderFunction : _onRender)
+            renderFunction();
     }
 }
