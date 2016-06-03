@@ -198,10 +198,7 @@ namespace phi
             glLinkProgram(_id);
             glError::check();
 
-            if (!validate())
-                return false;
-
-            return true;
+            return validate();
         }
 
         return false;
