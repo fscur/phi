@@ -1,12 +1,9 @@
 #include <precompiled.h>
 #include "layerBuilder.h"
 
-#include <rendering\frameBuffer.h>
 #include <rendering\texture.h>
 #include <rendering\camera.h>
-#include <rendering\glslCompiler.h>
-#include <rendering\renderTargetsAddresses.h>
-#include <rendering\vertexBuffer.h>
+#include <rendering\programBuilder.h>
 
 #ifdef _DEBUG
 #include <rendering\liveShaderReloader.h>
@@ -27,54 +24,6 @@
 
 namespace phi
 {
-    map<string, shader*> layerBuilder::_shadersCache = map<string, shader*>();
-    map<std::tuple<shader*, shader*>, program*> layerBuilder::_programsCache = map<std::tuple<shader*, shader*>, program*>();
-
-    program* layerBuilder::buildProgram(
-        const string& shadersPath,
-        const string& vertexShaderName,
-        const string& fragmentShaderName)
-    {
-        auto vertexShaderFileName = path::combine(shadersPath, vertexShaderName, shader::VERT_EXT);
-        auto fragmentShaderFileName = path::combine(shadersPath, fragmentShaderName, shader::FRAG_EXT);
-
-        auto newShader = [&](string fileName)
-        {
-            phi::shader* shader = nullptr;
-
-            if (_shadersCache.find(fileName) != _shadersCache.end())
-            {
-                shader = _shadersCache[fileName];
-            }
-            else
-            {
-                shader = new phi::shader(fileName);
-                _shadersCache[fileName] = shader;
-#ifdef _DEBUG
-                liveShaderReloader::shaders[fileName] = shader;
-#endif
-            }
-
-            return shader;
-        };
-
-        auto vertexShader = newShader(vertexShaderFileName);
-        auto fragmentShader = newShader(fragmentShaderFileName);
-
-        phi::program* program = nullptr;
-        auto key = std::tuple<shader*, shader*>(vertexShader, fragmentShader);
-
-        if (_programsCache.find(key) != _programsCache.end())
-            program = _programsCache[key];
-        else
-        {
-            program = glslCompiler::compile({ vertexShader, fragmentShader });
-            _programsCache[key] = program;
-        }
-
-        return program;
-    }
-
     layerBuilder::layerBuilder(layer* layer, gl* gl, float width, float height, string resourcesPath) :
         _layer(layer),
         _gl(gl),
@@ -84,11 +33,7 @@ namespace phi
     {
     }
 
-    layerBuilder::~layerBuilder()
-    {
-    }
-
-    layerBuilder layerBuilder::newLayer(camera* camera, gl * gl, float width, float height, string resourcesPath)
+    layerBuilder layerBuilder::newLayer(camera* camera, gl* gl, float width, float height, string resourcesPath)
     {
         return layerBuilder(new layer(camera), gl, width, height, resourcesPath);
     }
@@ -122,7 +67,7 @@ namespace phi
         auto shadersPath = path::combine(_resourcesPath, "shaders");
 
         auto controlRenderer = new phi::controlRenderer(_gl);
-        auto controlRenderPassProgram = buildProgram(shadersPath, "control", "control");
+        auto controlRenderPassProgram = programBuilder::buildProgram(shadersPath, "control", "control");
 
         _layer->addOnNodeAdded([=](node* node)
         {
@@ -142,7 +87,7 @@ namespace phi
     {
         auto shadersPath = path::combine(_resourcesPath, "shaders");
         auto textRenderer = new phi::textRenderer(_gl);
-        auto textRenderPassProgram = buildProgram(shadersPath, "text", "text");
+        auto textRenderPassProgram = programBuilder::buildProgram(shadersPath, "text", "text");
 
         _layer->addOnNodeAdded([=](node* node)
         {

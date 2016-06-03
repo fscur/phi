@@ -35,14 +35,13 @@ namespace phi
 
     private:
         framebufferBuilder(framebuffer* framebuffer, gl* gl, float width, float height);
-        ~framebufferBuilder();
 
         void reserveContainer(GLenum internalFormat, size_t size);
         renderTarget* createRenderTarget(framebufferAttachment& attatchment);
 
     public:
-        RENDERING_API static framebufferBuilder* newFramebuffer(gl* gl, float width, float height);
-        RENDERING_API framebufferBuilder* with(GLenum attachment, GLenum internalFormat, GLenum dataFormat);
+        RENDERING_API static framebufferBuilder newFramebuffer(gl* gl, float width, float height);
+        RENDERING_API framebufferBuilder with(GLenum attachment, GLenum internalFormat, GLenum dataFormat);
         RENDERING_API framebuffer* build();
     };
 }

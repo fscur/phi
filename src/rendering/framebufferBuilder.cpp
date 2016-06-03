@@ -11,10 +11,6 @@ namespace phi
     {
     }
 
-    framebufferBuilder::~framebufferBuilder()
-    {
-    }
-
     void framebufferBuilder::reserveContainer(GLenum internalFormat, size_t size)
     {
         auto layout = phi::textureContainerLayout();
@@ -48,17 +44,17 @@ namespace phi
                 texture);
     }
 
-    framebufferBuilder* framebufferBuilder::newFramebuffer(gl* gl, float width, float height)
+    framebufferBuilder framebufferBuilder::newFramebuffer(gl* gl, float width, float height)
     {
-        return new framebufferBuilder(new framebuffer(), gl, width, height);
+        return framebufferBuilder(new framebuffer(), gl, width, height);
     }
 
-    framebufferBuilder * framebufferBuilder::with(GLenum attachment, GLenum internalFormat, GLenum dataFormat)
+    framebufferBuilder framebufferBuilder::with(GLenum attachment, GLenum internalFormat, GLenum dataFormat)
     {
         _formatCounts[internalFormat]++;
         _attatchments.push_back(framebufferAttachment(attachment, internalFormat, dataFormat));
 
-        return this;
+        return *this;
     }
 
     framebuffer* framebufferBuilder::build()

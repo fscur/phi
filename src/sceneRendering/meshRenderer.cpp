@@ -6,21 +6,25 @@
 
 #include <io\path.h>
 
-#include <rendering\glslCompiler.h>
 #include <rendering\framebufferBuilder.h>
+#include <rendering\programBuilder.h>
+#include <rendering\vao.h>
+#include <rendering\postProcessVao.h>
+
+#include "gBufferRenderPassConfigurator.h"
+#include "lightingRenderPassConfigurator.h"
 
 namespace phi
 {
-    meshRenderer::meshRenderer(gl* gl, float width, float height, vector<renderPass*>&& renderPasses) :
-        _gl(gl),
-        _width(width),
-        _height(height),
+    meshRenderer::meshRenderer(vector<renderPass*>&& renderPasses) :
         _renderPasses(renderPasses)
     {
     }
 
     meshRenderer::~meshRenderer()
     {
+        for (auto renderPass : _renderPasses)
+            safeDelete(renderPass);
     }
 
     void meshRenderer::render()
@@ -29,26 +33,17 @@ namespace phi
             renderPass->render();
     }
 
-    meshRenderer* meshRenderer::configure(gl * gl, float width, float height, const string& resourcesPath, meshRendererDescriptor* rendererDescriptor)
+    meshRenderer* meshRenderer::configure(gl* gl, float width, float height, const string& resourcesPath, meshRendererDescriptor* rendererDescriptor)
     {
-        auto getProgram = [](string vertexShaderName, string fragmentShaderName, string shadersPath)
-        {
-            auto vertexShaderFileName = path::combine(shadersPath, vertexShaderName, shader::VERT_EXT);
-            auto fragmentShaderFileName = path::combine(shadersPath, fragmentShaderName, shader::FRAG_EXT);
-
-            auto vertexShader = new phi::shader(vertexShaderFileName);
-            auto fragmentShader = new phi::shader(fragmentShaderFileName);
-
-            return glslCompiler::compile({ vertexShader, fragmentShader });
-        };
+        auto shadersPath = path::combine(resourcesPath, "/shaders");
 
         auto gBufferFramebuffer = framebufferBuilder::newFramebuffer(gl, width, height)
-            ->with(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
-            ->with(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
-            ->with(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
-            ->with(GL_COLOR_ATTACHMENT3, GL_RGBA8, GL_RGBA)
-            ->with(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
-            ->build();
+            .with(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
+            .with(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
+            .with(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
+            .with(GL_COLOR_ATTACHMENT3, GL_RGBA8, GL_RGBA)
+            .with(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
+            .build();
 
         auto renderTargets = gBufferFramebuffer->getRenderTargets();
 
@@ -89,27 +84,7 @@ namespace phi
         auto finalImageFramebuffer = new framebuffer();
         finalImageFramebuffer->add(finalImageRT);
         
-        auto quad = geometry::createQuad(2.0f);
-
-        GLuint quadVao;
-        glCreateVertexArrays(1, &quadVao);
-        glError::check();
-
-        glBindVertexArray(quadVao);
-        glError::check();
-
-        vector<vertexAttrib> attribs;
-        attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
-        attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-
-        auto quadVbo = new vertexBuffer<vertex>(attribs);
-        quadVbo->storage(quad->vboSize, quad->vboData, bufferStorageUsage::write);
-
-        auto quadEbo = new buffer<uint>(bufferTarget::element);
-        quadEbo->storage(quad->eboSize, quad->eboData, bufferStorageUsage::write);
-
-        glBindVertexArray(0);
-        glError::check();
+        auto quadVao = new postProcessVao();
 
         auto rtsBuffer = new buffer<renderTargetsAddresses>(bufferTarget::uniform);
 
@@ -119,9 +94,8 @@ namespace phi
             bufferStorageUsage::write);
         rtsBuffer->bindBufferBase(2);
 
-        auto shadersPath = path::combine(resourcesPath, "shaders");
-
-        auto gBuffer = new renderPass(getProgram("gBuffer", "gBuffer", shadersPath));
+        auto gBufferProgram = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
+        auto gBuffer = new renderPass(gBufferProgram);
         gBuffer->setOnRender([=](program* program)
         {
             rendererDescriptor->bind();
@@ -161,7 +135,8 @@ namespace phi
             glError::check();
         });
 
-        auto lighting = new renderPass(getProgram("lighting", "lighting", shadersPath));
+        auto lightingProgram = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
+        auto lighting = new renderPass(lightingProgram);
         lighting->setOnRender([=](program* program)
         {
             finalImageFramebuffer->bindForDrawing();
@@ -169,8 +144,7 @@ namespace phi
             glDisable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glBindVertexArray(quadVao);
-            glError::check();
+            quadVao->bind();
 
             program->bind();
 
@@ -191,6 +165,10 @@ namespace phi
             finalImageFramebuffer->blitToDefault(finalImageRT);
         });
 
-        return new meshRenderer(gl, width, height, { gBuffer, lighting });
+        //auto gBufferRenderPass = gBufferRenderPassConfigurator::configureNewGBuffer();
+        //auto lightingRenderPass = lightingRenderPassConfigurator::configureNewLighting(gBufferRenderPass->getOuts());
+
+        /*return new meshRenderer({ gBufferRenderPass, lightingRenderPass });*/
+        return new meshRenderer({ gBuffer, lighting });
     }
 }

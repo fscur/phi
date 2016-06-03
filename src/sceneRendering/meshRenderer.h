@@ -20,14 +20,10 @@ namespace phi
     class meshRenderer
     {
     private:
-        gl* _gl;
-        float _width;
-        float _height;
-
         vector<renderPass*> _renderPasses;
 
     private:
-        SCENE_RENDERING_API meshRenderer(gl* gl, float width, float height, vector<renderPass*>&& renderPasses);
+        SCENE_RENDERING_API meshRenderer(vector<renderPass*>&& renderPasses);
 
     public:
         SCENE_RENDERING_API ~meshRenderer();
