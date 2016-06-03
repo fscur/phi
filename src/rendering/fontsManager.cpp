@@ -7,34 +7,12 @@ namespace phi
     FT_Library fontsManager::_freeTypeLibrary = nullptr;
     bool fontsManager::_initialized = false;
 
-    void fontsManager::createGlyphAtlasContainer()
-    {
-        auto glyphAtlasSize = 0;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glyphAtlasSize);
-        glyphAtlasSize = std::min(glyphAtlasSize, _maxGlyphAtlasSize);
-
-        auto maxLevels = texturesManager::getMaxLevels(glyphAtlasSize, glyphAtlasSize);
-
-        auto layout = phi::textureContainerLayout();
-        layout.w = static_cast<GLsizei>(glyphAtlasSize);
-        layout.h = static_cast<GLsizei>(glyphAtlasSize);
-        layout.levels = maxLevels;
-        layout.internalFormat = GL_RGB8;
-        layout.dataFormat = GL_RGB;
-        layout.dataType = GL_UNSIGNED_BYTE;
-        layout.wrapMode = GL_CLAMP_TO_EDGE;
-        layout.minFilter = GL_LINEAR;
-        layout.magFilter = GL_LINEAR;
-
-        _glyphAtlasContainer = _texturesManager->reserveContainer(layout, 1);
-    }
-
     fontsManager::fontsManager(string path, texturesManager* texturesManager) :
         _path(path),
         _texturesManager(texturesManager),
         _fonts(map<std::tuple<string, uint>, font*>()),
         _maxGlyphAtlasSize(1024),
-        _glyphAtlasContainer(nullptr)
+        _texelSize(vec2(0.0f))
     {
         assert(!_initialized);
 
@@ -45,7 +23,7 @@ namespace phi
             font::FreeTypeLibrary = _freeTypeLibrary;
         }
 
-        createGlyphAtlasContainer();
+        createGlyphLayout();
     }
 
     fontsManager::~fontsManager()
@@ -56,16 +34,38 @@ namespace phi
         FT_Done_FreeType(_freeTypeLibrary);
     }
 
+    void fontsManager::createGlyphLayout()
+    {
+        auto glyphAtlasSize = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glyphAtlasSize);
+        glyphAtlasSize = std::min(glyphAtlasSize, _maxGlyphAtlasSize);
+
+        auto maxLevels = texturesManager::getMaxLevels(glyphAtlasSize, glyphAtlasSize);
+
+        _glyphLayout = phi::textureLayout();
+        _glyphLayout.dataFormat = GL_RGB;
+        _glyphLayout.dataType = GL_UNSIGNED_BYTE;
+        _glyphLayout.levels = maxLevels;
+        _glyphLayout.internalFormat = GL_RGB8;
+        _glyphLayout.wrapMode = GL_CLAMP_TO_EDGE;
+        _glyphLayout.minFilter = GL_LINEAR;
+        _glyphLayout.magFilter = GL_LINEAR;
+
+        _texturesManager->reserveContainer(sizeui(glyphAtlasSize, glyphAtlasSize), _glyphLayout, 1);
+
+        auto inverseGlyphAtlasSize = 1.0f / static_cast<float>(glyphAtlasSize);
+        _texelSize = vec2(inverseGlyphAtlasSize);
+    }
+
     glyph* fontsManager::getGlyph(font* const font, const ulong& glyphChar)
     {
         auto glyph = font->getGlyph(glyphChar);
+        auto glyphTexture = new texture(glyph->image, _glyphLayout, true, true);
 
-        auto texelSize = _glyphAtlasContainer->getTexelSize();
-        textureAddress address;
-        _glyphAtlasContainer->subImage(glyph->image, address);
+        textureAddress address = _texturesManager->get(glyphTexture);
 
-        glyph->texPosition = vec2((float)address.rect.x * texelSize.x, (float)address.rect.y * texelSize.y);
-        glyph->texSize = vec2((float)address.rect.w * texelSize.x, (float)address.rect.h * texelSize.y);
+        glyph->texPosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
+        glyph->texSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);
         glyph->texUnit = address.unit;
         glyph->texPage = address.page;
 

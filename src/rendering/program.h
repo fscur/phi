@@ -36,7 +36,6 @@ namespace phi
         RENDERING_API void addAttribute(const string& attribute);
 
         RENDERING_API void addUniform(uint location, string name);
-        RENDERING_API void setUniform(uint location, texture* value, GLuint index);
         RENDERING_API void setUniform(uint location, GLuint value);
         RENDERING_API void setUniform(uint location, GLfloat value);
         RENDERING_API void setUniform(uint location, color value);

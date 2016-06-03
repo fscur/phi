@@ -5,9 +5,10 @@
 namespace phi
 {
     sparseBindlessTextureContainer::sparseBindlessTextureContainer(
-        textureContainerLayout layout,
+        sizeui size,
+        textureLayout layout,
         size_t maxTextures) :
-        textureContainer(layout, maxTextures)
+        textureContainer(size, layout, maxTextures)
     {
     }
 
@@ -73,8 +74,8 @@ namespace phi
         glTextureStorage3D(_id,
             _layout.levels,
             _layout.internalFormat,
-            _layout.w,
-            _layout.h,
+            _size.w,
+            _size.h,
             static_cast<GLsizei>(_maxPages));
         glError::check();
 
@@ -93,12 +94,12 @@ namespace phi
         glError::check();
     }
 
-    void sparseBindlessTextureContainer::onLoadTexture(const texture* const texture)
+    void sparseBindlessTextureContainer::onLoadData(
+        float page,
+        const void* const data)
     {
-        auto textureAddress = _texturesAddresses[texture];
-
-        GLsizei levelWidth = _layout.w;
-        GLsizei levelHeight = _layout.h;
+        GLsizei levelWidth = _size.w;
+        GLsizei levelHeight = _size.h;
 
         for (auto mipLevel = 0; mipLevel < _layout.levels; ++mipLevel)
         {
@@ -107,7 +108,7 @@ namespace phi
                 mipLevel,
                 0,
                 0,
-                static_cast<GLint>(textureAddress.page),
+                static_cast<GLint>(page),
                 levelWidth,
                 levelHeight,
                 1,
@@ -118,7 +119,7 @@ namespace phi
             levelHeight = std::max(levelHeight / 2, 1);
         }
 
-        if (texture->data != nullptr)
+        if (data != nullptr)
         {
             glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
             glError::check();
@@ -128,13 +129,14 @@ namespace phi
                 0,
                 0,
                 0,
-                static_cast<GLint>(textureAddress.page),
-                texture->w,
-                texture->h,
+                static_cast<GLint>(page),
+                _size.w,
+                _size.h,
                 1,
-                texture->dataFormat,
-                texture->dataType,
-                texture->data);
+                _layout.dataFormat,
+                _layout.dataType,
+                data);
+
             glError::check();
 
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
@@ -142,9 +144,9 @@ namespace phi
         }
     }
 
-    void sparseBindlessTextureContainer::onSubData(
-        const float& page,
+    void sparseBindlessTextureContainer::onLoadSubData(
         const rectangle<GLint>& rect,
+        float page,
         const void* const data)
     {
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);

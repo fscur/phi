@@ -59,18 +59,21 @@ namespace phi
         rtAddresses->rt3Page = renderTargets[3]->textureAddress.page;
         rtAddresses->depthPage = renderTargets[4]->textureAddress.page;
 
-        auto finalImageTexture = new texture(
+        auto layout = textureLayout();
+        layout.dataFormat = GL_RGBA;
+        layout.dataType = GL_UNSIGNED_BYTE;
+        layout.internalFormat = GL_RGBA8;
+        layout.wrapMode = GL_CLAMP_TO_EDGE;
+        layout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
+        layout.magFilter = GL_LINEAR;
+
+        auto finalImageTexture = new phi::texture(
             static_cast<uint>(width),
             static_cast<uint>(height),
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
+            layout,
             nullptr,
-            GL_TEXTURE_2D,
-            GL_RGBA8,
-            GL_CLAMP_TO_EDGE,
-            GL_LINEAR_MIPMAP_LINEAR,
-            GL_LINEAR,
-            true);
+            true,
+            false);
 
         auto finalImageTexAddress = gl->texturesManager->get(finalImageTexture);
 

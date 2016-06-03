@@ -6,10 +6,14 @@
 namespace phi
 {
     textureContainer::textureContainer(
-        textureContainerLayout layout,
+        sizeui size,
+        textureLayout layout,
         size_t maxPages) :
-        _freeSpace(maxPages),
         _created(false),
+        _texelSize(vec2(0.0f)),
+        _pages(unordered_map<float, bool>()),
+        _atlases(unordered_map<float, atlas*>()),
+        _size(size),
         _maxPages(maxPages),
         _layout(layout),
         _unit(-1),
@@ -26,7 +30,8 @@ namespace phi
         for (auto i = 0; i < maxPages; ++i)
             _pages[static_cast<float>(i)] = false;
 
-        _texelSize = vec2(1.0f / (float)layout.w, 1.0f / (float)layout.h);
+        _texelSize = vec2(1.0f / (float)size.w, 1.0f / (float)size.h);
+        _size.d = static_cast<uint>(maxPages);
     }
 
     textureContainer::~textureContainer()
@@ -44,119 +49,15 @@ namespace phi
         _created = true;
     }
 
-    void textureContainer::loadTexture(const texture* const texture)
+    bool textureContainer::loadData(
+        const texture * const texture, 
+        textureAddress & textureAddress)
     {
-        if (!_created)
-            create();
-
-        onLoadTexture(texture);
-    }
-
-    void textureContainer::onCreate()
-    {
-        glActiveTexture(GL_TEXTURE0 + _unit);
-        glError::check();
-
-        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        glError::check();
-
-        glTextureStorage3D(_id,
-            _layout.levels,
-            _layout.internalFormat,
-            _layout.w,
-            _layout.h,
-            static_cast<GLsizei>(_maxPages));
-        glError::check();
-
-        glTextureParameteri(_id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
-        glError::check();
-        glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
-        glError::check();
-        glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
-        glError::check();
-        glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
-        glError::check();
-    }
-
-    void textureContainer::onLoadTexture(const texture* const texture)
-    {
-        auto textureAddress = _texturesAddresses[texture];
-
-        if (texture->data != nullptr)
-        {
-            glActiveTexture(GL_TEXTURE0 + _unit);
-            glError::check();
-
-            glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-            glError::check();
-
-            glTextureSubImage3D(
-                _id,
-                0,
-                0,
-                0,
-                static_cast<GLint>(textureAddress.page),
-                texture->w,
-                texture->h,
-                1,
-                texture->dataFormat,
-                texture->dataType,
-                texture->data);
-            glError::check();
-
-            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-            glError::check();
-        }
-    }
-
-    void textureContainer::onSubData(
-        const float& page,
-        const rectangle<GLint>& rect,
-        const void* const data)
-    {
-        glActiveTexture(GL_TEXTURE0 + _unit);
-        glError::check();
-
-        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        glError::check();
-
-        glTextureSubImage3D(
-            _id,
-            0,
-            rect.x,
-            rect.y,
-            static_cast<GLint>(page),
-            rect.w,
-            rect.h,
-            1,
-            _layout.dataFormat,
-            _layout.dataType,
-            data);
-
-        glError::check();
-
-        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        glError::check();
-    }
-
-    bool textureContainer::add(
-        const texture* const texture,
-        textureAddress& textureAddress)
-    {
-        if (_freeSpace == 0)
-            return false;
-
-        if (phi::contains(_textures, texture))
-        {
-            textureAddress = _texturesAddresses[texture];
-            return true;
-        }
-
         float page = getEmptyPage();
 
         if (page < 0.0f)
             return false;
-        
+
         textureAddress.containerId = _id;
         textureAddress.unit = _unit;
         textureAddress.page = page;
@@ -164,35 +65,30 @@ namespace phi
 
         _textures.push_back(texture);
         _texturesAddresses[texture] = textureAddress;
-        --_freeSpace;
 
-        loadTexture(texture);
+        loadData(page, texture->data);
 
         return true;
     }
 
-    void textureContainer::subData(
-        const float& page,
-        const rectangle<GLint>& rect,
+    void textureContainer::loadData(
+        float page,
         const void* const data)
     {
-        onSubData(page, rect, data);
+        onLoadData(page, data);
     }
 
-    bool textureContainer::subImage(
-        const image* image,
+    bool textureContainer::loadSubData(
+        const texture* texture, 
         textureAddress& textureAddress)
     {
-        if (!_created)
-            create();
-
         auto page = getAvailablePage();
 
         if (page < 0.0f)
             return false;
- 
-        auto rect = rectangle<uint>(0, 0, image->w, image->h);
-        auto atlasItem = new phi::atlasItem(rect, image);
+
+        auto rect = rectangle<uint>(0, 0, texture->w, texture->h);
+        auto atlasItem = new phi::atlasItem(rect, texture);
 
         phi::atlasNode* atlasNode = nullptr;
 
@@ -201,8 +97,7 @@ namespace phi
             auto atlas = _atlases[page];
             if (!atlas)
             {
- 
-                atlas = new phi::atlas(sizeui(_layout.w, _layout.h));
+                atlas = new phi::atlas(_size);
                 _atlases[page] = atlas;
             }
 
@@ -220,7 +115,7 @@ namespace phi
             auto h = atlasNode->rect.h;
 
             auto subDataRect = rectangle<GLint>(x, y, w, h);
-            subData(page, subDataRect, image->data);
+            loadSubData(subDataRect, page, texture->data);
 
             textureAddress = phi::textureAddress();
             textureAddress.containerId = _id;
@@ -232,6 +127,14 @@ namespace phi
         }
 
         return false;
+    }
+
+    void textureContainer::loadSubData(
+        const rectangle<GLint>& rect, 
+        float page, 
+        const void* const data)
+    {
+        onLoadSubData(rect, page, data);
     }
 
     float textureContainer::getEmptyPage()
@@ -265,5 +168,112 @@ namespace phi
         }
 
         return -1.0f;
+    }
+
+    void textureContainer::onCreate()
+    {
+        glActiveTexture(GL_TEXTURE0 + _unit);
+        glError::check();
+
+        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
+        glError::check();
+
+        glTextureStorage3D(_id,
+            _layout.levels,
+            _layout.internalFormat,
+            _size.w,
+            _size.h,
+            static_cast<GLsizei>(_maxPages));
+        glError::check();
+
+        glTextureParameteri(_id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
+        glError::check();
+        glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
+        glError::check();
+        glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
+        glError::check();
+        glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
+        glError::check();
+    }
+
+    void textureContainer::onLoadData(
+        float page,
+        const void* const data)
+    {
+        if (data != nullptr)
+        {
+            glActiveTexture(GL_TEXTURE0 + _unit);
+            glError::check();
+
+            glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
+            glError::check();
+
+            glTextureSubImage3D(
+                _id,
+                0,
+                0,
+                0,
+                static_cast<GLint>(page),
+                _size.w,
+                _size.h,
+                1,
+                _layout.dataFormat,
+                _layout.dataType,
+                data);
+
+            glError::check();
+
+            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+            glError::check();
+        }
+    }
+
+    void textureContainer::onLoadSubData(
+        const rectangle<GLint>& rect,
+        float page,
+        const void* const data)
+    {
+        glActiveTexture(GL_TEXTURE0 + _unit);
+        glError::check();
+
+        glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
+        glError::check();
+
+        glTextureSubImage3D(
+            _id,
+            0,
+            rect.x,
+            rect.y,
+            static_cast<GLint>(page),
+            rect.w,
+            rect.h,
+            1,
+            _layout.dataFormat,
+            _layout.dataType,
+            data);
+
+        glError::check();
+
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        glError::check();
+    }
+
+    bool textureContainer::add(
+        const texture* const texture,
+        textureAddress& textureAddress)
+    {
+        if (phi::contains(_textures, texture))
+        {
+            textureAddress = _texturesAddresses[texture];
+            return true;
+        }
+
+        if (!_created)
+            create();
+
+        if (!texture->isAtlasTexture)
+            return loadData(texture, textureAddress);
+        else
+            return loadSubData(texture, textureAddress);
     }
 }

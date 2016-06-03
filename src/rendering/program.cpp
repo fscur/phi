@@ -55,18 +55,6 @@ namespace phi
         _uniformsNames[location] = name;
     }
 
-    void program::setUniform(uint location, texture* value, GLuint index)
-    {
-        glActiveTexture(GL_TEXTURE0 + index);
-        glError::check();
-
-        glBindTexture(value->type, value->id);
-        glError::check();
-
-        glUniform1i(location, index);
-        glError::check();
-    }
-
     void program::setUniform(uint location, GLuint value)
     {
         glUniform1i(location, value);
