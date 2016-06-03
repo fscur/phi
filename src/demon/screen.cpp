@@ -60,14 +60,6 @@ namespace demon
         _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](fileInfo shaderFileInfo)
         {
             liveShaderReloader::reloadShader(shaderFileInfo.path);
-
-            /*auto fileExtension = path::getExtension(shaderFileName);
-            if (fileExtension == phi::shadersManager::FRAG_EXT ||
-                fileExtension == phi::shadersManager::VERT_EXT)
-            {
-                auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
-                _gl->shadersManager->reloadShader(shaderName);
-            }*/
         });
         _watcher->startWatch();
 #endif
@@ -148,20 +140,43 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneLayer = phi::layerBuilder::buildScene(application::resourcesPath, _gl, (float) _width, (float)_height);
-        sceneLayer->add(floor);
-        sceneLayer->add(chair);
+        auto sceneCamera = new camera("sceneCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
+        auto sceneLayer = layerBuilder::newLayer(sceneCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+            .withMeshRenderer()
+            .build();
 
-        auto nandinhoLayer = phi::layerBuilder::buildUI(application::resourcesPath, _gl, (float) _width, (float)_height);
-        nandinhoLayer->add(labelNandinho);
-        nandinhoLayer->add(_labelFps);
+        auto constructionCamera = new camera("constructionCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
+        auto constructionLayer = layerBuilder::newLayer(constructionCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+            .withControlRenderer()
+            .withTextRenderer()
+            .build();
 
-        auto constructionLayer = phi::layerBuilder::buildUI(application::resourcesPath, _gl, (float)_width, float(_height));
-        constructionLayer->add(constructionLabel);
+        auto nandinhoCamera = new camera("nandinhoCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
+        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+            .withControlRenderer()
+            .withTextRenderer()
+            .build();
 
         _designContext = new context({ sceneLayer, nandinhoLayer });
         _constructionContext = new context({ sceneLayer, constructionLayer });
 
+        sceneLayer->add(floor);
+        sceneLayer->add(chair);
+
+        constructionLayer->add(constructionLabel);
+
+        nandinhoLayer->add(labelNandinho);
+        nandinhoLayer->add(_labelFps);
+
+        // GAMBIS DAR UM JEITO!!!!!!!!
+        sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 10.0f));
+        sceneCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+
+        constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+
+        nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
     }
 
     bool _design = true;
