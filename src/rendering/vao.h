@@ -11,13 +11,15 @@ namespace phi
     {
     protected:
         GLuint _id;
-        vertexBuffer<vertex>* _vbo;
-        buffer<uint>* _ebo;
+        vertexBuffer* _vbo;
+        buffer* _ebo;
 
     public:
         RENDERING_API vao();
         RENDERING_API ~vao();
 
-        RENDERING_API void bind();
+        RENDERING_API virtual void bind();
+        RENDERING_API virtual void unbind();
+        RENDERING_API virtual void render() = 0;
     };
 }

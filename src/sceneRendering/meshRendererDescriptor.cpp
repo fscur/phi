@@ -7,7 +7,8 @@
 namespace phi
 {
     meshRendererDescriptor::meshRendererDescriptor(gl* gl) :
-        _gl(gl)
+        _gl(gl),
+        onBatchAdded(new eventHandler<batch*>())
     {
         createBuffers();
     }
@@ -22,7 +23,7 @@ namespace phi
 
     void meshRendererDescriptor::createBuffers()
     {
-        _materialRenderDataBuffer = new buffer<materialRenderData>(bufferTarget::shader);
+        _materialRenderDataBuffer = new buffer(bufferTarget::shader);
 
         _materialRenderDataBuffer->storage(
             sizeof(materialRenderData) * MAX_MATERIALS_COUNT,
@@ -90,6 +91,8 @@ namespace phi
             batch = new phi::batch();
             _batches.push_back(batch);
             batch->add(instance);
+
+            onBatchAdded->raise(batch); //TODO: AAAAAAAAAAAAAAAAAAAAAA SALVE OS TOKEN SEU BOSTA
         }
 
         _meshesBatches[instance.mesh] = batch;

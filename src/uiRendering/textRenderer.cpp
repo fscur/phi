@@ -43,15 +43,15 @@ namespace phi
         textVboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         textVboAttribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
 
-        auto textVbo = new vertexBuffer<vertex>(textVboAttribs);
+        auto textVbo = new vertexBuffer(textVboAttribs);
         textVbo->storage(textQuad->vboSize, textQuad->vboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
-        auto textEbo = new buffer<uint>(bufferTarget::element);
+        auto textEbo = new buffer(bufferTarget::element);
         textEbo->storage(textQuad->eboSize, textQuad->eboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
         vector<vertexAttrib> glyphsIdsAttribs;
         glyphsIdsAttribs.push_back(vertexAttrib(2, 1, GL_UNSIGNED_INT, 0, 0, 1));
-        _glyphIdsBuffer = new vertexBuffer<uint>(glyphsIdsAttribs);
+        _glyphIdsBuffer = new vertexBuffer(glyphsIdsAttribs);
         _glyphIdsBuffer->data(sizeof(uint), nullptr, bufferDataUsage::dynamicDraw);
 
         vector<vertexAttrib> textModelMatricesAttribs;
@@ -59,10 +59,10 @@ namespace phi
         for (uint i = 0; i < 4; ++i)
             textModelMatricesAttribs.push_back(vertexAttrib(3 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new vertexBuffer<mat4>(textModelMatricesAttribs);
+        _modelMatricesBuffer = new vertexBuffer(textModelMatricesAttribs);
         _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
 
-        _glyphRenderDataBuffer = new buffer<glyphRenderData>(bufferTarget::shader);
+        _glyphRenderDataBuffer = new buffer(bufferTarget::shader);
         _glyphRenderDataBuffer->data(sizeof(glyphRenderData), nullptr, bufferDataUsage::dynamicDraw);
 
         glBindVertexArray(0);

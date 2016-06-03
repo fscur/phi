@@ -145,38 +145,39 @@ namespace demon
             .withMeshRenderer()
             .build();
 
-        auto constructionCamera = new camera("constructionCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
-        auto constructionLayer = layerBuilder::newLayer(constructionCamera, _gl, (float)_width, float(_height), application::resourcesPath)
-            .withControlRenderer()
-            .withTextRenderer()
-            .build();
+        //auto constructionCamera = new camera("constructionCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
+        //auto constructionLayer = layerBuilder::newLayer(constructionCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+        //    .withControlRenderer()
+        //    .withTextRenderer()
+        //    .build();
 
-        auto nandinhoCamera = new camera("nandinhoCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
-        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, (float)_width, float(_height), application::resourcesPath)
-            .withControlRenderer()
-            .withTextRenderer()
-            .build();
+        //auto nandinhoCamera = new camera("nandinhoCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
+        //auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+        //    .withControlRenderer()
+        //    .withTextRenderer()
+        //    .build();
 
-        _designContext = new context({ sceneLayer, nandinhoLayer });
-        _constructionContext = new context({ sceneLayer, constructionLayer });
+        _designContext = new context({ sceneLayer });
+        //_constructionContext = new context({ sceneLayer, constructionLayer });
 
         sceneLayer->add(floor);
         sceneLayer->add(chair);
 
-        constructionLayer->add(constructionLabel);
+       /* constructionLayer->add(constructionLabel);
 
         nandinhoLayer->add(labelNandinho);
         nandinhoLayer->add(_labelFps);
-
+*/
         // GAMBIS DAR UM JEITO!!!!!!!!
-        sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 10.0f));
-        sceneCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+        auto cameraPosition = vec3(-5.0f, 5.0f, -8.0f);
+        sceneCamera->getTransform()->setLocalPosition(cameraPosition);
+        sceneCamera->getTransform()->setDirection(-cameraPosition);
 
-        constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+        //constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        //constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+        //nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        //nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
     }
 
     bool _design = true;

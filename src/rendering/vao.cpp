@@ -3,7 +3,8 @@
 
 namespace phi
 {
-    vao::vao()
+    vao::vao() :
+        _id(0)
     {
     }
 
@@ -16,5 +17,10 @@ namespace phi
     void vao::bind()
     {
         glBindVertexArray(_id);
+    }
+
+    void vao::unbind()
+    {
+        glBindVertexArray(0);
     }
 }

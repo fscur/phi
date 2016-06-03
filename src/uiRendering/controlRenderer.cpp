@@ -41,22 +41,22 @@ namespace phi
         vector<vertexAttrib> controlsVboAttribs;
         controlsVboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         controlsVboAttribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-        auto controlsVbo = new vertexBuffer<vertex>(controlsVboAttribs);
+        auto controlsVbo = new vertexBuffer(controlsVboAttribs);
         controlsVbo->storage(controlQuad->vboSize, controlQuad->vboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
-        auto controlsEbo = new buffer<uint>(bufferTarget::element);
+        auto controlsEbo = new buffer(bufferTarget::element);
         controlsEbo->storage(controlQuad->eboSize, controlQuad->eboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
         
         vector<vertexAttrib> controlsModelMatricesAttribs;
         for (uint i = 0; i < 4; ++i)
             controlsModelMatricesAttribs.push_back(vertexAttrib(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new vertexBuffer<mat4>(controlsModelMatricesAttribs);
+        _modelMatricesBuffer = new vertexBuffer(controlsModelMatricesAttribs);
         _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
         
         glBindVertexArray(0);
         
-        _controlsRenderDataBuffer = new buffer<controlRenderData>(bufferTarget::shader);
+        _controlsRenderDataBuffer = new buffer(bufferTarget::shader);
         _controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
     }
 

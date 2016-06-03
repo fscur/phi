@@ -14,5 +14,6 @@ namespace phi
     public:
         RENDERING_API postProcessVao();
         RENDERING_API ~postProcessVao();
+        RENDERING_API void render() override;
     };
 }

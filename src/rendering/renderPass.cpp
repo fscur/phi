@@ -3,8 +3,9 @@
 
 namespace phi
 {
-    renderPass::renderPass(program* program) :
-        _program(program)
+    renderPass::renderPass(program* program, framebuffer* framebuffer) :
+        _program(program),
+        _framebuffer(framebuffer)
     {
     }
 
@@ -14,11 +15,19 @@ namespace phi
 
     void renderPass::update()
     {
-        _onUpdate(_program);
+        //_onUpdate(_program);
     }
 
     void renderPass::render()
     {
-        _onRender(_program);
+        _framebuffer->bindForDrawing();
+
+        auto i = 1u;
+        for (auto buffer : _buffers)
+            buffer->bindBufferBase(i++);
+
+        _onBeginRender(_program, _framebuffer);
+        _onRender(_vaos);
+        _onEndRender(_program, _framebuffer);
     }
 }

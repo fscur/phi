@@ -36,9 +36,9 @@ namespace phi
         unordered_map<text*, textInstance*> _instances;
 
         GLuint _vao;
-        vertexBuffer<uint>* _glyphIdsBuffer;
-        vertexBuffer<mat4>* _modelMatricesBuffer;
-        buffer<glyphRenderData>* _glyphRenderDataBuffer;
+        vertexBuffer* _glyphIdsBuffer;
+        vertexBuffer* _modelMatricesBuffer;
+        buffer* _glyphRenderDataBuffer;
 
     private:
         void createBuffers();

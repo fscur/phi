@@ -20,7 +20,7 @@ namespace phi
         vector<std::function<void(void)>> _onRender;
         vector<std::function<void(node*)>> _onNodeAdded;
 
-        buffer<frameUniformBlock>* _frameUniformsBuffer;
+        buffer* _frameUniformsBuffer;
 
     private:
         void initialize();

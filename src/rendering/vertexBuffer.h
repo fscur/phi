@@ -33,13 +33,12 @@ namespace phi
         }
     };
 
-    template <typename T>
     class vertexBuffer :
-        public buffer<T>
+        public buffer
     {
     public:
         vertexBuffer(vector<vertexAttrib> attribs) :
-            buffer<T>(bufferTarget::array)
+            buffer(bufferTarget::array)
         {
             auto s = attribs.size();
 

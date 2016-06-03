@@ -27,7 +27,7 @@ namespace phi
 
     void layer::createFrameUniforms()
     {
-        _frameUniformsBuffer = new buffer<frameUniformBlock>(bufferTarget::uniform);
+        _frameUniformsBuffer = new buffer(bufferTarget::uniform);
 
         auto frameUniform = frameUniformBlock(_camera->getProjectionMatrix(), _camera->getViewMatrix());
         _frameUniformsBuffer->storage(sizeof(frameUniformBlock), &frameUniform, bufferStorageUsage::dynamic | bufferStorageUsage::write);

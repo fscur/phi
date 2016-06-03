@@ -19,8 +19,8 @@ namespace phi
     private:
         const uint MAX_MATERIALS_COUNT = 512;
         const gl* _gl;
-        buffer<materialRenderData>* _materialRenderDataBuffer;
-        buffer<frameUniformBlock>* _frameUniformBlockBuffer;
+        buffer* _materialRenderDataBuffer;
+        buffer* _frameUniformBlockBuffer;
 
         vector<batch*> _batches;
         map<mesh*, batch*> _meshesBatches;

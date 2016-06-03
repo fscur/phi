@@ -20,10 +20,11 @@ namespace phi
         unordered_map<material*, uint> _materialsIndices;
 
         const uint MAX_MATERIALS_COUNT = 512;
-        buffer<materialRenderData>* _materialRenderDataBuffer;
+        buffer* _materialRenderDataBuffer;
 
     public:
         vector<batch*> _batches;
+        eventHandler<batch*>* onBatchAdded;
 
     private:
         void createBuffers();

@@ -9,7 +9,8 @@ namespace phi
     {
     private:
         lightingRenderPassConfigurator();
+
     public:
-        static renderPass* configureNewLighting();
+        static renderPass* configureNewLighting(renderPass* gBufferRenderPass, gl* gl, float width, float height, string& shadersPath);
     };
 }

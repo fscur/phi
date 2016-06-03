@@ -54,12 +54,8 @@ namespace phi
         return static_cast<bufferStorageUsage::bufferStorageUsage>(static_cast<int>(a) | static_cast<int>(b));
     }
 
-    template<typename T>
     class buffer
     {
-    private:
-        vector<T> _items;
-
     protected:
         GLuint id;
         bufferTarget::bufferTarget target;
@@ -96,19 +92,19 @@ namespace phi
             glError::check();
         }
 
-        void storage(GLsizeiptr size, const T* const data, bufferStorageUsage::bufferStorageUsage usage)
+        void storage(GLsizeiptr size, const void* const data, bufferStorageUsage::bufferStorageUsage usage)
         {
             glNamedBufferStorage(id, size, data == nullptr ? NULL : data, usage);
             glError::check();
         }
 
-        void data(GLsizeiptr size, const T* const data, bufferDataUsage::bufferDataUsage usage)
+        void data(GLsizeiptr size, const void* const data, bufferDataUsage::bufferDataUsage usage)
         {
             glNamedBufferData(id, size, data == nullptr ? NULL : data, usage);
             glError::check();
         }
 
-        void subData(GLintptr offset, GLintptr size, const T* const data)
+        void subData(GLintptr offset, GLintptr size, const void* const data)
         {
             glNamedBufferSubData(id, offset, size, data);
             glError::check();
