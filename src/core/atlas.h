@@ -28,7 +28,6 @@ namespace phi
         rectangle<uint> rect;
 
     private:
-        bool isLeaf();
         atlasNode* insert(atlasItem* item, atlasNode* node);
 
     public:
@@ -36,16 +35,22 @@ namespace phi
         ~atlasNode();
 
         atlasNode* insert(atlasItem* item);
+
+        CORE_API bool isLeaf();
     };
 
     class atlas
     {
     private:
         atlasNode* _root;
+        bool _isFull;
 
     public:
         CORE_API atlas(sizeui size);
 
         CORE_API atlasNode* insert(atlasItem* item);
+        
+        CORE_API bool isFull() const { return _isFull; }
+        CORE_API bool isEmpty() const { return _root->isLeaf(); }
     };
 }
