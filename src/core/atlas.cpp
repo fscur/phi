@@ -102,13 +102,20 @@ namespace phi
         return insert(item, this);
     }
 
-    inline atlas::atlas(sizeui size)
+    inline atlas::atlas(sizeui size) :
+        _isFull(false)
     {
         _root = new atlasNode(rectangle<uint>(0u, 0u, size.w, size.h));
     }
 
     inline atlasNode* atlas::insert(atlasItem* item)
     {
-        return _root->insert(item);
+        auto root = _root->insert(item);
+
+ 
+        if (!root)
+            _isFull = true;
+
+        return root;
     }
 }

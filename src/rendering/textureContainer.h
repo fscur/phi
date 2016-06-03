@@ -1,6 +1,7 @@
 #pragma once
 #include <phi.h>
 #include <core\rectangle.h>
+#include <core\atlas.h>
 
 #include "texture.h"
 #include "textureAddress.h"
@@ -13,9 +14,13 @@ namespace phi
     private:
         size_t _freeSpace;
         bool _created;
+        vec2 _texelSize;
+
+        unordered_map<float, bool> _pages;
+        unordered_map<float, atlas*> _atlases;
 
     protected:
-        size_t _maxTextures;
+        size_t _maxPages;
         textureContainerLayout _layout;
         GLint _unit;
         GLuint _id;
@@ -26,6 +31,13 @@ namespace phi
     private:
         void create();
         void loadTexture(const texture* const texture);
+        void subData(
+            const float& page,
+            const rectangle<GLint>& rect,
+            const void* const data);
+
+        float getEmptyPage();
+        float getAvailablePage();
 
     protected:
         virtual void onCreate();
@@ -38,17 +50,15 @@ namespace phi
     public:
         textureContainer(
             textureContainerLayout layout,
-            size_t maxTextures);
+            size_t maxPages);
 
         virtual ~textureContainer();
 
         bool add(const texture* const texture, textureAddress& textureAddress);
-        void subData(
-            const float& page,
-            const rectangle<GLint>& rect,
-            const void* const data);
+        bool subImage(const image* image, textureAddress& textureAddress);
 
         GLint getUnit() const { return _unit; }
         GLuint64 getHandle() const { return _handle; }
+        vec2 getTexelSize() const { return _texelSize; }
     };
 }

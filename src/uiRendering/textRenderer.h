@@ -31,6 +31,7 @@ namespace phi
 
     private:
         gl* _gl;
+        vec2 _texelSize;
         size_t _glyphCount;
         unordered_map<text*, textInstance*> _instances;
 

@@ -11,6 +11,7 @@ namespace phi
         _gl(gl)
     {
         createBuffers();
+        _texelSize = _gl->fontsManager->getGlyphAtlasContainer()->getTexelSize();
     }
 
     textRenderer::~textRenderer()
@@ -175,8 +176,6 @@ namespace phi
     {
         _glyphRenderDataBuffer->bindBufferBase(1);
 
-        auto texelSize = 1.0f / (float)_gl->fontsManager->getGlyphAtlasSize();
-
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
@@ -184,7 +183,7 @@ namespace phi
         glBlendColor(1, 1, 1, 1);
 
         program->bind();
-        program->setUniform(0, glm::vec2(texelSize, texelSize));
+        program->setUniform(0, _texelSize);
         program->setUniform(1, _gl->texturesManager->units);
 
         glBindVertexArray(_vao);
