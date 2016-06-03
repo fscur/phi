@@ -9,14 +9,19 @@ namespace phi
     {
     public:
         sparseTextureContainer(
-            textureContainerLayout layout,
+            sizeui size,
+            textureLayout layout,
             size_t maxTextures);
 
         void onCreate() override;
-        void onLoadTexture(const texture* const texture) override;
-        void onSubData(
-            const float& page,
-            const rectangle<GLint>& rect,
+        
+        void onLoadData(
+            float page,
+            const void* const data) override;
+
+        void onLoadSubData(
+            const rectangle<GLint>& rect, 
+            float page, 
             const void* const data) override;
     };
 }

@@ -19,16 +19,17 @@ namespace phi
         texturesManager* _texturesManager;
         map<std::tuple<string, uint>, font*> _fonts;
         GLint _maxGlyphAtlasSize;
-        textureContainer* _glyphAtlasContainer;
+        textureLayout _glyphLayout;
+        vec2 _texelSize;
 
     private:
-        void createGlyphAtlasContainer();
+        void createGlyphLayout();
 
     public:
         RENDERING_API fontsManager(string path, texturesManager* texturesManager);
         RENDERING_API ~fontsManager();
         RENDERING_API font* load(string name, uint size);
         RENDERING_API glyph* getGlyph(font* const font, const ulong& glyphChar);
-        textureContainer* getGlyphAtlasContainer() const { return _glyphAtlasContainer; }
+        vec2 getTexelSize() const { return _texelSize; }
     };
 }

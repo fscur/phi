@@ -5,14 +5,13 @@
 
 #include "texture.h"
 #include "textureAddress.h"
-#include "textureContainerLayout.h"
+#include "textureLayout.h"
 
 namespace phi
 {
     class textureContainer
     {
     private:
-        size_t _freeSpace;
         bool _created;
         vec2 _texelSize;
 
@@ -20,8 +19,9 @@ namespace phi
         unordered_map<float, atlas*> _atlases;
 
     protected:
+        sizeui _size;
         size_t _maxPages;
-        textureContainerLayout _layout;
+        textureLayout _layout;
         GLint _unit;
         GLuint _id;
         GLuint64 _handle;
@@ -30,10 +30,21 @@ namespace phi
 
     private:
         void create();
-        void loadTexture(const texture* const texture);
-        void subData(
-            const float& page,
-            const rectangle<GLint>& rect,
+        bool loadData(
+            const texture* const texture, 
+            textureAddress& textureAddress);
+
+        void loadData(
+            float page, 
+            const void* const data);
+
+        bool loadSubData(
+            const texture* texture, 
+            textureAddress& textureAddress);
+
+        void loadSubData(
+            const rectangle<GLint>& rect, 
+            float page, 
             const void* const data);
 
         float getEmptyPage();
@@ -41,24 +52,29 @@ namespace phi
 
     protected:
         virtual void onCreate();
-        virtual void onLoadTexture(const texture* const texture);
-        virtual void onSubData(
-            const float& page,
-            const rectangle<GLint>& rect,
+
+        virtual void onLoadData(
+            float page,
+            const void* const data);
+
+        virtual void onLoadSubData(
+            const rectangle<GLint>& rect, 
+            float page, 
             const void* const data);
 
     public:
         textureContainer(
-            textureContainerLayout layout,
+            sizeui size,
+            textureLayout layout,
             size_t maxPages);
 
         virtual ~textureContainer();
 
         bool add(const texture* const texture, textureAddress& textureAddress);
-        bool subImage(const image* image, textureAddress& textureAddress);
 
         GLint getUnit() const { return _unit; }
         GLuint64 getHandle() const { return _handle; }
         vec2 getTexelSize() const { return _texelSize; }
+        sizeui getSize() const { return _size; }
     };
 }

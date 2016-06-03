@@ -43,8 +43,9 @@ namespace phi
         }
     };
 
-    using sizeui = tsize<unsigned int>;
-    using sizeul = tsize<unsigned long>;
+    //using sizeui = tsize<size_t>;
+    using sizeui = tsize<uint>;
+    using sizeul = tsize<ulong>;
     using sizef = tsize<float>;
     using sized = tsize<double>;
 }

@@ -12,16 +12,14 @@ namespace phi
     private:
         struct framebufferAttachment
         {
-            framebufferAttachment(GLenum attachment, GLenum internalFormat, GLenum dataFormat) :
+            framebufferAttachment(GLenum attachment, textureLayout layout) :
                 attachment(attachment),
-                internalFormat(internalFormat),
-                dataFormat(dataFormat)
+                layout(layout)
             {
             }
 
             GLenum attachment;
-            GLenum internalFormat;
-            GLenum dataFormat;
+            textureLayout layout;
         };
 
     private:
@@ -30,14 +28,15 @@ namespace phi
         float _width;
         float _height;
 
-        map<GLenum, uint> _formatCounts;
+        map<std::tuple<GLenum, GLenum>, uint> _formats;
+        map<std::tuple<GLenum, GLenum>, textureLayout> _layouts;
         vector<framebufferAttachment> _attatchments;
 
     private:
         framebufferBuilder(framebuffer* framebuffer, gl* gl, float width, float height);
         ~framebufferBuilder();
 
-        void reserveContainer(GLenum internalFormat, size_t size);
+        textureContainer* reserveContainer(sizeui size, textureLayout layout, size_t pages);
         renderTarget* createRenderTarget(framebufferAttachment& attatchment);
 
     public:

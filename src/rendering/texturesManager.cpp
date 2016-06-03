@@ -15,7 +15,7 @@ namespace phi
         bool sparse = false) :
         _bindless(bindless),
         _sparse(sparse),
-        _maxContainerSize(MAX_CONTAINER_ITEMS)
+        _maxPages(MAX_CONTAINER_PAGES)
     {
         assert(!_initialized);
         _initialized = true;
@@ -26,10 +26,10 @@ namespace phi
 
         if (_sparse)
         {
-            GLint maxContainerSize;
-            glGetIntegerv(GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS, &maxContainerSize);
+            GLint maxPages;
+            glGetIntegerv(GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS, &maxPages);
             phi::glError::check();
-            _maxContainerSize = static_cast<size_t>(maxContainerSize);
+            _maxPages = static_cast<size_t>(maxPages);
         }
 
         textureUnits::init();
@@ -52,45 +52,31 @@ namespace phi
 
     void texturesManager::add(const texture* const texture)
     {
-        GLsizei maxLevels = 1;
-
-        if (texture->generateMipmaps)
-            maxLevels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
-
-        auto layout = textureContainerLayout();
-        layout.w = texture->w;
-        layout.h = texture->h;
-        layout.levels = maxLevels;
-        layout.internalFormat = texture->internalFormat;
-        layout.dataFormat = texture->dataFormat;
-        layout.dataType = texture->dataType;
-        layout.wrapMode = texture->wrapMode;
-        layout.minFilter = texture->minFilter;
-        layout.magFilter = texture->magFilter;
-
-        auto key = std::make_tuple(
-            layout.w,
-            layout.h,
-            layout.levels,
-            layout.internalFormat,
-            layout.dataFormat,
-            layout.dataType,
-            layout.wrapMode,
-            layout.minFilter,
-            layout.magFilter);
+        auto layout = texture->layout;
+        bool textureIsNotAtlas = !texture->isAtlasTexture;
+        if (texture->generateMipmaps && textureIsNotAtlas)
+            layout.levels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
 
         auto textureAddress = phi::textureAddress();
 
-        auto it = _containers.find(key);
+        auto it = _containers.find(layout);
         if (it != _containers.end())
         {
-            auto containers = _containers[key];
+            auto containers = (*it).second;
             uint i = 0;
             bool added = false;
             auto containersCount = containers.size();
 
             while (!added && i < containersCount)
-                added = containers[i++]->add(texture, textureAddress);
+            {
+                auto container = containers[i++];
+                auto containerSize = container->getSize();
+                
+                if (textureIsNotAtlas && (containerSize.w != texture->w || containerSize.h != texture->h))
+                    continue;
+
+                added = container->add(texture, textureAddress);
+            }
 
             if (added)
             {
@@ -101,17 +87,19 @@ namespace phi
 
         textureContainer* container;
 
+        auto size = sizeui(texture->w, texture->h);
+
         if (_sparse && _bindless)
-            container = new sparseBindlessTextureContainer(layout, _maxContainerSize);
+            container = new sparseBindlessTextureContainer(size, layout, _maxPages);
         else if (_sparse)
-            container = new sparseTextureContainer(layout, _maxContainerSize);
+            container = new sparseTextureContainer(size, layout, _maxPages);
         else if (_bindless)
-            container = new bindlessTextureContainer(layout, _maxContainerSize);
+            container = new bindlessTextureContainer(size, layout, _maxPages);
         else
-            container = new textureContainer(layout, _maxContainerSize);
+            container = new textureContainer(size, layout, _maxPages);
 
         container->add(texture, textureAddress);
-        _containers[key].push_back(container);
+        _containers[layout].push_back(container);
         handles.push_back(container->getHandle());
         units.push_back(container->getUnit());
 
@@ -139,14 +127,21 @@ namespace phi
         }
         else
         {
+            auto layout = textureLayout();
+            layout.levels = 0;
+            layout.dataFormat = textureLayout::translateDataFormat(materialImage->dataFormat);
+            layout.dataType = textureLayout::translateDataType(materialImage->dataType);
+            layout.internalFormat = GL_RGBA8;
+            layout.wrapMode = GL_REPEAT;
+            layout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
+            layout.magFilter = GL_LINEAR;
+
             texture = new phi::texture(
                 materialImage,
-                GL_TEXTURE_2D,
-                GL_RGBA8,
-                GL_REPEAT,
-                GL_LINEAR_MIPMAP_LINEAR,
-                GL_LINEAR,
-                true);
+                layout,
+                true,
+                false,
+                GL_TEXTURE_2D);
 
             _imageTextures[materialImage] = texture;
         }
@@ -159,33 +154,22 @@ namespace phi
         return phi::contains(_textures, texture);
     }
 
-    textureContainer* texturesManager::reserveContainer(textureContainerLayout layout, size_t size)
+    textureContainer* texturesManager::reserveContainer(sizeui size, textureLayout layout, size_t pages)
     {
-        auto key = std::make_tuple(
-            layout.w,
-            layout.h,
-            layout.levels,
-            layout.internalFormat,
-            layout.dataFormat,
-            layout.dataType,
-            layout.wrapMode,
-            layout.minFilter,
-            layout.magFilter);
-
-        auto maxTextures = std::min(_maxContainerSize, size);
+        auto maxPages = std::min(_maxPages, pages);
 
         textureContainer* container;
 
         if (_sparse && _bindless)
-            container = new sparseBindlessTextureContainer(layout, maxTextures);
+            container = new sparseBindlessTextureContainer(size, layout, maxPages);
         else if (_sparse)
-            container = new sparseTextureContainer(layout, maxTextures);
+            container = new sparseTextureContainer(size, layout, maxPages);
         else if (_bindless)
-            container = new bindlessTextureContainer(layout, maxTextures);
+            container = new bindlessTextureContainer(size, layout, maxPages);
         else
-            container = new textureContainer(layout, maxTextures);
+            container = new textureContainer(size, layout, maxPages);
 
-        _containers[key].push_back(container);
+        _containers[layout].push_back(container);
         handles.push_back(container->getHandle());
         units.push_back(container->getUnit());
         return container;

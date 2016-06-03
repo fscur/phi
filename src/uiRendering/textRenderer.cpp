@@ -11,7 +11,7 @@ namespace phi
         _gl(gl)
     {
         createBuffers();
-        _texelSize = _gl->fontsManager->getGlyphAtlasContainer()->getTexelSize();
+        _texelSize = _gl->fontsManager->getTexelSize();
     }
 
     textRenderer::~textRenderer()
@@ -137,7 +137,7 @@ namespace phi
             renderData.shift = shift;
             renderData.unit = glyph->texUnit;
             renderData.page = glyph->texPage;
-            renderData.color = text->getColor();;
+            renderData.color = text->getColor();
 
             auto glyphInstance = new textRenderer::glyphInstance();
             glyphInstance->modelMatrix = modelMatrix;

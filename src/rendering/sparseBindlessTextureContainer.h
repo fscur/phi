@@ -9,16 +9,21 @@ namespace phi
     {
     public:
         sparseBindlessTextureContainer(
-            textureContainerLayout layout,
+            sizeui size,
+            textureLayout layout,
             size_t maxTextures);
 
         ~sparseBindlessTextureContainer();
 
         void onCreate() override;
-        void onLoadTexture(const texture* const texture) override;
-        void onSubData(
-            const float& page,
+
+        void onLoadData(
+            float page,
+            const void* const data) override;
+
+        void onLoadSubData(
             const rectangle<GLint>& rect,
+            float page,
             const void* const data) override;
     };
 }
