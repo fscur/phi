@@ -75,18 +75,30 @@ namespace phi
         return program;
     }
 
-    layer* layerBuilder::buildScene(const string& resourcesPath, gl* gl, float width, float height)
+    layerBuilder::layerBuilder(layer* layer, gl* gl, float width, float height, string resourcesPath) :
+        _layer(layer),
+        _gl(gl),
+        _width(width),
+        _height(height),
+        _resourcesPath(resourcesPath)
     {
-        auto sceneCamera = new camera("sceneCamera", width, height, 0.1f, 10000.0f, PI_OVER_4);
-        auto sceneLayer = new layer(sceneCamera);
-        auto cameraPosition = vec3(0.0f, 0.0f, 10.0f);
-        sceneCamera->getTransform()->setLocalPosition(cameraPosition);
-        sceneCamera->getTransform()->setDirection(-cameraPosition);
+    }
 
-        auto meshDescriptor = new meshRendererDescriptor(gl);
-        auto meshRenderer = phi::meshRenderer::configure(gl, width, height, resourcesPath, meshDescriptor);
+    layerBuilder::~layerBuilder()
+    {
+    }
 
-        sceneLayer->addOnNodeAdded([=](node* node)
+    layerBuilder layerBuilder::newLayer(camera* camera, gl * gl, float width, float height, string resourcesPath)
+    {
+        return layerBuilder(new layer(camera), gl, width, height, resourcesPath);
+    }
+
+    layerBuilder layerBuilder::withMeshRenderer()
+    {
+        auto meshDescriptor = new meshRendererDescriptor(_gl);
+        auto meshRenderer = phi::meshRenderer::configure(_gl, _width, _height, _resourcesPath, meshDescriptor);
+
+        _layer->addOnNodeAdded([=](node* node)
         {
             auto mesh = node->getComponent<phi::mesh>();
             if (mesh)
@@ -96,30 +108,23 @@ namespace phi
             }
         });
 
-        sceneLayer->addOnUpdate([=] {});
-        sceneLayer->addOnRender([=]
+        _layer->addOnUpdate([=] {});
+        _layer->addOnRender([=]
         {
             meshRenderer->render();
         });
 
-        return sceneLayer;
+        return *this;
     }
 
-    layer* layerBuilder::buildUI(const string& resourcesPath, gl* gl, float width, float height)
+    layerBuilder layerBuilder::withControlRenderer()
     {
-        auto shadersPath = path::combine(resourcesPath, "shaders");
+        auto shadersPath = path::combine(_resourcesPath, "shaders");
 
-        auto controlRenderer = new phi::controlRenderer(gl);
-        auto textRenderer = new phi::textRenderer(gl);
+        auto controlRenderer = new phi::controlRenderer(_gl);
         auto controlRenderPassProgram = buildProgram(shadersPath, "control", "control");
-        auto textRenderPassProgram = buildProgram(shadersPath, "text", "text");
 
-        auto uiCamera = new camera("uiCamera", width, height, 0.1f, 10000.0f, PI_OVER_4);
-        auto uiLayer = new layer(uiCamera);
-        uiCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        uiCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
-
-        uiLayer->addOnNodeAdded([=](node* node)
+        _layer->addOnNodeAdded([=](node* node)
         {
             auto control = node->getComponent<phi::control>();
 
@@ -127,7 +132,19 @@ namespace phi
                 controlRenderer->add(control);
         });
 
-        uiLayer->addOnNodeAdded([=](node* node)
+        _layer->addOnUpdate([=] {});
+        _layer->addOnRender([=] { controlRenderer->render(controlRenderPassProgram); });
+
+        return *this;
+    }
+
+    layerBuilder layerBuilder::withTextRenderer()
+    {
+        auto shadersPath = path::combine(_resourcesPath, "shaders");
+        auto textRenderer = new phi::textRenderer(_gl);
+        auto textRenderPassProgram = buildProgram(shadersPath, "text", "text");
+
+        _layer->addOnNodeAdded([=](node* node)
         {
             auto text = node->getComponent<phi::text>();
 
@@ -135,10 +152,14 @@ namespace phi
                 textRenderer->add(text);
         });
 
-        uiLayer->addOnUpdate([=] {});
-        uiLayer->addOnRender([=] { controlRenderer->render(controlRenderPassProgram); });
-        uiLayer->addOnRender([=] { textRenderer->render(textRenderPassProgram); });
+        _layer->addOnUpdate([=] {});
+        _layer->addOnRender([=] { textRenderer->render(textRenderPassProgram); });
 
-        return uiLayer;
+        return *this;
+    }
+
+    layer* layerBuilder::build()
+    {
+        return _layer;
     }
 }

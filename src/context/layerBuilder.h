@@ -20,8 +20,21 @@ namespace phi
         static map<string, shader*> _shadersCache;
         static map<std::tuple<shader*, shader*>, program*> _programsCache;
 
+        layer* _layer;
+        gl* _gl;
+        float _width;
+        float _height;
+        string _resourcesPath;
+
+    private:
+        layerBuilder(layer* layer, gl* gl, float width, float height, string resourcesPath);
+
     public:
-        CONTEXT_API static layer* buildScene(const string& resourcesPath, gl* gl, float width, float height);
-        CONTEXT_API static layer* buildUI(const string& resourcesPath, gl* gl, float width, float height);
+        CONTEXT_API ~layerBuilder();
+        CONTEXT_API static layerBuilder newLayer(camera* camera, gl* gl, float width, float height, string resourcesPath);
+        CONTEXT_API layerBuilder withMeshRenderer();
+        CONTEXT_API layerBuilder withControlRenderer();
+        CONTEXT_API layerBuilder withTextRenderer();
+        CONTEXT_API layer* build();
     };
 }
