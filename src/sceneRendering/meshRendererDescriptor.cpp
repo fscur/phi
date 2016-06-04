@@ -59,7 +59,6 @@ namespace phi
 
         auto offset = _materialsIndices[material] * sizeof(phi::materialRenderData);
         _materialRenderDataBuffer->subData(offset, sizeof(phi::materialRenderData), &materialGpuData);
-        _materialRenderDataBuffer->bindBufferBase(1);
     }
 
     void meshRendererDescriptor::add(mesh * mesh)
@@ -106,10 +105,5 @@ namespace phi
     void meshRendererDescriptor::update(mesh * mesh)
     {
         throw notImplementedException();
-    }
-    
-    void meshRendererDescriptor::bind()
-    {
-        _materialRenderDataBuffer->bindBufferBase(1);
     }
 }

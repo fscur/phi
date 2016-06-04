@@ -20,9 +20,9 @@ namespace phi
         unordered_map<material*, uint> _materialsIndices;
 
         const uint MAX_MATERIALS_COUNT = 512;
-        buffer* _materialRenderDataBuffer;
 
     public:
+        buffer* _materialRenderDataBuffer;
         vector<batch*> _batches;
         eventHandler<batch*>* onBatchAdded;
 
@@ -37,7 +37,5 @@ namespace phi
         SCENE_RENDERING_API void add(mesh* mesh);
         SCENE_RENDERING_API void remove(mesh* mesh);
         SCENE_RENDERING_API void update(mesh* mesh);
-
-        SCENE_RENDERING_API void bind();
     };
 }

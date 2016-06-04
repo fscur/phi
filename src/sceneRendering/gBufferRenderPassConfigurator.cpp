@@ -29,6 +29,8 @@ namespace phi
         for (auto renderTarget : gBufferFrameBuffer->getRenderTargets())
             pass->addOut(new renderPassOut(renderTarget));
 
+        pass->addBuffer(rendererDescriptor->_materialRenderDataBuffer);
+
         rendererDescriptor->onBatchAdded->assign([=](batch* batch)
         {
             pass->addVao(batch);

@@ -58,11 +58,6 @@ namespace phi
 
         switch (status)
         {
-#ifdef _DEBUG
-        case GL_FRAMEBUFFER_COMPLETE:
-            phi::debug("framebuffer complete");
-            break;
-#endif
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
             phi::debug("incomplete attachment");
             break;
