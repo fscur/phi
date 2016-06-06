@@ -1,6 +1,7 @@
 #include <precompiled.h>
 #include "controlRenderPassConfigurator.h"
 
+#include <rendering\vertexArrayObject.h>
 #include <rendering\programBuilder.h>
 #include <rendering\framebufferBuilder.h>
 
@@ -34,7 +35,7 @@ namespace phi
             program->setUniform(0, gl->texturesManager->units);
         });
 
-        pass->setOnRender([](const vector<vao*>& vaos)
+        pass->setOnRender([](const vector<vertexArrayObject*>& vaos)
         {
             for (auto vao : vaos)
                 vao->render();

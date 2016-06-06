@@ -2,11 +2,12 @@
 #include "lightingRenderPassConfigurator.h"
 
 #include <core\notImplementedException.h>
+#include <core\geometry.h>
 
 #include <rendering\renderTargetsAddresses.h>
 #include <rendering\textureAddress.h>
+#include <rendering\vertexArrayObject.h>
 
-#include <rendering\postProcessVao.h>
 #include <rendering\programBuilder.h>
 
 namespace phi
@@ -60,7 +61,25 @@ namespace phi
         auto finalImageFramebuffer = new framebuffer();
         finalImageFramebuffer->add(finalImageRT);
 
-        auto quadVao = new postProcessVao();
+        auto quad = geometry::createQuad(2.0f);
+        vector<vertexAttrib> attribs;
+        attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
+        attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
+
+        auto vbo = new vertexBuffer(attribs);
+        vbo->storage(quad->vboSize, quad->vboData, bufferStorageUsage::write);
+
+        auto ebo = new buffer(bufferTarget::element);
+        ebo->storage(quad->eboSize, quad->eboData, bufferStorageUsage::write);
+
+        auto quadVao = new vertexArrayObject();
+        quadVao->add(vbo);
+        quadVao->setEbo(ebo);
+        quadVao->setOnRender([]
+        {
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glError::check();
+        });
 
         auto rtsBuffer = new buffer(bufferTarget::uniform);
 
@@ -91,14 +110,10 @@ namespace phi
                 program->setUniform(0, gl->texturesManager->units);
         });
 
-        pass->setOnRender([=](const vector<vao*>& vaos)
+        pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
         {
             for (auto vao : vaos)
-            {
-                vao->bind();
                 vao->render();
-                vao->unbind();
-            }
         });
 
         pass->setOnEndRender([=](program* program, framebuffer* framebuffer)

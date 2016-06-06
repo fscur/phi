@@ -36,31 +36,40 @@ namespace phi
     class vertexBuffer :
         public buffer
     {
-    public:
-        vertexBuffer(vector<vertexAttrib> attribs) :
-            buffer(bufferTarget::array)
-        {
-            auto s = attribs.size();
+    private:
+        vector<vertexAttrib> _attribs;
 
-            for (GLuint i = 0; i < s; i++)
+    public:
+        vertexBuffer(const vector<vertexAttrib>& attribs) :
+            buffer(bufferTarget::array),
+            _attribs(attribs)
+        {
+        }
+
+        void initialize()
+        {
+            glBindBuffer(target, id);
+            auto attribsCount = _attribs.size();
+
+            for (GLuint i = 0; i < attribsCount; i++)
             {
-                auto location = attribs[i].location;
+                auto location = _attribs[i].location;
 
                 glEnableVertexAttribArray(location);
                 glError::check();
 
-                if (attribs[i].type == GL_UNSIGNED_INT || attribs[i].type == GL_INT)
+                if (_attribs[i].type == GL_UNSIGNED_INT || _attribs[i].type == GL_INT)
                 {
-                    glVertexAttribIPointer(location, attribs[i].size, attribs[i].type, attribs[i].stride, attribs[i].offset);
+                    glVertexAttribIPointer(location, _attribs[i].size, _attribs[i].type, _attribs[i].stride, _attribs[i].offset);
                     glError::check();
                 }
-                else if (attribs[i].type == GL_FLOAT)
+                else if (_attribs[i].type == GL_FLOAT)
                 {
-                    glVertexAttribPointer(location, attribs[i].size, attribs[i].type, GL_FALSE, attribs[i].stride, attribs[i].offset);
+                    glVertexAttribPointer(location, _attribs[i].size, _attribs[i].type, GL_FALSE, _attribs[i].stride, _attribs[i].offset);
                     glError::check();
                 }
 
-                glVertexAttribDivisor(location, attribs[i].divisor);
+                glVertexAttribDivisor(location, _attribs[i].divisor);
                 glError::check();
             }
         }

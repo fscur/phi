@@ -18,16 +18,53 @@ namespace phi
         for (auto pair : _instances)
             safeDelete(pair.second);
 
+        safeDelete(_modelMatricesBuffer);
         safeDelete(_glyphRenderDataBuffer);
         safeDelete(_modelMatricesBuffer);
     }
 
     void textRendererDescriptor::createBuffers()
     {
-        _vao = new instancedTextVao();
-
         _glyphRenderDataBuffer = new buffer(bufferTarget::shader);
         _glyphRenderDataBuffer->data(sizeof(glyphRenderData), nullptr, bufferDataUsage::dynamicDraw);
+
+        auto vertices = vector<vertex>
+        {
+            vertex(vec3(0.0f, 0.0f, +0.0f), vec2(0.0f, 0.0f)),
+            vertex(vec3(1.0f, 0.0f, +0.0f), vec2(1.0f, 0.0f)),
+            vertex(vec3(1.0f, 1.0f, +0.0f), vec2(1.0f, 1.0f)),
+            vertex(vec3(0.0f, 1.0f, +0.0f), vec2(0.0f, 1.0f))
+        };
+        auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
+        auto textQuad = geometry::create(vertices, indices);
+
+        vector<vertexAttrib> vboAttribs;
+        vboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
+        vboAttribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
+
+        auto vbo = new vertexBuffer(vboAttribs);
+        vbo->storage(textQuad->vboSize, textQuad->vboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
+
+        auto ebo = new buffer(bufferTarget::element);
+        ebo->storage(textQuad->eboSize, textQuad->eboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
+
+        vector<vertexAttrib> modelMatricesAttribs;
+
+        for (uint i = 0; i < 4; ++i)
+            modelMatricesAttribs.push_back(vertexAttrib(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
+
+        _modelMatricesBuffer = new vertexBuffer(modelMatricesAttribs);
+        _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
+
+        _vao = new vertexArrayObject();
+        _vao->add(vbo);
+        _vao->add(_modelMatricesBuffer);
+        _vao->setEbo(ebo);
+
+        _vao->setOnRender([=]
+        {
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, _glyphCount);
+        });
     }
 
     void textRendererDescriptor::recreateBuffers()
@@ -35,19 +72,19 @@ namespace phi
         auto renderData = vector<glyphRenderData>();
         auto modelMatrices = vector<mat4>();
 
-        auto instancesCount = 0u;
+        _glyphCount = 0u;
         for (auto pair : _instances)
         {
             for (auto instance : pair.second->glyphs)
             {
-                ++instancesCount;
+                ++_glyphCount;
                 renderData.push_back(instance->renderData);
                 modelMatrices.push_back(instance->modelMatrix);
             }
         }
 
-        _glyphRenderDataBuffer->data(sizeof(glyphRenderData) * instancesCount, &renderData[0], bufferDataUsage::dynamicDraw);
-        _vao->update(modelMatrices);
+        _modelMatricesBuffer->data(sizeof(mat4) * _glyphCount, &modelMatrices[0], bufferDataUsage::dynamicDraw);
+        _glyphRenderDataBuffer->data(sizeof(glyphRenderData) * _glyphCount, &renderData[0], bufferDataUsage::dynamicDraw);
     }
 
     textRendererDescriptor::textInstance* textRendererDescriptor::buildTextInstance(text* text)

@@ -4,7 +4,7 @@
 
 #include "framebuffer.h"
 #include "program.h"
-#include "vao.h"
+#include "vertexArrayObject.h"
 
 namespace phi
 {
@@ -27,7 +27,7 @@ namespace phi
     {
     private:
         program* _program;
-        vector<vao*> _vaos;
+        vector<vertexArrayObject*> _vaos;
         vector<buffer*> _buffers;
         framebuffer* _framebuffer;
         vector<renderPassIn*> _ins;
@@ -35,7 +35,7 @@ namespace phi
 
         std::function<void(program*)> _onUpdate;
         std::function<void(program*, framebuffer*)> _onBeginRender;
-        std::function<void(const vector<vao*>&)> _onRender;
+        std::function<void(const vector<vertexArrayObject*>&)> _onRender;
         std::function<void(program*, framebuffer*)> _onEndRender;
 
     public:
@@ -47,10 +47,10 @@ namespace phi
 
         void setOnUpdate(std::function<void(program*)> onUpdate) { _onUpdate = onUpdate; }
         void setOnBeginRender(std::function<void(program*, framebuffer*)> onRender) { _onBeginRender = onRender; }
-        void setOnRender(std::function<void(const vector<vao*>&)> onRender) { _onRender = onRender; }
+        void setOnRender(std::function<void(const vector<vertexArrayObject*>&)> onRender) { _onRender = onRender; }
         void setOnEndRender(std::function<void(program*, framebuffer*)> onRender) { _onEndRender = onRender; }
 
-        void addVao(vao* vao) { _vaos.push_back(vao); }
+        void addVao(vertexArrayObject* vao) { _vaos.push_back(vao); }
         void addBuffer(buffer* buffer) { _buffers.push_back(buffer); }
         void addIn(renderPassIn* in) { _ins.push_back(in); }
         void addOut(renderPassOut* out) { _outs.push_back(out); }

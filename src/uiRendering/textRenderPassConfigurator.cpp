@@ -37,7 +37,7 @@ namespace phi
             program->setUniform(0, gl->texturesManager->units);
         });
 
-        pass->setOnRender([](const vector<vao*>& vaos)
+        pass->setOnRender([](const vector<vertexArrayObject*>& vaos)
         {
             for (auto vao : vaos)
                 vao->render();

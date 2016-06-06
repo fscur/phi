@@ -8,14 +8,13 @@
 #include <rendering\vertexBuffer.h>
 #include <rendering\buffer.h>
 #include <rendering\drawElementsIndirectCmd.h>
-#include <rendering\vao.h>
+#include <rendering\vertexArrayObject.h>
 
 #include "renderInstance.h"
 
 namespace phi
 {
-    class batch 
-        : public vao
+    class batch
     {
     private:
         struct drawInstanceData
@@ -39,7 +38,6 @@ namespace phi
 
     private:
         const uint MAX_VBO_SIZE = 1 * 1024 * 1024;
-        //GLuint _vao;
         size_t _freeSpace;
         GLint _vboOffset;
         GLint _eboOffset;
@@ -53,16 +51,17 @@ namespace phi
         map<mesh*, drawInstanceData*> _meshInstances;
         map<drawInstanceData*, mesh*> _instancesMesh;
 
-        //vertexBuffer<vertex>* _vbo;
         vertexBuffer* _materialsIdsBuffer;
         vertexBuffer* _modelMatricesBuffer;
         vertexBuffer* _selectionBuffer;
 
-        //buffer<uint>* _ebo;
+        vertexArrayObject* _vao;
+        vertexBuffer* _vbo;
+        buffer* _ebo;
         buffer* _drawCmdBuffer;
-
     private:
         void createVao();
+        void initializeVao();
         void createVao(const renderInstance& instance);
         void createVbo(const vertex* const data, GLsizeiptr size);
         void createEbo(const uint* const data, GLsizeiptr size);
@@ -84,11 +83,7 @@ namespace phi
         SCENE_RENDERING_API void update(const renderInstance& instance);
         SCENE_RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
         SCENE_RENDERING_API void updateTransformBuffer(mesh* mesh, const mat4& modelMatrix);
-        SCENE_RENDERING_API void bind() override;
-        SCENE_RENDERING_API void unbind() override;
 
-        SCENE_RENDERING_API void render();
-
-        SCENE_RENDERING_API GLuint getObjectsCount() { return _objectsCount; }
+        SCENE_RENDERING_API vertexArrayObject* getVao() { return _vao; }
     };
 }

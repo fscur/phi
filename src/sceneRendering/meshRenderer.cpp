@@ -6,10 +6,7 @@
 
 #include <io\path.h>
 
-#include <rendering\framebufferBuilder.h>
 #include <rendering\programBuilder.h>
-#include <rendering\vao.h>
-#include <rendering\postProcessVao.h>
 
 #include "gBufferRenderPassConfigurator.h"
 #include "lightingRenderPassConfigurator.h"

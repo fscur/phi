@@ -33,7 +33,7 @@ namespace phi
 
         rendererDescriptor->onBatchAdded->assign([=](batch* batch)
         {
-            pass->addVao(batch);
+            pass->addVao(batch->getVao());
         });
 
         pass->setOnBeginRender([=] (program* program, framebuffer* framebuffer)
@@ -60,14 +60,10 @@ namespace phi
                 program->setUniform(0, gl->texturesManager->units);
         });
 
-        pass->setOnRender([=](const vector<vao*>& vaos)
+        pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
         {
             for (auto vao : vaos)
-            {
-                vao->bind();
                 vao->render();
-                vao->unbind();
-            }
         });
 
         pass->setOnEndRender([=](program* program, framebuffer* framebuffer)

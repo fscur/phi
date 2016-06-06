@@ -7,7 +7,7 @@
 #include <rendering\shader.h>
 #include <rendering\gl.h>
 #include <rendering\program.h>
-#include <rendering\instancedTextVao.h>
+#include <rendering\vertexArrayObject.h>
 
 #include <ui\text.h>
 
@@ -32,13 +32,12 @@ namespace phi
 
     private:
         gl* _gl;
-        vec2 _texelSize;
-        size_t _glyphCount;
+        GLsizei _glyphCount;
         unordered_map<text*, textInstance*> _instances;
 
         vertexBuffer* _modelMatricesBuffer;
     public:
-        instancedTextVao* _vao;
+        vertexArrayObject* _vao;
         buffer* _glyphRenderDataBuffer;
 
     private:

@@ -7,7 +7,6 @@
 namespace phi
 {
     batch::batch() :
-        //_vao(0),
         _freeSpace(MAX_VBO_SIZE),
         _vboOffset(0),
         _eboOffset(0),
@@ -15,22 +14,19 @@ namespace phi
         _verticesOffset(0),
         _drawCount(0),
         _objectsCount(0),
+        _vao(nullptr),
         _geometries(vector<geometry*>()),
         _instances(map<geometry*, vector<drawInstanceData*>>()),
         _meshInstances(map<mesh*, drawInstanceData*>()),
-        //_vbo(nullptr),
         _materialsIdsBuffer(nullptr),
         _modelMatricesBuffer(nullptr),
-        //_ebo(nullptr),
         _drawCmdBuffer(nullptr)
     {
     }
 
     batch::~batch()
     {
-        glDeleteVertexArrays(1, &_id);
-        safeDelete(_vbo);
-        safeDelete(_ebo);
+        safeDelete(_vao);
         safeDelete(_materialsIdsBuffer);
         safeDelete(_modelMatricesBuffer);
         safeDelete(_selectionBuffer);
@@ -44,13 +40,28 @@ namespace phi
         }
     }
 
+    void batch::initializeVao()
+    {
+        _vao = new vertexArrayObject();
+        _vao->add(_vbo);
+        _vao->setEbo(_ebo);
+        _vao->add(_selectionBuffer);
+        _vao->add(_materialsIdsBuffer);
+        _vao->add(_modelMatricesBuffer);
+
+        _vao->setOnRender([=]
+        {
+            _drawCmdBuffer->bind();
+
+            glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, _objectsCount, 0);
+            glError::check();
+
+            _drawCmdBuffer->unbind();
+        });
+    }
+
     void batch::createVao(const renderInstance& instance)
     {
-        glCreateVertexArrays(1, &_id);
-        glError::check();
-        glBindVertexArray(_id);
-        glError::check();
-
         auto geometry = instance.mesh->geometry;
         createVbo(geometry->vboData, geometry->vboSize);
         createEbo(geometry->eboData, geometry->eboSize);
@@ -59,8 +70,7 @@ namespace phi
         createModelMatricesBuffer(nullptr, sizeof(mat4));
         createDrawCmdsBuffer(nullptr, sizeof(drawElementsIndirectCmd));
 
-        glBindVertexArray(0);
-        glError::check();
+        initializeVao();
 
         _objectsCount = 1;
         _freeSpace = 0;
@@ -70,11 +80,6 @@ namespace phi
 
     void batch::createVao()
     {
-        glCreateVertexArrays(1, &_id);
-        glError::check();
-        glBindVertexArray(_id);
-        glError::check();
-
         createVbo(nullptr, MAX_VBO_SIZE);
         createEbo(nullptr, MAX_VBO_SIZE);
         createSelectionColorBuffer(nullptr, sizeof(uint));
@@ -82,8 +87,7 @@ namespace phi
         createModelMatricesBuffer(nullptr, sizeof(mat4));
         createDrawCmdsBuffer(nullptr, sizeof(drawElementsIndirectCmd));
 
-        glBindVertexArray(0);
-        glError::check();
+        initializeVao();
     }
 
     void batch::createVbo(const vertex* const data, GLsizeiptr size)
@@ -227,7 +231,7 @@ namespace phi
         auto vboSize = geometry->vboSize;
         auto eboSize = geometry->eboSize;
 
-        if (_id == 0)
+        if (_vao == nullptr)
         {
             if (vboSize > _freeSpace || eboSize > _freeSpace)
             {
@@ -296,27 +300,5 @@ namespace phi
         drawInstance->modelMatrix = modelMatrix;
 
         _modelMatricesBuffer->subData(drawInstance->offset * sizeof(mat4), sizeof(mat4), &modelMatrix);
-    }
-
-    void batch::bind()
-    {
-        glBindVertexArray(_id);
-        glError::check();
-
-        _drawCmdBuffer->bind();
-    }
-
-    void batch::unbind()
-    {
-        _drawCmdBuffer->unbind();
-
-        glBindVertexArray(0);
-        glError::check();
-    }
-
-    void batch::render()
-    {
-        glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, _objectsCount, 0);
-        glError::check();
     }
 }

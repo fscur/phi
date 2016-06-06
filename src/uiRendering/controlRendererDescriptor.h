@@ -6,7 +6,7 @@
 
 #include <rendering\buffer.h>
 #include <rendering\vertexBuffer.h>
-#include <rendering\instancedVao.h>
+#include <rendering\vertexArrayObject.h>
 
 #include "controlRenderData.h"
 
@@ -28,9 +28,10 @@ namespace phi
 
         vector<mat4> _modelMatrices;
         vector<controlRenderData> _renderData;
+        vertexBuffer* _modelMatricesBuffer;
 
     public:
-        instancedVao* _vao;
+        vertexArrayObject* _vao;
         buffer* _controlsRenderDataBuffer;
 
     private:
