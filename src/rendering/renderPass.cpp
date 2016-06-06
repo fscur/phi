@@ -22,6 +22,7 @@ namespace phi
     {
         _framebuffer->bindForDrawing();
 
+        //TODO: frameUniformBlocks are buffer 0 
         auto i = 1u;
         for (auto buffer : _buffers)
             buffer->bindBufferBase(i++);

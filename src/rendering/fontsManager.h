@@ -30,6 +30,5 @@ namespace phi
         RENDERING_API ~fontsManager();
         RENDERING_API font* load(string name, uint size);
         RENDERING_API glyph* getGlyph(font* const font, const ulong& glyphChar);
-        vec2 getTexelSize() const { return _texelSize; }
     };
 }

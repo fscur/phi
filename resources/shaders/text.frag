@@ -8,10 +8,9 @@ flat in int unit;
 flat in float page;
 flat in float shift;
 flat in vec4 color;
+flat in vec2 texelSize;
 
-layout (location = 0) uniform vec2 texelSize;
-layout (location = 1) uniform sampler2DArray textureArrays[32];
-
+layout (location = 0) uniform sampler2DArray textureArrays[32];
 
 layout (location = 0) out vec4 fragColor;
 

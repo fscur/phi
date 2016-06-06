@@ -93,8 +93,11 @@ namespace phi
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
         glError::check();
 
-        glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
-        glError::check();
+        if (_id != 0)
+        {
+            glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
+            glError::check();
+        }
     }
 
     void framebuffer::bindForDrawing(GLenum* buffers, GLsizei buffersCount)

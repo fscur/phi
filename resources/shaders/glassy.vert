@@ -14,6 +14,6 @@ void main()
 {
     gl_Position = p * v * inModelMatrix * vec4(inPosition, 1.0);
 
-	fragTexCoord = inTexCoord;
+    fragTexCoord = inTexCoord;
     instanceId = gl_InstanceID;
 }

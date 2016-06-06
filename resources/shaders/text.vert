@@ -1,14 +1,13 @@
 #version 450
 
-struct glyphInfo
+struct glyphRenderData
 {
     vec4 color;
     vec2 pos;
     vec2 size;
+    vec2 texelSize;
     float shift;
     float page;
-    float pad0;
-    float pad1;
     int unit;
     int pad2;
     int pad3;
@@ -17,8 +16,7 @@ struct glyphInfo
 
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec2 inTexCoord;
-layout (location = 2) in uint inGlyphId;
-layout (location = 3) in mat4 inModelMatrix;
+layout (location = 2) in mat4 inModelMatrix;
 
 layout (std140, binding = 0) uniform FrameUniformsBufferData
 {
@@ -28,9 +26,9 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     mat4 ip;
 } frameUniforms;
 
-layout (std140, binding = 1) buffer GlyphInfos
+layout (std140, binding = 1) buffer GlyphRenderData
 {
-    glyphInfo items[];
+    glyphRenderData items[];
 } glyphs;
 
 out vec2 fragTexCoord;
@@ -40,15 +38,17 @@ flat out int unit;
 flat out float page;
 flat out float shift;
 flat out vec4 color;
+flat out vec2 texelSize;
 
 void main()
 {
     gl_Position = frameUniforms.p * frameUniforms.v * inModelMatrix * vec4(inPosition, 1.0);
-    glyphInfo info = glyphs.items[inGlyphId];
-    fragTexCoord = info.pos + inTexCoord * info.size;
+    glyphRenderData renderData = glyphs.items[gl_InstanceID];
+    fragTexCoord = renderData.pos + inTexCoord * renderData.size; //TODO: ver se da pra melhorar matematicamente plausivel
     fragPosition = inPosition;
-    unit = info.unit;
-    page = info.page;
-    shift = info.shift;
-    color = info.color;
+    unit = renderData.unit;
+    page = renderData.page;
+    shift = renderData.shift;
+    color = renderData.color;
+    texelSize = renderData.texelSize;
 }

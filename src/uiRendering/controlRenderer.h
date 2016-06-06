@@ -2,51 +2,25 @@
 #include <phi.h>
 #include "uiRenderingApi.h"
 
-#include <core\transform.h>
-
 #include <rendering\gl.h>
-#include <rendering\shader.h>
-#include <rendering\buffer.h>
-#include <rendering\vertexBuffer.h>
-#include <rendering\program.h>
+#include <rendering\renderPass.h>
 
-#include <ui\control.h>
-
-#include "controlRenderData.h"
+#include "controlRendererDescriptor.h"
 
 namespace phi
 {
     class controlRenderer
     {
     private:
-        struct controlInstance
-        {
-            size_t bufferOffset;
-            mat4 modelMatrix;
-            controlRenderData renderData;
-        };
+        vector<renderPass*> _renderPasses;
 
     private:
-        gl* _gl;
-        unordered_map<control*, controlInstance*> _instances;
-
-        vector<mat4> _modelMatrices;
-        vector<controlRenderData> _renderData;
-
-        GLuint _vao;
-        vertexBuffer* _modelMatricesBuffer;
-        buffer* _controlsRenderDataBuffer;
-
-    private:
-        void createBuffers();
+        UI_RENDERING_API controlRenderer(vector<renderPass*>&& renderPasses);
 
     public:
-        UI_RENDERING_API controlRenderer(gl* gl);
-        UI_RENDERING_API ~controlRenderer();
+        UI_RENDERING_API  ~controlRenderer();
+        UI_RENDERING_API  void render();
 
-        UI_RENDERING_API void add(control* control);
-        UI_RENDERING_API void remove(control* control);
-        UI_RENDERING_API void update(control* control);
-        UI_RENDERING_API void render(program* shader);
+        UI_RENDERING_API static controlRenderer* configure(gl* gl, float width, float height, const string& resourcesPath, controlRendererDescriptor* renderDescriptor);
     };
 }

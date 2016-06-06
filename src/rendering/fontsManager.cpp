@@ -11,8 +11,7 @@ namespace phi
         _path(path),
         _texturesManager(texturesManager),
         _fonts(map<std::tuple<string, uint>, font*>()),
-        _maxGlyphAtlasSize(1024), //TODO: see what happens when there is no space in the container...
-        _texelSize(vec2(0.0f))
+        _maxGlyphAtlasSize(1024) //TODO: see what happens when there is no space in the container...
     {
         assert(!_initialized);
 
@@ -64,10 +63,11 @@ namespace phi
 
         textureAddress address = _texturesManager->get(glyphTexture);
 
-        glyph->texPosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
-        glyph->texSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);
-        glyph->texUnit = address.unit;
-        glyph->texPage = address.page;
+        glyph->texturePosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
+        glyph->textureSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);
+        glyph->unit = address.unit;
+        glyph->page = address.page;
+        glyph->texelSize = _texelSize;
 
         return glyph;
     }

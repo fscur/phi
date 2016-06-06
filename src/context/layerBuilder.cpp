@@ -1,15 +1,11 @@
 #include <precompiled.h>
 #include "layerBuilder.h"
 
-#include <rendering\texture.h>
 #include <rendering\camera.h>
-#include <rendering\programBuilder.h>
 
 #ifdef _DEBUG
 #include <rendering\liveShaderReloader.h>
 #endif
-
-#include <sceneRendering\pipeline.h>
 
 #include <sceneRendering\meshRenderer.h>
 #include <uiRendering\controlRenderer.h>
@@ -64,41 +60,38 @@ namespace phi
 
     layerBuilder layerBuilder::withControlRenderer()
     {
-        auto shadersPath = path::combine(_resourcesPath, "shaders");
-
-        auto controlRenderer = new phi::controlRenderer(_gl);
-        auto controlRenderPassProgram = programBuilder::buildProgram(shadersPath, "control", "control");
+        auto rendererDescriptor = new controlRendererDescriptor(_gl);
+        auto controlRenderer = phi::controlRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {
             auto control = node->getComponent<phi::control>();
 
             if (control)
-                controlRenderer->add(control);
+                rendererDescriptor->add(control);
         });
 
         _layer->addOnUpdate([=] {});
-        _layer->addOnRender([=] { controlRenderer->render(controlRenderPassProgram); });
+        _layer->addOnRender([=] { controlRenderer->render(); });
 
         return *this;
     }
 
     layerBuilder layerBuilder::withTextRenderer()
     {
-        auto shadersPath = path::combine(_resourcesPath, "shaders");
-        auto textRenderer = new phi::textRenderer(_gl);
-        auto textRenderPassProgram = programBuilder::buildProgram(shadersPath, "text", "text");
+        auto rendererDescriptor = new textRendererDescriptor(_gl);
+        auto textRenderer = phi::textRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {
             auto text = node->getComponent<phi::text>();
 
             if (text)
-                textRenderer->add(text);
+                rendererDescriptor->add(text);
         });
 
         _layer->addOnUpdate([=] {});
-        _layer->addOnRender([=] { textRenderer->render(textRenderPassProgram); });
+        _layer->addOnRender([=] { textRenderer->render(); });
 
         return *this;
     }

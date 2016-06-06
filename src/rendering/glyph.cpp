@@ -10,6 +10,6 @@ namespace phi
 
     glyph::~glyph()
     {
-        safeDelete(image);
+        //safeDelete(image); //TODO: fix this
     }
 }
