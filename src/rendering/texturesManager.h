@@ -13,15 +13,15 @@ namespace phi
         static map<image*, texture*> _imageTextures;
 
     private:
-        const size_t MAX_CONTAINER_PAGES = 10;
+        const uint MAX_CONTAINER_PAGES = 10;
         unordered_map<textureLayout, vector<textureContainer*>> _containers;
+        map<const texture*, textureAddress> _textures;
 
         bool _bindless;
         bool _sparse;
 
-        size_t _maxPages;
+        uint _maxPages;
 
-        map<const texture*, textureAddress> _textures;
     public:
         vector<GLint> units;
         vector<GLuint64> handles;
@@ -39,6 +39,6 @@ namespace phi
 
         RENDERING_API textureAddress get(const texture* const texture);
         RENDERING_API bool contains(const texture* const texture);
-        RENDERING_API textureContainer* reserveContainer(sizeui size, textureLayout layout, size_t pages);
+        RENDERING_API textureContainer* reserveContainer(sizeui size, textureLayout layout);
     };
 }

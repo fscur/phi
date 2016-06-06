@@ -33,7 +33,12 @@ namespace phi
             renderPass->render();
     }
 
-    meshRenderer* meshRenderer::configure(gl* gl, float width, float height, const string& resourcesPath, meshRendererDescriptor* rendererDescriptor)
+    meshRenderer* meshRenderer::configure(
+        gl* gl, 
+        float width, 
+        float height, 
+        const string& resourcesPath, 
+        meshRendererDescriptor* rendererDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "/shaders");
         auto gBufferRenderPass = gBufferRenderPassConfigurator::configureNewGBuffer(rendererDescriptor, gl, width, height, shadersPath);

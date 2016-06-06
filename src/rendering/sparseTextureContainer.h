@@ -10,8 +10,7 @@ namespace phi
     public:
         sparseTextureContainer(
             sizeui size,
-            textureLayout layout,
-            size_t maxTextures);
+            textureLayout layout);
 
         void onCreate() override;
         

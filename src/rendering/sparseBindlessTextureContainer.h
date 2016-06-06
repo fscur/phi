@@ -10,8 +10,7 @@ namespace phi
     public:
         sparseBindlessTextureContainer(
             sizeui size,
-            textureLayout layout,
-            size_t maxTextures);
+            textureLayout layout);
 
         ~sparseBindlessTextureContainer();
 

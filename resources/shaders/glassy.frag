@@ -28,7 +28,7 @@ layout (location = 4) uniform float backgroundPage;
 layout (location = 5) uniform vec2 resolution;
 layout (location = 6) uniform int level;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 vec3 fetchGlassyBackground(vec2 uv)
 {

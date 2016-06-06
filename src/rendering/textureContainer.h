@@ -65,8 +65,7 @@ namespace phi
     public:
         textureContainer(
             sizeui size,
-            textureLayout layout,
-            size_t maxPages);
+            textureLayout layout);
 
         virtual ~textureContainer();
 

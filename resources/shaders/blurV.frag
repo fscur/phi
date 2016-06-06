@@ -11,7 +11,7 @@ layout (location = 3) uniform vec2 resolution;
 float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
 float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 vec3 fetch(vec2 uv)
 {

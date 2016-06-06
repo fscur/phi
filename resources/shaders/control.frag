@@ -24,7 +24,7 @@ layout (location = 0) uniform sampler2DArray textureArrays[32];
 in vec2 fragTexCoord;
 flat in uint instanceId;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 vec4 fetch(vec2 uv)
 {

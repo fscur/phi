@@ -151,23 +151,23 @@ namespace demon
         //    .withTextRenderer()
         //    .build();
 
-        //auto nandinhoCamera = new camera("nandinhoCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
-        //auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, (float)_width, float(_height), application::resourcesPath)
-        //    .withControlRenderer()
-        //    .withTextRenderer()
-        //    .build();
+        auto nandinhoCamera = new camera("nandinhoCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
+        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+            //.withControlRenderer()
+            .withTextRenderer()
+            .build();
 
-        _designContext = new context({ sceneLayer });
+        _designContext = new context({ sceneLayer, nandinhoLayer });
         //_constructionContext = new context({ sceneLayer, constructionLayer });
 
         sceneLayer->add(floor);
         sceneLayer->add(chair);
 
-       /* constructionLayer->add(constructionLabel);
+       /* constructionLayer->add(constructionLabel); */
 
         nandinhoLayer->add(labelNandinho);
         nandinhoLayer->add(_labelFps);
-*/
+
         // GAMBIS DAR UM JEITO!!!!!!!!
         auto cameraPosition = vec3(-5.0f, 5.0f, -8.0f);
         sceneCamera->getTransform()->setLocalPosition(cameraPosition);
@@ -176,8 +176,8 @@ namespace demon
         //constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         //constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        //nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        //nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+        nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
     }
 
     bool _design = true;

@@ -7,14 +7,13 @@ namespace phi
 {
     textureContainer::textureContainer(
         sizeui size,
-        textureLayout layout,
-        size_t maxPages) :
+        textureLayout layout) :
         _created(false),
         _texelSize(vec2(0.0f)),
         _pages(unordered_map<float, bool>()),
         _atlases(unordered_map<float, atlas*>()),
         _size(size),
-        _maxPages(maxPages),
+        _maxPages(size.d),
         _layout(layout),
         _unit(-1),
         _id(0),
@@ -27,11 +26,10 @@ namespace phi
 
         _unit = textureUnits::get();
 
-        for (auto i = 0; i < maxPages; ++i)
+        for (auto i = 0; i < _maxPages; ++i)
             _pages[static_cast<float>(i)] = false;
 
         _texelSize = vec2(1.0f / (float)size.w, 1.0f / (float)size.h);
-        _size.d = static_cast<uint>(maxPages);
     }
 
     textureContainer::~textureContainer()

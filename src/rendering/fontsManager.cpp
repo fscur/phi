@@ -11,7 +11,7 @@ namespace phi
         _path(path),
         _texturesManager(texturesManager),
         _fonts(map<std::tuple<string, uint>, font*>()),
-        _maxGlyphAtlasSize(1024),
+        _maxGlyphAtlasSize(1024), //TODO: see what happens when there is no space in the container...
         _texelSize(vec2(0.0f))
     {
         assert(!_initialized);
@@ -51,7 +51,7 @@ namespace phi
         _glyphLayout.minFilter = GL_LINEAR;
         _glyphLayout.magFilter = GL_LINEAR;
 
-        _texturesManager->reserveContainer(sizeui(glyphAtlasSize, glyphAtlasSize), _glyphLayout, 1);
+        _texturesManager->reserveContainer(sizeui(glyphAtlasSize, glyphAtlasSize, 1), _glyphLayout);
 
         auto inverseGlyphAtlasSize = 1.0f / static_cast<float>(glyphAtlasSize);
         _texelSize = vec2(inverseGlyphAtlasSize);

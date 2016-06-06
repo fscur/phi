@@ -37,7 +37,7 @@ layout (std140, binding = 2) uniform RenderTargetAddresses
 
 layout (location = 0) uniform sampler2DArray textureArrays[32];
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 vec4 fetchRt0()
 {

@@ -13,7 +13,7 @@ layout (location = 0) uniform vec2 texelSize;
 layout (location = 1) uniform sampler2DArray textureArrays[32];
 
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 vec4 fetch(vec2 uv)
 {

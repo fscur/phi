@@ -6,9 +6,8 @@ namespace phi
 {
     bindlessTextureContainer::bindlessTextureContainer(
         sizeui size,
-        textureLayout layout,
-        size_t maxTextures) :
-        textureContainer(size, layout, maxTextures)
+        textureLayout layout) :
+        textureContainer(size, layout)
     {
     }
 

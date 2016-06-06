@@ -1,5 +1,7 @@
 #version 450
 
+in vec2 fragTexCoord;
+
 layout (std140, binding = 0) uniform FrameUniformsBufferData
 {
     mat4 p;
@@ -33,8 +35,7 @@ layout (location = 1) uniform vec2 resolution;
 layout (location = 2) uniform float offset;
 layout (location = 3) uniform float time;
 
-out vec4 fragColor;
-in vec2 fragTexCoord;
+layout (location = 0)out vec4 fragColor;
 
 float fetchAlpha(float dx, float dy)
 {

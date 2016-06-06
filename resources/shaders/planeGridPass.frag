@@ -1,5 +1,7 @@
 #version 450
 
+in vec2 fragTexCoord;
+
 layout (location = 1) uniform float radius;
 layout (location = 2) uniform float radiusHiding;
 layout (location = 3) uniform float scale;
@@ -16,8 +18,7 @@ layout (location = 7) uniform sampler2DArray textureArrays[32];
 //    mat4 ip;
 //} frameUniforms;
 
-in vec2 fragTexCoord;
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 const float PI = 3.1415926535897932384626433832795;
 const float CELL_SIZE = 1.0;

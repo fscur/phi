@@ -35,7 +35,7 @@ namespace phi
     private:
         framebufferBuilder(framebuffer* framebuffer, gl* gl, float width, float height);
 
-        textureContainer* reserveContainer(sizeui size, textureLayout layout, size_t pages);
+        textureContainer* reserveContainer(sizeui size, textureLayout layout);
         renderTarget* createRenderTarget(framebufferAttachment& attatchment);
 
     public:

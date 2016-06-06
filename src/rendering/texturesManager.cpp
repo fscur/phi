@@ -58,6 +58,8 @@ namespace phi
             layout.levels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
 
         auto textureAddress = phi::textureAddress();
+        textureContainer* container;
+        sizeui containerSize = sizeui(texture->w, texture->h, _maxPages);
 
         auto it = _containers.find(layout);
         if (it != _containers.end())
@@ -69,8 +71,8 @@ namespace phi
 
             while (!added && i < containersCount)
             {
-                auto container = containers[i++];
-                auto containerSize = container->getSize();
+                container = containers[i++];
+                containerSize = container->getSize();
                 
                 if (textureIsNotAtlas && (containerSize.w != texture->w || containerSize.h != texture->h))
                     continue;
@@ -85,18 +87,14 @@ namespace phi
             }
         }
 
-        textureContainer* container;
-
-        auto size = sizeui(texture->w, texture->h);
-
         if (_sparse && _bindless)
-            container = new sparseBindlessTextureContainer(size, layout, _maxPages);
+            container = new sparseBindlessTextureContainer(containerSize, layout);
         else if (_sparse)
-            container = new sparseTextureContainer(size, layout, _maxPages);
+            container = new sparseTextureContainer(containerSize, layout);
         else if (_bindless)
-            container = new bindlessTextureContainer(size, layout, _maxPages);
+            container = new bindlessTextureContainer(containerSize, layout);
         else
-            container = new textureContainer(size, layout, _maxPages);
+            container = new textureContainer(containerSize, layout);
 
         container->add(texture, textureAddress);
         _containers[layout].push_back(container);
@@ -154,20 +152,21 @@ namespace phi
         return phi::contains(_textures, texture);
     }
 
-    textureContainer* texturesManager::reserveContainer(sizeui size, textureLayout layout, size_t pages)
+    textureContainer* texturesManager::reserveContainer(sizeui size, textureLayout layout)
     {
-        auto maxPages = std::min(_maxPages, pages);
+        auto maxPages = std::min(_maxPages, size.d);
+        size.d = maxPages;
 
         textureContainer* container;
 
         if (_sparse && _bindless)
-            container = new sparseBindlessTextureContainer(size, layout, maxPages);
+            container = new sparseBindlessTextureContainer(size, layout);
         else if (_sparse)
-            container = new sparseTextureContainer(size, layout, maxPages);
+            container = new sparseTextureContainer(size, layout);
         else if (_bindless)
-            container = new bindlessTextureContainer(size, layout, maxPages);
+            container = new bindlessTextureContainer(size, layout);
         else
-            container = new textureContainer(size, layout, maxPages);
+            container = new textureContainer(size, layout);
 
         _containers[layout].push_back(container);
         handles.push_back(container->getHandle());

@@ -11,9 +11,9 @@ namespace phi
     {
     }
 
-    textureContainer* framebufferBuilder::reserveContainer(sizeui size, textureLayout layout, size_t pages)
+    textureContainer* framebufferBuilder::reserveContainer(sizeui size, textureLayout layout)
     {
-        return _gl->texturesManager->reserveContainer(size, layout, pages);
+        return _gl->texturesManager->reserveContainer(size, layout);
     }
 
     renderTarget* framebufferBuilder::createRenderTarget(framebufferAttachment& attachment)
@@ -70,7 +70,7 @@ namespace phi
     framebuffer* framebufferBuilder::build()
     {
         for (auto& pair : _formats)
-            reserveContainer(sizeui(static_cast<uint>(_width), static_cast<uint>(_height)), _layouts[pair.first], pair.second);
+            reserveContainer(sizeui(static_cast<uint>(_width), static_cast<uint>(_height), pair.second), _layouts[pair.first]);
 
         for (auto& attachment : _attatchments)
             _framebuffer->add(createRenderTarget(attachment));
