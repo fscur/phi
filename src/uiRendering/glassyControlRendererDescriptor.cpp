@@ -7,8 +7,10 @@
 
 namespace phi
 {
-    glassyControlRendererDescriptor::glassyControlRendererDescriptor(gl * gl) :
-        _gl(gl)
+    glassyControlRendererDescriptor::glassyControlRendererDescriptor(gl * gl, float width, float height) :
+        _gl(gl),
+        _width(width),
+        _height(height)
     {
         createBuffers();
     }
@@ -63,6 +65,8 @@ namespace phi
 
         _controlsRenderDataBuffer = new buffer(bufferTarget::shader);
         _controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
+
+        _uniformBlockBuffer = new buffer(bufferTarget::uniform);
     }
 
     void glassyControlRendererDescriptor::add(control* control)
@@ -97,5 +101,20 @@ namespace phi
     void glassyControlRendererDescriptor::update(control* control)
     {
         throw new notImplementedException();
+    }
+
+    void glassyControlRendererDescriptor::updateGlassyUniformBlock(renderTarget* renderTarget)
+    {
+        auto uniformBlockData = glassyControlUniformBlockData();
+        auto rtAddress = renderTarget->textureAddress;
+        uniformBlockData.backgroundPage = rtAddress.page;
+        uniformBlockData.backgroundUnit = rtAddress.unit;
+        uniformBlockData.level = 2;
+        uniformBlockData.resolution = vec2(_width, _height);
+
+        _uniformBlockBuffer->storage(
+            sizeof(glassyControlUniformBlockData),
+            &uniformBlockData,
+            bufferStorageUsage::write);
     }
 }

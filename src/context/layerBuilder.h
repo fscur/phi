@@ -18,6 +18,11 @@ namespace phi
         float _height;
         string _resourcesPath;
 
+        vector<renderPass*> _meshRenderPasses;
+        vector<renderPass*> _controlRenderPasses;
+        vector<renderPass*> _glassyControlRenderPasses;
+        vector<renderPass*> _textRenderPasses;
+
     private:
         layerBuilder(layer* layer, gl* gl, float width, float height, string resourcesPath);
 
@@ -25,7 +30,7 @@ namespace phi
         CONTEXT_API static layerBuilder newLayer(camera* camera, gl* gl, float width, float height, string resourcesPath);
         CONTEXT_API layerBuilder withMeshRenderer();
         CONTEXT_API layerBuilder withControlRenderer();
-        CONTEXT_API layerBuilder withGlassyControlRenderer(renderPass* lastRenderPass);
+        CONTEXT_API layerBuilder withGlassyControlRenderer();
         CONTEXT_API layerBuilder withTextRenderer();
         CONTEXT_API layer* build();
     };

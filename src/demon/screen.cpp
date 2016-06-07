@@ -112,7 +112,7 @@ namespace demon
 
     void screen::initUi()
     {
-        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 14);
+        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 8);
         auto fontFps = _gl->fontsManager->load("Roboto-Thin.ttf", 12);
 
         auto labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1", _gl)
@@ -136,6 +136,13 @@ namespace demon
             .withFont(font)
             .build();
 
+        auto sceneLabel = labelBuilder::newLabel(L"o", _gl)
+            .withPosition(vec3(0.f, 0.f, 0.f))
+            .withControlColor(.9f, .6f, .9f, 1.f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .build();
+
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
@@ -143,6 +150,8 @@ namespace demon
         auto sceneCamera = new camera("sceneCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
         auto sceneLayer = layerBuilder::newLayer(sceneCamera, _gl, (float)_width, float(_height), application::resourcesPath)
             .withMeshRenderer()
+            .withGlassyControlRenderer()
+            .withTextRenderer()
             .build();
 
         auto constructionCamera = new camera("constructionCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
@@ -157,19 +166,20 @@ namespace demon
             .withTextRenderer()
             .build();
 
-        _designContext = new context({ sceneLayer, nandinhoLayer });
-        _constructionContext = new context({ sceneLayer, constructionLayer });
+        _designContext = new context({ sceneLayer });
+        _constructionContext = new context({ sceneLayer });
 
         sceneLayer->add(floor);
         sceneLayer->add(chair);
+        sceneLayer->add(sceneLabel);
 
         constructionLayer->add(constructionLabel); 
 
-        nandinhoLayer->add(labelNandinho);
-        nandinhoLayer->add(_labelFps);
+        //nandinhoLayer->add(labelNandinho);
+        //nandinhoLayer->add(_labelFps);
 
         // GAMBIS DAR UM JEITO!!!!!!!!
-        auto cameraPosition = vec3(-5.0f, 5.0f, -8.0f);
+        auto cameraPosition = vec3(-5.0f, 5.0f, 20.0f);
         sceneCamera->getTransform()->setLocalPosition(cameraPosition);
         sceneCamera->getTransform()->setDirection(-cameraPosition);
 

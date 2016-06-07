@@ -21,6 +21,6 @@ namespace phi
         UI_RENDERING_API  ~controlRenderer();
         UI_RENDERING_API  void render();
 
-        UI_RENDERING_API static controlRenderer* configure(gl* gl, float width, float height, const string& resourcesPath, controlRendererDescriptor* renderDescriptor);
+        UI_RENDERING_API static vector<renderPass*> configure(gl* gl, float width, float height, const string& resourcesPath, controlRendererDescriptor* renderDescriptor);
     };
 }

@@ -38,11 +38,11 @@ namespace phi
     layerBuilder layerBuilder::withMeshRenderer()
     {
         auto rendererDescriptor = new meshRendererDescriptor(_gl);
-        auto renderer = phi::meshRenderer::configure(
-            _gl, 
-            _width, 
-            _height, 
-            _resourcesPath, 
+        _meshRenderPasses = phi::meshRenderer::configure(
+            _gl,
+            _width,
+            _height,
+            _resourcesPath,
             rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
@@ -56,24 +56,24 @@ namespace phi
         });
 
         _layer->addOnUpdate([=] {});
-        _layer->addOnRender([=]
+
+        for (auto& renderPass : _meshRenderPasses)
         {
-            renderer->render();
-        });
+            _layer->addRenderPass(renderPass);
+        }
 
         return *this;
     }
 
-    layerBuilder layerBuilder::withGlassyControlRenderer(renderPass* lastRenderPass)
+    layerBuilder layerBuilder::withGlassyControlRenderer()
     {
-        auto rendererDescriptor = new glassyControlRendererDescriptor(_gl);
-        auto renderer = glassyControlRenderer::configure(
+        auto rendererDescriptor = new glassyControlRendererDescriptor(_gl, _width, _height);
+        _glassyControlRenderPasses = glassyControlRenderer::configure(
             _gl, 
             _width, 
             _height, 
             _resourcesPath, 
-            rendererDescriptor,
-            lastRenderPass);
+            rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {
@@ -83,8 +83,23 @@ namespace phi
                 rendererDescriptor->add(control);
         });
 
+        if (_meshRenderPasses.size() > 0)
+        {
+            auto rt = _meshRenderPasses.back()->getOuts()[0]->renderTarget;
+            rendererDescriptor->updateGlassyUniformBlock(rt);
+        }
+
+        //_layer->onInputChanged([=] (layer* layer)
+        //{
+        //    rendererDescriptor->update(layer->getOuts());
+        //});
+
+        for (auto& renderPass : _glassyControlRenderPasses)
+        {
+            _layer->addRenderPass(renderPass);
+        }
+
         _layer->addOnUpdate([=] {});
-        _layer->addOnRender([=] { renderer->render(); });
 
         return *this;
     }
@@ -92,7 +107,7 @@ namespace phi
     layerBuilder layerBuilder::withControlRenderer()
     {
         auto rendererDescriptor = new controlRendererDescriptor(_gl);
-        auto renderer = controlRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
+        _controlRenderPasses = controlRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {
@@ -102,8 +117,12 @@ namespace phi
                 rendererDescriptor->add(control);
         });
 
+        for (auto& renderPass : _controlRenderPasses)
+        {
+            _layer->addRenderPass(renderPass);
+        }
+
         _layer->addOnUpdate([=] {});
-        _layer->addOnRender([=] { renderer->render(); });
 
         return *this;
     }
@@ -111,7 +130,7 @@ namespace phi
     layerBuilder layerBuilder::withTextRenderer()
     {
         auto rendererDescriptor = new textRendererDescriptor(_gl);
-        auto renderer = phi::textRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
+        _textRenderPasses = phi::textRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {
@@ -121,8 +140,12 @@ namespace phi
                 rendererDescriptor->add(text);
         });
 
+        for (auto& renderPass : _textRenderPasses)
+        {
+            _layer->addRenderPass(renderPass);
+        }
+
         _layer->addOnUpdate([=] {});
-        _layer->addOnRender([=] { renderer->render(); });
 
         return *this;
     }

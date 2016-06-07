@@ -32,7 +32,7 @@ namespace phi
 
         vector<renderPass*> getRenderPasses() const { return _renderPasses; }
 
-        static SCENE_RENDERING_API meshRenderer* configure(gl* gl, float width, float height, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);
+        static SCENE_RENDERING_API vector<renderPass*> configure(gl* gl, float width, float height, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);
 
     };
 }

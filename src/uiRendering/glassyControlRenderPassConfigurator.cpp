@@ -8,49 +8,20 @@
 namespace phi
 {
     renderPass* glassyControlRenderPassConfigurator::configureNewGlassyControlRenderPass(
-        renderPass* lastRenderPass,
-        glassyControlRendererDescriptor* rendererDescriptor, 
-        gl* gl, 
-        float width, 
-        float height, 
+        glassyControlRendererDescriptor* rendererDescriptor,
+        gl* gl,
+        float width,
+        float height,
         string shadersPath)
     {
-        struct glassyControlUniformBlockData
-        {
-            vec2 resolution;
-            float backgroundPage;
-            float pad0;
-            int backgroundUnit;
-            int level;
-            int pad1;
-            int pad2;
-        };
-
-        auto uniformBlockBuffer = new buffer(bufferTarget::uniform);
-        auto uniformBlockData = glassyControlUniformBlockData();
-        auto rtAddress = lastRenderPass->getOuts().back()->renderTarget->textureAddress;
-        uniformBlockData.backgroundPage = rtAddress.page;
-        uniformBlockData.backgroundUnit = rtAddress.unit;
-        uniformBlockData.level = 2;
-        uniformBlockData.resolution = vec2(width, height);
-
-        uniformBlockBuffer->storage(
-            sizeof(glassyControlUniformBlockData),
-            &uniformBlockData,
-            bufferStorageUsage::write);
-        uniformBlockBuffer->bindBufferBase(2);
-
         auto controlProgram = programBuilder::buildProgram(shadersPath, "control", "glassy");
-        //auto controlFrameBuffer = framebufferBuilder::newFramebuffer(gl, width, height)
-        //    .with(GL_COLOR_ATTACHMENT0, GL_RGBA8, GL_RGBA)
-        //    .build();
 
         auto defaultFrameBuffer = new framebuffer(true);
 
         auto pass = new renderPass(controlProgram, defaultFrameBuffer);
 
         pass->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
-        pass->addBuffer(uniformBlockBuffer);
+        pass->addBuffer(rendererDescriptor->_uniformBlockBuffer);
         pass->addVao(rendererDescriptor->_vao);
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer)

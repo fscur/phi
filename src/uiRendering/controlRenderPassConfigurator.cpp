@@ -10,9 +10,6 @@ namespace phi
     renderPass * controlRenderPassConfigurator::configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, gl* gl, float width, float height, string shadersPath)
     {
         auto controlProgram = programBuilder::buildProgram(shadersPath, "control", "control");
-        //auto controlFrameBuffer = framebufferBuilder::newFramebuffer(gl, width, height)
-        //    .with(GL_COLOR_ATTACHMENT0, GL_RGBA8, GL_RGBA)
-        //    .build();
 
         auto defaultFrameBuffer = new framebuffer(true);
 

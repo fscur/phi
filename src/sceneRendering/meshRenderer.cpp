@@ -30,7 +30,7 @@ namespace phi
             renderPass->render();
     }
 
-    meshRenderer* meshRenderer::configure(
+    vector<renderPass*> meshRenderer::configure(
         gl* gl, 
         float width, 
         float height, 
@@ -41,6 +41,6 @@ namespace phi
         auto gBufferRenderPass = gBufferRenderPassConfigurator::configureNewGBuffer(rendererDescriptor, gl, width, height, shadersPath);
         auto lightingRenderPass = lightingRenderPassConfigurator::configureNewLighting(gBufferRenderPass, gl, width, height, shadersPath);
 
-        return new meshRenderer({ gBufferRenderPass, lightingRenderPass });
+        return { gBufferRenderPass, lightingRenderPass };
     }
 }

@@ -29,10 +29,10 @@ namespace phi
             renderPass->render();
     }
 
-    controlRenderer* controlRenderer::configure(gl* gl, float width, float height, const string& resourcesPath, controlRendererDescriptor* renderDescriptor)
+    vector<renderPass*> controlRenderer::configure(gl* gl, float width, float height, const string& resourcesPath, controlRendererDescriptor* renderDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
         auto controlRenderPass = controlRenderPassConfigurator::configureNewControlRenderPass(renderDescriptor, gl, width, height, shadersPath);
-        return new controlRenderer({controlRenderPass});
+        return {controlRenderPass};
     }
 }

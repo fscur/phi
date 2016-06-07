@@ -8,7 +8,8 @@
 namespace phi
 {
     textRendererDescriptor::textRendererDescriptor(gl* gl) :
-        _gl(gl)
+        _gl(gl),
+        _glyphCount(0)
     {
         createBuffers();
     }

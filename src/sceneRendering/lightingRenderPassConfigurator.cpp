@@ -87,11 +87,11 @@ namespace phi
             sizeof(renderTargetsAddresses),
             &*rtAddresses,
             bufferStorageUsage::write);
-        rtsBuffer->bindBufferBase(2);
 
         auto lightingProgram = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
         auto pass = new renderPass(lightingProgram, finalImageFramebuffer);
-        
+
+        pass->addOut(new renderPassOut(finalImageRT));
         pass->addVao(quadVao);
         pass->addBuffer(rtsBuffer);
 
@@ -122,9 +122,11 @@ namespace phi
             glEnable(GL_DEPTH_TEST);
 
             framebuffer->blitToDefault(finalImageRT);
-        });
 
-        //TODO: finalImageRT should be an OUT
+            glActiveTexture(GL_TEXTURE0 + finalImageRT->textureAddress.unit);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, finalImageRT->textureAddress.containerId);
+            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+        });
 
         return pass;
     }

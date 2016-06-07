@@ -13,7 +13,6 @@ namespace phi
         glassyControlRenderPassConfigurator();
     public:
         static renderPass* configureNewGlassyControlRenderPass(
-            renderPass* lastRenderPass,
             glassyControlRendererDescriptor* rendererDescriptor, 
             gl* gl, 
             float width, 

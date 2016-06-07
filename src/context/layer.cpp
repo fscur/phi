@@ -44,9 +44,9 @@ namespace phi
         _onUpdate.push_back(updateFunction);
     }
 
-    void layer::addOnRender(std::function<void(void)> renderFunction)
+    void layer::addRenderPass(renderPass* renderPass)
     {
-        _onRender.push_back(renderFunction);
+        _renderPasses.push_back(renderPass);
     }
 
     void layer::addOnNodeAdded(std::function<void(node*)> onNodeAdded)
@@ -77,7 +77,7 @@ namespace phi
     {
         _frameUniformsBuffer->bindBufferBase(0);
 
-        for (auto renderFunction : _onRender)
-            renderFunction();
+        for (auto renderPass : _renderPasses)
+            renderPass->render();
     }
 }

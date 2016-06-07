@@ -29,23 +29,21 @@ namespace phi
             renderPass->render();
     }
 
-    glassyControlRenderer* glassyControlRenderer::configure(
+    vector<renderPass*> glassyControlRenderer::configure(
         gl* gl, 
         float width, 
         float height, 
         const string& resourcesPath, 
-        glassyControlRendererDescriptor* renderDescriptor,
-        renderPass* lastRenderPass)
+        glassyControlRendererDescriptor* renderDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto glassyControlRenderPass = 
-            glassyControlRenderPassConfigurator::configureNewGlassyControlRenderPass(
-                lastRenderPass,
+        auto glassyControlRenderPass = glassyControlRenderPassConfigurator::configureNewGlassyControlRenderPass(
                 renderDescriptor, 
                 gl, 
                 width, 
                 height, 
                 shadersPath);
-        return new glassyControlRenderer({ glassyControlRenderPass });
+
+        return { glassyControlRenderPass };
     }
 }

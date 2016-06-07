@@ -18,15 +18,14 @@ namespace phi
         UI_RENDERING_API glassyControlRenderer(vector<renderPass*>&& renderPasses);
 
     public:
-        UI_RENDERING_API  ~glassyControlRenderer();
-        UI_RENDERING_API  void render();
+        UI_RENDERING_API ~glassyControlRenderer();
+        UI_RENDERING_API void render();
 
-        UI_RENDERING_API static glassyControlRenderer* configure(
+        UI_RENDERING_API static vector<renderPass*> configure(
             gl* gl, 
             float width, 
             float height, 
             const string& resourcesPath, 
-            glassyControlRendererDescriptor* renderDescriptor,
-            renderPass* lastRenderPass);
+            glassyControlRendererDescriptor* renderDescriptor);
     };
 }

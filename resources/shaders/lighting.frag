@@ -15,7 +15,7 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     mat4 ip;
 } frameUniforms;
 
-layout (std140, binding = 2) uniform RenderTargetAddresses
+layout (std140, binding = 1) uniform RenderTargetAddresses
 {
     int rt0Unit;
     int rt1Unit;

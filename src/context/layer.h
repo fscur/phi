@@ -17,7 +17,8 @@ namespace phi
         node* _root;
 
         vector<std::function<void(void)>> _onUpdate;
-        vector<std::function<void(void)>> _onRender;
+        //vector<std::function<void(void)>> _onRender;
+        vector<renderPass*> _renderPasses;
         vector<std::function<void(node*)>> _onNodeAdded;
 
         buffer* _frameUniformsBuffer;
@@ -32,7 +33,7 @@ namespace phi
         ~layer();
 
         CONTEXT_API void addOnUpdate(std::function<void(void)> updateFunction);
-        CONTEXT_API void addOnRender(std::function<void(void)> renderFunction);
+        CONTEXT_API void addRenderPass(renderPass* renderPass);
         CONTEXT_API void addOnNodeAdded(std::function<void(node*)> onNodeAdded);
 
         CONTEXT_API void add(node* node);
