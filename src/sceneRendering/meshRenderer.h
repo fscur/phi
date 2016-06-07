@@ -21,7 +21,6 @@ namespace phi
     {
     private:
         vector<renderPass*> _renderPasses;
-
     private:
         SCENE_RENDERING_API meshRenderer(vector<renderPass*>&& renderPasses);
 
@@ -29,6 +28,11 @@ namespace phi
         SCENE_RENDERING_API ~meshRenderer();
         SCENE_RENDERING_API void render();
 
+        vector<renderPassOut*> getOuts() const { return _renderPasses.back()->getOuts(); }
+
+        vector<renderPass*> getRenderPasses() const { return _renderPasses; }
+
         static SCENE_RENDERING_API meshRenderer* configure(gl* gl, float width, float height, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);
+
     };
 }

@@ -9,6 +9,7 @@
 
 #include <sceneRendering\meshRenderer.h>
 #include <uiRendering\controlRenderer.h>
+#include <uiRendering\glassyControlRenderer.h>
 #include <uiRendering\textRenderer.h>
 
 #include <context\sceneId.h>
@@ -36,8 +37,13 @@ namespace phi
 
     layerBuilder layerBuilder::withMeshRenderer()
     {
-        auto meshDescriptor = new meshRendererDescriptor(_gl);
-        auto meshRenderer = phi::meshRenderer::configure(_gl, _width, _height, _resourcesPath, meshDescriptor);
+        auto rendererDescriptor = new meshRendererDescriptor(_gl);
+        auto renderer = phi::meshRenderer::configure(
+            _gl, 
+            _width, 
+            _height, 
+            _resourcesPath, 
+            rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {
@@ -45,23 +51,29 @@ namespace phi
             if (mesh)
             {
                 sceneId::setNextId(mesh);
-                meshDescriptor->add(mesh);
+                rendererDescriptor->add(mesh);
             }
         });
 
         _layer->addOnUpdate([=] {});
         _layer->addOnRender([=]
         {
-            meshRenderer->render();
+            renderer->render();
         });
 
         return *this;
     }
 
-    layerBuilder layerBuilder::withControlRenderer()
+    layerBuilder layerBuilder::withGlassyControlRenderer(renderPass* lastRenderPass)
     {
-        auto rendererDescriptor = new controlRendererDescriptor(_gl);
-        auto controlRenderer = phi::controlRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
+        auto rendererDescriptor = new glassyControlRendererDescriptor(_gl);
+        auto renderer = glassyControlRenderer::configure(
+            _gl, 
+            _width, 
+            _height, 
+            _resourcesPath, 
+            rendererDescriptor,
+            lastRenderPass);
 
         _layer->addOnNodeAdded([=](node* node)
         {
@@ -72,7 +84,26 @@ namespace phi
         });
 
         _layer->addOnUpdate([=] {});
-        _layer->addOnRender([=] { controlRenderer->render(); });
+        _layer->addOnRender([=] { renderer->render(); });
+
+        return *this;
+    }
+
+    layerBuilder layerBuilder::withControlRenderer()
+    {
+        auto rendererDescriptor = new controlRendererDescriptor(_gl);
+        auto renderer = controlRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
+
+        _layer->addOnNodeAdded([=](node* node)
+        {
+            auto control = node->getComponent<phi::control>();
+
+            if (control)
+                rendererDescriptor->add(control);
+        });
+
+        _layer->addOnUpdate([=] {});
+        _layer->addOnRender([=] { renderer->render(); });
 
         return *this;
     }
@@ -80,7 +111,7 @@ namespace phi
     layerBuilder layerBuilder::withTextRenderer()
     {
         auto rendererDescriptor = new textRendererDescriptor(_gl);
-        auto textRenderer = phi::textRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
+        auto renderer = phi::textRenderer::configure(_gl, _width, _height, _resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {
@@ -91,7 +122,7 @@ namespace phi
         });
 
         _layer->addOnUpdate([=] {});
-        _layer->addOnRender([=] { textRenderer->render(); });
+        _layer->addOnRender([=] { renderer->render(); });
 
         return *this;
     }

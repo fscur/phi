@@ -153,11 +153,11 @@ namespace demon
 
         auto nandinhoCamera = new camera("nandinhoCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
         auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, (float)_width, float(_height), application::resourcesPath)
-            .withControlRenderer()
+            .withGlassyControlRenderer()
             .withTextRenderer()
             .build();
 
-        _designContext = new context({ nandinhoLayer });
+        _designContext = new context({ sceneLayer, nandinhoLayer });
         _constructionContext = new context({ sceneLayer, constructionLayer });
 
         sceneLayer->add(floor);

@@ -6,7 +6,7 @@
 #include <rendering\program.h>
 
 #include "layer.h"
-
+#include <stack>
 namespace phi
 {
     class layerBuilder
@@ -25,6 +25,7 @@ namespace phi
         CONTEXT_API static layerBuilder newLayer(camera* camera, gl* gl, float width, float height, string resourcesPath);
         CONTEXT_API layerBuilder withMeshRenderer();
         CONTEXT_API layerBuilder withControlRenderer();
+        CONTEXT_API layerBuilder withGlassyControlRenderer(renderPass* lastRenderPass);
         CONTEXT_API layerBuilder withTextRenderer();
         CONTEXT_API layer* build();
     };

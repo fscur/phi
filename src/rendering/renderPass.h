@@ -55,7 +55,7 @@ namespace phi
         void addIn(renderPassIn* in) { _ins.push_back(in); }
         void addOut(renderPassOut* out) { _outs.push_back(out); }
 
-        vector<renderPassIn*> getIns() { return _ins; }
-        vector<renderPassOut*> getOuts() { return _outs; }
+        vector<renderPassIn*> getIns() const { return _ins; }
+        vector<renderPassOut*> getOuts() const { return _outs; }
     };
 }
