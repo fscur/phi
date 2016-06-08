@@ -1,4 +1,4 @@
-#include <precompiled.h>
+﻿#include <precompiled.h>
 #include <core\invalidInitializationException.h>
 
 #include "program.h"
@@ -43,6 +43,16 @@ namespace phi
 
         glAttachShader(_id, shader->getId());
         glError::check();
+    }
+
+    void program::addBuffer(buffer* buffer)
+    {
+        auto location = getBufferLocation(buffer);
+
+        if (location == -1)
+            throw argumentException("<program::addBuffer> Buffer (" + buffer->getName() + ") not found.");
+
+        _buffers[location] = buffer;
     }
 
     void program::addAttribute(const string& attribute)
@@ -165,9 +175,39 @@ namespace phi
         return isLinked == GL_TRUE;
     }
 
+    GLint program::getBufferLocation(const buffer * const buffer) const
+    {
+        GLenum programInterface = 0;
+        switch (buffer->getTarget())
+        {
+        case bufferTarget::shader:
+            programInterface = GL_SHADER_STORAGE_BLOCK;
+            break;
+        case bufferTarget::uniform:
+            programInterface = GL_UNIFORM_BLOCK;
+            break;
+        default:
+            break;
+        }
+
+        GLint numUniforms = 0;
+        glGetProgramInterfaceiv(_id, programInterface, GL_ACTIVE_RESOURCES, &numUniforms);
+        auto index = glGetProgramResourceIndex(_id, programInterface, buffer->getName().c_str());
+
+        const GLenum props[1] = { GL_BUFFER_BINDING };
+        GLint values[1] = {-1};
+        glGetProgramResourceiv(_id, programInterface, index, 1, props, 1, NULL, values);
+
+        return values[0];
+    }
+
     inline void program::bind()
     {
         glUseProgram(_id);
+
+        for (auto& pair : _buffers)
+            pair.second->bindBufferBase(pair.first);
+
         glError::check();
     }
 

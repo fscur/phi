@@ -4,7 +4,7 @@ layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec2 inTexCoord;
 layout (location = 2) in mat4 inModelMatrix;
 
-layout (std140, binding = 0) uniform FrameUniformsBufferData
+layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 {
     mat4 p;
     mat4 v;

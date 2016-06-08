@@ -9,16 +9,15 @@ namespace phi
 {
     renderPass * controlRenderPassConfigurator::configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, gl* gl, float width, float height, string shadersPath)
     {
-        auto controlProgram = programBuilder::buildProgram(shadersPath, "control", "control");
+        auto program = programBuilder::buildProgram(shadersPath, "control", "control");
+        program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
 
         auto defaultFrameBuffer = new framebuffer(true);
 
-        auto pass = new renderPass(controlProgram, defaultFrameBuffer);
-
-        pass->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
+        auto pass = new renderPass(program, defaultFrameBuffer);
         pass->addVao(rendererDescriptor->_vao);
 
-        pass->setOnBeginRender([=](program* program, framebuffer* framebuffer)
+        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
         {
             framebuffer->bindForDrawing();
 
@@ -38,7 +37,7 @@ namespace phi
                 vao->render();
         });
 
-        pass->setOnEndRender([](program* program, framebuffer* framebuffer)
+        pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer)
         {
             program->unbind();
 

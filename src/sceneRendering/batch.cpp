@@ -98,19 +98,19 @@ namespace phi
         attribs.push_back(vertexAttrib(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
         attribs.push_back(vertexAttrib(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
-        _vbo = new vertexBuffer(attribs);
+        _vbo = new vertexBuffer("vbo", attribs);
         _vbo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
     void batch::createEbo(const uint* const data, GLsizeiptr size)
     {
-        _ebo = new buffer(bufferTarget::element);
+        _ebo = new buffer("ebo", bufferTarget::element);
         _ebo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
     void batch::createDrawCmdsBuffer(const drawElementsIndirectCmd* const data, GLsizeiptr size)
     {
-        _drawCmdBuffer = new buffer(bufferTarget::drawIndirect);
+        _drawCmdBuffer = new buffer("drawIndirect", bufferTarget::drawIndirect);
         _drawCmdBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
@@ -119,7 +119,7 @@ namespace phi
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(5, 1, GL_UNSIGNED_INT, 0, 0, 1));
 
-        _materialsIdsBuffer = new vertexBuffer(attribs);
+        _materialsIdsBuffer = new vertexBuffer("materialsIds", attribs);
         _materialsIdsBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
@@ -130,7 +130,7 @@ namespace phi
         for (uint i = 0; i < 4; ++i)
             attribs.push_back(vertexAttrib(6 + i, 4, GL_FLOAT, sizeof(glm::mat4), (const void *)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new vertexBuffer(attribs);
+        _modelMatricesBuffer = new vertexBuffer("modelMatrices", attribs);
         _modelMatricesBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 
@@ -139,7 +139,7 @@ namespace phi
         vector<vertexAttrib> attribs;
         attribs.push_back(vertexAttrib(4, 4, GL_FLOAT, 0, 0, 1));
 
-        _selectionBuffer = new vertexBuffer(attribs);
+        _selectionBuffer = new vertexBuffer("selectionColor", attribs);
         _selectionBuffer->data(size, data, bufferDataUsage::dynamicDraw);
     }
 

@@ -7,7 +7,7 @@ const vec4 lightColor = vec4(1.0);
 
 in vec2 fragTexCoord;
 
-layout (std140, binding = 0) uniform FrameUniformsBufferData
+layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 {
     mat4 p;
     mat4 v;

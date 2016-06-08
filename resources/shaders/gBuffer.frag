@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_bindless_texture: enable
 
-struct materialGpuData
+struct materialRenderData
 {
     int albedoTextureArrayIndex;
     int normalTextureArrayIndex;
@@ -23,9 +23,9 @@ struct materialGpuData
     float pad2;
 };
 
-layout (std140, binding = 1) buffer Materials
+layout (std140, binding = 1) buffer MaterialRenderDataBuffer
 {
-    materialGpuData items[];
+    materialRenderData items[];
 } materials;
 
 in vec3 fragPosition;
@@ -42,7 +42,7 @@ layout (location = 1) out vec4 rt1;
 layout (location = 2) out vec4 rt2;
 layout (location = 3) out vec4 rt3;
 
-vec4 fetchAlbedo(materialGpuData material)
+vec4 fetchAlbedo(materialRenderData material)
 {
     int array = material.albedoTextureArrayIndex;
     float page = material.albedoTexturePageIndex;
@@ -50,7 +50,7 @@ vec4 fetchAlbedo(materialGpuData material)
     return texture(textureArrays[array], vec3(fragTexCoord, page)) * color;
 }
 
-vec4 fetchSpecular(materialGpuData material)
+vec4 fetchSpecular(materialRenderData material)
 {
     int array = material.specularTextureArrayIndex;
     float page = material.specularTexturePageIndex;
@@ -58,7 +58,7 @@ vec4 fetchSpecular(materialGpuData material)
     return texture(textureArrays[array], vec3(fragTexCoord, page)) * color;
 }
 
-vec4 fetchNormal(materialGpuData material)
+vec4 fetchNormal(materialRenderData material)
 {
     int array = material.normalTextureArrayIndex;
     float page = material.normalTexturePageIndex;
@@ -79,7 +79,7 @@ vec2 encodeNormal (vec3 n)
 
 void main()
 {
-    materialGpuData material = materials.items[materialId];
+    materialRenderData material = materials.items[materialId];
 
     //normal map
     vec3 n = normalize(fragNormal);

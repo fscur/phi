@@ -41,17 +41,17 @@ namespace phi
         vector<vertexAttrib> vboAttribs;
         vboAttribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         vboAttribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-        auto vbo = new vertexBuffer(vboAttribs);
+        auto vbo = new vertexBuffer("vbo", vboAttribs);
         vbo->storage(controlQuad->vboSize, controlQuad->vboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
-        auto ebo = new buffer(bufferTarget::element);
+        auto ebo = new buffer("ebo", bufferTarget::element);
         ebo->storage(controlQuad->eboSize, controlQuad->eboData, bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
         vector<vertexAttrib> modelMatricesAttribs;
         for (uint i = 0; i < 4; ++i)
             modelMatricesAttribs.push_back(vertexAttrib(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new vertexBuffer(modelMatricesAttribs);
+        _modelMatricesBuffer = new vertexBuffer("modelMatrices", modelMatricesAttribs);
         _modelMatricesBuffer->data(sizeof(mat4), nullptr, bufferDataUsage::dynamicDraw);
 
         _vao->add(vbo);
@@ -63,10 +63,10 @@ namespace phi
             glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_instances.size()));
         });
 
-        _controlsRenderDataBuffer = new buffer(bufferTarget::shader);
+        _controlsRenderDataBuffer = new buffer("ControlRenderDataBuffer", bufferTarget::shader);
         _controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
 
-        _uniformBlockBuffer = new buffer(bufferTarget::uniform);
+        _uniformBlockBuffer = new buffer("GlassyControlUniformBlock", bufferTarget::uniform);
     }
 
     void glassyControlRendererDescriptor::add(control* control)

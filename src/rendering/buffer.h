@@ -57,57 +57,62 @@ namespace phi
     class buffer
     {
     protected:
-        GLuint id;
-        bufferTarget::bufferTarget target;
+        GLuint _id;
+        const string _name;
+        const bufferTarget::bufferTarget _target;
 
     public:
-        buffer(bufferTarget::bufferTarget target) :
-            id(-1),
-            target(target)
+        buffer(const string& name, const bufferTarget::bufferTarget target) :
+            _name(name),
+            _id(-1),
+            _target(target)
         {
-            glCreateBuffers(1, &id);
+            glCreateBuffers(1, &_id);
             bind();
         }
 
         ~buffer()
         {
-            glDeleteBuffers(1, &id);
+            glDeleteBuffers(1, &_id);
         }
 
         void bind()
         {
-            glBindBuffer(target, id);
+            glBindBuffer(_target, _id);
             glError::check();
         }
 
         void unbind()
         {
-            glBindBuffer(target, 0);
+            glBindBuffer(_target, 0);
             glError::check();
         }
 
         void bindBufferBase(GLuint location)
         {
-            glBindBufferBase(target, location, id);
+            glBindBufferBase(_target, location, _id);
             glError::check();
         }
 
         void storage(GLsizeiptr size, const void* const data, bufferStorageUsage::bufferStorageUsage usage)
         {
-            glNamedBufferStorage(id, size, data == nullptr ? NULL : data, usage);
+            glNamedBufferStorage(_id, size, data == nullptr ? NULL : data, usage);
             glError::check();
         }
 
         void data(GLsizeiptr size, const void* const data, bufferDataUsage::bufferDataUsage usage)
         {
-            glNamedBufferData(id, size, data == nullptr ? NULL : data, usage);
+            glNamedBufferData(_id, size, data == nullptr ? NULL : data, usage);
             glError::check();
         }
 
         void subData(GLintptr offset, GLintptr size, const void* const data)
         {
-            glNamedBufferSubData(id, offset, size, data);
+            glNamedBufferSubData(_id, offset, size, data);
             glError::check();
         }
+
+        bufferTarget::bufferTarget getTarget() const { return _target; }
+        string getName() const { return _name; }
     };
 }

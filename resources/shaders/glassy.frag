@@ -14,7 +14,7 @@ struct controlRenderData
     float pad5;
 };
 
-layout (std140, binding = 1) buffer ControlRenderData
+layout (std140, binding = 1) buffer ControlRenderDataBuffer
 {
     controlRenderData items[];
 } renderData;

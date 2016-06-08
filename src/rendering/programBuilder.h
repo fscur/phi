@@ -10,7 +10,6 @@ namespace phi
     {
     private:
         static map<string, shader*> _shadersCache;
-        static map<std::tuple<shader*, shader*>, program*> _programsCache;
 
     private:
         ~programBuilder() {};

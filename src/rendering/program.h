@@ -2,6 +2,7 @@
 #include <phi.h>
 #include "renderingApi.h"
 #include "shader.h"
+#include "buffer.h"
 
 namespace phi
 {
@@ -24,15 +25,18 @@ namespace phi
 #ifdef _DEBUG
         map<shader*, eventToken> _dirtyShadersTokens;
 #endif
+        unordered_map<GLuint, buffer*> _buffers;
 
     private:
         bool validate();
+        GLint getBufferLocation(const buffer* const buffer) const;
 
     public:
         RENDERING_API program();
         RENDERING_API ~program();
 
         RENDERING_API void addShader(shader* shader);
+        RENDERING_API void addBuffer(buffer* buffer);
         RENDERING_API void addAttribute(const string& attribute);
 
         RENDERING_API void addUniform(uint location, string name);
