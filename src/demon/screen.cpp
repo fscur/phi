@@ -147,19 +147,20 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneCamera = new camera("sceneCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
-        auto sceneLayer = layerBuilder::newLayer(sceneCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+        auto resolution = phi::resolution(static_cast<float>(_width), static_cast<float>(_height));
+        auto sceneCamera = new camera("sceneCamera", resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto sceneLayer = layerBuilder::newLayer(sceneCamera, _gl, resolution, application::resourcesPath)
             .withMeshRenderer()
             .build();
 
-        auto constructionCamera = new camera("constructionCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
-        auto constructionLayer = layerBuilder::newLayer(constructionCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+        auto constructionCamera = new camera("constructionCamera", resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto constructionLayer = layerBuilder::newLayer(constructionCamera, _gl, resolution, application::resourcesPath)
             .withControlRenderer()
             .withTextRenderer()
             .build();
 
-        auto nandinhoCamera = new camera("nandinhoCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
-        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, (float)_width, float(_height), application::resourcesPath)
+        auto nandinhoCamera = new camera("nandinhoCamera", resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, resolution, application::resourcesPath)
             .withGlassyControlRenderer()
             .withTextRenderer()
             .build();

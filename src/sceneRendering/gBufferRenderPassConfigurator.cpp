@@ -13,9 +13,9 @@ namespace phi
         throw new notImplementedException();
     }
 
-    renderPass* gBufferRenderPassConfigurator::configureNewGBuffer(meshRendererDescriptor* rendererDescriptor, gl* gl, float width, float height, string shadersPath)
+    renderPass* gBufferRenderPassConfigurator::configureNewGBuffer(meshRendererDescriptor* rendererDescriptor, gl* gl, resolution resolution, string shadersPath)
     {
-        auto gBufferFrameBuffer = framebufferBuilder::newFramebuffer(gl, width, height)
+        auto gBufferFrameBuffer = framebufferBuilder::newFramebuffer(gl, resolution)
             .with(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
             .with(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
             .with(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
@@ -73,8 +73,8 @@ namespace phi
 
             framebuffer->unbind(GL_FRAMEBUFFER);
             framebuffer->bindForReading();
-            auto w = static_cast<GLint>(width);
-            auto h = static_cast<GLint>(height);
+            auto w = static_cast<GLint>(resolution.width);
+            auto h = static_cast<GLint>(resolution.height);
 
             glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
             glError::check();

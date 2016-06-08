@@ -7,18 +7,15 @@ namespace phi
 {
     camera::camera(
         std::string name,
-        float width,
-        float height,
+        resolution resolution,
         float near,
         float far,
         float fov) :
         component(component::componentType::CAMERA, name),
-        _width(width),
-        _height(height),
+        _resolution(resolution),
         _near(near),
         _far(far),
         _fov(fov),
-        _aspect(_width / _height),
         _projectionMatrix(mat4(1.0f)),
         _viewMatrix(mat4(1.0f)),
         _changedProjection(false),
@@ -52,7 +49,7 @@ namespace phi
 
     inline void camera::updateProjectionMatrix()
     {
-        _projectionMatrix = glm::perspective(_fov, _aspect, _near, _far);
+        _projectionMatrix = glm::perspective(_fov, _resolution.getAspect(), _near, _far);
         _changedProjection = false;
     }
 
@@ -96,15 +93,13 @@ namespace phi
 
     inline void camera::setWidth(float value)
     {
-        _width = value;
-        _aspect = _width / _height;
+        _resolution.width = value;
         _changedProjection = true;
     }
 
     inline void camera::setHeight(float value)
     {
-        _height = value;
-        _aspect = _width / _height;
+        _resolution.height = value;
         _changedProjection = true;
     }
 
@@ -178,8 +173,8 @@ namespace phi
     {
         auto tg = tan(_fov * 0.5f) * _near;
 
-        auto hw = _width * 0.5f;
-        auto hh = _height * 0.5f;
+        auto hw = _resolution.width * 0.5f;
+        auto hh = _resolution.height * 0.5f;
 
         auto ys0 = mouseY - hh;
         auto yp0 = ys0 / hh;
@@ -187,7 +182,7 @@ namespace phi
 
         auto xs0 = mouseX - hw;
         auto xp0 = xs0 / hw;
-        auto xm0 = xp0 * tg * _aspect;
+        auto xm0 = xp0 * tg * _resolution.getAspect();
 
         auto x = (xm0 / _near) * z;
         auto y = (ym0 / _near) * z;
@@ -202,8 +197,8 @@ namespace phi
 
     ray camera::screenPointToRay(float mouseX, float mouseY)
     {
-        float x = (2.0f * mouseX) / _width - 1.0f;
-        float y = 1.0f - (2.0f * mouseY) / _height;
+        float x = (2.0f * mouseX) / _resolution.width - 1.0f;
+        float y = 1.0f - (2.0f * mouseY) / _resolution.height;
 
         auto ip = inverse(_projectionMatrix);
         auto iv = inverse(_viewMatrix);

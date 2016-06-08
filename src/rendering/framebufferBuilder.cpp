@@ -3,11 +3,10 @@
 
 namespace phi
 {
-    framebufferBuilder::framebufferBuilder(framebuffer * framebuffer, gl* gl, float width, float height) :
+    framebufferBuilder::framebufferBuilder(framebuffer * framebuffer, gl* gl, resolution resolution) :
         _framebuffer(framebuffer),
         _gl(gl),
-        _width(width),
-        _height(height)
+        _resolution(resolution)
     {
     }
 
@@ -19,22 +18,22 @@ namespace phi
     renderTarget* framebufferBuilder::createRenderTarget(framebufferAttachment& attachment)
     {
         auto texture = new phi::texture(
-            static_cast<uint>(_width),
-            static_cast<uint>(_height),
+            static_cast<uint>(_resolution.width),
+            static_cast<uint>(_resolution.height),
             attachment.layout);
 
         auto textureAddress = _gl->texturesManager->get(texture);
         return new phi::renderTarget(
             attachment.attachment,
-            static_cast<GLint>(_width),
-            static_cast<GLint>(_height),
+            static_cast<GLint>(_resolution.width),
+            static_cast<GLint>(_resolution.height),
             textureAddress,
             texture);
     }
 
-    framebufferBuilder framebufferBuilder::newFramebuffer(gl* gl, float width, float height)
+    framebufferBuilder framebufferBuilder::newFramebuffer(gl* gl, resolution resolution)
     {
-        return framebufferBuilder(new framebuffer(), gl, width, height);
+        return framebufferBuilder(new framebuffer(), gl, resolution);
     }
 
     framebufferBuilder framebufferBuilder::with(GLenum attachment, GLenum internalFormat, GLenum dataFormat)
@@ -69,8 +68,11 @@ namespace phi
 
     framebuffer* framebufferBuilder::build()
     {
+        auto width = static_cast<uint>(_resolution.width);
+        auto height = static_cast<uint>(_resolution.height);
+
         for (auto& pair : _formats)
-            reserveContainer(sizeui(static_cast<uint>(_width), static_cast<uint>(_height), pair.second), _layouts[pair.first]);
+            reserveContainer(sizeui(width, height, pair.second), _layouts[pair.first]);
 
         for (auto& attachment : _attatchments)
             _framebuffer->add(createRenderTarget(attachment));

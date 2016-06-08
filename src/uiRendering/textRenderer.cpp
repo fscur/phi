@@ -1,10 +1,11 @@
 #include <precompiled.h>
 #include "textRenderer.h"
 
-#include <core\notImplementedException.h>
+#include <core\resolution.h>
 #include <core\node.h>
 #include <core\vertex.h>
 #include <core\geometry.h>
+#include <core\notImplementedException.h>
 
 #include <io\path.h>
 
@@ -29,10 +30,10 @@ namespace phi
             renderPass->render();
     }
 
-    vector<renderPass*> textRenderer::configure(gl* gl, float width, float height, const string& resourcesPath, textRendererDescriptor* renderDescriptor)
+    vector<renderPass*> textRenderer::configure(gl* gl, const string& resourcesPath, textRendererDescriptor* renderDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto textRenderPass = textRenderPassConfigurator::configureNewTextRenderPass(renderDescriptor, gl, width, height, shadersPath);
+        auto textRenderPass = textRenderPassConfigurator::configureNewTextRenderPass(renderDescriptor, gl, shadersPath);
         return { textRenderPass };
     }
 }

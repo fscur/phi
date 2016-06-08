@@ -2,6 +2,8 @@
 #include <phi.h>
 #include "uiRenderingApi.h"
 
+#include <core\resolution.h>
+
 #include <ui\control.h>
 
 #include <rendering\buffer.h>
@@ -36,8 +38,7 @@ namespace phi
 
     private:
         gl* _gl;
-        float _width;
-        float _height;
+        resolution _resolution;
         unordered_map<control*, controlInstance*> _instances;
 
         vector<mat4> _modelMatrices;
@@ -53,7 +54,7 @@ namespace phi
         void createBuffers();
 
     public:
-        UI_RENDERING_API glassyControlRendererDescriptor(gl* gl, float width, float height);
+        UI_RENDERING_API glassyControlRendererDescriptor(gl* gl, resolution resolution);
         UI_RENDERING_API ~glassyControlRendererDescriptor();
 
         UI_RENDERING_API void add(control* control);

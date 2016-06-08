@@ -7,10 +7,9 @@
 
 namespace phi
 {
-    glassyControlRendererDescriptor::glassyControlRendererDescriptor(gl * gl, float width, float height) :
+    glassyControlRendererDescriptor::glassyControlRendererDescriptor(gl * gl, resolution resolution) :
         _gl(gl),
-        _width(width),
-        _height(height)
+        _resolution(resolution)
     {
         createBuffers();
     }
@@ -110,7 +109,7 @@ namespace phi
         uniformBlockData.backgroundPage = rtAddress.page;
         uniformBlockData.backgroundUnit = rtAddress.unit;
         uniformBlockData.level = 2;
-        uniformBlockData.resolution = vec2(_width, _height);
+        uniformBlockData.resolution = _resolution.toVec2();
 
         _uniformBlockBuffer->storage(
             sizeof(glassyControlUniformBlockData),

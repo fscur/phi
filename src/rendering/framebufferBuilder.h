@@ -2,6 +2,8 @@
 #include <phi.h>
 #include "renderingApi.h"
 
+#include <core\resolution.h>
+
 #include "gl.h"
 #include "framebuffer.h"
 
@@ -25,21 +27,20 @@ namespace phi
     private:
         framebuffer* _framebuffer;
         gl* _gl;
-        float _width;
-        float _height;
+        resolution _resolution;
 
         map<std::tuple<GLenum, GLenum>, uint> _formats;
         map<std::tuple<GLenum, GLenum>, textureLayout> _layouts;
         vector<framebufferAttachment> _attatchments;
 
     private:
-        framebufferBuilder(framebuffer* framebuffer, gl* gl, float width, float height);
+        framebufferBuilder(framebuffer* framebuffer, gl* gl, resolution resolution);
 
         textureContainer* reserveContainer(sizeui size, textureLayout layout);
         renderTarget* createRenderTarget(framebufferAttachment& attatchment);
 
     public:
-        RENDERING_API static framebufferBuilder newFramebuffer(gl* gl, float width, float height);
+        RENDERING_API static framebufferBuilder newFramebuffer(gl* gl, resolution resolution);
         RENDERING_API framebufferBuilder with(GLenum attachment, GLenum internalFormat, GLenum dataFormat);
         RENDERING_API framebuffer* build();
     };

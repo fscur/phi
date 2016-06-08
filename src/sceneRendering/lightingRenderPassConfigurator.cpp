@@ -17,7 +17,7 @@ namespace phi
         throw new notImplementedException();
     }
 
-    renderPass* lightingRenderPassConfigurator::configureNewLighting(renderPass* gBufferRenderPass, gl* gl, float width, float height, string& shadersPath)
+    renderPass* lightingRenderPassConfigurator::configureNewLighting(renderPass* gBufferRenderPass, gl* gl, resolution resolution, string& shadersPath)
     {
         auto renderTargets = gBufferRenderPass->getOuts();
 
@@ -42,8 +42,8 @@ namespace phi
         layout.magFilter = GL_LINEAR;
 
         auto finalImageTexture = new phi::texture(
-            static_cast<uint>(width),
-            static_cast<uint>(height),
+            static_cast<uint>(resolution.width),
+            static_cast<uint>(resolution.height),
             layout,
             nullptr,
             true,
@@ -53,8 +53,8 @@ namespace phi
 
         auto finalImageRT = new renderTarget(
             GL_COLOR_ATTACHMENT0,
-            static_cast<GLint>(width),
-            static_cast<GLint>(height),
+            static_cast<GLint>(resolution.width),
+            static_cast<GLint>(resolution.height),
             finalImageTexAddress,
             finalImageTexture);
 

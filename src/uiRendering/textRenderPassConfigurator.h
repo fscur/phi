@@ -1,6 +1,8 @@
 #pragma once
 #include <phi.h>
 
+#include <core\resolution.h>
+
 #include <rendering\gl.h>
 #include <rendering\renderPass.h>
 
@@ -13,6 +15,6 @@ namespace phi
     private:
         textRenderPassConfigurator();
     public:
-        static renderPass * configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl * gl, float width, float height, string shadersPath);
+        static renderPass * configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl * gl, string shadersPath);
     };
 }

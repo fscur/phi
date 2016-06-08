@@ -308,7 +308,7 @@ namespace demon
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
+        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getResolution().height) - mouseY);
 
         float z = 10.0;
         if (zBufferValue != 1.0f)
@@ -408,7 +408,7 @@ namespace demon
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
+        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getResolution().height) - mouseY);
 
         if (zBufferValue == 1.0f)
             _panEyeZ = 20.0f;
@@ -425,14 +425,15 @@ namespace demon
 
     void defaultCameraController::panMouseMove()
     {
+        auto resolution = _camera->getResolution();
         auto zNear = _camera->getNear();
-        auto aspect = _camera->getAspect();
+        auto aspect = resolution.getAspect();
         auto fov = _camera->getFov();
 
         auto tg = tan(fov * 0.5f) * zNear;
 
-        auto w = _camera->getWidth();
-        auto h = _camera->getHeight();
+        auto w = resolution.width;
+        auto h = resolution.height;
 
         auto hh = h * 0.5f;
         auto hw = w * 0.5f;
@@ -512,7 +513,7 @@ namespace demon
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getHeight()) - mouseY);
+        auto zBufferValue = _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getResolution().height) - mouseY);
 
         if (zBufferValue == 1.0f)
             _rotationTargetPos = glm::vec3();
@@ -540,8 +541,9 @@ namespace demon
 
     void defaultCameraController::rotationMouseMove()
     {
-        auto w = _camera->getWidth();
-        auto h = _camera->getHeight();
+        auto resolution = _camera->getResolution();
+        auto w = resolution.width;
+        auto h = resolution.height;
 
         auto dx = _mousePosX - _lastMousePosX;
         auto dy = _mousePosY - _lastMousePosY;

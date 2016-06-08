@@ -9,7 +9,7 @@ namespace phi
     {
     }
 
-    renderPass * textRenderPassConfigurator::configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl* gl, float width, float height, string shadersPath)
+    renderPass * textRenderPassConfigurator::configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl* gl, string shadersPath)
     {
         auto program = programBuilder::buildProgram(shadersPath, "text", "text");
         program->addBuffer(rendererDescriptor->_glyphRenderDataBuffer);

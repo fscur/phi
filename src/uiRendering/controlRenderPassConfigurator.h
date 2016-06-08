@@ -12,6 +12,6 @@ namespace phi
     private:
         controlRenderPassConfigurator();
     public:
-        static renderPass* configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, gl* gl, float width, float height, string shadersPath);
+        static renderPass* configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, gl* gl, string shadersPath);
     };
 }
