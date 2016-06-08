@@ -150,8 +150,6 @@ namespace demon
         auto sceneCamera = new camera("sceneCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
         auto sceneLayer = layerBuilder::newLayer(sceneCamera, _gl, (float)_width, float(_height), application::resourcesPath)
             .withMeshRenderer()
-            .withGlassyControlRenderer()
-            .withTextRenderer()
             .build();
 
         auto constructionCamera = new camera("constructionCamera", (float)_width, (float)_height, 0.1f, 10000.0f, PI_OVER_4);
@@ -166,17 +164,17 @@ namespace demon
             .withTextRenderer()
             .build();
 
-        _designContext = new context({ sceneLayer });
-        _constructionContext = new context({ sceneLayer });
+        _designContext = new context({ sceneLayer, nandinhoLayer});
+        _constructionContext = new context({ sceneLayer, constructionLayer });
 
         sceneLayer->add(floor);
         sceneLayer->add(chair);
         sceneLayer->add(sceneLabel);
 
-        constructionLayer->add(constructionLabel); 
+        constructionLayer->add(constructionLabel);
 
-        //nandinhoLayer->add(labelNandinho);
-        //nandinhoLayer->add(_labelFps);
+        nandinhoLayer->add(labelNandinho);
+        nandinhoLayer->add(_labelFps);
 
         // GAMBIS DAR UM JEITO!!!!!!!!
         auto cameraPosition = vec3(-5.0f, 5.0f, 20.0f);

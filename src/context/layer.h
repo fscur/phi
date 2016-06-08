@@ -17,11 +17,13 @@ namespace phi
         node* _root;
 
         vector<std::function<void(void)>> _onUpdate;
-        //vector<std::function<void(void)>> _onRender;
         vector<renderPass*> _renderPasses;
         vector<std::function<void(node*)>> _onNodeAdded;
 
         buffer* _frameUniformsBuffer;
+
+    public:
+        eventHandler<layer*> onInputChanged;
 
     private:
         void initialize();
@@ -40,6 +42,7 @@ namespace phi
         CONTEXT_API void update();
         CONTEXT_API void render();
 
+        std::vector<renderPassOut*> getOuts() { return _renderPasses.back()->getOuts(); }
         camera* getCamera() { return _camera; }
     };
 }

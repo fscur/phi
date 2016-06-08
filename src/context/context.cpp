@@ -8,11 +8,27 @@ namespace phi
     context::context(vector<layer*>& layers) :
         _layers(layers)
     {
+        layer* previous = nullptr;
+        for (auto& layer : _layers)
+        {
+            if (previous != nullptr)
+                layer->onInputChanged.raise(previous);
+
+            previous = layer;
+        }
     }
 
     context::context(vector<layer*>&& layers) :
         _layers(layers)
     {
+        layer* previous = nullptr;
+        for (auto& layer : _layers)
+        {
+            if (previous != nullptr)
+                layer->onInputChanged.raise(previous);
+
+            previous = layer;
+        }
     }
 
     context::~context()
