@@ -165,7 +165,7 @@ namespace demon
             .withTextRenderer()
             .build();
 
-        _designContext = new context({ sceneLayer, nandinhoLayer});
+        _designContext = new context({ sceneLayer, nandinhoLayer });
         _constructionContext = new context({ sceneLayer, constructionLayer });
 
         sceneLayer->add(floor);
@@ -187,6 +187,8 @@ namespace demon
 
         nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+
+        _activeContext = _designContext;
     }
 
     bool _design = true;
@@ -200,6 +202,13 @@ namespace demon
 
     void screen::initInput()
     {
+        input::mouseDown->assign(std::bind(&screen::onMouseDown, this, std::placeholders::_1));
+        input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
+        input::mouseUp->assign(std::bind(&screen::onMouseUp, this, std::placeholders::_1));
+        input::mouseWheel->assign(std::bind(&screen::onMouseWheel, this, std::placeholders::_1));
+        input::keyDown->assign(std::bind(&screen::onKeyDown, this, std::placeholders::_1));
+        input::keyUp->assign(std::bind(&screen::onKeyUp, this, std::placeholders::_1));
+
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
@@ -215,22 +224,51 @@ namespace demon
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
     }
 
+    void screen::onMouseDown(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseDown(e);
+    }
+
+    void screen::onMouseMove(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseMove(e);
+    }
+
+    void screen::onMouseUp(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseUp(e);
+    }
+
+    void screen::onMouseWheel(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseWheel(e);
+    }
+
+    void screen::onKeyDown(phi::keyboardEventArgs* e)
+    {
+        _activeContext->onKeyDown(e);
+    }
+
+    void screen::onKeyUp(phi::keyboardEventArgs* e)
+    {
+        _activeContext->onKeyUp(e);
+    }
+
     void screen::onUpdate()
     {
+        if (_design)
+            _activeContext = _designContext;
+        else
+            _activeContext = _constructionContext;
+
         phi::floatAnimator::update();
 
-        if(_design)
-            _designContext->update();
-        else
-            _constructionContext->update();
+        _activeContext->update();
     }
 
     void screen::onRender()
     {
-        if(_design)
-            _designContext->render();
-        else
-            _constructionContext->render();
+        _activeContext->render();
     }
 
     void screen::onTick()

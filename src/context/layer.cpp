@@ -54,6 +54,11 @@ namespace phi
         _onNodeAdded.push_back(onNodeAdded);
     }
 
+    void layer::addMouseController(iMouseController* controller)
+    {
+        _controllers.push_back(controller);
+    }
+
     void layer::add(node* node)
     {
         _root->addChild(node);
@@ -67,6 +72,9 @@ namespace phi
 
     void layer::update()
     {
+        for (auto& controller : _controllers)
+            controller->update();
+
         updateFrameUniforms();
 
         for (auto updateFunction : _onUpdate)
@@ -79,5 +87,41 @@ namespace phi
 
         for (auto renderPass : _renderPasses)
             renderPass->render();
+    }
+
+    void layer::onMouseDown(mouseEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            controller->onMouseDown(e);
+    }
+
+    void layer::onMouseMove(mouseEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            controller->onMouseMove(e);
+    }
+
+    void layer::onMouseUp(mouseEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            controller->onMouseUp(e);
+    }
+
+    void layer::onMouseWheel(mouseEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            controller->onMouseWheel(e);
+    }
+
+    void layer::onKeyDown(keyboardEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            controller->onKeyDown(e);
+    }
+
+    void layer::onKeyUp(keyboardEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            controller->onKeyUp(e);
     }
 }

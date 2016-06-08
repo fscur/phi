@@ -12,6 +12,7 @@
 #include <uiRendering\textRenderer.h>
 
 #include <context\sceneId.h>
+#include <context\sceneCameraController.h>
 
 #include <ui\control.h>
 #include <ui\text.h>
@@ -58,6 +59,8 @@ namespace phi
         {
             _layer->addRenderPass(renderPass);
         }
+
+        _layer->addMouseController(new sceneCameraController(_layer->getCamera()));
 
         return *this;
     }

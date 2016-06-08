@@ -19,16 +19,13 @@ namespace demon
         public phi::window
     {
     private:
-        bool _isMouseDown;
-        phi::vec2 _mouseDownPos;
-        phi::vec2 _lastMousePos;
-
         phi::gl* _gl;
         library* _userLibrary;
         library* _projectLibrary;
 
         phi::context* _designContext;
         phi::context* _constructionContext;
+        phi::context* _activeContext;
 
         phi::node* _labelFps;
         phi::commandsManager* _commandsManager;
@@ -42,6 +39,13 @@ namespace demon
         void initScene();
         void initUi();
         void initInput();
+
+        void onMouseDown(phi::mouseEventArgs* e);
+        void onMouseMove(phi::mouseEventArgs* e);
+        void onMouseUp(phi::mouseEventArgs* e);
+        void onMouseWheel(phi::mouseEventArgs* e);
+        void onKeyDown(phi::keyboardEventArgs* e);
+        void onKeyUp(phi::keyboardEventArgs* e);
 
     public:
         screen(phi::string name, phi::uint witdh, phi::uint height);
