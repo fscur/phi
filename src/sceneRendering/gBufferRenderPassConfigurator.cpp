@@ -23,20 +23,21 @@ namespace phi
             .with(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
             .build();
 
-        auto gBufferProgram = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
-        auto pass = new renderPass(gBufferProgram, gBufferFrameBuffer);
+        auto program = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
+        program->addBuffer(rendererDescriptor->_materialRenderDataBuffer);
+
+        auto pass = new renderPass(program, gBufferFrameBuffer);
         
         for (auto renderTarget : gBufferFrameBuffer->getRenderTargets())
             pass->addOut(new renderPassOut(renderTarget));
 
-        pass->addBuffer(rendererDescriptor->_materialRenderDataBuffer);
 
         rendererDescriptor->onBatchAdded->assign([=](batch* batch)
         {
             pass->addVao(batch->getVao());
         });
 
-        pass->setOnBeginRender([=] (program* program, framebuffer* framebuffer)
+        pass->setOnBeginRender([=] (phi::program* program, framebuffer* framebuffer)
         {
             framebuffer->bindForDrawing();
 
@@ -66,7 +67,7 @@ namespace phi
                 vao->render();
         });
 
-        pass->setOnEndRender([=](program* program, framebuffer* framebuffer)
+        pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer)
         {
             program->unbind();
 

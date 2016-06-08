@@ -5,7 +5,7 @@ layout (location = 1) in vec2 inTexCoord;
 
 uniform float scale;
 
-layout (std140, binding = 0) uniform FrameUniformsBufferData
+layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 {
     mat4 p;
     mat4 v;

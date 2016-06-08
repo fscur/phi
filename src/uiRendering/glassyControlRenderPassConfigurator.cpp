@@ -12,17 +12,16 @@ namespace phi
         gl* gl,
         string shadersPath)
     {
-        auto controlProgram = programBuilder::buildProgram(shadersPath, "control", "glassy");
-
         auto defaultFrameBuffer = new framebuffer(true);
-
-        auto pass = new renderPass(controlProgram, defaultFrameBuffer);
-
-        pass->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
-        pass->addBuffer(rendererDescriptor->_uniformBlockBuffer);
+        
+        auto program = programBuilder::buildProgram(shadersPath, "control", "glassy");
+        program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
+        program->addBuffer(rendererDescriptor->_uniformBlockBuffer);
+        
+        auto pass = new renderPass(program, defaultFrameBuffer);
         pass->addVao(rendererDescriptor->_vao);
-
-        pass->setOnBeginRender([=](program* program, framebuffer* framebuffer)
+        
+        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
         {
             framebuffer->bindForDrawing();
 
@@ -42,7 +41,7 @@ namespace phi
                 vao->render();
         });
 
-        pass->setOnEndRender([](program* program, framebuffer* framebuffer)
+        pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer)
         {
             program->unbind();
 

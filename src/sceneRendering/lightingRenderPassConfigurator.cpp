@@ -66,10 +66,10 @@ namespace phi
         attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
         attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
 
-        auto vbo = new vertexBuffer(attribs);
+        auto vbo = new vertexBuffer("vbo", attribs);
         vbo->storage(quad->vboSize, quad->vboData, bufferStorageUsage::write);
 
-        auto ebo = new buffer(bufferTarget::element);
+        auto ebo = new buffer("ebo", bufferTarget::element);
         ebo->storage(quad->eboSize, quad->eboData, bufferStorageUsage::write);
 
         auto quadVao = new vertexArrayObject();
@@ -81,21 +81,21 @@ namespace phi
             glError::check();
         });
 
-        auto rtsBuffer = new buffer(bufferTarget::uniform);
+        auto rtsBuffer = new buffer("RenderTargetAddresses", bufferTarget::uniform);
 
         rtsBuffer->storage(
             sizeof(renderTargetsAddresses),
             &*rtAddresses,
             bufferStorageUsage::write);
 
-        auto lightingProgram = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
-        auto pass = new renderPass(lightingProgram, finalImageFramebuffer);
+        auto program = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
+        program->addBuffer(rtsBuffer);
 
+        auto pass = new renderPass(program, finalImageFramebuffer);
         pass->addOut(new renderPassOut(finalImageRT));
         pass->addVao(quadVao);
-        pass->addBuffer(rtsBuffer);
 
-        pass->setOnBeginRender([=](program* program, framebuffer* framebuffer)
+        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
         {
             framebuffer->bindForDrawing();
 
@@ -116,7 +116,7 @@ namespace phi
                 vao->render();
         });
 
-        pass->setOnEndRender([=](program* program, framebuffer* framebuffer)
+        pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer)
         {
             program->unbind();
             glEnable(GL_DEPTH_TEST);

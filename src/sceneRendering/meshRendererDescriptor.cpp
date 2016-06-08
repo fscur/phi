@@ -23,7 +23,7 @@ namespace phi
 
     void meshRendererDescriptor::createBuffers()
     {
-        _materialRenderDataBuffer = new buffer(bufferTarget::shader);
+        _materialRenderDataBuffer = new buffer("MaterialRenderDataBuffer", bufferTarget::shader);
 
         _materialRenderDataBuffer->storage(
             sizeof(materialRenderData) * MAX_MATERIALS_COUNT,

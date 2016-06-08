@@ -21,7 +21,7 @@ namespace phi
 
     void pipeline::createFrameUniformBlockBuffer()
     {
-        _frameUniformBlockBuffer = new buffer(bufferTarget::uniform);
+        _frameUniformBlockBuffer = new buffer("FrameUniformsBufferData", bufferTarget::uniform);
 
         _frameUniformBlockBuffer->storage(
             sizeof(phi::frameUniformBlock),
@@ -31,7 +31,7 @@ namespace phi
 
     void pipeline::createMaterialsBuffer()
     {
-        _materialRenderDataBuffer = new buffer(bufferTarget::shader);
+        _materialRenderDataBuffer = new buffer("MaterialsBufferData", bufferTarget::shader);
 
         _materialRenderDataBuffer->storage(
             sizeof(materialRenderData) * MAX_MATERIALS_COUNT,

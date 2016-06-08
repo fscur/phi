@@ -8,7 +8,7 @@ layout (location = 4) in vec4 inSelectionColor;
 layout (location = 5) in uint inMaterialId;
 layout (location = 6) in mat4 inModelMatrix;
 
-layout (std140, binding = 0) uniform FrameUniformsBufferData
+layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 {
     mat4 p;
     mat4 v;

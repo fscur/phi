@@ -11,16 +11,15 @@ namespace phi
 
     renderPass * textRenderPassConfigurator::configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl* gl, string shadersPath)
     {
-        auto controlProgram = programBuilder::buildProgram(shadersPath, "text", "text");
-
+        auto program = programBuilder::buildProgram(shadersPath, "text", "text");
+        program->addBuffer(rendererDescriptor->_glyphRenderDataBuffer);
+        
         auto defaultFrameBuffer = new framebuffer(true);
 
-        auto pass = new renderPass(controlProgram, defaultFrameBuffer);
-
-        pass->addBuffer(rendererDescriptor->_glyphRenderDataBuffer);
+        auto pass = new renderPass(program, defaultFrameBuffer);
         pass->addVao(rendererDescriptor->_vao);
 
-        pass->setOnBeginRender([=](program* program, framebuffer* framebuffer)
+        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
         {
             framebuffer->bindForDrawing();
 
@@ -40,7 +39,7 @@ namespace phi
                 vao->render();
         });
 
-        pass->setOnEndRender([](program* program, framebuffer* framebuffer)
+        pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer)
         {
             program->unbind();
 

@@ -28,7 +28,7 @@ namespace phi
     private:
         program* _program;
         vector<vertexArrayObject*> _vaos;
-        vector<buffer*> _buffers;
+        //vector<buffer*> _buffers;
         framebuffer* _framebuffer;
         vector<renderPassIn*> _ins;
         vector<renderPassOut*> _outs;
@@ -51,7 +51,7 @@ namespace phi
         void setOnEndRender(std::function<void(program*, framebuffer*)> onRender) { _onEndRender = onRender; }
 
         void addVao(vertexArrayObject* vao) { _vaos.push_back(vao); }
-        void addBuffer(buffer* buffer) { _buffers.push_back(buffer); }
+        //void addBuffer(buffer* buffer) { _buffers.push_back(buffer); }
         void addIn(renderPassIn* in) { _ins.push_back(in); }
         void addOut(renderPassOut* out) { _outs.push_back(out); }
 

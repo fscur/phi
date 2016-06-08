@@ -40,15 +40,15 @@ namespace phi
         vector<vertexAttrib> _attribs;
 
     public:
-        vertexBuffer(const vector<vertexAttrib>& attribs) :
-            buffer(bufferTarget::array),
+        vertexBuffer(const string& name, const vector<vertexAttrib>& attribs) :
+            buffer(name, bufferTarget::array),
             _attribs(attribs)
         {
         }
 
         void initialize()
         {
-            glBindBuffer(target, id);
+            glBindBuffer(_target, _id);
             auto attribsCount = _attribs.size();
 
             for (GLuint i = 0; i < attribsCount; i++)
