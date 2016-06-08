@@ -10,8 +10,6 @@ namespace phi
     renderPass* glassyControlRenderPassConfigurator::configureNewGlassyControlRenderPass(
         glassyControlRendererDescriptor* rendererDescriptor,
         gl* gl,
-        float width,
-        float height,
         string shadersPath)
     {
         auto controlProgram = programBuilder::buildProgram(shadersPath, "control", "glassy");

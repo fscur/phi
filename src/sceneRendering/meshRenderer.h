@@ -3,6 +3,7 @@
 #include "sceneRenderingApi.h"
 
 #include <core\mesh.h>
+#include <core\resolution.h>
 
 #include <rendering\gl.h>
 #include <rendering\program.h>
@@ -29,10 +30,8 @@ namespace phi
         SCENE_RENDERING_API void render();
 
         vector<renderPassOut*> getOuts() const { return _renderPasses.back()->getOuts(); }
-
         vector<renderPass*> getRenderPasses() const { return _renderPasses; }
 
-        static SCENE_RENDERING_API vector<renderPass*> configure(gl* gl, float width, float height, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);
-
+        static SCENE_RENDERING_API vector<renderPass*> configure(gl* gl, resolution resolution, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);
     };
 }

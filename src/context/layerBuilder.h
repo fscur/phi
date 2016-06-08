@@ -14,8 +14,7 @@ namespace phi
     private:
         layer* _layer;
         gl* _gl;
-        float _width;
-        float _height;
+        resolution _resolution;
         string _resourcesPath;
 
         vector<renderPass*> _meshRenderPasses;
@@ -24,10 +23,10 @@ namespace phi
         vector<renderPass*> _textRenderPasses;
 
     private:
-        layerBuilder(layer* layer, gl* gl, float width, float height, string resourcesPath);
+        layerBuilder(layer* layer, gl* gl, resolution resolution, string resourcesPath);
 
     public:
-        CONTEXT_API static layerBuilder newLayer(camera* camera, gl* gl, float width, float height, string resourcesPath);
+        CONTEXT_API static layerBuilder newLayer(camera* camera, gl* gl, resolution resolution, string resourcesPath);
         CONTEXT_API layerBuilder withMeshRenderer();
         CONTEXT_API layerBuilder withControlRenderer();
         CONTEXT_API layerBuilder withGlassyControlRenderer();

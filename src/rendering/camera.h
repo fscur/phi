@@ -2,10 +2,10 @@
 #include <phi.h>
 #include "renderingApi.h"
 
+#include <core\resolution.h>
 #include <core\node.h>
 #include <core\component.h>
 #include <core\eventHandler.h>
-
 #include <core\ray.h>
 
 #undef near
@@ -19,13 +19,12 @@ namespace phi
         public component
     {
     private:
-        float _width;
-        float _height;
+        resolution _resolution;
         float _near;
         float _far;
         float _fov;
-        float _aspect;
         float _focus;
+
         mat4 _projectionMatrix;
         mat4 _viewMatrix;
         bool _changedProjection;
@@ -43,8 +42,7 @@ namespace phi
     public:
         RENDERING_API  camera(
             string name,
-            float width,
-            float height,
+            resolution resolution,
             float near,
             float far,
             float fov);
@@ -71,11 +69,9 @@ namespace phi
 
         float getNear() const { return _near; }
         float getFar() const { return _far; }
-        float getAspect() const { return _aspect; }
-        float getWidth() const { return _width; }
-        float getHeight() const { return _height; }
         float getFov() const { return _fov; }
         float getFocus() const { return _focus; }
+        resolution getResolution() const { return _resolution; }
 
         static componentType getComponentType() { return componentType::CAMERA; }
     };

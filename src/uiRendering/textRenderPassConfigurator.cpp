@@ -9,12 +9,9 @@ namespace phi
     {
     }
 
-    renderPass * textRenderPassConfigurator::configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl* gl, float width, float height, string shadersPath)
+    renderPass * textRenderPassConfigurator::configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl* gl, string shadersPath)
     {
         auto controlProgram = programBuilder::buildProgram(shadersPath, "text", "text");
-        //auto controlFrameBuffer = framebufferBuilder::newFramebuffer(gl, width, height)
-        //    .with(GL_COLOR_ATTACHMENT0, GL_RGBA8, GL_RGBA)
-        //    .build();
 
         auto defaultFrameBuffer = new framebuffer(true);
 

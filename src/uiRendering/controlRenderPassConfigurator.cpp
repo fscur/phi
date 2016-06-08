@@ -7,7 +7,7 @@
 
 namespace phi
 {
-    renderPass * controlRenderPassConfigurator::configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, gl* gl, float width, float height, string shadersPath)
+    renderPass * controlRenderPassConfigurator::configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, gl* gl, string shadersPath)
     {
         auto controlProgram = programBuilder::buildProgram(shadersPath, "control", "control");
 
