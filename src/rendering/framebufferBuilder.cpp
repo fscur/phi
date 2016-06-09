@@ -23,7 +23,7 @@ namespace phi
 
         auto textureAddress = texturesManager::get(texture);
         return new phi::renderTarget(
-            attachment.attachment,
+            attachment.name,
             static_cast<GLint>(_resolution.width),
             static_cast<GLint>(_resolution.height),
             textureAddress);
@@ -34,7 +34,7 @@ namespace phi
         return framebufferBuilder(new framebuffer(), resolution);
     }
 
-    framebufferBuilder framebufferBuilder::with(GLenum attachment, GLenum internalFormat, GLenum dataFormat)
+    framebufferBuilder framebufferBuilder::with(string renderTargetName, GLenum attachment, GLenum internalFormat, GLenum dataFormat)
     {
         textureLayout layout;
 
@@ -59,7 +59,7 @@ namespace phi
             _layouts[key] = layout;
         }
 
-        _attatchments.push_back(framebufferAttachment(attachment, layout));
+        _attatchments.push_back(framebufferAttachment(renderTargetName, attachment, layout));
 
         return *this;
     }
@@ -73,7 +73,7 @@ namespace phi
             reserveContainer(sizeui(width, height, pair.second), _layouts[pair.first]);
 
         for (auto& attachment : _attatchments)
-            _framebuffer->add(createRenderTarget(attachment));
+            _framebuffer->add(attachment.attachment, createRenderTarget(attachment));
 
         return _framebuffer;
     }

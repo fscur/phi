@@ -12,20 +12,21 @@ namespace phi
     renderPass* gBufferRenderPassConfigurator::configureNewGBuffer(meshRendererDescriptor* rendererDescriptor, resolution resolution, string shadersPath)
     {
         auto gBufferFrameBuffer = framebufferBuilder::newFramebuffer(resolution)
-            .with(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
-            .with(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
-            .with(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
-            .with(GL_COLOR_ATTACHMENT3, GL_RGBA8, GL_RGBA)
-            .with(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
+            .with("rt0", GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
+            .with("rt1", GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
+            .with("rt2", GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
+            .with("rt3", GL_COLOR_ATTACHMENT3, GL_RGBA8, GL_RGBA)
+            .with("depth", GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
             .build();
 
         auto program = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
         program->addBuffer(rendererDescriptor->_materialRenderDataBuffer);
 
         auto pass = new renderPass(program, gBufferFrameBuffer);
-        
-        for (auto renderTarget : gBufferFrameBuffer->getRenderTargets())
-            pass->addOut(new renderPassOut(renderTarget));
+        auto renderTargets = gBufferFrameBuffer->getRenderTargets();
+
+        for (auto renderTarget : renderTargets)
+            pass->addOut(renderTarget);
 
         rendererDescriptor->onBatchAdded->assign([=](batch* batch)
         {

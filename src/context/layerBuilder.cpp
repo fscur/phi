@@ -80,13 +80,13 @@ namespace phi
 
         if (_meshRenderPasses.size() > 0) //TODO:Fix this gambi
         {
-            auto rt = _meshRenderPasses.back()->getOuts()[0]->renderTarget;
+            auto rt = _meshRenderPasses.back()->getOuts().begin()->second;
             rendererDescriptor->updateGlassyUniformBlock(rt);
         }
 
         _layer->onInputChanged.assign([=] (layer* layer) //TODO:Fix this gambi
         {
-            auto rt = layer->getOuts()[0]->renderTarget;
+            auto rt = layer->getOuts().begin()->second;
             rendererDescriptor->updateGlassyUniformBlock(rt);
         });
 

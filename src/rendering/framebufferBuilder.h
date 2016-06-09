@@ -14,14 +14,19 @@ namespace phi
     private:
         struct framebufferAttachment
         {
-            framebufferAttachment(GLenum attachment, textureLayout layout) :
+            framebufferAttachment(
+                const string& name, 
+                GLenum attachment, 
+                const textureLayout& layout) :
+                name(name),
                 attachment(attachment),
                 layout(layout)
             {
             }
 
+            const string name;
             GLenum attachment;
-            textureLayout layout;
+            const textureLayout layout;
         };
 
     private:
@@ -40,7 +45,7 @@ namespace phi
 
     public:
         RENDERING_API static framebufferBuilder newFramebuffer(resolution resolution);
-        RENDERING_API framebufferBuilder with(GLenum attachment, GLenum internalFormat, GLenum dataFormat);
+        RENDERING_API framebufferBuilder with(string renderTargetName, GLenum attachment, GLenum internalFormat, GLenum dataFormat);
         RENDERING_API framebuffer* build();
     };
 }

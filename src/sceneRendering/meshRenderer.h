@@ -28,7 +28,7 @@ namespace phi
         SCENE_RENDERING_API ~meshRenderer();
         SCENE_RENDERING_API void render();
 
-        vector<renderPassOut*> getOuts() const { return _renderPasses.back()->getOuts(); }
+        unordered_map<string, renderTarget*> getOuts() const { return _renderPasses.back()->getOuts(); }
         vector<renderPass*> getRenderPasses() const { return _renderPasses; }
 
         static SCENE_RENDERING_API vector<renderPass*> configure(resolution resolution, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);

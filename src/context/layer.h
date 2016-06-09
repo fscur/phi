@@ -56,7 +56,7 @@ namespace phi
         CONTEXT_API void onKeyDown(keyboardEventArgs* e);
         CONTEXT_API void onKeyUp(keyboardEventArgs* e);
 
-        std::vector<renderPassOut*> getOuts() { return _renderPasses.back()->getOuts(); }
+        unordered_map<string, renderTarget*> getOuts() { return _renderPasses.back()->getOuts(); }
         camera* getCamera() { return _camera; }
     };
 }

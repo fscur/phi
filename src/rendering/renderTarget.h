@@ -7,18 +7,18 @@ namespace phi
     struct renderTarget
     {
         renderTarget(
-            GLenum attachment,
+            const string& name,
             GLint w, 
             GLint h,
-            textureAddress textureAddress) :
-            attachment(attachment),
+            const textureAddress& textureAddress) :
+            name(name),
             w(w),
             h(h),
             textureAddress(textureAddress)
         {
         }
 
-        GLenum attachment;
+        const string name;
         GLint w;
         GLint h;
         textureAddress textureAddress;

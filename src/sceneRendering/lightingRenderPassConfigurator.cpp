@@ -17,17 +17,23 @@ namespace phi
     {
         auto renderTargets = gBufferRenderPass->getOuts();
 
-        auto rtAddresses = new phi::renderTargetsAddresses();
-        rtAddresses->rt0Unit = renderTargets[0]->renderTarget->textureAddress.unit;
-        rtAddresses->rt1Unit = renderTargets[1]->renderTarget->textureAddress.unit;
-        rtAddresses->rt2Unit = renderTargets[2]->renderTarget->textureAddress.unit;
-        rtAddresses->rt3Unit = renderTargets[3]->renderTarget->textureAddress.unit;
-        rtAddresses->depthUnit = renderTargets[4]->renderTarget->textureAddress.unit;
-        rtAddresses->rt0Page = renderTargets[0]->renderTarget->textureAddress.page;
-        rtAddresses->rt1Page = renderTargets[1]->renderTarget->textureAddress.page;
-        rtAddresses->rt2Page = renderTargets[2]->renderTarget->textureAddress.page;
-        rtAddresses->rt3Page = renderTargets[3]->renderTarget->textureAddress.page;
-        rtAddresses->depthPage = renderTargets[4]->renderTarget->textureAddress.page;
+        auto rtAddresses = phi::renderTargetsAddresses();
+        auto rt0 = renderTargets["rt0"]->textureAddress;
+        auto rt1 = renderTargets["rt1"]->textureAddress;
+        auto rt2 = renderTargets["rt2"]->textureAddress;
+        auto rt3 = renderTargets["rt3"]->textureAddress;
+        auto depth = renderTargets["depth"]->textureAddress;
+
+        rtAddresses.rt0Unit = rt0.unit;
+        rtAddresses.rt0Page = rt0.page;
+        rtAddresses.rt1Unit = rt1.unit;
+        rtAddresses.rt1Page = rt1.page;
+        rtAddresses.rt2Unit = rt2.unit;
+        rtAddresses.rt2Page = rt2.page;
+        rtAddresses.rt3Unit = rt3.unit;
+        rtAddresses.rt3Page = rt3.page;
+        rtAddresses.depthUnit = depth.unit;
+        rtAddresses.depthPage = depth.page;
 
         auto layout = textureLayout();
         layout.dataFormat = GL_RGBA;
@@ -48,13 +54,13 @@ namespace phi
         auto finalImageTexAddress = texturesManager::get(finalImageTexture);
 
         auto finalImageRT = new renderTarget(
-            GL_COLOR_ATTACHMENT0,
+            "finalImageRenderTarget",
             static_cast<GLint>(resolution.width),
             static_cast<GLint>(resolution.height),
             finalImageTexAddress);
 
         auto finalImageFramebuffer = new framebuffer();
-        finalImageFramebuffer->add(finalImageRT);
+        finalImageFramebuffer->add(GL_COLOR_ATTACHMENT0, finalImageRT);
 
         auto quad = geometry::createQuad(2.0f);
         vector<vertexAttrib> attribs;
@@ -80,14 +86,14 @@ namespace phi
 
         rtsBuffer->storage(
             sizeof(renderTargetsAddresses),
-            &*rtAddresses,
+            &rtAddresses,
             bufferStorageUsage::write);
 
         auto program = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
         program->addBuffer(rtsBuffer);
 
         auto pass = new renderPass(program, finalImageFramebuffer);
-        pass->addOut(new renderPassOut(finalImageRT));
+        pass->addOut(finalImageRT);
         pass->addVao(quadVao);
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)

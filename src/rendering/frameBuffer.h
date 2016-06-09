@@ -15,7 +15,9 @@ namespace phi
         GLint _maxColorAttachments;
         GLint _currentAttachment;
         vector<GLenum> _drawBuffers;
+        unordered_map<const renderTarget*, GLenum> _renderTargetsAttachments;
         vector<renderTarget*> _renderTargets;
+
         bool _isDefaultFramebuffer;
 
         static framebuffer* _pickingFramebuffer;
@@ -29,7 +31,7 @@ namespace phi
         RENDERING_API framebuffer();
         RENDERING_API ~framebuffer();
 
-        RENDERING_API void add(renderTarget* renderTarget);
+        RENDERING_API void add(GLenum attachment, renderTarget* renderTarget);
         RENDERING_API vec4 readPixels(const renderTarget* const renderTarget, GLint x, GLint y, GLsizei w, GLsizei h);
         RENDERING_API void bind(GLenum target);
         RENDERING_API void bindForDrawing();

@@ -30,8 +30,8 @@ namespace phi
         vector<vertexArrayObject*> _vaos;
         //vector<buffer*> _buffers;
         framebuffer* _framebuffer;
-        vector<renderPassIn*> _ins;
-        vector<renderPassOut*> _outs;
+        unordered_map<string, renderTarget*> _ins;
+        unordered_map<string, renderTarget*> _outs;
 
         std::function<void(program*)> _onUpdate;
         std::function<void(program*, framebuffer*)> _onBeginRender;
@@ -52,10 +52,10 @@ namespace phi
 
         void addVao(vertexArrayObject* vao) { _vaos.push_back(vao); }
         //void addBuffer(buffer* buffer) { _buffers.push_back(buffer); }
-        void addIn(renderPassIn* in) { _ins.push_back(in); }
-        void addOut(renderPassOut* out) { _outs.push_back(out); }
+        void addIn(renderTarget* in) { _ins[in->name] = in; }
+        void addOut(renderTarget* out) { _outs[out->name] = out; }
 
-        vector<renderPassIn*> getIns() const { return _ins; }
-        vector<renderPassOut*> getOuts() const { return _outs; }
+        unordered_map<string, renderTarget*> getIns() const { return _ins; }
+        unordered_map<string, renderTarget*> getOuts() const { return _outs; }
     };
 }

@@ -34,25 +34,25 @@ namespace phi
             glDeleteFramebuffers(1, &_id);
     }
 
-    void framebuffer::add(renderTarget* renderTarget)
+    void framebuffer::add(GLenum attachment, renderTarget* renderTarget)
     {
         if (_isDefaultFramebuffer)
             throw argumentException("Trying to add renderTarget to default framebuffer !?");
 
+        _renderTargetsAttachments[renderTarget] = attachment;
         _renderTargets.push_back(renderTarget);
-        auto att = renderTarget->attachment;
 
-        if (!(att == GL_DEPTH_ATTACHMENT ||
-            att == GL_STENCIL_ATTACHMENT ||
-            att == GL_DEPTH_STENCIL_ATTACHMENT))
-            _drawBuffers.push_back(att);
+        if (!(attachment == GL_DEPTH_ATTACHMENT ||
+            attachment == GL_STENCIL_ATTACHMENT ||
+            attachment == GL_DEPTH_STENCIL_ATTACHMENT))
+            _drawBuffers.push_back(attachment);
 
         glBindFramebuffer(GL_FRAMEBUFFER, _id);
         
 
         glNamedFramebufferTextureLayer(
             _id,
-            att,
+            attachment,
             renderTarget->textureAddress.containerId,
             0,
             static_cast<GLint>(renderTarget->textureAddress.page));
@@ -122,7 +122,7 @@ namespace phi
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
         
 
-        glReadBuffer(sourceRenderTarget->attachment);
+        glReadBuffer(_renderTargetsAttachments[sourceRenderTarget]);
         
     }
 
@@ -199,12 +199,12 @@ namespace phi
         auto pickingTextureAddress = texturesManager::get(pickingTexture);
 
         auto pickingRenderTarget = new renderTarget(
-            GL_COLOR_ATTACHMENT0,
+            "pickingRenderTarget",
             static_cast<GLint>(resolution.width),
             static_cast<GLint>(resolution.height),
             pickingTextureAddress);
 
-        _pickingFramebuffer->add(pickingRenderTarget);
+        _pickingFramebuffer->add(GL_COLOR_ATTACHMENT0, pickingRenderTarget);
     }
 
     framebuffer* framebuffer::getPickingFramebuffer()
