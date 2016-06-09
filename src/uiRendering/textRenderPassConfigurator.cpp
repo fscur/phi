@@ -1,22 +1,17 @@
 #include <precompiled.h>
 #include "textRenderPassConfigurator.h"
 
+#include <rendering\texturesManager.h>
 #include <rendering\programBuilder.h>
 
 namespace phi
 {
-    textRenderPassConfigurator::textRenderPassConfigurator()
-    {
-    }
-
-    renderPass * textRenderPassConfigurator::configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl* gl, string shadersPath)
+    renderPass * textRenderPassConfigurator::configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, string shadersPath)
     {
         auto program = programBuilder::buildProgram(shadersPath, "text", "text");
         program->addBuffer(rendererDescriptor->_glyphRenderDataBuffer);
         
-        auto defaultFrameBuffer = new framebuffer(true);
-
-        auto pass = new renderPass(program, defaultFrameBuffer);
+        auto pass = new renderPass(program, framebuffer::defaultFramebuffer);
         pass->addVao(rendererDescriptor->_vao);
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
@@ -30,7 +25,11 @@ namespace phi
             glBlendColor(1, 1, 1, 1);
 
             program->bind();
-            program->setUniform(0, gl->texturesManager->units);
+
+            if (texturesManager::getIsBindless())//TODO: AAAAAAAAAAAAA ARRUMA LAMBDAS SOMETHING
+                program->setUniform(0, texturesManager::handles);
+            else
+                program->setUniform(0, texturesManager::units);
         });
 
         pass->setOnRender([](const vector<vertexArrayObject*>& vaos)

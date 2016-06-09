@@ -38,7 +38,6 @@ namespace phi
     {
         auto rendererDescriptor = new meshRendererDescriptor(_gl);
         _meshRenderPasses = phi::meshRenderer::configure(
-            _gl,
             _resolution,
             _resourcesPath,
             rendererDescriptor);
@@ -69,7 +68,6 @@ namespace phi
     {
         auto rendererDescriptor = new glassyControlRendererDescriptor(_gl, _resolution);
         _glassyControlRenderPasses = glassyControlRenderer::configure(
-            _gl,
             _resourcesPath,
             rendererDescriptor);
 
@@ -106,7 +104,7 @@ namespace phi
     layerBuilder layerBuilder::withControlRenderer()
     {
         auto rendererDescriptor = new controlRendererDescriptor(_gl);
-        _controlRenderPasses = controlRenderer::configure(_gl, _resourcesPath, rendererDescriptor);
+        _controlRenderPasses = controlRenderer::configure(_resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {
@@ -129,7 +127,7 @@ namespace phi
     layerBuilder layerBuilder::withTextRenderer()
     {
         auto rendererDescriptor = new textRendererDescriptor(_gl);
-        _textRenderPasses = phi::textRenderer::configure(_gl, _resourcesPath, rendererDescriptor);
+        _textRenderPasses = phi::textRenderer::configure(_resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
         {

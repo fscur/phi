@@ -26,7 +26,6 @@ namespace phi
 
     private:
         framebuffer* _framebuffer;
-        gl* _gl;
         resolution _resolution;
 
         map<std::tuple<GLenum, GLenum>, uint> _formats;
@@ -34,13 +33,13 @@ namespace phi
         vector<framebufferAttachment> _attatchments;
 
     private:
-        framebufferBuilder(framebuffer* framebuffer, gl* gl, resolution resolution);
+        framebufferBuilder(framebuffer* framebuffer, resolution resolution);
 
         textureContainer* reserveContainer(sizeui size, textureLayout layout);
         renderTarget* createRenderTarget(framebufferAttachment& attatchment);
 
     public:
-        RENDERING_API static framebufferBuilder newFramebuffer(gl* gl, resolution resolution);
+        RENDERING_API static framebufferBuilder newFramebuffer(resolution resolution);
         RENDERING_API framebufferBuilder with(GLenum attachment, GLenum internalFormat, GLenum dataFormat);
         RENDERING_API framebuffer* build();
     };

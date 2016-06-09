@@ -54,7 +54,7 @@ namespace phi
             _drawCmdBuffer->bind();
 
             glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, _objectsCount, 0);
-            glError::check();
+            
 
             _drawCmdBuffer->unbind();
         });

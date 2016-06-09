@@ -22,7 +22,7 @@ namespace phi
         _texturesAddresses(map<const texture*, phi::textureAddress>())
     {
         glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_id);
-        glError::check();
+        
 
         _unit = textureUnits::get();
 
@@ -35,7 +35,7 @@ namespace phi
     textureContainer::~textureContainer()
     {
         glDeleteTextures(1, &_id);
-        glError::check();
+        
 
         textureUnits::clear(_unit);
     }
@@ -171,10 +171,10 @@ namespace phi
     void textureContainer::onCreate()
     {
         glActiveTexture(GL_TEXTURE0 + _unit);
-        glError::check();
+        
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        glError::check();
+        
 
         glTextureStorage3D(_id,
             _layout.levels,
@@ -182,16 +182,16 @@ namespace phi
             _size.w,
             _size.h,
             static_cast<GLsizei>(_maxPages));
-        glError::check();
+        
 
         glTextureParameteri(_id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
-        glError::check();
+        
         glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
-        glError::check();
+        
         glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
-        glError::check();
+        
         glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
-        glError::check();
+        
     }
 
     void textureContainer::onLoadData(
@@ -201,10 +201,10 @@ namespace phi
         if (data != nullptr)
         {
             glActiveTexture(GL_TEXTURE0 + _unit);
-            glError::check();
+            
 
             glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-            glError::check();
+            
 
             glTextureSubImage3D(
                 _id,
@@ -219,10 +219,10 @@ namespace phi
                 _layout.dataType,
                 data);
 
-            glError::check();
+            
 
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-            glError::check();
+            
         }
     }
 
@@ -232,10 +232,10 @@ namespace phi
         const void* const data)
     {
         glActiveTexture(GL_TEXTURE0 + _unit);
-        glError::check();
+        
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        glError::check();
+        
 
         glTextureSubImage3D(
             _id,
@@ -250,10 +250,10 @@ namespace phi
             _layout.dataType,
             data);
 
-        glError::check();
+        
 
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        glError::check();
+        
     }
 
     bool textureContainer::add(

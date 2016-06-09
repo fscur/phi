@@ -13,8 +13,7 @@ namespace phi
         glassyControlRenderPassConfigurator();
     public:
         static renderPass* configureNewGlassyControlRenderPass(
-            glassyControlRendererDescriptor* rendererDescriptor, 
-            gl* gl,
+            glassyControlRendererDescriptor* rendererDescriptor,
             string shadersPath);
     };
 }

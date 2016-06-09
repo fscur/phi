@@ -1,24 +1,28 @@
 #pragma once
 #include <phi.h>
+
+#include <core\resolution.h>
+
+#ifdef _DEBUG
+#include <io/watcher.h>
+#endif
+
 #include <application\window.h>
 #include <application\commandsManager.h>
-#include <context\scene.h>
-
-#include "defaultCameraController.h"
-#include "library.h"
 
 #include <context\layer.h>
 #include <context\context.h>
 
-#ifdef _DEBUG
-#include <io/watcher.h>
-#endif 
+#include "defaultCameraController.h"
+#include "library.h"
+
 namespace demon
 {
     class screen :
         public phi::window
     {
     private:
+        phi::resolution _resolution;
         phi::gl* _gl;
         library* _userLibrary;
         library* _projectLibrary;

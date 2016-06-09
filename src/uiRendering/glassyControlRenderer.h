@@ -2,7 +2,6 @@
 #include <phi.h>
 #include "uiRenderingApi.h"
 
-#include <rendering\gl.h>
 #include <rendering\renderPass.h>
 
 #include "glassyControlRendererDescriptor.h"
@@ -22,7 +21,6 @@ namespace phi
         UI_RENDERING_API void render();
 
         UI_RENDERING_API static vector<renderPass*> configure(
-            gl* gl,
             const string& resourcesPath, 
             glassyControlRendererDescriptor* renderDescriptor);
     };

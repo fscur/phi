@@ -1,6 +1,9 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
+
+#include <core\resolution.h>
+
 #include "renderTarget.h"
 
 namespace phi
@@ -13,9 +16,17 @@ namespace phi
         GLint _currentAttachment;
         vector<GLenum> _drawBuffers;
         vector<renderTarget*> _renderTargets;
+        bool _isDefaultFramebuffer;
+
+        static framebuffer* _pickingFramebuffer;
+    public:
+        RENDERING_API static framebuffer* defaultFramebuffer;
+
+    private:
+        RENDERING_API framebuffer(bool isDefaultFramebuffer);
 
     public:
-        RENDERING_API framebuffer(bool isDefaultFramebuffer = false);
+        RENDERING_API framebuffer();
         RENDERING_API ~framebuffer();
 
         RENDERING_API void add(renderTarget* renderTarget);
@@ -35,5 +46,8 @@ namespace phi
 
         RENDERING_API GLfloat getZBufferValue(int x, int y);
         vector<renderTarget*> getRenderTargets() { return _renderTargets; }
+
+        RENDERING_API static void createPickingFramebuffer(const resolution& resolution);
+        RENDERING_API static framebuffer* getPickingFramebuffer();
     };
 }

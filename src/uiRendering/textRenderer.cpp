@@ -30,10 +30,10 @@ namespace phi
             renderPass->render();
     }
 
-    vector<renderPass*> textRenderer::configure(gl* gl, const string& resourcesPath, textRendererDescriptor* renderDescriptor)
+    vector<renderPass*> textRenderer::configure(const string& resourcesPath, textRendererDescriptor* renderDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto textRenderPass = textRenderPassConfigurator::configureNewTextRenderPass(renderDescriptor, gl, shadersPath);
+        auto textRenderPass = textRenderPassConfigurator::configureNewTextRenderPass(renderDescriptor, shadersPath);
         return { textRenderPass };
     }
 }

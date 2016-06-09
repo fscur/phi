@@ -10,7 +10,7 @@ namespace phi
         static GLint _maxTextureUnits;
 
     public:
-        static void init();
+        static void initialize();
         static GLint get();
         static void clear(GLint);
     };

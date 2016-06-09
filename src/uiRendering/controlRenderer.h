@@ -4,7 +4,6 @@
 
 #include <core\resolution.h>
 
-#include <rendering\gl.h>
 #include <rendering\renderPass.h>
 
 #include "controlRendererDescriptor.h"
@@ -23,6 +22,6 @@ namespace phi
         UI_RENDERING_API  ~controlRenderer();
         UI_RENDERING_API  void render();
 
-        UI_RENDERING_API static vector<renderPass*> configure(gl* gl, const string& resourcesPath, controlRendererDescriptor* renderDescriptor);
+        UI_RENDERING_API static vector<renderPass*> configure(const string& resourcesPath, controlRendererDescriptor* renderDescriptor);
     };
 }

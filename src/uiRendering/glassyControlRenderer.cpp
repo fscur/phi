@@ -30,14 +30,12 @@ namespace phi
     }
 
     vector<renderPass*> glassyControlRenderer::configure(
-        gl* gl,
         const string& resourcesPath, 
         glassyControlRendererDescriptor* renderDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
         auto glassyControlRenderPass = glassyControlRenderPassConfigurator::configureNewGlassyControlRenderPass(
-                renderDescriptor, 
-                gl,
+                renderDescriptor,
                 shadersPath);
 
         return { glassyControlRenderPass };

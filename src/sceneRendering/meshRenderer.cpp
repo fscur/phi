@@ -31,14 +31,13 @@ namespace phi
     }
 
     vector<renderPass*> meshRenderer::configure(
-        gl* gl,
         resolution resolution,
         const string& resourcesPath, 
         meshRendererDescriptor* rendererDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "/shaders");
-        auto gBufferRenderPass = gBufferRenderPassConfigurator::configureNewGBuffer(rendererDescriptor, gl, resolution, shadersPath);
-        auto lightingRenderPass = lightingRenderPassConfigurator::configureNewLighting(gBufferRenderPass, gl, resolution, shadersPath);
+        auto gBufferRenderPass = gBufferRenderPassConfigurator::configureNewGBuffer(rendererDescriptor, resolution, shadersPath);
+        auto lightingRenderPass = lightingRenderPassConfigurator::configureNewLighting(gBufferRenderPass, resolution, shadersPath);
 
         return { gBufferRenderPass, lightingRenderPass };
     }

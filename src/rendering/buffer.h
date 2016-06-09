@@ -79,37 +79,37 @@ namespace phi
         void bind()
         {
             glBindBuffer(_target, _id);
-            glError::check();
+            
         }
 
         void unbind()
         {
             glBindBuffer(_target, 0);
-            glError::check();
+            
         }
 
         void bindBufferBase(GLuint location)
         {
             glBindBufferBase(_target, location, _id);
-            glError::check();
+            
         }
 
         void storage(GLsizeiptr size, const void* const data, bufferStorageUsage::bufferStorageUsage usage)
         {
             glNamedBufferStorage(_id, size, data == nullptr ? NULL : data, usage);
-            glError::check();
+            
         }
 
         void data(GLsizeiptr size, const void* const data, bufferDataUsage::bufferDataUsage usage)
         {
             glNamedBufferData(_id, size, data == nullptr ? NULL : data, usage);
-            glError::check();
+            
         }
 
         void subData(GLintptr offset, GLintptr size, const void* const data)
         {
             glNamedBufferSubData(_id, offset, size, data);
-            glError::check();
+            
         }
 
         bufferTarget::bufferTarget getTarget() const { return _target; }

@@ -7,7 +7,7 @@ namespace phi
     map<GLint, bool> textureUnits::_units;
     GLint textureUnits::_maxTextureUnits = -1;
 
-    void textureUnits::init()
+    void textureUnits::initialize()
     {
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
 
@@ -26,7 +26,7 @@ namespace phi
             }
         }
 
-        throw invalidInitializationException("<rendering::textureUnits::get> textureUnits not initialized.");
+        throw invalidInitializationException("textureUnits not initialized.");
     }
 
     void textureUnits::clear(GLint unit)

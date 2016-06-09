@@ -5,23 +5,23 @@ namespace demon
 {
     using namespace phi;
 
-    addObjectCommand::addObjectCommand(scene* scene, node* const objectToAdd) :
-        _scene(scene),
-        _objectToAdd(objectToAdd)
-    {
-    }
+    //addObjectCommand::addObjectCommand(scene* scene, node* const objectToAdd) :
+    //    _scene(scene),
+    //    _objectToAdd(objectToAdd)
+    //{
+    //}
 
-    addObjectCommand::~addObjectCommand()
-    {
-    }
+    //addObjectCommand::~addObjectCommand()
+    //{
+    //}
 
-    void addObjectCommand::execute()
-    {
-        _scene->add(_objectToAdd);
-    }
+    //void addObjectCommand::execute()
+    //{
+    //    _scene->add(_objectToAdd);
+    //}
 
-    void addObjectCommand::executeUndo()
-    {
-        _scene->remove(_objectToAdd);
-    }
+    //void addObjectCommand::executeUndo()
+    //{
+    //    _scene->remove(_objectToAdd);
+    //}
 }

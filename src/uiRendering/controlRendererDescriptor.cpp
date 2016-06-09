@@ -68,7 +68,7 @@ namespace phi
     void controlRendererDescriptor::add(control* control)
     {
         auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
-        auto address = _gl->texturesManager->get(texture);
+        auto address = texturesManager::get(texture);
 
         auto renderData = controlRenderData();
         renderData.backgroundColor = control->getBackgroundColor();

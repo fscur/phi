@@ -5,6 +5,8 @@
 #include <core\geometry.h>
 #include <core\node.h>
 
+#include <rendering\texturesManager.h>
+
 namespace phi
 {
     glassyControlRendererDescriptor::glassyControlRendererDescriptor(gl * gl, resolution resolution) :
@@ -71,7 +73,7 @@ namespace phi
     void glassyControlRendererDescriptor::add(control* control)
     {
         auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
-        auto address = _gl->texturesManager->get(texture);
+        auto address = texturesManager::get(texture);
 
         auto renderData = controlRenderData();
         renderData.backgroundColor = control->getBackgroundColor();

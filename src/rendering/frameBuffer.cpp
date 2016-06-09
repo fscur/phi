@@ -1,38 +1,43 @@
-#include "precompiled.h"
+#include <precompiled.h>
 #include "framebuffer.h"
-#include "glError.h"
+
+#include "texturesManager.h"
 
 namespace phi
 {
+    framebuffer* framebuffer::defaultFramebuffer = new framebuffer(true);
+    framebuffer* framebuffer::_pickingFramebuffer = nullptr;
+
     framebuffer::framebuffer(bool isDefaultFramebuffer) :
         _id(0),
         _maxColorAttachments(0),
         _currentAttachment(0),
-        _drawBuffers(vector<GLenum>())
+        _drawBuffers(vector<GLenum>()),
+        _isDefaultFramebuffer(true)
     {
-        if (!isDefaultFramebuffer)
-        {
-            glCreateFramebuffers(1, &_id);
-            glError::check();
-        }
+    }
 
+    framebuffer::framebuffer() :
+        _id(0),
+        _maxColorAttachments(0),
+        _currentAttachment(0),
+        _drawBuffers(vector<GLenum>()),
+        _isDefaultFramebuffer(false)
+    {
+        glCreateFramebuffers(1, &_id);
         glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_maxColorAttachments);
-        glError::check();
     }
 
     framebuffer::~framebuffer()
     {
-        glDeleteFramebuffers(1, &_id);
-        glError::check();
+        if(!_isDefaultFramebuffer)
+            glDeleteFramebuffers(1, &_id);
     }
 
     void framebuffer::add(renderTarget* renderTarget)
     {
-        if (_id == 0)
-        {
-            phi::debug("trying to add render target to default framebuffer!?");
-            return;
-        }
+        if (_isDefaultFramebuffer)
+            throw argumentException("Trying to add renderTarget to default framebuffer !?");
 
         _renderTargets.push_back(renderTarget);
         auto att = renderTarget->attachment;
@@ -43,7 +48,7 @@ namespace phi
             _drawBuffers.push_back(att);
 
         glBindFramebuffer(GL_FRAMEBUFFER, _id);
-        glError::check();
+        
 
         glNamedFramebufferTextureLayer(
             _id,
@@ -51,10 +56,10 @@ namespace phi
             renderTarget->textureAddress.containerId,
             0,
             static_cast<GLint>(renderTarget->textureAddress.page));
-        glError::check();
+        
 
         auto status = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
-        glError::check();
+        
 
         switch (status)
         {
@@ -85,49 +90,46 @@ namespace phi
     void framebuffer::bind(GLenum target)
     {
         glBindFramebuffer(target, _id);
-        glError::check();
+        
     }
 
     void framebuffer::bindForDrawing()
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        glError::check();
-
-        if (_id != 0)
-        {
+        
+        
+        if(!_isDefaultFramebuffer)
             glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
-            glError::check();
-        }
     }
 
     void framebuffer::bindForDrawing(GLenum* buffers, GLsizei buffersCount)
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        glError::check();
+        
 
         glDrawBuffers(buffersCount, buffers);
-        glError::check();
+        
     }
 
     void framebuffer::bindForReading()
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-        glError::check();
+        
     }
 
     void framebuffer::bindForReading(const renderTarget* const sourceRenderTarget)
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-        glError::check();
+        
 
         glReadBuffer(sourceRenderTarget->attachment);
-        glError::check();
+        
     }
 
     void framebuffer::unbind(GLenum target)
     {
         glBindFramebuffer(target, 0);
-        glError::check();
+        
     }
 
     void framebuffer::blitToDefault(renderTarget * renderTarget, int x, int y, int w, int h)
@@ -161,7 +163,7 @@ namespace phi
             GL_COLOR_BUFFER_BIT,
             GL_LINEAR);
 
-        glError::check();
+        
     }
 
     GLfloat framebuffer::getZBufferValue(int x, int y)
@@ -169,8 +171,44 @@ namespace phi
         bindForReading();
         GLfloat zBufferValue;
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
-        glError::check();
+        
 
         return zBufferValue;
+    }
+
+    void framebuffer::createPickingFramebuffer(const resolution& resolution)
+    {
+        _pickingFramebuffer = new framebuffer();
+
+        auto layout = textureLayout();
+        layout.dataFormat = GL_RGBA;
+        layout.dataType = GL_UNSIGNED_BYTE;
+        layout.internalFormat = GL_RGBA8;
+        layout.wrapMode = GL_CLAMP_TO_EDGE;
+        layout.minFilter = GL_NEAREST;
+        layout.magFilter = GL_NEAREST;
+
+        auto pickingTexture = new phi::texture(
+            static_cast<uint>(resolution.width),
+            static_cast<uint>(resolution.height),
+            layout,
+            nullptr,
+            true,
+            false);
+
+        auto pickingTextureAddress = texturesManager::get(pickingTexture);
+
+        auto pickingRenderTarget = new renderTarget(
+            GL_COLOR_ATTACHMENT0,
+            static_cast<GLint>(resolution.width),
+            static_cast<GLint>(resolution.height),
+            pickingTextureAddress);
+
+        _pickingFramebuffer->add(pickingRenderTarget);
+    }
+
+    framebuffer* framebuffer::getPickingFramebuffer()
+    {
+        return _pickingFramebuffer;
     }
 }

@@ -5,7 +5,6 @@
 #include <core\mesh.h>
 #include <core\resolution.h>
 
-#include <rendering\gl.h>
 #include <rendering\program.h>
 #include <rendering\renderPass.h>
 #include <rendering\frameBuffer.h>
@@ -32,6 +31,6 @@ namespace phi
         vector<renderPassOut*> getOuts() const { return _renderPasses.back()->getOuts(); }
         vector<renderPass*> getRenderPasses() const { return _renderPasses; }
 
-        static SCENE_RENDERING_API vector<renderPass*> configure(gl* gl, resolution resolution, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);
+        static SCENE_RENDERING_API vector<renderPass*> configure(resolution resolution, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);
     };
 }

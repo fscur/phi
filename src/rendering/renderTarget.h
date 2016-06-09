@@ -1,36 +1,26 @@
 #pragma once
 #include <phi.h>
 #include "textureAddress.h"
-#include "texture.h"
 
 namespace phi
 {
-    class renderTarget
+    struct renderTarget
     {
-    public:
-        GLenum attachment;
-        GLint w;
-        GLint h;
-        phi::textureAddress textureAddress;
-        phi::texture* texture;
-    public:
         renderTarget(
             GLenum attachment,
             GLint w, 
             GLint h,
-            phi::textureAddress textureAddress,
-            phi::texture* texture) :
+            textureAddress textureAddress) :
             attachment(attachment),
             w(w),
             h(h),
-            textureAddress(textureAddress),
-            texture(texture)
+            textureAddress(textureAddress)
         {
         }
 
-        ~renderTarget()
-        {
-            safeDelete(texture);
-        }
+        GLenum attachment;
+        GLint w;
+        GLint h;
+        textureAddress textureAddress;
     };
 }

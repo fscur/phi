@@ -9,12 +9,12 @@ namespace phi
     class iMouseController
     {
     public:
-        virtual void onMouseDown(phi::mouseEventArgs* e) = 0;
-        virtual void onMouseMove(phi::mouseEventArgs* e) = 0;
-        virtual void onMouseUp(phi::mouseEventArgs* e) = 0;
-        virtual void onMouseWheel(phi::mouseEventArgs* e) = 0;
-        virtual void onKeyDown(phi::keyboardEventArgs* e) = 0;
-        virtual void onKeyUp(phi::keyboardEventArgs* e) = 0;
+        virtual void onMouseDown(mouseEventArgs* e) = 0;
+        virtual void onMouseMove(mouseEventArgs* e) = 0;
+        virtual void onMouseUp(mouseEventArgs* e) = 0;
+        virtual void onMouseWheel(mouseEventArgs* e) = 0;
+        virtual void onKeyDown(keyboardEventArgs* e) = 0;
+        virtual void onKeyUp(keyboardEventArgs* e) = 0;
         virtual void update() = 0;
     };
 }

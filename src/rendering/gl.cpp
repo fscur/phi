@@ -3,6 +3,7 @@
 
 #include <loader\importer.h>
 
+#include "texturesManager.h"
 #include "glDebugger.h"
 
 namespace phi
@@ -36,15 +37,15 @@ namespace phi
 
         initState();
 
-        texturesManager = new phi::texturesManager(hasBindlessTextures, hasSparseTextures);
-        fontsManager = new phi::fontsManager(info.fontsPath, texturesManager);
+        texturesManager::initialize(hasBindlessTextures, hasSparseTextures);
+        fontsManager = new phi::fontsManager(info.fontsPath);
 
         createDefaultResources(hasSparseTextures);
     }
 
     gl::~gl()
     {
-        safeDelete(texturesManager);
+        texturesManager::release();
         safeDelete(fontsManager);
         safeDelete(defaultAlbedoImage);
         safeDelete(defaultNormalImage);
@@ -85,34 +86,34 @@ namespace phi
     void gl::initState()
     {
         glClearColor(currentState.clearColor.r, currentState.clearColor.g, currentState.clearColor.b, currentState.clearColor.a);
-        glError::check();
+        
 
         if (currentState.culling)
         {
             glEnable(GL_CULL_FACE);
-            glError::check();
+            
         }
 
         glCullFace(currentState.cullFace);
-        glError::check();
+        
 
         glFrontFace(currentState.frontFace);
-        glError::check();
+        
 
         if (currentState.depthTest)
         {
             glEnable(GL_DEPTH_TEST);
-            glError::check();
+            
         }
 
         GLboolean depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
-        glError::check();
+        
 
         if (extensions[SWAP_CONTROL_EXTENSION])
         {
             wglSwapIntervalEXT(currentState.swapInterval);
-            glError::check();
+            
         }
     }
 

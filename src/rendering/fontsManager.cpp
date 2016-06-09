@@ -7,9 +7,8 @@ namespace phi
     FT_Library fontsManager::_freeTypeLibrary = nullptr;
     bool fontsManager::_initialized = false;
 
-    fontsManager::fontsManager(string path, texturesManager* texturesManager) :
+    fontsManager::fontsManager(string path) :
         _path(path),
-        _texturesManager(texturesManager),
         _fonts(map<std::tuple<string, uint>, font*>()),
         _maxGlyphAtlasSize(1024) //TODO: see what happens when there is no space in the container...
     {
@@ -50,7 +49,7 @@ namespace phi
         _glyphLayout.minFilter = GL_LINEAR;
         _glyphLayout.magFilter = GL_LINEAR;
 
-        _texturesManager->reserveContainer(sizeui(glyphAtlasSize, glyphAtlasSize, 1), _glyphLayout);
+        texturesManager::reserveContainer(sizeui(glyphAtlasSize, glyphAtlasSize, 1), _glyphLayout);
 
         auto inverseGlyphAtlasSize = 1.0f / static_cast<float>(glyphAtlasSize);
         _texelSize = vec2(inverseGlyphAtlasSize);
@@ -61,7 +60,7 @@ namespace phi
         auto glyph = font->getGlyph(glyphChar);
         auto glyphTexture = new texture(glyph->image, _glyphLayout, true, true);
 
-        textureAddress address = _texturesManager->get(glyphTexture);
+        textureAddress address = texturesManager::get(glyphTexture);
 
         glyph->texturePosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
         glyph->textureSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);

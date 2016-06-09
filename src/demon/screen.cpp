@@ -38,7 +38,8 @@ using namespace phi;
 namespace demon
 {
     screen::screen(string name, uint width, uint height) :
-        window(name, width, height)
+        window(name, width, height),
+        _resolution(static_cast<float>(width), static_cast<float>(height))
     {
     }
 
@@ -85,6 +86,7 @@ namespace demon
         info.shadersPath = application::resourcesPath + "/shaders";
         info.fontsPath = application::resourcesPath + "/fonts";
         _gl = new gl(info);
+        framebuffer::createPickingFramebuffer(_resolution);
 
         application::logInfo("Vendor: " + _gl->getVendor() + ".");
         application::logInfo("Renderer: " + _gl->getRenderer() + ".");
@@ -147,20 +149,19 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto resolution = phi::resolution(static_cast<float>(_width), static_cast<float>(_height));
-        auto sceneCamera = new camera("sceneCamera", resolution, 0.1f, 10000.0f, PI_OVER_4);
-        auto sceneLayer = layerBuilder::newLayer(sceneCamera, _gl, resolution, application::resourcesPath)
+        auto sceneCamera = new camera("sceneCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto sceneLayer = layerBuilder::newLayer(sceneCamera, _gl, _resolution, application::resourcesPath)
             .withMeshRenderer()
             .build();
 
-        auto constructionCamera = new camera("constructionCamera", resolution, 0.1f, 10000.0f, PI_OVER_4);
-        auto constructionLayer = layerBuilder::newLayer(constructionCamera, _gl, resolution, application::resourcesPath)
+        auto constructionCamera = new camera("constructionCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto constructionLayer = layerBuilder::newLayer(constructionCamera, _gl, _resolution, application::resourcesPath)
             .withControlRenderer()
             .withTextRenderer()
             .build();
 
-        auto nandinhoCamera = new camera("nandinhoCamera", resolution, 0.1f, 10000.0f, PI_OVER_4);
-        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, resolution, application::resourcesPath)
+        auto nandinhoCamera = new camera("nandinhoCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, _resolution, application::resourcesPath)
             .withGlassyControlRenderer()
             .withTextRenderer()
             .build();

@@ -56,21 +56,21 @@ namespace phi
                 auto location = _attribs[i].location;
 
                 glEnableVertexAttribArray(location);
-                glError::check();
+                
 
                 if (_attribs[i].type == GL_UNSIGNED_INT || _attribs[i].type == GL_INT)
                 {
                     glVertexAttribIPointer(location, _attribs[i].size, _attribs[i].type, _attribs[i].stride, _attribs[i].offset);
-                    glError::check();
+                    
                 }
                 else if (_attribs[i].type == GL_FLOAT)
                 {
                     glVertexAttribPointer(location, _attribs[i].size, _attribs[i].type, GL_FALSE, _attribs[i].stride, _attribs[i].offset);
-                    glError::check();
+                    
                 }
 
                 glVertexAttribDivisor(location, _attribs[i].divisor);
-                glError::check();
+                
             }
         }
     };

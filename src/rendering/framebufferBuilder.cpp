@@ -3,16 +3,15 @@
 
 namespace phi
 {
-    framebufferBuilder::framebufferBuilder(framebuffer * framebuffer, gl* gl, resolution resolution) :
+    framebufferBuilder::framebufferBuilder(framebuffer * framebuffer, resolution resolution) :
         _framebuffer(framebuffer),
-        _gl(gl),
         _resolution(resolution)
     {
     }
 
     textureContainer* framebufferBuilder::reserveContainer(sizeui size, textureLayout layout)
     {
-        return _gl->texturesManager->reserveContainer(size, layout);
+        return texturesManager::reserveContainer(size, layout);
     }
 
     renderTarget* framebufferBuilder::createRenderTarget(framebufferAttachment& attachment)
@@ -22,18 +21,17 @@ namespace phi
             static_cast<uint>(_resolution.height),
             attachment.layout);
 
-        auto textureAddress = _gl->texturesManager->get(texture);
+        auto textureAddress = texturesManager::get(texture);
         return new phi::renderTarget(
             attachment.attachment,
             static_cast<GLint>(_resolution.width),
             static_cast<GLint>(_resolution.height),
-            textureAddress,
-            texture);
+            textureAddress);
     }
 
-    framebufferBuilder framebufferBuilder::newFramebuffer(gl* gl, resolution resolution)
+    framebufferBuilder framebufferBuilder::newFramebuffer(resolution resolution)
     {
-        return framebufferBuilder(new framebuffer(), gl, resolution);
+        return framebufferBuilder(new framebuffer(), resolution);
     }
 
     framebufferBuilder framebufferBuilder::with(GLenum attachment, GLenum internalFormat, GLenum dataFormat)

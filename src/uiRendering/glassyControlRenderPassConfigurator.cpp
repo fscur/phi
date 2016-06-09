@@ -1,6 +1,7 @@
 #include <precompiled.h>
 #include "glassyControlRenderPassConfigurator.h"
 
+#include <rendering\texturesManager.h>
 #include <rendering\vertexArrayObject.h>
 #include <rendering\programBuilder.h>
 #include <rendering\framebufferBuilder.h>
@@ -9,16 +10,13 @@ namespace phi
 {
     renderPass* glassyControlRenderPassConfigurator::configureNewGlassyControlRenderPass(
         glassyControlRendererDescriptor* rendererDescriptor,
-        gl* gl,
         string shadersPath)
     {
-        auto defaultFrameBuffer = new framebuffer(true);
-        
         auto program = programBuilder::buildProgram(shadersPath, "control", "glassy");
         program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
         program->addBuffer(rendererDescriptor->_uniformBlockBuffer);
         
-        auto pass = new renderPass(program, defaultFrameBuffer);
+        auto pass = new renderPass(program, framebuffer::defaultFramebuffer);
         pass->addVao(rendererDescriptor->_vao);
         
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
@@ -32,7 +30,11 @@ namespace phi
             glBlendColor(1, 1, 1, 1);
 
             program->bind();
-            program->setUniform(0, gl->texturesManager->units);
+
+            if(texturesManager::getIsBindless())
+                program->setUniform(0, texturesManager::handles);
+            else
+                program->setUniform(0, texturesManager::units);
         });
 
         pass->setOnRender([](const vector<vertexArrayObject*>& vaos)

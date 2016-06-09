@@ -87,7 +87,6 @@ namespace phi
         material* createDefaultMaterial();
 
     public:
-        texturesManager* texturesManager;
         fontsManager* fontsManager;
         gl::state currentState;
         map<string, bool> extensions;

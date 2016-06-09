@@ -4,6 +4,7 @@
 #include <core\notImplementedException.h>
 #include <core\geometry.h>
 
+#include <rendering\texturesManager.h>
 #include <rendering\renderTargetsAddresses.h>
 #include <rendering\textureAddress.h>
 #include <rendering\vertexArrayObject.h>
@@ -12,12 +13,7 @@
 
 namespace phi
 {
-    lightingRenderPassConfigurator::lightingRenderPassConfigurator()
-    {
-        throw new notImplementedException();
-    }
-
-    renderPass* lightingRenderPassConfigurator::configureNewLighting(renderPass* gBufferRenderPass, gl* gl, resolution resolution, string& shadersPath)
+    renderPass* lightingRenderPassConfigurator::configureNewLighting(renderPass* gBufferRenderPass, resolution resolution, string& shadersPath)
     {
         auto renderTargets = gBufferRenderPass->getOuts();
 
@@ -49,14 +45,13 @@ namespace phi
             true,
             false);
 
-        auto finalImageTexAddress = gl->texturesManager->get(finalImageTexture);
+        auto finalImageTexAddress = texturesManager::get(finalImageTexture);
 
         auto finalImageRT = new renderTarget(
             GL_COLOR_ATTACHMENT0,
             static_cast<GLint>(resolution.width),
             static_cast<GLint>(resolution.height),
-            finalImageTexAddress,
-            finalImageTexture);
+            finalImageTexAddress);
 
         auto finalImageFramebuffer = new framebuffer();
         finalImageFramebuffer->add(finalImageRT);
@@ -78,7 +73,7 @@ namespace phi
         quadVao->setOnRender([]
         {
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            glError::check();
+            
         });
 
         auto rtsBuffer = new buffer("RenderTargetAddresses", bufferTarget::uniform);
@@ -104,10 +99,10 @@ namespace phi
 
             program->bind();
 
-            if (gl->currentState.useBindlessTextures)//TODO: AAAAAAAAAAAAA ARRUMA LAMBDAS SOMETHING
-                program->setUniform(0, gl->texturesManager->handles);
+            if (texturesManager::getIsBindless())//TODO: AAAAAAAAAAAAA ARRUMA LAMBDAS SOMETHING
+                program->setUniform(0, texturesManager::handles);
             else
-                program->setUniform(0, gl->texturesManager->units);
+                program->setUniform(0, texturesManager::units);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)

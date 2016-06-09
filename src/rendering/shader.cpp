@@ -48,7 +48,7 @@ namespace phi
     shader::~shader()
     {
         glDeleteShader(_id);
-        glError::check();
+        
     }
 
     shaderStage::shaderStage shader::getStage(const string& fileName)
@@ -110,10 +110,10 @@ namespace phi
         auto result = true;
         auto source = _content.c_str();
         glShaderSource(_id, 1, &source, 0);
-        glError::check();
+        
 
         glCompileShader(_id);
-        glError::check();
+        
 
 #if _DEBUG
         result = validate();
@@ -129,7 +129,7 @@ namespace phi
     {
         GLint success = 0;
         glGetShaderiv(_id, GL_COMPILE_STATUS, &success);
-        glError::check();
+        
 
         const unsigned int BUFFER_SIZE = 512;
         char buffer[BUFFER_SIZE];
@@ -137,7 +137,7 @@ namespace phi
         GLsizei length = 0;
 
         glGetShaderInfoLog(_id, BUFFER_SIZE, &length, buffer);
-        glError::check();
+        
 
         if (length > 0)
             std::cout << "shader " << _id << " (" << (!_fileName.empty() ? _fileName : "") << ") compile info:\n" << buffer << std::endl;

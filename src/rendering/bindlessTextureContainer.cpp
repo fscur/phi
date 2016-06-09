@@ -14,13 +14,13 @@ namespace phi
     bindlessTextureContainer::~bindlessTextureContainer()
     {
         glMakeTextureHandleNonResidentARB(_handle);
-        glError::check();
+        
     }
 
     void bindlessTextureContainer::onCreate()
     {
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        glError::check();
+        
 
         glTextureStorage3D(_id,
             _layout.levels,
@@ -28,21 +28,21 @@ namespace phi
             _size.w,
             _size.h,
             static_cast<GLsizei>(_maxPages));
-        glError::check();
+        
 
         glTextureParameteri(_id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
-        glError::check();
+        
         glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
-        glError::check();
+        
         glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
-        glError::check();
+        
         glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
-        glError::check();
+        
 
         _handle = glGetTextureHandleARB(_id);
-        glError::check();
+        
         glMakeTextureHandleResidentARB(_handle);
-        glError::check();
+        
     }
 
     void bindlessTextureContainer::onLoadData(
@@ -52,7 +52,7 @@ namespace phi
         if (data != nullptr)
         {
             glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-            glError::check();
+            
 
             glTextureSubImage3D(
                 _id,
@@ -66,10 +66,10 @@ namespace phi
                 _layout.dataFormat,
                 _layout.dataType,
                 data);
-            glError::check();
+            
 
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-            glError::check();
+            
         }
     }
 
@@ -79,7 +79,7 @@ namespace phi
         const void* const data)
     {
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        glError::check();
+        
 
         glTextureSubImage3D(
             _id,
@@ -94,9 +94,9 @@ namespace phi
             _layout.dataType,
             data);
 
-        glError::check();
+        
 
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        glError::check();
+        
     }
 }

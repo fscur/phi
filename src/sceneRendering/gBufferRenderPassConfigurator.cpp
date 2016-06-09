@@ -3,19 +3,15 @@
 
 #include <core\notImplementedException.h>
 
+#include <rendering\texturesManager.h>
 #include <rendering\programBuilder.h>
 #include <rendering\framebufferBuilder.h>
 
 namespace phi
 {
-    gBufferRenderPassConfigurator::gBufferRenderPassConfigurator()
+    renderPass* gBufferRenderPassConfigurator::configureNewGBuffer(meshRendererDescriptor* rendererDescriptor, resolution resolution, string shadersPath)
     {
-        throw new notImplementedException();
-    }
-
-    renderPass* gBufferRenderPassConfigurator::configureNewGBuffer(meshRendererDescriptor* rendererDescriptor, gl* gl, resolution resolution, string shadersPath)
-    {
-        auto gBufferFrameBuffer = framebufferBuilder::newFramebuffer(gl, resolution)
+        auto gBufferFrameBuffer = framebufferBuilder::newFramebuffer(resolution)
             .with(GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
             .with(GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
             .with(GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
@@ -31,7 +27,6 @@ namespace phi
         for (auto renderTarget : gBufferFrameBuffer->getRenderTargets())
             pass->addOut(new renderPassOut(renderTarget));
 
-
         rendererDescriptor->onBatchAdded->assign([=](batch* batch)
         {
             pass->addVao(batch->getVao());
@@ -45,20 +40,20 @@ namespace phi
             auto selectionClearColor = 0.0f;
 
             glDepthMask(GL_TRUE);
-            glError::check();
+            
             glEnable(GL_DEPTH_TEST);
-            glError::check();
+            
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glError::check();
+            
             glClearBufferfv(GL_COLOR, selectionRenderTargetNumber, &selectionClearColor);
-            glError::check();
+            
 
             program->bind();
 
-            if (gl->currentState.useBindlessTextures)
-                program->setUniform(0, gl->texturesManager->handles);
+            if (texturesManager::getIsBindless())
+                program->setUniform(0, texturesManager::handles);
             else
-                program->setUniform(0, gl->texturesManager->units);
+                program->setUniform(0, texturesManager::units);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
@@ -77,7 +72,7 @@ namespace phi
             auto h = static_cast<GLint>(resolution.height);
 
             glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-            glError::check();
+            
         });
 
         return pass;

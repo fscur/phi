@@ -1,4 +1,7 @@
 #include <precompiled.h>
+
+#include <core\invalidInitializationException.h>
+
 #include "texturesManager.h"
 #include "bindlessTextureContainer.h"
 #include "sparseTextureContainer.h"
@@ -7,35 +10,43 @@
 
 namespace phi
 {
-    bool texturesManager::_initialized = false;
-    map<image*, texture*> texturesManager::_imageTextures = map<image*, texture*>();
+    //TODO: calcular quanto de memoria tem disponivel na GPU
+    //TODO: verificar quando de memoria nosso gbuffer + shadow maps usam e ver quanto sobra pra texturas
+    //TODO: controlar a memoria da gpu usada
 
-    texturesManager::texturesManager(
-        bool bindless = false,
-        bool sparse = false) :
-        _bindless(bindless),
-        _sparse(sparse),
-        _maxPages(MAX_CONTAINER_PAGES)
+    bool texturesManager::_initialized = false;
+    map<image*, texture*> texturesManager::_imageTextures;
+
+    unordered_map<textureLayout, vector<textureContainer*>> texturesManager::_containers;
+    map<const texture*, textureAddress> texturesManager::_textures;
+
+    bool texturesManager::_isBindless = false;
+    bool texturesManager::_isSparse = false;
+    uint texturesManager::_maxPages = texturesManager::DEFAULT_MAX_PAGES;
+
+    vector<GLint> texturesManager::units;
+    vector<GLuint64> texturesManager::handles;
+
+    void texturesManager::initialize(bool sparse, bool bindless)
     {
-        assert(!_initialized);
+        if (_initialized)
+            throw invalidInitializationException("texturesManager is already initialized.");
+
         _initialized = true;
 
-        //TODO: calcular quanto de memoria tem disponivel na GPU
-        //TODO: verificar quando de memoria nosso gbuffer + shadow maps usam e ver quanto sobra pra texturas
-        //TODO: controlar a memoria da gpu usada
-
-        if (_sparse)
+        _isSparse = sparse;
+        _isBindless = bindless;
+        if (_isSparse)
         {
             GLint maxPages;
             glGetIntegerv(GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS, &maxPages);
-            phi::glError::check();
             _maxPages = static_cast<size_t>(maxPages);
         }
 
-        textureUnits::init();
+        textureUnits::initialize();
     }
 
-    texturesManager::~texturesManager()
+    void texturesManager::release()
     {
         for (auto& pair : _containers)
         {
@@ -87,25 +98,16 @@ namespace phi
             }
         }
 
-        if (_sparse && _bindless)
-            container = new sparseBindlessTextureContainer(containerSize, layout);
-        else if (_sparse)
-            container = new sparseTextureContainer(containerSize, layout);
-        else if (_bindless)
-            container = new bindlessTextureContainer(containerSize, layout);
-        else
-            container = new textureContainer(containerSize, layout);
-
+        container = createContainer(containerSize, layout);
         container->add(texture, textureAddress);
-        _containers[layout].push_back(container);
-        handles.push_back(container->getHandle());
-        units.push_back(container->getUnit());
-
         _textures[texture] = textureAddress;
     }
 
     textureAddress texturesManager::get(const texture* const texture)
     {
+        if (!_initialized)
+            throw invalidInitializationException("texturesManager not initialized.");
+
         if (!contains(texture))
             add(texture);
 
@@ -152,18 +154,15 @@ namespace phi
         return phi::contains(_textures, texture);
     }
 
-    textureContainer* texturesManager::reserveContainer(sizeui size, textureLayout layout)
+    textureContainer* texturesManager::createContainer(sizeui size, textureLayout layout)
     {
-        auto maxPages = std::min(_maxPages, size.d);
-        size.d = maxPages;
-
         textureContainer* container;
 
-        if (_sparse && _bindless)
+        if (_isSparse && _isBindless)
             container = new sparseBindlessTextureContainer(size, layout);
-        else if (_sparse)
+        else if (_isSparse)
             container = new sparseTextureContainer(size, layout);
-        else if (_bindless)
+        else if (_isBindless)
             container = new bindlessTextureContainer(size, layout);
         else
             container = new textureContainer(size, layout);
@@ -171,6 +170,18 @@ namespace phi
         _containers[layout].push_back(container);
         handles.push_back(container->getHandle());
         units.push_back(container->getUnit());
+
         return container;
+    }
+
+    textureContainer* texturesManager::reserveContainer(sizeui size, textureLayout layout)
+    {
+        if (!_initialized)
+            throw invalidInitializationException("texturesManager not initialized.");
+
+        auto maxPages = std::min(_maxPages, size.d);
+        size.d = maxPages;
+
+        return createContainer(size, layout);
     }
 }

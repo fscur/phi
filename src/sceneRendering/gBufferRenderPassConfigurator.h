@@ -11,9 +11,8 @@ namespace phi
 {
     class gBufferRenderPassConfigurator
     {
-    private:
-        gBufferRenderPassConfigurator();
     public:
-        static renderPass* configureNewGBuffer(meshRendererDescriptor* rendererDescriptor, gl* gl, resolution resolution, string shadersPath);
+        gBufferRenderPassConfigurator() = delete;
+        static renderPass* configureNewGBuffer(meshRendererDescriptor* rendererDescriptor, resolution resolution, string shadersPath);
     };
 }

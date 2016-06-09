@@ -9,9 +9,8 @@ namespace phi
 {
     class controlRenderPassConfigurator
     {
-    private:
-        controlRenderPassConfigurator();
     public:
-        static renderPass* configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, gl* gl, string shadersPath);
+        controlRenderPassConfigurator() = delete;
+        static renderPass* configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, string shadersPath);
     };
 }

@@ -12,9 +12,8 @@ namespace phi
 {
     class textRenderPassConfigurator
     {
-    private:
-        textRenderPassConfigurator();
     public:
-        static renderPass * configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, gl * gl, string shadersPath);
+        textRenderPassConfigurator() = delete;
+        static renderPass * configureNewTextRenderPass(textRendererDescriptor* rendererDescriptor, string shadersPath);
     };
 }
