@@ -4,7 +4,7 @@
 
 #include <core\node.h>
 
-#include <rendering\gl.h>
+#include <rendering\fontsManager.h>
 #include <rendering\font.h>
 
 namespace phi
@@ -28,6 +28,6 @@ namespace phi
         UI_API node* build();
 
     public:
-        UI_API static labelBuilder newLabel(wstring text, phi::gl* gl);
+        UI_API static labelBuilder newLabel(wstring text);
     };
 }

@@ -9,8 +9,7 @@
 
 namespace phi
 {
-    glassyControlRendererDescriptor::glassyControlRendererDescriptor(gl * gl, resolution resolution) :
-        _gl(gl),
+    glassyControlRendererDescriptor::glassyControlRendererDescriptor(resolution resolution) :
         _resolution(resolution)
     {
         createBuffers();
@@ -72,7 +71,7 @@ namespace phi
 
     void glassyControlRendererDescriptor::add(control* control)
     {
-        auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
+        auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage());
         auto address = texturesManager::get(texture);
 
         auto renderData = controlRenderData();

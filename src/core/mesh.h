@@ -13,10 +13,8 @@ namespace phi
     {
     private:
         int _id;
-
-    public:
-        geometry* geometry;
-        material* material;
+        geometry* _geometry;
+        material* _material;
 
     public:
         CORE_API mesh(string name, phi::geometry* geometry, phi::material* material);
@@ -28,6 +26,10 @@ namespace phi
         
         void setId(int id) { _id = id; }
         int getId() const { return _id; }
+
+        material* getMaterial() const { return _material; }
+        geometry* getGeometry() const { return _geometry; }
+
         static componentType getComponentType() { return componentType::MESH; }
     };
 }

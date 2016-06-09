@@ -21,22 +21,21 @@
 
 namespace phi
 {
-    layerBuilder::layerBuilder(layer* layer, gl* gl, resolution resolution, string resourcesPath) :
+    layerBuilder::layerBuilder(layer* layer, resolution resolution, string resourcesPath) :
         _layer(layer),
-        _gl(gl),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
     }
 
-    layerBuilder layerBuilder::newLayer(camera* camera, gl* gl, resolution resolution, string resourcesPath)
+    layerBuilder layerBuilder::newLayer(camera* camera, string resourcesPath)
     {
-        return layerBuilder(new layer(camera), gl, resolution, resourcesPath);
+        return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath);
     }
 
     layerBuilder layerBuilder::withMeshRenderer()
     {
-        auto rendererDescriptor = new meshRendererDescriptor(_gl);
+        auto rendererDescriptor = new meshRendererDescriptor();
         _meshRenderPasses = phi::meshRenderer::configure(
             _resolution,
             _resourcesPath,
@@ -66,7 +65,7 @@ namespace phi
 
     layerBuilder layerBuilder::withGlassyControlRenderer()
     {
-        auto rendererDescriptor = new glassyControlRendererDescriptor(_gl, _resolution);
+        auto rendererDescriptor = new glassyControlRendererDescriptor(_resolution);
         _glassyControlRenderPasses = glassyControlRenderer::configure(
             _resourcesPath,
             rendererDescriptor);
@@ -103,7 +102,7 @@ namespace phi
 
     layerBuilder layerBuilder::withControlRenderer()
     {
-        auto rendererDescriptor = new controlRendererDescriptor(_gl);
+        auto rendererDescriptor = new controlRendererDescriptor();
         _controlRenderPasses = controlRenderer::configure(_resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)
@@ -126,7 +125,7 @@ namespace phi
 
     layerBuilder layerBuilder::withTextRenderer()
     {
-        auto rendererDescriptor = new textRendererDescriptor(_gl);
+        auto rendererDescriptor = new textRendererDescriptor();
         _textRenderPasses = phi::textRenderer::configure(_resourcesPath, rendererDescriptor);
 
         _layer->addOnNodeAdded([=](node* node)

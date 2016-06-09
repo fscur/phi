@@ -82,20 +82,10 @@ namespace phi
     private:
         void initOpenGLExtensions();
         void initState();
-        void createDefaultResources(const bool& hasSparseTextures);
-        image* createDefaultMaterialImage(const bool& hasSparseTextures, const vec4& color);
-        material* createDefaultMaterial();
 
     public:
-        fontsManager* fontsManager;
         gl::state currentState;
         map<string, bool> extensions;
-        material* defaultMaterial;
-        image* defaultAlbedoImage;
-        image* defaultNormalImage;
-        image* defaultSpecularImage;
-        image* defaultEmissiveImage;
-        font* defaultFont;
 
     public:
         RENDERING_API gl(gl::glInfo initInfo);

@@ -33,7 +33,7 @@ namespace phi
         RENDERING_API static void initialize(bool sparse, bool bindless);
         RENDERING_API static void release();
         RENDERING_API static uint getMaxLevels(const uint& w, const uint& h);
-        RENDERING_API static texture* getTextureFromImage(image* image, phi::image* defaultImage = nullptr);
+        RENDERING_API static texture* getTextureFromImage(image* image);
         RENDERING_API static textureAddress get(const texture* const texture);
         RENDERING_API static textureContainer* reserveContainer(sizeui size, textureLayout layout);
         RENDERING_API static bool getIsBindless() { return _isBindless; }

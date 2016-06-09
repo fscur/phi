@@ -35,7 +35,7 @@ namespace phi
         return _label;
     }
 
-    labelBuilder phi::labelBuilder::newLabel(wstring text, gl* gl)
+    labelBuilder phi::labelBuilder::newLabel(wstring text)
     {
         auto node = new phi::node("label");
         auto control = new phi::control("labelControl");
@@ -44,7 +44,7 @@ namespace phi
         node->addComponent(label);
 
         label->setControl(control);
-        label->setFont(gl->defaultFont);
+        label->setFont(fontsManager::defaultFont);
         label->setText(text);
 
         //TODO: this event should be unassigned.

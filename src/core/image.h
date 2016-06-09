@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include "coreApi.h"
 
 namespace phi
 {
@@ -26,6 +27,13 @@ namespace phi
 
     struct image
     {
+    public:
+        CORE_API static image* defaultAlbedoImage;
+        CORE_API static image* defaultNormalImage;
+        CORE_API static image* defaultSpecularImage;
+        CORE_API static image* defaultEmissiveImage;
+
+    public:
         uint w;
         uint h;
         imageDataFormat::imageDataFormat dataFormat;
@@ -50,5 +58,8 @@ namespace phi
         {
             safeDeleteArray(data);
         }
+
+    private:
+        static image* image::createDefaultImage(const vec4 & color);
     };
 }

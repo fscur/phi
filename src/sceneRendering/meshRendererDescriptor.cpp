@@ -6,8 +6,7 @@
 
 namespace phi
 {
-    meshRendererDescriptor::meshRendererDescriptor(gl* gl) :
-        _gl(gl),
+    meshRendererDescriptor::meshRendererDescriptor() :
         onBatchAdded(new eventHandler<batch*>())
     {
         createBuffers();
@@ -40,10 +39,10 @@ namespace phi
 
         _materialsIndices[material] = currentId++;
 
-        auto albedoTexture = texturesManager::getTextureFromImage(material->albedoImage, _gl->defaultAlbedoImage);
-        auto normalTexture = texturesManager::getTextureFromImage(material->normalImage, _gl->defaultNormalImage);
-        auto specularTexture = texturesManager::getTextureFromImage(material->specularImage, _gl->defaultSpecularImage);
-        auto emissiveTexture = texturesManager::getTextureFromImage(material->emissiveImage, _gl->defaultEmissiveImage);
+        auto albedoTexture = texturesManager::getTextureFromImage(material->albedoImage);
+        auto normalTexture = texturesManager::getTextureFromImage(material->normalImage);
+        auto specularTexture = texturesManager::getTextureFromImage(material->specularImage);
+        auto emissiveTexture = texturesManager::getTextureFromImage(material->emissiveImage);
 
         auto albedoTextureAddress = texturesManager::get(albedoTexture);
         auto normalTextureAddress = texturesManager::get(normalTexture);
@@ -63,15 +62,12 @@ namespace phi
 
     void meshRendererDescriptor::add(mesh * mesh)
     {
-        if (mesh->material == nullptr)
-            mesh->material = _gl->defaultMaterial;
-
-        uploadMaterialIfNew(mesh->material);
+        uploadMaterialIfNew(mesh->getMaterial());
 
         renderInstance instance;
         instance.mesh = mesh;
         instance.modelMatrix = mesh->getNode()->getTransform()->getModelMatrix();
-        instance.materialId = _materialsIndices[instance.mesh->material];
+        instance.materialId = _materialsIndices[instance.mesh->getMaterial()];
 
         auto i = 0u;
         auto added = false;

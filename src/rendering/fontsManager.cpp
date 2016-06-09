@@ -5,13 +5,20 @@
 namespace phi
 {
     FT_Library fontsManager::_freeTypeLibrary = nullptr;
+    font* fontsManager::defaultFont = nullptr;
     bool fontsManager::_initialized = false;
+    string fontsManager::_path = "";
+    textureLayout fontsManager::_glyphLayout;
+    vec2 fontsManager::_texelSize;
+    map<std::tuple<string, uint>, font*> fontsManager::_fonts;
 
-    fontsManager::fontsManager(string path) :
-        _path(path),
-        _fonts(map<std::tuple<string, uint>, font*>()),
-        _maxGlyphAtlasSize(1024) //TODO: see what happens when there is no space in the container...
+    //TODO: see what happens when there is no space in the container...
+    GLint fontsManager::_maxGlyphAtlasSize = 1024;
+
+    void fontsManager::initialize(string path)
     {
+        _path = path;
+
         assert(!_initialized);
 
         if (!_initialized)
@@ -21,10 +28,11 @@ namespace phi
             font::FreeTypeLibrary = _freeTypeLibrary;
         }
 
+        defaultFont = load("Consolas.ttf", 14);
         createGlyphLayout();
     }
 
-    fontsManager::~fontsManager()
+    void fontsManager::release()
     {
         for (auto pair : _fonts)
             safeDelete(pair.second);

@@ -14,8 +14,6 @@ namespace phi
     class meshRendererDescriptor
     {
     private:
-        gl* _gl;
-
         unordered_map<mesh*, batch*> _meshesBatches;
         unordered_map<material*, uint> _materialsIndices;
 
@@ -31,7 +29,7 @@ namespace phi
         void uploadMaterialIfNew(material * material);
 
     public:
-        SCENE_RENDERING_API meshRendererDescriptor(gl* gl);
+        SCENE_RENDERING_API meshRendererDescriptor();
         SCENE_RENDERING_API ~meshRendererDescriptor();
 
         SCENE_RENDERING_API void add(mesh* mesh);

@@ -7,8 +7,7 @@
 
 namespace phi
 {
-    controlRendererDescriptor::controlRendererDescriptor(gl * gl) :
-        _gl(gl)
+    controlRendererDescriptor::controlRendererDescriptor()
     {
         createBuffers();
     }
@@ -67,7 +66,7 @@ namespace phi
 
     void controlRendererDescriptor::add(control* control)
     {
-        auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage(), _gl->defaultAlbedoImage);
+        auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage());
         auto address = texturesManager::get(texture);
 
         auto renderData = controlRenderData();

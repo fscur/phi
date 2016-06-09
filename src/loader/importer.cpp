@@ -21,7 +21,6 @@ namespace phi
         const resourcesRepository<material>* materialsRepo,
         const resourcesRepository<geometry>* geometriesRepo)
     {
-
         string nodeName;
 
         if (jsonNode.HasMember("Name"))
@@ -55,9 +54,11 @@ namespace phi
                 auto matRes = materialsRepo->getResource(materialGuid);
 
                 material* mat = nullptr;
-
+                
                 if (matRes != nullptr)
                     mat = matRes->getOriginalObject();
+                else
+                    mat = material::defaultMaterial;
 
                 component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
                 break;
@@ -273,18 +274,26 @@ namespace phi
         image* albedoImage = nullptr;
         if (albedoImageResource)
             albedoImage = albedoImageResource->getOriginalObject();
+        else
+            albedoImage = image::defaultAlbedoImage;
 
         image* normalImage = nullptr;
         if (normalImageResource)
             normalImage = normalImageResource->getOriginalObject();
+        else
+            normalImage = image::defaultNormalImage;
 
         image* specularImage = nullptr;
         if (specularImageResource)
             specularImage = specularImageResource->getOriginalObject();
+        else
+            specularImage = image::defaultSpecularImage;
 
         image* emissiveImage = nullptr;
         if (emissiveImageResource)
             emissiveImage = emissiveImageResource->getOriginalObject();
+        else
+            emissiveImage = image::defaultEmissiveImage;
 
         auto materialName = path::getFileNameWithoutExtension(fileName);
         auto mat = new material(

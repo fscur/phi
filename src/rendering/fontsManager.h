@@ -10,24 +10,25 @@ namespace phi
 {
     class fontsManager
     {
+    public:
+        RENDERING_API static font* defaultFont;
+
     private:
         static FT_Library _freeTypeLibrary;
         static bool _initialized;
+        static string _path;
+        static map<std::tuple<string, uint>, font*> _fonts;
+        static GLint _maxGlyphAtlasSize;
+        static textureLayout _glyphLayout;
+        static vec2 _texelSize;
 
     private:
-        string _path;
-        map<std::tuple<string, uint>, font*> _fonts;
-        GLint _maxGlyphAtlasSize;
-        textureLayout _glyphLayout;
-        vec2 _texelSize;
-
-    private:
-        void createGlyphLayout();
+        static void createGlyphLayout();
 
     public:
-        RENDERING_API fontsManager(string path);
-        RENDERING_API ~fontsManager();
-        RENDERING_API font* load(string name, uint size);
-        RENDERING_API glyph* getGlyph(font* const font, const ulong& glyphChar);
+        RENDERING_API static void initialize(string path);
+        RENDERING_API static void release();
+        RENDERING_API static font* load(string name, uint size);
+        RENDERING_API static glyph* getGlyph(font* const font, const ulong& glyphChar);
     };
 }

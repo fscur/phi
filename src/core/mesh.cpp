@@ -7,8 +7,8 @@ namespace phi
         component(componentType::MESH, name),
 
         _id(-1),
-        geometry(geometry),
-        material(material)
+        _geometry(geometry),
+        _material(material)
     {
     }
 
@@ -19,8 +19,8 @@ namespace phi
     mesh::mesh(const mesh& mesh) :
         component(componentType::MESH, mesh._name),
         _id(-1),
-        geometry(mesh.geometry),
-        material(mesh.material)
+        _geometry(mesh._geometry),
+        _material(mesh._material)
     {
     }
 

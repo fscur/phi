@@ -114,31 +114,31 @@ namespace demon
 
     void screen::initUi()
     {
-        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 8);
-        auto fontFps = _gl->fontsManager->load("Roboto-Thin.ttf", 12);
+        auto font = fontsManager::load("Roboto-Thin.ttf", 8);
+        auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
-        auto labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1", _gl)
+        auto labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1")
             .withPosition(vec3(-100.f, 0.f, 0.f))
             .withControlColor(.4f, .7f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
-        _labelFps = labelBuilder::newLabel(L"press ctrl + space to change context bro \\m/", _gl)
+        _labelFps = labelBuilder::newLabel(L"press ctrl + space to change context bro \\m/")
             .withPosition(vec3(-200.f, 100.f, 0.f))
             .withControlColor(.7f, .5f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(fontFps)
             .build();
 
-        auto constructionLabel = labelBuilder::newLabel(L"construction layer says hello!1", _gl)
+        auto constructionLabel = labelBuilder::newLabel(L"construction layer says hello!1")
             .withPosition(vec3(-200.f, 100.f, 0.f))
             .withControlColor(.9f, .6f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
-        auto sceneLabel = labelBuilder::newLabel(L"o", _gl)
+        auto sceneLabel = labelBuilder::newLabel(L"o")
             .withPosition(vec3(0.f, 0.f, 0.f))
             .withControlColor(.9f, .6f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
@@ -150,18 +150,18 @@ namespace demon
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
         auto sceneCamera = new camera("sceneCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
-        auto sceneLayer = layerBuilder::newLayer(sceneCamera, _gl, _resolution, application::resourcesPath)
+        auto sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath)
             .withMeshRenderer()
             .build();
 
         auto constructionCamera = new camera("constructionCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
-        auto constructionLayer = layerBuilder::newLayer(constructionCamera, _gl, _resolution, application::resourcesPath)
+        auto constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath)
             .withControlRenderer()
             .withTextRenderer()
             .build();
 
         auto nandinhoCamera = new camera("nandinhoCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
-        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, _gl, _resolution, application::resourcesPath)
+        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath)
             .withGlassyControlRenderer()
             .withTextRenderer()
             .build();

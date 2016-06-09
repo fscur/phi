@@ -1,11 +1,15 @@
 #pragma once
 #include <phi.h>
+#include "coreApi.h"
 #include "image.h"
 
 namespace phi
 {
     struct material
     {
+    public:
+        CORE_API static material* defaultMaterial;
+
     public:
         image* albedoImage;
         image* normalImage;
@@ -44,5 +48,8 @@ namespace phi
             emission(emission),
             opacity(1.0f)
         {}
+
+    private: 
+        static material* createDefaultMaterial();
     };
 }

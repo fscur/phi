@@ -114,39 +114,38 @@ namespace phi
         return _textures[texture];
     }
 
-    texture* texturesManager::getTextureFromImage(image* materialImage, phi::image* defaultImage)
+    texture* texturesManager::getTextureFromImage(phi::image* image)
     {
+        if (!image)
+            throw argumentException("image cant be nullptr.");
+
         phi::texture* texture = nullptr;
 
-        if (materialImage == nullptr)
-            materialImage = defaultImage;
-
-        if (_imageTextures.find(materialImage) != _imageTextures.end())
+        if (_imageTextures.find(image) != _imageTextures.end())
         {
-            texture = _imageTextures[materialImage];
+            return _imageTextures[image];
         }
         else
         {
             auto layout = textureLayout();
             layout.levels = 0;
-            layout.dataFormat = textureLayout::translateDataFormat(materialImage->dataFormat);
-            layout.dataType = textureLayout::translateDataType(materialImage->dataType);
+            layout.dataFormat = textureLayout::translateDataFormat(image->dataFormat);
+            layout.dataType = textureLayout::translateDataType(image->dataType);
             layout.internalFormat = GL_RGBA8;
             layout.wrapMode = GL_REPEAT;
             layout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
             layout.magFilter = GL_LINEAR;
 
             texture = new phi::texture(
-                materialImage,
+                image,
                 layout,
                 true,
                 false,
                 GL_TEXTURE_2D);
 
-            _imageTextures[materialImage] = texture;
+            _imageTextures[image] = texture;
+            return texture;
         }
-
-        return texture;
     }
 
     bool texturesManager::contains(const texture* const texture)

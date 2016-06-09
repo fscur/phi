@@ -62,7 +62,7 @@ namespace phi
 
     void batch::createVao(const renderInstance& instance)
     {
-        auto geometry = instance.mesh->geometry;
+        auto geometry = instance.mesh->getGeometry();
         createVbo(geometry->vboData, geometry->vboSize);
         createEbo(geometry->eboData, geometry->eboSize);
         createSelectionColorBuffer(nullptr, sizeof(uint));
@@ -145,7 +145,7 @@ namespace phi
 
     void batch::addNewGeometry(const renderInstance& instance)
     {
-        auto geometry = instance.mesh->geometry;
+        auto geometry = instance.mesh->getGeometry();
         auto vboSize = geometry->vboSize;
         auto eboSize = geometry->eboSize;
 
@@ -155,7 +155,7 @@ namespace phi
         _ebo->subData(_eboOffset, eboSize, geometry->eboData);
         _eboOffset += eboSize;
 
-        _geometries.push_back(instance.mesh->geometry);
+        _geometries.push_back(instance.mesh->getGeometry());
 
         ++_objectsCount;
         _freeSpace -= std::max(geometry->vboSize, geometry->eboSize);
@@ -163,7 +163,7 @@ namespace phi
 
     void batch::addNewInstance(const renderInstance& instance)
     {
-        auto geometry = instance.mesh->geometry;
+        auto geometry = instance.mesh->getGeometry();
         auto drawInstance = new drawInstanceData(0, instance.modelMatrix, instance.materialId);
 
         _instances[geometry].push_back(drawInstance);
@@ -227,7 +227,7 @@ namespace phi
 
     bool batch::add(const renderInstance& instance)
     {
-        auto geometry = instance.mesh->geometry;
+        auto geometry = instance.mesh->getGeometry();
         auto vboSize = geometry->vboSize;
         auto eboSize = geometry->eboSize;
 
@@ -260,10 +260,11 @@ namespace phi
     void batch::remove(mesh* mesh)
     {
         auto instance = _meshInstances[mesh];
-        phi::removeIfContains(_instances[mesh->geometry], instance);
+        auto geometry = mesh->getGeometry();
+        phi::removeIfContains(_instances[geometry], instance);
         
-        if (_instances[mesh->geometry].size() == 0)
-            _instances.erase(mesh->geometry);
+        if (_instances[geometry].size() == 0)
+            _instances.erase(geometry);
 
         _instancesMesh.erase(instance);
         _meshInstances.erase(mesh);

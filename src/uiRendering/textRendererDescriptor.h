@@ -31,7 +31,6 @@ namespace phi
         };
 
     private:
-        gl* _gl;
         GLsizei _glyphCount;
         unordered_map<text*, textInstance*> _instances;
 
@@ -46,7 +45,7 @@ namespace phi
         textInstance* buildTextInstance(text* text);
 
     public:
-        UI_RENDERING_API textRendererDescriptor(gl* gl);
+        UI_RENDERING_API textRendererDescriptor();
         UI_RENDERING_API ~textRendererDescriptor();
 
         UI_RENDERING_API void add(text* text);

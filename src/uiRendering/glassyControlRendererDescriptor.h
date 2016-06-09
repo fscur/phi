@@ -37,7 +37,6 @@ namespace phi
         };
 
     private:
-        gl* _gl;
         resolution _resolution;
         unordered_map<control*, controlInstance*> _instances;
 
@@ -54,12 +53,12 @@ namespace phi
         void createBuffers();
 
     public:
-        UI_RENDERING_API glassyControlRendererDescriptor(gl* gl, resolution resolution);
+        UI_RENDERING_API glassyControlRendererDescriptor(resolution resolution);
         UI_RENDERING_API ~glassyControlRendererDescriptor();
 
         UI_RENDERING_API void add(control* control);
         UI_RENDERING_API void remove(control* control);
         UI_RENDERING_API void update(control* control);
-        UI_RENDERING_API void updateGlassyUniformBlock(renderTarget * renderTarget);
+        UI_RENDERING_API void updateGlassyUniformBlock(renderTarget* renderTarget);
     };
 }

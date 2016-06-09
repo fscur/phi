@@ -91,10 +91,10 @@ namespace phi
                 auto albedoColor = color::fromHSL(hue, 0.83333f, 0.6667f);
 
                 auto material = new phi::material(
-                    nullptr,
-                    nullptr,
-                    nullptr,
-                    nullptr,
+                    image::defaultAlbedoImage,
+                    image::defaultNormalImage,
+                    image::defaultSpecularImage,
+                    image::defaultEmissiveImage,
                     vec3(albedoColor.r, albedoColor.g, albedoColor.b));
 
                 materials.push_back(material);

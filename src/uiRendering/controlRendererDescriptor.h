@@ -23,7 +23,6 @@ namespace phi
         };
 
     private:
-        gl* _gl;
         unordered_map<control*, controlInstance*> _instances;
 
         vector<mat4> _modelMatrices;
@@ -38,7 +37,7 @@ namespace phi
         void createBuffers();
 
     public:
-        UI_RENDERING_API controlRendererDescriptor(gl* gl);
+        UI_RENDERING_API controlRendererDescriptor();
         UI_RENDERING_API ~controlRendererDescriptor();
 
         UI_RENDERING_API void add(control* control);

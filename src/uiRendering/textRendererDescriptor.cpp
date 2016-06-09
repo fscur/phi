@@ -7,8 +7,7 @@
 
 namespace phi
 {
-    textRendererDescriptor::textRendererDescriptor(gl* gl) :
-        _gl(gl),
+    textRendererDescriptor::textRendererDescriptor() :
         _glyphCount(0)
     {
         createBuffers();
@@ -105,12 +104,12 @@ namespace phi
         glyph* previousGlyph = nullptr;
         auto textLength = textString.length();
 
-        auto glyph = _gl->fontsManager->getGlyph(font, (ulong)textString[0]);
+        auto glyph = fontsManager::getGlyph(font, (ulong)textString[0]);
         x -= glyph->offsetX;
 
         for (auto i = 0; i < textLength; i++)
         {
-            glyph = _gl->fontsManager->getGlyph(font, (ulong)textString[i]);
+            glyph = fontsManager::getGlyph(font, (ulong)textString[i]);
             auto kern = font->getKerning(previousGlyph, glyph);
             auto w = glyph->width;
             auto h = glyph->height;
