@@ -15,9 +15,12 @@ namespace phi
             .with("rt0", GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
             .with("rt1", GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
             .with("rt2", GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
-            .with("rt3", GL_COLOR_ATTACHMENT3, GL_RGBA8, GL_RGBA)
             .with("depth", GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
             .build();
+
+        auto pickingFramebuffer = framebuffer::getPickingFramebuffer();
+        auto pickingRenderTarget = pickingFramebuffer->getRenderTarget("pickingRenderTarget");
+        gBufferFrameBuffer->add(GL_COLOR_ATTACHMENT3, pickingRenderTarget);
 
         auto program = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
         program->addBuffer(rendererDescriptor->_materialRenderDataBuffer);
@@ -41,13 +44,9 @@ namespace phi
             auto selectionClearColor = 0.0f;
 
             glDepthMask(GL_TRUE);
-            
             glEnable(GL_DEPTH_TEST);
-            
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
             glClearBufferfv(GL_COLOR, selectionRenderTargetNumber, &selectionClearColor);
-            
 
             program->bind();
 

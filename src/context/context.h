@@ -2,6 +2,7 @@
 #include <phi.h>
 #include "contextApi.h"
 
+#include <core\resolution.h>
 #include <core\keyboardEventArgs.h>
 #include <core\mouseEventArgs.h>
 
@@ -13,13 +14,14 @@ namespace phi
     {
     private:
         phi::vector<layer*> _layers;
+        resolution _resolution;
 
     private:
         void setLayersInputs();
 
     public:
-        CONTEXT_API context(phi::vector<layer*>& layers);
-        CONTEXT_API context(phi::vector<layer*>&& layers);
+        CONTEXT_API context(resolution& resolution, phi::vector<layer*>& layers);
+        CONTEXT_API context(resolution& resolution, phi::vector<layer*>&& layers);
         CONTEXT_API ~context();
 
         CONTEXT_API void update();

@@ -166,8 +166,8 @@ namespace demon
             .withTextRenderer()
             .build();
 
-        _designContext = new context({ sceneLayer, nandinhoLayer });
-        _constructionContext = new context({ sceneLayer, constructionLayer });
+        _designContext = new context(_resolution, { sceneLayer, nandinhoLayer });
+        _constructionContext = new context(_resolution, { sceneLayer, constructionLayer });
 
         sceneLayer->add(floor);
         sceneLayer->add(chair);

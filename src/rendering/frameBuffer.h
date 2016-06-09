@@ -21,6 +21,7 @@ namespace phi
         bool _isDefaultFramebuffer;
 
         static framebuffer* _pickingFramebuffer;
+        static renderTarget* _pickingRenderTarget;
     public:
         RENDERING_API static framebuffer* defaultFramebuffer;
 
@@ -46,10 +47,12 @@ namespace phi
             framebuffer* targetFramebuffer,
             renderTarget* targetRenderTarget);
 
+        RENDERING_API renderTarget* getRenderTarget(string name);
         RENDERING_API GLfloat getZBufferValue(int x, int y);
         vector<renderTarget*> getRenderTargets() { return _renderTargets; }
 
         RENDERING_API static void createPickingFramebuffer(const resolution& resolution);
         RENDERING_API static framebuffer* getPickingFramebuffer();
+        RENDERING_API static renderTarget* getPickingRenderTarget();
     };
 }

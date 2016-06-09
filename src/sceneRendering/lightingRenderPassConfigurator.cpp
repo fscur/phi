@@ -21,7 +21,7 @@ namespace phi
         auto rt0 = renderTargets["rt0"]->textureAddress;
         auto rt1 = renderTargets["rt1"]->textureAddress;
         auto rt2 = renderTargets["rt2"]->textureAddress;
-        auto rt3 = renderTargets["rt3"]->textureAddress;
+        auto rt3 = renderTargets["pickingRenderTarget"]->textureAddress;
         auto depth = renderTargets["depth"]->textureAddress;
 
         rtAddresses.rt0Unit = rt0.unit;

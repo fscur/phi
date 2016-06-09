@@ -1,12 +1,15 @@
 #include <precompiled.h>
 #include "framebuffer.h"
 
+#include <core\invalidInitializationException.h>
+
 #include "texturesManager.h"
 
 namespace phi
 {
     framebuffer* framebuffer::defaultFramebuffer = new framebuffer(true);
     framebuffer* framebuffer::_pickingFramebuffer = nullptr;
+    renderTarget* framebuffer::_pickingRenderTarget = nullptr;
 
     framebuffer::framebuffer(bool isDefaultFramebuffer) :
         _id(0),
@@ -166,6 +169,17 @@ namespace phi
         
     }
 
+    renderTarget* framebuffer::getRenderTarget(string name)
+    {
+        for (auto& renderTarget : _renderTargets)
+        {
+            if (renderTarget->name == name)
+                return renderTarget;
+        }
+
+        throw exception("renderTarget "+ name +" not found.");
+    }
+
     GLfloat framebuffer::getZBufferValue(int x, int y)
     {
         bindForReading();
@@ -198,17 +212,28 @@ namespace phi
 
         auto pickingTextureAddress = texturesManager::get(pickingTexture);
 
-        auto pickingRenderTarget = new renderTarget(
+        _pickingRenderTarget = new renderTarget(
             "pickingRenderTarget",
             static_cast<GLint>(resolution.width),
             static_cast<GLint>(resolution.height),
             pickingTextureAddress);
 
-        _pickingFramebuffer->add(GL_COLOR_ATTACHMENT0, pickingRenderTarget);
+        _pickingFramebuffer->add(GL_COLOR_ATTACHMENT0, _pickingRenderTarget);
     }
 
     framebuffer* framebuffer::getPickingFramebuffer()
     {
+        if (!_pickingFramebuffer)
+            throw invalidInitializationException("pickingFramebuffer was not initialized!");
+
         return _pickingFramebuffer;
+    }
+
+    renderTarget* framebuffer::getPickingRenderTarget()
+    {
+        if (!_pickingRenderTarget)
+            throw invalidInitializationException("pickingFramebuffer was not initialized!");
+
+        return _pickingRenderTarget;
     }
 }

@@ -1,18 +1,24 @@
 #include <precompiled.h>
 #include "context.h"
 
+#include <core\mesh.h>
+
+#include "sceneId.h"
+
 namespace phi
 {
     using namespace phi;
 
-    context::context(vector<layer*>& layers) :
-        _layers(layers)
+    context::context(resolution& resolution, vector<layer*>& layers) :
+        _layers(layers),
+        _resolution(resolution)
     {
         setLayersInputs();
     }
 
-    context::context(vector<layer*>&& layers) :
-        _layers(layers)
+    context::context(resolution& resolution, vector<layer*>&& layers) :
+        _layers(layers),
+        _resolution(resolution)
     {
         setLayersInputs();
     }
@@ -55,6 +61,30 @@ namespace phi
 
     void context::onMouseDown(mouseEventArgs* e)
     {
+        if (e->leftButtonPressed)
+        {
+            auto x = static_cast<GLint>(e->x);
+            auto y = static_cast<GLint>(_resolution.height - e->y);
+
+            auto pickingFramebuffer = framebuffer::getPickingFramebuffer();
+            auto pickingRenderTarget = framebuffer::getPickingRenderTarget();
+            auto pixels = pickingFramebuffer->readPixels(pickingRenderTarget, x, y, 1, 1);
+
+            auto r = static_cast<int>(pixels.r);
+            auto g = static_cast<int>(pixels.g) << 8;
+            auto b = static_cast<int>(pixels.b) << 16;
+
+            auto id = r | g | b;
+
+            mesh* mesh = nullptr;
+            if (id)
+            {
+                mesh = sceneId::getMesh(id);
+                if (mesh)
+                    debug(mesh->getName());
+            }
+        }
+
         for (auto& layer : _layers)
             layer->onMouseDown(e);
     }
