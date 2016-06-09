@@ -3,7 +3,6 @@
 
 #include <core\resolution.h>
 
-#include <rendering\gl.h>
 #include <rendering\renderPass.h>
 
 #include "textRendererDescriptor.h"

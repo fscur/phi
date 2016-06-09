@@ -1,6 +1,5 @@
 #include <precompiled.h>
 #include "textureContainer.h"
-#include "glError.h"
 #include "textureUnits.h"
 
 namespace phi

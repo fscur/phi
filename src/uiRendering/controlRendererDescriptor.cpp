@@ -4,6 +4,7 @@
 #include <core\notImplementedException.h>
 #include <core\geometry.h>
 #include <core\node.h>
+#include <rendering\texturesManager.h>
 
 namespace phi
 {

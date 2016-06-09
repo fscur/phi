@@ -2,7 +2,6 @@
 #include "batch.h"
 
 #include <rendering\drawElementsIndirectCmd.h>
-#include <rendering\gl.h>
 
 namespace phi
 {

@@ -2,7 +2,6 @@
 #include <phi.h>
 #include "renderingApi.h"
 #include "textureContainer.h"
-#include "glError.h"
 
 namespace phi
 {

@@ -2,8 +2,6 @@
 #include <core\invalidInitializationException.h>
 
 #include "program.h"
-#include "glError.h"
-#include "glslCompiler.h"
 
 namespace phi
 {

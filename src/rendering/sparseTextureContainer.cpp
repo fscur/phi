@@ -1,6 +1,5 @@
 #include <precompiled.h>
 #include "sparseTextureContainer.h"
-#include "glError.h"
 
 namespace phi
 {

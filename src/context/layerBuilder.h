@@ -2,7 +2,6 @@
 #include <phi.h>
 #include "contextApi.h"
 
-#include <rendering\gl.h>
 #include <rendering\program.h>
 
 #include "layer.h"

@@ -4,6 +4,7 @@
 #include <core\node.h>
 #include <core\geometry.h>
 #include <core\notImplementedException.h>
+#include <rendering\fontsManager.h>
 
 namespace phi
 {

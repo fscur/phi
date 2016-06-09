@@ -1,6 +1,5 @@
 #include <precompiled.h>
 #include "bindlessTextureContainer.h"
-#include "glError.h"
 
 namespace phi
 {

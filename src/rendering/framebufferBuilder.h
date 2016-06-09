@@ -1,10 +1,10 @@
 #pragma once
 #include <phi.h>
-#include "renderingApi.h"
-
+#include <core\size.h>
 #include <core\resolution.h>
 
-#include "gl.h"
+#include "renderingApi.h"
+#include "texturesManager.h"
 #include "framebuffer.h"
 
 namespace phi

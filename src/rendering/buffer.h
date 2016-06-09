@@ -1,8 +1,6 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-#include "gl.h"
-#include "glError.h"
 
 namespace phi
 {

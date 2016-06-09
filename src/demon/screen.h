@@ -13,6 +13,8 @@
 #include <context\layer.h>
 #include <context\context.h>
 
+#include <rendering\gl.h>
+
 #include "defaultCameraController.h"
 #include "library.h"
 

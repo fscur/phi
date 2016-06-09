@@ -1,7 +1,5 @@
 #include <precompiled.h>
 #include "shader.h"
-#include "glError.h"
-#include "glslCompiler.h"
 
 namespace phi
 {

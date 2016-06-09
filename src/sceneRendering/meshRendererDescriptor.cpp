@@ -1,8 +1,9 @@
 #include <precompiled.h>
-#include "meshRendererDescriptor.h"
-
 #include <core\node.h>
 #include <core\notImplementedException.h>
+#include <rendering\texturesManager.h>
+
+#include "meshRendererDescriptor.h"
 
 namespace phi
 {
