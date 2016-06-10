@@ -63,7 +63,6 @@ namespace phi
 
             onInput();
             onUpdate();
-            onClear();
             onRender();
             onSwapbuffers();
             gl::SyncPipeline();
@@ -106,11 +105,6 @@ namespace phi
     void application::onInit()
     {
         _window->init();
-    }
-
-    void application::onClear()
-    {
-        _window->clear();
     }
 
     void application::onRender()

@@ -41,7 +41,6 @@ namespace phi
 
     private:
         void onInit();
-        void onClear();
         void onRender();
         void onInput();
         void onUpdate();

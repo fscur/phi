@@ -37,9 +37,8 @@ using namespace phi;
 
 namespace demon
 {
-    screen::screen(string name, uint width, uint height) :
-        window(name, width, height),
-        _resolution(static_cast<float>(width), static_cast<float>(height))
+    screen::screen(wstring title, resolution resolution) :
+        window(title, resolution)
     {
     }
 
@@ -300,5 +299,10 @@ namespace demon
         safeDelete(_watcher);
         safeDelete(_messageQueue);
 #endif 
+    }
+
+    void screen::onResize(phi::resolution resolution)
+    {
+        debug(resolution.toString());
     }
 }

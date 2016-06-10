@@ -24,7 +24,6 @@ namespace demon
         public phi::window
     {
     private:
-        phi::resolution _resolution;
         phi::gl* _gl;
         library* _userLibrary;
         library* _projectLibrary;
@@ -39,6 +38,7 @@ namespace demon
         phi::watcher* _watcher;
         phi::blockingQueue<phi::watcherMessage>* _messageQueue;
 #endif
+
     private:
         void initGL();
         void initLibraries();
@@ -54,7 +54,7 @@ namespace demon
         void onKeyUp(phi::keyboardEventArgs* e);
 
     public:
-        screen(phi::string name, phi::uint witdh, phi::uint height);
+        screen(phi::wstring title, phi::resolution resolution);
         ~screen(void);
 
         void onInit() override;
@@ -62,5 +62,6 @@ namespace demon
         void onUpdate() override;
         void onRender() override;
         void onTick() override;
+        void onResize(phi::resolution resolution) override;
     };
 }
