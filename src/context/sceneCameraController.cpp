@@ -247,7 +247,7 @@ namespace phi
 
         auto y = static_cast<int>(_camera->getResolution().height) - mouseY;
         auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(mouseX, y);
-        debug(zBufferValue);
+
         if (zBufferValue == 1.0f)
             _panEyeZ = 20.0f;
         else

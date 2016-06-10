@@ -83,7 +83,6 @@ namespace phi
                 if (mesh)
                 {
                     mesh->getNode()->setIsSelected(true);
-                    debug(mesh->getName());
                 }
             }
         }

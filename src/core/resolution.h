@@ -11,10 +11,10 @@ namespace phi
         {
         }
 
-        float getAspect() { return width / height; }
-        vec2 toVec2() { return vec2(width, height); }
-        
-        string toString() 
+        float getAspect() const { return width / height; }
+        vec2 toVec2() const { return vec2(width, height); }
+
+        string toString() const
         { 
             return "resolution (" + std::to_string(width) + "; " + std::to_string(height) + ")";
         }
