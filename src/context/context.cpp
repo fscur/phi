@@ -81,7 +81,10 @@ namespace phi
             {
                 mesh = sceneId::getMesh(id);
                 if (mesh)
+                {
+                    mesh->getNode()->setIsSelected(true);
                     debug(mesh->getName());
+                }
             }
         }
 

@@ -108,10 +108,8 @@ namespace phi
         auto result = true;
         auto source = _content.c_str();
         glShaderSource(_id, 1, &source, 0);
-        
 
         glCompileShader(_id);
-        
 
 #if _DEBUG
         result = validate();

@@ -171,7 +171,8 @@ namespace demon
 
         sceneLayer->add(floor);
         sceneLayer->add(chair);
-        sceneLayer->add(sceneLabel);
+        //sceneLayer->add(sceneLabel);
+        //TODO: prevent components that are not dealt with it 
 
         constructionLayer->add(constructionLabel);
 

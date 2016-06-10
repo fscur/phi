@@ -11,8 +11,8 @@ namespace phi
         {
         }
 
-        float getAspect() { return width / height; }
-        vec2 toVec2() { return vec2(width, height); }
+        float getAspect() const { return width / height; }
+        vec2 toVec2() const { return vec2(width, height); }
 
         float width;
         float height;

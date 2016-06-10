@@ -51,6 +51,14 @@ namespace phi
             }
         });
 
+        _layer->addOnNodeSelectionChanged([=](node* node)
+        {
+            auto isSelected = node->getIsSelected();
+            auto mesh = node->getComponent<phi::mesh>();
+            if (mesh)
+                rendererDescriptor->updateSelectionBuffer(mesh, isSelected);
+        });
+
         _layer->addOnUpdate([=] {});
 
         for (auto& renderPass : _meshRenderPasses)
@@ -84,7 +92,7 @@ namespace phi
             rendererDescriptor->updateGlassyUniformBlock(rt);
         }
 
-        _layer->onInputChanged.assign([=] (layer* layer) //TODO:Fix this gambi
+        _layer->onInputChanged.assign([=](layer* layer) //TODO:Fix this gambi
         {
             auto rt = layer->getOuts().begin()->second;
             rendererDescriptor->updateGlassyUniformBlock(rt);

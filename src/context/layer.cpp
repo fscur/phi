@@ -10,6 +10,7 @@ namespace phi
         _root(new node("root"))
     {
         initialize();
+        trackNode(_root);
     }
 
     layer::~layer()
@@ -54,20 +55,71 @@ namespace phi
         _onNodeAdded.push_back(onNodeAdded);
     }
 
+    void layer::addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged)
+    {
+        _onNodeSelectionChanded.push_back(onNodeSelectionChanged);
+    }
+
     void layer::addMouseController(iMouseController* controller)
     {
         _controllers.push_back(controller);
     }
 
+    //TODO: keep a list of dirty nodes to prevent traversing and some hard to fix buggy bugs
+    //TODO: after this fix, grouping should work correctly
+    //TODO: nodes pointer should be deleted on deleteSceneObjectCommand
+    void layer::trackNode(node* node)
+    {
+        auto childAddedToken = node->childAdded.assign(std::bind(&layer::nodeChildAdded, this, std::placeholders::_1));
+        auto childRemovedToken = node->childRemoved.assign(std::bind(&layer::nodeChildRemoved, this, std::placeholders::_1));
+        auto transformChangedToken = node->transformChanged.assign(std::bind(&layer::nodeTransformChanged, this, std::placeholders::_1));
+        auto selectionChangedToken = node->selectionChanged.assign(std::bind(&layer::nodeSelectionChanged, this, std::placeholders::_1));
+
+        _nodeTokens[node] = new nodeEventTokens(
+            childAddedToken,
+            childRemovedToken,
+            transformChangedToken,
+            selectionChangedToken);
+    }
+
+    void layer::untrackNode(node* node)
+    {
+        node->childAdded.unassign(_nodeTokens[node]->childAdded);
+        node->childRemoved.unassign(_nodeTokens[node]->childRemoved);
+        node->transformChanged.unassign(_nodeTokens[node]->transformChanged);
+        node->selectionChanged.unassign(_nodeTokens[node]->selectionChanged);
+
+        safeDelete(_nodeTokens[node]);
+        _nodeTokens.erase(node);
+    }
+
+    void layer::nodeChildAdded(node* addedChild)
+    {
+        addedChild->traverse([&](phi::node* node)
+        {
+            trackNode(node);
+            for (auto onNodeAddedFunction : _onNodeAdded)
+                onNodeAddedFunction(node); //TODO: do with events
+        });
+    }
+
+    void layer::nodeChildRemoved(node* removedChild)
+    {
+    }
+
+    void layer::nodeTransformChanged(node* changedNode)
+    {
+    }
+
+    void layer::nodeSelectionChanged(node* node)
+    {
+        for (auto& onNodeSelectionChanged : _onNodeSelectionChanded)
+            onNodeSelectionChanged(node);
+    }
+
     void layer::add(node* node)
     {
         _root->addChild(node);
-
-        node->traverse([&](phi::node* currentNode)
-        {
-            for (auto onNodeAddedFunction : _onNodeAdded)
-                onNodeAddedFunction(currentNode); //TODO: do with events
-        });
     }
 
     void layer::update()

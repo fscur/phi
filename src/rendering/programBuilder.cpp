@@ -2,6 +2,7 @@
 #include "programBuilder.h"
 
 #include <io\path.h>
+#include <io\directoryInfo.h>
 
 #include <rendering\liveShaderReloader.h>
 #include <rendering\glslCompiler.h>
@@ -17,6 +18,8 @@ namespace phi
     {
         auto vertexShaderFileName = path::combine(shadersPath, vertexShaderName, shader::VERT_EXT);
         auto fragmentShaderFileName = path::combine(shadersPath, fragmentShaderName, shader::FRAG_EXT);
+
+        //TODO: check if file exists
 
         auto newShader = [&](string fileName)
         {

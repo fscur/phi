@@ -23,7 +23,6 @@ namespace phi
         float _near;
         float _far;
         float _fov;
-        float _focus;
 
         mat4 _projectionMatrix;
         mat4 _viewMatrix;
@@ -70,7 +69,6 @@ namespace phi
         float getNear() const { return _near; }
         float getFar() const { return _far; }
         float getFov() const { return _fov; }
-        float getFocus() const { return _focus; }
         resolution getResolution() const { return _resolution; }
 
         static componentType getComponentType() { return componentType::CAMERA; }

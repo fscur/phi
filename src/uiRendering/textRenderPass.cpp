@@ -1,24 +1,19 @@
 #include <precompiled.h>
-#include "glassyControlRenderPassConfigurator.h"
+#include "textRenderPass.h"
 
 #include <rendering\texturesManager.h>
-#include <rendering\vertexArrayObject.h>
 #include <rendering\programBuilder.h>
-#include <rendering\framebufferBuilder.h>
 
 namespace phi
 {
-    renderPass* glassyControlRenderPassConfigurator::configureNewGlassyControlRenderPass(
-        glassyControlRendererDescriptor* rendererDescriptor,
-        string shadersPath)
+    renderPass * textRenderPass::configure(textRendererDescriptor* rendererDescriptor, const string& shadersPath)
     {
-        auto program = programBuilder::buildProgram(shadersPath, "control", "glassy");
-        program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
-        program->addBuffer(rendererDescriptor->_uniformBlockBuffer);
+        auto program = programBuilder::buildProgram(shadersPath, "text", "text");
+        program->addBuffer(rendererDescriptor->_glyphRenderDataBuffer);
         
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer);
         pass->addVao(rendererDescriptor->_vao);
-        
+
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
         {
             framebuffer->bindForDrawing();
@@ -31,7 +26,7 @@ namespace phi
 
             program->bind();
 
-            if(texturesManager::getIsBindless())
+            if (texturesManager::getIsBindless())//TODO: AAAAAAAAAAAAA ARRUMA LAMBDAS SOMETHING
                 program->setUniform(0, texturesManager::handles);
             else
                 program->setUniform(0, texturesManager::units);

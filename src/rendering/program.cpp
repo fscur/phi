@@ -18,12 +18,10 @@ namespace phi
         for (auto shader : _shaders)
         {
             glDetachShader(_id, shader->getId());
-            
             shader->getOnIsDirtyChanged()->unassign(_dirtyShadersTokens[shader]);
         }
 
         glDeleteProgram(_id);
-        
     }
 
     void program::addShader(shader * shader)
@@ -40,7 +38,6 @@ namespace phi
 #endif
 
         glAttachShader(_id, shader->getId());
-        
     }
 
     void program::addBuffer(buffer* buffer)
@@ -66,85 +63,71 @@ namespace phi
     void program::setUniform(uint location, GLuint value)
     {
         glUniform1i(location, value);
-        
     }
 
     void program::setUniform(uint location, GLfloat value)
     {
         glUniform1f(location, value);
-        
     }
 
     void program::setUniform(uint location, color value)
     {
         glUniform4f(location, value.r, value.g, value.b, value.a);
-        
     }
 
     void program::setUniform(uint location, mat3 value)
     {
         glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
-        
     }
 
     void program::setUniform(uint location, mat4 value)
     {
         glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
-        
     }
 
     void program::setUniform(uint location, vec2 value)
     {
         glUniform2f(location, value.x, value.y);
-        
     }
 
     void program::setUniform(uint location, vec3 value)
     {
         glUniform3f(location, value.x, value.y, value.z);
-        
     }
 
     void program::setUniform(uint location, vec4 value)
     {
         glUniform4f(location, value.x, value.y, value.z, value.w);
-        
     }
 
     void program::setUniform(uint location, bool value)
     {
         glUniform1f(location, value ? 1.0f : 0.0f);
-        
     }
 
     void program::setUniform(uint location, int value)
     {
         glUniform1i(location, value);
-        
     }
 
     void program::setUniform(uint location, GLuint64 value)
     {
         glUniformHandleui64ARB(location, value);
-        
     }
 
     void program::setUniform(uint location, vector<GLint> value)
     {
         glUniform1iv(location, static_cast<GLsizei>(value.size()), &value[0]);
-        
     }
 
     void program::setUniform(uint location, vector<GLuint64> value)
     {
         glUniformHandleui64vARB(location, static_cast<GLsizei>(value.size()), value.data());
-        
     }
 
     void program::link()
     {
         glLinkProgram(_id);
-        
 
 #if _DEBUG
         if (!validate())
@@ -160,7 +143,6 @@ namespace phi
         GLsizei length = 0;
 
         glGetProgramInfoLog(_id, BUFFER_SIZE, &length, buffer);
-        
 
         if (length > 0)
             phi::debug("Program " + std::to_string(_id) + " link info:\n" + buffer);
@@ -168,7 +150,6 @@ namespace phi
         GLint isLinked = 0;
 
         glGetProgramiv(_id, GL_LINK_STATUS, &isLinked);
-        
 
         return isLinked == GL_TRUE;
     }
@@ -205,14 +186,11 @@ namespace phi
 
         for (auto& pair : _buffers)
             pair.second->bindBufferBase(pair.first);
-
-        
     }
 
     inline void program::unbind()
     {
         glUseProgram(0);
-        
     }
 
     bool program::reload()
@@ -222,7 +200,6 @@ namespace phi
         if (canCompile())
         {
             glLinkProgram(_id);
-            
 
             return validate();
         }

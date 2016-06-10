@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "controlRenderPassConfigurator.h"
+#include "controlRenderPass.h"
 
 #include <rendering\texturesManager.h>
 #include <rendering\vertexArrayObject.h>
@@ -8,7 +8,7 @@
 
 namespace phi
 {
-    renderPass * controlRenderPassConfigurator::configureNewControlRenderPass(controlRendererDescriptor* rendererDescriptor, string shadersPath)
+    renderPass* controlRenderPass::configure(controlRendererDescriptor* rendererDescriptor, const string& shadersPath)
     {
         auto program = programBuilder::buildProgram(shadersPath, "control", "control");
         program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);

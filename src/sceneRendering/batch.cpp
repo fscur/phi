@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "batch.h"
 
+#include <core\node.h>
+
 #include <rendering\drawElementsIndirectCmd.h>
 
 namespace phi
@@ -194,7 +196,7 @@ namespace phi
                 instance->offset = offset++;
                 modelMatricesData.push_back(instance->modelMatrix);
                 materialsIdsData.push_back(instance->materialId);
-                selectionBufferData.push_back(vec4(mesh->getSelectionColor(),instance->isSelected));
+                selectionBufferData.push_back(vec4(mesh->getSelectionColor(), instance->isSelected));
             }
 
             GLuint indicesCount = geometry->indicesCount;
@@ -278,7 +280,8 @@ namespace phi
         auto drawInstance = _meshInstances[instance.mesh];
         drawInstance->materialId = instance.materialId;
         drawInstance->modelMatrix = instance.modelMatrix;
-        auto selectionColor = vec4(instance.mesh->getSelectionColor(), 0.0); //TODO: ??????
+        drawInstance->isSelected = instance.mesh->getNode()->getIsSelected();
+        auto selectionColor = vec4(instance.mesh->getSelectionColor(), drawInstance->isSelected);
 
         _modelMatricesBuffer->subData(drawInstance->offset * sizeof(mat4), sizeof(mat4), &drawInstance->modelMatrix);
         _materialsIdsBuffer->subData(drawInstance->offset * sizeof(uint), sizeof(uint), &drawInstance->materialId);
@@ -289,8 +292,8 @@ namespace phi
     {
         auto drawInstance = _meshInstances[mesh];
         drawInstance->isSelected = isSelected;
-        auto selectionColor = vec4(mesh->getSelectionColor(), isSelected);
 
+        auto selectionColor = vec4(mesh->getSelectionColor(), isSelected);
         _selectionBuffer->subData(drawInstance->offset * sizeof(vec4), sizeof(vec4), &selectionColor);
     }
 

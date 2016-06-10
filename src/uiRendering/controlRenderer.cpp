@@ -8,7 +8,7 @@
 
 #include <io\path.h>
 
-#include "controlRenderPassConfigurator.h"
+#include "controlRenderPass.h"
 
 namespace phi
 {
@@ -32,7 +32,7 @@ namespace phi
     vector<renderPass*> controlRenderer::configure(const string& resourcesPath, controlRendererDescriptor* renderDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto controlRenderPass = controlRenderPassConfigurator::configureNewControlRenderPass(renderDescriptor, shadersPath);
+        auto controlRenderPass = controlRenderPass::configure(renderDescriptor, shadersPath);
         return {controlRenderPass};
     }
 }
