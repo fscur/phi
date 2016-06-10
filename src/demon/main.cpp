@@ -1,4 +1,4 @@
-#include <precompiled.h>
+﻿#include <precompiled.h>
 
 #include <core\invalidInitializationException.h>
 #include <core\eventHandler.h>
@@ -131,7 +131,7 @@ int main(int argc, char* args[])
     {
         auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
         auto application = phi::application(appStartInfo);
-        auto screen = demon::screen("?", 800, 600);
+        auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1600, 900));
 
         application.run(&screen);
     }

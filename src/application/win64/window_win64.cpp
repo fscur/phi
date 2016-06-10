@@ -173,7 +173,7 @@ namespace phi
             case SC_MONITORPOWER:
                 return 0;
             }
-            result = DefWindowProc(hWnd, message, wParam, lParam);
+            result = DefWindowProcW(hWnd, message, wParam, lParam);
         } break;
         case WM_SETFOCUS:
             //FocusCallback(window, true);
@@ -237,18 +237,18 @@ namespace phi
             //TODO: Resize
             break;
         default:
-            result = DefWindowProc(hWnd, message, wParam, lParam);
+            result = DefWindowProcW(hWnd, message, wParam, lParam);
         }
 
         return result;
     }
 
-    void createWindow(string name, uint width, uint height)
+    void createWindow(wstring title, resolution resolution)
     {
         _applicationInstance = GetModuleHandle(NULL);
-        WNDCLASSEX wndClass;
-
-        wndClass.cbSize = sizeof(WNDCLASSEX);
+        WNDCLASSEXW wndClass;
+        auto cTitle = title.c_str();
+        wndClass.cbSize = sizeof(WNDCLASSEXW);
         wndClass.style = CS_HREDRAW | CS_VREDRAW;
         wndClass.lpfnWndProc = (WNDPROC)windowProcedure;
         wndClass.cbClsExtra = 0;
@@ -258,27 +258,27 @@ namespace phi
         wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
         wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
         wndClass.lpszMenuName = NULL;
-        wndClass.lpszClassName = name.c_str();
+        wndClass.lpszClassName = title.c_str();
         wndClass.hIconSm = LoadIcon(NULL, IDI_WINLOGO);
 
-        if (!RegisterClassEx(&wndClass))
+        if (!RegisterClassExW(&wndClass))
             throw invalidInitializationException("Could not register window class!");
 
-        auto screenWidth = GetSystemMetrics(SM_CXSCREEN);
-        auto screenHeight = GetSystemMetrics(SM_CYSCREEN);
+        auto screenWidth = static_cast<float>(GetSystemMetrics(SM_CXSCREEN));
+        auto screenHeight = static_cast<float>(GetSystemMetrics(SM_CYSCREEN));
 
         RECT windowRect;
-        windowRect.left = (long)(screenWidth * 0.5f - width * 0.5f);
-        windowRect.right = windowRect.left + width;
-        windowRect.top = (long)(screenHeight * 0.5f - height * 0.5f);
-        windowRect.bottom = windowRect.top + height;
+        windowRect.left = static_cast<long>(screenWidth * 0.5f - resolution.width * 0.5f);
+        windowRect.right = static_cast<long>(windowRect.left + resolution.width);
+        windowRect.top = static_cast<long>(screenHeight * 0.5f - resolution.height * 0.5f);
+        windowRect.bottom = static_cast<long>(windowRect.top + resolution.height);
 
         AdjustWindowRectEx(&windowRect, _windowStyle, FALSE, _windowExStyle);
 
-        _windowHandle = CreateWindowEx(
+        _windowHandle = CreateWindowExW(
             0,
-            name.c_str(),
-            name.c_str(),
+            cTitle,
+            cTitle,
             _windowStyle,
             windowRect.left,
             windowRect.top,
@@ -373,7 +373,7 @@ namespace phi
     void window::init()
     {
         adjustWindowToScreenBounds();
-        createWindow(_name, _width, _height);
+        createWindow(_title, _resolution);
         createGLContext();
 
         ShowWindow(_windowHandle, SW_SHOW);
@@ -385,16 +385,19 @@ namespace phi
 
     void window::adjustWindowToScreenBounds()
     {
-        auto screenWidth = static_cast<uint>(GetSystemMetrics(SM_CXSCREEN));
-        auto screenHeight = static_cast<uint>(GetSystemMetrics(SM_CYSCREEN));
+        auto screenWidth = static_cast<float>(GetSystemMetrics(SM_CXSCREEN));
+        auto screenHeight = static_cast<float>(GetSystemMetrics(SM_CYSCREEN));
 
         RECT rectangle = { 0, 0, 0, 0 };
         AdjustWindowRectEx(&rectangle, _windowStyle, FALSE, _windowExStyle);
 
-        auto verticalBorderSize = static_cast<uint>(rectangle.bottom - rectangle.top);
+        auto verticalBorderSize = static_cast<float>(rectangle.bottom - rectangle.top);
 
-        _width = std::min(_width, screenWidth);
-        _height = std::min(_height, screenHeight - verticalBorderSize);
+        auto width = std::min(_resolution.width, screenWidth);
+        auto height = std::min(_resolution.height, screenHeight - verticalBorderSize);
+        _resolution = resolution(width, height);
+
+        onResize(_resolution);
     }
 
     void window::input()

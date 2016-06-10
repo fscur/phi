@@ -3,21 +3,15 @@
 
 namespace phi
 {
-    window::window(string name, uint width, uint height) :
-        _name(name),
-        _width(width),
-        _height(height),
+    window::window(wstring title, phi::resolution resolution) :
+        _title(title),
+        _resolution(resolution),
         closed(false)
     {
     }
 
     window::~window()
     {
-    }
-
-    void window::clear() 
-    {
-        //onClear();
     }
 
     void window::render() 
@@ -36,4 +30,6 @@ namespace phi
     }
 
     void window::onTick(){}
+
+    void window::onResize(resolution resolution){}
 }
