@@ -27,6 +27,7 @@ namespace phi
             auto element = _toCancelAnimations[0];
             _animations.erase(std::remove(_animations.begin(), _animations.end(), element), _animations.end());
             _toCancelAnimations.erase(std::remove(_toCancelAnimations.begin(), _toCancelAnimations.end(), element), _toCancelAnimations.end());
+            safeDelete(element);
         }
 
         double currentMilliseconds = time::totalSeconds * 1000;

@@ -21,7 +21,7 @@ namespace phi
         auto tmin = glm::min(t0, t1);
         auto tmax = glm::max(t0, t1);
 
-        for (auto i = 1; i < 3; ++i) 
+        for (auto i = 1; i < 3; ++i)
         {
             t0 = (aabb.min[i] - _origin[i]) * _inverseDirection[i];
             t1 = (aabb.max[i] - _origin[i]) * _inverseDirection[i];
@@ -71,17 +71,17 @@ namespace phi
 
             std::map<float, vec3> intersections;
             float t;
-            if (intersects(lbb, lbf, ltf, ltb, t))
+            if (intersects(finitePlane(lbb, lbf, ltb), t))
                 intersections[t] = vec3(-1.0f, 0.0f, 0.0f);
-            if (intersects(rbf, rbb, rtb, rtf, t))
+            if (intersects(finitePlane(rbf, rbb, rtf), t))
                 intersections[t] = vec3(1.0f, 0.0f, 0.0f);
-            if (intersects(lbf, rbf, rtf, ltf, t))
+            if (intersects(finitePlane(lbf, rbf, ltf), t))
                 intersections[t] = vec3(0.0f, 0.0f, 1.0f);
-            if (intersects(rbb, lbb, ltb, rtb, t))
+            if (intersects(finitePlane(rbb, lbb, rtb), t))
                 intersections[t] = vec3(0.0f, 0.0f, -1.0f);
-            if (intersects(ltf, rtf, rtb, ltb, t))
+            if (intersects(finitePlane(ltf, rtf, ltb), t))
                 intersections[t] = vec3(0.0f, 1.0f, 0.0f);
-            if (intersects(lbb, rbb, rbf, lbf, t))
+            if (intersects(finitePlane(lbb, rbb, lbf), t))
                 intersections[t] = vec3(0.0f, -1.0f, 0.0f);
 
             count = intersections.size();
@@ -102,21 +102,84 @@ namespace phi
         return false;
     }
 
-    bool ray::intersects(vec3 bl, vec3 br, vec3 tr, vec3 tl, float& t)
+    bool ray::intersects(obb& obb, vec3*& positions, vec3*& normals, size_t& count)
     {
-        auto planeNormal = normalize(cross(bl - br, br - tr));
-        auto d = dot(planeNormal, bl);
-        t = (d - dot(planeNormal, _origin)) / (dot(planeNormal, (_direction)));
+        auto getPoint = [&obb](vec3 pos) -> vec3
+        {
+            return obb.center + obb.axes[0] * obb.halfSizes.x * pos.x + obb.axes[1] * obb.halfSizes.y * pos.y + obb.axes[2] * obb.halfSizes.z * pos.z;
+        };
 
-        float nDotA = dot(planeNormal, _origin);
-        float nDotBA = dot(planeNormal, _direction);
+        auto lbb = getPoint(vec3(-1.0f, -1.0f, -1.0f));
+        auto lbf = getPoint(vec3(-1.0f, -1.0f, 1.0f));
+        auto ltf = getPoint(vec3(-1.0f, 1.0f, 1.0f));
+        auto ltb = getPoint(vec3(-1.0f, 1.0f, -1.0f));
+        auto rbb = getPoint(vec3(1.0f, -1.0f, -1.0f));
+        auto rbf = getPoint(vec3(1.0f, -1.0f, 1.0f));
+        auto rtf = getPoint(vec3(1.0f, 1.0f, 1.0f));
+        auto rtb = getPoint(vec3(1.0f, 1.0f, -1.0f));
 
-        auto point = _origin + (((d - nDotA) / nDotBA) * _direction);
+        std::map<float, vec3> intersections;
+        float t;
+        if (intersects(finitePlane(lbb, lbf, ltb), t))
+            intersections[t] = -obb.axes[0];
+        if (intersects(finitePlane(rbf, rbb, rtf), t))
+            intersections[t] = obb.axes[0];
+        if (intersects(finitePlane(lbf, rbf, ltf), t))
+            intersections[t] = obb.axes[2];
+        if (intersects(finitePlane(rbb, lbb, rtb), t))
+            intersections[t] = -obb.axes[2];
+        if (intersects(finitePlane(ltf, rtf, ltb), t))
+            intersections[t] = obb.axes[1];
+        if (intersects(finitePlane(lbb, rbb, lbf), t))
+            intersections[t] = -obb.axes[1];
 
-        return  dot(bl, tl - bl) <= dot(point, tl - bl) &&
-            dot(point, tl - bl) <= dot(tl, tl - bl) &&
-            dot(bl, br - bl) <= dot(point, br - bl) &&
-            dot(point, br - bl) <= dot(br, br - bl);
+        count = intersections.size();
+        positions = new vec3[count];
+        normals = new vec3[count];
+
+        auto i = 0;
+        for (auto const &iter : intersections)
+        {
+            positions[i] = _origin + _direction * iter.first;
+            normals[i] = iter.second;
+            ++i;
+        }
+
+        return count > 0;
+    }
+
+    bool ray::intersects(plane& plane, float& t)
+    {
+        auto planeNormal = plane.getNormal();
+        auto planeOrigin = plane.getOrigin();
+        auto planeNormalOnOrigin = dot(planeNormal, _origin);
+        auto planeNormalOnDirection = dot(planeNormal, _direction);
+
+        auto planeNormalOnBl = dot(planeNormal, planeOrigin);
+        t = (planeNormalOnBl - planeNormalOnOrigin) / planeNormalOnDirection;
+
+        return !mathUtils::isClose(planeNormalOnDirection, 0.0f);
+    }
+
+    bool ray::intersects(finitePlane& plane, float& t)
+    {
+        auto planeNormal = plane.getNormal();
+        auto planeOrigin = plane.getOrigin();
+        auto planeNormalOnOrigin = dot(planeNormal, _origin);
+        auto planeNormalOnDirection = dot(planeNormal, _direction);
+
+        auto planeNormalOnBl = dot(planeNormal, planeOrigin);
+        t = (planeNormalOnBl - planeNormalOnOrigin) / planeNormalOnDirection;
+
+        auto point = _origin + t * _direction;
+        auto xVector = plane.getRightPoint() - planeOrigin;
+        auto yVector = plane.getUpPoint() - planeOrigin;
+
+        return
+            dot(planeOrigin, yVector) <= dot(point, yVector) &&
+            dot(point, yVector) <= dot(planeOrigin + yVector, yVector) &&
+            dot(planeOrigin, xVector) <= dot(point, xVector) &&
+            dot(point, xVector) <= dot(planeOrigin + xVector, xVector);
     }
 
     ray ray::operator*(mat4& matrix)

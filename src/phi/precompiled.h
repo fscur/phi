@@ -85,6 +85,8 @@
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 
+#include <PhysX\PxPhysicsAPI.h>
+
 #ifdef MSVC
 #pragma warning(pop)
 #endif

@@ -36,7 +36,46 @@ public:
     }
 };
 
-TEST_F(unitObbFixture, intersects_touchingOnAxisX_notColliding)
+TEST_F(unitObbFixture, intersects_touchingOnAxisX_colliding)
+{
+    //Arrange
+    obb0->center = vec3(-0.5f, 0.0f, 0.0f);
+    obb1->center = vec3(0.5f, 0.0f, 0.0f);
+
+    //Act
+    auto colliding = obb::intersects(*obb0, *obb1);
+
+    //Assert
+    ASSERT_TRUE(colliding);
+}
+
+TEST_F(unitObbFixture, intersects_touchingOnAxisY_colliding)
+{
+    //Arrange
+    obb0->center = vec3(0.0f, -0.5f, 0.0f);
+    obb1->center = vec3(0.0f, 0.5f, 0.0f);
+
+    //Act
+    auto colliding = obb::intersects(*obb0, *obb1);
+
+    //Assert
+    ASSERT_TRUE(colliding);
+}
+
+TEST_F(unitObbFixture, intersects_touchingOnAxisZ_colliding)
+{
+    //Arrange
+    obb0->center = vec3(0.0f, 0.0f, -0.5f);
+    obb1->center = vec3(0.0f, 0.0f, 0.5f);
+
+    //Act
+    auto colliding = obb::intersects(*obb0, *obb1);
+
+    //Assert
+    ASSERT_TRUE(colliding);
+}
+
+TEST_F(unitObbFixture, intersects_separatedOnAxisX_notColliding)
 {
     //Arrange
     obb0->center = vec3(-1.0f, 0.0f, 0.0f);
@@ -49,7 +88,7 @@ TEST_F(unitObbFixture, intersects_touchingOnAxisX_notColliding)
     ASSERT_FALSE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_touchingOnAxisY_notColliding)
+TEST_F(unitObbFixture, intersects_separatedOnAxisY_notColliding)
 {
     //Arrange
     obb0->center = vec3(0.0f, -1.0f, 0.0f);
@@ -62,50 +101,11 @@ TEST_F(unitObbFixture, intersects_touchingOnAxisY_notColliding)
     ASSERT_FALSE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_touchingOnAxisZ_notColliding)
+TEST_F(unitObbFixture, intersects_separatedOnAxisZ_notColliding)
 {
     //Arrange
     obb0->center = vec3(0.0f, 0.0f, -1.0f);
     obb1->center = vec3(0.0f, 0.0f, 1.0f);
-
-    //Act
-    auto colliding = obb::intersects(*obb0, *obb1);
-
-    //Assert
-    ASSERT_FALSE(colliding);
-}
-
-TEST_F(unitObbFixture, intersects_separatedOnAxisX_notColliding)
-{
-    //Arrange
-    obb0->center = vec3(-2.0f, 0.0f, 0.0f);
-    obb1->center = vec3(2.0f, 0.0f, 0.0f);
-
-    //Act
-    auto colliding = obb::intersects(*obb0, *obb1);
-
-    //Assert
-    ASSERT_FALSE(colliding);
-}
-
-TEST_F(unitObbFixture, intersects_separatedOnAxisY_notColliding)
-{
-    //Arrange
-    obb0->center = vec3(0.0f, -2.0f, 0.0f);
-    obb1->center = vec3(0.0f, 2.0f, 0.0f);
-
-    //Act
-    auto colliding = obb::intersects(*obb0, *obb1);
-
-    //Assert
-    ASSERT_FALSE(colliding);
-}
-
-TEST_F(unitObbFixture, intersects_separatedOnAxisZ_notColliding)
-{
-    //Arrange
-    obb0->center = vec3(0.0f, 0.0f, -2.0f);
-    obb1->center = vec3(0.0f, 0.0f, 2.0f);
 
     //Act
     auto colliding = obb::intersects(*obb0, *obb1);
@@ -150,7 +150,7 @@ TEST_F(unitObbFixture, intersects_intersectingOnAxisZ_colliding)
     ASSERT_TRUE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_intersectingObb1RotatedOnAxisX_notColliding)
+TEST_F(unitObbFixture, intersects_obb1RotatedOnAxisX_colliding)
 {
     //Arrange
     auto rotation = glm::angleAxis(PI_OVER_4, vec3(1.0f, 0.0f, 0.0f));
@@ -163,10 +163,10 @@ TEST_F(unitObbFixture, intersects_intersectingObb1RotatedOnAxisX_notColliding)
     auto colliding = obb::intersects(*obb0, *obb1);
 
     //Assert
-    ASSERT_FALSE(colliding);
+    ASSERT_TRUE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_intersectingObb1RotatedOnAxisY_colliding)
+TEST_F(unitObbFixture, intersects_obb1RotatedOnAxisY_colliding)
 {
     //Arrange
     auto rotation = glm::angleAxis(PI_OVER_4, vec3(0.0f, 1.0f, 0.0f));
@@ -182,7 +182,7 @@ TEST_F(unitObbFixture, intersects_intersectingObb1RotatedOnAxisY_colliding)
     ASSERT_TRUE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_intersectingObb1RotatedOnAxisZ_colliding)
+TEST_F(unitObbFixture, intersects_obb1RotatedOnAxisZ_colliding)
 {
     //Arrange
     auto rotation = glm::angleAxis(PI_OVER_4, vec3(0.0f, 0.0f, 1.0f));
@@ -198,7 +198,7 @@ TEST_F(unitObbFixture, intersects_intersectingObb1RotatedOnAxisZ_colliding)
     ASSERT_TRUE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_intersectingObb0RotatedOnAxisZObb1RotatedOnAxisZ_notColliding)
+TEST_F(unitObbFixture, intersects_touchingObb0RotatedOnAxisZObb1RotatedOnAxisZ_colliding)
 {
     //Arrange
     auto rotation = glm::angleAxis(PI_OVER_4, vec3(0.0f, 0.0f, 1.0f));
@@ -210,34 +210,55 @@ TEST_F(unitObbFixture, intersects_intersectingObb0RotatedOnAxisZObb1RotatedOnAxi
     obb1->axes[0] = rotation * obb1->axes[0];
     obb1->axes[1] = rotation * obb1->axes[1];
     obb1->axes[2] = rotation * obb1->axes[2];
-    obb1->center = vec3(0.35355339f * 2.0f, 0.35355339f * 2.0f, 0.0f);
-
-    //Act
-    auto colliding = obb::intersects(*obb0, *obb1);
-
-    //Assert
-    ASSERT_FALSE(colliding);
-}
-
-TEST_F(unitObbFixture, intersects_intersectingObb0RotatedOnAxisZObb1RotatedOnAxisZ_colliding)
-{
-    //Arrange
-    auto rotation = glm::angleAxis(PI_OVER_4, vec3(0.0f, 0.0f, 1.0f));
-
-    obb0->axes[0] = rotation * obb0->axes[0];
-    obb0->axes[1] = rotation * obb0->axes[1];
-    obb0->axes[2] = rotation * obb0->axes[2];
-
-    obb1->axes[0] = rotation * obb1->axes[0];
-    obb1->axes[1] = rotation * obb1->axes[1];
-    obb1->axes[2] = rotation * obb1->axes[2];
-    obb1->center = vec3(0.34355339f * 2.0f, 0.34355339f * 2.0f, 0.0f);
+    obb1->center = rotation * vec3(0.0f, 0.5f, 0.0f) * 2.0f;
 
     //Act
     auto colliding = obb::intersects(*obb0, *obb1);
 
     //Assert
     ASSERT_TRUE(colliding);
+}
+
+TEST_F(unitObbFixture, intersects_almostNotTouchingObb0RotatedOnAxisZObb1RotatedOnAxisZ_colliding)
+{
+    //Arrange
+    auto rotation = glm::angleAxis(PI_OVER_4, vec3(0.0f, 0.0f, 1.0f));
+
+    obb0->axes[0] = rotation * obb0->axes[0];
+    obb0->axes[1] = rotation * obb0->axes[1];
+    obb0->axes[2] = rotation * obb0->axes[2];
+
+    obb1->axes[0] = rotation * obb1->axes[0];
+    obb1->axes[1] = rotation * obb1->axes[1];
+    obb1->axes[2] = rotation * obb1->axes[2];
+    obb1->center = rotation * vec3(0.0f, 0.5f, 0.0f) * 1.9f;
+
+    //Act
+    auto colliding = obb::intersects(*obb0, *obb1);
+
+    //Assert
+    ASSERT_TRUE(colliding);
+}
+
+TEST_F(unitObbFixture, intersects_almostTouchingObb0RotatedOnAxisZObb1RotatedOnAxisZ_notColliding)
+{
+    //Arrange
+    auto rotation = glm::angleAxis(PI_OVER_4, vec3(0.0f, 0.0f, 1.0f));
+
+    obb0->axes[0] = rotation * obb0->axes[0];
+    obb0->axes[1] = rotation * obb0->axes[1];
+    obb0->axes[2] = rotation * obb0->axes[2];
+
+    obb1->axes[0] = rotation * obb1->axes[0];
+    obb1->axes[1] = rotation * obb1->axes[1];
+    obb1->axes[2] = rotation * obb1->axes[2];
+    obb1->center = rotation * vec3(0.0f, 0.5f, 0.0f) * 2.1f;
+
+    //Act
+    auto colliding = obb::intersects(*obb0, *obb1);
+
+    //Assert
+    ASSERT_FALSE(colliding);
 }
 
 TEST_F(unitObbFixture, intersects_intersectingExactly_colliding)
@@ -271,7 +292,7 @@ TEST_F(unitObbFixture, intersects_intersectingExactlyBothRotated_colliding)
     ASSERT_TRUE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_intersectingObb1EntirelyInsideObb0_colliding)
+TEST_F(unitObbFixture, intersects_obb1EntirelyInsideObb0_colliding)
 {
     //Arrange
     obb0->halfSizes = vec3(1.0f, 1.0f, 1.0f);
@@ -288,7 +309,7 @@ TEST_F(unitObbFixture, intersects_intersectingObb1EntirelyInsideObb0_colliding)
     ASSERT_TRUE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_intersectingObb0EntirelyInsideObb1_colliding)
+TEST_F(unitObbFixture, intersects_obb0EntirelyInsideObb1_colliding)
 {
     //Arrange
     obb0->halfSizes = vec3(0.25f, 0.25f, 0.25f);
@@ -305,7 +326,7 @@ TEST_F(unitObbFixture, intersects_intersectingObb0EntirelyInsideObb1_colliding)
     ASSERT_TRUE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_intersectingSmallerRotatedParallelepipedInsideBiggerParallelepiped_colliding)
+TEST_F(unitObbFixture, intersects_smallerRotatedParallelepipedInsideBiggerParallelepiped_colliding)
 {
     //Arrange
     obb0->halfSizes = vec3(1.0f, 0.5f, 0.5f);
@@ -323,7 +344,7 @@ TEST_F(unitObbFixture, intersects_intersectingSmallerRotatedParallelepipedInside
     ASSERT_TRUE(colliding);
 }
 
-TEST_F(unitObbFixture, intersects_intersectingSmallerRotatedParallelepipedNotInsideBiggerParallelepiped_notColliding)
+TEST_F(unitObbFixture, intersects_smallerRotatedParallelepipedNotInsideBiggerParallelepiped_notColliding)
 {
     //Arrange
     obb0->halfSizes = vec3(1.0f, 0.5f, 0.5f);

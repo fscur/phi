@@ -3,6 +3,9 @@
 #include "coreApi.h"
 
 #include <core\aabb.h>
+#include <core\obb.h>
+#include <core\plane.h>
+#include <core\finitePlane.h>
 
 namespace phi
 {
@@ -20,7 +23,9 @@ namespace phi
         CORE_API bool intersects(const aabb& aabb, float& t);
         CORE_API bool intersects(const aabb& aabb);
         CORE_API bool intersects(aabb& aabb, vec3*& position, vec3*& normal, size_t& size);
-        CORE_API bool intersects(vec3 bl, vec3 tl, vec3 tr, vec3 br, float& t);
+        CORE_API bool intersects(obb& obb, vec3*& position, vec3*& normal, size_t& size);
+        CORE_API bool intersects(plane& plane, float& t);
+        CORE_API bool intersects(finitePlane& plane, float& t);
 
         vec3 getOrigin() const { return _origin; }
         vec3 getDirection() const { return _direction; }

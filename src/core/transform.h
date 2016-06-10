@@ -15,6 +15,8 @@ namespace phi
         quat _localOrientation;
         vec3 _localSize;
         vec3 _position;
+        quat _orientation;
+        vec3 _size;
         vec3 _right;
         vec3 _up;
         vec3 _direction;
@@ -38,6 +40,8 @@ namespace phi
         CORE_API mat4 getLocalScaleMatrix() const;
         CORE_API mat4 getModelMatrix();
         CORE_API vec3 getPosition();
+        CORE_API quat getOrientation();
+        CORE_API vec3 getSize();
         CORE_API vec3 getRight();
         CORE_API vec3 getUp();
         CORE_API vec3 getDirection();

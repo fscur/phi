@@ -8,31 +8,6 @@ namespace phi
     {
     public:
 
-        static float round(float value, int decimals)
-        {
-            float exp = pow(10.0f, (float)decimals);
-            value *= exp;
-
-            int istack = (int)floor(value);
-            float out = value - istack;
-
-            if (out < 0.5)
-            {
-                value = floor(value);
-                value /= exp;
-                return value;
-            }
-
-            if (out > 0.4) 
-            {
-                value = ceil(value);
-                value /= exp;
-                return value;
-            }
-
-            return value;
-        }
-
         static float distance(vec3 v0, vec3 v1);
         static vector<vec3> rotateAboutAxis(vector<vec3>* points, vec3 origin, vec3 axis, float angle);
         static vector<vec3> rotateAboutAxis(vector<vec3>* points, vec3 axis, float angle);
@@ -43,9 +18,20 @@ namespace phi
 
         static vec3 multiply(const mat4& m, const vec3& v);
 
-        static bool isClose(float a, float b, float error = 1e-3)
+        static bool isClose(float a, float b, float error = DECIMAL_TRUNCATION)
         {
             return abs(a - b) < error;
+        }
+
+        static float truncateDecimals(float value)
+        {
+            return round(value * DECIMAL_TRUNCATION_INV) / DECIMAL_TRUNCATION_INV;
+        }
+
+        static float truncateDecimals(float value, int decimals)
+        {
+            float exp = pow(10.0f, (float)decimals);
+            return round(value * exp) / exp;
         }
     };
 }

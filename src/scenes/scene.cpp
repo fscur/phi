@@ -1,9 +1,9 @@
 #include <precompiled.h>
 #include "scene.h"
 
+#include <core\boxCollider.h>
 #include <core\obb.h>
 
-#include "boxCollider.h"
 #include "sceneId.h"
 
 namespace phi
@@ -14,7 +14,10 @@ namespace phi
         _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
         _sceneRoot(new node("sceneRoot")),
         _w(w),
-        _h(h)
+        _h(h),
+        _nodeTokens(map<node*, nodeEventTokens*>()),
+        _physicsWorld(new physicsWorld()),
+        _selectedNodes(vector<node*>())
     {
         trackNode(_sceneRoot);
 
@@ -36,6 +39,7 @@ namespace phi
 
         _nodeTokens.clear();
 
+        safeDelete(_physicsWorld);
         safeDelete(_sceneRoot);
         safeDelete(_pipeline);
     }
@@ -79,37 +83,11 @@ namespace phi
                 sceneId::setNextId(mesh);
                 _pipeline->add(mesh, node->getTransform()->getModelMatrix());
 
-                phi::aabb* aabb = new phi::aabb();
-                node->traverse
-                (
-                    [&aabb](phi::node* n)
-                    {
-                        auto meshComponent = n->getComponent<phi::mesh>();
-                        if (meshComponent)
-                        {
-                            auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
-                            safeDelete(aabb);
-                            aabb = added;
-                        }
-                    }
-                );
-
-                if (aabb->min == aabb->max)
-                {
-                    safeDelete(aabb);
-                    return;
-                }
-
-                auto transform = node->getTransform();
-                auto pos = transform->getPosition();
-                auto scale = transform->getLocalSize();
-
-                auto collider = new boxCollider("obbCollider", aabb->center, vec3(aabb->halfWidth * scale.x, aabb->halfHeight * scale.y, aabb->halfDepth * scale.z));
+                auto aabb = mesh->geometry->aabb;
+                auto collider = new boxCollider("obbCollider", aabb->center, vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth));
                 node->addComponent(collider);
 
-                _colliderNodes.push_back(node);
-
-                safeDelete(aabb);
+                _physicsWorld->addCollider(collider);
             }
         });
     }
@@ -119,19 +97,22 @@ namespace phi
         removedChild->traverse([&](node* node)
         {
             untrackNode(node);
-            auto mesh = node->getComponent<phi::mesh>();
 
+            auto mesh = node->getComponent<phi::mesh>();
             if (mesh)
                 _pipeline->remove(mesh);
+
+            auto collider = node->getComponent<boxCollider>();
+            if (collider)
+                _physicsWorld->removeCollider(collider);
         });
     }
 
     void scene::nodeTransformChanged(node* changedNode)
     {
-        changedNode->traverseNodesContaining<mesh>([&](node* node, mesh* mesh)
-        {
-            _pipeline->updateTranformBuffer(mesh, node->getTransform()->getModelMatrix());
-        });
+        auto mesh = changedNode->getComponent<phi::mesh>();
+        if (mesh)
+            _pipeline->updateTranformBuffer(mesh, changedNode->getTransform()->getModelMatrix());
     }
 
     void scene::nodeSelectionChanged(node* node)
@@ -185,7 +166,7 @@ namespace phi
             _pipeline->_renderer->rt3,
             static_cast<GLint>(mouseX),
             static_cast<GLint>(_h - mouseY),
-            1, 1); // What a shitty shit, right ?
+            1, 1); // What a shitty shit, right ? R: I've seen worse
 
         auto r = static_cast<int>(pixels.r);
         auto g = static_cast<int>(pixels.g) << 8;

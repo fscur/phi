@@ -9,7 +9,9 @@ namespace phi
         _localPosition(vec3(0.0f)),
         _localOrientation(quat()),
         _localSize(vec3(1.0f)),
-        _position(vec3(0.0f)),
+        _position(_localPosition),
+        _orientation(_localOrientation),
+        _size(_localSize),
         _right(vec3(1.0f, 0.0f, 0.0f)),
         _up(vec3(0.0f, 1.0f, 0.0f)),
         _direction(vec3(0.0f, 0.0f, 1.0f)),
@@ -58,19 +60,23 @@ namespace phi
         _localModelMatrix = localTranslation  * localRotation * localScale;
         _changed = false;
 
-        auto rotation = localRotation;
-        auto obj = _parent;
-
-        while (obj != nullptr)
+        if (_parent)
         {
-            rotation = obj->getLocalRotationMatrix() * rotation;
-            obj = obj->_parent;
+            auto parentOrientation = _parent->getOrientation();
+            _position = _parent->getPosition() + parentOrientation * _localPosition;
+            _orientation = parentOrientation * _localOrientation;
+            _size = _parent->getSize() * _localSize;
+        }
+        else
+        {
+            _position = _localPosition;
+            _orientation = _localOrientation;
+            _size = _localSize;
         }
 
-        _position = mathUtils::multiply(getModelMatrix(), vec3(0.0f, 0.0f, 0.0f));
-        _right = mathUtils::multiply(rotation, vec3(1.0f, 0.0f, 0.0f));
-        _up = mathUtils::multiply(rotation, vec3(0.0f, 1.0f, 0.0f));
-        _direction = mathUtils::multiply(rotation, vec3(0.0f, 0.0f, 1.0f));
+        _right = _orientation * vec3(1.0f, 0.0f, 0.0f);
+        _up = _orientation * vec3(0.0f, 1.0f, 0.0f);
+        _direction = _orientation *  vec3(0.0f, 0.0f, 1.0f);
     }
 
     void transform::setChanged()
@@ -129,6 +135,22 @@ namespace phi
             updateData();
 
         return _position;
+    }
+
+    quat transform::getOrientation()
+    {
+        if (_changed)
+            updateData();
+
+        return _orientation;
+    }
+
+    vec3 transform::getSize()
+    {
+        if (_changed)
+            updateData();
+
+        return _size;
     }
 
     vec3 transform::getRight()

@@ -55,10 +55,9 @@ namespace demon
         _panLastMouseMoveTime(0.0),
         _panInertiaTime(0.0),
         _dragging(false),
-        _dragPlaneBottomLeft(phi::vec3()),
-        _dragPlaneBottomRight(phi::vec3()),
-        _dragPlaneTopRight(phi::vec3()),
-        _dragPlaneTopLeft(phi::vec3()),
+        _dragObject(nullptr),
+        _dragCollider(nullptr),
+        _dragPlane(plane(vec3(), vec3())),
         _dragDoingInertia(false),
         _dragInertiaTime(0.0),
         _dragStartPos(phi::vec2()),
@@ -68,9 +67,6 @@ namespace demon
         _gridImage = phi::importer::importImage(texturePath);
         _planeGridPass = _scene->getRenderer()->getPlaneGridRenderPass();
         _planeGridPass->setImage(_gridImage);
-
-        //auto object = _scene->getObjects()->at(1);
-        //moveObject(object, vec3(10.0f * 10.40250898400000068022563937120139598846435546875, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
     }
 
     defaultCameraController::~defaultCameraController()
@@ -112,11 +108,7 @@ namespace demon
                     new unselectSceneObjectCommand(selectedObjects));
             }
 
-            if (_scene->getSelectedObjects().size() > 0)
-            {
-                _dragObject = _scene->getSelectedObjects().at(0);
-                dragMouseDown(e->x, e->y);
-            }
+            dragMouseDown(e->x, e->y);
         }
 
         if (e->middleButtonPressed && !_rotating)
@@ -161,19 +153,6 @@ namespace demon
 
     void defaultCameraController::update()
     {
-        if (!_dragging)
-        {
-            auto hehe = [](double v) -> string
-            {
-                std::stringstream stream;
-                stream << std::fixed << std::setprecision(60) << v;
-                return stream.str();
-            };
-            //phi::debug(hehe(time::deltaSeconds));
-            auto object = _scene->getObjects()->at(1);
-            //moveObject(object, vec3(10.0f * time::deltaSeconds, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
-        }
-
         dragUpdate();
         zoomUpdate();
         rotationUpdate();
@@ -183,257 +162,118 @@ namespace demon
         _lastMousePosY = _mousePosY;
     }
 
-    phi::vec2 defaultCameraController::planePointProjection2D(phi::vec3 planeOrigin, phi::vec3 planeNormal, phi::vec3 planeRight, phi::vec3 planeUp, phi::vec3 point)
-    {
-        auto x = dot(planeRight, point - planeOrigin);
-        auto y = dot(planeUp, point - planeOrigin);
-
-        return phi::vec2(x, y);
-    }
-
-    phi::aabb* defaultCameraController::getTransformedAabb(phi::node* node, phi::transform* transform)
-    {
-        phi::aabb* aabb = new phi::aabb();
-        node->traverse
-        (
-            [&aabb](phi::node* n)
-        {
-            auto meshComponent = n->getComponent<phi::mesh>();
-            if (meshComponent)
-            {
-                auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
-                safeDelete(aabb);
-                aabb = added;
-            }
-        }
-        );
-
-        auto model = transform->getModelMatrix();
-        auto transformedMin = phi::mathUtils::multiply(model, aabb->min);
-        auto transformedMax = phi::mathUtils::multiply(model, aabb->max);
-        safeDelete(aabb);
-        return new phi::aabb(transformedMin, transformedMax);
-    }
-
-    phi::obb defaultCameraController::getTransformedObb(boxCollider* collider, phi::transform* transform)
-    {
-        auto position = collider->getPosition() + transform->getPosition();
-        return obb(position, transform->getRight(), transform->getUp(), transform->getDirection(), collider->getHalfSizes());
-    }
-
-    lineIntersectionResult defaultCameraController::lineIntersection(phi::vec2 line1Start, phi::vec2 line1End, phi::vec2 line2Start, phi::vec2 line2End)
-    {
-        // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
-        lineIntersectionResult result;
-        float denominator, a, b, numerator1, numerator2;
-        denominator = ((line2End.y - line2Start.y) * (line1End.x - line1Start.x)) - ((line2End.x - line2Start.x) * (line1End.y - line1Start.y));
-        if (denominator == 0)
-        {
-            result.parallel = true;
-            return result;
-        }
-
-        a = line1Start.y - line2Start.y;
-        b = line1Start.x - line2Start.x;
-        numerator1 = ((line2End.x - line2Start.x) * a) - ((line2End.y - line2Start.y) * b);
-        numerator2 = ((line1End.x - line1Start.x) * a) - ((line1End.y - line1Start.y) * b);
-        a = numerator1 / denominator;
-        b = numerator2 / denominator;
-
-        // if we cast these lines infinitely in both directions, they intersect here:
-        result.point = phi::vec2(line1Start.x + (a * (line1End.x - line1Start.x)), line1Start.y + (a * (line1End.y - line1Start.y)));
-
-        // if line1 is a segment and line2 is infinite, they intersect if:
-        if (a > 0 && a < 1)
-            result.onLine1 = true;
-
-        // if line2 is a segment and line1 is infinite, they intersect if:
-        if (b > 0 && b < 1)
-            result.onLine2 = true;
-
-        // if line1 and line2 are segments, they intersect if both of the above are true
-
-        return result;
-    };
-
-    contactTestResult defaultCameraController::testContacts(node* testNode, obb obb)
-    {
-        auto result = contactTestResult();
-
-        auto colliderNodes = _scene->getColliderNodes();
-        for (auto node : colliderNodes)
-        {
-            if (node == testNode)
-                continue;
-
-            auto nodeObb = node->getComponent<boxCollider>()->getObb();
-            auto intersectionResult = obb::interesects(obb, vec3(), nodeObb, vec3());
-            if (intersectionResult.colliding || intersectionResult.intersecting)
-                result.contacts.push_back(nodeObb);
-        }
-
-        return result;
-    }
-
-    continuousContactTestResult defaultCameraController::testContinuousContacts(node* testNode, obb obb, vec3 offset)
-    {
-        auto result = continuousContactTestResult();
-
-        auto colliderNodes = _scene->getColliderNodes();
-        for (auto node : colliderNodes)
-        {
-            if (node == testNode)
-                continue;
-
-            auto nodeObb = node->getComponent<boxCollider>()->getObb();
-            auto intersectionResult = obb::interesects(obb, offset, nodeObb, vec3());
-            if ((intersectionResult.colliding || intersectionResult.intersecting) && intersectionResult.time >= 0.0f && intersectionResult.time <= 1.0f)
-                result.contacts.push_back(continuousCollisionResult(nodeObb, intersectionResult.time, intersectionResult.normal));
-        }
-
-        return result;
-    }
-
     void defaultCameraController::moveObject(node* object, vec3 offset, vec3 planeNormal)
     {
-        //auto collider = object->getComponent<boxCollider>();
+        std::vector<transform*> transforms;
+        std::vector<boxCollider*> colliders;
+        object->traverse<boxCollider>([&colliders, &transforms, offset](boxCollider* b)
+        {
+            transforms.push_back(b->getNode()->getTransform());
+            colliders.push_back(b);
+        });
 
-        //auto nodeTransform = object->getTransform();
-        //auto rotation = nodeTransform->getLocalOrientation();
-        //auto position = nodeTransform->getLocalPosition();
-        //auto colliderPosition = collider->getPosition();
+        auto createOffsetTransforms = [&transforms](vec3 offset) -> vector<transform*>
+        {
+            auto resultTransforms = vector<transform*>();
+            for (auto t : transforms)
+            {
+                auto position = t->getPosition() + offset;
+                auto rotation = t->getOrientation();
+                auto size = t->getSize();
+                auto offsetTransform = new transform();
+                offsetTransform->setLocalPosition(position);
+                offsetTransform->setLocalOrientation(rotation);
+                offsetTransform->setLocalSize(size);
+                resultTransforms.push_back(offsetTransform);
+            }
 
-        //auto obbStart = collider->getObb();
-        //auto obbFinal = obb(obbStart.center + offset, obbStart.axes[0], obbStart.axes[1], obbStart.axes[2], obbStart.halfSizes);
+            return resultTransforms;
+        };
 
-        //auto movementCollisions = testContinuousContacts(object, obbStart, offset).contacts;
+        auto offsetTransforms = createOffsetTransforms(offset);
+        auto ignoreColliders = colliders;
+        auto world = _scene->getPhysicsWorld();
+        if (world->intersects(colliders, offsetTransforms, ignoreColliders))
+        {
+            auto sweepResults = world->intersectsSweep(colliders, offset, ignoreColliders);
+            auto originalOffset = offset;
+            auto dir = glm::normalize(originalOffset);
+            offset = vec3();
 
-        //std::sort(movementCollisions.begin(), movementCollisions.end(), [](const continuousCollisionResult& a, const continuousCollisionResult& b) -> bool
-        //{
-        //    return a.time > b.time;
-        //});
+            auto collisionsCount = sweepResults.collisions.size();
+            if (collisionsCount > 0u)
+            {
+                auto foundPlaceToStayWithoutCollisionYeah = false;
 
-        //bool free = false;
-        //auto originalOffset = offset;
-        //for (auto collision : movementCollisions)
-        //{
-        //    auto currentOffsetColision = testContacts(object, obbFinal);
+                for (auto it = sweepResults.collisions.rbegin(); it != sweepResults.collisions.rend() && !foundPlaceToStayWithoutCollisionYeah; ++it)
+                {
+                    auto collision = *it;
 
-        //    if (currentOffsetColision.contacts.size() > 0)
-        //    {
-        //        auto dist = glm::dot(collision.normal, planeNormal);
-        //        auto normal = glm::normalize(collision.normal - dist * planeNormal);
+                    auto limited = dir * glm::max(collision.distance - DECIMAL_TRUNCATION, 0.0f);
+                    auto limitedTransforms = createOffsetTransforms(limited);
 
-        //        auto limited = originalOffset * collision.time;
-        //        auto up = glm::cross(normal, originalOffset);
-        //        auto dotDir = glm::cross(up, normal);
-        //        if (dotDir != vec3())
-        //            dotDir = glm::normalize(dotDir);
+                    ignoreColliders.push_back(collision.collider);
+                    if (!world->intersects(colliders, limitedTransforms, ignoreColliders))
+                    {
+                        foundPlaceToStayWithoutCollisionYeah = true;
+                        auto dist = glm::dot(collision.normal, planeNormal);
+                        auto normal = glm::normalize(collision.normal - dist * planeNormal);
 
-        //        auto dotValue = glm::dot(originalOffset - limited, dotDir);
+                        auto up = glm::cross(normal, originalOffset);
+                        auto dotDir = glm::cross(up, normal);
+                        if (dotDir != vec3())
+                            dotDir = glm::normalize(dotDir);
 
-        //        offset = limited + dotDir * dotValue;
-        //        obbFinal = obb(obbStart.center + offset, obbStart.axes[0], obbStart.axes[1], obbStart.axes[2], obbStart.halfSizes);
-        //    }
-        //    else
-        //    {
-        //        free = true;
-        //        break;
-        //    }
-        //}
+                        auto dotValue = glm::dot(originalOffset - limited, dotDir);
 
-        //auto hehe = [](float v) -> string
-        //{
-        //    std::stringstream stream;
-        //    stream << std::fixed << std::setprecision(30) << v;
-        //    return stream.str();
-        //};
+                        offset = limited + dotDir * dotValue;
 
-        //auto truncate = [](float v) -> float
-        //{
-        //    return glm::round(v * DECIMAL_TRUNCATION_INV) / DECIMAL_TRUNCATION_INV;
-        //};
+                        phi::removeIfContains(ignoreColliders, collision.collider);
+                        auto adjustSweepTest = world->intersectsSweep(colliders, limitedTransforms, offset - limited, ignoreColliders);
+                        if (adjustSweepTest.collided)
+                        {
+                            auto firstCollision = adjustSweepTest.collisions[0];
+                            offset = limited + dotDir * glm::max(firstCollision.distance - DECIMAL_TRUNCATION, 0.0f);
+                        }
+                    }
 
-        //if (!free)
-        //{
-        //    std::sort(movementCollisions.begin(), movementCollisions.end(), [](const continuousCollisionResult& a, const continuousCollisionResult& b) -> bool
-        //    {
-        //        return a.time < b.time;
-        //    });
+                    phi::removeIfContains(ignoreColliders, collision.collider);
 
-        //    auto collisionsCount = movementCollisions.size();
+                    for (auto t : limitedTransforms)
+                        safeDelete(t);
+                }
+            }
+        }
 
-        //    for (size_t i = 0; i < collisionsCount && movementCollisions[i].time <= movementCollisions[0].time; i++)
-        //    {
-        //        auto collisionNormal = movementCollisions[i].normal;
-        //        auto collidedObject = movementCollisions[i].obb;
-        //        auto time = movementCollisions[i].time;
-
-        //        auto dist = glm::dot(collisionNormal, planeNormal);
-        //        auto normal = glm::normalize(collisionNormal - dist * planeNormal);
-
-        //        auto limited = originalOffset * time;
-        //        auto up = glm::cross(normal, originalOffset);
-        //        auto dotDir = glm::cross(up, normal);
-        //        if (dotDir != vec3())
-        //            dotDir = glm::normalize(dotDir);
-
-        //        auto dotValue = glm::dot(originalOffset - limited, dotDir);
-
-        //        offset = limited + dotDir * dotValue;
-        //        auto obbTest = obb(obbStart.center + limited, obbStart.axes[0], obbStart.axes[1], obbStart.axes[2], obbStart.halfSizes);
-
-        //        // Test all collisions for nearest time for the current movement
-        //        //_scene->collisionWorld->convexSweepTest(shape, to, tf, adjustSweepTest, 0.0f);
-        //        auto adjustNearestCollision = testContinuousContacts(object, obbTest, dotDir * dotValue).contacts;
-
-        //        if (adjustNearestCollision.size() > 0)
-        //        {
-        //            auto adjustTime = adjustNearestCollision[0].time;
-        //            offset = limited + dotDir * dotValue * adjustTime;
-        //            if (adjustTime > 0.0f) // TODO: compare floats with margin?
-        //                break;
-        //        }
-        //        else
-        //            break;
-        //    }
-        //}
+        for (auto t : offsetTransforms)
+            safeDelete(t);
 
         object->getTransform()->translate(offset);
     }
 
     void defaultCameraController::dragMouseDown(int mouseX, int mouseY)
     {
-        if (!_dragObject)
+        //std::vector<boxCollider*> colliders;
+        //std::vector<node*> nodes;
+        //_dragObject->traverse<boxCollider>([&colliders, &nodes](boxCollider* b) { colliders.push_back(b); nodes.push_back(b->getNode()); });
+        auto pickMesh = _scene->pick(mouseX, mouseY);
+        if (!pickMesh)
             return;
 
-        auto ray = _camera->screenPointToRay(static_cast<float>(mouseX), static_cast<float>(mouseY));
-        phi::aabb* aabb = new phi::aabb();
-        _dragObject->traverse
-        (
-            [&aabb](phi::node* n)
-        {
-            auto meshComponent = n->getComponent<phi::mesh>();
-            if (meshComponent)
-            {
-                auto added = new phi::aabb(phi::aabb::add(*meshComponent->geometry->aabb, *aabb));
-                safeDelete(aabb);
-                aabb = added;
-            }
-        }
-        );
-
-        auto model = _dragObject->getTransform()->getModelMatrix();
-        auto transformedMin = mathUtils::multiply(model, aabb->min);
-        auto transformedMax = mathUtils::multiply(model, aabb->max);
-        auto transformedAabb = phi::aabb(transformedMin, transformedMax);
-        safeDelete(aabb);
+        auto node = pickMesh->getNode();
+        auto collider = node->getComponent<boxCollider>();
+        auto obb = collider->getObb();
 
         vec3* positions;
         vec3* normals;
         size_t count;
-        if (ray.intersects(transformedAabb, positions, normals, count))
+        auto ray = _camera->screenPointToRay(static_cast<float>(mouseX), static_cast<float>(mouseY));
+        if (ray.intersects(obb, positions, normals, count))
         {
+            _dragObject = node;
+            while (_dragObject->getParent()->getParent() != nullptr)
+                _dragObject = _dragObject->getParent();
+
             auto normal = normals[0];
 
             _dragOrigin = positions[0];
@@ -442,92 +282,24 @@ namespace demon
             phi::safeDeleteArray(normals);
             phi::safeDeleteArray(positions);
 
-            auto min = transformedAabb.min;
-            auto max = transformedAabb.max;
-            auto lbb = phi::vec3(min.x, min.y, min.z);
-            auto lbf = phi::vec3(min.x, min.y, max.z);
-            auto ltf = phi::vec3(min.x, max.y, max.z);
-            auto ltb = phi::vec3(min.x, max.y, min.z);
-            auto rbb = phi::vec3(max.x, min.y, min.z);
-            auto rbf = phi::vec3(max.x, min.y, max.z);
-            auto rtf = phi::vec3(max.x, max.y, max.z);
-            auto rtb = phi::vec3(max.x, max.y, min.z);
+            _dragPlane = plane(_dragOrigin, normal);
 
-            auto zFightAvoidingOffset = 0.01f;
-            if (normal == phi::vec3(-1.0f, 0.0f, 0.0f))
-            {
-                _planeGridPass->transform.setLocalPosition(phi::vec3(max.x + zFightAvoidingOffset, 0.0f, 0.0f));
-                _dragPlaneBottomLeft = lbb;
-                _dragPlaneBottomRight = lbf;
-                _dragPlaneTopRight = ltf;
-                _dragPlaneTopLeft = ltb;
-            }
-            else if (normal == phi::vec3(1.0f, 0.0f, 0.0f))
-            {
-                _planeGridPass->transform.setLocalPosition(phi::vec3(min.x - zFightAvoidingOffset, 0.0f, 0.0f));
-                _dragPlaneBottomLeft = rbf;
-                _dragPlaneBottomRight = rbb;
-                _dragPlaneTopRight = rtb;
-                _dragPlaneTopLeft = rtf;
-            }
-            else if (normal == phi::vec3(0.0f, 0.0f, 1.0f))
-            {
-                _planeGridPass->transform.setLocalPosition(phi::vec3(0.0f, 0.0f, min.z - zFightAvoidingOffset));
-                _dragPlaneBottomLeft = lbf;
-                _dragPlaneBottomRight = rbf;
-                _dragPlaneTopRight = rtf;
-                _dragPlaneTopLeft = ltf;
-            }
-            else if (normal == phi::vec3(0.0f, 0.0f, -1.0f))
-            {
-                _planeGridPass->transform.setLocalPosition(phi::vec3(0.0f, 0.0f, max.z + zFightAvoidingOffset));
-                _dragPlaneBottomLeft = rbb;
-                _dragPlaneBottomRight = lbb;
-                _dragPlaneTopRight = ltb;
-                _dragPlaneTopLeft = rtb;
-            }
-            else if (normal == phi::vec3(0.0f, 1.0f, 0.0f))
-            {
-                _planeGridPass->transform.setLocalPosition(phi::vec3(0.0f, min.y - zFightAvoidingOffset, 0.0f));
-                _dragPlaneBottomLeft = ltf;
-                _dragPlaneBottomRight = rtf;
-                _dragPlaneTopRight = rtb;
-                _dragPlaneTopLeft = ltb;
-            }
-            else if (normal == phi::vec3(0.0f, -1.0f, 0.0f))
-            {
-                _planeGridPass->transform.setLocalPosition(phi::vec3(0.0f, max.y + zFightAvoidingOffset, 0.0f));
-                _dragPlaneBottomLeft = lbb;
-                _dragPlaneBottomRight = rbb;
-                _dragPlaneTopRight = rbf;
-                _dragPlaneTopLeft = lbf;
-            }
-
+            auto planeGridPosition = obb.center + -normal * (
+                glm::abs(glm::dot(obb.axes[0] * obb.halfSizes.x, normal)) +
+                glm::abs(glm::dot(obb.axes[1] * obb.halfSizes.y, normal)) +
+                glm::abs(glm::dot(obb.axes[2] * obb.halfSizes.z, normal)) +
+                DECIMAL_TRUNCATION * 10.0f);
+            _planeGridPass->transform.setLocalPosition(planeGridPosition);
             _planeGridPass->transform.setDirection(normal);
-
-            auto planeOrigin = _planeGridPass->transform.getPosition();
-            auto planeRight = _planeGridPass->transform.getRight();
-            auto planeUp = _planeGridPass->transform.getUp();
-            auto point = (_dragPlaneBottomLeft + _dragPlaneTopRight) * 0.5f;
-
-            _planeGridPass->centerPosition = planePointProjection2D(planeOrigin, normal, planeRight, planeUp, point);
+            _planeGridPass->centerPosition = vec2();
             _planeGridPass->show();
 
             _dragDelta = vec2();
             _dragDoingInertia = false;
             _dragging = true;
+            _dragCollider = collider;
 
-            //moveObject(_dragObject, phi::vec3(0.07f, 0.07f, 0.0f));
-
-            //auto a = phi::aabb(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 1.0f, 1.0f));
-            //auto b = phi::aabb(vec3(0.5f, 0.0f, 0.0f), vec3(1.5f, 1.0f, 1.0f));
-
-            //auto res = phi::aabb::intersects(b, a, vec3(0.0f, 0.0f, 0.0f));
-
-            //if (res.hit.collided)
-            //    phi::debug(std::to_string(res.time) + "[" + std::to_string(res.pos.x) + ";" + std::to_string(res.pos.y) + "]");
-
-            //moveObject(_dragObject, vec3(0.0f, -1.0f, 0.0f), normal);
+            //moveObject(_dragObject, vec3(0.01f, -0.01f, -0.01f), normal);
         }
     }
 
@@ -535,25 +307,28 @@ namespace demon
     {
         auto ray = _camera->screenPointToRay(static_cast<float>(_mousePosX), static_cast<float>(_mousePosY));
         float t;
-        ray.intersects(_dragPlaneBottomLeft, _dragPlaneTopLeft, _dragPlaneTopRight, _dragPlaneBottomRight, t);
+        ray.intersects(_dragPlane, t);
         auto point = ray.getOrigin() + ray.getDirection() * t;
 
         auto diff = point - _dragOrigin;
         auto newPosition = _dragObjectStartPosition + diff;
 
+        moveObject(_dragObject, newPosition - _dragObject->getTransform()->getLocalPosition(), _dragPlane.getNormal());
+
         auto planeOrigin = _planeGridPass->transform.getPosition();
         auto planeNormal = _planeGridPass->transform.getDirection();
         auto planeRight = _planeGridPass->transform.getRight();
         auto planeUp = _planeGridPass->transform.getUp();
-        auto centerBoundingBox = (_dragPlaneBottomLeft + _dragPlaneTopRight) * 0.5f + (newPosition - _dragObjectStartPosition);
-        auto projection = planePointProjection2D(planeOrigin, planeNormal, planeRight, planeUp, centerBoundingBox);
+        //auto centerBoundingBox = (_dragPlaneBottomLeft + _dragPlaneTopRight) * 0.5f + (newPosition - _dragObjectStartPosition);
+        auto gridPlane = plane(planeOrigin, planeNormal);
+        auto projectionGrid = gridPlane.projectPoint(_dragCollider->getObb().center);
+        auto projectionGrid2D = vec2(glm::dot(planeRight, projectionGrid - planeOrigin), glm::dot(planeUp, projectionGrid - planeOrigin));
+        //planePointProjection2D(planeOrigin, planeNormal, planeRight, planeUp, _dragCollider->getObb().center);
 
         _dragStartPos = _planeGridPass->centerPosition;
-        _dragDelta = projection - _dragStartPos;
+        _dragDelta = projectionGrid2D - _dragStartPos;
         _dragDoingInertia = true;
         _dragInertiaTime = 0.0f;
-
-        moveObject(_dragObject, newPosition - _dragObject->getTransform()->getLocalPosition(), planeNormal);
     }
 
     void defaultCameraController::dragMouseUp()
@@ -682,7 +457,7 @@ namespace demon
         if (_zoomBounceAnimation)
         {
             phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
-            safeDelete(_zoomBounceAnimation);
+            _zoomBounceAnimation = nullptr;
         }
 
         _zoomSpeed = 0.0f;

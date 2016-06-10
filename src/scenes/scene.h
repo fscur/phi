@@ -1,6 +1,7 @@
 #pragma once
 #include <phi.h>
 #include "scenesApi.h"
+#include "physicsWorld.h"
 
 #include <core\mathUtils.h>
 #include <core\node.h>
@@ -42,9 +43,9 @@ namespace phi
         float _w;
         float _h;
 
-        phi::map<node*, nodeEventTokens*> _nodeTokens;
-        phi::map<mesh*, meshEventTokens*> _meshTokens;
-        std::vector<node*> _colliderNodes;
+        map<node*, nodeEventTokens*> _nodeTokens;
+        physicsWorld* _physicsWorld;
+        vector<node*> _selectedNodes;
 
     private:
         void trackNode(node* node);
@@ -70,6 +71,6 @@ namespace phi
         vector<node*>* getObjects() { return _sceneRoot->getChildren(); } //gambis
         renderer* getRenderer() const { return _pipeline->_renderer; }
         camera* getCamera() const { return _camera; }
-        vector<node*> getColliderNodes() const { return _colliderNodes; }
+        physicsWorld* getPhysicsWorld() const { return _physicsWorld; }
     };
 }

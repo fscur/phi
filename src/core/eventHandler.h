@@ -29,18 +29,18 @@ namespace phi
             return guid;
         }
 
-        void unassign(eventToken t)
+        void unassign(const eventToken& t)
         {
             _functions.erase(
                 std::remove_if(
                     _functions.begin(),
                     _functions.end(),
-                    [&](eventTokenFunction pair) { return pair.token == t; }));
+                    [&t](eventTokenFunction pair) { return pair.token == t; }));
         }
 
         void raise(Args... args)
         {
-            for (auto pair : _functions)
+            for (auto& pair : _functions)
                 pair.function(args...);
         }
 
@@ -49,7 +49,7 @@ namespace phi
             return assign(function);
         }
 
-        void operator -= (eventToken token)
+        void operator -= (const eventToken& token)
         {
             unassign(token);
         }
