@@ -30,7 +30,7 @@ namespace phi
             hasSparseTextures);
 
         initState();
-        
+
         texturesManager = new phi::texturesManager(hasBindlessTextures, hasSparseTextures);
         shadersManager = new phi::shadersManager(info.shadersPath);
         fontsManager = new phi::fontsManager(info.fontsPath, texturesManager);
@@ -53,16 +53,17 @@ namespace phi
     void gl::initOpenGLExtensions()
     {
         const GLubyte* glExtension = nullptr;
-        auto i = 0;
+        auto i = -1;
 
-        glExtension = glGetStringi(GL_EXTENSIONS, i);
         vector<string> glExtensions;
+        string currentExtension;
 
-        while (glExtension != NULL)
+        do
         {
-            glExtensions.push_back(string((char*)glExtension));
-            glExtension = glGetStringi(GL_EXTENSIONS, ++i);
-        }
+            auto glExtension = glGetStringi(GL_EXTENSIONS, ++i);
+            currentExtension = string((char*)glExtension);
+            glExtensions.push_back(currentExtension);
+        } while (glExtension != NULL && !currentExtension.empty());
         glGetError(); //cleaning error from loading the last (inexistent) extension
 
         vector<string> phiExtensions =
