@@ -17,6 +17,10 @@ file(GLOB natvis_files *.natvis)
 add_library(scenes SHARED ${source_files} ${header_files} ${natvis_files})
 
 target_link_libraries(scenes rendering)
+target_link_libraries(scenes ${PHYSX_LIBRARY})
+target_link_libraries(scenes ${PHYSX_COMMON_LIBRARY})
+target_link_libraries(scenes ${PHYSX_EXTENSIONS_LIBRARY})
+target_link_libraries(scenes ${PHYSX_PROFILESDK_LIBRARY})
 
 if (MINGW)
     set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
