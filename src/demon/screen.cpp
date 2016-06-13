@@ -148,18 +148,27 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneCamera = new camera("sceneCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto sceneCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+        sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
+        sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
+
         auto sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath)
             .withMeshRenderer()
             .build();
 
-        auto constructionCamera = new camera("constructionCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto constructionCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+        constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+
         auto constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath)
             .withControlRenderer()
             .withTextRenderer()
             .build();
 
-        auto nandinhoCamera = new camera("nandinhoCamera", _resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto nandinhoCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+        nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+
         auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath)
             .withGlassyControlRenderer()
             .withTextRenderer()
@@ -177,17 +186,6 @@ namespace demon
 
         nandinhoLayer->add(labelNandinho);
         nandinhoLayer->add(_labelFps);
-
-        // GAMBIS DAR UM JEITO!!!!!!!!
-        auto cameraPosition = vec3(-5.0f, 5.0f, 20.0f);
-        sceneCamera->getTransform()->setLocalPosition(cameraPosition);
-        sceneCamera->getTransform()->setDirection(-cameraPosition);
-
-        constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
-
-        nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
         _activeContext = _designContext;
     }

@@ -9,21 +9,12 @@ namespace phi
         _camera(camera),
         _root(new node("root"))
     {
-        initialize();
+        createFrameUniforms();
         trackNode(_root);
     }
 
     layer::~layer()
     {
-    }
-
-    void layer::initialize()
-    {
-        createFrameUniforms();
-
-        auto cameraNode = new node("camera");
-        cameraNode->addComponent(_camera);
-        //add(cameraNode);
     }
 
     void layer::createFrameUniforms()
