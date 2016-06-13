@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
 #include "applicationApi.h"
-
+#include <core\eventHandler.h>
 #include <core\resolution.h>
 #include <core\mouseEventArgs.h>
 #include <core\keyboardEventArgs.h>
@@ -10,6 +10,12 @@ namespace phi
 {
     class window
     {
+    private:
+        static eventToken _resizeToken;
+
+    public:
+        static eventHandler<resolution> resize;
+
     protected:
         wstring _title;
         resolution _resolution;

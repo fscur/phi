@@ -84,10 +84,10 @@ namespace phi
     }
 
     template<typename T>
-    void debug(T value)
+    void debug(T message)
     {
 #if _DEBUG
-        std::cout << value << std::endl;
+        std::cout << message << std::endl;
 #endif
     }
 }

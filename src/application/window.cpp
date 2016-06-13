@@ -3,6 +3,9 @@
 
 namespace phi
 {
+    eventToken window::_resizeToken;
+    eventHandler<resolution> window::resize;
+
     window::window(wstring title, phi::resolution resolution) :
         _title(title),
         _resolution(resolution),

@@ -15,6 +15,16 @@ namespace phi
     DWORD _windowExStyle = 0;
     DWORD _windowStyle = WS_OVERLAPPEDWINDOW;
     LPARAM _lastMouseMove;
+    resolution _lastResolution;
+
+    bool _isBeingFirstShown = true;
+    bool _hasEnteredSizeMove = false;
+    bool _isResizing = false;
+    bool _isBeingRestored = false;
+    bool _isBeingMaximized = false;
+    bool _isBeingMinimized = false;
+    bool _wasMaximized = false;
+    bool _wasMinimized = false;
 
     int convertToKey(WPARAM wParam)
     {
@@ -145,102 +155,262 @@ namespace phi
         return 0;
     }
 
-    LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    LRESULT onActivate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        if (!HIWORD(wParam)) // Is minimized
+        {
+            // active
+        }
+        else
+        {
+            // inactive
+        }
+
+        return 0;
+    }
+
+    LRESULT onSysCommand(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        switch (wParam)
+        {
+        case SC_SCREENSAVE:
+        case SC_MONITORPOWER:
+            return 0;
+        case SC_MINIMIZE:
+            _wasMaximized = _isBeingMaximized;
+            _isBeingMinimized = true;
+            _isBeingMaximized = false;
+            _isBeingRestored = false;
+            break;
+        case SC_MAXIMIZE:
+            _wasMinimized = _isBeingMinimized;
+            _isBeingMinimized = false;
+            _isBeingMaximized = true;
+            _isBeingRestored = false;
+            break;
+        case SC_RESTORE:
+            _wasMaximized = _isBeingMaximized;
+            _wasMinimized = _isBeingMinimized;
+            _isBeingMaximized = false;
+            _isBeingMinimized = false;
+            _isBeingRestored = true;
+            break;
+        }
+
+        return DefWindowProcW(hWnd, message, wParam, lParam);
+    }
+
+    LRESULT onWindowPosChanged(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        const WINDOWPOS* windowPos = (WINDOWPOS *)lParam;
+
+        _lastResolution = resolution(static_cast<float>(windowPos->cx), static_cast<float>(windowPos->cy));
+        auto flags = windowPos->flags;
+
+        if (flags & SWP_SHOWWINDOW)
+        {
+            if (_isBeingFirstShown)
+            {
+                window::resize.raise(_lastResolution);
+                _isBeingFirstShown = false;
+            }
+        }
+        
+        if (flags & SWP_HIDEWINDOW)
+        {
+            return 0;
+        }
+
+        if (!(flags & SWP_NOMOVE))
+        {
+            //debug("window_moved_to(pwp->x, pwp->y)");
+        }
+
+        if (!(flags & SWP_NOSIZE))
+        {
+            if (_isBeingMinimized)
+                return 0;
+
+            if (_wasMinimized)
+            {
+                _wasMinimized = false;
+                return 0;
+            }
+
+            bool hasToRaiseResize = false;
+
+            if (_isBeingMaximized)
+            {
+                hasToRaiseResize = true;
+                window::resize.raise(_lastResolution);
+            }
+            else if (_isBeingRestored && _wasMaximized)
+            {
+                hasToRaiseResize = true;
+                _isBeingRestored = false;
+                _wasMaximized = false;
+            }
+            else if (!_hasEnteredSizeMove)
+                hasToRaiseResize = true;
+
+            if (_hasEnteredSizeMove)
+                _isResizing = true;
+
+            if (hasToRaiseResize)
+            {
+                window::resize.raise(_lastResolution);
+                return 0;
+            }
+        }
+
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+
+    LRESULT onEnterSizeMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        _hasEnteredSizeMove = true;
+        return 0;
+    }
+
+    LRESULT onExitSizeMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        if (_isResizing)
+            window::resize.raise(_lastResolution);
+
+        _hasEnteredSizeMove = false;
+        _isResizing = false;
+        return 0;
+    }
+
+    LRESULT onDestroy(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        PostQuitMessage(0);
+        return 0;
+    }
+
+    LRESULT onKeyDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyKeyDown(convertToKey(wParam));
+        return 0;
+    }
+
+    LRESULT onKeyUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyKeyUp(convertToKey(wParam));
+        return 0;
+    }
+
+    LRESULT onMouseWheel(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         auto point = POINT();
-        LRESULT result = 0;
+        point.x = GET_X_LPARAM(lParam);
+        point.y = GET_Y_LPARAM(lParam);
+        ScreenToClient(_windowHandle, &point);
+        input::notifyMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), point.x, point.y);
+        return 0;
+    }
 
+    LRESULT onLButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyLeftMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        SetCapture(_windowHandle);
+        return 0;
+    }
+
+    LRESULT onLButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyLeftMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        ReleaseCapture();
+        return 0;
+    }
+
+    LRESULT onRButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        SetCapture(_windowHandle);
+        return 0;
+    }
+
+    LRESULT onRButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyRightMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        ReleaseCapture();
+        return 0;
+    }
+
+    LRESULT onMButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        SetCapture(_windowHandle);
+        return 0;
+    }
+
+    LRESULT onMButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyMiddleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        ReleaseCapture();
+        return 0;
+    }
+
+    LRESULT onMouseMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        if (lParam != _lastMouseMove)
+            input::notifyMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        _lastMouseMove = lParam;
+        return 0;
+    }
+
+    LRESULT onCaptureChanged(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        //Any operation that uses SetCapture function and has an end state should set it end state here,
+        //for example changing the cursor at the end of a drag and drog operation.
+        return 0;
+    }
+
+    LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
         switch (message)
         {
         case WM_ACTIVATE:
-        {
-            if (!HIWORD(wParam)) // Is minimized
-            {
-                // active
-            }
-            else
-            {
-                // inactive
-            }
-
-            return 0;
-        }
+            return onActivate(hWnd, message, wParam, lParam);
         case WM_SYSCOMMAND:
-        {
-            switch (wParam)
-            {
-            case SC_SCREENSAVE:
-            case SC_MONITORPOWER:
-                return 0;
-            }
-            result = DefWindowProcW(hWnd, message, wParam, lParam);
-        } break;
-        case WM_SETFOCUS:
-            //FocusCallback(window, true);
-            break;
-        case WM_KILLFOCUS:
-            //FocusCallback(window, false);
-            break;
+            return onSysCommand(hWnd, message, wParam, lParam);
         case WM_CLOSE:
         case WM_DESTROY:
-            PostQuitMessage(0);
-            break;
+            return onDestroy(hWnd, message, wParam, lParam);
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            input::notifyKeyDown(convertToKey(wParam));
-            break;
+            return onKeyDown(hWnd, message, wParam, lParam);
         case WM_KEYUP:
         case WM_SYSKEYUP:
-            input::notifyKeyUp(convertToKey(wParam));
-            break;
+            return onKeyUp(hWnd, message, wParam, lParam);
         case WM_MOUSEWHEEL:
-            point.x = GET_X_LPARAM(lParam);
-            point.y = GET_Y_LPARAM(lParam);
-            ScreenToClient(_windowHandle, &point);
-            input::notifyMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), point.x, point.y);
-            break;
+            return onMouseWheel(hWnd, message, wParam, lParam);
         case WM_LBUTTONDOWN:
-            input::notifyLeftMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            SetCapture(_windowHandle);
-            break;
+            return onLButtonDown(hWnd, message, wParam, lParam);
         case WM_LBUTTONUP:
-            input::notifyLeftMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            ReleaseCapture();
-            break;
+            return onLButtonUp(hWnd, message, wParam, lParam);
         case WM_RBUTTONDOWN:
-            input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            SetCapture(_windowHandle);
-            break;
+            return onRButtonDown(hWnd, message, wParam, lParam);
         case WM_RBUTTONUP:
-            input::notifyRightMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            ReleaseCapture();
-            break;
+            return onRButtonUp(hWnd, message, wParam, lParam);
         case WM_MBUTTONDOWN:
-            input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            SetCapture(_windowHandle);
-            break;
+            return onMButtonDown(hWnd, message, wParam, lParam);
         case WM_MBUTTONUP:
-            input::notifyMiddleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            ReleaseCapture();
-            break;
+            return onMButtonUp(hWnd, message, wParam, lParam);
         case WM_MOUSEMOVE:
-            if (lParam != _lastMouseMove)
-                input::notifyMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-
-            _lastMouseMove = lParam;
-            break;
+            return onMouseMove(hWnd, message, wParam, lParam);
         case WM_CAPTURECHANGED:
-            //Any operation that uses SetCapture function and has an end state should set it end state here,
-            //for example changing the cursor at the end of a drag and drog operation.
-            break;
-        case WM_SIZE:
-            //TODO: Resize
-            break;
-        default:
-            result = DefWindowProcW(hWnd, message, wParam, lParam);
+            return onCaptureChanged(hWnd, message, wParam, lParam);
+        case WM_ENTERSIZEMOVE:
+            return onEnterSizeMove(hWnd, message, wParam, lParam);
+        case WM_EXITSIZEMOVE:
+            return onExitSizeMove(hWnd, message, wParam, lParam);
+        case WM_WINDOWPOSCHANGED:
+            return onWindowPosChanged(hWnd, message, wParam, lParam);
         }
 
-        return result;
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     void createWindow(wstring title, resolution resolution)
@@ -372,6 +542,8 @@ namespace phi
 
     void window::init()
     {
+        _resizeToken = window::resize.assign([=](phi::resolution resolution) { onResize(resolution); });
+
         adjustWindowToScreenBounds();
         createWindow(_title, _resolution);
         createGLContext();
@@ -396,8 +568,6 @@ namespace phi
         auto width = std::min(_resolution.width, screenWidth);
         auto height = std::min(_resolution.height, screenHeight - verticalBorderSize);
         _resolution = resolution(width, height);
-
-        onResize(_resolution);
     }
 
     void window::input()
@@ -424,6 +594,8 @@ namespace phi
 
     void window::close()
     {
+        window::resize.unassign(_resizeToken);
+
         onClosing();
 
         releaseGLContext();

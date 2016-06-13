@@ -5,7 +5,7 @@ namespace phi
 {
     struct resolution
     {
-        struct resolution(float width, float height) :
+        struct resolution(float width = 0.0f, float height = 0.0f) :
             width(width),
             height(height)
         {

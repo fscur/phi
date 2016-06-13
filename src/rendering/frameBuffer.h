@@ -54,5 +54,6 @@ namespace phi
         RENDERING_API static void createPickingFramebuffer(const resolution& resolution);
         RENDERING_API static framebuffer* getPickingFramebuffer();
         RENDERING_API static renderTarget* getPickingRenderTarget();
+        RENDERING_API void resize(const resolution& resolution);
     };
 }
