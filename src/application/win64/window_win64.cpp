@@ -242,7 +242,6 @@ namespace phi
             if (_isBeingMaximized)
             {
                 hasToRaiseResize = true;
-                window::resize.raise(_lastResolution);
             }
             else if (_isBeingRestored && _wasMaximized)
             {
