@@ -10,7 +10,7 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     mat4 ip;
 } frameUniforms;
 
-layout (std140, binding = 2) uniform RenderTargetAddresses
+layout (std140, binding = 1) uniform RenderTargetAddresses
 {
     int rt0Unit;
     int rt1Unit;
@@ -30,12 +30,12 @@ layout (std140, binding = 2) uniform RenderTargetAddresses
     float pad5;
 } rtAddresses;
 
-layout (location = 0) uniform sampler2DArray textureArrays[32];
-layout (location = 1) uniform vec2 resolution;
-layout (location = 2) uniform float offset;
-layout (location = 3) uniform float time;
+layout (location = 0) uniform vec2 resolution;
+layout (location = 1) uniform float offset;
+layout (location = 2) uniform float time;
+layout (location = 3) uniform sampler2DArray textureArrays[32];
 
-layout (location = 0)out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 float fetchAlpha(float dx, float dy)
 {
@@ -88,6 +88,5 @@ void main()
     vec4 edgeColor = vec4(1.0, 1.0, 1.0, 1.0);
 
     float g = gradient(offset);
-
     fragColor = mix(backgroundColor, edgeColor, g);
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="phi::camera">
+    <DisplayString >{*(phi::component*)this,nd}</DisplayString>
+    <Expand HideRawView="true">
+      <Item Name="Near">_near,na</Item>
+      <Item Name="Far">_far,na</Item>
+      <Item Name="FoV">_fov,na</Item>
+      <Item Name="Resolution">_resolution,na</Item>
+      <Item Name="Projection Matrix">_projectionMatrix,na</Item>
+      <Item Name="View Matrix">_viewMatrix,na</Item>
+      <Item Name="Changed Projection">_changedProjection,na</Item>
+      <Item Name="View Changed">_changedView,na</Item>
+    </Expand>
+  </Type>
+  
+</AutoVisualizer>

@@ -19,18 +19,13 @@ namespace phi
 {
     class meshRenderer
     {
-    private:
-        vector<renderPass*> _renderPasses;
-    private:
-        SCENE_RENDERING_API meshRenderer(vector<renderPass*>&& renderPasses);
-
     public:
-        SCENE_RENDERING_API ~meshRenderer();
-        SCENE_RENDERING_API void render();
+        meshRenderer() = delete;
+        ~meshRenderer() = delete;
 
-        unordered_map<string, renderTarget*> getOuts() const { return _renderPasses.back()->getOuts(); }
-        vector<renderPass*> getRenderPasses() const { return _renderPasses; }
-
-        static SCENE_RENDERING_API vector<renderPass*> configure(resolution resolution, const string& resourcesPath, meshRendererDescriptor* renderDescriptor);
+        static SCENE_RENDERING_API vector<renderPass*> configure(
+            const resolution& resolution,
+            const string& resourcesPath,
+            meshRendererDescriptor* renderDescriptor);
     };
 }

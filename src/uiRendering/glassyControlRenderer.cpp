@@ -8,7 +8,7 @@
 
 #include <io\path.h>
 
-#include "glassyControlRenderPassConfigurator.h"
+#include "glassyControlRenderPass.h"
 
 namespace phi
 {
@@ -34,9 +34,7 @@ namespace phi
         glassyControlRendererDescriptor* renderDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto glassyControlRenderPass = glassyControlRenderPassConfigurator::configureNewGlassyControlRenderPass(
-                renderDescriptor,
-                shadersPath);
+        auto glassyControlRenderPass = glassyControlRenderPass::configure(renderDescriptor, shadersPath);
 
         return { glassyControlRenderPass };
     }

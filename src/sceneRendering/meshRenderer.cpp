@@ -6,39 +6,25 @@
 
 #include <io\path.h>
 
+#include <rendering\texturesManager.h>
 #include <rendering\programBuilder.h>
 
-#include "gBufferRenderPassConfigurator.h"
-#include "lightingRenderPassConfigurator.h"
+#include "gBufferRenderPass.h"
+#include "lightingRenderPass.h"
+#include "selectionRenderPass.h"
 
 namespace phi
 {
-    meshRenderer::meshRenderer(vector<renderPass*>&& renderPasses) :
-        _renderPasses(renderPasses)
-    {
-    }
-
-    meshRenderer::~meshRenderer()
-    {
-        for (auto renderPass : _renderPasses)
-            safeDelete(renderPass);
-    }
-
-    void meshRenderer::render()
-    {
-        for (auto renderPass : _renderPasses)
-            renderPass->render();
-    }
-
     vector<renderPass*> meshRenderer::configure(
-        resolution resolution,
+        const resolution& resolution,
         const string& resourcesPath, 
         meshRendererDescriptor* rendererDescriptor)
     {
-        auto shadersPath = path::combine(resourcesPath, "/shaders");
-        auto gBufferRenderPass = gBufferRenderPassConfigurator::configureNewGBuffer(rendererDescriptor, resolution, shadersPath);
-        auto lightingRenderPass = lightingRenderPassConfigurator::configureNewLighting(gBufferRenderPass, resolution, shadersPath);
+        auto shadersPath = path::combine(resourcesPath, "shaders");
+        auto gBufferRenderPass = gBufferRenderPass::configure(rendererDescriptor, resolution, shadersPath);
+        auto lightingRenderPass = lightingRenderPass::configure(gBufferRenderPass, resolution, shadersPath);
+        auto selectionRenderPass = selectionRenderPass::configure(lightingRenderPass, resolution, shadersPath);
 
-        return { gBufferRenderPass, lightingRenderPass };
+        return { gBufferRenderPass, lightingRenderPass, selectionRenderPass };
     }
 }

@@ -1,7 +1,5 @@
 #include <precompiled.h>
-#include "gBufferRenderPassConfigurator.h"
-
-#include <core\notImplementedException.h>
+#include "gBufferRenderPass.h"
 
 #include <rendering\texturesManager.h>
 #include <rendering\programBuilder.h>
@@ -9,7 +7,10 @@
 
 namespace phi
 {
-    renderPass* gBufferRenderPassConfigurator::configureNewGBuffer(meshRendererDescriptor* rendererDescriptor, resolution resolution, string shadersPath)
+    renderPass* gBufferRenderPass::configure(
+        meshRendererDescriptor* rendererDescriptor,
+        const resolution& resolution,
+        const string& shadersPath)
     {
         auto gBufferFrameBuffer = framebufferBuilder::newFramebuffer(resolution)
             .with("rt0", GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
@@ -72,7 +73,6 @@ namespace phi
             auto h = static_cast<GLint>(resolution.height);
 
             glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-            
         });
 
         return pass;

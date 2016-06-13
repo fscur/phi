@@ -18,13 +18,36 @@ namespace phi
     class layer
     {
     private:
+        struct nodeEventTokens
+        {
+            nodeEventTokens(
+                eventToken childAdded,
+                eventToken childRemoved,
+                eventToken transformChanged,
+                eventToken selectionChanged) :
+                childAdded(childAdded),
+                childRemoved(childRemoved),
+                transformChanged(transformChanged),
+                selectionChanged(selectionChanged)
+            {
+            }
+
+            eventToken childAdded;
+            eventToken childRemoved;
+            eventToken transformChanged;
+            eventToken selectionChanged;
+        };
+
+    private:
         camera* _camera;
         node* _root;
 
         vector<std::function<void(void)>> _onUpdate;
         vector<renderPass*> _renderPasses;
         vector<std::function<void(node*)>> _onNodeAdded;
+        vector<std::function<void(node*)>> _onNodeSelectionChanded;
         vector<iMouseController*> _controllers;
+        map<node*, nodeEventTokens*> _nodeTokens;
 
         buffer* _frameUniformsBuffer;
 
@@ -35,6 +58,12 @@ namespace phi
         void initialize();
         void createFrameUniforms();
         void updateFrameUniforms();
+        void trackNode(node* node);
+        void untrackNode(node * node);
+        void nodeChildAdded(node* addedChild);
+        void nodeChildRemoved(node* removedChild);
+        void nodeTransformChanged(node* changedNode);
+        void nodeSelectionChanged(node* node);
 
     public:
         layer(camera* camera);
@@ -43,6 +72,7 @@ namespace phi
         CONTEXT_API void addOnUpdate(std::function<void(void)> updateFunction);
         CONTEXT_API void addRenderPass(renderPass* renderPass);
         CONTEXT_API void addOnNodeAdded(std::function<void(node*)> onNodeAdded);
+        CONTEXT_API void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged);
         CONTEXT_API void addMouseController(iMouseController* controller);
 
         CONTEXT_API void add(node* node);

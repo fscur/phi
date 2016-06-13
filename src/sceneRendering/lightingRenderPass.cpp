@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "lightingRenderPassConfigurator.h"
+#include "lightingRenderPass.h"
 
 #include <core\notImplementedException.h>
 #include <core\geometry.h>
@@ -13,27 +13,27 @@
 
 namespace phi
 {
-    renderPass* lightingRenderPassConfigurator::configureNewLighting(renderPass* gBufferRenderPass, resolution resolution, string& shadersPath)
+    renderPass* lightingRenderPass::configure(renderPass* gBufferRenderPass, const resolution& resolution, const string& shadersPath)
     {
         auto renderTargets = gBufferRenderPass->getOuts();
 
         auto rtAddresses = phi::renderTargetsAddresses();
-        auto rt0 = renderTargets["rt0"]->textureAddress;
-        auto rt1 = renderTargets["rt1"]->textureAddress;
-        auto rt2 = renderTargets["rt2"]->textureAddress;
-        auto rt3 = renderTargets["pickingRenderTarget"]->textureAddress;
-        auto depth = renderTargets["depth"]->textureAddress;
+        auto rt0 = renderTargets["rt0"];
+        auto rt1 = renderTargets["rt1"];
+        auto rt2 = renderTargets["rt2"];
+        auto rt3 = renderTargets["pickingRenderTarget"];
+        auto depth = renderTargets["depth"];
 
-        rtAddresses.rt0Unit = rt0.unit;
-        rtAddresses.rt0Page = rt0.page;
-        rtAddresses.rt1Unit = rt1.unit;
-        rtAddresses.rt1Page = rt1.page;
-        rtAddresses.rt2Unit = rt2.unit;
-        rtAddresses.rt2Page = rt2.page;
-        rtAddresses.rt3Unit = rt3.unit;
-        rtAddresses.rt3Page = rt3.page;
-        rtAddresses.depthUnit = depth.unit;
-        rtAddresses.depthPage = depth.page;
+        rtAddresses.rt0Unit = rt0->textureAddress.unit;
+        rtAddresses.rt0Page = rt0->textureAddress.page;
+        rtAddresses.rt1Unit = rt1->textureAddress.unit;
+        rtAddresses.rt1Page = rt1->textureAddress.page;
+        rtAddresses.rt2Unit = rt2->textureAddress.unit;
+        rtAddresses.rt2Page = rt2->textureAddress.page;
+        rtAddresses.rt3Unit = rt3->textureAddress.unit;
+        rtAddresses.rt3Page = rt3->textureAddress.page;
+        rtAddresses.depthUnit = depth->textureAddress.unit;
+        rtAddresses.depthPage = depth->textureAddress.page;
 
         auto layout = textureLayout();
         layout.dataFormat = GL_RGBA;
@@ -62,25 +62,7 @@ namespace phi
         auto finalImageFramebuffer = new framebuffer();
         finalImageFramebuffer->add(GL_COLOR_ATTACHMENT0, finalImageRT);
 
-        auto quad = geometry::createQuad(2.0f);
-        vector<vertexAttrib> attribs;
-        attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
-        attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-
-        auto vbo = new vertexBuffer("vbo", attribs);
-        vbo->storage(quad->vboSize, quad->vboData, bufferStorageUsage::write);
-
-        auto ebo = new buffer("ebo", bufferTarget::element);
-        ebo->storage(quad->eboSize, quad->eboData, bufferStorageUsage::write);
-
-        auto quadVao = new vertexArrayObject();
-        quadVao->add(vbo);
-        quadVao->setEbo(ebo);
-        quadVao->setOnRender([]
-        {
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            
-        });
+        auto quadVao = vertexArrayObject::createPostProcessVao();
 
         auto rtsBuffer = new buffer("RenderTargetAddresses", bufferTarget::uniform);
 
@@ -93,8 +75,14 @@ namespace phi
         program->addBuffer(rtsBuffer);
 
         auto pass = new renderPass(program, finalImageFramebuffer);
-        pass->addOut(finalImageRT);
         pass->addVao(quadVao);
+
+        pass->addOut(rt0);
+        pass->addOut(rt1);
+        pass->addOut(rt2);
+        pass->addOut(rt3);
+        pass->addOut(depth);
+        pass->addOut(finalImageRT);
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
         {
@@ -122,11 +110,11 @@ namespace phi
             program->unbind();
             glEnable(GL_DEPTH_TEST);
 
-            framebuffer->blitToDefault(finalImageRT);
+            //framebuffer->blitToDefault(finalImageRT);
 
-            glActiveTexture(GL_TEXTURE0 + finalImageRT->textureAddress.unit);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, finalImageRT->textureAddress.containerId);
-            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+            //glActiveTexture(GL_TEXTURE0 + finalImageRT->textureAddress.unit);
+            //glBindTexture(GL_TEXTURE_2D_ARRAY, finalImageRT->textureAddress.containerId);
+            //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         });
 
         return pass;

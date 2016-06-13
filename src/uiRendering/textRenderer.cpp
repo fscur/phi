@@ -9,7 +9,7 @@
 
 #include <io\path.h>
 
-#include "textRenderPassConfigurator.h"
+#include "textRenderPass.h"
 
 namespace phi
 {
@@ -33,7 +33,7 @@ namespace phi
     vector<renderPass*> textRenderer::configure(const string& resourcesPath, textRendererDescriptor* renderDescriptor)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto textRenderPass = textRenderPassConfigurator::configureNewTextRenderPass(renderDescriptor, shadersPath);
+        auto textRenderPass = textRenderPass::configure(renderDescriptor, shadersPath);
         return { textRenderPass };
     }
 }

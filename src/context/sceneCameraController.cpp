@@ -7,6 +7,8 @@
 #include <core\ray.h>
 #include <core\multiCommand.h>
 
+#include <rendering\framebuffer.h>
+
 #include <application\application.h>
 
 namespace phi
@@ -142,7 +144,8 @@ namespace phi
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = 1.f;//_scene->getZBufferValue(mouseX, static_cast<int>(_camera->getResolution().height) - mouseY);
+        auto y = static_cast<int>(_camera->getResolution().height) - mouseY;
+        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(mouseX, y);
 
         float z = 10.0;
         if (zBufferValue != 1.0f)
@@ -242,7 +245,8 @@ namespace phi
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = 1.f;// _scene->getZBufferValue(mouseX, static_cast<int>(_camera->getResolution().height) - mouseY);
+        auto y = static_cast<int>(_camera->getResolution().height) - mouseY;
+        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(mouseX, y);
 
         if (zBufferValue == 1.0f)
             _panEyeZ = 20.0f;
@@ -348,7 +352,8 @@ namespace phi
         rotationCancel();
         panCancel();
 
-        auto zBufferValue = 1.f;//_scene->getZBufferValue(mouseX, static_cast<int>(_camera->getResolution().height) - mouseY);
+        auto y = static_cast<int>(_camera->getResolution().height) - mouseY;
+        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(mouseX, y);
 
         if (zBufferValue == 1.0f)
             _rotationTargetPos = glm::vec3();
