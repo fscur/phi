@@ -210,12 +210,13 @@ namespace phi
             true,
             false);
 
-        auto pickingTextureAddress = texturesManager::get(pickingTexture);
+        auto pickingTextureAddress = texturesManager::add(pickingTexture);
 
         _pickingRenderTarget = new renderTarget(
             "pickingRenderTarget",
             static_cast<GLint>(resolution.width),
             static_cast<GLint>(resolution.height),
+            layout,
             pickingTextureAddress);
 
         _pickingFramebuffer->add(GL_COLOR_ATTACHMENT0, _pickingRenderTarget);
@@ -239,6 +240,58 @@ namespace phi
 
     void framebuffer::resize(const resolution& resolution)
     {
-        debug("resizeeeeeeeeeeeeeeeeeeeeee");
+        if (_isDefaultFramebuffer)
+            return;
+
+        auto i = 0;
+
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //glDeleteFramebuffers(1, &_id);
+        //glCreateFramebuffers(1, &_id);
+
+        for (auto& renderTarget : _renderTargets)
+        {
+            auto attachment = _renderTargetsAttachments[renderTarget];
+            
+            auto texture = new phi::texture(
+                static_cast<uint>(resolution.width),
+                static_cast<uint>(resolution.height),
+                renderTarget->layout);
+
+            auto textureAddress = texturesManager::add(texture);
+
+            renderTarget->w = static_cast<GLint>(resolution.width);
+            renderTarget->h = static_cast<GLint>(resolution.height);
+            renderTarget->textureAddress = textureAddress;
+
+            glBindFramebuffer(GL_FRAMEBUFFER, _id);
+
+            glNamedFramebufferTextureLayer(
+                _id,
+                attachment,
+                textureAddress.containerId,
+                0,
+                static_cast<GLint>(textureAddress.page));
+
+
+            auto status = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
+
+
+            switch (status)
+            {
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                phi::debug("incomplete attachment");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                phi::debug("incomplete draw buffer");
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+                phi::debug("incomplete layer targets");
+                break;
+            default:
+                break;
+            }
+        }
+
     }
 }

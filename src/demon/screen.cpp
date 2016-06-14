@@ -175,7 +175,7 @@ namespace demon
             .withTextRenderer()
             .build();
 
-        _designContext = new context(_resolution, { sceneLayer, nandinhoLayer });
+        _designContext = new context(_resolution, { sceneLayer });
         _constructionContext = new context(_resolution, { sceneLayer, constructionLayer });
 
         sceneLayer->add(floor);
@@ -303,6 +303,9 @@ namespace demon
 
     void screen::onResize(phi::resolution resolution)
     {
+        gl::resize(resolution);
+        //glViewport(0, 0, (GLsizei)(resolution.width / 2.0f), (GLsizei)(resolution.height / 2.0f));
+
         if (_activeContext)
             _activeContext->resize(resolution);
 

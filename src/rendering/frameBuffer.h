@@ -17,7 +17,6 @@ namespace phi
         vector<GLenum> _drawBuffers;
         unordered_map<const renderTarget*, GLenum> _renderTargetsAttachments;
         vector<renderTarget*> _renderTargets;
-
         bool _isDefaultFramebuffer;
 
         static framebuffer* _pickingFramebuffer;

@@ -68,7 +68,7 @@ namespace phi
         auto glyph = font->getGlyph(glyphChar);
         auto glyphTexture = new texture(glyph->image, _glyphLayout, true, true);
 
-        textureAddress address = texturesManager::get(glyphTexture);
+        textureAddress address = texturesManager::addAtlasTexture(glyphTexture);
 
         glyph->texturePosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
         glyph->textureSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);

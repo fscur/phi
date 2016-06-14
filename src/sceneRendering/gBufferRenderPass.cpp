@@ -19,9 +19,9 @@ namespace phi
             .with("depth", GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
             .build();
 
-        auto pickingFramebuffer = framebuffer::getPickingFramebuffer();
-        auto pickingRenderTarget = pickingFramebuffer->getRenderTarget("pickingRenderTarget");
-        gBufferFrameBuffer->add(GL_COLOR_ATTACHMENT3, pickingRenderTarget);
+        //auto pickingFramebuffer = framebuffer::getPickingFramebuffer();
+        //auto pickingRenderTarget = pickingFramebuffer->getRenderTarget("pickingRenderTarget");
+        //gBufferFrameBuffer->add(GL_COLOR_ATTACHMENT3, pickingRenderTarget);
 
         auto program = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
         program->addBuffer(rendererDescriptor->_materialRenderDataBuffer);
@@ -39,15 +39,19 @@ namespace phi
 
         pass->setOnBeginRender([=] (phi::program* program, framebuffer* framebuffer)
         {
+            glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
             framebuffer->bindForDrawing();
 
             const auto selectionRenderTargetNumber = 3;
             auto selectionClearColor = 0.0f;
 
+            glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glDepthMask(GL_TRUE);
             glEnable(GL_DEPTH_TEST);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glClearBufferfv(GL_COLOR, selectionRenderTargetNumber, &selectionClearColor);
+            //glClearBufferfv(GL_COLOR, selectionRenderTargetNumber, &selectionClearColor);
 
             program->bind();
 
@@ -69,10 +73,14 @@ namespace phi
 
             framebuffer->unbind(GL_FRAMEBUFFER);
             framebuffer->bindForReading();
-            auto w = static_cast<GLint>(resolution.width);
-            auto h = static_cast<GLint>(resolution.height);
 
-            glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+            auto rt0 = framebuffer->getRenderTarget("rt0");
+            auto w = rt0->w;
+            auto h = rt0->h;
+
+            //glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+            glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         });
 
         return pass;

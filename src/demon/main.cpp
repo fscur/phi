@@ -31,7 +31,7 @@ public:
     bool shouldExecute;
 
 public:
-    commandLineCommand(string name, void(*func)(vector<string>)) :
+     commandLineCommand(string name, void(*func)(vector<string>)) :
         name(name),
         args(vector<string>()),
         func(func),
@@ -131,7 +131,7 @@ int main(int argc, char* args[])
     {
         auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
         auto application = phi::application(appStartInfo);
-        auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1920, 1080));
+        auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(800, 800));
 
         application.run(&screen);
     }

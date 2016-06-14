@@ -1,6 +1,7 @@
 #include <precompiled.h>
 
 #include <core\invalidInitializationException.h>
+#include <core\keyNotFoundException.h>
 
 #include "texturesManager.h"
 #include "bindlessTextureContainer.h"
@@ -61,16 +62,12 @@ namespace phi
         return static_cast<uint>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
     }
 
-    void texturesManager::add(const texture* const texture)
+    textureAddress texturesManager::addAtlasTexture(const texture* const texture)
     {
-        auto layout = texture->layout;
-        bool textureIsNotAtlas = !texture->isAtlasTexture;
-        if (texture->generateMipmaps && textureIsNotAtlas)
-            layout.levels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
-
         auto textureAddress = phi::textureAddress();
         textureContainer* container;
         sizeui containerSize = sizeui(texture->w, texture->h, _maxPages);
+        auto layout = texture->layout;
 
         auto it = _containers.find(layout);
         if (it != _containers.end())
@@ -84,8 +81,48 @@ namespace phi
             {
                 container = containers[i++];
                 containerSize = container->getSize();
+                added = container->add(texture, textureAddress);
+            }
+
+            if (added)
+            {
+                _textures[texture] = textureAddress;
+                return textureAddress;
+            }
+        }
+
+        container = createContainer(containerSize, layout);
+        container->add(texture, textureAddress);
+        _textures[texture] = textureAddress;
+
+        return textureAddress;
+    }
+
+    textureAddress texturesManager::add(const texture* const texture)
+    {   
+        auto layout = texture->layout;
+        if (texture->generateMipmaps)
+            layout.levels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
+
+        auto textureAddress = phi::textureAddress();
+        textureContainer* container;
+        sizeui size = sizeui(texture->w, texture->h, _maxPages);
+
+        auto it = _containers.find(layout);
+        if (it != _containers.end())
+        {
+            auto containers = (*it).second;
+            uint i = 0;
+            bool added = false;
+            auto containersCount = containers.size();
+            sizeui containerSize = sizeui(0);
+
+            while (!added && i < containersCount)
+            {
+                container = containers[i++];
+                containerSize = container->getSize();
                 
-                if (textureIsNotAtlas && (containerSize.w != texture->w || containerSize.h != texture->h))
+                if (containerSize.w != texture->w || containerSize.h != texture->h)
                     continue;
 
                 added = container->add(texture, textureAddress);
@@ -94,24 +131,26 @@ namespace phi
             if (added)
             {
                 _textures[texture] = textureAddress;
-                return;
+                return textureAddress;
             }
         }
 
-        container = createContainer(containerSize, layout);
+        container = createContainer(size, layout);
         container->add(texture, textureAddress);
         _textures[texture] = textureAddress;
+
+        return textureAddress;
     }
 
-    textureAddress texturesManager::get(const texture* const texture)
+    textureAddress texturesManager::getTextureAddress(const texture* const texture)
     {
         if (!_initialized)
             throw invalidInitializationException("texturesManager not initialized.");
 
-        if (!contains(texture))
-            add(texture);
+        if (contains(texture))
+            return _textures[texture];
 
-        return _textures[texture];
+        throw keyNotFoundException("texture not found.");
     }
 
     texture* texturesManager::getTextureFromImage(phi::image* image)

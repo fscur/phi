@@ -21,11 +21,12 @@ namespace phi
             static_cast<uint>(_resolution.height),
             attachment.layout);
 
-        auto textureAddress = texturesManager::get(texture);
+        auto textureAddress = texturesManager::add(texture);
         return new phi::renderTarget(
             attachment.name,
             static_cast<GLint>(_resolution.width),
             static_cast<GLint>(_resolution.height),
+            attachment.layout,
             textureAddress);
     }
 

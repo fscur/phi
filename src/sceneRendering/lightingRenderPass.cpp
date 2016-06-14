@@ -51,12 +51,13 @@ namespace phi
             true,
             false);
 
-        auto finalImageTexAddress = texturesManager::get(finalImageTexture);
+        auto finalImageTexAddress = texturesManager::add(finalImageTexture);
 
         auto finalImageRT = new renderTarget(
             "finalImageRenderTarget",
             static_cast<GLint>(resolution.width),
             static_cast<GLint>(resolution.height),
+            layout,
             finalImageTexAddress);
 
         auto finalImageFramebuffer = new framebuffer();
@@ -87,7 +88,6 @@ namespace phi
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
         {
             framebuffer->bindForDrawing();
-
             glDisable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT);
 

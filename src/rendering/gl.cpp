@@ -110,8 +110,16 @@ namespace phi
         }
     }
 
-    void gl::SyncPipeline()
+    void gl::syncPipeline()
     {
         glFinish();
+    }
+
+    void gl::resize(const resolution& resolution)
+    {
+        auto width = static_cast<GLsizei>(resolution.width);
+        auto height = static_cast<GLsizei>(resolution.height);
+
+        glViewport(0, 0, width, height);
     }
 }

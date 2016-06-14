@@ -170,6 +170,8 @@ namespace phi
 
     void layer::resize(const resolution& resolution)
     {
+        _camera->setResolution(resolution);
+        updateFrameUniforms(); //TODO: precisa????/
         for (auto& renderPass : _renderPasses)
             renderPass->resize(resolution);
     }

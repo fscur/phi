@@ -65,7 +65,7 @@ namespace phi
             onUpdate();
             onRender();
             onSwapbuffers();
-            gl::SyncPipeline();
+            gl::syncPipeline();
 
             milliseconds += time::deltaSeconds * 1000.0;
             frames++;

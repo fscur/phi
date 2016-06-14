@@ -72,7 +72,12 @@ namespace phi
     void glassyControlRendererDescriptor::add(control* control)
     {
         auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage());
-        auto address = texturesManager::get(texture);
+        textureAddress address;
+
+        if (!texturesManager::contains(texture))
+            address = texturesManager::add(texture);
+        else
+            address = texturesManager::getTextureAddress(texture);
 
         auto renderData = controlRenderData();
         renderData.backgroundColor = control->getBackgroundColor();

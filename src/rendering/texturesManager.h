@@ -24,16 +24,17 @@ namespace phi
         RENDERING_API static vector<GLuint64> handles;
 
     private:
-        static void add(const texture* const texture);
-        static bool contains(const texture* const texture);
         static textureContainer * createContainer(sizeui size, textureLayout layout);
 
     public:
         RENDERING_API static void initialize(bool sparse, bool bindless);
         RENDERING_API static void release();
         RENDERING_API static uint getMaxLevels(const uint& w, const uint& h);
+        RENDERING_API static bool contains(const texture* const texture);
+        RENDERING_API static textureAddress add(const texture* const texture);
+        RENDERING_API static textureAddress addAtlasTexture(const texture* const texture);
         RENDERING_API static texture* getTextureFromImage(image* image);
-        RENDERING_API static textureAddress get(const texture* const texture);
+        RENDERING_API static textureAddress getTextureAddress(const texture* const texture);
         RENDERING_API static textureContainer* reserveContainer(sizeui size, textureLayout layout);
         RENDERING_API static bool getIsBindless() { return _isBindless; }
         RENDERING_API static bool getIsSparse() { return _isSparse; }

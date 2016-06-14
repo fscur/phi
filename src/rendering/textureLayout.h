@@ -1,6 +1,8 @@
 #pragma once
 #include <phi.h>
 #include <functional>
+#include <core\image.h>
+#include <core\argumentException.h>
 
 namespace phi
 {
@@ -36,13 +38,13 @@ namespace phi
         {
             switch (dataFormat)
             {
-            case imageDataFormat::bgra:
+            case imageDataFormat::imageDataFormat::bgra:
                 return GL_BGRA;
-            case imageDataFormat::bgr:
+            case imageDataFormat::imageDataFormat::bgr:
                 return GL_BGR;
-            case imageDataFormat::rgba:
+            case imageDataFormat::imageDataFormat::rgba:
                 return GL_RGBA;
-            case imageDataFormat::rgb:
+            case imageDataFormat::imageDataFormat::rgb:
                 return GL_RGB;
             default:
                 throw argumentException("invalid dataFormat");
@@ -53,9 +55,9 @@ namespace phi
         {
             switch (dataType)
             {
-            case imageDataType::float_dataType:
+            case imageDataType::imageDataType::float_dataType:
                 return GL_FLOAT;
-            case imageDataType::ubyte_dataType:
+            case imageDataType::imageDataType::ubyte_dataType:
                 return GL_UNSIGNED_BYTE;
             default:
                 throw argumentException("invalid dataType");
