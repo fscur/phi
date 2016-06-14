@@ -30,9 +30,8 @@ namespace phi
 
     void camera::updateViewMatrix()
     {
-        auto target = vec3(0.0f, 0.0, 1.0f);
         auto position = _transform->getPosition();
-        target = position + _transform->getDirection();
+        auto target = position + _transform->getDirection();
 
         _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
     }

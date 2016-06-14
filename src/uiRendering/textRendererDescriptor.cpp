@@ -153,6 +153,7 @@ namespace phi
 
     void textRendererDescriptor::add(text* text)
     {
+        //TODO: check if text is empty before creating instance
         _instances[text] = buildTextInstance(text);
         recreateBuffers();
     }

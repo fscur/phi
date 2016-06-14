@@ -35,6 +35,7 @@ namespace phi
         SCENE_RENDERING_API void add(mesh* mesh);
         SCENE_RENDERING_API void remove(mesh* mesh);
         SCENE_RENDERING_API void update(mesh* mesh);
-        SCENE_RENDERING_API void updateSelectionBuffer(mesh * mesh, bool isSelected);
+        SCENE_RENDERING_API void updateSelection(mesh* mesh, bool isSelected);
+        SCENE_RENDERING_API void updateTransform(mesh* mesh, const mat4& modelMatrix);
     };
 }

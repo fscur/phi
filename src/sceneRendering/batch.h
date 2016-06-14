@@ -26,7 +26,7 @@ namespace phi
 
             drawInstanceData(
                 GLintptr offset = 0,
-                mat4 modelMatrix = mat4(), 
+                mat4 modelMatrix = mat4(),
                 GLuint materialId = 0) :
                 offset(offset),
                 modelMatrix(modelMatrix),

@@ -15,6 +15,8 @@ namespace phi
 
     layer::~layer()
     {
+        for (auto& onDeleteFunction : _onDelete)
+            onDeleteFunction();
     }
 
     void layer::createFrameUniforms()
@@ -25,40 +27,6 @@ namespace phi
         _frameUniformsBuffer->storage(sizeof(frameUniformBlock), &frameUniform, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
-    void layer::updateFrameUniforms()
-    {
-        auto frameUniform = phi::frameUniformBlock(_camera->getProjectionMatrix(), _camera->getViewMatrix());
-        _frameUniformsBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniform);
-    }
-
-    void layer::addOnUpdate(std::function<void(void)> updateFunction)
-    {
-        _onUpdate.push_back(updateFunction);
-    }
-
-    void layer::addRenderPass(renderPass* renderPass)
-    {
-        _renderPasses.push_back(renderPass);
-    }
-
-    void layer::addOnNodeAdded(std::function<void(node*)> onNodeAdded)
-    {
-        _onNodeAdded.push_back(onNodeAdded);
-    }
-
-    void layer::addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged)
-    {
-        _onNodeSelectionChanded.push_back(onNodeSelectionChanged);
-    }
-
-    void layer::addMouseController(iMouseController* controller)
-    {
-        _controllers.push_back(controller);
-    }
-
-    //TODO: keep a list of dirty nodes to prevent traversing and some hard to fix buggy bugs
-    //TODO: after this fix, grouping should work correctly
-    //TODO: nodes pointer should be deleted on deleteSceneObjectCommand
     void layer::trackNode(node* node)
     {
         auto childAddedToken = node->childAdded.assign(std::bind(&layer::nodeChildAdded, this, std::placeholders::_1));
@@ -84,28 +52,44 @@ namespace phi
         _nodeTokens.erase(node);
     }
 
+    void layer::updateFrameUniforms()
+    {
+        auto frameUniform = phi::frameUniformBlock(_camera->getProjectionMatrix(), _camera->getViewMatrix());
+        _frameUniformsBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniform);
+    }
+
     void layer::nodeChildAdded(node* addedChild)
     {
         addedChild->traverse([&](phi::node* node)
         {
             trackNode(node);
+
             for (auto onNodeAddedFunction : _onNodeAdded)
-                onNodeAddedFunction(node); //TODO: do with events
+                onNodeAddedFunction(node);
         });
     }
 
     void layer::nodeChildRemoved(node* removedChild)
     {
+        removedChild->traverse([&](phi::node* node)
+        {
+            untrackNode(node);
+
+            for (auto onNodeRemovedFunction : _onNodeRemoved)
+                onNodeRemovedFunction(node);
+        });
     }
 
     void layer::nodeTransformChanged(node* changedNode)
     {
+        for (auto onNodeTransformChangedFunction : _onNodeTransformChanged)
+            onNodeTransformChangedFunction(changedNode);
     }
 
-    void layer::nodeSelectionChanged(node* node)
+    void layer::nodeSelectionChanged(node* changedNode)
     {
-        for (auto& onNodeSelectionChanged : _onNodeSelectionChanded)
-            onNodeSelectionChanged(node);
+        for (auto onNodeSelectionChangedFunction : _onNodeSelectionChanged)
+            onNodeSelectionChangedFunction(changedNode);
     }
 
     void layer::add(node* node)
@@ -119,9 +103,6 @@ namespace phi
             controller->update();
 
         updateFrameUniforms();
-
-        for (auto updateFunction : _onUpdate)
-            updateFunction();
     }
 
     void layer::render()

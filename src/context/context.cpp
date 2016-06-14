@@ -25,10 +25,6 @@ namespace phi
 
     context::~context()
     {
-        for (auto& layer : _layers)
-        {
-            safeDelete(layer);
-        }
     }
 
     void context::setLayersInputs()
@@ -82,7 +78,8 @@ namespace phi
                 mesh = sceneId::getMesh(id);
                 if (mesh)
                 {
-                    mesh->getNode()->setIsSelected(true);
+                    auto node = mesh->getNode();
+                    node->setIsSelected(true);
                 }
             }
         }
