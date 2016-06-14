@@ -32,6 +32,10 @@ namespace demon
         phi::context* _constructionContext;
         phi::context* _activeContext;
 
+        phi::layer* _sceneLayer;
+        phi::layer* _constructionLayer;
+        phi::layer* _nandinhoLayer;
+
         phi::node* _labelFps;
         phi::commandsManager* _commandsManager;
 #ifdef _DEBUG

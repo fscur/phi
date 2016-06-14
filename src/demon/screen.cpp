@@ -27,7 +27,6 @@
 #include <rendering\shader.h>
 
 #include <context\layerBuilder.h>
-#include <context\contextBuilder.h>
 
 #ifdef _DEBUG
 #include <rendering\liveShaderReloader.h>
@@ -44,7 +43,6 @@ namespace demon
 
     screen::~screen()
     {
-        //safeDelete(_designContext);
     }
 
     void screen::onInit()
@@ -152,7 +150,7 @@ namespace demon
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
         sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
 
-        auto sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath)
+        _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath)
             .withMeshRenderer()
             .build();
 
@@ -160,7 +158,7 @@ namespace demon
         constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        auto constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath)
+        _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath)
             .withControlRenderer()
             .withTextRenderer()
             .build();
@@ -169,23 +167,34 @@ namespace demon
         nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        auto nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath)
+        _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath)
             .withGlassyControlRenderer()
             .withTextRenderer()
             .build();
 
-        _designContext = new context(_resolution, { sceneLayer, nandinhoLayer });
-        _constructionContext = new context(_resolution, { sceneLayer, constructionLayer });
+        //TODO: onDemandUI
+        //sceneLayer->addOnNodeAdded([=](node* node)
+        //{
+            //node->addOnClick([=](layer* layer)
+            //{
+                //auto onDemandBillboard = onDemandBillboardUI::createFrom(node, sceneCamera);
+                //auto onDemand = onDemandUI::createFrom(node);
+                //layer->add(onDemand);
+            //});
+        //});
 
-        sceneLayer->add(floor);
-        sceneLayer->add(chair);
+        _designContext = new context(_resolution, { _sceneLayer, _nandinhoLayer });
+        _constructionContext = new context(_resolution, { _sceneLayer, _constructionLayer });
+
+        _sceneLayer->add(floor);
+        _sceneLayer->add(chair); 
         //sceneLayer->add(sceneLabel);
-        //TODO: prevent components that are not dealt with it 
+        //TODO: prevent components that are not dealt with it from being added to layer
 
-        constructionLayer->add(constructionLabel);
+        _constructionLayer->add(constructionLabel);
 
-        nandinhoLayer->add(labelNandinho);
-        nandinhoLayer->add(_labelFps);
+        _nandinhoLayer->add(labelNandinho);
+        _nandinhoLayer->add(_labelFps);
 
         _activeContext = _designContext;
     }
@@ -293,6 +302,14 @@ namespace demon
         safeDelete(_gl);
         safeDelete(_userLibrary);
         safeDelete(_projectLibrary);
+
+        //safeDelete(_sceneLayer);
+        safeDelete(_constructionLayer);
+        safeDelete(_nandinhoLayer);
+
+        safeDelete(_designContext);
+        safeDelete(_constructionContext);
+
 #ifdef _DEBUG
         _watcher->endWatch();
         safeDelete(_watcher);

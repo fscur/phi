@@ -3,6 +3,11 @@
 
 #include <core\resolution.h>
 
+#include <ui\control.h>
+#include <ui\text.h>
+
+#include <io\path.h>
+
 #include <rendering\camera.h>
 
 #include <sceneRendering\meshRenderer.h>
@@ -11,13 +16,11 @@
 #include <uiRendering\glassyControlRenderer.h>
 #include <uiRendering\textRenderer.h>
 
-#include <context\sceneId.h>
-#include <context\sceneCameraController.h>
-
-#include <ui\control.h>
-#include <ui\text.h>
-
-#include <io\path.h>
+#include "meshLayerBehaviour.h"
+#include "controlLayerBehaviour.h"
+#include "textLayerBehaviour.h"
+#include "sceneId.h"
+#include "sceneCameraController.h"
 
 namespace phi
 {
@@ -35,36 +38,18 @@ namespace phi
 
     layerBuilder layerBuilder::withMeshRenderer()
     {
-        auto rendererDescriptor = new meshRendererDescriptor();
-        _meshRenderPasses = phi::meshRenderer::configure(
-            _resolution,
-            _resourcesPath,
-            rendererDescriptor);
+        auto meshBehaviour = new meshLayerBehaviour(_resolution, _resourcesPath);
 
-        _layer->addOnNodeAdded([=](node* node)
+        _layer->addOnNodeAdded(std::bind(&meshLayerBehaviour::onNodeAdded, meshBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&meshLayerBehaviour::onNodeRemoved, meshBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&meshLayerBehaviour::onNodeTransformChanged, meshBehaviour, std::placeholders::_1));
+        _layer->addOnNodeSelectionChanged(std::bind(&meshLayerBehaviour::onNodeSelectionChanged, meshBehaviour, std::placeholders::_1));
+        _layer->addRenderPasses(meshBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([meshBehaviour]
         {
-            auto mesh = node->getComponent<phi::mesh>();
-            if (mesh)
-            {
-                sceneId::setNextId(mesh);
-                rendererDescriptor->add(mesh);
-            }
+            safeDelete(meshBehaviour);
         });
-
-        _layer->addOnNodeSelectionChanged([=](node* node)
-        {
-            auto isSelected = node->getIsSelected();
-            auto mesh = node->getComponent<phi::mesh>();
-            if (mesh)
-                rendererDescriptor->updateSelectionBuffer(mesh, isSelected);
-        });
-
-        _layer->addOnUpdate([=] {});
-
-        for (auto& renderPass : _meshRenderPasses)
-        {
-            _layer->addRenderPass(renderPass);
-        }
 
         _layer->addMouseController(new sceneCameraController(_layer->getCamera()));
 
@@ -103,53 +88,42 @@ namespace phi
             _layer->addRenderPass(renderPass);
         }
 
-        _layer->addOnUpdate([=] {});
-
         return *this;
     }
 
     layerBuilder layerBuilder::withControlRenderer()
     {
-        auto rendererDescriptor = new controlRendererDescriptor();
-        _controlRenderPasses = controlRenderer::configure(_resourcesPath, rendererDescriptor);
+        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath);
 
-        _layer->addOnNodeAdded([=](node* node)
+        _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&controlLayerBehaviour::onNodeTransformChanged, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeSelectionChanged(std::bind(&controlLayerBehaviour::onNodeSelectionChanged, controlBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(controlBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([controlBehaviour]
         {
-            auto control = node->getComponent<phi::control>();
-
-            if (control)
-                rendererDescriptor->add(control);
+            safeDelete(controlBehaviour);
         });
-
-        for (auto& renderPass : _controlRenderPasses)
-        {
-            _layer->addRenderPass(renderPass);
-        }
-
-        _layer->addOnUpdate([=] {});
 
         return *this;
     }
 
     layerBuilder layerBuilder::withTextRenderer()
     {
-        auto rendererDescriptor = new textRendererDescriptor();
-        _textRenderPasses = phi::textRenderer::configure(_resourcesPath, rendererDescriptor);
+        auto textBehaviour = new textLayerBehaviour(_resolution, _resourcesPath);
 
-        _layer->addOnNodeAdded([=](node* node)
+        _layer->addOnNodeAdded(std::bind(&textLayerBehaviour::onNodeAdded, textBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&textLayerBehaviour::onNodeRemoved, textBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&textLayerBehaviour::onNodeTransformChanged, textBehaviour, std::placeholders::_1));
+        _layer->addOnNodeSelectionChanged(std::bind(&textLayerBehaviour::onNodeSelectionChanged, textBehaviour, std::placeholders::_1));
+        _layer->addRenderPasses(textBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([textBehaviour]
         {
-            auto text = node->getComponent<phi::text>();
-
-            if (text)
-                rendererDescriptor->add(text);
+            safeDelete(textBehaviour);
         });
-
-        for (auto& renderPass : _textRenderPasses)
-        {
-            _layer->addRenderPass(renderPass);
-        }
-
-        _layer->addOnUpdate([=] {});
 
         return *this;
     }

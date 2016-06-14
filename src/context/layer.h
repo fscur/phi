@@ -41,13 +41,15 @@ namespace phi
     private:
         camera* _camera;
         node* _root;
+        map<node*, nodeEventTokens*> _nodeTokens;
 
-        vector<std::function<void(void)>> _onUpdate;
         vector<renderPass*> _renderPasses;
         vector<std::function<void(node*)>> _onNodeAdded;
-        vector<std::function<void(node*)>> _onNodeSelectionChanded;
+        vector<std::function<void(node*)>> _onNodeRemoved;
+        vector<std::function<void(node*)>> _onNodeTransformChanged;
+        vector<std::function<void(node*)>> _onNodeSelectionChanged;
+        vector<std::function<void(void)>> _onDelete;
         vector<iMouseController*> _controllers;
-        map<node*, nodeEventTokens*> _nodeTokens;
 
         buffer* _frameUniformsBuffer;
 
@@ -55,7 +57,6 @@ namespace phi
         eventHandler<layer*> onInputChanged;
 
     private:
-        void initialize();
         void createFrameUniforms();
         void updateFrameUniforms();
         void trackNode(node* node);
@@ -63,17 +64,11 @@ namespace phi
         void nodeChildAdded(node* addedChild);
         void nodeChildRemoved(node* removedChild);
         void nodeTransformChanged(node* changedNode);
-        void nodeSelectionChanged(node* node);
+        void nodeSelectionChanged(node * changedNode);
 
     public:
-        layer(camera* camera);
-        ~layer();
-
-        CONTEXT_API void addOnUpdate(std::function<void(void)> updateFunction);
-        CONTEXT_API void addRenderPass(renderPass* renderPass);
-        CONTEXT_API void addOnNodeAdded(std::function<void(node*)> onNodeAdded);
-        CONTEXT_API void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged);
-        CONTEXT_API void addMouseController(iMouseController* controller);
+        CONTEXT_API layer(camera* camera);
+        CONTEXT_API ~layer();
 
         CONTEXT_API void add(node* node);
         CONTEXT_API void update();
@@ -85,6 +80,16 @@ namespace phi
         CONTEXT_API void onMouseWheel(mouseEventArgs* e);
         CONTEXT_API void onKeyDown(keyboardEventArgs* e);
         CONTEXT_API void onKeyUp(keyboardEventArgs* e);
+
+        void addOnNodeAdded(std::function<void(node*)> onNodeAdded) { _onNodeAdded.push_back(onNodeAdded); }
+        void addOnNodeRemoved(std::function<void(node*)> onNodeRemoved) { _onNodeRemoved.push_back(onNodeRemoved); }
+        void addOnNodeTransformChanged(std::function<void(node*)> onNodeTransformChanged) { _onNodeTransformChanged.push_back(onNodeTransformChanged); }
+        void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged) { _onNodeSelectionChanged.push_back(onNodeSelectionChanged); }
+
+        void addMouseController(iMouseController* controller) { _controllers.push_back(controller); }
+        void addRenderPass(renderPass* renderPass) { _renderPasses.push_back(renderPass); }
+        void addRenderPasses(vector<renderPass*> renderPasses) { _renderPasses.insert(_renderPasses.end(), renderPasses.begin(), renderPasses.end()); }
+        void addOnDelete(std::function<void(void)> onDelete) { _onDelete.push_back(onDelete); }
 
         unordered_map<string, renderTarget*> getOuts() { return _renderPasses.back()->getOuts(); }
         camera* getCamera() { return _camera; }

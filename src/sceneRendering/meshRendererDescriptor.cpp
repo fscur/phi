@@ -104,8 +104,13 @@ namespace phi
         throw notImplementedException();
     }
 
-    void meshRendererDescriptor::updateSelectionBuffer(mesh* mesh, bool isSelected)
+    void meshRendererDescriptor::updateSelection(mesh* mesh, bool isSelected)
     {
         _meshesBatches[mesh]->updateSelectionBuffer(mesh, isSelected);
+    }
+
+    void meshRendererDescriptor::updateTransform(mesh* mesh, const mat4& modelMatrix)
+    {
+        _meshesBatches[mesh]->updateTransformBuffer(mesh, modelMatrix);
     }
 }

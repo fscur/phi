@@ -35,18 +35,18 @@ namespace phi
         CORE_API void removeChild(node* child);
         CORE_API void clearChildren();
 
+        CORE_API void setIsSelected(bool isSelected);
+        CORE_API void setParent(node* const value);
+        CORE_API void setPosition(vec3 value);
+        CORE_API void setSize(vec3 value);
+        CORE_API void traverse(std::function<void(node*)> func);
+
         string getName() const { return _name; }
         transform* getTransform() const { return _transform; }
         node* getParent() const { return _parent; }
         vector<node*>* getChildren() const { return _children; }
         vector<component*>* getComponents() const { return _components; }
         bool getIsSelected() const { return _isSelected; }
-
-        CORE_API void setIsSelected(bool isSelected);
-        CORE_API void setParent(node* const value);
-        CORE_API void setPosition(vec3 value);
-        CORE_API void setSize(vec3 value);
-        CORE_API void traverse(std::function<void(node*)> func);
 
         CORE_API bool operator ==(const node& other);
         CORE_API bool operator !=(const node& other);
