@@ -37,7 +37,8 @@ using namespace phi;
 namespace demon
 {
     screen::screen(wstring title, resolution resolution) :
-        window(title, resolution)
+        window(title, resolution),
+        _activeContext(nullptr)
     {
     }
 
@@ -319,6 +320,9 @@ namespace demon
 
     void screen::onResize(phi::resolution resolution)
     {
+        if (_activeContext)
+            _activeContext->resize(resolution);
+
         debug(resolution.toString());
     }
 }

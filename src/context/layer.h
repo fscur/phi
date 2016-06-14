@@ -93,5 +93,7 @@ namespace phi
 
         unordered_map<string, renderTarget*> getOuts() { return _renderPasses.back()->getOuts(); }
         camera* getCamera() { return _camera; }
+
+        void resize(const resolution& resolution);
     };
 }

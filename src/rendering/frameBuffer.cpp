@@ -236,4 +236,9 @@ namespace phi
 
         return _pickingRenderTarget;
     }
+
+    void framebuffer::resize(const resolution& resolution)
+    {
+        debug("resizeeeeeeeeeeeeeeeeeeeeee");
+    }
 }

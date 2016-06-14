@@ -148,4 +148,10 @@ namespace phi
         for (auto& controller : _controllers)
             controller->onKeyUp(e);
     }
+
+    void layer::resize(const resolution& resolution)
+    {
+        for (auto& renderPass : _renderPasses)
+            renderPass->resize(resolution);
+    }
 }

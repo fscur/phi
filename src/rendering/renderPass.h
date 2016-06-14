@@ -57,5 +57,7 @@ namespace phi
 
         unordered_map<string, renderTarget*> getIns() const { return _ins; }
         unordered_map<string, renderTarget*> getOuts() const { return _outs; }
+
+        RENDERING_API void resize(const resolution& resolution);
     };
 }

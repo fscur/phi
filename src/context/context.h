@@ -33,5 +33,7 @@ namespace phi
         CONTEXT_API void onMouseWheel(phi::mouseEventArgs* e);
         CONTEXT_API void onKeyDown(phi::keyboardEventArgs* e);
         CONTEXT_API void onKeyUp(phi::keyboardEventArgs* e);
+
+        CONTEXT_API void resize(const resolution& resolution);
     };
 }

@@ -117,4 +117,10 @@ namespace phi
         for (auto& layer : _layers)
             layer->onKeyUp(e);
     }
+
+    void context::resize(const resolution& resolution)
+    {
+        for (auto& layer : _layers)
+            layer->resize(resolution);
+    }
 }
