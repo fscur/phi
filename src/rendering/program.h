@@ -21,10 +21,6 @@ namespace phi
         map<uint, GLuint> _uniforms;
         map<uint, string> _uniformsNames;
         vector<string> _attributes;
-
-#ifdef _DEBUG
-        map<shader*, eventToken> _dirtyShadersTokens;
-#endif
         unordered_map<GLuint, buffer*> _buffers;
 
     private:

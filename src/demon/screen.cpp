@@ -56,7 +56,8 @@ namespace demon
 
 #ifdef _DEBUG
         _messageQueue = new blockingQueue<phi::watcherMessage>();
-        _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](fileInfo shaderFileInfo)
+        auto shadersPath = path::combine(application::resourcesPath, "shaders");
+        _watcher = new watcher(shadersPath, _messageQueue, [&](fileInfo shaderFileInfo)
         {
             liveShaderReloader::reloadShader(shaderFileInfo.path);
         });

@@ -23,7 +23,7 @@ namespace phi
 
         auto newShader = [&](string fileName)
         {
-            phi::shader* shader = nullptr;
+            shader* shader = nullptr;
 
             if (_shadersCache.find(fileName) != _shadersCache.end())
             {
@@ -33,9 +33,6 @@ namespace phi
             {
                 shader = new phi::shader(fileName);
                 _shadersCache[fileName] = shader;
-#ifdef _DEBUG
-                liveShaderReloader::shaders[fileName] = shader;
-#endif
             }
 
             return shader;
@@ -48,6 +45,11 @@ namespace phi
         program->addShader(vertexShader);
         program->addShader(fragmentShader);
         program->link();
+
+#ifdef _DEBUG
+        liveShaderReloader::add(vertexShaderFileName, program);
+        liveShaderReloader::add(fragmentShaderFileName, program);
+#endif
 
         return program;
     }

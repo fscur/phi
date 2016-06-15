@@ -8,7 +8,6 @@ namespace phi
     program::program()
     {
         _id = glCreateProgram();
-        
     }
 
     program::~program()
@@ -16,10 +15,7 @@ namespace phi
         unbind();
 
         for (auto shader : _shaders)
-        {
             glDetachShader(_id, shader->getId());
-            shader->getOnIsDirtyChanged()->unassign(_dirtyShadersTokens[shader]);
-        }
 
         glDeleteProgram(_id);
     }
@@ -27,16 +23,6 @@ namespace phi
     void program::addShader(shader * shader)
     {
         _shaders.push_back(shader);
-
-#ifdef _DEBUG
-        auto token = shader->getOnIsDirtyChanged()->assign([&](phi::shader* shader)
-        {
-            reload();
-        });
-
-        _dirtyShadersTokens[shader] = token;
-#endif
-
         glAttachShader(_id, shader->getId());
     }
 
@@ -174,7 +160,7 @@ namespace phi
         auto index = glGetProgramResourceIndex(_id, programInterface, buffer->getName().c_str());
 
         const GLenum props[1] = { GL_BUFFER_BINDING };
-        GLint values[1] = {-1};
+        GLint values[1] = { -1 };
         glGetProgramResourceiv(_id, programInterface, index, 1, props, 1, NULL, values);
 
         return values[0];
@@ -197,14 +183,9 @@ namespace phi
     {
         unbind();
 
-        if (canCompile())
-        {
-            glLinkProgram(_id);
+        glLinkProgram(_id);
 
-            return validate();
-        }
-
-        return false;
+        return validate();
     }
 
     bool program::canCompile()

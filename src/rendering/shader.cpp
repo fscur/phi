@@ -5,10 +5,6 @@ namespace phi
 {
     shader::shader(const string& fileName) :
         _fileName(fileName)
-#ifdef _DEBUG
-        , _isDirty(true)
-        , _onIsDirtyChanged(new eventHandler<shader*>())
-#endif 
     {
         _stage = getStage(fileName);
 
@@ -37,21 +33,17 @@ namespace phi
         }
 
         compile();
-
-#if _DEBUG
         validate();
-#endif
     }
 
     shader::~shader()
     {
         glDeleteShader(_id);
-        
     }
 
     shaderStage::shaderStage shader::getStage(const string& fileName)
     {
-        size_t ext = fileName.rfind('.');
+        auto ext = fileName.rfind('.');
         if (ext == string::npos)
         {
             return shaderStage::vertex;
@@ -99,33 +91,20 @@ namespace phi
 
     bool shader::compile()
     {
-#ifdef _DEBUG
-        if (!_isDirty)
-            return true;
-#endif
         _content = load(_fileName);
 
-        auto result = true;
         auto source = _content.c_str();
         glShaderSource(_id, 1, &source, 0);
 
         glCompileShader(_id);
 
-#if _DEBUG
-        result = validate();
-
-        if (result)
-            _isDirty = false;
-#endif
-
-        return result;
+        return validate();
     }
 
     bool shader::validate()
     {
         GLint success = 0;
         glGetShaderiv(_id, GL_COMPILE_STATUS, &success);
-        
 
         const unsigned int BUFFER_SIZE = 512;
         char buffer[BUFFER_SIZE];
@@ -133,19 +112,10 @@ namespace phi
         GLsizei length = 0;
 
         glGetShaderInfoLog(_id, BUFFER_SIZE, &length, buffer);
-        
 
         if (length > 0)
-            std::cout << "shader " << _id << " (" << (!_fileName.empty() ? _fileName : "") << ") compile info:\n" << buffer << std::endl;
+            debug("shader " + std::to_string(_id) + " (" + _fileName + ") \ncompile info:\n" + buffer);
 
         return success == GL_TRUE && length == 0;
     }
-
-#ifdef _DEBUG
-    void shader::setIsDirty()
-    {
-        _isDirty = true;
-        _onIsDirtyChanged->raise(this);
-    }
-#endif
 }
