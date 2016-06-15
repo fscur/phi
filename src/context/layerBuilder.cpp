@@ -9,7 +9,7 @@
 #include <io\path.h>
 
 #include <rendering\camera.h>
-
+#include <rendering\framebufferAllocator.h>
 #include <sceneRendering\meshRenderer.h>
 
 #include <uiRendering\controlRenderer.h>
@@ -24,21 +24,22 @@
 
 namespace phi
 {
-    layerBuilder::layerBuilder(layer* layer, resolution resolution, string resourcesPath) :
+    layerBuilder::layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator) :
         _layer(layer),
         _resolution(resolution),
-        _resourcesPath(resourcesPath)
+        _resourcesPath(resourcesPath),
+        _framebufferAllocator(framebufferAllocator)
     {
     }
 
-    layerBuilder layerBuilder::newLayer(camera* camera, string resourcesPath)
+    layerBuilder layerBuilder::newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator)
     {
-        return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath);
+        return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath, framebufferAllocator);
     }
 
     layerBuilder layerBuilder::withMeshRenderer()
     {
-        auto meshBehaviour = new meshLayerBehaviour(_resolution, _resourcesPath);
+        auto meshBehaviour = new meshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
         _layer->addOnNodeAdded(std::bind(&meshLayerBehaviour::onNodeAdded, meshBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&meshLayerBehaviour::onNodeRemoved, meshBehaviour, std::placeholders::_1));

@@ -3,21 +3,25 @@
 
 #include <rendering\texturesManager.h>
 #include <rendering\programBuilder.h>
-#include <rendering\framebufferBuilder.h>
+
+#include <rendering\framebufferLayoutBuilder.h>
 
 namespace phi
 {
     renderPass* gBufferRenderPass::configure(
         meshRendererDescriptor* rendererDescriptor,
         const resolution& resolution,
-        const string& shadersPath)
+        const string& shadersPath,
+        framebufferAllocator* framebufferAllocator)
     {
-        auto gBufferFrameBuffer = framebufferBuilder::newFramebuffer(resolution)
+        auto gBufferFrameBufferLayout = framebufferLayoutBuilder::newFramebufferLayout()
             .with("rt0", GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
             .with("rt1", GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
             .with("rt2", GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
             .with("depth", GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
             .build();
+
+        auto gBufferFrameBuffer = framebufferAllocator->newFramebuffer(gBufferFrameBufferLayout, resolution);
 
         //auto pickingFramebuffer = framebuffer::getPickingFramebuffer();
         //auto pickingRenderTarget = pickingFramebuffer->getRenderTarget("pickingRenderTarget");
@@ -75,8 +79,8 @@ namespace phi
             framebuffer->bindForReading();
 
             auto rt0 = framebuffer->getRenderTarget("rt0");
-            auto w = rt0->w;
-            auto h = rt0->h;
+            auto w = rt0->texture->w;
+            auto h = rt0->texture->h;
 
             //glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 

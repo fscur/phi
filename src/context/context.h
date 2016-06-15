@@ -18,11 +18,13 @@ namespace phi
 
     private:
         void setLayersInputs();
+        void initialize();
 
     public:
         CONTEXT_API context(resolution& resolution, phi::vector<layer*>& layers);
         CONTEXT_API context(resolution& resolution, phi::vector<layer*>&& layers);
         CONTEXT_API ~context();
+
 
         CONTEXT_API void update();
         CONTEXT_API void render();

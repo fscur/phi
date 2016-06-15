@@ -71,6 +71,8 @@ namespace phi
         CONTEXT_API ~layer();
 
         CONTEXT_API void add(node* node);
+
+        CONTEXT_API void initialize();
         CONTEXT_API void update();
         CONTEXT_API void render();
 

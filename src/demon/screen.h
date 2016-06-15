@@ -7,6 +7,8 @@
 #include <io/watcher.h>
 #endif
 
+#include <rendering\framebufferAllocator.h>
+
 #include <application\window.h>
 #include <application\commandsManager.h>
 
@@ -42,6 +44,9 @@ namespace demon
         phi::watcher* _watcher;
         phi::blockingQueue<phi::watcherMessage>* _messageQueue;
 #endif
+
+
+        phi::framebufferAllocator* _framebufferAllocator;
 
     private:
         void initGL();

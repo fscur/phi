@@ -1,6 +1,7 @@
 #pragma once
 #include <phi.h>
 #include <core\material.h>
+#include <rendering\textureAddress.h>
 
 namespace phi
 {

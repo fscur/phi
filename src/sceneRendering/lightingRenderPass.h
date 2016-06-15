@@ -4,6 +4,7 @@
 #include <core\resolution.h>
 
 #include <rendering\renderPass.h>
+#include <rendering\framebufferAllocator.h>
 
 namespace phi
 {
@@ -14,6 +15,7 @@ namespace phi
         static renderPass* configure(
             renderPass* gBufferRenderPass,
             const resolution& resolution,
-            const string& shadersPath);
+            const string& shadersPath,
+            framebufferAllocator* framebufferAllocator);
     };
 }

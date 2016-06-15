@@ -13,6 +13,12 @@ namespace phi
     {
     }
 
+    void renderPass::initialize()
+    {
+        if (_onInitialize)
+            _onInitialize();
+    }
+
     void renderPass::update()
     {
         //_onUpdate(_program);

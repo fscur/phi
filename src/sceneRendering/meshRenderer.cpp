@@ -18,13 +18,14 @@ namespace phi
     vector<renderPass*> meshRenderer::configure(
         const resolution& resolution,
         const string& resourcesPath, 
-        meshRendererDescriptor* rendererDescriptor)
+        meshRendererDescriptor* rendererDescriptor,
+        framebufferAllocator* framebufferAllocator)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto gBufferRenderPass = gBufferRenderPass::configure(rendererDescriptor, resolution, shadersPath);
-        //auto lightingRenderPass = lightingRenderPass::configure(gBufferRenderPass, resolution, shadersPath);
+        auto gBufferRenderPass = gBufferRenderPass::configure(rendererDescriptor, resolution, shadersPath, framebufferAllocator);
+        auto lightingRenderPass = lightingRenderPass::configure(gBufferRenderPass, resolution, shadersPath, framebufferAllocator);
         //auto selectionRenderPass = selectionRenderPass::configure(lightingRenderPass, resolution, shadersPath);
-        return{ gBufferRenderPass};
-        //return{ gBufferRenderPass, lightingRenderPass }; // , lightingRenderPass, selectionRenderPass
+        //return{ gBufferRenderPass};
+        return{ gBufferRenderPass, lightingRenderPass }; // , lightingRenderPass, selectionRenderPass
     }
 }

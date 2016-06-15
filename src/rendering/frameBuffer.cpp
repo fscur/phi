@@ -33,50 +33,41 @@ namespace phi
 
     framebuffer::~framebuffer()
     {
-        if(!_isDefaultFramebuffer)
+        if (!_isDefaultFramebuffer)
             glDeleteFramebuffers(1, &_id);
     }
 
-    void framebuffer::add(GLenum attachment, renderTarget* renderTarget)
+    void framebuffer::add(renderTarget* renderTarget, GLenum attachment)
     {
-        if (_isDefaultFramebuffer)
-            throw argumentException("Trying to add renderTarget to default framebuffer !?");
-
-        _renderTargetsAttachments[renderTarget] = attachment;
         _renderTargets.push_back(renderTarget);
+        _renderTargetsAttachments[renderTarget] = attachment;
+    }
 
-        if (!(attachment == GL_DEPTH_ATTACHMENT ||
-            attachment == GL_STENCIL_ATTACHMENT ||
-            attachment == GL_DEPTH_STENCIL_ATTACHMENT))
-            _drawBuffers.push_back(attachment);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, _id);
-        
-
-        glNamedFramebufferTextureLayer(
-            _id,
-            attachment,
-            renderTarget->textureAddress.containerId,
-            0,
-            static_cast<GLint>(renderTarget->textureAddress.page));
-        
-
-        auto status = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
-        
-
-        switch (status)
+    void framebuffer::attachRenderTargets()
+    {
+        for (auto& pair : _renderTargetsAttachments)
         {
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            phi::debug("incomplete attachment");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            phi::debug("incomplete draw buffer");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-            phi::debug("incomplete layer targets");
-            break;
-        default:
-            break;
+            auto renderTarget = pair.first;
+            auto attachment = pair.second;
+
+            if (_isDefaultFramebuffer)
+                throw argumentException("Trying to add renderTarget to default framebuffer !?");
+
+            if (!(attachment == GL_DEPTH_ATTACHMENT ||
+                attachment == GL_STENCIL_ATTACHMENT ||
+                attachment == GL_DEPTH_STENCIL_ATTACHMENT))
+                _drawBuffers.push_back(attachment);
+
+            glBindFramebuffer(GL_FRAMEBUFFER, _id);
+
+            auto address = texturesManager::getTextureAddress(renderTarget->texture);
+
+            glNamedFramebufferTextureLayer(
+                _id,
+                attachment,
+                address.containerId,
+                0,
+                static_cast<GLint>(address.page));
         }
     }
 
@@ -93,46 +84,46 @@ namespace phi
     void framebuffer::bind(GLenum target)
     {
         glBindFramebuffer(target, _id);
-        
+
     }
 
     void framebuffer::bindForDrawing()
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        
-        
-        if(!_isDefaultFramebuffer)
+
+
+        if (!_isDefaultFramebuffer)
             glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
     }
 
     void framebuffer::bindForDrawing(GLenum* buffers, GLsizei buffersCount)
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        
+
 
         glDrawBuffers(buffersCount, buffers);
-        
+
     }
 
     void framebuffer::bindForReading()
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-        
+
     }
 
     void framebuffer::bindForReading(const renderTarget* const sourceRenderTarget)
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-        
+
 
         glReadBuffer(_renderTargetsAttachments[sourceRenderTarget]);
-        
+
     }
 
     void framebuffer::unbind(GLenum target)
     {
         glBindFramebuffer(target, 0);
-        
+
     }
 
     void framebuffer::blitToDefault(renderTarget * renderTarget, int x, int y, int w, int h)
@@ -140,14 +131,16 @@ namespace phi
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
         bindForReading(renderTarget);
+        
+        //TODO: arrumar isso renderTarget->texture->w!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         if (w == -1)
-            w = renderTarget->w;
+            w = renderTarget->texture->w;
 
         if (h == -1)
-            h = renderTarget->h;
+            h = renderTarget->texture->h;
 
-        glBlitFramebuffer(0, 0, renderTarget->w, renderTarget->h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        glBlitFramebuffer(0, 0, renderTarget->texture->w, renderTarget->texture->h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
 
     void framebuffer::blit(framebuffer * sourceFramebuffer, renderTarget * sourceRenderTarget, framebuffer * targetFramebuffer, renderTarget * targetRenderTarget)
@@ -157,16 +150,14 @@ namespace phi
         glBlitFramebuffer(
             0,
             0,
-            sourceRenderTarget->w,
-            sourceRenderTarget->h,
+            sourceRenderTarget->texture->w,
+            sourceRenderTarget->texture->h,
             0,
             0,
-            targetRenderTarget->w,
-            targetRenderTarget->h,
+            targetRenderTarget->texture->w,
+            targetRenderTarget->texture->h,
             GL_COLOR_BUFFER_BIT,
             GL_LINEAR);
-
-        
     }
 
     renderTarget* framebuffer::getRenderTarget(string name)
@@ -177,7 +168,7 @@ namespace phi
                 return renderTarget;
         }
 
-        throw exception("renderTarget "+ name +" not found.");
+        throw exception("renderTarget " + name + " not found.");
     }
 
     GLfloat framebuffer::getZBufferValue(int x, int y)
@@ -185,7 +176,7 @@ namespace phi
         bindForReading();
         GLfloat zBufferValue;
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
-        
+
 
         return zBufferValue;
     }
@@ -212,14 +203,16 @@ namespace phi
 
         auto pickingTextureAddress = texturesManager::add(pickingTexture);
 
-        _pickingRenderTarget = new renderTarget(
+        /*_pickingRenderTarget = new renderTarget(
             "pickingRenderTarget",
             static_cast<GLint>(resolution.width),
             static_cast<GLint>(resolution.height),
             layout,
             pickingTextureAddress);
 
-        _pickingFramebuffer->add(GL_COLOR_ATTACHMENT0, _pickingRenderTarget);
+        _pickingFramebuffer->add(_pickingRenderTarget, GL_COLOR_ATTACHMENT0);
+        */
+        throw exception("fix");
     }
 
     framebuffer* framebuffer::getPickingFramebuffer()
@@ -240,58 +233,55 @@ namespace phi
 
     void framebuffer::resize(const resolution& resolution)
     {
-        if (_isDefaultFramebuffer)
-            return;
+        //if (_isDefaultFramebuffer)
+        //    return;
 
-        auto i = 0;
+        //auto i = 0;
 
-        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        ///*glBindFramebuffer(GL_FRAMEBUFFER, 0);
         //glDeleteFramebuffers(1, &_id);
-        //glCreateFramebuffers(1, &_id);
+        //glCreateFramebuffers(1, &_id);*/
 
-        for (auto& renderTarget : _renderTargets)
-        {
-            auto attachment = _renderTargetsAttachments[renderTarget];
-            
-            auto texture = new phi::texture(
-                static_cast<uint>(resolution.width),
-                static_cast<uint>(resolution.height),
-                renderTarget->layout);
+        //for (auto& renderTarget : _renderTargets)
+        //{
+        //    auto attachment = _renderTargetsAttachments[renderTarget];
 
-            auto textureAddress = texturesManager::add(texture);
+        //    auto texture = new phi::texture(
+        //        static_cast<uint>(resolution.width),
+        //        static_cast<uint>(resolution.height),
+        //        renderTarget->layout);
 
-            renderTarget->w = static_cast<GLint>(resolution.width);
-            renderTarget->h = static_cast<GLint>(resolution.height);
-            renderTarget->textureAddress = textureAddress;
+        //    auto textureAddress = texturesManager::add(texture);
 
-            glBindFramebuffer(GL_FRAMEBUFFER, _id);
+        //    renderTarget->w = static_cast<GLint>(resolution.width);
+        //    renderTarget->h = static_cast<GLint>(resolution.height);
+        //    renderTarget->textureAddress = textureAddress;
 
-            glNamedFramebufferTextureLayer(
-                _id,
-                attachment,
-                textureAddress.containerId,
-                0,
-                static_cast<GLint>(textureAddress.page));
+        //    glBindFramebuffer(GL_FRAMEBUFFER, _id);
 
+        //    glNamedFramebufferTextureLayer(
+        //        _id,
+        //        attachment,
+        //        textureAddress.containerId,
+        //        0,
+        //        static_cast<GLint>(textureAddress.page));
 
-            auto status = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
+        //    auto status = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
 
-
-            switch (status)
-            {
-            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                phi::debug("incomplete attachment");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-                phi::debug("incomplete draw buffer");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-                phi::debug("incomplete layer targets");
-                break;
-            default:
-                break;
-            }
-        }
-
+        //    switch (status)
+        //    {
+        //    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+        //        phi::debug("incomplete attachment");
+        //        break;
+        //    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+        //        phi::debug("incomplete draw buffer");
+        //        break;
+        //    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+        //        phi::debug("incomplete layer targets");
+        //        break;
+        //    default:
+        //        break;
+        //    }
+        //}
     }
 }

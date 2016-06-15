@@ -10,6 +10,7 @@
 #include <rendering\frameBuffer.h>
 #include <rendering\renderTarget.h>
 #include <rendering\renderTargetsAddresses.h>
+#include <rendering\framebufferAllocator.h>
 
 #include "meshRendererDescriptor.h"
 #include "materialRenderData.h"
@@ -26,6 +27,7 @@ namespace phi
         static SCENE_RENDERING_API vector<renderPass*> configure(
             const resolution& resolution,
             const string& resourcesPath,
-            meshRendererDescriptor* renderDescriptor);
+            meshRendererDescriptor* renderDescriptor,
+            framebufferAllocator* framebufferAllocator);
     };
 }

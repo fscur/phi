@@ -111,7 +111,7 @@ namespace phi
     void glassyControlRendererDescriptor::updateGlassyUniformBlock(renderTarget* renderTarget)
     {
         auto uniformBlockData = glassyControlUniformBlockData();
-        auto rtAddress = renderTarget->textureAddress;
+        auto rtAddress = texturesManager::getTextureAddress(renderTarget->texture);
         uniformBlockData.backgroundPage = rtAddress.page;
         uniformBlockData.backgroundUnit = rtAddress.unit;
         uniformBlockData.level = 2;

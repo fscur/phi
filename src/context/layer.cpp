@@ -97,6 +97,12 @@ namespace phi
         _root->addChild(node);
     }
 
+    void layer::initialize()
+    {
+        for (auto renderPass : _renderPasses)
+            renderPass->initialize();
+    }
+
     void layer::update()
     {
         for (auto& controller : _controllers)

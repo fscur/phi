@@ -8,6 +8,39 @@
 
 namespace phi
 {
+    struct renderTargetLayout
+    {
+        renderTargetLayout(
+            const string& name,
+            const textureLayout& textureLayout) :
+            name(name),
+            textureLayout(textureLayout)
+        {
+        }
+
+        const string name;
+        const textureLayout textureLayout;
+    };
+
+    class framebufferLayout
+    {
+    private:
+        map<GLenum, const renderTargetLayout*>* _renderTargetsLayouts;
+
+    public:
+        framebufferLayout() :
+            _renderTargetsLayouts(new map<GLenum, const renderTargetLayout*>())
+        {
+        }
+
+        void add(GLenum attachment, const renderTargetLayout* layout)
+        {
+            _renderTargetsLayouts->insert_or_assign(attachment, layout);
+        }
+
+        map<GLenum, const renderTargetLayout*>* getRenderTargetsLayouts() const { return _renderTargetsLayouts; }
+    };
+
     class framebuffer
     {
     private:
@@ -31,7 +64,9 @@ namespace phi
         RENDERING_API framebuffer();
         RENDERING_API ~framebuffer();
 
-        RENDERING_API void add(GLenum attachment, renderTarget* renderTarget);
+        RENDERING_API void add(renderTarget* renderTarget, GLenum attachment);
+        RENDERING_API void attachRenderTargets();
+
         RENDERING_API vec4 readPixels(const renderTarget* const renderTarget, GLint x, GLint y, GLsizei w, GLsizei h);
         RENDERING_API void bind(GLenum target);
         RENDERING_API void bindForDrawing();
