@@ -1,8 +1,10 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
+
 #include "shader.h"
 #include "buffer.h"
+#include "programCompilationResult.h"
 
 namespace phi
 {
@@ -53,8 +55,7 @@ namespace phi
         RENDERING_API void link();
         RENDERING_API void bind();
         RENDERING_API void unbind();
-        RENDERING_API bool reload();
-        RENDERING_API bool canCompile();
+        RENDERING_API programCompilationResult compile();
 
         GLuint getId() const { return _id; }
     };

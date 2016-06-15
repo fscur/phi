@@ -15,14 +15,12 @@ namespace phi
             auto programsToReload = it->second;
             for (auto& program : programsToReload)
             {
-                if (program->canCompile())
+                auto compilationResult = program->compile();
+                debug(compilationResult.toString());
+
+                if (compilationResult.getSucceeded())
                 {
-                    debug("<liveShaderReloader> " + fileName + " reloaded.");
-                    program->reload();
-                }
-                else
-                {
-                    debug("<liveShaderReloader> failed to reload " + fileName);
+                    program->link();
                 }
             }
         }

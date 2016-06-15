@@ -179,22 +179,13 @@ namespace phi
         glUseProgram(0);
     }
 
-    bool program::reload()
+    programCompilationResult program::compile()
     {
-        unbind();
-
-        glLinkProgram(_id);
-
-        return validate();
-    }
-
-    bool program::canCompile()
-    {
-        bool result = true;
+        auto compilationResult = programCompilationResult();
 
         for (auto shader : _shaders)
-            result &= shader->compile();
+            compilationResult.add(shader->compile());
 
-        return result;
+        return compilationResult;
     }
 }

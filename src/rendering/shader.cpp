@@ -89,7 +89,7 @@ namespace phi
         return fileString;
     }
 
-    bool shader::compile()
+    shaderCompilationResult shader::compile()
     {
         _content = load(_fileName);
 
@@ -101,21 +101,25 @@ namespace phi
         return validate();
     }
 
-    bool shader::validate()
+    shaderCompilationResult shader::validate()
     {
         GLint success = 0;
         glGetShaderiv(_id, GL_COMPILE_STATUS, &success);
 
-        const unsigned int BUFFER_SIZE = 512;
-        char buffer[BUFFER_SIZE];
-        memset(buffer, 0, BUFFER_SIZE);
-        GLsizei length = 0;
+        const uint BUFFER_SIZE = 512;
+        char shaderLogBuffer[BUFFER_SIZE] = { 0 };
+        GLsizei shaderLogLength = 0;
 
-        glGetShaderInfoLog(_id, BUFFER_SIZE, &length, buffer);
+        glGetShaderInfoLog(_id, BUFFER_SIZE, &shaderLogLength, shaderLogBuffer);
 
-        if (length > 0)
-            debug("shader " + std::to_string(_id) + " (" + _fileName + ") \ncompile info:\n" + buffer);
+        auto succeeded = success == GL_TRUE;
+        string resultMessage = "";
 
-        return success == GL_TRUE && length == 0;
+        if (shaderLogLength > 0)
+        {
+            resultMessage = string(shaderLogBuffer);
+        }
+
+        return shaderCompilationResult(succeeded, _id, _fileName, resultMessage);
     }
 }

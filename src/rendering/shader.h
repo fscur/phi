@@ -1,12 +1,11 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-#include <core\color.h>
-#include "texture.h"
 
-#ifdef _DEBUG
-#include <core\eventHandler.h>
-#endif
+#include <core\color.h>
+
+#include "shaderCompilationResult.h"
+#include "texture.h"
 
 namespace phi
 {
@@ -34,7 +33,7 @@ namespace phi
     private:
         shaderStage::shaderStage getStage(const string& fileName);
         string load(const string& fileName);
-        bool validate();
+        shaderCompilationResult validate();
 
     public:
         static constexpr const char* VERT_EXT = ".vert";
@@ -43,7 +42,7 @@ namespace phi
     public:
         RENDERING_API shader(const string& fileName);
         RENDERING_API ~shader();
-        RENDERING_API bool compile();
+        RENDERING_API shaderCompilationResult compile();
 
         shaderStage::shaderStage getStage() const { return _stage; }
         GLuint getId() const { return _id; }
