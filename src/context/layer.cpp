@@ -97,6 +97,12 @@ namespace phi
         _root->addChild(node);
     }
 
+    void layer::initialize()
+    {
+        for (auto renderPass : _renderPasses)
+            renderPass->initialize();
+    }
+
     void layer::update()
     {
         for (auto& controller : _controllers)
@@ -151,6 +157,8 @@ namespace phi
 
     void layer::resize(const resolution& resolution)
     {
+        _camera->setResolution(resolution);
+        updateFrameUniforms(); //TODO: precisa????/
         for (auto& renderPass : _renderPasses)
             renderPass->resize(resolution);
     }

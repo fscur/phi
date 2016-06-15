@@ -94,7 +94,7 @@ void main()
 
     vec4 albedoColor = fetchAlbedo(material);
     vec4 specularColor = fetchSpecular(material);
-
+    
     rt0 = vec4(albedoColor.xyz, encodedNormal.x); //RGBA16F
     rt1 = vec4(specularColor.xyz, encodedNormal.y); //RGBA16F
     rt2 = vec4(material.shininess, 1.0, 1.0, 1.0); //RGBA16F

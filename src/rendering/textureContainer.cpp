@@ -21,7 +21,6 @@ namespace phi
         _texturesAddresses(map<const texture*, phi::textureAddress>())
     {
         glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_id);
-        
 
         _unit = textureUnits::get();
 
@@ -171,10 +170,8 @@ namespace phi
     {
         glActiveTexture(GL_TEXTURE0 + _unit);
         
-
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
         
-
         glTextureStorage3D(_id,
             _layout.levels,
             _layout.internalFormat,
@@ -184,13 +181,9 @@ namespace phi
         
 
         glTextureParameteri(_id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
-        
         glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
-        
         glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
-        
         glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
-        
     }
 
     void textureContainer::onLoadData(
@@ -200,11 +193,7 @@ namespace phi
         if (data != nullptr)
         {
             glActiveTexture(GL_TEXTURE0 + _unit);
-            
-
             glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-            
-
             glTextureSubImage3D(
                 _id,
                 0,
@@ -218,10 +207,7 @@ namespace phi
                 _layout.dataType,
                 data);
 
-            
-
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-            
         }
     }
 
@@ -231,11 +217,7 @@ namespace phi
         const void* const data)
     {
         glActiveTexture(GL_TEXTURE0 + _unit);
-        
-
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        
-
         glTextureSubImage3D(
             _id,
             0,
@@ -249,10 +231,7 @@ namespace phi
             _layout.dataType,
             data);
 
-        
-
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        
     }
 
     bool textureContainer::add(

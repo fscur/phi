@@ -1,14 +1,18 @@
 #include <precompiled.h>
 #include "meshLayerBehaviour.h"
+#include <rendering\framebufferAllocator.h>
 
 namespace phi
 {
-    meshLayerBehaviour::meshLayerBehaviour(const resolution & resolution, const string & resourcesPath) :
+    meshLayerBehaviour::meshLayerBehaviour(
+        const resolution & resolution, 
+        const string & resourcesPath, 
+        framebufferAllocator* framebufferAllocator) :
         _descriptor(new meshRendererDescriptor()),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        _renderPasses = meshRenderer::configure(resolution, resourcesPath, _descriptor);
+        _renderPasses = meshRenderer::configure(resolution, resourcesPath, _descriptor, framebufferAllocator);
     }
 
     meshLayerBehaviour::~meshLayerBehaviour()

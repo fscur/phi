@@ -109,4 +109,6 @@ void main()
 
     fragColor = ambientComponent + diffuseComponent + specularComponent;
     //fragColor = diffuseComponent + ambientComponent;
+    //fragColor = vec4(fragTexCoord, 0.0, 1.0);
+    //fragColor = c0;
 }

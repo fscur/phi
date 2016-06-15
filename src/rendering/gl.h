@@ -1,8 +1,7 @@
 #pragma once
 #include <phi.h>
 
-#include <core\material.h>
-
+#include <core\resolution.h>
 #include "renderingApi.h"
 #include "texturesManager.h"
 #include "textureUnits.h"
@@ -94,7 +93,8 @@ namespace phi
         string getVendor() { return string((char*)glGetString(GL_VENDOR)); };
         string getRenderer() { return string((char*)glGetString(GL_RENDERER)); };
         string getVersion() { return string((char*)glGetString(GL_VERSION)); };
-        RENDERING_API static void SyncPipeline();
+        RENDERING_API static void syncPipeline();
+        RENDERING_API static void resize(const resolution& resolution);
 
     };
 }

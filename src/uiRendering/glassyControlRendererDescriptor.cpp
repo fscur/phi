@@ -72,7 +72,12 @@ namespace phi
     void glassyControlRendererDescriptor::add(control* control)
     {
         auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage());
-        auto address = texturesManager::get(texture);
+        textureAddress address;
+
+        if (!texturesManager::contains(texture))
+            address = texturesManager::add(texture);
+        else
+            address = texturesManager::getTextureAddress(texture);
 
         auto renderData = controlRenderData();
         renderData.backgroundColor = control->getBackgroundColor();
@@ -106,7 +111,7 @@ namespace phi
     void glassyControlRendererDescriptor::updateGlassyUniformBlock(renderTarget* renderTarget)
     {
         auto uniformBlockData = glassyControlUniformBlockData();
-        auto rtAddress = renderTarget->textureAddress;
+        auto rtAddress = texturesManager::getTextureAddress(renderTarget->texture);
         uniformBlockData.backgroundPage = rtAddress.page;
         uniformBlockData.backgroundUnit = rtAddress.unit;
         uniformBlockData.level = 2;

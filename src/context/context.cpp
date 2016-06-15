@@ -14,6 +14,7 @@ namespace phi
         _resolution(resolution)
     {
         setLayersInputs();
+        initialize(); //TODO:is it the right place?
     }
 
     context::context(resolution& resolution, vector<layer*>&& layers) :
@@ -21,6 +22,7 @@ namespace phi
         _resolution(resolution)
     {
         setLayersInputs();
+        initialize(); //TODO:is it the right place?
     }
 
     context::~context()
@@ -37,6 +39,12 @@ namespace phi
 
             previous = layer;
         }
+    }
+
+    void context::initialize()
+    {
+        for (auto& layer : _layers)
+            layer->initialize();
     }
 
     void context::update()

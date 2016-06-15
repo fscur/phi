@@ -45,10 +45,18 @@ namespace phi
         auto specularTexture = texturesManager::getTextureFromImage(material->specularImage);
         auto emissiveTexture = texturesManager::getTextureFromImage(material->emissiveImage);
 
-        auto albedoTextureAddress = texturesManager::get(albedoTexture);
-        auto normalTextureAddress = texturesManager::get(normalTexture);
-        auto specularTextureAddress = texturesManager::get(specularTexture);
-        auto emissiveTextureAddress = texturesManager::get(emissiveTexture);
+        auto getTextureAdress = [](const texture* texture)
+        {
+            if (!texturesManager::contains(texture))
+                return texturesManager::add(texture);
+            else
+                return texturesManager::getTextureAddress(texture);
+        };
+
+        auto albedoTextureAddress = getTextureAdress(albedoTexture);
+        auto normalTextureAddress = getTextureAdress(normalTexture);
+        auto specularTextureAddress = getTextureAdress(specularTexture);
+        auto emissiveTextureAddress = getTextureAdress(emissiveTexture);
 
         auto materialGpuData = phi::materialRenderData(
             albedoTextureAddress,

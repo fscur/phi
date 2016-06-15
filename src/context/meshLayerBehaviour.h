@@ -7,6 +7,7 @@
 #include <core\node.h>
 
 #include <rendering\renderPass.h>
+#include <rendering\framebufferAllocator.h>
 
 #include <sceneRendering\meshRenderer.h>
 #include <sceneRendering\meshRendererDescriptor.h>
@@ -25,7 +26,7 @@ namespace phi
         string _resourcesPath;
 
     public:
-        CONTEXT_API meshLayerBehaviour(const resolution& resolution, const string& resourcesPath);
+        CONTEXT_API meshLayerBehaviour(const resolution& resolution, const string& resourcesPath, framebufferAllocator* framebufferAllocator);
         CONTEXT_API ~meshLayerBehaviour();
 
         CONTEXT_API void onNodeAdded(node* node);

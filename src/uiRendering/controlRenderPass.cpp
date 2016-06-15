@@ -4,7 +4,7 @@
 #include <rendering\texturesManager.h>
 #include <rendering\vertexArrayObject.h>
 #include <rendering\programBuilder.h>
-#include <rendering\framebufferBuilder.h>
+#include <rendering\framebufferLayoutBuilder.h>
 
 namespace phi
 {

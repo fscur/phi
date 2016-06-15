@@ -85,7 +85,7 @@ namespace demon
         info.shadersPath = application::resourcesPath + "/shaders";
         info.fontsPath = application::resourcesPath + "/fonts";
         _gl = new gl(info);
-        framebuffer::createPickingFramebuffer(_resolution);
+        //framebuffer::createPickingFramebuffer(_resolution);
 
         application::logInfo("Vendor: " + _gl->getVendor() + ".");
         application::logInfo("Renderer: " + _gl->getRenderer() + ".");
@@ -152,7 +152,9 @@ namespace demon
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
         sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
 
-        _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath)
+        _framebufferAllocator = new framebufferAllocator();
+
+        _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator)
             .withMeshRenderer()
             .build();
 
@@ -160,7 +162,7 @@ namespace demon
         constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath)
+        _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath, _framebufferAllocator)
             .withControlRenderer()
             .withTextRenderer()
             .build();
@@ -169,7 +171,7 @@ namespace demon
         nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath)
+        _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath, _framebufferAllocator)
             .withGlassyControlRenderer()
             .withTextRenderer()
             .build();
@@ -185,8 +187,10 @@ namespace demon
             //});
         //});
 
-        _designContext = new context(_resolution, { _sceneLayer, _nandinhoLayer });
-        _constructionContext = new context(_resolution, { _sceneLayer, _constructionLayer });
+        _framebufferAllocator->allocate(_resolution);
+
+        _designContext = new context(_resolution, { _sceneLayer });
+        _constructionContext = new context(_resolution, { _sceneLayer });
 
         _sceneLayer->add(floor);
         _sceneLayer->add(chair); 
@@ -321,6 +325,9 @@ namespace demon
 
     void screen::onResize(phi::resolution resolution)
     {
+        gl::resize(resolution);
+        //glViewport(0, 0, (GLsizei)(resolution.width / 2.0f), (GLsizei)(resolution.height / 2.0f));
+
         if (_activeContext)
             _activeContext->resize(resolution);
 

@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "window.h"
 
+#include <rendering\gl.h>
+
 namespace phi
 {
     eventToken window::_resizeToken;
@@ -34,5 +36,8 @@ namespace phi
 
     void window::onTick(){}
 
-    void window::onResize(resolution resolution){}
+    void window::onResize(resolution resolution)
+    {
+        gl::resize(resolution);
+    }
 }

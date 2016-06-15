@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "textureAddress.h"
+#include "texture.h"
 
 namespace phi
 {
@@ -8,19 +8,13 @@ namespace phi
     {
         renderTarget(
             const string& name,
-            GLint w, 
-            GLint h,
-            const textureAddress& textureAddress) :
+            texture* texture) :
             name(name),
-            w(w),
-            h(h),
-            textureAddress(textureAddress)
+            texture(texture)
         {
         }
 
         const string name;
-        GLint w;
-        GLint h;
-        textureAddress textureAddress;
+        texture* texture;
     };
 }

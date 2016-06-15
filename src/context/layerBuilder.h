@@ -3,9 +3,10 @@
 #include "contextApi.h"
 
 #include <rendering\program.h>
+#include <rendering\framebufferAllocator.h>
 
 #include "layer.h"
-#include <stack>
+
 namespace phi
 {
     class layerBuilder
@@ -14,6 +15,7 @@ namespace phi
         layer* _layer;
         resolution _resolution;
         string _resourcesPath;
+        framebufferAllocator* _framebufferAllocator;
 
         vector<renderPass*> _meshRenderPasses;
         vector<renderPass*> _controlRenderPasses;
@@ -21,10 +23,10 @@ namespace phi
         vector<renderPass*> _textRenderPasses;
 
     private:
-        layerBuilder(layer* layer, resolution resolution, string resourcesPath);
+        layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator);
 
     public:
-        CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath);
+        CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator);
         CONTEXT_API layerBuilder withMeshRenderer();
         CONTEXT_API layerBuilder withControlRenderer();
         CONTEXT_API layerBuilder withGlassyControlRenderer();
