@@ -26,7 +26,7 @@ namespace phi
         }
     }
 
-    void liveShaderReloader::add(string shaderFileName, program * program)
+    void liveShaderReloader::add(string shaderFileName, program* program)
     {
         _programs[shaderFileName].push_back(program);
     }

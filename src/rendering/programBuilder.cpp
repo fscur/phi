@@ -16,30 +16,24 @@ namespace phi
         const string& vertexShaderName,
         const string& fragmentShaderName)
     {
-        auto vertexShaderFileName = path::combine(shadersPath, vertexShaderName, shader::VERT_EXT);
-        auto fragmentShaderFileName = path::combine(shadersPath, fragmentShaderName, shader::FRAG_EXT);
+        auto vertexFileName = path::combine(shadersPath, vertexShaderName, shader::VERT_EXT);
+        auto fragmentFileName = path::combine(shadersPath, fragmentShaderName, shader::FRAG_EXT);
 
         //TODO: check if file exists
 
         auto newShader = [&](string fileName)
         {
-            shader* shader = nullptr;
+            if (contains(_shadersCache, fileName))
+                return _shadersCache[fileName];
 
-            if (_shadersCache.find(fileName) != _shadersCache.end())
-            {
-                shader = _shadersCache[fileName];
-            }
-            else
-            {
-                shader = new phi::shader(fileName);
-                _shadersCache[fileName] = shader;
-            }
+            auto shader = new phi::shader(fileName);
+            _shadersCache[fileName] = shader;
 
             return shader;
         };
 
-        auto vertexShader = newShader(vertexShaderFileName);
-        auto fragmentShader = newShader(fragmentShaderFileName);
+        auto vertexShader = newShader(vertexFileName);
+        auto fragmentShader = newShader(fragmentFileName);
 
         auto program = new phi::program();
         program->addShader(vertexShader);
@@ -47,8 +41,8 @@ namespace phi
         program->link();
 
 #ifdef _DEBUG
-        liveShaderReloader::add(vertexShaderFileName, program);
-        liveShaderReloader::add(fragmentShaderFileName, program);
+        liveShaderReloader::add(vertexFileName, program);
+        liveShaderReloader::add(fragmentFileName, program);
 #endif
 
         return program;
