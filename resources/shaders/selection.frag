@@ -10,37 +10,19 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     mat4 ip;
 } frameUniforms;
 
-layout (std140, binding = 1) uniform RenderTargetAddresses
-{
-    int rt0Unit;
-    int rt1Unit;
-    int rt2Unit;
-    int rt3Unit;
-    int depthUnit;
-    int pad0;
-    int pad1;
-    int pad2;
-    float rt0Page;
-    float rt1Page;
-    float rt2Page;
-    float rt3Page;
-    float depthPage;
-    float pad3;
-    float pad4;
-    float pad5;
-} rtAddresses;
-
 layout (location = 0) uniform vec2 resolution;
 layout (location = 1) uniform float offset;
 layout (location = 2) uniform float time;
-layout (location = 3) uniform sampler2DArray textureArrays[32];
+layout (location = 3) uniform int pickingRTUnit;
+layout (location = 4) uniform float pickingRTPage;
+layout (location = 5) uniform sampler2DArray textureArrays[32];
 
 layout (location = 0) out vec4 fragColor;
 
 float fetchAlpha(float dx, float dy)
 {
     vec2 uv = fragTexCoord + vec2(dx, dy)/resolution;
-    vec4 c = texture(textureArrays[rtAddresses.rt3Unit], vec3(uv.xy, rtAddresses.rt3Page));
+    vec4 c = texture(textureArrays[pickingRTUnit], vec3(uv.xy, pickingRTPage));
     return c.a;
 }
 
@@ -74,12 +56,12 @@ float glowness()
 
 vec4 getBackgroundColor()
 {
-    vec4 c = texture(textureArrays[rtAddresses.rt3Unit], vec3(fragTexCoord, rtAddresses.rt3Page));
+    float factor = fetchAlpha(0.0, 0.0);
     float glowness = glowness();
     vec4 glowColor = vec4(1.0, 1.0, 1.0, 0.5);
     vec4 color = vec4(0.2, 0.2, 0.6, glowness);
 
-    return color * c.a;
+    return color * factor;
 }
 
 void main()

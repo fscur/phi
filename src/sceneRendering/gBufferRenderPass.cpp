@@ -14,24 +14,22 @@ namespace phi
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
-        auto gBufferFrameBufferLayout = framebufferLayoutBuilder::newFramebufferLayout()
+        auto pickingRenderTarget = framebufferAllocator->getRenderTarget("pickingRenderTarget");
+        auto gBufferFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("gBufferFramebuffer")
             .with("rt0", GL_COLOR_ATTACHMENT0, GL_RGBA16F, GL_RGBA)
             .with("rt1", GL_COLOR_ATTACHMENT1, GL_RGBA16F, GL_RGBA)
             .with("rt2", GL_COLOR_ATTACHMENT2, GL_RGBA16F, GL_RGBA)
+            .with(pickingRenderTarget, GL_COLOR_ATTACHMENT3)
             .with("depth", GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT)
             .build();
 
-        auto gBufferFrameBuffer = framebufferAllocator->newFramebuffer(gBufferFrameBufferLayout, resolution);
-
-        //auto pickingFramebuffer = framebuffer::getPickingFramebuffer();
-        //auto pickingRenderTarget = pickingFramebuffer->getRenderTarget("pickingRenderTarget");
-        //gBufferFrameBuffer->add(GL_COLOR_ATTACHMENT3, pickingRenderTarget);
+        auto gBufferFramebuffer = framebufferAllocator->newFramebuffer(gBufferFramebufferLayout, resolution);
 
         auto program = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
         program->addBuffer(rendererDescriptor->_materialRenderDataBuffer);
 
-        auto pass = new renderPass(program, gBufferFrameBuffer);
-        auto renderTargets = gBufferFrameBuffer->getRenderTargets();
+        auto pass = new renderPass(program, gBufferFramebuffer, resolution);
+        auto renderTargets = gBufferFramebuffer->getRenderTargets();
 
         for (auto renderTarget : renderTargets)
             pass->addOut(renderTarget);
@@ -41,11 +39,8 @@ namespace phi
             pass->addVao(batch->getVao());
         });
 
-        pass->setOnBeginRender([=] (phi::program* program, framebuffer* framebuffer)
+        pass->setOnBeginRender([=] (phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
-            glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
             framebuffer->bindForDrawing();
 
             const auto selectionRenderTargetNumber = 3;
@@ -55,7 +50,7 @@ namespace phi
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glDepthMask(GL_TRUE);
             glEnable(GL_DEPTH_TEST);
-            //glClearBufferfv(GL_COLOR, selectionRenderTargetNumber, &selectionClearColor);
+            glClearBufferfv(GL_COLOR, selectionRenderTargetNumber, &selectionClearColor);
 
             program->bind();
 
@@ -76,13 +71,10 @@ namespace phi
             program->unbind();
 
             framebuffer->unbind(GL_FRAMEBUFFER);
-            framebuffer->bindForReading();
+            framebuffer->bindForReading(framebuffer->getRenderTarget("rt0"));
 
-            auto rt0 = framebuffer->getRenderTarget("rt0");
-            auto w = rt0->texture->w;
-            auto h = rt0->texture->h;
-
-            //glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+            auto w = static_cast<GLint>(resolution.width);
+            auto h = static_cast<GLint>(resolution.height);
 
             glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         });

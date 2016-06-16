@@ -50,6 +50,7 @@ namespace demon
 
     private:
         void initGL();
+        void initPickingFramebuffer();
         void initLibraries();
         void initScene();
         void initUi();

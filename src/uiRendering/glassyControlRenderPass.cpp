@@ -8,16 +8,20 @@
 
 namespace phi
 {
-    renderPass* glassyControlRenderPass::configure(glassyControlRendererDescriptor* rendererDescriptor, const string& shadersPath)
+    renderPass* glassyControlRenderPass::configure(
+        glassyControlRendererDescriptor* rendererDescriptor, 
+        const resolution& resolution,
+        const string& shadersPath,
+        framebufferAllocator* framebufferAllocator)
     {
         auto program = programBuilder::buildProgram(shadersPath, "control", "glassy");
         program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
         program->addBuffer(rendererDescriptor->_uniformBlockBuffer);
         
-        auto pass = new renderPass(program, framebuffer::defaultFramebuffer);
+        auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(rendererDescriptor->_vao);
         
-        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
+        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
 

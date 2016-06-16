@@ -204,7 +204,12 @@ namespace phi
     {
         const WINDOWPOS* windowPos = (WINDOWPOS *)lParam;
 
-        _lastResolution = resolution(static_cast<float>(windowPos->cx), static_cast<float>(windowPos->cy));
+        RECT rectangle = { 0, 0, 0, 0 };
+        GetClientRect(hWnd, &rectangle);
+        auto width = rectangle.right - rectangle.left;
+        auto height = rectangle.bottom - rectangle.top;
+
+        _lastResolution = resolution(static_cast<float>(width), static_cast<float>(height));
         auto flags = windowPos->flags;
 
         if (flags & SWP_SHOWWINDOW)

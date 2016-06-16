@@ -4,6 +4,7 @@
 #include <rendering\renderPass.h>
 
 #include "controlRendererDescriptor.h"
+#include <rendering\framebufferAllocator.h>
 
 namespace phi
 {
@@ -11,6 +12,10 @@ namespace phi
     {
     public:
         controlRenderPass() = delete;
-        static renderPass* configure(controlRendererDescriptor* rendererDescriptor, const string& shadersPath);
+        static renderPass* configure(
+            controlRendererDescriptor* rendererDescriptor, 
+            const resolution& resolution,
+            const string& shadersPath,
+            framebufferAllocator* framebufferAllocator);
     };
 }

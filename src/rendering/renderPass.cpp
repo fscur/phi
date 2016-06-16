@@ -3,9 +3,10 @@
 
 namespace phi
 {
-    renderPass::renderPass(program* program, framebuffer* framebuffer) :
+    renderPass::renderPass(program* program, framebuffer* framebuffer, const resolution& resolution) :
         _program(program),
-        _framebuffer(framebuffer)
+        _framebuffer(framebuffer),
+        _resolution(resolution)
     {
     }
 
@@ -33,13 +34,16 @@ namespace phi
         //for (auto buffer : _buffers)
             //buffer->bindBufferBase(i++);
 
-        _onBeginRender(_program, _framebuffer);
+        _onBeginRender(_program, _framebuffer, _resolution);
         _onRender(_vaos);
         _onEndRender(_program, _framebuffer);
     }
 
     void renderPass::resize(const resolution& resolution)
     {
-        _framebuffer->resize(resolution);
+        _resolution = resolution;
+
+        if (_onResize)
+            _onResize(resolution);
     }
 }

@@ -5,12 +5,19 @@
 
 namespace phi
 {
-    glassyControlLayerBehaviour::glassyControlLayerBehaviour(const resolution & resolution, const string & resourcesPath) :
+    glassyControlLayerBehaviour::glassyControlLayerBehaviour(
+        const resolution & resolution,
+        const string & resourcesPath,
+        framebufferAllocator* framebufferAllocator) :
         _descriptor(new glassyControlRendererDescriptor(resolution)),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        _renderPasses = glassyControlRenderer::configure(resourcesPath, _descriptor);
+        _renderPasses = glassyControlRenderer::configure(
+            _descriptor,
+            resolution, 
+            resourcesPath, 
+            framebufferAllocator);
     }
 
     glassyControlLayerBehaviour::~glassyControlLayerBehaviour()

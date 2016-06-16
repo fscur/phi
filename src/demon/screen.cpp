@@ -23,8 +23,7 @@
 
 #include "addObjectCommand.h"
 
-#include <rendering\renderPass.h>
-#include <rendering\shader.h>
+#include <rendering\framebufferLayoutBuilder.h>
 
 #include <context\layerBuilder.h>
 
@@ -38,7 +37,8 @@ namespace demon
 {
     screen::screen(wstring title, resolution resolution) :
         window(title, resolution),
-        _activeContext(nullptr)
+        _activeContext(nullptr),
+        _framebufferAllocator(nullptr)
     {
     }
 
@@ -49,6 +49,7 @@ namespace demon
     void screen::onInit()
     {
         initGL();
+        initPickingFramebuffer();
         initLibraries();
         initScene();
         initUi();
@@ -85,7 +86,6 @@ namespace demon
         info.shadersPath = application::resourcesPath + "/shaders";
         info.fontsPath = application::resourcesPath + "/fonts";
         _gl = new gl(info);
-        //framebuffer::createPickingFramebuffer(_resolution);
 
         application::logInfo("Vendor: " + _gl->getVendor() + ".");
         application::logInfo("Renderer: " + _gl->getRenderer() + ".");
@@ -97,6 +97,17 @@ namespace demon
             auto status = extensionStatus.second ? " [Ok]" : " [Not Ok]";
             application::logInfo(extensionStatus.first + status);
         }
+
+        _framebufferAllocator = new framebufferAllocator();
+    }
+
+    void screen::initPickingFramebuffer()
+    {
+        auto pickingFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("pickingFramebuffer")
+            .with("pickingRenderTarget", GL_COLOR_ATTACHMENT0, GL_RGBA8, GL_RGBA)
+            .build();
+
+        _framebufferAllocator->newFramebuffer(pickingFramebufferLayout, _resolution);
     }
 
     void screen::initLibraries()
@@ -152,8 +163,6 @@ namespace demon
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
         sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
 
-        _framebufferAllocator = new framebufferAllocator();
-
         _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator)
             .withMeshRenderer()
             .build();
@@ -189,8 +198,8 @@ namespace demon
 
         _framebufferAllocator->allocate(_resolution);
 
-        _designContext = new context(_resolution, { _sceneLayer });
-        _constructionContext = new context(_resolution, { _sceneLayer });
+        _designContext = new context(_resolution, _framebufferAllocator, { _sceneLayer });
+        _constructionContext = new context(_resolution, _framebufferAllocator, { _sceneLayer });
 
         _sceneLayer->add(floor);
         _sceneLayer->add(chair); 
@@ -326,11 +335,11 @@ namespace demon
     void screen::onResize(phi::resolution resolution)
     {
         gl::resize(resolution);
-        //glViewport(0, 0, (GLsizei)(resolution.width / 2.0f), (GLsizei)(resolution.height / 2.0f));
 
+        if (_framebufferAllocator)
+            _framebufferAllocator->reallocate(resolution);
+        
         if (_activeContext)
             _activeContext->resize(resolution);
-
-        debug(resolution.toString());
     }
 }

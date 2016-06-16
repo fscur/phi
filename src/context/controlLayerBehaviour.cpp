@@ -5,12 +5,15 @@
 
 namespace phi
 {
-    controlLayerBehaviour::controlLayerBehaviour(const resolution & resolution, const string & resourcesPath) :
+    controlLayerBehaviour::controlLayerBehaviour(
+        const resolution & resolution, 
+        const string & resourcesPath,
+        framebufferAllocator* framebufferAllocator) :
         _descriptor(new controlRendererDescriptor()),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        _renderPasses = controlRenderer::configure(resourcesPath, _descriptor);
+        _renderPasses = controlRenderer::configure(_descriptor, resolution, resourcesPath, framebufferAllocator);
     }
 
     controlLayerBehaviour::~controlLayerBehaviour()

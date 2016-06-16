@@ -9,18 +9,27 @@ namespace phi
 {
     using namespace phi;
 
-    context::context(resolution& resolution, vector<layer*>& layers) :
+    context::context(resolution& resolution, framebufferAllocator* framebufferAllocator, vector<layer*>& layers) :
         _layers(layers),
+        _framebufferAllocator(framebufferAllocator),
         _resolution(resolution)
     {
+        _pickingFramebuffer = framebufferAllocator->getFramebuffer("pickingFramebuffer");
+        _pickingRenderTarget = _pickingFramebuffer->getRenderTarget("pickingRenderTarget");
+
         setLayersInputs();
         initialize(); //TODO:is it the right place?
+
     }
 
-    context::context(resolution& resolution, vector<layer*>&& layers) :
+    context::context(resolution& resolution, framebufferAllocator* framebufferAllocator, vector<layer*>&& layers) :
         _layers(layers),
+        _framebufferAllocator(framebufferAllocator),
         _resolution(resolution)
     {
+        _pickingFramebuffer = framebufferAllocator->getFramebuffer("pickingFramebuffer");
+        _pickingRenderTarget = _pickingFramebuffer->getRenderTarget("pickingRenderTarget");
+
         setLayersInputs();
         initialize(); //TODO:is it the right place?
     }
@@ -70,9 +79,7 @@ namespace phi
             auto x = static_cast<GLint>(e->x);
             auto y = static_cast<GLint>(_resolution.height - e->y);
 
-            auto pickingFramebuffer = framebuffer::getPickingFramebuffer();
-            auto pickingRenderTarget = framebuffer::getPickingRenderTarget();
-            auto pixels = pickingFramebuffer->readPixels(pickingRenderTarget, x, y, 1, 1);
+            auto pixels = _pickingFramebuffer->readPixels(_pickingRenderTarget, x, y, 1, 1);
 
             auto r = static_cast<int>(pixels.r);
             auto g = static_cast<int>(pixels.g) << 8;

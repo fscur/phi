@@ -28,7 +28,11 @@ namespace phi
         map<GLenum, const renderTargetLayout*>* _renderTargetsLayouts;
 
     public:
-        framebufferLayout() :
+        string name;
+
+    public:
+        framebufferLayout(string name) :
+            name(name),
             _renderTargetsLayouts(new map<GLenum, const renderTargetLayout*>())
         {
         }
@@ -52,8 +56,6 @@ namespace phi
         vector<renderTarget*> _renderTargets;
         bool _isDefaultFramebuffer;
 
-        static framebuffer* _pickingFramebuffer;
-        static renderTarget* _pickingRenderTarget;
     public:
         RENDERING_API static framebuffer* defaultFramebuffer;
 
@@ -85,9 +87,6 @@ namespace phi
         RENDERING_API GLfloat getZBufferValue(int x, int y);
         vector<renderTarget*> getRenderTargets() { return _renderTargets; }
 
-        RENDERING_API static void createPickingFramebuffer(const resolution& resolution);
-        RENDERING_API static framebuffer* getPickingFramebuffer();
-        RENDERING_API static renderTarget* getPickingRenderTarget();
         RENDERING_API void resize(const resolution& resolution);
     };
 }

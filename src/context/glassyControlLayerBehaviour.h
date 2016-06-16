@@ -7,6 +7,7 @@
 #include <core\node.h>
 
 #include <rendering\renderPass.h>
+#include <rendering\framebufferAllocator.h>
 
 #include <uiRendering\glassyControlRenderer.h>
 #include <uiRendering\glassyControlRendererDescriptor.h>
@@ -23,7 +24,11 @@ namespace phi
         string _resourcesPath;
 
     public:
-        CONTEXT_API glassyControlLayerBehaviour(const resolution& resolution, const string& resourcesPath);
+        CONTEXT_API glassyControlLayerBehaviour(
+            const resolution& resolution, 
+            const string& resourcesPath,
+            framebufferAllocator* framebufferAllocator);
+
         CONTEXT_API ~glassyControlLayerBehaviour();
 
         CONTEXT_API void onNodeAdded(node* node);

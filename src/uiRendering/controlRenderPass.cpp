@@ -8,15 +8,19 @@
 
 namespace phi
 {
-    renderPass* controlRenderPass::configure(controlRendererDescriptor* rendererDescriptor, const string& shadersPath)
+    renderPass* controlRenderPass::configure(
+        controlRendererDescriptor* rendererDescriptor, 
+        const resolution& resolution,
+        const string& shadersPath,
+        framebufferAllocator* framebufferAllocator)
     {
         auto program = programBuilder::buildProgram(shadersPath, "control", "control");
         program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
 
-        auto pass = new renderPass(program, framebuffer::defaultFramebuffer);
+        auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(rendererDescriptor->_vao);
 
-        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer)
+        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
 

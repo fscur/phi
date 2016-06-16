@@ -7,6 +7,7 @@
 #include <core\node.h>
 
 #include <rendering\renderPass.h>
+#include <rendering\framebufferAllocator.h>
 
 #include <uiRendering\controlRenderer.h>
 #include <uiRendering\controlRendererDescriptor.h>
@@ -23,7 +24,11 @@ namespace phi
         string _resourcesPath;
 
     public:
-        CONTEXT_API controlLayerBehaviour(const resolution& resolution, const string& resourcesPath);
+        CONTEXT_API controlLayerBehaviour(
+            const resolution& resolution, 
+            const string& resourcesPath,
+            framebufferAllocator* framebufferAllocator);
+
         CONTEXT_API ~controlLayerBehaviour();
 
         CONTEXT_API void onNodeAdded(node* node);

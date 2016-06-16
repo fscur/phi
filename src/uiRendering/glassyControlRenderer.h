@@ -3,6 +3,7 @@
 #include "uiRenderingApi.h"
 
 #include <rendering\renderPass.h>
+#include <rendering\framebufferAllocator.h>
 
 #include "glassyControlRendererDescriptor.h"
 
@@ -21,7 +22,9 @@ namespace phi
         UI_RENDERING_API void render();
 
         UI_RENDERING_API static vector<renderPass*> configure(
-            const string& resourcesPath, 
-            glassyControlRendererDescriptor* renderDescriptor);
+            glassyControlRendererDescriptor* renderDescriptor,
+            const resolution& resolution,
+            const string& resourcesPath,
+            framebufferAllocator* framebufferAllocator);
     };
 }

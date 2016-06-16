@@ -3,6 +3,7 @@
 
 #include <core\resolution.h>
 #include <rendering\renderPass.h>
+#include <rendering\framebufferAllocator.h>
 
 namespace phi
 {
@@ -10,6 +11,10 @@ namespace phi
     {
     public:
         selectionRenderPass() = delete;
-        static renderPass* configure(const renderPass* lightingRenderPass, const resolution& resolution, const string& shadersPath);
+        static renderPass* configure(
+            const renderPass* lightingRenderPass, 
+            const resolution& resolution, 
+            const string& shadersPath,
+            framebufferAllocator* framebufferAllocator);
     };
 }

@@ -7,6 +7,7 @@
 #include <core\node.h>
 
 #include <rendering\renderPass.h>
+#include <rendering\framebufferAllocator.h>
 
 #include <uiRendering\textRenderer.h>
 #include <uiRendering\textRendererDescriptor.h>
@@ -23,7 +24,11 @@ namespace phi
         string _resourcesPath;
 
     public:
-        CONTEXT_API textLayerBehaviour(const resolution& resolution, const string& resourcesPath);
+        CONTEXT_API textLayerBehaviour(
+            const resolution& resolution, 
+            const string& resourcesPath,
+            framebufferAllocator* framebufferAllocator);
+
         CONTEXT_API ~textLayerBehaviour();
 
         CONTEXT_API void onNodeAdded(node* node);

@@ -4,12 +4,11 @@
 #include <core\invalidInitializationException.h>
 
 #include "texturesManager.h"
+#include "framebufferLayoutBuilder.h"
 
 namespace phi
 {
     framebuffer* framebuffer::defaultFramebuffer = new framebuffer(true);
-    framebuffer* framebuffer::_pickingFramebuffer = nullptr;
-    renderTarget* framebuffer::_pickingRenderTarget = nullptr;
 
     framebuffer::framebuffer(bool isDefaultFramebuffer) :
         _id(0),
@@ -41,6 +40,11 @@ namespace phi
     {
         _renderTargets.push_back(renderTarget);
         _renderTargetsAttachments[renderTarget] = attachment;
+
+        if (!(attachment == GL_DEPTH_ATTACHMENT ||
+            attachment == GL_STENCIL_ATTACHMENT ||
+            attachment == GL_DEPTH_STENCIL_ATTACHMENT))
+            _drawBuffers.push_back(attachment);
     }
 
     void framebuffer::attachRenderTargets()
@@ -52,11 +56,6 @@ namespace phi
 
             if (_isDefaultFramebuffer)
                 throw argumentException("Trying to add renderTarget to default framebuffer !?");
-
-            if (!(attachment == GL_DEPTH_ATTACHMENT ||
-                attachment == GL_STENCIL_ATTACHMENT ||
-                attachment == GL_DEPTH_STENCIL_ATTACHMENT))
-                _drawBuffers.push_back(attachment);
 
             glBindFramebuffer(GL_FRAMEBUFFER, _id);
 
@@ -179,56 +178,6 @@ namespace phi
 
 
         return zBufferValue;
-    }
-
-    void framebuffer::createPickingFramebuffer(const resolution& resolution)
-    {
-        _pickingFramebuffer = new framebuffer();
-
-        auto layout = textureLayout();
-        layout.dataFormat = GL_RGBA;
-        layout.dataType = GL_UNSIGNED_BYTE;
-        layout.internalFormat = GL_RGBA8;
-        layout.wrapMode = GL_CLAMP_TO_EDGE;
-        layout.minFilter = GL_NEAREST;
-        layout.magFilter = GL_NEAREST;
-
-        auto pickingTexture = new phi::texture(
-            static_cast<uint>(resolution.width),
-            static_cast<uint>(resolution.height),
-            layout,
-            nullptr,
-            true,
-            false);
-
-        auto pickingTextureAddress = texturesManager::add(pickingTexture);
-
-        /*_pickingRenderTarget = new renderTarget(
-            "pickingRenderTarget",
-            static_cast<GLint>(resolution.width),
-            static_cast<GLint>(resolution.height),
-            layout,
-            pickingTextureAddress);
-
-        _pickingFramebuffer->add(_pickingRenderTarget, GL_COLOR_ATTACHMENT0);
-        */
-        throw exception("fix");
-    }
-
-    framebuffer* framebuffer::getPickingFramebuffer()
-    {
-        if (!_pickingFramebuffer)
-            throw invalidInitializationException("pickingFramebuffer was not initialized!");
-
-        return _pickingFramebuffer;
-    }
-
-    renderTarget* framebuffer::getPickingRenderTarget()
-    {
-        if (!_pickingRenderTarget)
-            throw invalidInitializationException("pickingFramebuffer was not initialized!");
-
-        return _pickingRenderTarget;
     }
 
     void framebuffer::resize(const resolution& resolution)

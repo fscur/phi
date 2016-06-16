@@ -3,7 +3,7 @@
 #include "uiRenderingApi.h"
 
 #include <rendering\renderPass.h>
-
+#include <rendering\framebufferAllocator.h>
 #include "textRendererDescriptor.h"
 
 namespace phi
@@ -20,6 +20,10 @@ namespace phi
         UI_RENDERING_API  ~textRenderer();
         UI_RENDERING_API  void render();
 
-        UI_RENDERING_API static vector<renderPass*> configure(const string& resourcesPath, textRendererDescriptor* renderDescriptor);
+        UI_RENDERING_API static vector<renderPass*> configure(
+            textRendererDescriptor* renderDescriptor,
+            const resolution& resolution,
+            const string& resourcesPath,
+            framebufferAllocator* framebufferAllocator);
     };
 }
