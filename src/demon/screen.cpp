@@ -190,8 +190,8 @@ namespace demon
         //{
             //node->addOnClick([=](layer* layer)
             //{
-                //auto onDemandBillboard = onDemandBillboardUI::createFrom(node, sceneCamera);
-                //auto onDemand = onDemandUI::createFrom(node);
+                //auto onDemandBillboard = onDemandBillboardUI::from(node, sceneCamera);
+                //auto onDemand = onDemandUI::from(node);
                 //layer->add(onDemand);
             //});
         //});
@@ -202,7 +202,7 @@ namespace demon
         _constructionContext = new context(_resolution, _framebufferAllocator, { _sceneLayer });
 
         _sceneLayer->add(floor);
-        _sceneLayer->add(chair); 
+        _sceneLayer->add(chair);
         //sceneLayer->add(sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
@@ -336,10 +336,7 @@ namespace demon
     {
         gl::resize(resolution);
 
-        if (_framebufferAllocator)
-            _framebufferAllocator->reallocate(resolution);
-        
-        if (_activeContext)
-            _activeContext->resize(resolution);
+        _framebufferAllocator->reallocate(resolution);
+        _activeContext->resize(resolution);
     }
 }
