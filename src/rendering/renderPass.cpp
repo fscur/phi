@@ -36,7 +36,7 @@ namespace phi
 
         _onBeginRender(_program, _framebuffer, _resolution);
         _onRender(_vaos);
-        _onEndRender(_program, _framebuffer);
+        _onEndRender(_program, _framebuffer, _resolution);
     }
 
     void renderPass::resize(const resolution& resolution)

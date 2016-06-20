@@ -44,7 +44,7 @@ namespace phi
                 vao->render();
         });
 
-        pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer)
+        pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             program->unbind();
 

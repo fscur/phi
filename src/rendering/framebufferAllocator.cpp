@@ -100,7 +100,18 @@ namespace phi
             auto renderTarget = pair.second;
 
             //TODO: remove render target texture from textures manager
+            texturesManager::remove(renderTarget->texture);
+        }
 
+        for (auto& pair : _layoutsCount)
+        {
+            auto size = sizeui(static_cast<uint>(resolution.width), static_cast<uint>(resolution.height), _layoutsCount[pair.first]);
+            texturesManager::reserveContainer(size, pair.first);
+        }
+
+        for (auto& pair : _renderTargets)
+        {
+            auto renderTarget = pair.second;
             auto layout = _renderTargetsLayouts[renderTarget];
 
             auto texture = new phi::texture(

@@ -159,7 +159,7 @@ namespace demon
         auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
         sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
 
@@ -167,7 +167,7 @@ namespace demon
             .withMeshRenderer()
             .build();
 
-        auto constructionCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
@@ -176,7 +176,7 @@ namespace demon
             .withTextRenderer()
             .build();
 
-        auto nandinhoCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 

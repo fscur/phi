@@ -57,7 +57,10 @@ namespace phi
             if (texturesManager::getIsBindless())
                 program->setUniform(0, texturesManager::handles);
             else
-                program->setUniform(0, texturesManager::units);
+            {
+                auto units = texturesManager::units;
+                program->setUniform(0, units);
+            }
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
@@ -66,12 +69,13 @@ namespace phi
                 vao->render();
         });
 
-        pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer)
+        pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             program->unbind();
 
             framebuffer->unbind(GL_FRAMEBUFFER);
-            framebuffer->bindForReading(framebuffer->getRenderTarget("rt0"));
+            auto rt0 = framebuffer->getRenderTarget("rt0");
+            framebuffer->bindForReading(rt0);
 
             auto w = static_cast<GLint>(resolution.width);
             auto h = static_cast<GLint>(resolution.height);

@@ -81,21 +81,26 @@ void main()
 {
     materialRenderData material = materials.items[materialId];
 
-    //normal map
-    vec3 n = normalize(fragNormal);
-    vec3 t = normalize(fragTangent); 
-    vec3 b = cross(n, t);
+    ////normal map
+    //vec3 n = normalize(fragNormal);
+    //vec3 t = normalize(fragTangent); 
+    //vec3 b = cross(n, t);
 
-    mat3 tbn = mat3(t, b, n);
-    vec4 normalTexel = fetchNormal(material);
-    vec3 normal = tbn * (normalTexel * 2.0 - 1.0).xyz;
+    //mat3 tbn = mat3(t, b, n);
+    //vec4 normalTexel = fetchNormal(material);
+    //vec3 normal = tbn * (normalTexel * 2.0 - 1.0).xyz;
 
-    vec2 encodedNormal = encodeNormal(normal);
+    //vec2 encodedNormal = encodeNormal(normal);
 
-    vec4 albedoColor = fetchAlbedo(material);
-    vec4 specularColor = fetchSpecular(material);
-    rt0 = vec4(albedoColor.xyz, encodedNormal.x); //RGBA16F
-    rt1 = vec4(specularColor.xyz, encodedNormal.y); //RGBA16F
-    rt2 = vec4(material.shininess, 1.0, 1.0, 1.0); //RGBA16F
-    rt3 = selectionColor; //RGBA8
+    //vec4 albedoColor = fetchAlbedo(material);
+    //vec4 specularColor = fetchSpecular(material);
+    //rt0 = vec4(albedoColor.xyz, encodedNormal.x); //RGBA16F
+    //rt1 = vec4(specularColor.xyz, encodedNormal.y); //RGBA16F
+    //rt2 = vec4(material.shininess, 1.0, 1.0, 1.0); //RGBA16F
+    //rt3 = selectionColor; //RGBA8
+
+    int array = material.albedoTextureArrayIndex;
+    float page = material.albedoTexturePageIndex;
+    vec4 color = vec4(material.albedoColor, 1.0);
+    rt0 = texture(textureArrays[array], vec3(fragTexCoord, page)) * color;
 }

@@ -37,7 +37,7 @@ namespace phi
         std::function<void(program*)> _onUpdate;
         std::function<void(program*, framebuffer*, const resolution&)> _onBeginRender;
         std::function<void(const vector<vertexArrayObject*>&)> _onRender;
-        std::function<void(program*, framebuffer*)> _onEndRender;
+        std::function<void(program*, framebuffer*, const resolution&)> _onEndRender;
         std::function<void(const resolution& resolution)> _onResize;
 
     public:
@@ -52,7 +52,7 @@ namespace phi
         void setOnUpdate(std::function<void(program*)> onUpdate) { _onUpdate = onUpdate; }
         void setOnBeginRender(std::function<void(program*, framebuffer*, const resolution&)> onRender) { _onBeginRender = onRender; }
         void setOnRender(std::function<void(const vector<vertexArrayObject*>&)> onRender) { _onRender = onRender; }
-        void setOnEndRender(std::function<void(program*, framebuffer*)> onRender) { _onEndRender = onRender; }
+        void setOnEndRender(std::function<void(program*, framebuffer*, const resolution&)> onRender) { _onEndRender = onRender; }
         void setOnResize(std::function<void(const resolution&)> onResize) { _onResize = onResize; }
 
         void addVao(vertexArrayObject* vao) { _vaos.push_back(vao); }

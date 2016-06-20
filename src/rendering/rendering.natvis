@@ -15,4 +15,12 @@
     </Expand>
   </Type>
   
+  <Type Name="phi::textureContainer">
+    <DisplayString >{_size.w,nd} x {_size.h,nd} x {_size.d,nd}</DisplayString>
+    <Expand HideRawView="true">
+      <Item Name="Unit">_unit,na</Item>
+    <Item Name="Pages">_pages,na</Item>
+    </Expand>
+  </Type>
+  
 </AutoVisualizer>

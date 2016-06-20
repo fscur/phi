@@ -24,7 +24,9 @@ namespace phi
         RENDERING_API static vector<GLuint64> handles;
 
     private:
-        static textureContainer * createContainer(sizeui size, textureLayout layout);
+        static textureContainer* createContainer(sizeui size, textureLayout layout);
+        static textureContainer* findContainer(const GLuint containerId);
+        static void removeContainer(textureContainer* container);
 
     public:
         RENDERING_API static void initialize(bool sparse, bool bindless);
@@ -33,6 +35,7 @@ namespace phi
         RENDERING_API static bool contains(const texture* const texture);
         RENDERING_API static textureAddress add(const texture* const texture);
         RENDERING_API static textureAddress addAtlasTexture(const texture* const texture);
+        RENDERING_API static void remove(texture* texture);
         RENDERING_API static texture* getTextureFromImage(image* image);
         RENDERING_API static textureAddress getTextureAddress(const texture* const texture);
         RENDERING_API static textureContainer* reserveContainer(sizeui size, textureLayout layout);

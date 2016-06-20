@@ -98,6 +98,35 @@ namespace phi
         return textureAddress;
     }
 
+    void texturesManager::remove(texture* texture)
+    {
+        auto address = getTextureAddress(texture);
+
+        auto container = findContainer(address.containerId);
+
+        container->remove(texture);
+
+        if (container->isEmpty())
+        {
+            if (_isBindless)
+            {
+                auto handle = container->getHandle();
+                phi::removeIfContains(handles, handle);
+            }
+            else
+            {
+                auto unit = container->getUnit();
+                //TODO: ver se nao eh melhor mandar todas as units disponiveis e nao tratar isso... apenas mandar todas
+                //ou entender o pq ao se mudar a ordem o opengl se perde nas units
+                phi::removeIfContains(units, unit);
+            }
+
+            container->release();
+            removeContainer(container);
+            safeDelete(container);
+        }
+    }
+
     textureAddress texturesManager::add(const texture* const texture)
     {   
         auto layout = texture->layout;
@@ -206,10 +235,40 @@ namespace phi
             container = new textureContainer(size, layout);
 
         _containers[layout].push_back(container);
-        handles.push_back(container->getHandle());
-        units.push_back(container->getUnit());
+
+        if (_isBindless)
+            handles.push_back(container->getHandle());
+        else
+            units.push_back(container->getUnit());
 
         return container;
+    }
+
+    textureContainer* texturesManager::findContainer(const GLuint containerId)
+    {
+        for (auto& pair : _containers)
+        {
+            auto containers = pair.second;
+
+            auto it = std::find_if(
+                containers.begin(),
+                containers.end(),
+                [=](textureContainer* container)
+                { 
+                    return container->getId() == containerId;
+                }
+            );
+
+            if (it != containers.end())
+                return *it;
+        }
+
+        throw argumentException(containerId + " containerId not found.");
+    }
+
+    void texturesManager::removeContainer(textureContainer* container)
+    {
+        phi::removeIfContains(_containers[container->getLayout()], container);
     }
 
     textureContainer* texturesManager::reserveContainer(sizeui size, textureLayout layout)

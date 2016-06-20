@@ -252,4 +252,29 @@ namespace phi
         else
             return loadSubData(texture, textureAddress);
     }
+
+    void textureContainer::remove(const texture * texture)
+    {
+        auto address = _texturesAddresses[texture];
+        
+        phi::removeIfContains(_textures, texture);
+        _texturesAddresses.erase(texture);
+
+        _pages[address.page] = false;
+
+        safeDelete(texture);
+
+        //TODO:remove sparse page
+    }
+
+    bool textureContainer::isEmpty()
+    {
+        return _textures.size() == 0;
+    }
+
+    void textureContainer::release()
+    {
+        glDeleteTextures(1, &_id);
+        textureUnits::clear(_unit);
+    }
 }

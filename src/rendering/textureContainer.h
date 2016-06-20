@@ -70,7 +70,12 @@ namespace phi
         virtual ~textureContainer();
 
         bool add(const texture* const texture, textureAddress& textureAddress);
+        void remove(const texture* texture);
+        bool isEmpty();
+        void release();
 
+        GLuint getId() const { return _id; }
+        textureLayout getLayout() const { return _layout; }
         GLint getUnit() const { return _unit; }
         GLuint64 getHandle() const { return _handle; }
         vec2 getTexelSize() const { return _texelSize; }
