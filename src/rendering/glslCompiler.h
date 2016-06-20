@@ -6,7 +6,7 @@
 
 namespace phi
 {
-    class glslCompiler
+    /*class glslCompiler
     {
     private:
         static EShLanguage translateState(const shaderStage::shaderStage& stage);
@@ -16,5 +16,5 @@ namespace phi
 
     public:
         RENDERING_API static program* compile(vector<shader*>&& shaders);
-    };
+    };*/
 }
