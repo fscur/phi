@@ -42,6 +42,7 @@ namespace phi
         APPLICATION_API virtual void onUpdate() = 0;
         APPLICATION_API virtual void onRender() = 0;
         APPLICATION_API virtual void onClosing() = 0;
+        APPLICATION_API virtual void onSwapBuffers() {};
 
         APPLICATION_API virtual void onTick();
         APPLICATION_API virtual void onResize(resolution resolution);

@@ -72,6 +72,7 @@ namespace demon
         void onUpdate() override;
         void onRender() override;
         void onTick() override;
+        void onSwapBuffers() override;
         void onResize(phi::resolution resolution) override;
     };
 }

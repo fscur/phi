@@ -155,6 +155,14 @@ namespace phi
         return 0;
     }
 
+    vec2 getDpi()
+    {
+        int dpiX = GetDeviceCaps(_deviceContext, LOGPIXELSX);
+        int dpiY = GetDeviceCaps(_deviceContext, LOGPIXELSY);
+
+        return vec2(dpiX, dpiY);
+    }
+
     LRESULT onActivate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         if (!HIWORD(wParam)) // Is minimized
@@ -373,7 +381,7 @@ namespace phi
 
     LRESULT onDpiChanged(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        auto rect = *reinterpret_cast<RECT *>(lParam);
+        auto rect = *reinterpret_cast<RECT*>(lParam);
 
         HWND doesNotHaveRelativeWindow = 0;
 
@@ -384,6 +392,8 @@ namespace phi
             rect.right - rect.left,
             rect.bottom - rect.top,
             SWP_NOACTIVATE | SWP_NOZORDER);
+
+        return 0;
     }
 
     LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -497,14 +507,6 @@ namespace phi
         result.cAuxBuffers = 0;
         result.iLayerType = PFD_MAIN_PLANE;
         return result;
-    }
-
-    vec2 getDpi()
-    {
-        int dpiX = GetDeviceCaps(_deviceContext, LOGPIXELSX);
-        int dpiY = GetDeviceCaps(_deviceContext, LOGPIXELSY);
-
-        return vec2(dpiX, dpiY);
     }
 
     HGLRC createFakeGLContext()
@@ -624,6 +626,7 @@ namespace phi
     void window::swapBuffers()
     {
         SwapBuffers(_deviceContext);
+        onSwapBuffers();
     }
 
     void window::close()
