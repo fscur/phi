@@ -25,7 +25,7 @@ namespace phi
     bool texturesManager::_isSparse = false;
     uint texturesManager::_maxPages = texturesManager::DEFAULT_MAX_PAGES;
 
-    vector<GLint> texturesManager::units;
+    //vector<GLint> texturesManager::units;
     vector<GLuint64> texturesManager::handles;
 
     void texturesManager::initialize(bool sparse, bool bindless)
@@ -112,13 +112,6 @@ namespace phi
             {
                 auto handle = container->getHandle();
                 phi::removeIfContains(handles, handle);
-            }
-            else
-            {
-                auto unit = container->getUnit();
-                //TODO: ver se nao eh melhor mandar todas as units disponiveis e nao tratar isso... apenas mandar todas
-                //ou entender o pq ao se mudar a ordem o opengl se perde nas units
-                phi::removeIfContains(units, unit);
             }
 
             container->release();
@@ -238,8 +231,6 @@ namespace phi
 
         if (_isBindless)
             handles.push_back(container->getHandle());
-        else
-            units.push_back(container->getUnit());
 
         return container;
     }

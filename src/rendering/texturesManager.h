@@ -20,7 +20,6 @@ namespace phi
         static uint _maxPages;
 
     public:
-        RENDERING_API static vector<GLint> units;
         RENDERING_API static vector<GLuint64> handles;
 
     private:
