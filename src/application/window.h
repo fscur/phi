@@ -19,6 +19,7 @@ namespace phi
     protected:
         wstring _title;
         resolution _resolution;
+        vec2 _dpi;
 
     public:
         bool closed;

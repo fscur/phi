@@ -5,9 +5,10 @@ namespace phi
 {
     struct resolution
     {
-        struct resolution(float width = 0.0f, float height = 0.0f) :
+        struct resolution(float width = 0.0f, float height = 0.0f, vec2 dpi = vec2(0.0f)) :
             width(width),
-            height(height)
+            height(height),
+            dpi(dpi)
         {
         }
 
@@ -21,5 +22,6 @@ namespace phi
 
         float width;
         float height;
+        vec2 dpi;
     };
 }

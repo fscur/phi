@@ -124,7 +124,7 @@ namespace demon
 
     void screen::initUi()
     {
-        auto font = fontsManager::load("Roboto-Thin.ttf", 8);
+        auto font = fontsManager::load("Consolas.ttf", 10);
         auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
         auto labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1")
@@ -334,6 +334,7 @@ namespace demon
 
     void screen::onResize(phi::resolution resolution)
     {
+        window::onResize(resolution);
         gl::resize(resolution);
 
         _framebufferAllocator->reallocate(resolution);
