@@ -94,7 +94,8 @@ namespace phi
                 if (mesh)
                 {
                     auto node = mesh->getNode();
-                    node->setIsSelected(true);
+                    debug("descomentar o pick");
+                    //node->setIsSelected(true);
                 }
             }
         }

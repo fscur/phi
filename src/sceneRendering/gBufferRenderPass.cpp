@@ -71,7 +71,7 @@ namespace phi
             program->unbind();
 
             framebuffer->unbind(GL_FRAMEBUFFER);
-            framebuffer->bindForReading(framebuffer->getRenderTarget("rt0"));
+            framebuffer->bindForReading();
 
             auto w = static_cast<GLint>(resolution.width);
             auto h = static_cast<GLint>(resolution.height);

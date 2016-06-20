@@ -156,18 +156,25 @@ namespace demon
             .build();
 
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
+        auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair0->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        auto sceneCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
-        sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
-        sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
+        auto chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair1->getTransform()->setLocalPosition(vec3(-6.f, .1f, -1.0f));
+
+        auto chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair2->getTransform()->setLocalPosition(vec3(-3.f, .1f, .5f));
+
+        auto sceneCamera = new camera(_resolution, 1.0f, 1000.0f, PI_OVER_4);
+        auto cameraPosition = vec3(1.0f, 1.5f, .5f);
+        sceneCamera->getTransform()->setLocalPosition(cameraPosition);
+        sceneCamera->getTransform()->setDirection(-cameraPosition);
 
         _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator)
             .withMeshRenderer()
             .build();
 
-        auto constructionCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto constructionCamera = new camera(_resolution, 1.0f, 100.0f, PI_OVER_4);
         constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
@@ -176,7 +183,7 @@ namespace demon
             .withTextRenderer()
             .build();
 
-        auto nandinhoCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+        auto nandinhoCamera = new camera(_resolution, 1.0f, 100.0f, PI_OVER_4);
         nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
@@ -202,7 +209,9 @@ namespace demon
         _constructionContext = new context(_resolution, _framebufferAllocator, { _sceneLayer });
 
         _sceneLayer->add(floor);
-        _sceneLayer->add(chair);
+        _sceneLayer->add(chair0);
+        _sceneLayer->add(chair1);
+        _sceneLayer->add(chair2);
         //sceneLayer->add(sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
