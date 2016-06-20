@@ -203,8 +203,6 @@ namespace demon
 
         _sceneLayer->add(floor);
         _sceneLayer->add(chair0);
-        _sceneLayer->add(chair1);
-        _sceneLayer->add(chair2);
         //sceneLayer->add(sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
