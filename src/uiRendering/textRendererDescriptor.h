@@ -19,12 +19,23 @@ namespace phi
     private:
         struct glyphInstance
         {
+            glyphInstance(glyphRenderData renderData, mat4 modelMatrix) :
+                renderData(renderData),
+                modelMatrix(modelMatrix)
+            {
+            }
+
             glyphRenderData renderData;
             mat4 modelMatrix;
         };
 
         struct textInstance
         {
+            textInstance(vector<glyphInstance*> glyphs) :
+                glyphs(glyphs)
+            {
+            }
+
             size_t bufferOffset;
             vector<glyphInstance*> glyphs;
         };

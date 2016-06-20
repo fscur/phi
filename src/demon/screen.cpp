@@ -198,8 +198,8 @@ namespace demon
 
         _framebufferAllocator->allocate(_resolution);
 
-        _designContext = new context(_resolution, _framebufferAllocator, { _sceneLayer });
-        _constructionContext = new context(_resolution, _framebufferAllocator, { _sceneLayer });
+        _designContext = new context(_resolution, _framebufferAllocator, { _sceneLayer, _nandinhoLayer });
+        _constructionContext = new context(_resolution, _framebufferAllocator, { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(floor);
         _sceneLayer->add(chair0);

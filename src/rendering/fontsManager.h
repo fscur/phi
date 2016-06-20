@@ -1,10 +1,13 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
+
+#include <core\atlas.h>
+
 #include "glyph.h"
 #include "font.h"
+#include "glyphTextureData.h"
 #include "texturesManager.h"
-#include <core\atlas.h>
 
 namespace phi
 {
@@ -22,6 +25,8 @@ namespace phi
         static textureLayout _glyphLayout;
         static vec2 _texelSize;
 
+        static unordered_map<glyph*, glyphTextureData*> _glyphTextureDataCache;
+
     private:
         static void createGlyphLayout();
 
@@ -29,6 +34,6 @@ namespace phi
         RENDERING_API static void initialize(string path);
         RENDERING_API static void release();
         RENDERING_API static font* load(string name, uint size);
-        RENDERING_API static glyph* getGlyph(font* const font, const ulong& glyphChar);
+        RENDERING_API static glyphTextureData* getGlyph(font* const font, const ulong& glyphChar);
     };
 }

@@ -103,15 +103,17 @@ namespace phi
         float z = position.z;
 
         glyph* previousGlyph = nullptr;
+
+        auto glyphTextureData = fontsManager::getGlyph(font, (ulong)textString[0]);
+        x -= glyphTextureData->glyph->offsetX;
+
         auto textLength = textString.length();
-
-        auto glyph = fontsManager::getGlyph(font, (ulong)textString[0]);
-        x -= glyph->offsetX;
-
         for (auto i = 0; i < textLength; i++)
         {
-            glyph = fontsManager::getGlyph(font, (ulong)textString[i]);
-            auto kern = font->getKerning(previousGlyph, glyph);
+            glyphTextureData = fontsManager::getGlyph(font, (ulong)textString[i]);
+            auto glyph = glyphTextureData->glyph;
+
+            auto kern = font->getKerning(previousGlyph, glyphTextureData->glyph);
             auto w = glyph->width;
             auto h = glyph->height;
             auto x0 = x + glyph->offsetX;
@@ -127,26 +129,14 @@ namespace phi
 
             float shift = std::abs(x0 - static_cast<int>(x0));
 
-            auto renderData = glyphRenderData();
-            renderData.position = glyph->texturePosition;
-            renderData.size = glyph->textureSize;
-            renderData.shift = shift;
-            renderData.unit = glyph->unit;
-            renderData.page = glyph->page;
-            renderData.texelSize = glyph->texelSize;
-            renderData.color = text->getColor();
+            auto renderData = glyphRenderData(glyphTextureData, shift, text->getColor());
 
-            auto glyphInstance = new textRendererDescriptor::glyphInstance();
-            glyphInstance->modelMatrix = modelMatrix;
-            glyphInstance->renderData = renderData;
-
-            glyphInstances.push_back(glyphInstance);
+            glyphInstances.push_back(new glyphInstance(renderData, modelMatrix));
 
             previousGlyph = glyph;
         }
 
-        auto instance = new textInstance();
-        instance->glyphs = glyphInstances;
+        auto instance = new textInstance(glyphInstances);
 
         return instance;
     }

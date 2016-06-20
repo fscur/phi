@@ -11,6 +11,7 @@ namespace phi
     textureLayout fontsManager::_glyphLayout;
     vec2 fontsManager::_texelSize;
     map<std::tuple<string, uint>, font*> fontsManager::_fonts;
+    unordered_map<glyph*, glyphTextureData*> fontsManager::_glyphTextureDataCache;
 
     //TODO: see what happens when there is no space in the container...
     GLint fontsManager::_maxGlyphAtlasSize = 1024;
@@ -63,20 +64,27 @@ namespace phi
         _texelSize = vec2(inverseGlyphAtlasSize);
     }
 
-    glyph* fontsManager::getGlyph(font* const font, const ulong& glyphChar)
+    glyphTextureData* fontsManager::getGlyph(font* const font, const ulong& glyphChar)
     {
         auto glyph = font->getGlyph(glyphChar);
-        auto glyphTexture = new texture(glyph->image, _glyphLayout, true, true);
 
+        if (contains(_glyphTextureDataCache, glyph))
+            return _glyphTextureDataCache[glyph];
+
+        auto glyphTexture = new texture(glyph->image, _glyphLayout, true, true);
         textureAddress address = texturesManager::addAtlasTexture(glyphTexture);
 
-        glyph->texturePosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
-        glyph->textureSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);
-        glyph->unit = address.unit;
-        glyph->page = address.page;
-        glyph->texelSize = _texelSize;
+        auto glyphTextureData = new phi::glyphTextureData(glyph);
 
-        return glyph;
+        glyphTextureData->texturePosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
+        glyphTextureData->textureSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);
+        glyphTextureData->unit = address.unit;
+        glyphTextureData->page = address.page;
+        glyphTextureData->texelSize = _texelSize;
+
+        _glyphTextureDataCache[glyph] = glyphTextureData;
+
+        return glyphTextureData;
     }
 
     font* fontsManager::load(string name, uint size)
