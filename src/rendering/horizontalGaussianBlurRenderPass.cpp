@@ -3,6 +3,7 @@
 
 #include "framebufferLayoutBuilder.h"
 #include "programBuilder.h"
+#include "textureUnits.h"
 #include "texturesManager.h"
 
 namespace phi
@@ -50,7 +51,7 @@ namespace phi
             if (texturesManager::getIsBindless())
                 program->setUniform(3, texturesManager::handles);
             else
-                program->setUniform(3, texturesManager::units);
+                program->setUniform(3, textureUnits::units);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
