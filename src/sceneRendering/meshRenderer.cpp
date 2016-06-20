@@ -16,10 +16,10 @@ namespace phi
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
         auto gBufferRenderPass = gBufferRenderPass::configure(rendererDescriptor, resolution, shadersPath, framebufferAllocator);
-        //auto lightingRenderPass = lightingRenderPass::configure(gBufferRenderPass, resolution, shadersPath, framebufferAllocator);
-        //auto selectionRenderPass = selectionRenderPass::configure(lightingRenderPass, resolution, shadersPath, framebufferAllocator);
+        auto lightingRenderPass = lightingRenderPass::configure(gBufferRenderPass, resolution, shadersPath, framebufferAllocator);
+        auto selectionRenderPass = selectionRenderPass::configure(lightingRenderPass, resolution, shadersPath, framebufferAllocator);
         //return{ gBufferRenderPass};
-        return{ gBufferRenderPass };
-        //return{ gBufferRenderPass, lightingRenderPass, selectionRenderPass };
+        //return{ gBufferRenderPass };
+        return{ gBufferRenderPass, lightingRenderPass, selectionRenderPass };
     }
 }

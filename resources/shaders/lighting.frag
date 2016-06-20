@@ -73,14 +73,14 @@ vec3 decodeNormal (vec2 enc)
     return n;
 }
 
-vec4 denormalizeDepth()
-{
-    float z = depth; // fetch the z-value from our depth texture
-    float n = 1.0; // the near plane
-    float f = 1000.0; // the far plane
-    float c = (2.0 * n) / (f + n - z * (f - n)); // convert to linear values
-    return vec4(c, c, c, 1.0);
-}
+//vec4 denormalizeDepth()
+//{
+//    float z = depth; // fetch the z-value from our depth texture
+//    float n = 1.0; // the near plane
+//    float f = 1000.0; // the far plane
+//    float c = (2.0 * n) / (f + n - z * (f - n)); // convert to linear values
+//    return vec4(c, c, c, 1.0);
+//}
 
 void main()
 {

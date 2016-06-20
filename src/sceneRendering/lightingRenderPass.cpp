@@ -4,6 +4,7 @@
 #include <core\notImplementedException.h>
 #include <core\geometry.h>
 
+#include <rendering\textureUnits.h>
 #include <rendering\texturesManager.h>
 #include <rendering\gBufferRTAddresses.h>
 #include <rendering\textureAddress.h>
@@ -112,7 +113,7 @@ namespace phi
             if (texturesManager::getIsBindless())
                 program->setUniform(0, texturesManager::handles);
             else
-                program->setUniform(0, texturesManager::units);
+                program->setUniform(0, textureUnits::units);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)

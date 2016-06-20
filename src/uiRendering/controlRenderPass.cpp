@@ -1,6 +1,7 @@
 #include <precompiled.h>
 #include "controlRenderPass.h"
 
+#include <rendering\textureUnits.h>
 #include <rendering\texturesManager.h>
 #include <rendering\vertexArrayObject.h>
 #include <rendering\programBuilder.h>
@@ -35,7 +36,7 @@ namespace phi
             if(texturesManager::getIsBindless())
                 program->setUniform(0, texturesManager::handles);
             else
-                program->setUniform(0, texturesManager::units);
+                program->setUniform(0, textureUnits::units);
         });
 
         pass->setOnRender([](const vector<vertexArrayObject*>& vaos)

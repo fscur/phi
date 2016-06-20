@@ -1,6 +1,7 @@
 #include <precompiled.h>
 #include "gBufferRenderPass.h"
 
+#include <rendering\textureUnits.h>
 #include <rendering\texturesManager.h>
 #include <rendering\programBuilder.h>
 
@@ -57,10 +58,7 @@ namespace phi
             if (texturesManager::getIsBindless())
                 program->setUniform(0, texturesManager::handles);
             else
-            {
-                auto units = texturesManager::units;
-                program->setUniform(0, units);
-            }
+                program->setUniform(0, textureUnits::units);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
@@ -74,13 +72,12 @@ namespace phi
             program->unbind();
 
             framebuffer->unbind(GL_FRAMEBUFFER);
-            auto rt0 = framebuffer->getRenderTarget("rt0");
-            framebuffer->bindForReading(rt0);
+            framebuffer->bindForReading();
 
             auto w = static_cast<GLint>(resolution.width);
             auto h = static_cast<GLint>(resolution.height);
 
-            glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+            glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         });
 
         return pass;

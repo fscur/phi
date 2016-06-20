@@ -1,6 +1,7 @@
 #include <precompiled.h>
 #include "textRenderPass.h"
 
+#include <rendering\textureUnits.h>
 #include <rendering\texturesManager.h>
 #include <rendering\programBuilder.h>
 
@@ -33,7 +34,7 @@ namespace phi
             if (texturesManager::getIsBindless())//TODO: AAAAAAAAAAAAA ARRUMA LAMBDAS SOMETHING
                 program->setUniform(0, texturesManager::handles);
             else
-                program->setUniform(0, texturesManager::units);
+                program->setUniform(0, textureUnits::units);
         });
 
         pass->setOnRender([](const vector<vertexArrayObject*>& vaos)

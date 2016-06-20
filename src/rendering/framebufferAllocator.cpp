@@ -99,7 +99,6 @@ namespace phi
         {
             auto renderTarget = pair.second;
 
-            //TODO: remove render target texture from textures manager
             texturesManager::remove(renderTarget->texture);
         }
 

@@ -4,7 +4,8 @@
 
 namespace phi
 {
-    map<GLint, bool> textureUnits::_units;
+    unordered_map<GLint, bool> textureUnits::_usedUnits;
+    vector<GLint> textureUnits::units;
     GLint textureUnits::_maxTextureUnits = -1;
 
     void textureUnits::initialize()
@@ -12,16 +13,19 @@ namespace phi
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
 
         for (auto i = 0; i < _maxTextureUnits; ++i)
-            _units[i] = false;
+        {
+            _usedUnits[i] = false;
+            units.push_back(i);
+        }
     }
 
     GLint textureUnits::get()
     {
         for (auto i = 0; i < _maxTextureUnits; ++i)
         {
-            if (!_units[i])
+            if (!_usedUnits[i])
             {
-                _units[i] = true;
+                _usedUnits[i] = true;
                 return i;
             }
         }
@@ -31,6 +35,6 @@ namespace phi
 
     void textureUnits::clear(GLint unit)
     {
-        _units[unit] = false;
+        _usedUnits[unit] = false;
     }
 }
