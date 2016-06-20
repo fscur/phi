@@ -156,8 +156,8 @@ namespace demon
             .build();
 
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        auto chair = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
+        auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair0->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
         auto sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
@@ -190,8 +190,8 @@ namespace demon
         //{
             //node->addOnClick([=](layer* layer)
             //{
-                //auto onDemandBillboard = onDemandBillboardUI::createFrom(node, sceneCamera);
-                //auto onDemand = onDemandUI::createFrom(node);
+                //auto onDemandBillboard = onDemandBillboardUI::from(node, sceneCamera);
+                //auto onDemand = onDemandUI::from(node);
                 //layer->add(onDemand);
             //});
         //});
@@ -202,7 +202,9 @@ namespace demon
         _constructionContext = new context(_resolution, _framebufferAllocator, { _sceneLayer });
 
         _sceneLayer->add(floor);
-        _sceneLayer->add(chair); 
+        _sceneLayer->add(chair0);
+        _sceneLayer->add(chair1);
+        _sceneLayer->add(chair2);
         //sceneLayer->add(sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
@@ -336,10 +338,7 @@ namespace demon
     {
         gl::resize(resolution);
 
-        if (_framebufferAllocator)
-            _framebufferAllocator->reallocate(resolution);
-        
-        if (_activeContext)
-            _activeContext->resize(resolution);
+        _framebufferAllocator->reallocate(resolution);
+        _activeContext->resize(resolution);
     }
 }

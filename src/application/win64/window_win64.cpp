@@ -546,8 +546,6 @@ namespace phi
 
     void window::init()
     {
-        _resizeToken = window::resize.assign([=](phi::resolution resolution) { onResize(resolution); });
-
         adjustWindowToScreenBounds();
         createWindow(_title, _resolution);
         createGLContext();
@@ -557,6 +555,11 @@ namespace phi
         SetFocus(_windowHandle);
 
         onInit();
+
+        _resizeToken = window::resize.assign([&](phi::resolution resolution)
+        {
+            onResize(resolution);
+        });
     }
 
     void window::adjustWindowToScreenBounds()

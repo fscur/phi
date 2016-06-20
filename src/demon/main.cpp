@@ -131,7 +131,7 @@ int main(int argc, char* args[])
     {
         auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
         auto application = phi::application(appStartInfo);
-        auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(800, 800));
+        auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1920, 1080));
 
         application.run(&screen);
     }

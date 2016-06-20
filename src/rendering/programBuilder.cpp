@@ -38,6 +38,7 @@ namespace phi
         auto program = new phi::program();
         program->addShader(vertexShader);
         program->addShader(fragmentShader);
+        program->compile();
         program->link();
 
 #ifdef _DEBUG

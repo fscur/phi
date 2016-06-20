@@ -79,35 +79,21 @@ namespace phi
     void gl::initState()
     {
         glClearColor(currentState.clearColor.r, currentState.clearColor.g, currentState.clearColor.b, currentState.clearColor.a);
-        
 
         if (currentState.culling)
-        {
             glEnable(GL_CULL_FACE);
-            
-        }
 
         glCullFace(currentState.cullFace);
-        
-
         glFrontFace(currentState.frontFace);
-        
 
         if (currentState.depthTest)
-        {
             glEnable(GL_DEPTH_TEST);
-            
-        }
 
         GLboolean depthMask = currentState.depthMask ? GL_TRUE : GL_FALSE;
         glDepthMask(depthMask);
-        
 
         if (extensions[SWAP_CONTROL_EXTENSION])
-        {
             wglSwapIntervalEXT(currentState.swapInterval);
-            
-        }
     }
 
     void gl::syncPipeline()

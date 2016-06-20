@@ -57,7 +57,8 @@ namespace phi
                 swapInterval(swapInterval),
                 useBindlessTextures(useBindlessTextures),
                 useSparseTextures(useSparseTextures)
-            {}
+            {
+            }
         };
 
         struct glInfo
@@ -95,6 +96,5 @@ namespace phi
         string getVersion() { return string((char*)glGetString(GL_VERSION)); };
         RENDERING_API static void syncPipeline();
         RENDERING_API static void resize(const resolution& resolution);
-
     };
 }
