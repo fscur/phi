@@ -15,7 +15,7 @@ namespace phi
     DWORD _windowExStyle = 0;
     DWORD _windowStyle = WS_OVERLAPPEDWINDOW;
     LPARAM _lastMouseMove;
-    resolution _lastResolution;
+    resolution _currentResolution;
 
     bool _isBeingFirstShown = true;
     bool _hasEnteredSizeMove = false;
@@ -209,14 +209,14 @@ namespace phi
         auto width = rectangle.right - rectangle.left;
         auto height = rectangle.bottom - rectangle.top;
 
-        _lastResolution = resolution(static_cast<float>(width), static_cast<float>(height));
+        _currentResolution = resolution(static_cast<float>(width), static_cast<float>(height), getDpi());
         auto flags = windowPos->flags;
 
         if (flags & SWP_SHOWWINDOW)
         {
             if (_isBeingFirstShown)
             {
-                window::resize.raise(_lastResolution);
+                window::resize.raise(_currentResolution);
                 _isBeingFirstShown = false;
             }
         }
@@ -262,7 +262,7 @@ namespace phi
 
             if (hasToRaiseResize)
             {
-                window::resize.raise(_lastResolution);
+                window::resize.raise(_currentResolution);
                 return 0;
             }
         }
@@ -279,7 +279,7 @@ namespace phi
     LRESULT onExitSizeMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         if (_isResizing)
-            window::resize.raise(_lastResolution);
+            window::resize.raise(_currentResolution);
 
         _hasEnteredSizeMove = false;
         _isResizing = false;
@@ -371,6 +371,21 @@ namespace phi
         return 0;
     }
 
+    LRESULT onDpiChanged(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        auto rect = *reinterpret_cast<RECT *>(lParam);
+
+        HWND doesNotHaveRelativeWindow = 0;
+
+        SetWindowPos(hWnd,
+            doesNotHaveRelativeWindow,
+            rect.left,
+            rect.top,
+            rect.right - rect.left,
+            rect.bottom - rect.top,
+            SWP_NOACTIVATE | SWP_NOZORDER);
+    }
+
     LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
@@ -412,6 +427,8 @@ namespace phi
             return onExitSizeMove(hWnd, message, wParam, lParam);
         case WM_WINDOWPOSCHANGED:
             return onWindowPosChanged(hWnd, message, wParam, lParam);
+        case WM_DPICHANGED:
+            return onDpiChanged(hWnd, message, wParam, lParam);
         }
 
         return DefWindowProcW(hWnd, message, wParam, lParam);
@@ -480,6 +497,14 @@ namespace phi
         result.cAuxBuffers = 0;
         result.iLayerType = PFD_MAIN_PLANE;
         return result;
+    }
+
+    vec2 getDpi()
+    {
+        int dpiX = GetDeviceCaps(_deviceContext, LOGPIXELSX);
+        int dpiY = GetDeviceCaps(_deviceContext, LOGPIXELSY);
+
+        return vec2(dpiX, dpiY);
     }
 
     HGLRC createFakeGLContext()
@@ -553,6 +578,8 @@ namespace phi
         ShowWindow(_windowHandle, SW_SHOW);
         SetForegroundWindow(_windowHandle);
         SetFocus(_windowHandle);
+
+        _resolution.dpi = getDpi();
 
         onInit();
 

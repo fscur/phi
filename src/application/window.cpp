@@ -38,6 +38,6 @@ namespace phi
 
     void window::onResize(resolution resolution)
     {
-        gl::resize(resolution);
+        _resolution = resolution;
     }
 }

@@ -92,7 +92,7 @@ namespace phi
 
         void* buffer = new char[size];
         memcpy(buffer, glyphSlot->bitmap.buffer, size);
-        
+
         w /= 3;
 
         auto glyphImage = new image(
@@ -101,7 +101,7 @@ namespace phi
             imageDataFormat::rgb,
             imageDataType::ubyte_dataType,
             buffer);
-            
+
         auto glyph = new phi::glyph(glyphImage);
         glyph->index = glyphIndex;
         glyph->width = static_cast<float>(w) * _dpiRatio;
