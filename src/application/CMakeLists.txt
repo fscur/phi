@@ -30,6 +30,10 @@ include_directories(${GLEW_INCLUDE_DIR})
 target_link_libraries(application ${GLEW_LIBRARY})
 target_link_libraries(application ${OPENGL_LIBRARY})
 
+if(WIN32)
+    target_link_libraries(application Shcore.lib)
+endif(WIN32)
+
 if (MINGW)
     set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
     install(TARGETS application RUNTIME DESTINATION ${install_folder})
