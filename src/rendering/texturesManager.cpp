@@ -123,8 +123,9 @@ namespace phi
     textureAddress texturesManager::add(const texture* const texture)
     {   
         auto layout = texture->layout;
-        if (texture->generateMipmaps)
-            layout.levels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
+
+        /*if (layout.levels > 1)
+            layout.levels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));*/
 
         auto textureAddress = phi::textureAddress();
         textureContainer* container;
@@ -196,11 +197,12 @@ namespace phi
             layout.wrapMode = GL_REPEAT;
             layout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
             layout.magFilter = GL_LINEAR;
+            layout.levels = getMaxLevels(image->w, image->h);
 
             texture = new phi::texture(
                 image,
                 layout,
-                true,
+                //true,
                 false,
                 GL_TEXTURE_2D);
 

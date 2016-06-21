@@ -17,7 +17,7 @@ namespace phi
 
         string toString() const
         { 
-            return "resolution (" + std::to_string(width) + "; " + std::to_string(height) + ")";
+            return "(" + std::to_string(width) + "; " + std::to_string(height) + ") [" + std::to_string(dpi.x) + "; " + std::to_string(dpi.y) + "]";
         }
 
         float width;

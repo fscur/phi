@@ -70,10 +70,10 @@ namespace phi
             framebuffer->unbind(GL_FRAMEBUFFER);
             framebuffer->blitToDefault(finalImageRenderTarget);
 
-            //auto address = texturesManager::getTextureAddress(finalImageRenderTarget->texture);
-            //glActiveTexture(GL_TEXTURE0 + address.unit);
-            //glBindTexture(GL_TEXTURE_2D_ARRAY, address.containerId);
-            //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+            auto address = texturesManager::getTextureAddress(finalImageRenderTarget->texture);
+            glActiveTexture(GL_TEXTURE0 + address.unit);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, address.containerId);
+            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         });
 
         return pass;

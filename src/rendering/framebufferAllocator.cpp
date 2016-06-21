@@ -35,12 +35,11 @@ namespace phi
         throw argumentException(name + " is not a valid framebuffer name. Framebuffer not found.");
     }
 
-    framebuffer* phi::framebufferAllocator::newFramebuffer(const framebufferLayout* framebufferLayout, const resolution& resolution)
+    void framebufferAllocator::addRenderTargetLayouts(
+        framebuffer* framebuffer,
+        const unordered_map<GLenum, const renderTargetLayout*>* renderTargetsLayouts,
+        const resolution & resolution)
     {
-        auto renderTargetsLayouts = framebufferLayout->getRenderTargetsLayouts();
-
-        auto framebuffer = new phi::framebuffer();
-
         for (auto& pair : *renderTargetsLayouts)
         {
             auto attachment = pair.first;
@@ -69,6 +68,43 @@ namespace phi
 
             framebuffer->add(renderTarget, attachment);
         }
+    }
+
+    void framebufferAllocator::addRenderTargets(
+        framebuffer* framebuffer,
+        const unordered_map<GLenum, renderTarget*>* renderTargets,
+        const resolution & resolution)
+    {
+        for (auto& pair : *renderTargets)
+        {
+            auto attachment = pair.first;
+            auto renderTarget = pair.second;
+
+            auto renderTargetName = renderTarget->name;
+
+            if (contains(_renderTargets, renderTargetName))
+                renderTarget = _renderTargets[renderTargetName];
+            else
+            {
+                auto textureLayout = renderTarget->texture->layout;
+                _layoutsCount[textureLayout]++;
+
+                _renderTargets[renderTargetName] = renderTarget;
+                _renderTargetsLayouts[renderTarget] = textureLayout;
+            }
+
+            framebuffer->add(renderTarget, attachment);
+        }
+    }
+
+    framebuffer* phi::framebufferAllocator::newFramebuffer(const framebufferLayout* framebufferLayout, const resolution& resolution)
+    {
+        auto framebuffer = new phi::framebuffer();
+        auto renderTargetsLayouts = framebufferLayout->getRenderTargetsLayouts();
+        addRenderTargetLayouts(framebuffer, renderTargetsLayouts, resolution);
+
+        auto renderTargets = framebufferLayout->getRenderTargets();
+        addRenderTargets(framebuffer, renderTargets, resolution);
 
         _framebufferLayouts[framebuffer] = framebufferLayout;
         _framebuffers.push_back(framebuffer);
@@ -104,14 +140,23 @@ namespace phi
 
         for (auto& pair : _layoutsCount)
         {
+            auto layout = pair.first;
+
+            if (layout.levels > 1)
+                layout.levels = texturesManager::getMaxLevels(static_cast<uint>(resolution.width), static_cast<uint>(resolution.height));
+
             auto size = sizeui(static_cast<uint>(resolution.width), static_cast<uint>(resolution.height), _layoutsCount[pair.first]);
-            texturesManager::reserveContainer(size, pair.first);
+
+            texturesManager::reserveContainer(size, layout);
         }
 
         for (auto& pair : _renderTargets)
         {
             auto renderTarget = pair.second;
             auto layout = _renderTargetsLayouts[renderTarget];
+            
+            if (layout.levels > 1)
+                layout.levels = texturesManager::getMaxLevels(static_cast<uint>(resolution.width), static_cast<uint>(resolution.height));
 
             auto texture = new phi::texture(
                 static_cast<uint>(resolution.width),

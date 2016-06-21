@@ -25,24 +25,31 @@ namespace phi
     class framebufferLayout
     {
     private:
-        map<GLenum, const renderTargetLayout*>* _renderTargetsLayouts;
-
+        unordered_map<GLenum, const renderTargetLayout*>* _renderTargetsLayouts;
+        unordered_map<GLenum, renderTarget*>* _renderTargets;
     public:
         string name;
 
     public:
         framebufferLayout(string name) :
             name(name),
-            _renderTargetsLayouts(new map<GLenum, const renderTargetLayout*>())
+            _renderTargetsLayouts(new unordered_map<GLenum, const renderTargetLayout*>()),
+            _renderTargets(new unordered_map<GLenum, renderTarget*>())
         {
         }
 
-        void add(GLenum attachment, const renderTargetLayout* layout)
+        void addRenderTargetLayout(GLenum attachment, const renderTargetLayout* renderTargetLayout)
         {
-            _renderTargetsLayouts->insert_or_assign(attachment, layout);
+            _renderTargetsLayouts->insert_or_assign(attachment, renderTargetLayout);
         }
 
-        map<GLenum, const renderTargetLayout*>* getRenderTargetsLayouts() const { return _renderTargetsLayouts; }
+        void addRenderTarget(GLenum attachment, renderTarget* renderTarget)
+        {
+            _renderTargets->insert_or_assign(attachment, renderTarget);
+        }
+
+        unordered_map<GLenum, const renderTargetLayout*>* getRenderTargetsLayouts() const { return _renderTargetsLayouts; }
+        unordered_map<GLenum, renderTarget*>* getRenderTargets() const { return _renderTargets; }
     };
 
     class framebuffer

@@ -9,19 +9,48 @@
 
 namespace phi
 {
+    void glassyControlRenderPass::updateUniformBlock(buffer* buffer, renderTarget* finalImageRenderTarget, const resolution& resolution)
+    {
+        auto uniformBlockData = glassyControlUniformBlockData();
+        auto rtAddress = texturesManager::getTextureAddress(finalImageRenderTarget->texture);
+        uniformBlockData.backgroundPage = rtAddress.page;
+        uniformBlockData.backgroundUnit = rtAddress.unit;
+        uniformBlockData.level = 2;
+        uniformBlockData.resolution = resolution.toVec2();
+
+        buffer->data(
+            sizeof(glassyControlUniformBlockData),
+            &uniformBlockData,
+            bufferDataUsage::dynamicDraw);
+    }
+
     renderPass* glassyControlRenderPass::configure(
         glassyControlRendererDescriptor* rendererDescriptor, 
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
+        auto uniformBlockBuffer = new buffer("GlassyControlUniformBlock", bufferTarget::uniform);
+        uniformBlockBuffer->data(
+            sizeof(glassyControlUniformBlockData),
+            nullptr,
+            bufferDataUsage::dynamicDraw);
+
         auto program = programBuilder::buildProgram(shadersPath, "control", "glassy");
         program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
-        program->addBuffer(rendererDescriptor->_uniformBlockBuffer);
+        program->addBuffer(uniformBlockBuffer);
         
+        auto finalImageFramebuffer = framebufferAllocator->getFramebuffer("finalImageFramebuffer");
+        auto finalImageRenderTarget = finalImageFramebuffer->getRenderTarget("finalImageRenderTarget");
+
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(rendererDescriptor->_vao);
         
+        pass->setOnInitialize([=] 
+        {
+            updateUniformBlock(uniformBlockBuffer, finalImageRenderTarget, resolution);
+        });
+
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
@@ -54,6 +83,11 @@ namespace phi
             glDisable(GL_BLEND);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
+        });
+
+        pass->setOnResize([=](const phi::resolution& resolution)
+        {
+            updateUniformBlock(uniformBlockBuffer, finalImageRenderTarget, resolution);
         });
 
         return pass;

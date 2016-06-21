@@ -18,6 +18,16 @@ namespace phi
         renderTarget* getRenderTargetByName(string name) const;
         framebuffer* getFramebufferByName(string name) const;
 
+        void addRenderTargetLayouts(
+            framebuffer* framebuffer,
+            const unordered_map<GLenum, const renderTargetLayout*>* renderTargetsLayouts,
+            const resolution & resolution);
+
+        void addRenderTargets(
+            framebuffer* framebuffer,
+            const unordered_map<GLenum, renderTarget*>* renderTargets,
+            const resolution & resolution);
+
     public:
         RENDERING_API framebufferAllocator();
         RENDERING_API ~framebufferAllocator();

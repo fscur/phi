@@ -42,7 +42,7 @@ vec3 fetchGlassyBackground(vec2 uv)
     float page = glassyControlUniformBlock.backgroundPage;
     int unit = glassyControlUniformBlock.backgroundUnit;
     int level = glassyControlUniformBlock.level;
-
+    //int level = 4;
     vec3 color = vec3(0.0);
     color += texture(textureArrays[unit], vec3(uv, page), level + 0).rgb * 0.38774;
     color += texture(textureArrays[unit], vec3(uv, page), level + 1).rgb * 0.24477 * 2;
@@ -66,4 +66,5 @@ void main(void)
     vec2 resolution = glassyControlUniformBlock.resolution;
     vec3 glassy = fetchGlassyBackground(gl_FragCoord.xy/resolution);
     fragColor = vec4(glassy, 1.0) * vec4(fetch(fragTexCoord).rgb, 1.0);
+    //fragColor = vec4(1.0);
 }

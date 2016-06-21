@@ -10,6 +10,21 @@ namespace phi
 {
     class glassyControlRenderPass
     {
+    private:
+        struct glassyControlUniformBlockData
+        {
+            vec2 resolution;
+            float backgroundPage;
+            float pad0;
+            int backgroundUnit;
+            int level;
+            int pad1;
+            int pad2;
+        };
+
+    private:
+        static void updateUniformBlock(buffer* buffer, renderTarget* finalImageRenderTarget, const resolution& resolution);
+
     public:
         glassyControlRenderPass() = delete;
         static renderPass* configure(

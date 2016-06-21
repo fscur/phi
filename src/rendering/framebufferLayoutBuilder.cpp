@@ -27,7 +27,7 @@ namespace phi
         layout.minFilter = GL_NEAREST;
         layout.magFilter = GL_NEAREST;
 
-        _framebufferLayout->add(attachment, new renderTargetLayout(renderTargetName, layout));
+        _framebufferLayout->addRenderTargetLayout(attachment, new renderTargetLayout(renderTargetName, layout));
 
         return *this;
     }
@@ -37,16 +37,16 @@ namespace phi
         const GLenum attachment, 
         const textureLayout& layout)
     {
-        _framebufferLayout->add(attachment, new renderTargetLayout(renderTargetName, layout));
+        _framebufferLayout->addRenderTargetLayout(attachment, new renderTargetLayout(renderTargetName, layout));
 
         return *this;
     }
 
     framebufferLayoutBuilder framebufferLayoutBuilder::with(
-        const renderTarget* renderTarget, 
+        renderTarget* renderTarget, 
         const GLenum attachment)
     {
-        _framebufferLayout->add(attachment, new renderTargetLayout(renderTarget->name, renderTarget->texture->layout));
+        _framebufferLayout->addRenderTarget(attachment, renderTarget);
 
         return *this;
     }

@@ -129,28 +129,28 @@ namespace demon
 
         auto labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1")
             .withPosition(vec3(-100.f, 0.f, 0.f))
-            .withControlColor(.4f, .7f, .9f, 1.f)
+            .withControlColor(.7f, .75f, .8f, 1.0f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
         _labelFps = labelBuilder::newLabel(L"press ctrl + space to change context bro \\m/")
             .withPosition(vec3(-200.f, 100.f, 0.f))
-            .withControlColor(.7f, .5f, .9f, 1.f)
+            .withControlColor(.9f, .9f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(fontFps)
             .build();
 
         auto constructionLabel = labelBuilder::newLabel(L"construction layer says hello!1")
             .withPosition(vec3(-200.f, 100.f, 0.f))
-            .withControlColor(.9f, .6f, .9f, 1.f)
+            .withControlColor(.9f, .9f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
         auto sceneLabel = labelBuilder::newLabel(L"o")
             .withPosition(vec3(0.f, 0.f, 0.f))
-            .withControlColor(.9f, .6f, .9f, 1.f)
+            .withControlColor(.9f, .9f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();

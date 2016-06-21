@@ -14,7 +14,7 @@ namespace phi
         GLuint h;
         textureLayout layout;
         const void* data;
-        bool generateMipmaps;
+        //bool generateMipmaps;
         bool isAtlasTexture;
         GLenum type;
 
@@ -24,14 +24,14 @@ namespace phi
             uint h,
             const textureLayout& layout, 
             const void* data = nullptr,
-            bool generateMipmaps = false,
+            //bool generateMipmaps = false,
             bool isAtlasTexture = false,
             GLenum type = GL_TEXTURE_2D);
 
         RENDERING_API texture(
                 const image* image,
                 const textureLayout& layout,
-                bool generateMipmaps = false,
+                //bool generateMipmaps = false,
                 bool isAtlasTexture = false,
                 GLenum type = GL_TEXTURE_2D);
     };

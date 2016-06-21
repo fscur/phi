@@ -155,15 +155,29 @@ namespace phi
         return 0;
     }
 
+    vec2 getDpi(HWND hWnd)
+    {
+        auto monitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+
+        auto x = unsigned{};
+        auto y = unsigned{};
+
+        GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &x, &y);
+
+        return vec2(x, y);
+    }
+
     LRESULT onActivate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         if (!HIWORD(wParam)) // Is minimized
         {
             // active
+            //debug("active");
         }
         else
         {
             // inactive
+            //debug("inactive");
         }
 
         return 0;
@@ -209,7 +223,8 @@ namespace phi
         auto width = rectangle.right - rectangle.left;
         auto height = rectangle.bottom - rectangle.top;
 
-        _currentResolution = resolution(static_cast<float>(width), static_cast<float>(height), getDpi());
+        _currentResolution = resolution(static_cast<float>(width), static_cast<float>(height), getDpi(hWnd));
+
         auto flags = windowPos->flags;
 
         if (flags & SWP_SHOWWINDOW)
@@ -233,6 +248,9 @@ namespace phi
 
         if (!(flags & SWP_NOSIZE))
         {
+            if (width == 0 && height == 0)
+                return 0;
+
             if (_isBeingMinimized)
                 return 0;
 
@@ -373,6 +391,11 @@ namespace phi
 
     LRESULT onDpiChanged(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        /*debug("entrou dpi changed.");
+
+        auto x = LOWORD(wParam);
+        auto y = HIWORD(wParam);*/
+
         auto rect = *reinterpret_cast<RECT *>(lParam);
 
         HWND doesNotHaveRelativeWindow = 0;
@@ -384,6 +407,8 @@ namespace phi
             rect.right - rect.left,
             rect.bottom - rect.top,
             SWP_NOACTIVATE | SWP_NOZORDER);
+
+        return 0;
     }
 
     LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -499,14 +524,6 @@ namespace phi
         return result;
     }
 
-    vec2 getDpi()
-    {
-        int dpiX = GetDeviceCaps(_deviceContext, LOGPIXELSX);
-        int dpiY = GetDeviceCaps(_deviceContext, LOGPIXELSY);
-
-        return vec2(dpiX, dpiY);
-    }
-
     HGLRC createFakeGLContext()
     {
         HGLRC renderingContext = wglCreateContext(_deviceContext);
@@ -579,7 +596,7 @@ namespace phi
         SetForegroundWindow(_windowHandle);
         SetFocus(_windowHandle);
 
-        _resolution.dpi = getDpi();
+        _resolution.dpi = getDpi(_windowHandle);
 
         onInit();
 

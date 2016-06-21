@@ -66,7 +66,7 @@ namespace phi
         _controlsRenderDataBuffer = new buffer("ControlRenderDataBuffer", bufferTarget::shader);
         _controlsRenderDataBuffer->data(sizeof(controlRenderData), nullptr, bufferDataUsage::dynamicDraw);
 
-        _uniformBlockBuffer = new buffer("GlassyControlUniformBlock", bufferTarget::uniform);
+        //_uniformBlockBuffer = new buffer("GlassyControlUniformBlock", bufferTarget::uniform);
     }
 
     void glassyControlRendererDescriptor::add(control* control)
@@ -108,7 +108,7 @@ namespace phi
         throw new notImplementedException();
     }
 
-    void glassyControlRendererDescriptor::updateGlassyUniformBlock(renderTarget* renderTarget)
+    /*void glassyControlRendererDescriptor::updateGlassyUniformBlock(renderTarget* renderTarget)
     {
         auto uniformBlockData = glassyControlUniformBlockData();
         auto rtAddress = texturesManager::getTextureAddress(renderTarget->texture);
@@ -121,5 +121,5 @@ namespace phi
             sizeof(glassyControlUniformBlockData),
             &uniformBlockData,
             bufferStorageUsage::write);
-    }
+    }*/
 }

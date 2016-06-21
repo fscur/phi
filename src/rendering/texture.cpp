@@ -8,14 +8,14 @@ namespace phi
         uint h, 
         const textureLayout& layout,
         const void* data, 
-        bool generateMipmaps,
+        //bool generateMipmaps,
         bool isAtlasTexture,
         GLenum type) :
         w(w),
         h(h),
         layout(layout),
         data(data),
-        generateMipmaps(generateMipmaps),
+        //generateMipmaps(generateMipmaps),
         isAtlasTexture(isAtlasTexture),
         type(type)
     {
@@ -24,14 +24,14 @@ namespace phi
     inline texture::texture(
         const image* image,
         const textureLayout& layout,
-        bool generateMipmaps,
+        //bool generateMipmaps,
         bool isAtlasTexture,
         GLenum type) :
         w(image->w),
         h(image->h),
         layout(layout),
         data(image->data),
-        generateMipmaps(generateMipmaps),
+        //generateMipmaps(generateMipmaps),
         isAtlasTexture(isAtlasTexture),
         type(type)
     {

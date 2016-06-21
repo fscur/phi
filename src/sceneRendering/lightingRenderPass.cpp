@@ -56,6 +56,9 @@ namespace phi
         auto rt2 = renderTargets["rt2"];
         auto rtDepth = renderTargets["depth"];
 
+        auto w = static_cast<uint>(resolution.width);
+        auto h = static_cast<uint>(resolution.height);
+
         auto finalImageLayout = textureLayout();
         finalImageLayout.dataFormat = GL_RGBA;
         finalImageLayout.dataType = GL_UNSIGNED_BYTE;
@@ -63,13 +66,21 @@ namespace phi
         finalImageLayout.wrapMode = GL_CLAMP_TO_EDGE;
         finalImageLayout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
         finalImageLayout.magFilter = GL_LINEAR;
+        finalImageLayout.levels = texturesManager::getMaxLevels(w, h);
 
+        auto finalImageTexture = new texture(
+            w,
+            h,
+            finalImageLayout,
+            nullptr);
+
+        auto finalImageRenderTarget = new renderTarget("finalImageRenderTarget", finalImageTexture);
+        
         auto finalImageFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("finalImageFramebuffer")
-            .with("finalImageRenderTarget", GL_COLOR_ATTACHMENT0, finalImageLayout)
+            .with(finalImageRenderTarget, GL_COLOR_ATTACHMENT0)
             .build();
 
         auto finalImageFramebuffer = framebufferAllocator->newFramebuffer(finalImageFramebufferLayout, resolution);
-        auto finalImageRenderTarget = finalImageFramebuffer->getRenderTarget("finalImageRenderTarget");
 
         auto quadVao = vertexArrayObject::createPostProcessVao();
 
