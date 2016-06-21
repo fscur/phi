@@ -1,11 +1,7 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-
-#include <core\size.h>
-
-#include "texturesManager.h"
-#include "framebuffer.h"
+#include "framebufferLayout.h"
 
 namespace phi
 {

@@ -2,6 +2,8 @@
 #include <phi.h>
 #include "renderingApi.h"
 #include "framebuffer.h"
+#include "framebufferLayout.h"
+#include "renderTargetLayout.h"
 
 namespace phi
 {

@@ -25,7 +25,6 @@ namespace phi
     bool texturesManager::_isSparse = false;
     uint texturesManager::_maxPages = texturesManager::DEFAULT_MAX_PAGES;
 
-    //vector<GLint> texturesManager::units;
     vector<GLuint64> texturesManager::handles;
 
     void texturesManager::initialize(bool sparse, bool bindless)
@@ -124,9 +123,6 @@ namespace phi
     {   
         auto layout = texture->layout;
 
-        /*if (layout.levels > 1)
-            layout.levels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));*/
-
         auto textureAddress = phi::textureAddress();
         textureContainer* container;
         sizeui size = sizeui(texture->w, texture->h, _maxPages);
@@ -197,12 +193,11 @@ namespace phi
             layout.wrapMode = GL_REPEAT;
             layout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
             layout.magFilter = GL_LINEAR;
-            layout.levels = getMaxLevels(image->w, image->h);
+            layout.levels = static_cast<GLsizei>(getMaxLevels(image->w, image->h));
 
             texture = new phi::texture(
                 image,
                 layout,
-                //true,
                 false,
                 GL_TEXTURE_2D);
 
