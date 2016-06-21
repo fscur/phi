@@ -31,6 +31,8 @@
 #include <rendering\liveShaderReloader.h>
 #endif
 
+#include <core\clickComponent.h>
+
 using namespace phi;
 
 namespace demon
@@ -158,6 +160,16 @@ namespace demon
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair0->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
+
+        chair0->traverse([](node* node)
+        {
+            node->addComponent(new clickComponent("meshClick"));
+        });
+
+        floor->traverse([](node* node)
+        {
+            node->addComponent(new clickComponent("meshClick"));
+        });
 
         auto sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));

@@ -12,8 +12,6 @@
 #include <sceneRendering\meshRenderer.h>
 #include <sceneRendering\meshRendererDescriptor.h>
 
-#include "sceneId.h"
-
 namespace phi
 {
     class meshLayerBehaviour

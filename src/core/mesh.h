@@ -12,7 +12,6 @@ namespace phi
         public component
     {
     private:
-        int _id;
         geometry* _geometry;
         material* _material;
 
@@ -22,10 +21,6 @@ namespace phi
         CORE_API ~mesh();
 
         CORE_API component* clone() const override;
-        CORE_API vec3 getSelectionColor();
-        
-        void setId(int id) { _id = id; }
-        int getId() const { return _id; }
 
         material* getMaterial() const { return _material; }
         geometry* getGeometry() const { return _geometry; }

@@ -19,7 +19,6 @@
 #include "meshLayerBehaviour.h"
 #include "controlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
-#include "sceneId.h"
 #include "sceneCameraController.h"
 
 namespace phi

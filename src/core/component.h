@@ -18,7 +18,8 @@ namespace phi
             POINT_LIGHT,
             SPOT_LIGHT,
             CONTROL,
-            TEXT
+            TEXT,
+            CLICK
         };
 
     protected:

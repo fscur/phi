@@ -3,7 +3,7 @@
 
 #include <core\mesh.h>
 
-#include "sceneId.h"
+#include "pickingId.h"
 
 #include <diagnostic\stopwatch.h>
 
@@ -74,15 +74,11 @@ namespace phi
 
             auto id = r | g | b;
 
-            mesh* mesh = nullptr;
             if (id)
             {
-                mesh = sceneId::getMesh(id);
-                if (mesh)
-                {
-                    auto node = mesh->getNode();
-                    node->setIsSelected(true);
-                }
+                auto click = pickingId::get(id);
+                if (click)
+                    click->onClick();
             }
         }
 

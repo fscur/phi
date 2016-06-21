@@ -1,5 +1,8 @@
 #include <precompiled.h>
 #include "meshLayerBehaviour.h"
+
+#include <core\clickComponent.h>
+
 #include <rendering\framebufferAllocator.h>
 
 namespace phi
@@ -25,8 +28,16 @@ namespace phi
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            sceneId::setNextId(mesh);
             _descriptor->add(mesh);
+        }
+
+        auto click = node->getComponent<phi::clickComponent>();
+        if (click)
+        {
+            click->addOnClick([](phi::node* lamdaNode)
+            {
+                lamdaNode->setIsSelected(true);
+            });
         }
     }
 
@@ -35,7 +46,6 @@ namespace phi
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            sceneId::removeMeshId(mesh);
             _descriptor->remove(mesh);
         }
     }

@@ -335,6 +335,7 @@ namespace phi
         auto currentFolder = path::getDirectoryFullName(fileName);
         auto nodeName = path::getFileNameWithoutExtension(fileName);
         auto rootNode = readNode(document["Node"], currentFolder, materialsRepo, geometriesRepo);
+
         auto guid = convertToGuid(document["Guid"].GetString());
 
         return new resource<node>(guid, nodeName, rootNode);
