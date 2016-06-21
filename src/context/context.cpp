@@ -19,9 +19,7 @@ namespace phi
         _pickingFramebuffer = framebufferAllocator->getFramebuffer("pickingFramebuffer");
         _pickingRenderTarget = _pickingFramebuffer->getRenderTarget("pickingRenderTarget");
 
-        setLayersInputs();
         initialize(); //TODO:is it the right place?
-
     }
 
     context::context(resolution& resolution, framebufferAllocator* framebufferAllocator, vector<layer*>&& layers) :
@@ -32,24 +30,11 @@ namespace phi
         _pickingFramebuffer = framebufferAllocator->getFramebuffer("pickingFramebuffer");
         _pickingRenderTarget = _pickingFramebuffer->getRenderTarget("pickingRenderTarget");
 
-        setLayersInputs();
         initialize(); //TODO:is it the right place?
     }
 
     context::~context()
     {
-    }
-
-    void context::setLayersInputs()
-    {
-        layer* previous = nullptr;
-        for (auto& layer : _layers)
-        {
-            if (previous != nullptr)
-                layer->onInputChanged.raise(previous);
-
-            previous = layer;
-        }
     }
 
     void context::initialize()

@@ -27,13 +27,6 @@ namespace phi
 
     void renderPass::render()
     {
-        _framebuffer->bindForDrawing();
-
-        //TODO: frameUniformBlocks are buffer 0 
-        //auto i = 1u;
-        //for (auto buffer : _buffers)
-            //buffer->bindBufferBase(i++);
-
         _onBeginRender(_program, _framebuffer, _resolution);
         _onRender(_vaos);
         _onEndRender(_program, _framebuffer, _resolution);

@@ -74,18 +74,6 @@ namespace phi
                 rendererDescriptor->add(control);
         });
 
-        //if (_meshRenderPasses.size() > 0) //TODO:Fix this gambi
-        //{
-        //    auto rt = _meshRenderPasses.back()->getOuts().begin()->second;
-        //    rendererDescriptor->updateGlassyUniformBlock(rt);
-        //}
-
-        //_layer->onInputChanged.assign([=](layer* layer) //TODO:Fix this gambi
-        //{
-        //    auto rt = layer->getOuts().begin()->second;
-        //    rendererDescriptor->updateGlassyUniformBlock(rt);
-        //});
-
         for (auto& renderPass : _glassyControlRenderPasses)
         {
             _layer->addRenderPass(renderPass);

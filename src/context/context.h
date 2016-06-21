@@ -22,7 +22,6 @@ namespace phi
         renderTarget* _pickingRenderTarget;
 
     private:
-        void setLayersInputs();
         void initialize();
 
     public:

@@ -47,7 +47,6 @@ namespace phi
     public:
         vertexArrayObject* _vao;
         buffer* _controlsRenderDataBuffer;
-        //buffer* _uniformBlockBuffer;
 
     private:
         void createBuffers();
@@ -59,6 +58,5 @@ namespace phi
         UI_RENDERING_API void add(control* control);
         UI_RENDERING_API void remove(control* control);
         UI_RENDERING_API void update(control* control);
-        //UI_RENDERING_API void updateGlassyUniformBlock(renderTarget* renderTarget);
     };
 }
