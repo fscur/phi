@@ -18,6 +18,7 @@
 #include <application\redoCommand.h>
 
 #include <ui\labelBuilder.h>
+#include <ui\buttonBuilder.h>
 #include <ui\control.h>
 #include <ui\text.h>
 
@@ -124,9 +125,18 @@ namespace demon
     {
     }
 
+    bool _design = true;
+    class changeContextCommand :
+        public command
+    {
+    public:
+        virtual void execute() override { _design = !_design; }
+        virtual void executeUndo() override { _design = !_design; }
+    };
+
     void screen::initUi()
     {
-        auto font = fontsManager::load("Consolas.ttf", 10);
+        auto font = fontsManager::load("Roboto-Thin.ttf", 10);
         auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
         auto labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1")
@@ -155,6 +165,18 @@ namespace demon
             .withControlColor(.9f, .9f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
+            .build();
+
+        auto changeContextButton = buttonBuilder::newButton()
+            .withPosition(vec3(-200.f, -20.f, 0.f))
+            .withText(L"Change context")
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .withControlColor(.5f, .5f, .2f, 1.f)
+            .withAction([=](node* node)
+            {
+                _commandsManager->executeCommand(new changeContextCommand());
+            })
             .build();
 
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
@@ -219,21 +241,14 @@ namespace demon
         //TODO: prevent components that are not dealt with it from being added to layer
 
         _constructionLayer->add(constructionLabel);
+        _nandinhoLayer->add(changeContextButton);
 
         _nandinhoLayer->add(labelNandinho);
         _nandinhoLayer->add(_labelFps);
+        _nandinhoLayer->add(changeContextButton);
 
         _activeContext = _designContext;
     }
-
-    bool _design = true;
-    class changeContextCommand :
-        public command
-    {
-    public:
-        virtual void execute() override { _design = !_design; }
-        virtual void executeUndo() override { _design = !_design; }
-    };
 
     void screen::initInput()
     {
