@@ -97,7 +97,7 @@ namespace phi
         }
     }
 
-    framebuffer* phi::framebufferAllocator::newFramebuffer(const framebufferLayout* framebufferLayout, const resolution& resolution)
+    framebuffer* framebufferAllocator::newFramebuffer(const framebufferLayout* framebufferLayout, const resolution& resolution)
     {
         auto framebuffer = new phi::framebuffer();
         auto renderTargetsLayouts = framebufferLayout->getRenderTargetsLayouts();

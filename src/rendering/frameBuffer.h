@@ -8,50 +8,6 @@
 
 namespace phi
 {
-    struct renderTargetLayout
-    {
-        renderTargetLayout(
-            const string& name,
-            const textureLayout& textureLayout) :
-            name(name),
-            textureLayout(textureLayout)
-        {
-        }
-
-        const string name;
-        const textureLayout textureLayout;
-    };
-
-    class framebufferLayout
-    {
-    private:
-        unordered_map<GLenum, const renderTargetLayout*>* _renderTargetsLayouts;
-        unordered_map<GLenum, renderTarget*>* _renderTargets;
-    public:
-        string name;
-
-    public:
-        framebufferLayout(string name) :
-            name(name),
-            _renderTargetsLayouts(new unordered_map<GLenum, const renderTargetLayout*>()),
-            _renderTargets(new unordered_map<GLenum, renderTarget*>())
-        {
-        }
-
-        void addRenderTargetLayout(GLenum attachment, const renderTargetLayout* renderTargetLayout)
-        {
-            _renderTargetsLayouts->insert_or_assign(attachment, renderTargetLayout);
-        }
-
-        void addRenderTarget(GLenum attachment, renderTarget* renderTarget)
-        {
-            _renderTargets->insert_or_assign(attachment, renderTarget);
-        }
-
-        unordered_map<GLenum, const renderTargetLayout*>* getRenderTargetsLayouts() const { return _renderTargetsLayouts; }
-        unordered_map<GLenum, renderTarget*>* getRenderTargets() const { return _renderTargets; }
-    };
-
     class framebuffer
     {
     private:
@@ -92,6 +48,7 @@ namespace phi
 
         RENDERING_API renderTarget* getRenderTarget(string name);
         RENDERING_API GLfloat getZBufferValue(int x, int y);
+        
         vector<renderTarget*> getRenderTargets() { return _renderTargets; }
 
         RENDERING_API void resize(const resolution& resolution);

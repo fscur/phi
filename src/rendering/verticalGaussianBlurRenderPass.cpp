@@ -4,6 +4,7 @@
 #include "programBuilder.h"
 #include "framebufferLayoutBuilder.h"
 #include "textureUnits.h"
+#include "texturesManager.h"
 
 namespace phi
 {
