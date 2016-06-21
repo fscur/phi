@@ -641,6 +641,7 @@ namespace phi
     void window::swapBuffers()
     {
         SwapBuffers(_deviceContext);
+        onSwapBuffers();
     }
 
     void window::close()

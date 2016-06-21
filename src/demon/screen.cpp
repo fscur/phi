@@ -311,6 +311,11 @@ namespace demon
 #endif
     }
 
+    void screen::onSwapBuffers()
+    {
+        gl::syncPipeline();
+    }
+
     void screen::onClosing()
     {
         safeDelete(_commandsManager);

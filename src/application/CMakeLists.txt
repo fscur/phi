@@ -22,7 +22,7 @@ endif(WIN32)
 add_library(application SHARED ${source_files} ${header_files} ${natvis_files})
 
 target_link_libraries(application core)
-target_link_libraries(application rendering)
+target_link_libraries(application io)
 
 find_package(OPENGL REQUIRED)
 find_package(GLEW REQUIRED)

@@ -5,6 +5,8 @@
 
 #include "sceneId.h"
 
+#include <diagnostic\stopwatch.h>
+
 namespace phi
 {
     using namespace phi;
@@ -94,7 +96,6 @@ namespace phi
                 if (mesh)
                 {
                     auto node = mesh->getNode();
-                    //debug("descomentar o pick");
                     node->setIsSelected(true);
                 }
             }
