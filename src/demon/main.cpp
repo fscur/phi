@@ -31,7 +31,7 @@ public:
     bool shouldExecute;
 
 public:
-     commandLineCommand(string name, void(*func)(vector<string>)) :
+    commandLineCommand(string name, void(*func)(vector<string>)) :
         name(name),
         args(vector<string>()),
         func(func),

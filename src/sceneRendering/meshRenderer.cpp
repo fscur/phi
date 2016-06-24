@@ -19,6 +19,6 @@ namespace phi
         auto lightingRenderPass = lightingRenderPass::configure(gBufferRenderPass, resolution, shadersPath, framebufferAllocator);
         auto selectionRenderPass = selectionRenderPass::configure(lightingRenderPass, resolution, shadersPath, framebufferAllocator);
 
-        return{ gBufferRenderPass, lightingRenderPass, selectionRenderPass };
+        return { gBufferRenderPass, lightingRenderPass, selectionRenderPass };
     }
 }

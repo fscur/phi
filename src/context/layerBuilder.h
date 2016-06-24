@@ -5,6 +5,8 @@
 #include <rendering\program.h>
 #include <rendering\framebufferAllocator.h>
 
+#include <application\commandsManager.h>
+
 #include "layer.h"
 
 namespace phi
@@ -16,6 +18,7 @@ namespace phi
         resolution _resolution;
         string _resourcesPath;
         framebufferAllocator* _framebufferAllocator;
+        commandsManager* _commandsManager;
 
         vector<renderPass*> _meshRenderPasses;
         vector<renderPass*> _controlRenderPasses;
@@ -23,10 +26,10 @@ namespace phi
         vector<renderPass*> _textRenderPasses;
 
     private:
-        layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator);
+        layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
 
     public:
-        CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator);
+        CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
         CONTEXT_API layerBuilder withMeshRenderer();
         CONTEXT_API layerBuilder withControlRenderer();
         CONTEXT_API layerBuilder withGlassyControlRenderer();

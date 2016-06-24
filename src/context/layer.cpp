@@ -1,6 +1,10 @@
 #include <precompiled.h>
 #include "layer.h"
 
+#include <core\clickComponent.h>
+
+#include "pickingId.h"
+
 namespace phi
 {
     using namespace phi;
@@ -63,6 +67,10 @@ namespace phi
         addedChild->traverse([&](phi::node* node)
         {
             trackNode(node);
+
+            auto clickComponent = node->getComponent<phi::clickComponent>();
+            if (clickComponent)
+                pickingId::setNextId(clickComponent);
 
             for (auto onNodeAddedFunction : _onNodeAdded)
                 onNodeAddedFunction(node);

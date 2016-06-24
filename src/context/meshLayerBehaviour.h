@@ -12,8 +12,6 @@
 #include <sceneRendering\meshRenderer.h>
 #include <sceneRendering\meshRendererDescriptor.h>
 
-#include "sceneId.h"
-
 namespace phi
 {
     class meshLayerBehaviour
@@ -21,6 +19,8 @@ namespace phi
     private:
         meshRendererDescriptor* _descriptor;
         vector<renderPass*> _renderPasses;
+
+        vector<node*> _selectedObjects;
 
         resolution _resolution;
         string _resourcesPath;
@@ -35,5 +35,6 @@ namespace phi
         CONTEXT_API void onNodeSelectionChanged(node* node);
 
         vector<renderPass*> getRenderPasses() { return _renderPasses; }
+        vector<node*> getSelectedObjects() { return _selectedObjects; }
     };
 }

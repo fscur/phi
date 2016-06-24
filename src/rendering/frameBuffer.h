@@ -48,9 +48,7 @@ namespace phi
 
         RENDERING_API renderTarget* getRenderTarget(string name);
         RENDERING_API GLfloat getZBufferValue(int x, int y);
-        
-        vector<renderTarget*> getRenderTargets() { return _renderTargets; }
 
-        RENDERING_API void resize(const resolution& resolution);
+        vector<renderTarget*> getRenderTargets() { return _renderTargets; }
     };
 }

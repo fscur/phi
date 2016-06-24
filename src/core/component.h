@@ -18,7 +18,8 @@ namespace phi
             POINT_LIGHT,
             SPOT_LIGHT,
             CONTROL,
-            TEXT
+            TEXT,
+            CLICK
         };
 
     protected:
@@ -45,7 +46,7 @@ namespace phi
 
         void virtual onNodeChanged(node* previousValue) { }
 
-        node* getNode() { return _node; }
+        node* getNode() const { return _node; }
 
         void setNode(node* value)
         {

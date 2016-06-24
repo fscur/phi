@@ -9,27 +9,22 @@
 
 #include <animation\floatAnimator.h>
 
-#include <context\unselectSceneObjectCommand.h>
-#include <context\groupSceneObjectsCommand.h>
-#include <context\deleteSceneObjectCommand.h>
+#include <rendering\pickingFramebuffer.h>
+#ifdef _DEBUG
+#include <rendering\liveShaderReloader.h>
+#endif
+
+#include <ui\labelBuilder.h>
+#include <ui\buttonBuilder.h>
+#include <ui\control.h>
+#include <ui\text.h>
 
 #include <application\application.h>
 #include <application\undoCommand.h>
 #include <application\redoCommand.h>
 
-#include <ui\labelBuilder.h>
-#include <ui\control.h>
-#include <ui\text.h>
-
-#include "addObjectCommand.h"
-
-#include <rendering\framebufferLayoutBuilder.h>
-
 #include <context\layerBuilder.h>
-
-#ifdef _DEBUG
-#include <rendering\liveShaderReloader.h>
-#endif
+#include <core\clickComponent.h>
 
 using namespace phi;
 
@@ -52,8 +47,8 @@ namespace demon
         initPickingFramebuffer();
         initLibraries();
         initScene();
-        initUi();
         initInput();
+        initUi();
 
 #ifdef _DEBUG
         _messageQueue = new blockingQueue<phi::watcherMessage>();
@@ -103,11 +98,7 @@ namespace demon
 
     void screen::initPickingFramebuffer()
     {
-        auto pickingFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("pickingFramebuffer")
-            .with("pickingRenderTarget", GL_COLOR_ATTACHMENT0, GL_RGBA8, GL_RGBA)
-            .build();
-
-        _framebufferAllocator->newFramebuffer(pickingFramebufferLayout, _resolution);
+        pickingFramebuffer::initialize(_framebufferAllocator, _resolution);
     }
 
     void screen::initLibraries()
@@ -122,9 +113,18 @@ namespace demon
     {
     }
 
+    bool _design = true;
+    class changeContextCommand :
+        public command
+    {
+    public:
+        virtual void execute() override { _design = !_design; }
+        virtual void executeUndo() override { _design = !_design; }
+    };
+
     void screen::initUi()
     {
-        auto font = fontsManager::load("Consolas.ttf", 10);
+        auto font = fontsManager::load("Roboto-Thin.ttf", 10);
         auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
         _labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1")
@@ -155,6 +155,18 @@ namespace demon
             .withFont(font)
             .build();
 
+        auto changeContextButton = buttonBuilder::newButton()
+            .withPosition(vec3(-200.f, -20.f, 0.f))
+            .withText(L"Change context")
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .withControlColor(.5f, .5f, .2f, 1.f)
+            .withAction([=](node* node)
+            {
+                _commandsManager->executeCommand(new changeContextCommand());
+            })
+            .build();
+
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair0->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
@@ -163,15 +175,16 @@ namespace demon
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
         sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
 
-        _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator)
+        _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withMeshRenderer()
+            .withTextRenderer()
             .build();
 
         auto constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath, _framebufferAllocator)
+        _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withControlRenderer()
             //.withTextRenderer()
             .build();
@@ -180,7 +193,7 @@ namespace demon
         nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath, _framebufferAllocator)
+        _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withGlassyControlRenderer()
             //.withTextRenderer()
             .build();
@@ -198,31 +211,34 @@ namespace demon
 
         _framebufferAllocator->allocate(_resolution);
 
-        _designContext = new context(_resolution, _framebufferAllocator, { _sceneLayer, _nandinhoLayer });
-        _constructionContext = new context(_resolution, _framebufferAllocator, { _sceneLayer, _constructionLayer });
+        _designContext = new context(
+            _resolution,
+            _framebufferAllocator,
+            _commandsManager,
+            { _sceneLayer, _nandinhoLayer });
+
+        _constructionContext = new context(
+            _resolution,
+            _framebufferAllocator,
+            _commandsManager,
+            { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(floor);
         _sceneLayer->add(chair0);
-        //sceneLayer->add(sceneLabel);
+        _sceneLayer->add(_sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
+        _constructionLayer->add(_constructionLabel);
+        _nandinhoLayer->add(changeContextButton);
 
         _nandinhoLayer->add(_sceneLabel);
         _nandinhoLayer->add(_constructionLabel);
         _nandinhoLayer->add(_labelNandinho);
         _nandinhoLayer->add(_labelFps);
-        
+        _nandinhoLayer->add(changeContextButton);
+
         _activeContext = _designContext;
     }
-
-    bool _design = true;
-    class changeContextCommand :
-        public command
-    {
-    public:
-        virtual void execute() override { _design = !_design; }
-        virtual void executeUndo() override { _design = !_design; }
-    };
 
     void screen::initInput()
     {
@@ -286,7 +302,6 @@ namespace demon
             _activeContext = _constructionContext;
 
         phi::floatAnimator::update();
-
         _activeContext->update();
     }
 
@@ -357,6 +372,7 @@ namespace demon
     {
         window::onResize(resolution);
         gl::resize(resolution);
+        pickingFramebuffer::resize(resolution);
 
         _framebufferAllocator->reallocate(resolution);
         _activeContext->resize(resolution);

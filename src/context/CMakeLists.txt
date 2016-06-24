@@ -16,9 +16,10 @@ file(GLOB natvis_files *.natvis)
 
 add_library(context SHARED ${source_files} ${header_files} ${natvis_files})
 
+target_link_libraries(context animation)
 target_link_libraries(context sceneRendering)
 target_link_libraries(context uiRendering)
-target_link_libraries(context animation)
+target_link_libraries(context application)
 
 if (MINGW)
     set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})

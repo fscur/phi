@@ -1,5 +1,8 @@
 #include <precompiled.h>
 #include "meshLayerBehaviour.h"
+
+#include <core\clickComponent.h>
+
 #include <rendering\framebufferAllocator.h>
 
 namespace phi
@@ -25,7 +28,6 @@ namespace phi
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            sceneId::setNextId(mesh);
             _descriptor->add(mesh);
         }
     }
@@ -35,7 +37,6 @@ namespace phi
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            sceneId::removeMeshId(mesh);
             _descriptor->remove(mesh);
         }
     }
@@ -52,10 +53,20 @@ namespace phi
 
     void meshLayerBehaviour::onNodeSelectionChanged(node* node)
     {
+        auto isSelected = node->getIsSelected();
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            _descriptor->updateSelection(mesh, node->getIsSelected());
+            _descriptor->updateSelection(mesh, isSelected);
+        }
+
+        if (isSelected)
+        {
+            _selectedObjects.push_back(node);
+        }
+        else
+        {
+            phi::removeIfContains(_selectedObjects, node);
         }
     }
 }
