@@ -5,7 +5,7 @@
 
 #include <rendering\renderPass.h>
 
-#include "textRendererDescriptor.h"
+#include "textRenderAdapter.h"
 #include <rendering\framebufferAllocator.h>
 
 namespace phi
@@ -15,7 +15,7 @@ namespace phi
     public:
         textRenderPass() = delete;
         static renderPass * configure(
-            textRendererDescriptor* rendererDescriptor, 
+            textRenderAdapter* renderAdapter, 
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);

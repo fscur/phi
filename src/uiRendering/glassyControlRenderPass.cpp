@@ -25,7 +25,7 @@ namespace phi
     }
 
     renderPass* glassyControlRenderPass::configure(
-        glassyControlRendererDescriptor* rendererDescriptor, 
+        controlRenderAdapter* renderAdapter, 
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
@@ -37,14 +37,14 @@ namespace phi
             bufferDataUsage::dynamicDraw);
 
         auto program = programBuilder::buildProgram(shadersPath, "control", "glassy");
-        program->addBuffer(rendererDescriptor->_controlsRenderDataBuffer);
+        program->addBuffer(renderAdapter->getControlRenderDataBuffer());
         program->addBuffer(uniformBlockBuffer);
         
         auto finalImageFramebuffer = framebufferAllocator->getFramebuffer("finalImageFramebuffer");
         auto finalImageRenderTarget = finalImageFramebuffer->getRenderTarget("finalImageRenderTarget");
 
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
-        pass->addVao(rendererDescriptor->_vao);
+        pass->addVao(renderAdapter->getVao());
         
         pass->setOnInitialize([=] 
         {

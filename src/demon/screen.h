@@ -39,6 +39,10 @@ namespace demon
         phi::layer* _nandinhoLayer;
 
         phi::node* _labelFps;
+        phi::node* _labelNandinho;
+        phi::node* _constructionLabel;
+        phi::node* _sceneLabel;
+
         phi::commandsManager* _commandsManager;
 #ifdef _DEBUG
         phi::watcher* _watcher;

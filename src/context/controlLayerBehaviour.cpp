@@ -9,16 +9,16 @@ namespace phi
         const resolution & resolution, 
         const string & resourcesPath,
         framebufferAllocator* framebufferAllocator) :
-        _descriptor(new controlRendererDescriptor()),
+        _adapter(new controlRenderAdapter()),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        _renderPasses = controlRenderer::configure(_descriptor, resolution, resourcesPath, framebufferAllocator);
+        _renderPasses = controlRenderer::configure(_adapter, resolution, resourcesPath, framebufferAllocator);
     }
 
     controlLayerBehaviour::~controlLayerBehaviour()
     {
-        safeDelete(_descriptor);
+        safeDelete(_adapter);
     }
 
     void controlLayerBehaviour::onNodeAdded(node* node)
@@ -26,7 +26,7 @@ namespace phi
         auto control = node->getComponent<phi::control>();
 
         if (control)
-            _descriptor->add(control);
+            _adapter->add(control);
     }
 
     void controlLayerBehaviour::onNodeRemoved(node* node)
@@ -34,12 +34,15 @@ namespace phi
         auto control = node->getComponent<phi::control>();
 
         if (control)
-            _descriptor->remove(control);
+            _adapter->remove(control);
     }
 
     void controlLayerBehaviour::onNodeTransformChanged(node* node)
     {
-        throw notImplementedException();
+        auto control = node->getComponent<phi::control>();
+
+        if (control)
+            _adapter->update(control);
     }
 
     void controlLayerBehaviour::onNodeSelectionChanged(node* node)

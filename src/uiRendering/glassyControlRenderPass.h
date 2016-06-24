@@ -4,7 +4,7 @@
 #include <rendering\renderPass.h>
 #include <rendering\framebufferAllocator.h>
 
-#include "glassyControlRendererDescriptor.h"
+#include "controlRenderAdapter.h"
 
 namespace phi
 {
@@ -28,7 +28,7 @@ namespace phi
     public:
         glassyControlRenderPass() = delete;
         static renderPass* configure(
-            glassyControlRendererDescriptor* rendererDescriptor, 
+            controlRenderAdapter* rendererDescriptor, 
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);

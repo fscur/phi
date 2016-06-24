@@ -8,16 +8,16 @@
 namespace phi
 {
     renderPass * textRenderPass::configure(
-        textRendererDescriptor* rendererDescriptor, 
+        textRenderAdapter* renderAdapter, 
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
         auto program = programBuilder::buildProgram(shadersPath, "text", "text");
-        program->addBuffer(rendererDescriptor->_glyphRenderDataBuffer);
+        program->addBuffer(renderAdapter->getGlyphRenderDataBuffer());
         
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
-        pass->addVao(rendererDescriptor->_vao);
+        pass->addVao(renderAdapter->getVao());
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {

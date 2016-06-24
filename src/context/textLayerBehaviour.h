@@ -10,14 +10,14 @@
 #include <rendering\framebufferAllocator.h>
 
 #include <uiRendering\textRenderer.h>
-#include <uiRendering\textRendererDescriptor.h>
+#include <uiRendering\textRenderAdapter.h>
 
 namespace phi
 {
     class textLayerBehaviour
     {
     private:
-        textRendererDescriptor* _descriptor;
+        textRenderAdapter* _adapter;
         vector<renderPass*> _renderPasses;
 
         resolution _resolution;

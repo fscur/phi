@@ -127,30 +127,30 @@ namespace demon
         auto font = fontsManager::load("Consolas.ttf", 10);
         auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
-        auto labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1")
-            .withPosition(vec3(-100.f, 0.f, 0.f))
-            .withControlColor(.7f, .75f, .8f, 1.0f)
+        _labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1")
+            .withPosition(vec3(-100.f, 50.f, 0.f))
+            .withControlColor(1.0f, 0.0f, 0.0f, 1.0f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
         _labelFps = labelBuilder::newLabel(L"press ctrl + space to change context bro \\m/")
             .withPosition(vec3(-200.f, 100.f, 0.f))
-            .withControlColor(.9f, .9f, .9f, 1.f)
+            .withControlColor(1.0f, 0.0f, 1.0f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(fontFps)
             .build();
 
-        auto constructionLabel = labelBuilder::newLabel(L"construction layer says hello!1")
-            .withPosition(vec3(-200.f, 100.f, 0.f))
-            .withControlColor(.9f, .9f, .9f, 1.f)
+        _constructionLabel = labelBuilder::newLabel(L"construction layer says hello!1")
+            .withPosition(vec3(200.f, 50.f, 0.f))
+            .withControlColor(0.0f, 1.0f, 0.5f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
-        auto sceneLabel = labelBuilder::newLabel(L"o")
-            .withPosition(vec3(0.f, 0.f, 0.f))
-            .withControlColor(.9f, .9f, .9f, 1.f)
+        _sceneLabel = labelBuilder::newLabel(L"ollllaarrrrrr")
+            .withPosition(vec3(100.f, 100.f, 0.f))
+            .withControlColor(1.0f, 0.0f, 0.5f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
@@ -173,7 +173,7 @@ namespace demon
 
         _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath, _framebufferAllocator)
             .withControlRenderer()
-            .withTextRenderer()
+            //.withTextRenderer()
             .build();
 
         auto nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -182,7 +182,7 @@ namespace demon
 
         _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath, _framebufferAllocator)
             .withGlassyControlRenderer()
-            .withTextRenderer()
+            //.withTextRenderer()
             .build();
 
         //TODO: onDemandUI
@@ -206,11 +206,12 @@ namespace demon
         //sceneLayer->add(sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
-        _constructionLayer->add(constructionLabel);
 
-        _nandinhoLayer->add(labelNandinho);
+        _nandinhoLayer->add(_sceneLabel);
+        _nandinhoLayer->add(_constructionLabel);
+        _nandinhoLayer->add(_labelNandinho);
         _nandinhoLayer->add(_labelFps);
-
+        
         _activeContext = _designContext;
     }
 
@@ -294,12 +295,27 @@ namespace demon
         _activeContext->render();
     }
 
+    bool a = false;
+
     void screen::onTick()
     {
         auto label = _labelFps->getComponent<phi::text>();
         auto str = "fps: " + std::to_string(application::framesPerSecond);
         debug(str);
         label->setText(wstring(str.begin(), str.end()));
+
+        if (a)
+        {
+            _nandinhoLayer->add(_labelFps);
+            _nandinhoLayer->add(_sceneLabel);
+        }
+        else
+        {
+            _labelFps->getParent()->removeChild(_labelFps);
+            _sceneLabel->getParent()->removeChild(_sceneLabel);
+        }
+
+        a = !a;
 
 #ifdef _DEBUG
         while (!_messageQueue->empty())

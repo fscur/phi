@@ -30,13 +30,13 @@ namespace phi
     }
 
     vector<renderPass*> glassyControlRenderer::configure(
-        glassyControlRendererDescriptor* renderDescriptor,
+        controlRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& resourcesPath,
         framebufferAllocator* framebufferAllocator)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto glassyControlRenderPass = glassyControlRenderPass::configure(renderDescriptor, resolution, shadersPath, framebufferAllocator);
+        auto glassyControlRenderPass = glassyControlRenderPass::configure(renderAdapter, resolution, shadersPath, framebufferAllocator);
 
         return { glassyControlRenderPass };
     }

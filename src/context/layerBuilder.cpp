@@ -18,6 +18,7 @@
 
 #include "meshLayerBehaviour.h"
 #include "controlLayerBehaviour.h"
+#include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
 #include "sceneId.h"
 #include "sceneCameraController.h"
@@ -59,25 +60,19 @@ namespace phi
 
     layerBuilder layerBuilder::withGlassyControlRenderer()
     {
-        auto rendererDescriptor = new glassyControlRendererDescriptor(_resolution);
-        _glassyControlRenderPasses = glassyControlRenderer::configure(
-            rendererDescriptor,
-            _resolution,
-            _resourcesPath,
-            _framebufferAllocator);
+        auto glassyBehaviour = new glassyControlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
-        _layer->addOnNodeAdded([=](node* node)
+        _layer->addOnNodeAdded(std::bind(&glassyControlLayerBehaviour::onNodeAdded, glassyBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&glassyControlLayerBehaviour::onNodeRemoved, glassyBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&glassyControlLayerBehaviour::onNodeTransformChanged, glassyBehaviour, std::placeholders::_1));
+        _layer->addOnNodeSelectionChanged(std::bind(&glassyControlLayerBehaviour::onNodeSelectionChanged, glassyBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(glassyBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([glassyBehaviour]
         {
-            auto control = node->getComponent<phi::control>();
-
-            if (control)
-                rendererDescriptor->add(control);
+            safeDelete(glassyBehaviour);
         });
-
-        for (auto& renderPass : _glassyControlRenderPasses)
-        {
-            _layer->addRenderPass(renderPass);
-        }
 
         return *this;
     }

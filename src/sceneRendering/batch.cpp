@@ -92,11 +92,11 @@ namespace phi
 
     void batch::createVbo(const vertex* const data, GLsizeiptr size)
     {
-        vector<vertexAttrib> attribs;
-        attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
-        attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
-        attribs.push_back(vertexAttrib(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
-        attribs.push_back(vertexAttrib(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
+        vector<vertexBufferAttribute> attribs;
+        attribs.push_back(vertexBufferAttribute(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
+        attribs.push_back(vertexBufferAttribute(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
+        attribs.push_back(vertexBufferAttribute(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
+        attribs.push_back(vertexBufferAttribute(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
         _vbo = new vertexBuffer("vbo", attribs);
         _vbo->storage(size, data, bufferStorageUsage::dynamic | bufferStorageUsage::write);
@@ -116,8 +116,8 @@ namespace phi
 
     void batch::createMaterialsIdsBuffer(const uint* const data, GLsizeiptr size)
     {
-        vector<vertexAttrib> attribs;
-        attribs.push_back(vertexAttrib(5, 1, GL_UNSIGNED_INT, 0, 0, 1));
+        vector<vertexBufferAttribute> attribs;
+        attribs.push_back(vertexBufferAttribute(5, 1, GL_UNSIGNED_INT, 0, 0, 1));
 
         _materialsIdsBuffer = new vertexBuffer("materialsIds", attribs);
         _materialsIdsBuffer->data(size, data, bufferDataUsage::dynamicDraw);
@@ -125,10 +125,10 @@ namespace phi
 
     void batch::createModelMatricesBuffer(const mat4* const data, GLsizeiptr size)
     {
-        vector<vertexAttrib> attribs;
+        vector<vertexBufferAttribute> attribs;
 
         for (uint i = 0; i < 4; ++i)
-            attribs.push_back(vertexAttrib(6 + i, 4, GL_FLOAT, sizeof(glm::mat4), (const void *)(sizeof(GLfloat) * i * 4), 1));
+            attribs.push_back(vertexBufferAttribute(6 + i, 4, GL_FLOAT, sizeof(glm::mat4), (const void *)(sizeof(GLfloat) * i * 4), 1));
 
         _modelMatricesBuffer = new vertexBuffer("modelMatrices", attribs);
         _modelMatricesBuffer->data(size, data, bufferDataUsage::dynamicDraw);
@@ -136,8 +136,8 @@ namespace phi
 
     void batch::createSelectionColorBuffer(const vec4* const data, GLsizeiptr size)
     {
-        vector<vertexAttrib> attribs;
-        attribs.push_back(vertexAttrib(4, 4, GL_FLOAT, 0, 0, 1));
+        vector<vertexBufferAttribute> attribs;
+        attribs.push_back(vertexBufferAttribute(4, 4, GL_FLOAT, 0, 0, 1));
 
         _selectionBuffer = new vertexBuffer("selectionColor", attribs);
         _selectionBuffer->data(size, data, bufferDataUsage::dynamicDraw);

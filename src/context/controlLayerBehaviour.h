@@ -10,14 +10,14 @@
 #include <rendering\framebufferAllocator.h>
 
 #include <uiRendering\controlRenderer.h>
-#include <uiRendering\controlRendererDescriptor.h>
+#include <uiRendering\controlRenderAdapter.h>
 
 namespace phi
 {
     class controlLayerBehaviour
     {
     private:
-        controlRendererDescriptor* _descriptor;
+        controlRenderAdapter* _adapter;
         vector<renderPass*> _renderPasses;
 
         resolution _resolution;

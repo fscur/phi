@@ -9,6 +9,9 @@ namespace phi
 {
     struct glyphRenderData
     {
+        glyphRenderData()
+        {}
+
         glyphRenderData(const glyphTextureData* glyphTextureData, float shift, color color) :
             color(color),
             position(glyphTextureData->texturePosition),

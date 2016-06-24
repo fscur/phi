@@ -9,12 +9,12 @@ namespace phi
         const resolution & resolution,
         const string & resourcesPath,
         framebufferAllocator* framebufferAllocator) :
-        _descriptor(new glassyControlRendererDescriptor(resolution)),
+        _adapter(new controlRenderAdapter()),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
         _renderPasses = glassyControlRenderer::configure(
-            _descriptor,
+            _adapter,
             resolution, 
             resourcesPath, 
             framebufferAllocator);
@@ -22,7 +22,7 @@ namespace phi
 
     glassyControlLayerBehaviour::~glassyControlLayerBehaviour()
     {
-        safeDelete(_descriptor);
+        safeDelete(_adapter);
     }
 
     void glassyControlLayerBehaviour::onNodeAdded(node* node)
@@ -30,7 +30,7 @@ namespace phi
         auto control = node->getComponent<phi::control>();
         if (control)
         {
-            _descriptor->add(control);
+            _adapter->add(control);
         }
     }
 
@@ -39,13 +39,16 @@ namespace phi
         auto control = node->getComponent<phi::control>();
         if (control)
         {
-            _descriptor->remove(control);
+            _adapter->remove(control);
         }
     }
 
     void glassyControlLayerBehaviour::onNodeTransformChanged(node* node)
     {
-        throw notImplementedException();
+        auto control = node->getComponent<phi::control>();
+
+        if (control)
+            _adapter->update(control);
     }
 
     void glassyControlLayerBehaviour::onNodeSelectionChanged(node* node)

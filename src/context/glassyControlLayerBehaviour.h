@@ -10,14 +10,14 @@
 #include <rendering\framebufferAllocator.h>
 
 #include <uiRendering\glassyControlRenderer.h>
-#include <uiRendering\glassyControlRendererDescriptor.h>
+#include <uiRendering\controlRenderAdapter.h>
 
 namespace phi
 {
     class glassyControlLayerBehaviour
     {
     private:
-        glassyControlRendererDescriptor* _descriptor;
+        controlRenderAdapter* _adapter;
         vector<renderPass*> _renderPasses;
 
         resolution _resolution;

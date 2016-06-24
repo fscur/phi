@@ -19,7 +19,7 @@ namespace phi
         safeDelete(_ebo);
     }
 
-    void vertexArrayObject::add(vertexBuffer* buffer)
+    void vertexArrayObject::add(iVertexBuffer* buffer)
     {
         glBindVertexArray(_id);
         buffer->initialize();
@@ -47,9 +47,15 @@ namespace phi
     vertexArrayObject* vertexArrayObject::createPostProcessVao()
     {
         auto quad = geometry::createQuad(2.0f);
-        vector<vertexAttrib> attribs;
-        attribs.push_back(vertexAttrib(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
-        attribs.push_back(vertexAttrib(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
+        auto renderFunction = [] { glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); };
+        return createQuadVao(quad, renderFunction);
+    }
+
+    vertexArrayObject* vertexArrayObject::createQuadVao(geometry* quad, std::function<void(void)> renderFunction)
+    {
+        vector<vertexBufferAttribute> attribs;
+        attribs.push_back(vertexBufferAttribute(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
+        attribs.push_back(vertexBufferAttribute(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
 
         auto vbo = new vertexBuffer("vbo", attribs);
         vbo->storage(quad->vboSize, quad->vboData, bufferStorageUsage::write);
@@ -60,7 +66,7 @@ namespace phi
         auto quadVao = new vertexArrayObject();
         quadVao->add(vbo);
         quadVao->setEbo(ebo);
-        quadVao->setOnRender([] { glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); });
+        quadVao->setOnRender(renderFunction);
 
         return quadVao;
     }

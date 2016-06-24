@@ -9,16 +9,16 @@ namespace phi
         const resolution & resolution, 
         const string & resourcesPath,
         framebufferAllocator* framebufferAllocator) :
-        _descriptor(new textRendererDescriptor()),
+        _adapter(new textRenderAdapter()),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        _renderPasses = textRenderer::configure(_descriptor, resolution, resourcesPath, framebufferAllocator);
+        _renderPasses = textRenderer::configure(_adapter, resolution, resourcesPath, framebufferAllocator);
     }
 
     textLayerBehaviour::~textLayerBehaviour()
     {
-        safeDelete(_descriptor);
+        safeDelete(_adapter);
     }
 
     void textLayerBehaviour::onNodeAdded(node* node)
@@ -26,7 +26,7 @@ namespace phi
         auto text = node->getComponent<phi::text>();
         if (text)
         {
-            _descriptor->add(text);
+            _adapter->add(text);
         }
     }
 
@@ -35,7 +35,7 @@ namespace phi
         auto text = node->getComponent<phi::text>();
         if (text)
         {
-            _descriptor->remove(text);
+            _adapter->remove(text);
         }
     }
 
@@ -43,7 +43,7 @@ namespace phi
     {
         auto text = node->getComponent<phi::text>();
         if (text)
-            _descriptor->update(text);
+            _adapter->update(text);
     }
 
     void textLayerBehaviour::onNodeSelectionChanged(node* node)
