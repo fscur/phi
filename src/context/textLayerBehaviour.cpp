@@ -48,6 +48,8 @@ namespace phi
 
     void textLayerBehaviour::onNodeSelectionChanged(node* node)
     {
-        throw notImplementedException();
+        auto text = node->getComponent<phi::text>();
+        if(text)
+            throw notImplementedException();
     }
 }

@@ -4,6 +4,7 @@
 #include <core\color.h>
 #include <core\base64.h>
 #include <core\random.h>
+#include <core\clickComponent.h>
 
 #include <io\path.h>
 
@@ -36,13 +37,12 @@ namespace phi
         for (rapidjson::SizeType i = 0; i < componentsCount; i++)
         {
             auto type = components[i]["Type"].GetInt();
-            component* component = nullptr;
 
             switch (type)
             {
             case 0:
             {
-                component = new phi::model(components[i]["Name"].GetString());
+                objectNode->addComponent(new phi::model(components[i]["Name"].GetString()));
                 break;
             }
             case 1:
@@ -50,21 +50,18 @@ namespace phi
                 auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
                 auto geometry = geometriesRepo->getResource(geometryGuid)->getOriginalObject();
 
+                material* material = material::defaultMaterial;
+
                 auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
-                auto matRes = materialsRepo->getResource(materialGuid);
+                auto materialResource = materialsRepo->getResource(materialGuid);
+                if (materialResource != nullptr)
+                    material = materialResource->getOriginalObject();
 
-                material* mat = nullptr;
-                
-                if (matRes != nullptr)
-                    mat = matRes->getOriginalObject();
-                else
-                    mat = material::defaultMaterial;
-
-                component = new phi::mesh(components[i]["Name"].GetString(), geometry, mat);
+                objectNode->addComponent(new phi::mesh(components[i]["Name"].GetString(), geometry, material));
+                objectNode->addComponent(new phi::clickComponent("meshClick"));
                 break;
             }
             }
-            objectNode->addComponent(component);
         }
 
         const rapidjson::Value& children = jsonNode["Children"];

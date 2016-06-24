@@ -9,29 +9,21 @@
 
 #include <animation\floatAnimator.h>
 
-#include <context\unselectSceneObjectCommand.h>
-#include <context\groupSceneObjectsCommand.h>
-#include <context\deleteSceneObjectCommand.h>
-
-#include <application\application.h>
-#include <application\undoCommand.h>
-#include <application\redoCommand.h>
+#include <rendering\pickingFramebuffer.h>
+#ifdef _DEBUG
+#include <rendering\liveShaderReloader.h>
+#endif
 
 #include <ui\labelBuilder.h>
 #include <ui\buttonBuilder.h>
 #include <ui\control.h>
 #include <ui\text.h>
 
-#include "addObjectCommand.h"
-
-#include <rendering\framebufferLayoutBuilder.h>
+#include <application\application.h>
+#include <application\undoCommand.h>
+#include <application\redoCommand.h>
 
 #include <context\layerBuilder.h>
-
-#ifdef _DEBUG
-#include <rendering\liveShaderReloader.h>
-#endif
-
 #include <core\clickComponent.h>
 
 using namespace phi;
@@ -55,8 +47,8 @@ namespace demon
         initPickingFramebuffer();
         initLibraries();
         initScene();
-        initUi();
         initInput();
+        initUi();
 
 #ifdef _DEBUG
         _messageQueue = new blockingQueue<phi::watcherMessage>();
@@ -106,11 +98,7 @@ namespace demon
 
     void screen::initPickingFramebuffer()
     {
-        auto pickingFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("pickingFramebuffer")
-            .with("pickingRenderTarget", GL_COLOR_ATTACHMENT0, GL_RGBA8, GL_RGBA)
-            .build();
-
-        _framebufferAllocator->newFramebuffer(pickingFramebufferLayout, _resolution);
+        pickingFramebuffer::initialize(_framebufferAllocator, _resolution);
     }
 
     void screen::initLibraries()
@@ -160,7 +148,7 @@ namespace demon
             .withFont(font)
             .build();
 
-        auto sceneLabel = labelBuilder::newLabel(L"o")
+        auto sceneLabel = labelBuilder::newLabel(L"Label da cena")
             .withPosition(vec3(0.f, 0.f, 0.f))
             .withControlColor(.9f, .9f, .9f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
@@ -183,29 +171,20 @@ namespace demon
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair0->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
 
-        chair0->traverse([](node* node)
-        {
-            node->addComponent(new clickComponent("meshClick"));
-        });
-
-        floor->traverse([](node* node)
-        {
-            node->addComponent(new clickComponent("meshClick"));
-        });
-
         auto sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
         sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
 
-        _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator)
+        _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withMeshRenderer()
+            .withTextRenderer()
             .build();
 
         auto constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath, _framebufferAllocator)
+        _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withControlRenderer()
             .withTextRenderer()
             .build();
@@ -214,7 +193,7 @@ namespace demon
         nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
         nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath, _framebufferAllocator)
+        _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withGlassyControlRenderer()
             .withTextRenderer()
             .build();
@@ -232,12 +211,21 @@ namespace demon
 
         _framebufferAllocator->allocate(_resolution);
 
-        _designContext = new context(_resolution, _framebufferAllocator, { _sceneLayer, _nandinhoLayer });
-        _constructionContext = new context(_resolution, _framebufferAllocator, { _sceneLayer, _constructionLayer });
+        _designContext = new context(
+            _resolution,
+            _framebufferAllocator,
+            _commandsManager,
+            { _sceneLayer, _nandinhoLayer });
+
+        _constructionContext = new context(
+            _resolution,
+            _framebufferAllocator,
+            _commandsManager,
+            { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(floor);
         _sceneLayer->add(chair0);
-        //sceneLayer->add(sceneLabel);
+        _sceneLayer->add(sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
         _constructionLayer->add(constructionLabel);
@@ -312,7 +300,6 @@ namespace demon
             _activeContext = _constructionContext;
 
         phi::floatAnimator::update();
-
         _activeContext->update();
     }
 
@@ -368,6 +355,7 @@ namespace demon
     {
         window::onResize(resolution);
         gl::resize(resolution);
+        pickingFramebuffer::resize(resolution);
 
         _framebufferAllocator->reallocate(resolution);
         _activeContext->resize(resolution);

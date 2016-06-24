@@ -20,20 +20,22 @@
 #include "controlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
 #include "sceneCameraController.h"
+#include "meshMouseController.h"
 
 namespace phi
 {
-    layerBuilder::layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator) :
+    layerBuilder::layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager) :
         _layer(layer),
         _resolution(resolution),
         _resourcesPath(resourcesPath),
-        _framebufferAllocator(framebufferAllocator)
+        _framebufferAllocator(framebufferAllocator),
+        _commandsManager(commandsManager)
     {
     }
 
-    layerBuilder layerBuilder::newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator)
+    layerBuilder layerBuilder::newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager)
     {
-        return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath, framebufferAllocator);
+        return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath, framebufferAllocator, commandsManager);
     }
 
     layerBuilder layerBuilder::withMeshRenderer()
@@ -52,6 +54,7 @@ namespace phi
         });
 
         _layer->addMouseController(new sceneCameraController(_layer->getCamera()));
+        _layer->addMouseController(new meshMouseController(meshBehaviour, _commandsManager));
 
         return *this;
     }

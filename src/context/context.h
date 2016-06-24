@@ -8,6 +8,8 @@
 
 #include <rendering\framebufferAllocator.h>
 
+#include <application\commandsManager.h>
+
 #include "layer.h"
 
 namespace phi
@@ -21,14 +23,19 @@ namespace phi
         framebuffer* _pickingFramebuffer;
         renderTarget* _pickingRenderTarget;
 
+        commandsManager* _commandsManager;
+
     private:
         void initialize();
 
     public:
-        CONTEXT_API context(resolution& resolution, framebufferAllocator* framebufferAllocator, vector<layer*>& layers);
-        CONTEXT_API context(resolution& resolution, framebufferAllocator* framebufferAllocator, vector<layer*>&& layers);
-        CONTEXT_API ~context();
+        CONTEXT_API context(
+            resolution& resolution,
+            framebufferAllocator* framebufferAllocator,
+            commandsManager* commandsManager,
+            vector<layer*>&& layers);
 
+        CONTEXT_API ~context();
 
         CONTEXT_API void update();
         CONTEXT_API void render();

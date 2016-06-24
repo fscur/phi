@@ -30,15 +30,6 @@ namespace phi
         {
             _descriptor->add(mesh);
         }
-
-        auto click = node->getComponent<phi::clickComponent>();
-        if (click)
-        {
-            click->addOnClick([](phi::node* lamdaNode)
-            {
-                lamdaNode->setIsSelected(true);
-            });
-        }
     }
 
     void meshLayerBehaviour::onNodeRemoved(node* node)
@@ -62,10 +53,20 @@ namespace phi
 
     void meshLayerBehaviour::onNodeSelectionChanged(node* node)
     {
+        auto isSelected = node->getIsSelected();
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            _descriptor->updateSelection(mesh, node->getIsSelected());
+            _descriptor->updateSelection(mesh, isSelected);
+        }
+
+        if (isSelected)
+        {
+            _selectedObjects.push_back(node);
+        }
+        else
+        {
+            phi::removeIfContains(_selectedObjects, node);
         }
     }
 }

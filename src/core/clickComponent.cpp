@@ -10,11 +10,18 @@ namespace phi
     {
     }
 
+    clickComponent::clickComponent(const clickComponent& original) :
+        component(componentType::CLICK, original._name),
+        _onClick(original._onClick),
+        _pickId(0)
+    {
+    }
+
     clickComponent::~clickComponent()
     {
     }
 
-    void clickComponent::onClick()
+    void clickComponent::onClick() const
     {
         auto node = getNode();
         for (auto& clickFunction : _onClick)
@@ -23,7 +30,7 @@ namespace phi
         }
     }
 
-    vec3 clickComponent::getSelectionColor()
+    vec3 clickComponent::getSelectionColor() const
     {
         auto r = static_cast<float>(_pickId & 255);
         auto g = static_cast<float>((_pickId >> 8) & 255);
@@ -35,5 +42,11 @@ namespace phi
     void clickComponent::addOnClick(std::function<void(node*)> onClick)
     {
         _onClick.push_back(onClick);
+    }
+
+    component* clickComponent::clone() const
+    {
+        auto click = static_cast<const clickComponent*>(this);
+        return new clickComponent(*click);
     }
 }
