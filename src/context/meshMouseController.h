@@ -15,8 +15,6 @@ namespace phi
         public iMouseController
     {
     private:
-
-    private:
         meshLayerBehaviour* _meshLayerBehaviour;
         commandsManager* _commandsManager;
         bool _isCtrlPressed;
@@ -32,8 +30,8 @@ namespace phi
 
     public:
         CONTEXT_API meshMouseController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager);
-        CONTEXT_API virtual ~meshMouseController() {}
+        virtual ~meshMouseController() {}
 
-        virtual void update() override;
+        CONTEXT_API virtual void update() override;
     };
 }
