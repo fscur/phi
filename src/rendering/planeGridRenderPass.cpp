@@ -4,10 +4,8 @@
 
 namespace phi
 {
-    planeGridRenderPass::planeGridRenderPass(phi::gl* gl, float w, float h) :
+    planeGridRenderPass::planeGridRenderPass(phi::gl* gl) :
         _gl(gl),
-        _w(w),
-        _h(h),
         _quad(nullptr),
         _quadVao(0u),
         _quadVbo(nullptr),
@@ -16,7 +14,8 @@ namespace phi
         _textureAddress(textureAddress()),
         _radiusFadeIn(0.0f),
         _radiusFadeOut(0.0f),
-        _showing(false)
+        _showing(false),
+        _plane(finitePlane(vec3(), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)))
     {
         createQuad();
 
@@ -36,7 +35,7 @@ namespace phi
         _shader->addUniform(7, "texturePageIndex");
         _shader->addUniform(8, "textureArrays");
 
-        transform.setLocalSize(vec3(PLANE_SIZE));
+        _transform.setLocalSize(vec3(PLANE_SIZE));
     }
 
     planeGridRenderPass::~planeGridRenderPass()
@@ -96,6 +95,38 @@ namespace phi
         _textureAddress = _gl->texturesManager->add(_gridTexture);
     }
 
+    void planeGridRenderPass::setPositionAndOrientation(vec3 position, vec3 direction)
+    {
+        auto right = vec3(1.0f, 0.0f, 0.0f);
+        auto dot = glm::dot(direction, vec3(0.0f, 1.0f, 0.0f));
+        if (!mathUtils::isClose(glm::abs(dot), 1.0f))
+            right = glm::cross(vec3(0.0f, 1.0f, 0.0f), direction);
+
+        auto up = glm::cross(direction, right);
+
+        _plane = finitePlane(position, position + right, position + up);
+
+        auto rotation = glm::quat_cast(glm::mat3(right, up, direction));
+
+        _transform.setLocalPosition(position);
+        _transform.setLocalOrientation(rotation);
+    }
+
+    void planeGridRenderPass::setFocusPosition(vec2 focusPosition)
+    {
+        _focusPosition = focusPosition;
+    }
+
+    void planeGridRenderPass::projectAndSetFocusPosition(vec3 toProjectFocusPosition)
+    {
+        _focusPosition = projectPoint(toProjectFocusPosition);
+    }
+
+    vec2 planeGridRenderPass::projectPoint(vec3 position)
+    {
+        return _plane.projectPoint(position);
+    }
+
     void planeGridRenderPass::show()
     {
         _radiusFadeOut = 0.0f;
@@ -116,12 +147,12 @@ namespace phi
         _radiusFadeIn = !_showing * (_radiusFadeIn + deltaRadius);
 
         _shader->bind();
-        _shader->setUniform(0, transform.getModelMatrix());
+        _shader->setUniform(0, _transform.getModelMatrix());
         _shader->setUniform(1, PLANE_SIZE);
         _shader->setUniform(2, _radiusFadeIn);
         _shader->setUniform(3, glm::min(_radiusFadeOut, MAX_RADIUS));
         _shader->setUniform(4, _radiusFadeOut - RADIUS_WAVE_OFFSET);
-        _shader->setUniform(5, centerPosition + vec2(PLANE_SIZE * 0.5f));
+        _shader->setUniform(5, _focusPosition + vec2(PLANE_SIZE * 0.5f));
         _shader->setUniform(6, _textureAddress.unit);
         _shader->setUniform(7, _textureAddress.page);
 

@@ -111,9 +111,11 @@ namespace demon
         cameraTransform->setDirection(-cameraPos);
 
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        //floor->getTransform()->yaw(PI_OVER_4);
         _scene->add(floor);
 
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair0->getTransform()->yaw(PI_OVER_4);
         chair0->getTransform()->setLocalPosition(vec3(0.f, .5f, .0f));
 
         auto chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
@@ -125,10 +127,14 @@ namespace demon
         auto chair3 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair3->getTransform()->setLocalPosition(vec3(2.0f, .5f, 2.0f));
 
+        auto cube = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        cube->getTransform()->setLocalPosition(vec3(-2.0f, 0.7f, 0.0f));
+
         _scene->add(chair0);
         _scene->add(chair1);
         _scene->add(chair2);
         _scene->add(chair3);
+        _scene->add(cube);
     }
 
     void screen::initUi()
@@ -137,29 +143,29 @@ namespace demon
 
         _ui = new ui(uiCamera, _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
 
-        auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 24);
-        auto fontFps = _gl->fontsManager->load("Roboto-Thin.ttf", 12);
+        //auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 24);
+        //auto fontFps = _gl->fontsManager->load("Roboto-Thin.ttf", 12);
 
-        auto labelNandinho = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
-        auto control = labelNandinho->getComponent<phi::control>();
-        control->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
-        control->setIsGlassy(true);
+        //auto labelNandinho = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
+        //auto control = labelNandinho->getComponent<phi::control>();
+        //control->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
+        //control->setIsGlassy(true);
 
-        auto text = labelNandinho->getComponent<phi::text>();
-        text->setFont(font);
-        text->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+        //auto text = labelNandinho->getComponent<phi::text>();
+        //text->setFont(font);
+        //text->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-        _labelFps = _ui->newLabel(L"Fps: ", vec3(-200.f, 100.f, 0.f));
-        auto fpsControl = _labelFps->getComponent<phi::control>();
-        fpsControl->setColor(color::fromRGBA(.7f, .5f, .9f, 1.0f));
-        fpsControl->setIsGlassy(true);
+        //_labelFps = _ui->newLabel(L"Fps: ", vec3(-200.f, 100.f, 0.f));
+        //auto fpsControl = _labelFps->getComponent<phi::control>();
+        //fpsControl->setColor(color::fromRGBA(.7f, .5f, .9f, 1.0f));
+        //fpsControl->setIsGlassy(true);
 
-        auto textFps = _labelFps->getComponent<phi::text>();
-        textFps->setFont(fontFps);
-        textFps->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+        //auto textFps = _labelFps->getComponent<phi::text>();
+        //textFps->setFont(fontFps);
+        //textFps->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 
-        _ui->add(labelNandinho);
-        _ui->add(_labelFps);
+        //_ui->add(labelNandinho);
+        //_ui->add(_labelFps);
     }
 
     void screen::initInput()
@@ -195,10 +201,10 @@ namespace demon
 
     void screen::onTick()
     {
-        auto label = _labelFps->getComponent<phi::text>();
-        auto str = "fps: " + std::to_string(application::framesPerSecond);
+        //auto label = _labelFps->getComponent<phi::text>();
+        //auto str = "fps: " + std::to_string(application::framesPerSecond);
 
-        label->setText(wstring(str.begin(), str.end()));
+        //label->setText(wstring(str.begin(), str.end()));
 
 #ifdef _DEBUG
         while (!_messageQueue->empty())

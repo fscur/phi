@@ -123,6 +123,7 @@ namespace phi
 
     mat4 transform::getModelMatrix()
     {
+        // TODO: we can probably cache this model matrix
         if (_parent == nullptr)
             return getLocalModelMatrix();
         else

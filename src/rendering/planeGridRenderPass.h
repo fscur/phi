@@ -8,6 +8,7 @@
 #include <core\geometry.h>
 #include <core\transform.h>
 #include <core\time.h>
+#include <core\finitePlane.h>
 
 namespace phi
 {
@@ -20,8 +21,6 @@ namespace phi
         const float RADIUS_WAVE_OFFSET = 5.0f;
 
         phi::gl* _gl;
-        float _w;
-        float _h;
         geometry* _quad;
         uint _quadVao;
         vertexBuffer* _quadVbo;
@@ -31,11 +30,10 @@ namespace phi
         float _radiusFadeIn;
         float _radiusFadeOut;
         bool _showing;
-		texture* _gridTexture;
-
-    public:
-        transform transform;
-        vec2 centerPosition;
+        texture* _gridTexture;
+        transform _transform;
+        vec2 _focusPosition;
+        finitePlane _plane;
 
     private:
         void createQuad();
@@ -49,10 +47,15 @@ namespace phi
         shader* shader;
 
     public:
-        RENDERING_API planeGridRenderPass(gl* gl, float w, float h);
+        RENDERING_API planeGridRenderPass(gl* gl);
         RENDERING_API ~planeGridRenderPass();
 
+        vec2 getFocusPosition() { return _focusPosition; }
         RENDERING_API void setImage(image* image);
+        RENDERING_API void setPositionAndOrientation(vec3 position, vec3 direction);
+        RENDERING_API void setFocusPosition(vec2 focusPosition);
+        RENDERING_API void projectAndSetFocusPosition(vec3 toProjectFocusPosition);
+        RENDERING_API vec2 projectPoint(vec3 position);
 
         RENDERING_API void update();
         RENDERING_API void render();

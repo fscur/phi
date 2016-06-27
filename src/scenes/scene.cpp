@@ -88,6 +88,7 @@ namespace phi
                 node->addComponent(collider);
 
                 _physicsWorld->addCollider(collider);
+                //_pipeline->_renderer->getBoxColliderRenderPass()->addCollider(collider);
             }
         });
     }
@@ -104,7 +105,10 @@ namespace phi
 
             auto collider = node->getComponent<boxCollider>();
             if (collider)
+            {
                 _physicsWorld->removeCollider(collider);
+                //_pipeline->_renderer->getBoxColliderRenderPass()->removeCollider(collider);
+            }
         });
     }
 

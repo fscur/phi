@@ -13,8 +13,9 @@ namespace phi
         _gBufferRenderPass = new gBufferRenderPass(gl);
         _lightingRenderPass = new lightingRenderPass(_rtAddresses, gl, w, h);
         _selectionRenderPass = new selectionRenderPass(_rtAddresses, gl, w, h);
-        _planeGridRenderPass = new planeGridRenderPass(gl, w, h);
+        _planeGridRenderPass = new planeGridRenderPass(gl);
         _defaultFramebuffer = new framebuffer(true);
+        _boxColliderRenderPass = new boxColliderRenderPass(gl);
     }
 
     renderer::~renderer()
@@ -34,6 +35,7 @@ namespace phi
         safeDelete(_lightingRenderPass);
         safeDelete(_selectionRenderPass);
         safeDelete(_planeGridRenderPass);
+        safeDelete(_boxColliderRenderPass);
     }
 
     void renderer::createRenderTargets()
@@ -180,6 +182,7 @@ namespace phi
         _lightingRenderPass->render();
         _planeGridRenderPass->render();
         _selectionRenderPass->render();
+        _boxColliderRenderPass->render();
 
         _finalImageFramebuffer->blitToDefault(_finalImageRT);
         generateFinalImageMipMaps();

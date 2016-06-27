@@ -55,13 +55,12 @@ namespace demon
         _panLastMouseMoveTime(0.0),
         _panInertiaTime(0.0),
         _dragging(false),
-        _dragObject(nullptr),
+        _planeDrag(_scene->getPhysicsWorld()),
         _dragCollider(nullptr),
-        _dragPlane(plane(vec3(), vec3())),
-        _dragDoingInertia(false),
-        _dragInertiaTime(0.0),
-        _dragStartPos(phi::vec2()),
-        _dragDelta(phi::vec2())
+        _dragPlaneGridDoingInertia(false),
+        _dragPlaneGridInertiaTime(0.0),
+        _dragPlaneGridInitialPosition(phi::vec2()),
+        _dragPlaneGridDelta(phi::vec2())
     {
         auto texturePath = phi::application::resourcesPath + "\\images\\grid.png";
         _gridImage = phi::importer::importImage(texturePath);
@@ -88,8 +87,6 @@ namespace demon
 
     void defaultCameraController::onMouseDown(phi::mouseEventArgs* e)
     {
-        _dragObject = nullptr;
-
         if (e->leftButtonPressed)
         {
             auto selectedMesh = _scene->pick(e->x, e->y);
@@ -162,100 +159,8 @@ namespace demon
         _lastMousePosY = _mousePosY;
     }
 
-    void defaultCameraController::moveObject(node* object, vec3 offset, vec3 planeNormal)
-    {
-        std::vector<transform*> transforms;
-        std::vector<boxCollider*> colliders;
-        object->traverse<boxCollider>([&colliders, &transforms, offset](boxCollider* b)
-        {
-            transforms.push_back(b->getNode()->getTransform());
-            colliders.push_back(b);
-        });
-
-        auto createOffsetTransforms = [&transforms](vec3 offset) -> vector<transform*>
-        {
-            auto resultTransforms = vector<transform*>();
-            for (auto t : transforms)
-            {
-                auto position = t->getPosition() + offset;
-                auto rotation = t->getOrientation();
-                auto size = t->getSize();
-                auto offsetTransform = new transform();
-                offsetTransform->setLocalPosition(position);
-                offsetTransform->setLocalOrientation(rotation);
-                offsetTransform->setLocalSize(size);
-                resultTransforms.push_back(offsetTransform);
-            }
-
-            return resultTransforms;
-        };
-
-        auto offsetTransforms = createOffsetTransforms(offset);
-        auto ignoreColliders = colliders;
-        auto world = _scene->getPhysicsWorld();
-        if (world->intersects(colliders, offsetTransforms, ignoreColliders))
-        {
-            auto sweepResults = world->intersectsSweep(colliders, offset, ignoreColliders);
-            auto originalOffset = offset;
-            auto dir = glm::normalize(originalOffset);
-            offset = vec3();
-
-            auto collisionsCount = sweepResults.collisions.size();
-            if (collisionsCount > 0u)
-            {
-                auto foundPlaceToStayWithoutCollisionYeah = false;
-
-                for (auto it = sweepResults.collisions.rbegin(); it != sweepResults.collisions.rend() && !foundPlaceToStayWithoutCollisionYeah; ++it)
-                {
-                    auto collision = *it;
-
-                    auto limited = dir * glm::max(collision.distance - DECIMAL_TRUNCATION, 0.0f);
-                    auto limitedTransforms = createOffsetTransforms(limited);
-
-                    ignoreColliders.push_back(collision.collider);
-                    if (!world->intersects(colliders, limitedTransforms, ignoreColliders))
-                    {
-                        foundPlaceToStayWithoutCollisionYeah = true;
-                        auto dist = glm::dot(collision.normal, planeNormal);
-                        auto normal = glm::normalize(collision.normal - dist * planeNormal);
-
-                        auto up = glm::cross(normal, originalOffset);
-                        auto dotDir = glm::cross(up, normal);
-                        if (dotDir != vec3())
-                            dotDir = glm::normalize(dotDir);
-
-                        auto dotValue = glm::dot(originalOffset - limited, dotDir);
-
-                        offset = limited + dotDir * dotValue;
-
-                        phi::removeIfContains(ignoreColliders, collision.collider);
-                        auto adjustSweepTest = world->intersectsSweep(colliders, limitedTransforms, offset - limited, ignoreColliders);
-                        if (adjustSweepTest.collided)
-                        {
-                            auto firstCollision = adjustSweepTest.collisions[0];
-                            offset = limited + dotDir * glm::max(firstCollision.distance - DECIMAL_TRUNCATION, 0.0f);
-                        }
-                    }
-
-                    phi::removeIfContains(ignoreColliders, collision.collider);
-
-                    for (auto t : limitedTransforms)
-                        safeDelete(t);
-                }
-            }
-        }
-
-        for (auto t : offsetTransforms)
-            safeDelete(t);
-
-        object->getTransform()->translate(offset);
-    }
-
     void defaultCameraController::dragMouseDown(int mouseX, int mouseY)
     {
-        //std::vector<boxCollider*> colliders;
-        //std::vector<node*> nodes;
-        //_dragObject->traverse<boxCollider>([&colliders, &nodes](boxCollider* b) { colliders.push_back(b); nodes.push_back(b->getNode()); });
         auto pickMesh = _scene->pick(mouseX, mouseY);
         if (!pickMesh)
             return;
@@ -270,65 +175,43 @@ namespace demon
         auto ray = _camera->screenPointToRay(static_cast<float>(mouseX), static_cast<float>(mouseY));
         if (ray.intersects(obb, positions, normals, count))
         {
-            _dragObject = node;
-            while (_dragObject->getParent()->getParent() != nullptr)
-                _dragObject = _dragObject->getParent();
+            _dragCollider = collider;
+            auto dragObject = node;
+            while (dragObject->getParent()->getParent() != nullptr)
+                dragObject = dragObject->getParent();
 
             auto normal = normals[0];
-
-            _dragOrigin = positions[0];
-            _dragObjectStartPosition = _dragObject->getTransform()->getLocalPosition();
+            auto rayCastOnPlanePosition = positions[0];
 
             phi::safeDeleteArray(normals);
             phi::safeDeleteArray(positions);
 
-            _dragPlane = plane(_dragOrigin, normal);
+            auto dragPlane = plane(rayCastOnPlanePosition, normal);
 
-            auto planeGridPosition = obb.center + -normal * (
-                glm::abs(glm::dot(obb.axes[0] * obb.halfSizes.x, normal)) +
-                glm::abs(glm::dot(obb.axes[1] * obb.halfSizes.y, normal)) +
-                glm::abs(glm::dot(obb.axes[2] * obb.halfSizes.z, normal)) +
-                DECIMAL_TRUNCATION * 10.0f);
-            _planeGridPass->transform.setLocalPosition(planeGridPosition);
-            _planeGridPass->transform.setDirection(normal);
-            _planeGridPass->centerPosition = vec2();
+            auto planePosition = obb.getPositionAt(-normal);
+            planePosition = glm::normalize(planePosition) * (glm::length(planePosition) + DECIMAL_TRUNCATION);
+
+            _planeGridPass->setPositionAndOrientation(planePosition, normal);
+            _planeGridPass->projectAndSetFocusPosition(planePosition);
             _planeGridPass->show();
 
-            _dragDelta = vec2();
-            _dragDoingInertia = false;
+            _dragPlaneGridDelta = vec2();
+            _dragPlaneGridDoingInertia = false;
             _dragging = true;
-            _dragCollider = collider;
 
-            //moveObject(_dragObject, vec3(0.01f, -0.01f, -0.01f), normal);
+            _planeDrag.startDrag(dragObject, dragPlane);
         }
     }
 
     void defaultCameraController::dragMouseMove()
     {
         auto ray = _camera->screenPointToRay(static_cast<float>(_mousePosX), static_cast<float>(_mousePosY));
-        float t;
-        ray.intersects(_dragPlane, t);
-        auto point = ray.getOrigin() + ray.getDirection() * t;
+        _planeDrag.updateDrag(ray);
 
-        auto diff = point - _dragOrigin;
-        auto newPosition = _dragObjectStartPosition + diff;
-
-        moveObject(_dragObject, newPosition - _dragObject->getTransform()->getLocalPosition(), _dragPlane.getNormal());
-
-        auto planeOrigin = _planeGridPass->transform.getPosition();
-        auto planeNormal = _planeGridPass->transform.getDirection();
-        auto planeRight = _planeGridPass->transform.getRight();
-        auto planeUp = _planeGridPass->transform.getUp();
-        //auto centerBoundingBox = (_dragPlaneBottomLeft + _dragPlaneTopRight) * 0.5f + (newPosition - _dragObjectStartPosition);
-        auto gridPlane = plane(planeOrigin, planeNormal);
-        auto projectionGrid = gridPlane.projectPoint(_dragCollider->getObb().center);
-        auto projectionGrid2D = vec2(glm::dot(planeRight, projectionGrid - planeOrigin), glm::dot(planeUp, projectionGrid - planeOrigin));
-        //planePointProjection2D(planeOrigin, planeNormal, planeRight, planeUp, _dragCollider->getObb().center);
-
-        _dragStartPos = _planeGridPass->centerPosition;
-        _dragDelta = projectionGrid2D - _dragStartPos;
-        _dragDoingInertia = true;
-        _dragInertiaTime = 0.0f;
+        _dragPlaneGridInitialPosition = _planeGridPass->getFocusPosition();
+        _dragPlaneGridDelta = _planeGridPass->projectPoint(_dragCollider->getObb().center) - _dragPlaneGridInitialPosition;
+        _dragPlaneGridDoingInertia = true;
+        _dragPlaneGridInertiaTime = 0.0f;
     }
 
     void defaultCameraController::dragMouseUp()
@@ -342,17 +225,16 @@ namespace demon
 
     void defaultCameraController::dragUpdate()
     {
-        if (!_dragDoingInertia)
+        if (!_dragPlaneGridDoingInertia)
             return;
 
         auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
-        _dragInertiaTime += deltaMilliseconds;
-        auto percent = -glm::exp(_dragInertiaTime / -100.0f) + 1.0f;
-        auto delta = _dragDelta * static_cast<float>(percent);
-        _planeGridPass->centerPosition = _dragStartPos + delta;
+        _dragPlaneGridInertiaTime += deltaMilliseconds;
+        auto percent = -glm::exp(_dragPlaneGridInertiaTime / -100.0f) + 1.0f;
+        auto delta = _dragPlaneGridDelta * static_cast<float>(percent);
+        _planeGridPass->setFocusPosition(_dragPlaneGridInitialPosition + delta);
 
-        if (percent >= 1.0f)
-            _dragDoingInertia = false;
+        _dragPlaneGridDoingInertia = percent < 1.0f;
     }
 
     void defaultCameraController::zoomMouseWheel(int mouseX, int mouseY, float delta)

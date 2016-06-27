@@ -9,10 +9,127 @@
 
 namespace phi
 {
+    struct intersectionCollisionTest
+    {
+        intersectionCollisionTest() :
+            collider(nullptr),
+            transform(nullptr),
+            shouldCollideWithItself(false),
+            toIgnoreColliders(nullptr)
+        {
+        }
+
+        boxCollider* collider;
+        transform* transform;
+        bool shouldCollideWithItself;
+        vector<boxCollider*>* toIgnoreColliders;
+
+        vector<boxCollider*>* getAllToIgnoreColliders()
+        {
+            vector<boxCollider*>* allToIgnoreColliders;
+            if (toIgnoreColliders)
+                allToIgnoreColliders = new vector<boxCollider*>(toIgnoreColliders->begin(), toIgnoreColliders->end());
+            else
+                allToIgnoreColliders = new vector<boxCollider*>();
+
+            if (!shouldCollideWithItself)
+                allToIgnoreColliders->push_back(collider);
+
+            return allToIgnoreColliders;
+        }
+    };
+
+    struct intersectionCollisionMultiTest
+    {
+        intersectionCollisionMultiTest() :
+            colliders(),
+            transforms(),
+            shouldCollideWithItself(false),
+            toIgnoreColliders(nullptr)
+        {
+        }
+
+        vector<boxCollider*>* colliders;
+        vector<transform*>* transforms;
+        bool shouldCollideWithItself;
+        vector<boxCollider*>* toIgnoreColliders;
+
+        vector<boxCollider*>* getAllToIgnoreColliders()
+        {
+            vector<boxCollider*>* allToIgnoreColliders;
+            if (toIgnoreColliders)
+                allToIgnoreColliders = new vector<boxCollider*>(toIgnoreColliders->begin(), toIgnoreColliders->end());
+            else
+                allToIgnoreColliders = new vector<boxCollider*>();
+
+            if (!shouldCollideWithItself)
+                allToIgnoreColliders->insert(allToIgnoreColliders->end(), colliders->begin(), colliders->end());
+
+            return allToIgnoreColliders;
+        }
+    };
+
+    struct sweepCollisionTest :
+        public intersectionCollisionTest
+    {
+        sweepCollisionTest() :
+            intersectionCollisionTest(),
+            distance(0.0f),
+            direction(vec3())
+        {
+        }
+
+        float distance;
+        vec3 direction;
+    };
+
+    struct sweepCollisionMultiTest :
+        public intersectionCollisionMultiTest
+    {
+        sweepCollisionMultiTest() :
+            intersectionCollisionMultiTest(),
+            distance(0.0f),
+            direction(vec3()),
+            findOnlyClosestPerTarget(false)
+        {
+        }
+
+        float distance;
+        vec3 direction;
+        bool findOnlyClosestPerTarget;
+    };
+
+    struct sweepCollisionPairTest
+    {
+        sweepCollisionPairTest() :
+            colliderSource(nullptr),
+            transformSource(nullptr),
+            offset(vec3()),
+            colliderTarget(nullptr),
+            transformTarget(nullptr)
+        {
+        }
+
+        boxCollider* colliderSource;
+        transform* transformSource;
+        vec3 offset;
+        boxCollider* colliderTarget;
+        transform* transformTarget;
+    };
+
     struct sweepCollision
     {
+        sweepCollision() :
+            collider(nullptr),
+            distance(0.0f),
+            normal(vec3())
+        {
+        }
+
         sweepCollision(boxCollider* collider, float distance, vec3 normal) :
-            collider(collider), distance(distance), normal(normal)
+            collider(collider),
+            distance(distance),
+            normal(normal)
         {
         }
 
@@ -37,7 +154,8 @@ namespace phi
     struct sweepCollisionResult
     {
         sweepCollisionResult() :
-            collided(false)
+            collided(false),
+            collisions()
         {
         }
 
@@ -50,12 +168,12 @@ namespace phi
     private:
         struct filterCallback : public physx::PxQueryFilterCallback
         {
-            filterCallback(vector<boxCollider*>& ignoreColliders) :
+            filterCallback(vector<boxCollider*>* ignoreColliders) :
                 ignoreColliders(ignoreColliders)
             {
             }
 
-            vector<boxCollider*> ignoreColliders;
+            vector<boxCollider*>* ignoreColliders;
 
             virtual physx::PxQueryHitType::Enum preFilter(const physx::PxFilterData& filterData, const physx::PxShape* shape, const physx::PxRigidActor* actor, physx::PxHitFlags& queryFlags)
             {
@@ -80,7 +198,7 @@ namespace phi
         };
 
     private:
-        unordered_map<boxCollider*, colliderData> _colliders;
+        unordered_map<boxCollider*, colliderData*> _colliders;
 
         physx::PxFoundation* _foundation;
         physx::PxDefaultAllocator _allocatorCallback;
@@ -91,25 +209,20 @@ namespace phi
         physx::PxDefaultCpuDispatcher* _dispatcher;
 
     private:
-        void updateColliderPose(const boxCollider* collider, const colliderData data, transform* transform);
+        static physx::PxTransform createPose(const boxCollider* collider, transform* transform);
+        sweepCollisionResult sweepPenetration(sweepCollisionPairTest test);
 
     public:
         SCENES_API physicsWorld();
         SCENES_API ~physicsWorld();
 
-        void addCollider(boxCollider* collider);
-        void removeCollider(boxCollider* collider);
+        SCENES_API void addCollider(boxCollider* collider);
+        SCENES_API void removeCollider(boxCollider* collider);
 
-        SCENES_API bool intersects(boxCollider* collider, vector<boxCollider*> ignoreColliders = vector<boxCollider*>());
-        SCENES_API bool intersects(const vector<boxCollider*>& colliders, vector<boxCollider*> ignoreColliders = vector<boxCollider*>());
+        SCENES_API bool intersects(intersectionCollisionTest test);
+        SCENES_API bool intersects(intersectionCollisionMultiTest test);
 
-        SCENES_API bool intersects(boxCollider* collider, transform* const transform, vector<boxCollider*> ignoreColliders = vector<boxCollider*>());
-        SCENES_API bool intersects(const vector<boxCollider*>& colliders, const vector<transform*>& transforms, vector<boxCollider*> ignoreColliders = vector<boxCollider*>());
-
-        SCENES_API sweepCollisionResult intersectsSweep(boxCollider* collider, const vec3 offset, vector<boxCollider*> ignoreColliders = vector<boxCollider*>());
-        SCENES_API sweepCollisionResult intersectsSweep(const vector<boxCollider*>& colliders, const vec3 offset, vector<boxCollider*> ignoreColliders = vector<boxCollider*>());
-
-        SCENES_API sweepCollisionResult intersectsSweep(boxCollider* collider, transform* const transform, const vec3 offset, vector<boxCollider*> ignoreColliders = vector<boxCollider*>());
-        SCENES_API sweepCollisionResult intersectsSweep(const vector<boxCollider*>& colliders, const vector<transform*>& transforms, const vec3 offset, vector<boxCollider*> ignoreColliders = vector<boxCollider*>());
+        SCENES_API sweepCollisionResult sweep(sweepCollisionTest test);
+        SCENES_API sweepCollisionResult sweep(sweepCollisionMultiTest test);
     };
 }

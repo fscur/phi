@@ -7,6 +7,7 @@
 #include "lightingRenderPass.h"
 #include "selectionRenderPass.h"
 #include "planeGridRenderPass.h"
+#include "boxColliderRenderPass.h"
 
 namespace phi
 {
@@ -18,7 +19,8 @@ namespace phi
         lightingRenderPass* _lightingRenderPass;
         selectionRenderPass* _selectionRenderPass;
         planeGridRenderPass* _planeGridRenderPass;
-        
+        boxColliderRenderPass* _boxColliderRenderPass;
+
         framebuffer* _defaultFramebuffer;
         framebuffer* _gBufferFramebuffer;
         framebuffer* _finalImageFramebuffer;
@@ -51,6 +53,7 @@ namespace phi
         framebuffer* getDefaultFramebuffer() const { return _defaultFramebuffer; }
         framebuffer* getGBufferFramebuffer() const { return _gBufferFramebuffer; }
         planeGridRenderPass* getPlaneGridRenderPass() const { return _planeGridRenderPass; }
+        boxColliderRenderPass* getBoxColliderRenderPass() const { return _boxColliderRenderPass; }
         gBufferRenderPass* getGBufferRenderPass() const { return _gBufferRenderPass; }
         renderTarget* getFinalImageRT() const { return _finalImageRT; }
     };

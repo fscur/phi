@@ -8,6 +8,7 @@
 #include <apps\commandsManager.h>
 
 #include "cameraController.h"
+#include "planeDrag.h"
 
 namespace demon
 {
@@ -54,25 +55,20 @@ namespace demon
         phi::vec3 _panCameraPos;
         phi::vec3 _panCameraRight;
         phi::vec3 _panCameraUp;
-        glm::vec3 _panDelta;
+        phi::vec3 _panDelta;
         phi::vec3 _panTargetCameraPos;
         double _panLastMouseMoveTime;
         double _panInertiaTime;
 
         bool _dragging;
-        phi::node* _dragObject;
+        planeDrag _planeDrag;
         phi::boxCollider* _dragCollider;
-        phi::vec3 _dragObjectStartPosition;
-        phi::vec3 _dragOrigin;
-        phi::plane _dragPlane;
-        bool _dragDoingInertia;
-        double _dragInertiaTime;
-        phi::vec2 _dragStartPos;
-        phi::vec2 _dragDelta;
+        bool _dragPlaneGridDoingInertia;
+        double _dragPlaneGridInertiaTime;
+        phi::vec2 _dragPlaneGridInitialPosition;
+        phi::vec2 _dragPlaneGridDelta;
 
     private:
-        void moveObject(phi::node* object, phi::vec3 offset, phi::vec3 planeNormal);
-
         void dragMouseDown(int mouseX, int mouseY);
         void dragMouseMove();
         void dragMouseUp();

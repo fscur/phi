@@ -7,7 +7,7 @@ namespace phi
     boxCollider::boxCollider(std::string name, vec3 position, vec3 halfSizes) :
         component(component::componentType::BOX_COLLIDER, name),
         _position(position),
-        _halfSizes(halfSizes),
+        _halfSizes(vec3(glm::max(halfSizes.x, DECIMAL_TRUNCATION), glm::max(halfSizes.y, DECIMAL_TRUNCATION), glm::max(halfSizes.z, DECIMAL_TRUNCATION))),
         _obb(obb(position, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), halfSizes)),
         _transformChangedEventToken(eventToken())
     {
