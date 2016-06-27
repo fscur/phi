@@ -7,11 +7,11 @@
 
 namespace phi
 {
-    struct bufferGap
+    struct bufferSlot
     {
         size_t index;
         size_t size;
-        bufferGap(size_t index = 0u, size_t size = 1u) :
+        bufferSlot(size_t index = 0u, size_t size = 1u) :
             index(index),
             size(size)
         {
@@ -26,38 +26,41 @@ namespace phi
     private:
         size_t _maxInstances;
         unsigned long long _sizeOfDataType;
-        unordered_map<KEY, bufferGap> _instances;
+        unordered_map<KEY, bufferSlot> _instances;
         DATA* _bufferData;
+        size_t _instanceCount;
 
     public:
         mappedBuffer(string name, bufferTarget::bufferTarget target, size_t maxInstances) :
             buffer(name, target),
             _maxInstances(maxInstances),
             _sizeOfDataType(sizeof(DATA)),
-            _instances(unordered_map<KEY, bufferGap>()),
-            _bufferData(new DATA[_maxInstances])
+            _instances(unordered_map<KEY, bufferSlot>()),
+            _bufferData(new DATA[_maxInstances]),
+            _instanceCount(0)
         {
             storage(maxInstances * _sizeOfDataType, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
         }
 
         void add(KEY key, DATA data)
         {
-            auto index = _instances.size();
+            auto index = _instanceCount;
 
-            if (_maxInstances == index)
-                throw exception("buffer full");
-
-            _instances[key] = bufferGap(index, 1);
+            _instances[key] = bufferSlot(index, 1);
+            _instanceCount++;
             _bufferData[index] = data;
             subData(index * _sizeOfDataType, _sizeOfDataType, &data);
         }
 
         void addRange(KEY key, DATA* data, size_t size)
         {
-            /*for (size_t i = 0; i < size; ++i)
-            {
+            auto index = _instanceCount;
+            _instances[key] = bufferSlot(index, size);
+            _instanceCount += size;
 
-            }*/
+            auto bufferSize = size * _sizeOfDataType;
+            memcpy(_bufferData + index, data, bufferSize);
+            subData(index * _sizeOfDataType, bufferSize, data);
         }
 
         void update(KEY key, DATA data)
@@ -69,22 +72,33 @@ namespace phi
 
         void updateRange(KEY key, DATA* data, size_t size)
         {
-            /*auto index = _instances[key].index;
-            _bufferData[index] = data;
-            subData(index * _sizeOfDataType, _sizeOfDataType, &data);*/
+            auto bufferSlot = _instances[key];
+
+            if (bufferSlot.size == size)
+            {
+                auto index = _instances[key].index;
+                auto bufferSize = size * _sizeOfDataType;
+                memcpy(_bufferData + index, data, bufferSize);
+                subData(index * _sizeOfDataType, bufferSize, data);
+            }
+            else
+            {
+                remove(key);
+                addRange(key, data, size);
+            }
         }
 
         void remove(KEY key)
         {
             auto index = _instances[key].index;
-            auto totalInstances = _instances.size();
-            auto instanceCount = totalInstances - index - 1;
+            auto size = _instances[key].size;
+            auto instanceCount = _instanceCount - (index + size);
 
             if (instanceCount > 0)
             {
                 DATA* copyBuffer = new DATA[instanceCount];
                 auto bufferSize = instanceCount * _sizeOfDataType;
-                memcpy(copyBuffer, _bufferData + index + 1, bufferSize);
+                memcpy(copyBuffer, _bufferData + index + size, bufferSize);
                 memcpy(_bufferData + index, copyBuffer, bufferSize);
                 subData(index * _sizeOfDataType, bufferSize, copyBuffer);
                 safeDelete(copyBuffer);
@@ -95,12 +109,13 @@ namespace phi
                 if (pair.second.index < index)
                     continue;
 
-                pair.second.index--;
+                pair.second.index-= size;
             }
 
+            _instanceCount -= size;
             _instances.erase(key);
         }
 
-        size_t getInstanceCount() const { return _instances.size(); }
+        size_t getInstanceCount() const { return _instanceCount; }
     };
 }
