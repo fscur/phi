@@ -133,6 +133,10 @@ namespace phi
 
     void application::onClose()
     {
+#if _DEBUG
         _window->close();
+#else
+        ExitProcess(0);
+#endif
     }
 }
