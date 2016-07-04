@@ -166,35 +166,12 @@ namespace phi
     class physicsWorld
     {
     private:
-        struct filterCallback : public physx::PxQueryFilterCallback
-        {
-            filterCallback(vector<boxCollider*>* ignoreColliders) :
-                ignoreColliders(ignoreColliders)
-            {
-            }
-
-            vector<boxCollider*>* ignoreColliders;
-
-            virtual physx::PxQueryHitType::Enum preFilter(const physx::PxFilterData& filterData, const physx::PxShape* shape, const physx::PxRigidActor* actor, physx::PxHitFlags& queryFlags)
-            {
-                auto targetCollider = reinterpret_cast<boxCollider*>(actor->userData);
-                if (phi::contains(ignoreColliders, targetCollider))
-                    return physx::PxQueryHitType::eNONE;
-
-                return physx::PxQueryHitType::eTOUCH;
-            }
-
-            virtual physx::PxQueryHitType::Enum postFilter(const physx::PxFilterData& filterData, const physx::PxQueryHit& hit)
-            {
-                return physx::PxQueryHitType::eTOUCH;
-            }
-        };
-
         struct colliderData
         {
             eventToken transformChangedToken;
             physx::PxRigidStatic* body;
             physx::PxGeometry* geometry;
+            physx::PxShape* shape;
         };
 
     private:
@@ -211,6 +188,8 @@ namespace phi
     private:
         static physx::PxTransform createPose(const boxCollider* collider, transform* transform);
         sweepCollisionResult sweepPenetration(sweepCollisionPairTest test);
+        void enableQueryFor(vector<boxCollider*>* colliders);
+        void disableQueryFor(vector<boxCollider*>* colliders);
 
     public:
         SCENES_API physicsWorld();

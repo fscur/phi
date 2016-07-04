@@ -53,6 +53,24 @@ namespace phi
             physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
     }
 
+    void physicsWorld::enableQueryFor(vector<boxCollider*>* colliders)
+    {
+        for (auto collider : (*colliders))
+        {
+            auto data = _colliders[collider];
+            data->shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+        }
+    }
+
+    void physicsWorld::disableQueryFor(vector<boxCollider*>* colliders)
+    {
+        for (auto collider : (*colliders))
+        {
+            auto data = _colliders[collider];
+            data->shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, false);
+        }
+    }
+
     void physicsWorld::addCollider(boxCollider* collider)
     {
         auto data = new colliderData();
@@ -61,7 +79,7 @@ namespace phi
         auto halfSizes = collider->getHalfSizes();
         data->geometry = new physx::PxBoxGeometry(halfSizes.x, halfSizes.y, halfSizes.z);
         auto material = _physics->createMaterial(0.0f, 0.0f, 0.0f);
-        data->body->createShape(*data->geometry, *material);
+        data->shape = data->body->createShape(*data->geometry, *material);
         data->body->userData = collider;
 
         data->transformChangedToken = collider->getNode()->getTransform()->getChangedEvent()->assign(
@@ -74,6 +92,7 @@ namespace phi
 
         _scene->addActor(*data->body);
         _colliders[collider] = data;
+        
     }
 
     void physicsWorld::removeCollider(boxCollider* collider)
@@ -93,17 +112,18 @@ namespace phi
         auto pose = createPose(test.collider, test.transform);
 
         auto toIgnoreColliders = test.getAllToIgnoreColliders();
+        disableQueryFor(test.toIgnoreColliders);
 
         auto hit = physx::PxOverlapBuffer();
-        auto filterCallback = physicsWorld::filterCallback(toIgnoreColliders);
         auto foundIntersection = false;
         if (_scene->overlap(
             *geometry,
             pose,
             hit,
-            physx::PxQueryFilterData(physx::PxQueryFlag::eANY_HIT | physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eSTATIC),
-            &filterCallback))
+            physx::PxQueryFilterData(physx::PxQueryFlag::eANY_HIT | physx::PxQueryFlag::eSTATIC)))
             foundIntersection = true;
+
+        enableQueryFor(test.toIgnoreColliders);
 
         safeDelete(toIgnoreColliders);
         return foundIntersection;
@@ -174,13 +194,14 @@ namespace phi
     {
         auto result = sweepCollisionResult();
 
-        auto toIgnoreColliders = test.getAllToIgnoreColliders();
         auto geometry = _colliders[test.collider]->geometry;
         auto pose = createPose(test.collider, test.transform);
 
+        auto toIgnoreColliders = test.getAllToIgnoreColliders();
+        disableQueryFor(test.toIgnoreColliders);
+
         physx::PxSweepHit hitBuffer[32];
         auto hit = physx::PxSweepBuffer(hitBuffer, 32);
-        auto filterCallback = physicsWorld::filterCallback(toIgnoreColliders);
         if (_scene->sweep(
             *geometry,
             pose,
@@ -188,8 +209,7 @@ namespace phi
             test.distance,
             hit,
             physx::PxHitFlag::eDEFAULT | physx::PxHitFlag::ePRECISE_SWEEP,
-            physx::PxQueryFilterData(physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eSTATIC),
-            &filterCallback))
+            physx::PxQueryFilterData(physx::PxQueryFlag::eSTATIC)))
         {
             auto touchesCount = hit.getNbTouches();
             for (size_t i = 0; i < touchesCount; i++)
@@ -222,6 +242,8 @@ namespace phi
                 result.collided = true;
             }
         }
+
+        enableQueryFor(test.toIgnoreColliders);
 
         safeDelete(toIgnoreColliders);
         return result;
