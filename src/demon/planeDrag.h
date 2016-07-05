@@ -25,6 +25,7 @@ namespace demon
         bool objectFitsInOffsetedPosition(phi::vec3 offset);
         phi::sweepCollisionResult* performCollisionSweep(phi::vector<phi::transform*>* transforms, phi::vec3 offset);
         phi::vector<phi::boxCollider*>* removeAndGetTouchingCollisions(phi::sweepCollisionResult* sweepResult, phi::vec3 offset);
+        phi::vector<phi::boxCollider*>* getSweepCollisionResultColliders(phi::sweepCollisionResult* sweepResult);
         phi::sweepCollision findFarthestValidCollision(phi::sweepCollisionResult* sweepResult, phi::vec3 offset);
         phi::vec3 getAdjustedOffset(phi::sweepCollision collision, phi::vec3 offset);
         void moveObject(phi::vec3 offset);
@@ -41,5 +42,6 @@ namespace demon
 
         void startDrag(phi::node* object, phi::plane plane);
         void updateDrag(phi::ray ray);
+        void endDrag();
     };
 }

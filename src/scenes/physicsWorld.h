@@ -14,29 +14,13 @@ namespace phi
         intersectionCollisionTest() :
             collider(nullptr),
             transform(nullptr),
-            shouldCollideWithItself(false),
-            toIgnoreColliders(nullptr)
+            group(0u)
         {
         }
 
         boxCollider* collider;
         transform* transform;
-        bool shouldCollideWithItself;
-        vector<boxCollider*>* toIgnoreColliders;
-
-        vector<boxCollider*>* getAllToIgnoreColliders()
-        {
-            vector<boxCollider*>* allToIgnoreColliders;
-            if (toIgnoreColliders)
-                allToIgnoreColliders = new vector<boxCollider*>(toIgnoreColliders->begin(), toIgnoreColliders->end());
-            else
-                allToIgnoreColliders = new vector<boxCollider*>();
-
-            if (!shouldCollideWithItself)
-                allToIgnoreColliders->push_back(collider);
-
-            return allToIgnoreColliders;
-        }
+        uint16_t group;
     };
 
     struct intersectionCollisionMultiTest
@@ -44,29 +28,29 @@ namespace phi
         intersectionCollisionMultiTest() :
             colliders(),
             transforms(),
-            shouldCollideWithItself(false),
-            toIgnoreColliders(nullptr)
+            group(0u)
         {
         }
 
         vector<boxCollider*>* colliders;
         vector<transform*>* transforms;
-        bool shouldCollideWithItself;
-        vector<boxCollider*>* toIgnoreColliders;
+        uint16_t group;
+    };
 
-        vector<boxCollider*>* getAllToIgnoreColliders()
+    struct intersectionCollisionGroupTest
+    {
+        intersectionCollisionGroupTest() :
+            colliders(),
+            transforms(),
+            againstColliders(),
+            group(0u)
         {
-            vector<boxCollider*>* allToIgnoreColliders;
-            if (toIgnoreColliders)
-                allToIgnoreColliders = new vector<boxCollider*>(toIgnoreColliders->begin(), toIgnoreColliders->end());
-            else
-                allToIgnoreColliders = new vector<boxCollider*>();
-
-            if (!shouldCollideWithItself)
-                allToIgnoreColliders->insert(allToIgnoreColliders->end(), colliders->begin(), colliders->end());
-
-            return allToIgnoreColliders;
         }
+
+        vector<boxCollider*>* colliders;
+        vector<transform*>* transforms;
+        vector<boxCollider*>* againstColliders;
+        uint16_t group;
     };
 
     struct sweepCollisionTest :
@@ -88,6 +72,22 @@ namespace phi
     {
         sweepCollisionMultiTest() :
             intersectionCollisionMultiTest(),
+            distance(0.0f),
+            direction(vec3()),
+            findOnlyClosestPerTarget(false)
+        {
+        }
+
+        float distance;
+        vec3 direction;
+        bool findOnlyClosestPerTarget;
+    };
+
+    struct sweepCollisionGroupTest :
+        public intersectionCollisionGroupTest
+    {
+        sweepCollisionGroupTest() :
+            intersectionCollisionGroupTest(),
             distance(0.0f),
             direction(vec3()),
             findOnlyClosestPerTarget(false)
@@ -188,8 +188,6 @@ namespace phi
     private:
         static physx::PxTransform createPose(const boxCollider* collider, transform* transform);
         sweepCollisionResult sweepPenetration(sweepCollisionPairTest test);
-        void enableQueryFor(vector<boxCollider*>* colliders);
-        void disableQueryFor(vector<boxCollider*>* colliders);
 
     public:
         SCENES_API physicsWorld();
@@ -198,10 +196,17 @@ namespace phi
         SCENES_API void addCollider(boxCollider* collider);
         SCENES_API void removeCollider(boxCollider* collider);
 
+        SCENES_API void enableQueryOn(vector<boxCollider*>* colliders);
+        SCENES_API void disableQueryOn(vector<boxCollider*>* colliders);
+
+        SCENES_API void setGroupOn(vector<boxCollider*>* colliders, uint16_t group);
+
         SCENES_API bool intersects(intersectionCollisionTest test);
         SCENES_API bool intersects(intersectionCollisionMultiTest test);
+        SCENES_API bool intersects(intersectionCollisionGroupTest test);
 
         SCENES_API sweepCollisionResult sweep(sweepCollisionTest test);
         SCENES_API sweepCollisionResult sweep(sweepCollisionMultiTest test);
+        SCENES_API sweepCollisionResult sweep(sweepCollisionGroupTest test);
     };
 }

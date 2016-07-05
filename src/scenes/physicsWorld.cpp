@@ -53,24 +53,6 @@ namespace phi
             physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
     }
 
-    void physicsWorld::enableQueryFor(vector<boxCollider*>* colliders)
-    {
-        for (auto collider : (*colliders))
-        {
-            auto data = _colliders[collider];
-            data->shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, true);
-        }
-    }
-
-    void physicsWorld::disableQueryFor(vector<boxCollider*>* colliders)
-    {
-        for (auto collider : (*colliders))
-        {
-            auto data = _colliders[collider];
-            data->shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, false);
-        }
-    }
-
     void physicsWorld::addCollider(boxCollider* collider)
     {
         auto data = new colliderData();
@@ -92,7 +74,13 @@ namespace phi
 
         _scene->addActor(*data->body);
         _colliders[collider] = data;
-        
+
+        //if (halfSizes.x > 2.0f)
+        //{
+        //    auto filterData = physx::PxFilterData();
+        //    filterData.word0 = 1u;
+        //    data->shape->setQueryFilterData(filterData);
+        //}
     }
 
     void physicsWorld::removeCollider(boxCollider* collider)
@@ -106,33 +94,57 @@ namespace phi
         _colliders.erase(collider);
     }
 
+    void physicsWorld::enableQueryOn(vector<boxCollider*>* colliders)
+    {
+        for (auto collider : (*colliders))
+        {
+            auto data = _colliders[collider];
+            data->shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+        }
+    }
+
+    void physicsWorld::disableQueryOn(vector<boxCollider*>* colliders)
+    {
+        for (auto collider : (*colliders))
+        {
+            auto data = _colliders[collider];
+            data->shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, false);
+        }
+    }
+
+    void physicsWorld::setGroupOn(vector<boxCollider*>* colliders, uint16_t group)
+    {
+        auto groupFilterData = physx::PxFilterData();
+        groupFilterData.word0 = group;
+
+        for (auto collider : (*colliders))
+        {
+            auto data = _colliders[collider];
+            data->shape->setQueryFilterData(groupFilterData);
+        }
+    }
+
     bool physicsWorld::intersects(intersectionCollisionTest test)
     {
         auto geometry = _colliders[test.collider]->geometry;
         auto pose = createPose(test.collider, test.transform);
 
-        auto toIgnoreColliders = test.getAllToIgnoreColliders();
-        disableQueryFor(test.toIgnoreColliders);
-
         auto hit = physx::PxOverlapBuffer();
         auto foundIntersection = false;
+        physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxQueryFlag::eANY_HIT | physx::PxQueryFlag::eSTATIC);
+        filterData.data.word0 = test.group;
         if (_scene->overlap(
             *geometry,
             pose,
             hit,
-            physx::PxQueryFilterData(physx::PxQueryFlag::eANY_HIT | physx::PxQueryFlag::eSTATIC)))
+            filterData))
             foundIntersection = true;
 
-        enableQueryFor(test.toIgnoreColliders);
-
-        safeDelete(toIgnoreColliders);
         return foundIntersection;
     }
 
     bool physicsWorld::intersects(intersectionCollisionMultiTest test)
     {
-        auto toIgnoreColliders = test.getAllToIgnoreColliders();
-
         auto foundIntersection = false;
         auto collidersCount = test.colliders->size();
         for (size_t i = 0; i < collidersCount && !foundIntersection; i++)
@@ -141,17 +153,33 @@ namespace phi
             auto transform = (*test.transforms)[i];
 
             intersectionCollisionTest singleTest;
-            singleTest.shouldCollideWithItself = true;
             singleTest.collider = collider;
             singleTest.transform = transform;
-            singleTest.toIgnoreColliders = toIgnoreColliders;
+            singleTest.group = test.group;
 
             if (intersects(singleTest))
                 foundIntersection = true;
         }
 
-        safeDelete(toIgnoreColliders);
         return foundIntersection;
+    }
+
+    bool physicsWorld::intersects(intersectionCollisionGroupTest test)
+    {
+        setGroupOn(test.colliders, 1u);
+        setGroupOn(test.againstColliders, 1u);
+
+        intersectionCollisionMultiTest multiTest;
+        multiTest.colliders = test.colliders;
+        multiTest.transforms = test.transforms;
+        multiTest.group = 1u;
+
+        auto result = intersects(multiTest);
+
+        setGroupOn(test.colliders, 0u);
+        setGroupOn(test.againstColliders, 0u);
+
+        return result;
     }
 
     sweepCollisionResult physicsWorld::sweepPenetration(sweepCollisionPairTest test)
@@ -197,9 +225,8 @@ namespace phi
         auto geometry = _colliders[test.collider]->geometry;
         auto pose = createPose(test.collider, test.transform);
 
-        auto toIgnoreColliders = test.getAllToIgnoreColliders();
-        disableQueryFor(test.toIgnoreColliders);
-
+        physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxQueryFlag::eSTATIC);
+        filterData.data.word0 = test.group;
         physx::PxSweepHit hitBuffer[32];
         auto hit = physx::PxSweepBuffer(hitBuffer, 32);
         if (_scene->sweep(
@@ -209,7 +236,7 @@ namespace phi
             test.distance,
             hit,
             physx::PxHitFlag::eDEFAULT | physx::PxHitFlag::ePRECISE_SWEEP,
-            physx::PxQueryFilterData(physx::PxQueryFlag::eSTATIC)))
+            filterData))
         {
             auto touchesCount = hit.getNbTouches();
             for (size_t i = 0; i < touchesCount; i++)
@@ -243,17 +270,12 @@ namespace phi
             }
         }
 
-        enableQueryFor(test.toIgnoreColliders);
-
-        safeDelete(toIgnoreColliders);
         return result;
     }
 
     sweepCollisionResult physicsWorld::sweep(sweepCollisionMultiTest test)
     {
         auto allResult = sweepCollisionResult();
-
-        auto toIgnoreColliders = test.getAllToIgnoreColliders();
 
         auto collidersCount = test.colliders->size();
         for (size_t i = 0; i < collidersCount; i++)
@@ -270,8 +292,7 @@ namespace phi
             singleTest.transform = transform;
             singleTest.direction = test.direction;
             singleTest.distance = test.distance;
-            singleTest.shouldCollideWithItself = true;
-            singleTest.toIgnoreColliders = toIgnoreColliders;
+            singleTest.group = test.group;
             auto result = sweep(singleTest);
 
             if (result.collided)
@@ -311,7 +332,26 @@ namespace phi
             return a.distance < b.distance;
         });
 
-        safeDelete(toIgnoreColliders);
         return allResult;
+    }
+
+    sweepCollisionResult physicsWorld::sweep(sweepCollisionGroupTest test)
+    {
+        setGroupOn(test.colliders, 1u);
+        setGroupOn(test.againstColliders, 1u);
+
+        sweepCollisionMultiTest multiTest;
+        multiTest.colliders = test.colliders;
+        multiTest.transforms = test.transforms;
+        multiTest.direction = test.direction;
+        multiTest.distance = test.distance;
+        multiTest.group = 1u;
+
+        auto result = sweep(multiTest);
+
+        setGroupOn(test.colliders, 0u);
+        setGroupOn(test.againstColliders, 0u);
+
+        return result;
     }
 }

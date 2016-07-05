@@ -78,24 +78,33 @@ namespace demon
         return touchingColliders;
     }
 
+    vector<boxCollider*>* planeDrag::getSweepCollisionResultColliders(sweepCollisionResult* sweepResult)
+    {
+        auto colliders = new vector<boxCollider*>();
+
+        for (auto collision : sweepResult->collisions)
+            colliders->push_back(collision.collider);
+
+        return colliders;
+    }
+
     sweepCollision planeDrag::findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset)
     {
         auto farthestValidCollision = *sweepResult->collisions.begin();
 
+        auto collisionColliders = getSweepCollisionResultColliders(sweepResult);
         auto offsetNormal = glm::normalize(offset);
         auto reverseIterator = sweepResult->collisions.rbegin();
         while (reverseIterator != sweepResult->collisions.rend())
         {
             auto currentCollision = *reverseIterator;
+            phi::removeIfContains(*collisionColliders, currentCollision.collider);
             auto offsetedTransforms = createOffsetTransforms(offsetNormal * currentCollision.distance);
-            sweepCollisionMultiTest sweepTest;
-            sweepTest.colliders = &_currentColliders;
-            sweepTest.transforms = offsetedTransforms;
-            //sweepTest.toIgnoreColliders = toIgnoreColliders;
-            sweepTest.direction = glm::normalize(offset);
-            sweepTest.distance = 0.0f;
-
-            if (!_physicsWorld->sweep(sweepTest).collided)
+            intersectionCollisionGroupTest intersectionTest;
+            intersectionTest.colliders = &_currentColliders;
+            intersectionTest.transforms = offsetedTransforms;
+            intersectionTest.againstColliders = collisionColliders;
+            if (!_physicsWorld->intersects(intersectionTest))
             {
                 farthestValidCollision = currentCollision;
                 reverseIterator = sweepResult->collisions.rend();
@@ -108,6 +117,7 @@ namespace demon
             safeDelete(offsetedTransforms);
         }
 
+        safeDelete(collisionColliders);
         return farthestValidCollision;
     }
 
@@ -183,6 +193,10 @@ namespace demon
 
         _currentInitialPlanePosition = plane.getOrigin();
         _currentInitialObjectPosition = _currentObject->getTransform()->getLocalPosition();
+
+        _physicsWorld->disableQueryOn(&_currentColliders);
+
+        moveObject(vec3(3.0f, 0.0f, 0.0f));
     }
 
     void planeDrag::updateDrag(ray ray)
@@ -198,5 +212,10 @@ namespace demon
         auto finalPosition = _currentInitialObjectPosition + offsetOnPlane;
 
         moveObject(finalPosition - _currentObject->getTransform()->getLocalPosition());
+    }
+
+    void planeDrag::endDrag()
+    {
+        _physicsWorld->enableQueryOn(&_currentColliders);
     }
 }

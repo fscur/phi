@@ -220,6 +220,7 @@ namespace demon
         {
             _planeGridPass->hide();
             _dragging = false;
+            _planeDrag.endDrag();
         }
     }
 
