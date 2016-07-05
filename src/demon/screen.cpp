@@ -167,9 +167,17 @@ namespace demon
             })
             .build();
 
-        auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair0->getTransform()->setLocalPosition(vec3(0.f, .1f, .0f));
+        chair0->getTransform()->setLocalPosition(vec3(0.f, .1f, -2.0f));
+
+        auto chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair1->getTransform()->setLocalPosition(vec3(2.f, .1f, .0f));
+
+        auto chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair2->getTransform()->setLocalPosition(vec3(0.f, .1f, 2.f));
+
+        auto cube = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
         auto sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
@@ -177,7 +185,6 @@ namespace demon
 
         _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withMeshRenderer()
-            .withTextRenderer()
             .build();
 
         auto constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -223,9 +230,12 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
+        _sceneLayer->add(cube);
         _sceneLayer->add(floor);
         _sceneLayer->add(chair0);
-        _sceneLayer->add(_sceneLabel);
+        _sceneLayer->add(chair1);
+        _sceneLayer->add(chair2);
+        //_sceneLayer->add(_sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
         _constructionLayer->add(_constructionLabel);

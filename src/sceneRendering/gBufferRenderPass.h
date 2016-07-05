@@ -4,9 +4,9 @@
 #include <core\resolution.h>
 
 #include <rendering\renderPass.h>
-
-#include "meshRendererDescriptor.h"
 #include <rendering\framebufferAllocator.h>
+
+#include "meshRenderAdapter.h"
 
 namespace phi
 {
@@ -15,7 +15,7 @@ namespace phi
     public:
         gBufferRenderPass() = delete;
         static renderPass* configure(
-            meshRendererDescriptor* rendererDescriptor,
+            meshRenderAdapter* meshAdapter,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);

@@ -18,7 +18,8 @@ namespace phi
     class controlRenderAdapter
     {
     private:
-        size_t _maxInstances;
+        const size_t MAX_CONTROL_INSTANCES = 1000;
+
         vertexArrayObject* _vao;
         mappedVertexBuffer<control*, mat4>* _modelMatricesBuffer;
         mappedBuffer<control*, controlRenderData>* _renderDataBuffer;

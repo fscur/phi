@@ -1,19 +1,19 @@
 #include <precompiled.h>
-#include <core\node.h>
-#include <core\notImplementedException.h>
-#include <rendering\texturesManager.h>
+#include "meshRenderAdapter.h"
 
-#include "meshRendererDescriptor.h"
+#include <core\node.h>
+
+#include <rendering\texturesManager.h>
 
 namespace phi
 {
-    meshRendererDescriptor::meshRendererDescriptor() :
+    meshRenderAdapter::meshRenderAdapter() :
         onBatchAdded(new eventHandler<batch*>())
     {
         createBuffers();
     }
 
-    meshRendererDescriptor::~meshRendererDescriptor()
+    meshRenderAdapter::~meshRenderAdapter()
     {
         safeDelete(_materialRenderDataBuffer);
 
@@ -21,7 +21,7 @@ namespace phi
             safeDelete(batch);
     }
 
-    void meshRendererDescriptor::createBuffers()
+    void meshRenderAdapter::createBuffers()
     {
         _materialRenderDataBuffer = new buffer("MaterialRenderDataBuffer", bufferTarget::shader);
 
@@ -31,7 +31,7 @@ namespace phi
             bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
-    void meshRendererDescriptor::uploadMaterialIfNew(material* material)
+    void meshRenderAdapter::uploadMaterialIfNew(material* material)
     {
         static uint currentId = 0;
 
@@ -69,55 +69,70 @@ namespace phi
         _materialRenderDataBuffer->subData(offset, sizeof(phi::materialRenderData), &materialGpuData);
     }
 
-    void meshRendererDescriptor::add(mesh * mesh)
+    void meshRenderAdapter::addToBatch(meshInstance* instance, batch* batch)
+    {
+        batch->add(instance);
+        _meshesBatches[instance->mesh] = batch;
+    }
+
+    void meshRenderAdapter::addNewBatch(meshInstance* instance)
+    {
+        auto batch = new phi::batch();
+        addToBatch(instance, batch);
+
+        _batches.push_back(batch);
+        onBatchAdded->raise(batch); //TODO: AAAAAAAAAAAAAAAAAAAAAA SALVE OS TOKEN SEU BOSTA
+    }
+
+    void meshRenderAdapter::addToBatch(meshInstance* instance)
+    {
+        for (auto& batch : _batches)
+        {
+            if (batch->canAdd(instance))
+            {
+                addToBatch(instance, batch);
+                return;
+            }
+        }
+
+        addNewBatch(instance);
+    }
+
+    meshInstance* meshRenderAdapter::createMeshInstance(mesh* mesh)
+    {
+        auto materialId = _materialsIndices[mesh->getMaterial()];
+        auto instance = new meshInstance(mesh, materialId, mesh->getModelMatrix());
+        _meshesInstances[mesh] = instance;
+
+        return instance;
+    }
+
+    void meshRenderAdapter::add(mesh* mesh)
     {
         uploadMaterialIfNew(mesh->getMaterial());
 
-        renderInstance instance;
-        instance.mesh = mesh;
-        instance.modelMatrix = mesh->getNode()->getTransform()->getModelMatrix();
-        instance.materialId = _materialsIndices[instance.mesh->getMaterial()];
-
-        auto i = 0u;
-        auto added = false;
-        auto batchesCount = _batches.size();
-
-        batch* batch = nullptr;
-
-        while (!added && i < batchesCount)
-        {
-            batch = _batches[i++];
-            added = batch->add(instance);
-        }
-
-        if (!added)
-        {
-            batch = new phi::batch();
-            _batches.push_back(batch);
-            batch->add(instance);
-
-            onBatchAdded->raise(batch); //TODO: AAAAAAAAAAAAAAAAAAAAAA SALVE OS TOKEN SEU BOSTA
-        }
-
-        _meshesBatches[instance.mesh] = batch;
+        auto instance = createMeshInstance(mesh);
+        addToBatch(instance);
     }
 
-    void meshRendererDescriptor::remove(mesh * mesh)
+    void meshRenderAdapter::remove(mesh* mesh)
     {
-        throw notImplementedException();
+        auto instance = _meshesInstances[mesh];
+        _meshesBatches[mesh]->remove(instance);
     }
 
-    void meshRendererDescriptor::update(mesh * mesh)
+    void meshRenderAdapter::update(mesh* mesh)
     {
-        throw notImplementedException();
+        auto instance = _meshesInstances[mesh];
+        _meshesBatches[mesh]->update(instance);
     }
 
-    void meshRendererDescriptor::updateSelection(mesh* mesh, bool isSelected)
+    void meshRenderAdapter::updateSelection(mesh* mesh, bool isSelected)
     {
         _meshesBatches[mesh]->updateSelectionBuffer(mesh, isSelected);
     }
 
-    void meshRendererDescriptor::updateTransform(mesh* mesh, const mat4& modelMatrix)
+    void meshRenderAdapter::updateTransform(mesh* mesh, const mat4& modelMatrix)
     {
         _meshesBatches[mesh]->updateTransformBuffer(mesh, modelMatrix);
     }

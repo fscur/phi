@@ -5,39 +5,21 @@
 #include <core\mesh.h>
 #include <core\geometry.h>
 
-#include <rendering\vertexBuffer.h>
 #include <rendering\buffer.h>
+#include <rendering\vertexBuffer.h>
+#include <rendering\mappedBuffer.h>
+#include <rendering\mappedVertexBuffer.h>
 #include <rendering\drawElementsIndirectCmd.h>
 #include <rendering\vertexArrayObject.h>
 
-#include "renderInstance.h"
+#include "meshInstance.h"
 
 namespace phi
 {
     class batch
     {
     private:
-        struct drawInstanceData
-        {
-            GLintptr offset;
-            mat4 modelMatrix;
-            GLuint materialId;
-            bool isSelected;
-
-            drawInstanceData(
-                GLintptr offset = 0,
-                mat4 modelMatrix = mat4(),
-                GLuint materialId = 0) :
-                offset(offset),
-                modelMatrix(modelMatrix),
-                materialId(materialId),
-                isSelected(false)
-            {
-            }
-        };
-
-    private:
-        const uint MAX_VBO_SIZE = 1 * 1024 * 1024;
+        const size_t MAX_VBO_SIZE = 1 * 1024 * 1024;
         size_t _freeSpace;
         GLint _vboOffset;
         GLint _eboOffset;
@@ -45,42 +27,36 @@ namespace phi
         GLint _verticesOffset;
         GLuint _drawCount;
         GLuint _objectsCount;
+        bool _empty;
 
         vector<geometry*> _geometries;
-        map<geometry*, vector<drawInstanceData*>> _instances;
-        map<mesh*, drawInstanceData*> _meshInstances;
-        map<drawInstanceData*, mesh*> _instancesMesh;
-
-        vertexBuffer* _materialsIdsBuffer;
-        vertexBuffer* _modelMatricesBuffer;
-        vertexBuffer* _selectionBuffer;
+        map<geometry*, vector<const meshInstance*>> _instances;
 
         vertexArrayObject* _vao;
         vertexBuffer* _vbo;
         buffer* _ebo;
         buffer* _drawCmdBuffer;
+
+        vertexBuffer* _materialsIdsBuffer;
+        vertexBuffer* _modelMatricesBuffer;
+        vertexBuffer* _selectionBuffer;
+
     private:
-        void createVao();
+        void createVao(size_t vboSize);
+        void createBuffers(size_t vboSize);
         void initializeVao();
-        void createVao(const renderInstance& instance);
-        void createVbo(const vertex* const data, GLsizeiptr size);
-        void createEbo(const uint* const data, GLsizeiptr size);
-
-        void createDrawCmdsBuffer(const drawElementsIndirectCmd* const data, GLsizeiptr size);
-        void createMaterialsIdsBuffer(const uint* const data, GLsizeiptr size);
-        void createModelMatricesBuffer(const mat4* const data, GLsizeiptr size);
-        void createSelectionColorBuffer(const vec4* const data, GLsizeiptr size);
-
-        void addNewGeometry(const renderInstance& instance);
-        void addNewInstance(const renderInstance& instance);
-
+        void initialize(const meshInstance* instance);
+        void addGeometry(geometry* geometry);
+        void addInstance(const meshInstance* instance);
         void updateAllData();
+
     public:
         SCENE_RENDERING_API batch();
         SCENE_RENDERING_API ~batch();
-        SCENE_RENDERING_API bool add(const renderInstance& instance);
-        SCENE_RENDERING_API void remove(mesh* mesh);
-        SCENE_RENDERING_API void update(const renderInstance& instance);
+        SCENE_RENDERING_API bool canAdd(const meshInstance* instance);
+        SCENE_RENDERING_API void add(const meshInstance* instance);
+        SCENE_RENDERING_API void remove(const meshInstance* instance);
+        SCENE_RENDERING_API void update(const meshInstance* instance);
         SCENE_RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
         SCENE_RENDERING_API void updateTransformBuffer(mesh* mesh, const mat4& modelMatrix);
 

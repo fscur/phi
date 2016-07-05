@@ -1,13 +1,12 @@
 #include <precompiled.h>
 #include "application.h"
-#include <core\time.h>
-#include <io\path.h>
-
-#include <core\time.h>
-
-#include <rendering\gl.h>
 
 #include <core\invalidInitializationException.h>
+#include <core\time.h>
+
+#include <io\path.h>
+
+#include <rendering\gl.h>
 
 namespace phi
 {

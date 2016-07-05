@@ -10,14 +10,14 @@
 #include <rendering\framebufferAllocator.h>
 
 #include <sceneRendering\meshRenderer.h>
-#include <sceneRendering\meshRendererDescriptor.h>
+#include <sceneRendering\meshRenderAdapter.h>
 
 namespace phi
 {
     class meshLayerBehaviour
     {
     private:
-        meshRendererDescriptor* _descriptor;
+        meshRenderAdapter* _adapter;
         vector<renderPass*> _renderPasses;
 
         vector<node*> _selectedObjects;

@@ -2,8 +2,10 @@
 #include <phi.h>
 #include "coreApi.h"
 
+#include <core\node.h>
 #include <core\geometry.h>
 #include <core\component.h>
+
 #include "material.h"
 
 namespace phi
@@ -24,6 +26,7 @@ namespace phi
 
         material* getMaterial() const { return _material; }
         geometry* getGeometry() const { return _geometry; }
+        mat4 getModelMatrix() const { return getNode()->getTransform()->getModelMatrix(); }
 
         static componentType getComponentType() { return componentType::MESH; }
     };

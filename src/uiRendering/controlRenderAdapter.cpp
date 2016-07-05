@@ -8,8 +8,7 @@
 
 namespace phi
 {
-    controlRenderAdapter::controlRenderAdapter() :
-        _maxInstances(1000)
+    controlRenderAdapter::controlRenderAdapter()
     {
         createBuffers();
     }
@@ -26,8 +25,8 @@ namespace phi
         for (uint i = 0; i < 4; ++i)
             modelMatricesAttribs.push_back(vertexBufferAttribute(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new mappedVertexBuffer<control*, mat4>("modelMatrices", modelMatricesAttribs, _maxInstances);
-        _renderDataBuffer = new mappedBuffer<control*, controlRenderData>("ControlRenderDataBuffer", bufferTarget::shader, _maxInstances);
+        _modelMatricesBuffer = new mappedVertexBuffer<control*, mat4>("modelMatrices", modelMatricesAttribs, MAX_CONTROL_INSTANCES);
+        _renderDataBuffer = new mappedBuffer<control*, controlRenderData>("ControlRenderDataBuffer", bufferTarget::shader, MAX_CONTROL_INSTANCES);
 
         auto vertices = vector<vertex>
         {

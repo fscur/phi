@@ -11,16 +11,16 @@ namespace phi
         const resolution & resolution, 
         const string & resourcesPath, 
         framebufferAllocator* framebufferAllocator) :
-        _descriptor(new meshRendererDescriptor()),
+        _adapter(new meshRenderAdapter()),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        _renderPasses = meshRenderer::configure(resolution, resourcesPath, _descriptor, framebufferAllocator);
+        _renderPasses = meshRenderer::configure(resolution, resourcesPath, _adapter, framebufferAllocator);
     }
 
     meshLayerBehaviour::~meshLayerBehaviour()
     {
-        safeDelete(_descriptor);
+        safeDelete(_adapter);
     }
 
     void meshLayerBehaviour::onNodeAdded(node* node)
@@ -28,7 +28,7 @@ namespace phi
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            _descriptor->add(mesh);
+            _adapter->add(mesh);
         }
     }
 
@@ -37,7 +37,7 @@ namespace phi
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            _descriptor->remove(mesh);
+            _adapter->remove(mesh);
         }
     }
 
@@ -47,7 +47,7 @@ namespace phi
         if (mesh)
         {
             auto modelMatrix = node->getTransform()->getModelMatrix();
-            _descriptor->updateTransform(mesh, modelMatrix);
+            _adapter->updateTransform(mesh, modelMatrix);
         }
     }
 
@@ -57,7 +57,7 @@ namespace phi
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
-            _descriptor->updateSelection(mesh, isSelected);
+            _adapter->updateSelection(mesh, isSelected);
         }
 
         if (isSelected)

@@ -4,13 +4,12 @@
 #include <rendering\textureUnits.h>
 #include <rendering\texturesManager.h>
 #include <rendering\programBuilder.h>
-
 #include <rendering\framebufferLayoutBuilder.h>
 
 namespace phi
 {
     renderPass* gBufferRenderPass::configure(
-        meshRendererDescriptor* rendererDescriptor,
+        meshRenderAdapter* meshAdapter,
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
@@ -27,7 +26,7 @@ namespace phi
         auto gBufferFramebuffer = framebufferAllocator->newFramebuffer(gBufferFramebufferLayout, resolution);
 
         auto program = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
-        program->addBuffer(rendererDescriptor->_materialRenderDataBuffer);
+        program->addBuffer(meshAdapter->getMaterialRenderDataBuffer());
 
         auto pass = new renderPass(program, gBufferFramebuffer, resolution);
         auto renderTargets = gBufferFramebuffer->getRenderTargets();
@@ -35,7 +34,7 @@ namespace phi
         for (auto renderTarget : renderTargets)
             pass->addOut(renderTarget);
 
-        rendererDescriptor->onBatchAdded->assign([=](batch* batch)
+        meshAdapter->onBatchAdded->assign([=](batch* batch)
         {
             pass->addVao(batch->getVao());
         });

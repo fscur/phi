@@ -63,7 +63,7 @@
   <Type Name="phi::component" Inheritable="true">
     <DisplayString Condition="_name._Mypair._Myval2._Mysize > 0">({_type,en}) {_name,sb}</DisplayString>
     <DisplayString Condition="_name._Mypair._Myval2._Mysize == 0">({_type,en}) Ow Nando! Pq um componente tem nome mesmo???</DisplayString>
-    <DisplayString >{type, en} {_name}</DisplayString>
+    <!--<DisplayString >{type, en} {_name}</DisplayString>-->
     <Expand HideRawView="true" />
   </Type>
 

@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "meshRenderer.h"
+
 #include <io\path.h>
 
 #include "gBufferRenderPass.h"
@@ -11,11 +12,11 @@ namespace phi
     vector<renderPass*> meshRenderer::configure(
         const resolution& resolution,
         const string& resourcesPath, 
-        meshRendererDescriptor* rendererDescriptor,
+        meshRenderAdapter* meshAdapter,
         framebufferAllocator* framebufferAllocator)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto gBufferRenderPass = gBufferRenderPass::configure(rendererDescriptor, resolution, shadersPath, framebufferAllocator);
+        auto gBufferRenderPass = gBufferRenderPass::configure(meshAdapter, resolution, shadersPath, framebufferAllocator);
         auto lightingRenderPass = lightingRenderPass::configure(gBufferRenderPass, resolution, shadersPath, framebufferAllocator);
         auto selectionRenderPass = selectionRenderPass::configure(lightingRenderPass, resolution, shadersPath, framebufferAllocator);
 

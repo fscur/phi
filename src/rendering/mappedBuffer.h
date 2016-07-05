@@ -1,9 +1,12 @@
 #pragma once
-
-#include <GL\glew.h>
 #include <phi.h>
 #include "renderingApi.h"
+
+#include <core\exception.h>
+
 #include "buffer.h"
+
+#include <GL\glew.h>
 
 namespace phi
 {
