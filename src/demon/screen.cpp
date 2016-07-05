@@ -127,28 +127,28 @@ namespace demon
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
         auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
-        _labelNandinho = labelBuilder::newLabel(L"nanddiiiiiiiinho layer says hello!1")
+        _labelNandinho = labelBuilder::newLabel(L"ab")
             .withPosition(vec3(-100.f, 50.f, 0.f))
             .withControlColor(1.0f, 0.0f, 0.0f, 1.0f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
-        _labelFps = labelBuilder::newLabel(L"press ctrl + space to change context bro \\m/")
+        _labelFps = labelBuilder::newLabel(L"abc")
             .withPosition(vec3(-200.f, 100.f, 0.f))
             .withControlColor(1.0f, 0.0f, 1.0f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(fontFps)
             .build();
 
-        _constructionLabel = labelBuilder::newLabel(L"construction layer says hello!1")
+        _constructionLabel = labelBuilder::newLabel(L"abcd")
             .withPosition(vec3(200.f, 50.f, 0.f))
             .withControlColor(0.0f, 1.0f, 0.5f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
-        _sceneLabel = labelBuilder::newLabel(L"ollllaarrrrrr")
+        _sceneLabel = labelBuilder::newLabel(L"abcde")
             .withPosition(vec3(100.f, 100.f, 0.f))
             .withControlColor(1.0f, 0.0f, 0.5f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
@@ -202,7 +202,7 @@ namespace demon
 
         _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withGlassyControlRenderer()
-            //.withTextRenderer()
+            .withTextRenderer()
             .build();
 
         //TODO: onDemandUI
@@ -331,6 +331,7 @@ namespace demon
 
         if (a)
         {
+            _constructionLabel->getComponent<phi::text>()->setText(L"edftg");
             _nandinhoLayer->add(_labelFps);
             _nandinhoLayer->add(_sceneLabel);
         }
