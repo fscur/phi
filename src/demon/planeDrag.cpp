@@ -195,8 +195,6 @@ namespace demon
         _currentInitialObjectPosition = _currentObject->getTransform()->getLocalPosition();
 
         _physicsWorld->disableQueryOn(&_currentColliders);
-
-        moveObject(vec3(3.0f, 0.0f, 0.0f));
     }
 
     void planeDrag::updateDrag(ray ray)
