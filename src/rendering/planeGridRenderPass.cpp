@@ -4,7 +4,7 @@
 
 namespace phi
 {
-    planeGridRenderPass::planeGridRenderPass(phi::gl* gl) :
+    planeGridRenderPass::planeGridRenderPass(gl* gl) :
         _gl(gl),
         _quad(nullptr),
         _quadVao(0u),
@@ -15,7 +15,11 @@ namespace phi
         _radiusFadeIn(0.0f),
         _radiusFadeOut(0.0f),
         _showing(false),
-        _plane(finitePlane(vec3(), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)))
+        _plane(finitePlane(vec3(), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f))),
+        _doingAnimation(false),
+        _animationTime(0.0),
+        _animationInitialPosition(vec2()),
+        _animationDelta(vec2())
     {
         createQuad();
 
@@ -115,11 +119,25 @@ namespace phi
     void planeGridRenderPass::setFocusPosition(vec2 focusPosition)
     {
         _focusPosition = focusPosition;
+        _doingAnimation = false;
+    }
+
+    void planeGridRenderPass::animateFocusPosition(vec2 targetFocusPosition)
+    {
+        _animationInitialPosition = _focusPosition;
+        _animationDelta = targetFocusPosition - _focusPosition;
+        _doingAnimation = true;
+        _animationTime = 0.0f;
     }
 
     void planeGridRenderPass::projectAndSetFocusPosition(vec3 toProjectFocusPosition)
     {
-        _focusPosition = projectPoint(toProjectFocusPosition);
+        setFocusPosition(projectPoint(toProjectFocusPosition));
+    }
+
+    void planeGridRenderPass::projectAndAnimateFocusPosition(vec3 toProjectTargetFocusPosition)
+    {
+        animateFocusPosition(projectPoint(toProjectTargetFocusPosition));
     }
 
     vec2 planeGridRenderPass::projectPoint(vec3 position)
@@ -140,13 +158,10 @@ namespace phi
         _showing = false;
     }
 
-    void planeGridRenderPass::update()
+    void planeGridRenderPass::updateShaderUniforms()
     {
-        auto deltaRadius = static_cast<float>(phi::time::deltaSeconds * RADIUS_DELTA_PER_SECOND);
-        _radiusFadeOut += deltaRadius;
-        _radiusFadeIn = !_showing * (_radiusFadeIn + deltaRadius);
-
         _shader->bind();
+
         _shader->setUniform(0, _transform.getModelMatrix());
         _shader->setUniform(1, PLANE_SIZE);
         _shader->setUniform(2, _radiusFadeIn);
@@ -162,6 +177,30 @@ namespace phi
             _shader->setUniform(8, _gl->texturesManager->units);
 
         _shader->unbind();
+    }
+
+    void planeGridRenderPass::updateAnimation()
+    {
+        if (!_doingAnimation)
+            return;
+
+        auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
+        _animationTime += deltaMilliseconds;
+        auto percent = -glm::exp(_animationTime / -100.0f) + 1.0f;
+        auto delta = _animationDelta * static_cast<float>(percent);
+        _focusPosition = _animationInitialPosition + delta;
+
+        _doingAnimation = percent < 1.0f;
+    }
+
+    void planeGridRenderPass::update()
+    {
+        auto deltaRadius = static_cast<float>(phi::time::deltaSeconds * RADIUS_DELTA_PER_SECOND);
+        _radiusFadeOut += deltaRadius;
+        _radiusFadeIn = !_showing * (_radiusFadeIn + deltaRadius);
+
+        updateShaderUniforms();
+        updateAnimation();
     }
 
     void planeGridRenderPass::render()

@@ -6,13 +6,9 @@
 #include <core\mesh.h>
 #include <core\ray.h>
 #include <core\multiCommand.h>
-
 #include <rendering\camera.h>
-#include <loader\importer.h>
-
 #include <scenes\selectSceneObjectCommand.h>
-
-#include <apps\application.h>
+#include <demon\obbMouseDrag.h>
 
 using namespace phi;
 
@@ -54,24 +50,14 @@ namespace demon
         _panTargetCameraPos(phi::vec3()),
         _panLastMouseMoveTime(0.0),
         _panInertiaTime(0.0),
-        _dragging(false),
-        _planeDrag(_scene),
-        _dragCollider(nullptr),
-        _dragPlaneGridDoingInertia(false),
-        _dragPlaneGridInertiaTime(0.0),
-        _dragPlaneGridInitialPosition(phi::vec2()),
-        _dragPlaneGridDelta(phi::vec2())
+        _mouseDrag(new obbMouseDrag(_scene))
     {
-        auto texturePath = phi::application::resourcesPath + "\\images\\grid.png";
-        _gridImage = phi::importer::importImage(texturePath);
-        _planeGridPass = _scene->getRenderer()->getPlaneGridRenderPass();
-        _planeGridPass->setImage(_gridImage);
     }
 
     defaultCameraController::~defaultCameraController()
     {
         zoomCancel();
-        phi::safeDelete(_gridImage);
+        safeDelete(_mouseDrag);
     }
 
     void defaultCameraController::onKeyDown(keyboardEventArgs * e)
@@ -105,7 +91,7 @@ namespace demon
                     new unselectSceneObjectCommand(selectedObjects));
             }
 
-            dragMouseDown(e->x, e->y);
+            _mouseDrag->startDrag(e->x, e->y);
         }
 
         if (e->middleButtonPressed && !_rotating)
@@ -122,18 +108,18 @@ namespace demon
         _mousePosX = e->x;
         _mousePosY = e->y;
 
-        if (_dragging)
-            dragMouseMove();
         if (_panning)
             panMouseMove();
         if (_rotating)
             rotationMouseMove();
+        else
+            _mouseDrag->drag(_mousePosX, _mousePosY);
     }
 
     void defaultCameraController::onMouseUp(phi::mouseEventArgs* e)
     {
         if (e->leftButtonPressed)
-            dragMouseUp();
+            _mouseDrag->endDrag();
 
         if (e->middleButtonPressed)
             panMouseUp();
@@ -150,92 +136,12 @@ namespace demon
 
     void defaultCameraController::update()
     {
-        dragUpdate();
         zoomUpdate();
         rotationUpdate();
         panUpdate();
 
         _lastMousePosX = _mousePosX;
         _lastMousePosY = _mousePosY;
-    }
-
-    void defaultCameraController::dragMouseDown(int mouseX, int mouseY)
-    {
-        auto pickMesh = _scene->pick(mouseX, mouseY);
-        if (!pickMesh)
-            return;
-
-        auto node = pickMesh->getNode();
-        auto collider = node->getComponent<boxCollider>();
-        auto obb = collider->getObb();
-
-        vec3* positions;
-        vec3* normals;
-        size_t count;
-        auto ray = _camera->screenPointToRay(static_cast<float>(mouseX), static_cast<float>(mouseY));
-        if (ray.intersects(obb, positions, normals, count))
-        {
-            _dragCollider = collider;
-            auto dragObject = node;
-            while (dragObject->getParent()->getParent() != nullptr)
-                dragObject = dragObject->getParent();
-
-            auto normal = normals[0];
-            auto rayCastOnPlanePosition = positions[0];
-
-            phi::safeDeleteArray(normals);
-            phi::safeDeleteArray(positions);
-
-            auto dragPlane = plane(rayCastOnPlanePosition, normal);
-
-            auto planePosition = obb.getPositionAt(-normal);
-            planePosition = glm::normalize(planePosition) * (glm::length(planePosition) + DECIMAL_TRUNCATION);
-
-            _planeGridPass->setPositionAndOrientation(planePosition, normal);
-            _planeGridPass->projectAndSetFocusPosition(planePosition);
-            _planeGridPass->show();
-
-            _dragPlaneGridDelta = vec2();
-            _dragPlaneGridDoingInertia = false;
-            _dragging = true;
-
-            _planeDrag.startDrag(dragObject, dragPlane);
-        }
-    }
-
-    void defaultCameraController::dragMouseMove()
-    {
-        auto ray = _camera->screenPointToRay(static_cast<float>(_mousePosX), static_cast<float>(_mousePosY));
-        _planeDrag.updateDrag(ray);
-
-        _dragPlaneGridInitialPosition = _planeGridPass->getFocusPosition();
-        _dragPlaneGridDelta = _planeGridPass->projectPoint(_dragCollider->getObb().center) - _dragPlaneGridInitialPosition;
-        _dragPlaneGridDoingInertia = true;
-        _dragPlaneGridInertiaTime = 0.0f;
-    }
-
-    void defaultCameraController::dragMouseUp()
-    {
-        if (_dragging)
-        {
-            _planeGridPass->hide();
-            _dragging = false;
-            _planeDrag.endDrag();
-        }
-    }
-
-    void defaultCameraController::dragUpdate()
-    {
-        if (!_dragPlaneGridDoingInertia)
-            return;
-
-        auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
-        _dragPlaneGridInertiaTime += deltaMilliseconds;
-        auto percent = -glm::exp(_dragPlaneGridInertiaTime / -100.0f) + 1.0f;
-        auto delta = _dragPlaneGridDelta * static_cast<float>(percent);
-        _planeGridPass->setFocusPosition(_dragPlaneGridInitialPosition + delta);
-
-        _dragPlaneGridDoingInertia = percent < 1.0f;
     }
 
     void defaultCameraController::zoomMouseWheel(int mouseX, int mouseY, float delta)

@@ -20,7 +20,7 @@ namespace phi
         const float MAX_RADIUS = 10.0f;
         const float RADIUS_WAVE_OFFSET = 5.0f;
 
-        phi::gl* _gl;
+        gl* _gl;
         geometry* _quad;
         uint _quadVao;
         vertexBuffer* _quadVbo;
@@ -34,17 +34,20 @@ namespace phi
         transform _transform;
         vec2 _focusPosition;
         finitePlane _plane;
+        bool _doingAnimation;
+        double _animationTime;
+        vec2 _animationInitialPosition;
+        vec2 _animationDelta;
 
     private:
         void createQuad();
         void renderQuad();
+        void updateShaderUniforms();
+        void updateAnimation();
 
     public:
         RENDERING_API void show();
         RENDERING_API void hide();
-
-    public:
-        shader* shader;
 
     public:
         RENDERING_API planeGridRenderPass(gl* gl);
@@ -54,7 +57,9 @@ namespace phi
         RENDERING_API void setImage(image* image);
         RENDERING_API void setPositionAndOrientation(vec3 position, vec3 direction);
         RENDERING_API void setFocusPosition(vec2 focusPosition);
+        RENDERING_API void animateFocusPosition(vec2 targetFocusPosition);
         RENDERING_API void projectAndSetFocusPosition(vec3 toProjectFocusPosition);
+        RENDERING_API void projectAndAnimateFocusPosition(vec3 toProjectTargetFocusPosition);
         RENDERING_API vec2 projectPoint(vec3 position);
 
         RENDERING_API void update();

@@ -1,19 +1,19 @@
 #include <precompiled.h>
 
-#include "planeDrag.h"
+#include "mouseDrag.h"
 
 using namespace phi;
 
 namespace demon
 {
-    vector<transform*>* planeDrag::createOffsetTransforms(vec3 offset)
+    vector<transform*>* mouseDrag::createOffsetTransforms(vec3 offset)
     {
-        auto transformsCount = _currentTransforms.size();
+        auto transformsCount = _transforms.size();
         auto offsetedTransforms = new vector<transform*>(transformsCount);
 
         for (size_t i = 0; i < transformsCount; ++i)
         {
-            auto transform = _currentTransforms.at(i);
+            auto transform = _transforms.at(i);
             auto position = transform->getPosition() + offset;
             auto rotation = transform->getOrientation();
             auto size = transform->getSize();
@@ -27,11 +27,11 @@ namespace demon
         return offsetedTransforms;
     }
 
-    bool planeDrag::objectFitsInOffsetedPosition(vec3 offset)
+    bool mouseDrag::objectFitsInOffsetedPosition(vec3 offset)
     {
         auto offsetedTransforms = createOffsetTransforms(offset);
         intersectionCollisionMultiTest intersectionTest;
-        intersectionTest.colliders = &_currentColliders;
+        intersectionTest.colliders = &_colliders;
         intersectionTest.transforms = offsetedTransforms;
 
         auto intersectionResult = _physicsWorld->intersects(intersectionTest);
@@ -43,10 +43,10 @@ namespace demon
         return intersectionResult;
     }
 
-    sweepCollisionResult* planeDrag::performCollisionSweep(std::vector<transform*>* transforms, vec3 offset)
+    sweepCollisionResult* mouseDrag::performCollisionSweep(std::vector<transform*>* transforms, vec3 offset)
     {
         sweepCollisionMultiTest sweepTest;
-        sweepTest.colliders = &_currentColliders;
+        sweepTest.colliders = &_colliders;
         sweepTest.transforms = transforms;
         sweepTest.direction = glm::normalize(offset);
         sweepTest.distance = glm::length(offset);
@@ -55,7 +55,7 @@ namespace demon
         return new sweepCollisionResult(_physicsWorld->sweep(sweepTest));
     }
 
-    vector<boxCollider*>* planeDrag::getSweepCollisionResultColliders(sweepCollisionResult* sweepResult)
+    vector<boxCollider*>* mouseDrag::getSweepCollisionResultColliders(sweepCollisionResult* sweepResult)
     {
         auto colliders = new vector<boxCollider*>();
 
@@ -65,7 +65,7 @@ namespace demon
         return colliders;
     }
 
-    sweepCollision planeDrag::findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset)
+    sweepCollision mouseDrag::findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset)
     {
         auto farthestValidCollision = *sweepResult->collisions.begin();
 
@@ -78,7 +78,7 @@ namespace demon
             phi::removeIfContains(*collisionColliders, currentCollision.collider);
             auto offsetedTransforms = createOffsetTransforms(offsetNormal * currentCollision.distance);
             intersectionCollisionGroupTest intersectionTest;
-            intersectionTest.colliders = &_currentColliders;
+            intersectionTest.colliders = &_colliders;
             intersectionTest.transforms = offsetedTransforms;
             intersectionTest.againstColliders = collisionColliders;
             if (!_physicsWorld->intersects(intersectionTest))
@@ -98,7 +98,7 @@ namespace demon
         return farthestValidCollision;
     }
 
-    vec3 planeDrag::getAdjustedOffset(sweepCollision collision, vec3 offset)
+    vec3 mouseDrag::getAdjustedOffset(sweepCollision collision, vec3 offset)
     {
         auto offsetNormal = glm::normalize(offset);
 
@@ -108,20 +108,20 @@ namespace demon
 
         auto normalOffsetCross = glm::normalize(glm::cross(collision.normal, offsetNormal));
         auto adjustedNormal = glm::normalize(glm::cross(collision.normal, normalOffsetCross));
-        auto amountOnPlaneNormal = glm::dot(adjustedNormal, _currentPlane.getNormal());
-        adjustedNormal -= amountOnPlaneNormal * _currentPlane.getNormal();
+        auto amountOnPlaneNormal = glm::dot(adjustedNormal, _plane.getNormal());
+        adjustedNormal -= amountOnPlaneNormal * _plane.getNormal();
 
         auto adjustedMagnitude = glm::dot(offset, adjustedNormal);
 
         return adjustedNormal * adjustedMagnitude;
     }
 
-    void planeDrag::moveObject(vec3 offset)
+    void mouseDrag::moveObject(vec3 offset)
     {
         auto finalOffset = offset;
         if (objectFitsInOffsetedPosition(offset))
         {
-            auto sweepResult = performCollisionSweep(&_currentTransforms, offset);
+            auto sweepResult = performCollisionSweep(&_transforms, offset);
             if (sweepResult->collisions.size() > 0u)
             {
                 auto farthestCollision = findFarthestValidCollision(sweepResult, offset);
@@ -151,45 +151,16 @@ namespace demon
             safeDelete(sweepResult);
         }
 
-        _currentObject->getTransform()->translate(finalOffset);
+        _object->getTransform()->translate(finalOffset);
     }
 
-    void planeDrag::startDrag(phi::node* object, plane plane)
+    void mouseDrag::startDrag(int mouseX, int mouseY)
     {
-        _currentObject = object;
-        _currentPlane = plane;
-
-        _currentColliders = vector<boxCollider*>();
-        _currentTransforms = vector<transform*>();
-        _currentObject->traverse<boxCollider>([this](boxCollider* b)
-        {
-            _currentColliders.push_back(b);
-            _currentTransforms.push_back(b->getNode()->getTransform());
-        });
-
-        _currentInitialPlanePosition = plane.getOrigin();
-        _currentInitialObjectPosition = _currentObject->getTransform()->getLocalPosition();
-
-        _physicsWorld->disableQueryOn(&_currentColliders);
+        _physicsWorld->disableQueryOn(&_colliders);
     }
 
-    void planeDrag::updateDrag(ray ray)
+    void mouseDrag::endDrag()
     {
-        if (!_currentObject)
-            return;
-
-        float t;
-        ray.intersects(_currentPlane, t);
-        auto rayCastOnPlanePosition = ray.getOrigin() + ray.getDirection() * t;
-
-        auto offsetOnPlane = rayCastOnPlanePosition - _currentInitialPlanePosition;
-        auto finalPosition = _currentInitialObjectPosition + offsetOnPlane;
-
-        moveObject(finalPosition - _currentObject->getTransform()->getLocalPosition());
-    }
-
-    void planeDrag::endDrag()
-    {
-        _physicsWorld->enableQueryOn(&_currentColliders);
+        _physicsWorld->enableQueryOn(&_colliders);
     }
 }

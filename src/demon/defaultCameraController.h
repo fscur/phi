@@ -2,13 +2,12 @@
 #include <phi.h>
 #include <core\boxCollider.h>
 #include <core\obb.h>
-#include <rendering\planeGridRenderPass.h>
 #include <scenes\scene.h>
 #include <animation\floatAnimator.h>
 #include <apps\commandsManager.h>
 
 #include "cameraController.h"
-#include "planeDrag.h"
+#include "mouseDrag.h"
 
 namespace demon
 {
@@ -29,8 +28,6 @@ namespace demon
         int32_t _mousePosY;
         int32_t _lastMousePosX;
         int32_t _lastMousePosY;
-        phi::image* _gridImage;
-        phi::planeGridRenderPass* _planeGridPass;
 
         phi::vec3 _zoomDir;
         phi::vec3 _zoomCameraPos;
@@ -60,20 +57,9 @@ namespace demon
         double _panLastMouseMoveTime;
         double _panInertiaTime;
 
-        bool _dragging;
-        planeDrag _planeDrag;
-        phi::boxCollider* _dragCollider;
-        bool _dragPlaneGridDoingInertia;
-        double _dragPlaneGridInertiaTime;
-        phi::vec2 _dragPlaneGridInitialPosition;
-        phi::vec2 _dragPlaneGridDelta;
+        mouseDrag* _mouseDrag;
 
     private:
-        void dragMouseDown(int mouseX, int mouseY);
-        void dragMouseMove();
-        void dragMouseUp();
-        void dragUpdate();
-
         void zoomMouseWheel(int mouseX, int mouseY, float delta);
         void zoomUpdate();
         void zoomCancel();

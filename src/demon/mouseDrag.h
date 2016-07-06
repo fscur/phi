@@ -9,19 +9,19 @@
 
 namespace demon
 {
-    class planeDrag
+    class mouseDrag
     {
-    private:
+    protected:
         phi::scene* _scene;
         phi::physicsWorld* _physicsWorld;
-        phi::node* _currentObject;
-        phi::vector<phi::boxCollider*> _currentColliders;
-        phi::vector<phi::transform*> _currentTransforms;
-        phi::plane _currentPlane;
-        phi::vec3 _currentInitialPlanePosition;
-        phi::vec3 _currentInitialObjectPosition;
+        phi::node* _object;
+        phi::vector<phi::boxCollider*> _colliders;
+        phi::vector<phi::transform*> _transforms;
+        phi::plane _plane;
+        phi::vec3 _initialPlanePosition;
+        phi::vec3 _initialObjectPosition;
 
-    private:
+    protected:
         phi::vector<phi::transform*>* createOffsetTransforms(phi::vec3 offset);
         bool objectFitsInOffsetedPosition(phi::vec3 offset);
         phi::sweepCollisionResult* performCollisionSweep(phi::vector<phi::transform*>* transforms, phi::vec3 offset);
@@ -31,18 +31,21 @@ namespace demon
         void moveObject(phi::vec3 offset);
 
     public:
-        planeDrag(phi::scene* scene) :
+        mouseDrag(phi::scene* scene) :
             _scene(scene),
             _physicsWorld(_scene->getPhysicsWorld()),
-            _currentObject(nullptr),
-            _currentColliders(),
-            _currentTransforms(),
-            _currentPlane(phi::vec3(), phi::vec3())
+            _object(nullptr),
+            _colliders(),
+            _transforms(),
+            _plane(phi::vec3(), phi::vec3())
         {
         }
 
-        void startDrag(phi::node* object, phi::plane plane);
-        void updateDrag(phi::ray ray);
-        void endDrag();
+        virtual ~mouseDrag() {}
+
+        virtual void startDrag(int mouseX, int mouseY);
+        virtual void drag(int mouseX, int mouseY) {}
+        virtual void update() {}
+        virtual void endDrag();
     };
 }
