@@ -150,7 +150,11 @@ namespace phi
         for (size_t i = 0; i < collidersCount && !foundIntersection; i++)
         {
             auto collider = (*test.colliders)[i];
-            auto transform = (*test.transforms)[i];
+            transform* transform;
+            if (test.transforms && i < test.transforms->size())
+                transform = (*test.transforms)[i];
+            else
+                transform = collider->getNode()->getTransform();
 
             intersectionCollisionTest singleTest;
             singleTest.collider = collider;
@@ -180,6 +184,19 @@ namespace phi
         setGroupOn(test.againstColliders, 0u);
 
         return result;
+    }
+
+    sweepCollisionResult physicsWorld::touchs(intersectionCollisionMultiTest test)
+    {
+        sweepCollisionMultiTest sweepTest;
+        sweepTest.colliders = test.colliders;
+        sweepTest.transforms = test.transforms;
+        sweepTest.group = test.group;
+        sweepTest.disregardDivergentNormals = false;
+        sweepTest.distance = 0.0f;
+        sweepTest.direction = vec3(1.0f, 0.0f, 0.0f);
+
+        return sweep(sweepTest);
     }
 
     sweepCollisionResult physicsWorld::sweepPenetration(sweepCollisionPairTest test)
@@ -258,7 +275,7 @@ namespace phi
                     {
                         normal = collidedCollider->getObb().findClosestNormal(mtdResult.collisions[0].normal);
                         auto dot = glm::dot(normal, test.direction);
-                        if (mathUtils::isClose(dot, 0.0f) || dot > 0.0f)
+                        if (test.disregardDivergentNormals && (mathUtils::isClose(dot, 0.0f) || dot > 0.0f))
                             continue;
                     }
                     else
@@ -293,6 +310,7 @@ namespace phi
             singleTest.direction = test.direction;
             singleTest.distance = test.distance;
             singleTest.group = test.group;
+            singleTest.disregardDivergentNormals = test.disregardDivergentNormals;
             auto result = sweep(singleTest);
 
             if (result.collided)
@@ -346,6 +364,7 @@ namespace phi
         multiTest.direction = test.direction;
         multiTest.distance = test.distance;
         multiTest.group = 1u;
+        multiTest.disregardDivergentNormals = test.disregardDivergentNormals;
 
         auto result = sweep(multiTest);
 

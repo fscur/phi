@@ -55,7 +55,7 @@ namespace demon
         _panLastMouseMoveTime(0.0),
         _panInertiaTime(0.0),
         _dragging(false),
-        _planeDrag(_scene->getPhysicsWorld()),
+        _planeDrag(_scene),
         _dragCollider(nullptr),
         _dragPlaneGridDoingInertia(false),
         _dragPlaneGridInertiaTime(0.0),

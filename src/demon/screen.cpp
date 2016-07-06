@@ -114,6 +114,11 @@ namespace demon
         //floor->getTransform()->yaw(PI_OVER_4);
         _scene->add(floor);
 
+        auto floor2 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        floor2->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, -2.5f));
+        floor2->getTransform()->pitch(PI_OVER_2);
+        _scene->add(floor2);
+
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair0->getTransform()->yaw(PI_OVER_4);
         chair0->getTransform()->setLocalPosition(vec3(0.f, .5f, .0f));

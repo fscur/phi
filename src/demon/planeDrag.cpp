@@ -55,29 +55,6 @@ namespace demon
         return new sweepCollisionResult(_physicsWorld->sweep(sweepTest));
     }
 
-    vector<boxCollider*>* planeDrag::removeAndGetTouchingCollisions(sweepCollisionResult* sweepResult, vec3 offset)
-    {
-        auto touchingCollisions = std::remove_if(sweepResult->collisions.begin(), sweepResult->collisions.end(),
-            [offset](sweepCollision& collision)
-        {
-            auto dot = glm::dot(collision.normal, glm::normalize(offset));
-            return
-                collision.distance == 0.0f &&
-                (mathUtils::isClose(dot, 0.0f) || dot > 0.0f);
-        });
-
-        auto touchingCollisionsToErase = touchingCollisions;
-
-        auto touchingColliders = new vector<boxCollider*>();
-        while (touchingCollisions != sweepResult->collisions.end())
-            touchingColliders->push_back((*touchingCollisions++).collider);
-
-        if (touchingCollisionsToErase != sweepResult->collisions.end())
-            sweepResult->collisions.erase(touchingCollisionsToErase, sweepResult->collisions.end());
-
-        return touchingColliders;
-    }
-
     vector<boxCollider*>* planeDrag::getSweepCollisionResultColliders(sweepCollisionResult* sweepResult)
     {
         auto colliders = new vector<boxCollider*>();
@@ -145,7 +122,6 @@ namespace demon
         if (objectFitsInOffsetedPosition(offset))
         {
             auto sweepResult = performCollisionSweep(&_currentTransforms, offset);
-            //auto touchingColliders = removeAndGetTouchingCollisions(sweepResult, offset);
             if (sweepResult->collisions.size() > 0u)
             {
                 auto farthestCollision = findFarthestValidCollision(sweepResult, offset);

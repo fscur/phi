@@ -5,13 +5,14 @@
 #include <core\node.h>
 #include <core\transform.h>
 #include <core\boxCollider.h>
-#include <scenes\physicsWorld.h>
+#include <scenes\scene.h>
 
 namespace demon
 {
     class planeDrag
     {
     private:
+        phi::scene* _scene;
         phi::physicsWorld* _physicsWorld;
         phi::node* _currentObject;
         phi::vector<phi::boxCollider*> _currentColliders;
@@ -24,15 +25,15 @@ namespace demon
         phi::vector<phi::transform*>* createOffsetTransforms(phi::vec3 offset);
         bool objectFitsInOffsetedPosition(phi::vec3 offset);
         phi::sweepCollisionResult* performCollisionSweep(phi::vector<phi::transform*>* transforms, phi::vec3 offset);
-        phi::vector<phi::boxCollider*>* removeAndGetTouchingCollisions(phi::sweepCollisionResult* sweepResult, phi::vec3 offset);
         phi::vector<phi::boxCollider*>* getSweepCollisionResultColliders(phi::sweepCollisionResult* sweepResult);
         phi::sweepCollision findFarthestValidCollision(phi::sweepCollisionResult* sweepResult, phi::vec3 offset);
         phi::vec3 getAdjustedOffset(phi::sweepCollision collision, phi::vec3 offset);
         void moveObject(phi::vec3 offset);
 
     public:
-        planeDrag(phi::physicsWorld* physicsWorld) :
-            _physicsWorld(physicsWorld),
+        planeDrag(phi::scene* scene) :
+            _scene(scene),
+            _physicsWorld(_scene->getPhysicsWorld()),
             _currentObject(nullptr),
             _currentColliders(),
             _currentTransforms(),

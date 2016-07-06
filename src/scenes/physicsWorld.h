@@ -59,12 +59,14 @@ namespace phi
         sweepCollisionTest() :
             intersectionCollisionTest(),
             distance(0.0f),
-            direction(vec3())
+            direction(vec3()),
+            disregardDivergentNormals(true)
         {
         }
 
         float distance;
         vec3 direction;
+        bool disregardDivergentNormals;
     };
 
     struct sweepCollisionMultiTest :
@@ -74,12 +76,14 @@ namespace phi
             intersectionCollisionMultiTest(),
             distance(0.0f),
             direction(vec3()),
+            disregardDivergentNormals(true),
             findOnlyClosestPerTarget(false)
         {
         }
 
         float distance;
         vec3 direction;
+        bool disregardDivergentNormals;
         bool findOnlyClosestPerTarget;
     };
 
@@ -90,12 +94,14 @@ namespace phi
             intersectionCollisionGroupTest(),
             distance(0.0f),
             direction(vec3()),
+            disregardDivergentNormals(true),
             findOnlyClosestPerTarget(false)
         {
         }
 
         float distance;
         vec3 direction;
+        bool disregardDivergentNormals;
         bool findOnlyClosestPerTarget;
     };
 
@@ -204,6 +210,8 @@ namespace phi
         SCENES_API bool intersects(intersectionCollisionTest test);
         SCENES_API bool intersects(intersectionCollisionMultiTest test);
         SCENES_API bool intersects(intersectionCollisionGroupTest test);
+
+        SCENES_API sweepCollisionResult touchs(intersectionCollisionMultiTest test);
 
         SCENES_API sweepCollisionResult sweep(sweepCollisionTest test);
         SCENES_API sweepCollisionResult sweep(sweepCollisionMultiTest test);
