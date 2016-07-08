@@ -24,6 +24,7 @@
 #include <application\redoCommand.h>
 
 #include <context\layerBuilder.h>
+#include <context\deleteSceneObjectCommand.h>
 #include <core\clickComponent.h>
 
 using namespace phi;
@@ -122,6 +123,16 @@ namespace demon
         virtual void executeUndo() override { _design = !_design; }
     };
 
+    phi::node* chair0;
+    phi::node* chair1;
+    phi::node* chair2;
+    phi::node* chair3;
+    phi::node* cube0;
+    phi::node* cube1;
+    phi::node* cube2;
+    phi::node* floor0;
+    phi::node* floor1;
+
     void screen::initUi()
     {
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
@@ -167,17 +178,30 @@ namespace demon
             })
             .build();
 
-        auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair0->getTransform()->setLocalPosition(vec3(0.f, .1f, -2.0f));
+        chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair0->getTransform()->setLocalPosition(vec3(4.f, .1f, -2.0f));
 
-        auto chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair1->getTransform()->setLocalPosition(vec3(2.f, .1f, .0f));
 
-        auto chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair2->getTransform()->setLocalPosition(vec3(0.f, .1f, 2.f));
 
-        auto cube = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        chair3 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        chair3->getTransform()->setLocalPosition(vec3(2.f, .1f, 2.f));
+
+        cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+
+        cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        cube1->getTransform()->setLocalPosition(vec3(-50.f, .1f, 2.f));
+
+        cube2 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        cube2->getTransform()->setLocalPosition(vec3(2.f, .1f, -2.f));
+
+        floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+
+        floor1 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        floor1->getTransform()->setLocalPosition(vec3(0.f, 0.f, 10.f));
 
         auto sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
@@ -230,11 +254,16 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        _sceneLayer->add(cube);
-        _sceneLayer->add(floor);
-        _sceneLayer->add(chair0);
-        _sceneLayer->add(chair1);
+        _sceneLayer->add(floor0);
+        _sceneLayer->add(cube0);
         _sceneLayer->add(chair2);
+        _sceneLayer->add(floor1);
+        _sceneLayer->add(chair1);
+        _sceneLayer->add(cube1);
+        _sceneLayer->add(chair0);
+        _sceneLayer->add(cube2);
+        _sceneLayer->add(chair3);
+
         //_sceneLayer->add(_sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
@@ -248,6 +277,48 @@ namespace demon
         _nandinhoLayer->add(changeContextButton);
 
         _activeContext = _designContext;
+
+        //_commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [&]()
+        //{
+        //    auto nodesToDelete = { cube0 };
+        //    return new deleteSceneObjectCommand(nodesToDelete);
+        //}));
+
+        //_commandsManager->addShortcut(shortcut({ PHIK_SHIFT, PHIK_DELETE }, [&]()
+        //{
+        //    auto nodesToDelete = { cube1 };
+        //    return new deleteSceneObjectCommand(nodesToDelete);
+        //}));
+
+        //_commandsManager->addShortcut(shortcut({ PHIK_SPACE }, [&]()
+        //{
+        //    auto nodesToDelete = { cube2 };
+        //    return new deleteSceneObjectCommand(nodesToDelete);
+        //}));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [&]()
+        {
+            auto nodesToDelete = { chair0 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_SHIFT, PHIK_DELETE }, [&]()
+        {
+            auto nodesToDelete = { chair1 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_SPACE }, [&]()
+        {
+            auto nodesToDelete = { chair2 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
+        {
+            auto nodesToDelete = { chair3 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
     }
 
     void screen::initInput()
@@ -262,6 +333,7 @@ namespace demon
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
+
         //_commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
         //{
         //    return new multiCommand(vector<command*>

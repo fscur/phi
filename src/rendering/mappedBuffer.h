@@ -5,22 +5,12 @@
 #include <core\exception.h>
 
 #include "buffer.h"
+#include "bufferSlot.h"
 
 #include <GL\glew.h>
 
 namespace phi
 {
-    struct bufferSlot
-    {
-        size_t index;
-        size_t size;
-        bufferSlot(size_t index = 0u, size_t size = 1u) :
-            index(index),
-            size(size)
-        {
-        }
-    };
-
     template <typename KEY, typename DATA>
     class mappedBuffer :
         public buffer
@@ -34,7 +24,7 @@ namespace phi
         size_t _instanceCount;
 
     public:
-        mappedBuffer(string name, bufferTarget::bufferTarget target, size_t maxInstances) :
+        mappedBuffer(string name, bufferTarget::bufferTarget target, size_t maxInstances, bool data = false) :
             buffer(name, target),
             _maxInstances(maxInstances),
             _sizeOfDataType(sizeof(DATA)),
@@ -42,7 +32,10 @@ namespace phi
             _bufferData(new DATA[_maxInstances]),
             _instanceCount(0)
         {
-            storage(maxInstances * _sizeOfDataType, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
+            if (data)//TODO: remover this shit
+                this->data(sizeof(uint), nullptr, bufferDataUsage::dynamicDraw);
+            else
+                storage(maxInstances * _sizeOfDataType, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
         }
 
         void add(KEY key, DATA data)
@@ -95,16 +88,19 @@ namespace phi
         {
             auto index = _instances[key].index;
             auto size = _instances[key].size;
-            auto instanceCount = _instanceCount - (index + size);
+            auto dataCount = _instanceCount - (index + size);
 
-            if (instanceCount > 0)
+            if (dataCount > 0)
             {
-                DATA* copyBuffer = new DATA[instanceCount];
-                auto bufferSize = instanceCount * _sizeOfDataType;
-                memcpy(copyBuffer, _bufferData + index + size, bufferSize);
-                memcpy(_bufferData + index, copyBuffer, bufferSize);
-                subData(index * _sizeOfDataType, bufferSize, copyBuffer);
-                safeDelete(copyBuffer);
+                auto auxBuffer = new DATA[dataCount];
+                auto sizeOfDataToRemove = dataCount * _sizeOfDataType;
+                auto keyDataOffset = _bufferData + index;
+
+                memcpy(auxBuffer, keyDataOffset + size, sizeOfDataToRemove);
+                memcpy(keyDataOffset, auxBuffer, sizeOfDataToRemove);
+
+                subData(index * _sizeOfDataType, sizeOfDataToRemove, keyDataOffset);
+                safeDeleteArray(auxBuffer);
             }
 
             for (auto& pair : _instances)

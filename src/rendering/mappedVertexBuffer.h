@@ -16,8 +16,8 @@ namespace phi
         vector<vertexBufferAttribute> _attribs;
 
     public:
-        mappedVertexBuffer(const string& name, const vector<vertexBufferAttribute>& attribs, size_t maxInstances) :
-            mappedBuffer<KEY, DATA>(name, bufferTarget::array, maxInstances),
+        mappedVertexBuffer(const string& name, const vector<vertexBufferAttribute>& attribs, size_t maxInstances, bool data = false) :
+            mappedBuffer<KEY, DATA>(name, bufferTarget::array, maxInstances, data),
             _attribs(attribs)
         {
         }

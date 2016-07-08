@@ -7,9 +7,11 @@
 
 #include <rendering\buffer.h>
 #include <rendering\vertexBuffer.h>
-#include <rendering\mappedBuffer.h>
 #include <rendering\mappedVertexBuffer.h>
+#include <rendering\mappedBuffer.h>
+#include <rendering\multiDrawMappedBuffer.h>
 #include <rendering\drawElementsIndirectCmd.h>
+#include <rendering\multiDrawElementsIndirectCommandBuffer.h>
 #include <rendering\vertexArrayObject.h>
 
 #include "meshInstance.h"
@@ -25,21 +27,28 @@ namespace phi
         GLint _eboOffset;
         GLint _indicesOffset;
         GLint _verticesOffset;
+        GLint _instancesOffset;
         GLuint _drawCount;
         GLuint _objectsCount;
         bool _empty;
 
+        //vector<drawElementsIndirectCmd> _drawCmdsBufferData;
+        /*buffer* _drawCmdBuffer;*/
+        multiDrawElementsIndirectCommandBuffer* _multiDrawCommandsBuffer;
+
         vector<geometry*> _geometries;
         map<geometry*, vector<const meshInstance*>> _instances;
 
-        vertexArrayObject* _vao;
-        vertexBuffer* _vbo;
-        buffer* _ebo;
-        buffer* _drawCmdBuffer;
 
-        vertexBuffer* _materialsIdsBuffer;
-        vertexBuffer* _modelMatricesBuffer;
-        vertexBuffer* _selectionBuffer;
+        vertexArrayObject* _vao;
+        mappedVertexBuffer<const geometry*, vertex>* _vbo;
+        mappedBuffer<const geometry*, uint>* _ebo;
+        //vertexBuffer* _vbo;
+        //buffer* _ebo;
+
+        multiDrawMappedBuffer<const meshInstance*, uint>* _materialsIdsBuffer;
+        multiDrawMappedBuffer<const meshInstance*, mat4>* _modelMatricesBuffer;
+        multiDrawMappedBuffer<const meshInstance*, vec4>* _selectionBuffer;
 
     private:
         void createVao(size_t vboSize);
@@ -48,7 +57,9 @@ namespace phi
         void initialize(const meshInstance* instance);
         void addGeometry(geometry* geometry);
         void addInstance(const meshInstance* instance);
-        void updateAllData();
+        void updateMultiDrawCommands();
+
+        bool doesGeometryFitInVao(const meshInstance * instance);
 
     public:
         SCENE_RENDERING_API batch();
@@ -57,8 +68,8 @@ namespace phi
         SCENE_RENDERING_API void add(const meshInstance* instance);
         SCENE_RENDERING_API void remove(const meshInstance* instance);
         SCENE_RENDERING_API void update(const meshInstance* instance);
-        SCENE_RENDERING_API void updateSelectionBuffer(mesh* mesh, bool isSelected);
-        SCENE_RENDERING_API void updateTransformBuffer(mesh* mesh, const mat4& modelMatrix);
+        SCENE_RENDERING_API void updateSelectionBuffer(const meshInstance* instance, bool isSelected);
+        SCENE_RENDERING_API void updateTransformBuffer(const meshInstance* instance);
 
         SCENE_RENDERING_API vertexArrayObject* getVao() { return _vao; }
     };

@@ -57,7 +57,7 @@ namespace phi
         std::cout << std::endl;
         std::cout << std::endl;
 
-//        __debugbreak();
+        __debugbreak();
     }
 
     void glDebugger::enable()

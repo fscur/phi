@@ -86,6 +86,7 @@ namespace phi
 
     void meshRenderAdapter::addToBatch(meshInstance* instance)
     {
+        //TODO: make sure geometries that have already been added are added to the same batch
         for (auto& batch : _batches)
         {
             if (batch->canAdd(instance))
@@ -119,6 +120,8 @@ namespace phi
     {
         auto instance = _meshesInstances[mesh];
         _meshesBatches[mesh]->remove(instance);
+
+        //TODO: delete batch if shit
     }
 
     void meshRenderAdapter::update(mesh* mesh)
@@ -129,11 +132,14 @@ namespace phi
 
     void meshRenderAdapter::updateSelection(mesh* mesh, bool isSelected)
     {
-        _meshesBatches[mesh]->updateSelectionBuffer(mesh, isSelected);
+        auto instance = _meshesInstances[mesh];
+        _meshesBatches[mesh]->updateSelectionBuffer(instance, isSelected);
     }
 
     void meshRenderAdapter::updateTransform(mesh* mesh, const mat4& modelMatrix)
     {
-        _meshesBatches[mesh]->updateTransformBuffer(mesh, modelMatrix);
+        auto instance = _meshesInstances[mesh];
+        instance->modelMatrix = modelMatrix;
+        _meshesBatches[mesh]->updateTransformBuffer(instance);
     }
 }
