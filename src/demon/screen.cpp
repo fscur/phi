@@ -254,15 +254,15 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        _sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
-        _sceneLayer->add(chair2);
-        _sceneLayer->add(floor1);
-        _sceneLayer->add(chair1);
         _sceneLayer->add(cube1);
-        _sceneLayer->add(chair0);
         _sceneLayer->add(cube2);
+        _sceneLayer->add(chair0);
+        _sceneLayer->add(chair1);
+        _sceneLayer->add(chair2);
         _sceneLayer->add(chair3);
+        _sceneLayer->add(floor0);
+        _sceneLayer->add(floor1);
 
         //_sceneLayer->add(_sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
@@ -278,45 +278,57 @@ namespace demon
 
         _activeContext = _designContext;
 
-        //_commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [&]()
-        //{
-        //    auto nodesToDelete = { cube0 };
-        //    return new deleteSceneObjectCommand(nodesToDelete);
-        //}));
-
-        //_commandsManager->addShortcut(shortcut({ PHIK_SHIFT, PHIK_DELETE }, [&]()
-        //{
-        //    auto nodesToDelete = { cube1 };
-        //    return new deleteSceneObjectCommand(nodesToDelete);
-        //}));
-
-        //_commandsManager->addShortcut(shortcut({ PHIK_SPACE }, [&]()
-        //{
-        //    auto nodesToDelete = { cube2 };
-        //    return new deleteSceneObjectCommand(nodesToDelete);
-        //}));
-
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [&]()
         {
-            auto nodesToDelete = { chair0 };
+            auto nodesToDelete = { cube0 };
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
 
         _commandsManager->addShortcut(shortcut({ PHIK_SHIFT, PHIK_DELETE }, [&]()
         {
-            auto nodesToDelete = { chair1 };
+            auto nodesToDelete = { cube1 };
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
 
         _commandsManager->addShortcut(shortcut({ PHIK_SPACE }, [&]()
         {
+            auto nodesToDelete = { cube2 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [&]()
+        {
+            auto nodesToDelete = { chair0 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_1 }, [&]()
+        {
+            auto nodesToDelete = { chair1 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_2 }, [&]()
+        {
             auto nodesToDelete = { chair2 };
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
 
-        _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_3 }, [&]()
         {
             auto nodesToDelete = { chair3 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [&]()
+        {
+            auto nodesToDelete = { floor0 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_5 }, [&]()
+        {
+            auto nodesToDelete = { floor1 };
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
     }

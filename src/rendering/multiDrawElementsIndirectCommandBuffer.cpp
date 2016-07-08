@@ -15,18 +15,18 @@ namespace phi
 
     void multiDrawElementsIndirectCommandBuffer::add(const geometry * geometry)
     {
-        auto geometryWhateverIterator = _geometriesWhatevers.find(geometry);
-        auto containsGeometry = geometryWhateverIterator != _geometriesWhatevers.end();
+        auto geometryInstanceIterator = _geometriesInstances.find(geometry);
+        auto containsGeometry = geometryInstanceIterator != _geometriesInstances.end();
 
         if (containsGeometry)
         {
-            geometryWhateverIterator->second->instanceCount++;
+            geometryInstanceIterator->second->instanceCount++;
         }
         else
         {
-            auto geometryWhatever = new multiDrawElementsIndirectCommandBuffer::geometryWhatever(geometry);
-            _geometries.push_back(geometryWhatever);
-            _geometriesWhatevers[geometry] = geometryWhatever;
+            auto geometryInstance = new multiDrawElementsIndirectCommandBuffer::geometryInstance(geometry);
+            _geometries.push_back(geometryInstance);
+            _geometriesInstances[geometry] = geometryInstance;
         }
     }
 

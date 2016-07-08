@@ -11,12 +11,6 @@ namespace phi
     batch::batch() :
         _freeSpace(MAX_VBO_SIZE),
         _empty(true),
-        _vboOffset(0),
-        _eboOffset(0),
-        _indicesOffset(0),
-        _verticesOffset(0),
-        _instancesOffset(0),
-        _drawCount(0),
         _objectsCount(0),
         _vao(nullptr),
         _geometries(vector<geometry*>()),
@@ -63,14 +57,8 @@ namespace phi
         vboAttribs.push_back(vertexBufferAttribute(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
         vboAttribs.push_back(vertexBufferAttribute(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
-        //_vbo = new vertexBuffer("vbo", vboAttribs);
-        //_vbo->storage(vboSize, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
-
         _vbo = new mappedVertexBuffer<const geometry*, vertex>("vbo", vboAttribs, vboSize / sizeof(vertex));
         _ebo = new mappedBuffer<const geometry*, uint>("ebo", bufferTarget::element, vboSize / sizeof(uint));
-
-        //_ebo = new buffer("ebo", bufferTarget::element);
-        //_ebo->storage(vboSize, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
 
         auto selectionAttribs = { vertexBufferAttribute(4, 4, GL_FLOAT, 0, 0, 1) };
         _selectionBuffer = new multiDrawMappedBuffer<const meshInstance*, vec4>("selectionColor", selectionAttribs);
@@ -113,19 +101,14 @@ namespace phi
         _vbo->addRange(geometry, geometry->vboData, geometry->verticesCount);
         _ebo->addRange(geometry, geometry->eboData, geometry->indicesCount);
 
-        //_vbo->subData(_vboOffset, vboSize, geometry->vboData);
-        //_vboOffset += vboSize;
-
-        //_ebo->subData(_eboOffset, eboSize, geometry->eboData);
-        //_eboOffset += eboSize;
-
-        //_verticesOffset += geometry->verticesCount;
-        //_indicesOffset += geometry->indicesCount;
-
         if (geometry->vboSize > _freeSpace)
             _freeSpace = 0;
         else
             _freeSpace -= geometry->vboSize;
+
+        _modelMatricesBuffer->createBucket(geometry);
+        _materialsIdsBuffer->createBucket(geometry);
+        _selectionBuffer->createBucket(geometry);
     }
 
     void batch::addInstance(const meshInstance* instance)
@@ -137,12 +120,37 @@ namespace phi
         auto clickComponent = node->getComponent<phi::clickComponent>();
         auto selection = vec4(clickComponent->getSelectionColor(), node->getIsSelected());
 
-        _modelMatricesBuffer->add(geometry, instance, instance->modelMatrix);
-        _materialsIdsBuffer->add(geometry, instance, instance->materialId);
-        _selectionBuffer->add(geometry, instance, selection);
+        _modelMatricesBuffer->addInstance(geometry, instance, instance->modelMatrix);
+        _materialsIdsBuffer->addInstance(geometry, instance, instance->materialId);
+        _selectionBuffer->addInstance(geometry, instance, selection);
+    }
 
-        updateMultiDrawCommands();
-        _instancesOffset++;
+    void batch::removeGeometry(geometry* geometry)
+    {
+        phi::removeIfContains(_geometries, geometry);
+        _instances.erase(geometry);
+        _objectsCount--;
+
+        _vbo->remove(geometry);
+        _ebo->remove(geometry);
+
+        _modelMatricesBuffer->removeBucket(geometry);
+        _materialsIdsBuffer->removeBucket(geometry);
+        _selectionBuffer->removeBucket(geometry);
+    }
+
+    void batch::removeInstance(const meshInstance* instance)
+    {
+        auto geometry = instance->getGeometry();
+
+        auto instances = &_instances[geometry];
+        auto it = std::find(instances->begin(), instances->end(), instance);
+        if (it != instances->end())
+            instances->erase(it);
+
+        _modelMatricesBuffer->removeInstance(geometry, instance);
+        _materialsIdsBuffer->removeInstance(geometry, instance);
+        _selectionBuffer->removeInstance(geometry, instance);
     }
 
     void batch::updateMultiDrawCommands()
@@ -188,30 +196,18 @@ namespace phi
             addGeometry(geometry);
 
         addInstance(instance);
+        updateMultiDrawCommands();
     }
 
     void batch::remove(const meshInstance* instance)
     {
-        auto geometry = instance->getGeometry();
+        removeInstance(instance);
 
+        auto geometry = instance->getGeometry();
         auto instances = &_instances[geometry];
-        auto it = std::find(instances->begin(), instances->end(), instance);
-        if (it != instances->end())
-            instances->erase(it);
 
         if (instances->size() == 0)
-        {
-            phi::removeIfContains(_geometries, geometry);
-            _instances.erase(geometry);
-            _objectsCount--;
-
-            _vbo->remove(geometry);
-            _ebo->remove(geometry);
-        }
-
-        _modelMatricesBuffer->remove(geometry, instance);
-        _materialsIdsBuffer->remove(geometry, instance);
-        _selectionBuffer->remove(geometry, instance);
+            removeGeometry(instance->getGeometry());
 
         updateMultiDrawCommands();
     }
@@ -222,9 +218,11 @@ namespace phi
         auto clickComponent = node->getComponent<phi::clickComponent>();
         auto selection = vec4(clickComponent->getSelectionColor(), node->getIsSelected());
 
-        _modelMatricesBuffer->update(instance, instance->modelMatrix);
-        _materialsIdsBuffer->update(instance, instance->materialId);
-        _selectionBuffer->update(instance, selection);
+        auto geometry = instance->getGeometry();
+
+        _modelMatricesBuffer->update(geometry, instance, instance->modelMatrix);
+        _materialsIdsBuffer->update(geometry, instance, instance->materialId);
+        _selectionBuffer->update(geometry, instance, selection);
     }
 
     void batch::updateSelectionBuffer(const meshInstance* instance, bool isSelected)
@@ -233,11 +231,11 @@ namespace phi
         auto clickComponent = node->getComponent<phi::clickComponent>();
         auto selection = vec4(clickComponent->getSelectionColor(), isSelected);
 
-        _selectionBuffer->update(instance, selection);
+        _selectionBuffer->update(instance->getGeometry(), instance, selection);
     }
 
     void batch::updateTransformBuffer(const meshInstance* instance)
     {
-        _modelMatricesBuffer->update(instance, instance->modelMatrix);
+        _modelMatricesBuffer->update(instance->getGeometry(), instance, instance->modelMatrix);
     }
 }

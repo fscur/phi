@@ -8,16 +8,40 @@
 
 namespace phi
 {
-    struct geometryInstanceSlot
+    template <typename KEY, typename DATA>
+    class geometryInstanceBucket
     {
-        geometryInstanceSlot(size_t index = 0u) :
-            index(index),
-            size(1u)
+    private:
+        size_t _index;
+        size_t _size;
+
+        vector<KEY> _keys;
+    public:
+        geometryInstanceBucket(size_t index) :
+            _index(index),
+            _size(0)
         {
         }
 
-        size_t index;
-        size_t size;
+        size_t add(KEY key, const DATA& data)
+        {
+            _keys.push_back(key);
+
+            auto keyIndex = _size++;
+            return keyIndex;
+        }
+
+        void remove(KEY key)
+        {
+            phi::removeIfContains(_keys, key);
+            --_size;
+        }
+
+        void decrementIndex() { --_index; }
+
+        size_t getKeyIndex(KEY key) {return phi::indexOf(_keys, key); }
+        size_t getIndex() { return _index; }
+        size_t getSize() { return _size; }
     };
 
     template <typename KEY, typename DATA>
@@ -25,165 +49,114 @@ namespace phi
         public vertexBuffer
     {
     private:
-        unsigned long long _sizeOfDataType;
-        size_t _instanceCount;
-        vector<DATA> _bufferData;
-        size_t _currentCapacity;
+        size_t _sizeOfDataType;
+        size_t _capacity;
 
-        map<geometry*, geometryInstanceSlot> _geometryInstances;
-        map<geometry*, vector<KEY>> _geometryKeys;
-        map<KEY, size_t> _keysIndices;
+        vector<DATA>* _bufferData;
+        map<geometry*, geometryInstanceBucket<KEY, DATA>*> _buckets;
 
     private:
-        void resize()
+        size_t getBucketIndex(geometryInstanceBucket<KEY, DATA>* bucket)
         {
-            _currentCapacity = _bufferData.capacity();
+            size_t index = 0;
+            for (auto& pair : _buckets)
+            {
+                if (pair.second->getIndex() >= bucket->getIndex())
+                    continue;
+
+                index += pair.second->getSize();
+            }
+
+            return index;
         }
 
-        void insertAt(size_t indexToInsert, DATA data)
+        void uploadData(size_t instanceIndex)
         {
-            auto it = _bufferData.begin() + indexToInsert;
-            _bufferData.insert(it, data);
-        }
-
-        size_t getIndexToInsert(geometry* geometry)
-        {
-            auto geometryInstanceSlot = _geometryInstances[geometry];
-
-            auto geometryIndex = geometryInstanceSlot.index;
-            auto keys = _geometryKeys[geometry];
-            return geometryIndex + keys.size();
+            auto needToResize = _capacity != _bufferData->capacity();
+            if (needToResize)
+            {
+                _capacity = _bufferData->capacity();
+                this->data(_sizeOfDataType * _capacity, _bufferData->data(), bufferDataUsage::dynamicDraw);
+            }
+            else
+            {
+                auto sizeOfDataToMove = (_bufferData->size() - instanceIndex) * _sizeOfDataType;
+                subData(_sizeOfDataType * instanceIndex, sizeOfDataToMove, _bufferData->data() + instanceIndex);
+            }
         }
 
     public:
         multiDrawMappedBuffer(string name, vector<vertexBufferAttribute> attribs) :
             vertexBuffer(name, attribs),
             _sizeOfDataType(sizeof(DATA)),
-            _currentCapacity(0),
-            _instanceCount(0)
+            _bufferData(new vector<DATA>()),
+            _capacity(0)
         {
         }
 
-        void add(geometry* geometry, KEY key, DATA data)
+        void addInstance(geometry* geometry, KEY key, const DATA& data)
         {
-            auto containsGeometry = phi::contains(_geometryInstances, geometry);
+            auto containsGeometry = phi::contains(_buckets, geometry);
+            assert(containsGeometry);
 
-            size_t indexToInsert = 0;
-            if (containsGeometry)
-            {
-                indexToInsert = getIndexToInsert(geometry);
-                auto sizeOfDataToMove = (_instanceCount - indexToInsert) * _sizeOfDataType;
+            auto bucket = _buckets[geometry];
+            auto bucketIndex = getBucketIndex(bucket);
+            auto indexInBucket = bucket->add(key, data);
 
-                insertAt(indexToInsert, data);
+            auto instanceIndex = bucketIndex + indexInBucket;
+            _bufferData->insert(_bufferData->begin() + instanceIndex, data);
 
-                auto needToResize = _currentCapacity != _bufferData.capacity();
-
-                if (needToResize)
-                {
-                    resize();
-                    this->data(_sizeOfDataType * _currentCapacity, _bufferData.data(), bufferDataUsage::dynamicDraw);
-                }
-                else
-                {
-                    subData(_sizeOfDataType * indexToInsert, sizeOfDataToMove + _sizeOfDataType, &_bufferData[indexToInsert]);
-                }
-
-                auto instanceIndex = _geometryInstances[geometry].size;
-                _geometryInstances[geometry].size++;
-                auto currentIndex = _geometryInstances[geometry].index;
-
-                _keysIndices[key] = instanceIndex;
-
-                for (auto& pair : _geometryInstances)
-                {
-                    if (pair.second.index <= currentIndex)
-                        continue;
-
-                    auto keys = _geometryKeys[pair.first];
-                    for (auto& key : keys)
-                    {
-                        _keysIndices[key]++;
-                    }
-
-                    pair.second.index++;
-                }
-            }
-            else
-            {
-                indexToInsert = _instanceCount;
-                _geometryInstances[geometry] = geometryInstanceSlot(indexToInsert);
-                insertAt(indexToInsert, data);
-
-                auto needToResize = _currentCapacity != _bufferData.capacity();
-
-                if (needToResize)
-                {
-                    resize();
-                    this->data(_sizeOfDataType * _currentCapacity, _bufferData.data(), bufferDataUsage::dynamicDraw);
-                }
-                else
-                {
-                    subData(_sizeOfDataType * indexToInsert, _sizeOfDataType, &data);
-                }
-            }
-
-            _geometryKeys[geometry].push_back(key);
-            _keysIndices[key] = indexToInsert;
-            _instanceCount++;
+            uploadData(instanceIndex);
         }
 
-        void update(KEY key, DATA data)
+        void createBucket(geometry* geometry)
         {
-            auto keyIndex = _keysIndices[key];
-            subData(_sizeOfDataType * keyIndex, _sizeOfDataType, &data);
+            auto containsGeometry = phi::contains(_buckets, geometry);
+            assert(!containsGeometry);
+
+            auto nextBucketIndex = _buckets.size();
+            auto bucket = new geometryInstanceBucket<KEY, DATA>(nextBucketIndex);
+            _buckets[geometry] = bucket;
         }
 
-        void remove(geometry* geometry, KEY key)
+        void update(geometry* geometry, KEY key, DATA data)
         {
-            auto keys = &_geometryKeys[geometry];
-            auto it = std::find(keys->begin(), keys->end(), key);
+            auto bucket = _buckets[geometry];
+            auto bucketIndex = getBucketIndex(bucket);
+            auto keyIndex = bucket->getKeyIndex(key);
 
-            if (it != keys->end())
-                keys->erase(it);
+            auto instanceIndex = bucketIndex + keyIndex;
 
-            auto keyIndex = _keysIndices[key];
+            (*_bufferData)[instanceIndex] = data;
+            subData(_sizeOfDataType * instanceIndex, _sizeOfDataType, &data);
+        }
 
-            _bufferData.erase(_bufferData.begin() + keyIndex);
+        void removeInstance(geometry* geometry, KEY key)
+        {
+            auto bucket = _buckets[geometry];
 
-            auto isLastInstance = keyIndex == _bufferData.size();
-            if (!isLastInstance)
+            auto bucketIndex = getBucketIndex(bucket);
+            auto keyIndex = bucket->getKeyIndex(key);
+
+            bucket->remove(key);
+
+            auto instanceIndex = bucketIndex + keyIndex;
+            _bufferData->erase(_bufferData->begin() + instanceIndex);
+
+            uploadData(instanceIndex);
+        }
+
+        void removeBucket(geometry* geometry)
+        {
+            auto bucket = _buckets[geometry];
+            assert(bucket->getSize() == 0);
+
+            _buckets.erase(geometry);
+
+            for (auto& pair : _buckets)
             {
-                auto nextKeyIndex = keyIndex + 1;
-                auto sizeOfDataToMove = (_instanceCount - nextKeyIndex) * _sizeOfDataType;
-                subData(_sizeOfDataType * keyIndex, sizeOfDataToMove, &_bufferData[keyIndex]);
-            }
-
-            _instanceCount--;
-
-            _geometryInstances[geometry].size--;
-            _keysIndices.erase(key);
-
-            auto decrementKeysIndices = [&](phi::geometry* g)
-            {
-                auto keys = _geometryKeys[g];
-                for (auto& key : keys)
-                {
-                    if(_keysIndices[key] > keyIndex)
-                        _keysIndices[key]--;
-                }
-            };
-
-            if(!isLastInstance)
-                decrementKeysIndices(geometry);
-
-            //update indices
-            for (auto& pair : _geometryInstances)
-            {
-                if (pair.second.index <= keyIndex)
-                    continue;
-
-                decrementKeysIndices(pair.first);
-                pair.second.index--;
+                if (pair.second->getIndex() > bucket->getIndex())
+                    pair.second->decrementIndex();
             }
         }
     };

@@ -11,9 +11,9 @@ namespace phi
     class multiDrawElementsIndirectCommandBuffer
     {
     private:
-        struct geometryWhatever
+        struct geometryInstance
         {
-            geometryWhatever(const geometry* geometry) :
+            geometryInstance(const geometry* geometry) :
                 geometry(geometry),
                 instanceCount(1)
             {
@@ -28,8 +28,8 @@ namespace phi
         GLuint verticesOffset;
         GLuint instancesOffset;
 
-        vector<geometryWhatever*> _geometries;
-        map<const geometry*, geometryWhatever*> _geometriesWhatevers;
+        vector<geometryInstance*> _geometries;
+        map<const geometry*, geometryInstance*> _geometriesInstances;
 
         buffer* _drawCmdBuffer;
 

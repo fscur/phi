@@ -69,6 +69,30 @@ namespace phi
         return it != vector->end();
     }
 
+    template<typename T>
+    size_t indexOf(const vector<T>& vector, const T& value)
+    {
+        for (size_t i = 0; i < vector.size(); ++i)
+        {
+            if (vector[i] == value)
+                return i;
+        }
+
+        throw new std::exception();
+    }
+
+    template<typename T>
+    size_t indexOf(const vector<T>* vector, const T value)
+    {
+        for (size_t i = 0; i < vector->size(); ++i)
+        {
+            if ((*vector)[i] == value)
+                return i;
+        }
+
+        throw new std::exception();
+    }
+
     template<typename T, typename R>
     bool contains(const map<T, R> map, const T value)
     {
