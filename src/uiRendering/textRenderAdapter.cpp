@@ -26,8 +26,8 @@ namespace phi
         for (uint i = 0; i < 4; ++i)
             modelMatricesAttribs.push_back(vertexBufferAttribute(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new mappedVertexBuffer<text*, mat4>("modelMatrices", modelMatricesAttribs, 1000);
-        _glyphRenderDataBuffer = new mappedBuffer<text*, glyphRenderData>("GlyphRenderData", bufferTarget::shader, 1000);
+        _modelMatricesBuffer = new mappedVertexBuffer<text*, mat4>("modelMatrices", modelMatricesAttribs);
+        _glyphRenderDataBuffer = new mappedBuffer<text*, glyphRenderData>("GlyphRenderData", bufferTarget::shader);
 
         auto vertices = vector<vertex>
         {

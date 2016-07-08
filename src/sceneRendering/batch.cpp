@@ -57,8 +57,8 @@ namespace phi
         vboAttribs.push_back(vertexBufferAttribute(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
         vboAttribs.push_back(vertexBufferAttribute(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
-        _vbo = new mappedVertexBuffer<const geometry*, vertex>("vbo", vboAttribs, vboSize / sizeof(vertex));
-        _ebo = new mappedBuffer<const geometry*, uint>("ebo", bufferTarget::element, vboSize / sizeof(uint));
+        _vbo = new mappedVertexBuffer<const geometry*, vertex>("vbo", vboAttribs);
+        _ebo = new mappedBuffer<const geometry*, uint>("ebo", bufferTarget::element);
 
         auto selectionAttribs = { vertexBufferAttribute(4, 4, GL_FLOAT, 0, 0, 1) };
         _selectionBuffer = new multiDrawMappedBuffer<const meshInstance*, vec4>("selectionColor", selectionAttribs);
@@ -92,23 +92,20 @@ namespace phi
 
     void batch::addGeometry(geometry* geometry)
     {
-        _geometries.push_back(geometry);
-        _objectsCount++;
-
-        auto vboSize = geometry->vboSize;
-        auto eboSize = geometry->eboSize;
-
         _vbo->addRange(geometry, geometry->vboData, geometry->verticesCount);
         _ebo->addRange(geometry, geometry->eboData, geometry->indicesCount);
+
+        _modelMatricesBuffer->createBucket(geometry);
+        _materialsIdsBuffer->createBucket(geometry);
+        _selectionBuffer->createBucket(geometry);
 
         if (geometry->vboSize > _freeSpace)
             _freeSpace = 0;
         else
             _freeSpace -= geometry->vboSize;
 
-        _modelMatricesBuffer->createBucket(geometry);
-        _materialsIdsBuffer->createBucket(geometry);
-        _selectionBuffer->createBucket(geometry);
+        _geometries.push_back(geometry);
+        _objectsCount++;
     }
 
     void batch::addInstance(const meshInstance* instance)

@@ -25,8 +25,8 @@ namespace phi
         for (uint i = 0; i < 4; ++i)
             modelMatricesAttribs.push_back(vertexBufferAttribute(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
-        _modelMatricesBuffer = new mappedVertexBuffer<control*, mat4>("modelMatrices", modelMatricesAttribs, MAX_CONTROL_INSTANCES);
-        _renderDataBuffer = new mappedBuffer<control*, controlRenderData>("ControlRenderDataBuffer", bufferTarget::shader, MAX_CONTROL_INSTANCES);
+        _modelMatricesBuffer = new mappedVertexBuffer<control*, mat4>("modelMatrices", modelMatricesAttribs);
+        _renderDataBuffer = new mappedBuffer<control*, controlRenderData>("ControlRenderDataBuffer", bufferTarget::shader);
 
         auto vertices = vector<vertex>
         {

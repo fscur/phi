@@ -11,41 +11,51 @@
 
 namespace phi
 {
+    //TODO: create option to be mutable or immutable (see also multiDrawMappedBuffer)
     template <typename KEY, typename DATA>
     class mappedBuffer :
         public buffer
     {
-
     private:
-        size_t _maxInstances;
         unsigned long long _sizeOfDataType;
         unordered_map<KEY, bufferSlot> _instances;
-        DATA* _bufferData;
+        vector<DATA> _bufferData;
         size_t _instanceCount;
+        size_t _capacity;
+
+    private:
+        void uploadData(size_t index, size_t size)
+        {
+            auto needToResize = _capacity != _bufferData.capacity();
+            if (needToResize)
+            {
+                _capacity = _bufferData.capacity();
+                data(_sizeOfDataType * _capacity, _bufferData.data(), bufferDataUsage::dynamicDraw);
+            }
+            else if (size > 0)
+            {
+                subData(_sizeOfDataType * index, _sizeOfDataType * size, &_bufferData[index]);
+            }
+        }
 
     public:
-        mappedBuffer(string name, bufferTarget::bufferTarget target, size_t maxInstances, bool data = false) :
+        mappedBuffer(string name, bufferTarget::bufferTarget target) :
             buffer(name, target),
-            _maxInstances(maxInstances),
             _sizeOfDataType(sizeof(DATA)),
             _instances(unordered_map<KEY, bufferSlot>()),
-            _bufferData(new DATA[_maxInstances]),
-            _instanceCount(0)
+            _instanceCount(0),
+            _capacity(0)
         {
-            if (data)//TODO: remover this shit
-                this->data(sizeof(uint), nullptr, bufferDataUsage::dynamicDraw);
-            else
-                storage(maxInstances * _sizeOfDataType, nullptr, bufferStorageUsage::dynamic | bufferStorageUsage::write);
         }
 
         void add(KEY key, DATA data)
         {
-            auto index = _instanceCount;
+            auto index = _instanceCount++;
 
             _instances[key] = bufferSlot(index, 1);
-            _instanceCount++;
-            _bufferData[index] = data;
-            subData(index * _sizeOfDataType, _sizeOfDataType, &data);
+            _bufferData.insert(_bufferData.begin() + index, data);
+
+            uploadData(index, 1);
         }
 
         void addRange(KEY key, DATA* data, size_t size)
@@ -54,16 +64,15 @@ namespace phi
             _instances[key] = bufferSlot(index, size);
             _instanceCount += size;
 
-            auto bufferSize = size * _sizeOfDataType;
-            memcpy(_bufferData + index, data, bufferSize);
-            subData(index * _sizeOfDataType, bufferSize, data);
+            _bufferData.insert(_bufferData.begin() + index, data, data + size);
+            uploadData(index, size);
         }
 
         void update(KEY key, DATA data)
         {
             auto index = _instances[key].index;
             _bufferData[index] = data;
-            subData(index * _sizeOfDataType, _sizeOfDataType, &data);
+            uploadData(index, 1);
         }
 
         void updateRange(KEY key, DATA* data, size_t size)
@@ -73,9 +82,9 @@ namespace phi
             if (bufferSlot.size == size)
             {
                 auto index = _instances[key].index;
-                auto bufferSize = size * _sizeOfDataType;
-                memcpy(_bufferData + index, data, bufferSize);
-                subData(index * _sizeOfDataType, bufferSize, data);
+
+                std::copy(data, data + size, _bufferData.begin() + index);
+                uploadData(index, size);
             }
             else
             {
@@ -90,25 +99,18 @@ namespace phi
             auto size = _instances[key].size;
             auto dataCount = _instanceCount - (index + size);
 
-            if (dataCount > 0)
-            {
-                auto auxBuffer = new DATA[dataCount];
-                auto sizeOfDataToRemove = dataCount * _sizeOfDataType;
-                auto keyDataOffset = _bufferData + index;
+            auto first = _bufferData.begin() + index;
+            auto last = first + size;
+            _bufferData.erase(first, last);
 
-                memcpy(auxBuffer, keyDataOffset + size, sizeOfDataToRemove);
-                memcpy(keyDataOffset, auxBuffer, sizeOfDataToRemove);
-
-                subData(index * _sizeOfDataType, sizeOfDataToRemove, keyDataOffset);
-                safeDeleteArray(auxBuffer);
-            }
+            uploadData(index, dataCount);
 
             for (auto& pair : _instances)
             {
                 if (pair.second.index < index)
                     continue;
 
-                pair.second.index-= size;
+                pair.second.index -= size;
             }
 
             _instanceCount -= size;

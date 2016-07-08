@@ -16,8 +16,8 @@ namespace phi
         vector<vertexBufferAttribute> _attribs;
 
     public:
-        mappedVertexBuffer(const string& name, const vector<vertexBufferAttribute>& attribs, size_t maxInstances, bool data = false) :
-            mappedBuffer<KEY, DATA>(name, bufferTarget::array, maxInstances, data),
+        mappedVertexBuffer(const string& name, const vector<vertexBufferAttribute>& attribs) :
+            mappedBuffer<KEY, DATA>(name, bufferTarget::array),
             _attribs(attribs)
         {
         }
@@ -36,12 +36,10 @@ namespace phi
                 if (_attribs[i].type == GL_UNSIGNED_INT || _attribs[i].type == GL_INT)
                 {
                     glVertexAttribIPointer(location, _attribs[i].size, _attribs[i].type, _attribs[i].stride, _attribs[i].offset);
-
                 }
                 else if (_attribs[i].type == GL_FLOAT)
                 {
                     glVertexAttribPointer(location, _attribs[i].size, _attribs[i].type, GL_FALSE, _attribs[i].stride, _attribs[i].offset);
-
                 }
 
                 glVertexAttribDivisor(location, _attribs[i].divisor);
