@@ -244,10 +244,7 @@ namespace demon
     void defaultCameraController::zoomCancel()
     {
         if (_zoomBounceAnimation)
-        {
             phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
-            _zoomBounceAnimation = nullptr;
-        }
 
         _zoomSpeed = 0.0f;
     }

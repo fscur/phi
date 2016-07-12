@@ -6,8 +6,8 @@
 
 namespace phi
 {
-    std::vector<floatAnimation*> floatAnimator::_animations;
-    std::vector<floatAnimation*> floatAnimator::_toCancelAnimations;
+    vector<floatAnimation*> floatAnimator::_animations;
+    vector<floatAnimation*> floatAnimator::_toCancelAnimations;
     double floatAnimator::_lastUpdateMilliseconds = 0.0;
 
     void floatAnimator::animateFloat(floatAnimation* animation)
@@ -17,18 +17,18 @@ namespace phi
 
     void floatAnimator::cancelAnimation(floatAnimation* animation)
     {
-        _toCancelAnimations.push_back(animation);
+        if (phi::contains(_animations, animation))
+            _toCancelAnimations.push_back(animation);
     }
 
     void floatAnimator::update()
     {
-        while (_toCancelAnimations.size() > 0)
+        for (auto animation : _toCancelAnimations)
         {
-            auto element = _toCancelAnimations[0];
-            _animations.erase(std::remove(_animations.begin(), _animations.end(), element), _animations.end());
-            _toCancelAnimations.erase(std::remove(_toCancelAnimations.begin(), _toCancelAnimations.end(), element), _toCancelAnimations.end());
-            safeDelete(element);
+            removeIfContains(_animations, animation);
+            safeDelete(animation);
         }
+        _toCancelAnimations.clear();
 
         double currentMilliseconds = time::totalSeconds * 1000;
 
