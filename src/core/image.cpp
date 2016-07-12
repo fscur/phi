@@ -8,7 +8,7 @@ namespace phi
     image* image::defaultSpecularImage = image::createDefaultImage(vec4(1.0f));
     image* image::defaultEmissiveImage = image::createDefaultImage(vec4(0.0f));
 
-    image * image::createDefaultImage(const vec4 & color)
+    image* image::createDefaultImage(const vec4 & color)
     {
         //default texture size is 128 x 128 because of sparse textures
 
@@ -31,5 +31,13 @@ namespace phi
         }
 
         return new image(w, h, imageDataFormat::rgba, imageDataType::ubyte_dataType, data);
+    }
+
+    void image::release()
+    {
+        safeDelete(defaultAlbedoImage);
+        safeDelete(defaultNormalImage);
+        safeDelete(defaultSpecularImage);
+        safeDelete(defaultEmissiveImage);
     }
 }

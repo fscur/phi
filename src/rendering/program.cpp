@@ -14,13 +14,16 @@ namespace phi
     {
         unbind();
 
-        for (auto shader : _shaders)
+        for (auto& shader : _shaders)
+        {
             glDetachShader(_id, shader->getId());
+            safeDelete(shader);
+        }
 
         glDeleteProgram(_id);
     }
 
-    void program::addShader(shader * shader)
+    void program::addShader(shader* shader)
     {
         _shaders.push_back(shader);
         glAttachShader(_id, shader->getId());

@@ -15,7 +15,6 @@ namespace phi
 
     textRenderAdapter::~textRenderAdapter()
     {
-        safeDelete(_modelMatricesBuffer);
         safeDelete(_glyphRenderDataBuffer);
     }
 
@@ -46,7 +45,9 @@ namespace phi
         };
 
         _vao = vertexArrayObject::createQuadVao(textQuad, renderFunction);
-        _vao->add(_modelMatricesBuffer);
+        _vao->addBuffer(_modelMatricesBuffer);
+
+        safeDelete(textQuad);
     }
 
     void textRenderAdapter::add(text* text)

@@ -33,9 +33,11 @@ namespace phi
     textureContainer::~textureContainer()
     {
         glDeleteTextures(1, &_id);
-        
 
         textureUnits::clear(_unit);
+
+        for (auto& pair : _atlases)
+            safeDelete(pair.second);
     }
 
     void textureContainer::create()

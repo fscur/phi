@@ -15,6 +15,7 @@ namespace phi
     {
         safeDelete(_left);
         safeDelete(_right);
+        safeDelete(_item);
     }
 
     inline bool atlasNode::isLeaf()
@@ -108,11 +109,15 @@ namespace phi
         _root = new atlasNode(rectangle<uint>(0u, 0u, size.w, size.h));
     }
 
+    atlas::~atlas()
+    {
+        safeDelete(_root);
+    }
+
     inline atlasNode* atlas::insert(atlasItem* item)
     {
         auto root = _root->insert(item);
 
- 
         if (!root)
             _isFull = true;
 

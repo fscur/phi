@@ -2,6 +2,8 @@
 #include "vertexArrayObject.h"
 
 #include <core\geometry.h>
+#include "vertexBuffer.h"
+#include "indexBuffer.h"
 
 namespace phi
 {
@@ -13,28 +15,17 @@ namespace phi
 
     vertexArrayObject::~vertexArrayObject()
     {
-        for (auto& vbo : _vbos)
-            safeDelete(vbo);
-
-        safeDelete(_ebo);
+        for (auto& buffer : _buffers)
+            safeDelete(buffer);
     }
 
-    void vertexArrayObject::add(iVertexBuffer* buffer)
+    void vertexArrayObject::addBuffer(iVertexBuffer* buffer)
     {
         glBindVertexArray(_id);
         buffer->initialize();
         glBindVertexArray(0);
 
-        _vbos.push_back(buffer);
-    }
-
-    void vertexArrayObject::setEbo(buffer* buffer)
-    {
-        _ebo = buffer;
-
-        glBindVertexArray(_id);
-        _ebo->bind();
-        glBindVertexArray(0);
+        _buffers.push_back(buffer);
     }
 
     void vertexArrayObject::render()
@@ -60,12 +51,12 @@ namespace phi
         auto vbo = new vertexBuffer("vbo", attribs);
         vbo->storage(quad->vboSize, quad->vboData, bufferStorageUsage::write);
 
-        auto ebo = new buffer("ebo", bufferTarget::element);
+        auto ebo = new indexBuffer("ebo");
         ebo->storage(quad->eboSize, quad->eboData, bufferStorageUsage::write);
 
         auto quadVao = new vertexArrayObject();
-        quadVao->add(vbo);
-        quadVao->setEbo(ebo);
+        quadVao->addBuffer(vbo);
+        quadVao->addBuffer(ebo);
         quadVao->setOnRender(renderFunction);
 
         return quadVao;

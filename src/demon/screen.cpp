@@ -123,16 +123,6 @@ namespace demon
         virtual void executeUndo() override { _design = !_design; }
     };
 
-    phi::node* chair0;
-    phi::node* chair1;
-    phi::node* chair2;
-    phi::node* chair3;
-    phi::node* cube0;
-    phi::node* cube1;
-    phi::node* cube2;
-    phi::node* floor0;
-    phi::node* floor1;
-
     void screen::initUi()
     {
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
@@ -178,53 +168,33 @@ namespace demon
             })
             .build();
 
-        chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair0->getTransform()->setLocalPosition(vec3(4.f, .1f, -2.0f));
+        auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
-        chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair1->getTransform()->setLocalPosition(vec3(2.f, .1f, .0f));
+        _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
+        _sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
 
-        chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair2->getTransform()->setLocalPosition(vec3(0.f, .1f, 2.f));
-
-        chair3 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair3->getTransform()->setLocalPosition(vec3(2.f, .1f, 2.f));
-
-        cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-
-        cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube1->getTransform()->setLocalPosition(vec3(-50.f, .1f, 2.f));
-
-        cube2 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube2->getTransform()->setLocalPosition(vec3(2.f, .1f, -2.f));
-
-        floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-
-        floor1 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        floor1->getTransform()->setLocalPosition(vec3(0.f, 0.f, 10.f));
-
-        auto sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
-        sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
-
-        _sceneLayer = layerBuilder::newLayer(sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+        _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withMeshRenderer()
             .build();
 
-        auto constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+        _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        _constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _constructionLayer = layerBuilder::newLayer(constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+        _constructionLayer = layerBuilder::newLayer(_constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withControlRenderer()
-            //.withTextRenderer()
+            .withTextRenderer()
             .build();
 
-        auto nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+        _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _nandinhoLayer = layerBuilder::newLayer(nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+        _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withGlassyControlRenderer()
             .withTextRenderer()
             .build();
@@ -254,81 +224,37 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        _sceneLayer->add(cube0);
-        _sceneLayer->add(cube1);
-        _sceneLayer->add(cube2);
-        _sceneLayer->add(chair0);
-        _sceneLayer->add(chair1);
-        _sceneLayer->add(chair2);
-        _sceneLayer->add(chair3);
         _sceneLayer->add(floor0);
-        _sceneLayer->add(floor1);
+        _sceneLayer->add(cube0);
+        _sceneLayer->add(chair0);
 
         //_sceneLayer->add(_sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer
 
         _constructionLayer->add(_constructionLabel);
-        _nandinhoLayer->add(changeContextButton);
+        _constructionLayer->add(_sceneLabel);
 
-        _nandinhoLayer->add(_sceneLabel);
-        _nandinhoLayer->add(_constructionLabel);
         _nandinhoLayer->add(_labelNandinho);
         _nandinhoLayer->add(_labelFps);
         _nandinhoLayer->add(changeContextButton);
 
         _activeContext = _designContext;
 
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [&]()
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [=]()
         {
             auto nodesToDelete = { cube0 };
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
 
-        _commandsManager->addShortcut(shortcut({ PHIK_SHIFT, PHIK_DELETE }, [&]()
-        {
-            auto nodesToDelete = { cube1 };
-            return new deleteSceneObjectCommand(nodesToDelete);
-        }));
-
-        _commandsManager->addShortcut(shortcut({ PHIK_SPACE }, [&]()
-        {
-            auto nodesToDelete = { cube2 };
-            return new deleteSceneObjectCommand(nodesToDelete);
-        }));
-
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [&]()
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [=]()
         {
             auto nodesToDelete = { chair0 };
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
 
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_1 }, [&]()
-        {
-            auto nodesToDelete = { chair1 };
-            return new deleteSceneObjectCommand(nodesToDelete);
-        }));
-
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_2 }, [&]()
-        {
-            auto nodesToDelete = { chair2 };
-            return new deleteSceneObjectCommand(nodesToDelete);
-        }));
-
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_3 }, [&]()
-        {
-            auto nodesToDelete = { chair3 };
-            return new deleteSceneObjectCommand(nodesToDelete);
-        }));
-
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [&]()
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [=]()
         {
             auto nodesToDelete = { floor0 };
-            return new deleteSceneObjectCommand(nodesToDelete);
-        }));
-
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_5 }, [&]()
-        {
-            auto nodesToDelete = { floor1 };
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
     }
@@ -410,19 +336,16 @@ namespace demon
     {
         auto label = _labelFps->getComponent<phi::text>();
         auto str = "fps: " + std::to_string(application::framesPerSecond);
-        debug(str);
         label->setText(wstring(str.begin(), str.end()));
 
         if (a)
         {
             _constructionLabel->getComponent<phi::text>()->setText(L"edftg");
             _nandinhoLayer->add(_labelFps);
-            _nandinhoLayer->add(_sceneLabel);
         }
         else
         {
             _labelFps->getParent()->removeChild(_labelFps);
-            _sceneLabel->getParent()->removeChild(_sceneLabel);
         }
 
         a = !a;
@@ -449,18 +372,27 @@ namespace demon
         safeDelete(_userLibrary);
         safeDelete(_projectLibrary);
 
-        //safeDelete(_sceneLayer);
-        safeDelete(_constructionLayer);
-        safeDelete(_nandinhoLayer);
-
         safeDelete(_designContext);
         safeDelete(_constructionContext);
+
+        safeDelete(_constructionLayer);
+        safeDelete(_nandinhoLayer);
+        safeDelete(_sceneLayer);
+
+        safeDelete(_sceneCamera);
+        safeDelete(_nandinhoCamera);
+        safeDelete(_constructionCamera);
 
 #ifdef _DEBUG
         _watcher->endWatch();
         safeDelete(_watcher);
         safeDelete(_messageQueue);
-#endif 
+#endif
+
+        safeDelete(_framebufferAllocator);
+        phi::framebuffer::release();
+        phi::image::release();
+        phi::material::release();
     }
 
     void screen::onResize(phi::resolution resolution)

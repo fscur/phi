@@ -12,6 +12,10 @@ namespace phi
 
     renderPass::~renderPass()
     {
+        safeDelete(_program);
+
+        for (auto& vao : _vaos)
+            safeDelete(vao);
     }
 
     void renderPass::initialize()
@@ -22,7 +26,6 @@ namespace phi
 
     void renderPass::update()
     {
-        //_onUpdate(_program);
     }
 
     void renderPass::render()

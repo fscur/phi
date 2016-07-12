@@ -12,7 +12,6 @@ namespace phi
     private:
         unordered_map<textureLayout, uint> _layoutsCount;
         vector<framebuffer*> _framebuffers;
-        unordered_map<framebuffer*, const framebufferLayout*> _framebufferLayouts;
         unordered_map<string, renderTarget*> _renderTargets;
         unordered_map<renderTarget*, textureLayout> _renderTargetsLayouts;
 
@@ -34,7 +33,7 @@ namespace phi
         RENDERING_API framebufferAllocator();
         RENDERING_API ~framebufferAllocator();
         
-        RENDERING_API framebuffer* newFramebuffer(const framebufferLayout* framebufferLayout, const resolution& resolution);
+        RENDERING_API framebuffer* newFramebuffer(framebufferLayout* framebufferLayout, const resolution& resolution);
         RENDERING_API void allocate(const resolution& resolution);
         RENDERING_API void reallocate(const resolution& resolution);
         RENDERING_API renderTarget* getRenderTarget(string renderTargetName) const { return getRenderTargetByName(renderTargetName); }

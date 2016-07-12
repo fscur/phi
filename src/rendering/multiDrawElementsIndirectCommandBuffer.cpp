@@ -5,12 +5,15 @@
 
 namespace phi
 {
-    multiDrawElementsIndirectCommandBuffer::multiDrawElementsIndirectCommandBuffer()
+    multiDrawElementsIndirectCommandBuffer::multiDrawElementsIndirectCommandBuffer() :
+        _drawCmdBuffer(new buffer("drawIndirect", bufferTarget::drawIndirect))
     {
     }
 
     multiDrawElementsIndirectCommandBuffer::~multiDrawElementsIndirectCommandBuffer()
     {
+        clear();
+        safeDelete(_drawCmdBuffer);
     }
 
     void multiDrawElementsIndirectCommandBuffer::add(const geometry * geometry)
@@ -32,8 +35,6 @@ namespace phi
 
     void multiDrawElementsIndirectCommandBuffer::create()
     {
-        _drawCmdBuffer = new buffer("drawIndirect", bufferTarget::drawIndirect);
-
         auto indicesOffset = 0;
         auto verticesOffset = 0;
         auto instancesOffset = 0;
@@ -71,5 +72,14 @@ namespace phi
     void multiDrawElementsIndirectCommandBuffer::unbind()
     {
         _drawCmdBuffer->unbind();
+    }
+
+    void multiDrawElementsIndirectCommandBuffer::clear()
+    {
+        for (auto& instance : _geometries)
+            safeDelete(instance);
+
+        _geometries.clear();
+        _geometriesInstances.clear();
     }
 }

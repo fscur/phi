@@ -11,6 +11,7 @@ namespace phi
     framebuffer* framebuffer::defaultFramebuffer = new framebuffer(true);
 
     framebuffer::framebuffer(bool isDefaultFramebuffer) :
+        _name("defaultFramebuffer"),
         _id(0),
         _maxColorAttachments(0),
         _currentAttachment(0),
@@ -19,7 +20,8 @@ namespace phi
     {
     }
 
-    framebuffer::framebuffer() :
+    framebuffer::framebuffer(const string& name) :
+        _name(name),
         _id(0),
         _maxColorAttachments(0),
         _currentAttachment(0),
@@ -110,7 +112,6 @@ namespace phi
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
         glReadBuffer(_renderTargetsAttachments[sourceRenderTarget]);
-
     }
 
     void framebuffer::unbind(GLenum target)
@@ -165,5 +166,10 @@ namespace phi
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
 
         return zBufferValue;
+    }
+
+    void framebuffer::release()
+    {
+        safeDelete(defaultFramebuffer);
     }
 }

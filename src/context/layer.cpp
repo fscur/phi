@@ -21,6 +21,15 @@ namespace phi
     {
         for (auto& onDeleteFunction : _onDelete)
             onDeleteFunction();
+
+        for (auto& pair : _nodeTokens)
+            untrackNode(pair.first);
+
+        for (auto& mouseController : _controllers)
+            safeDelete(mouseController);
+
+        safeDelete(_frameUniformsBuffer);
+        safeDelete(_root);
     }
 
     void layer::createFrameUniforms()
@@ -53,7 +62,6 @@ namespace phi
         node->selectionChanged.unassign(_nodeTokens[node]->selectionChanged);
 
         safeDelete(_nodeTokens[node]);
-        _nodeTokens.erase(node);
     }
 
     void layer::updateFrameUniforms()
@@ -82,6 +90,7 @@ namespace phi
         removedChild->traverse([&](phi::node* node)
         {
             untrackNode(node);
+            _nodeTokens.erase(node);
 
             for (auto onNodeRemovedFunction : _onNodeRemoved)
                 onNodeRemovedFunction(node);

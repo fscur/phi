@@ -38,6 +38,10 @@ namespace demon
         phi::layer* _constructionLayer;
         phi::layer* _nandinhoLayer;
 
+        phi::camera* _sceneCamera;
+        phi::camera* _nandinhoCamera;
+        phi::camera* _constructionCamera;
+
         phi::node* _labelFps;
         phi::node* _labelNandinho;
         phi::node* _constructionLabel;
@@ -48,7 +52,6 @@ namespace demon
         phi::watcher* _watcher;
         phi::blockingQueue<phi::watcherMessage>* _messageQueue;
 #endif
-
 
         phi::framebufferAllocator* _framebufferAllocator;
 

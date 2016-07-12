@@ -30,6 +30,7 @@ namespace phi
             .build();
 
         auto blurHFramebuffer = framebufferAllocator->newFramebuffer(framebufferLayout, resolution);
+        safeDelete(framebufferLayout);
 
         auto pass = new renderPass(blurHProgram, blurHFramebuffer, resolution);
 

@@ -35,9 +35,12 @@ namespace phi
 
     void fontsManager::release()
     {
-        for (auto pair : _fonts)
+        for (auto& pair : _fonts)
             safeDelete(pair.second);
         
+        for (auto& pair : _glyphTextureDataCache)
+            safeDelete(pair.second);
+
         FT_Done_FreeType(_freeTypeLibrary);
     }
 
@@ -72,7 +75,7 @@ namespace phi
             return _glyphTextureDataCache[glyph];
 
         auto glyphTexture = new texture(glyph->image, _glyphLayout, true, true);
-        textureAddress address = texturesManager::addAtlasTexture(glyphTexture);
+        auto address = texturesManager::addAtlasTexture(glyphTexture);
 
         auto glyphTextureData = new phi::glyphTextureData(glyph);
 

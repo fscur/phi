@@ -23,24 +23,25 @@ namespace phi
     glassyControlLayerBehaviour::~glassyControlLayerBehaviour()
     {
         safeDelete(_adapter);
+
+        for (auto& renderPass : _renderPasses)
+            safeDelete(renderPass);
     }
 
     void glassyControlLayerBehaviour::onNodeAdded(node* node)
     {
         auto control = node->getComponent<phi::control>();
+
         if (control)
-        {
             _adapter->add(control);
-        }
     }
 
     void glassyControlLayerBehaviour::onNodeRemoved(node* node)
     {
         auto control = node->getComponent<phi::control>();
+
         if (control)
-        {
             _adapter->remove(control);
-        }
     }
 
     void glassyControlLayerBehaviour::onNodeTransformChanged(node* node)

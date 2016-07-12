@@ -9,7 +9,7 @@
 
 namespace phi
 {
-    map<string, shader*> programBuilder::_shadersCache = map<string, shader*>();
+    //map<string, shader*> programBuilder::_shadersCache = map<string, shader*>();
 
     program* programBuilder::buildProgram(
         const string& shadersPath,
@@ -21,7 +21,7 @@ namespace phi
 
         //TODO: check if file exists
 
-        auto newShader = [&](string fileName)
+      /*  auto newShader = [&](string fileName)
         {
             if (contains(_shadersCache, fileName))
                 return _shadersCache[fileName];
@@ -31,9 +31,9 @@ namespace phi
 
             return shader;
         };
-
-        auto vertexShader = newShader(vertexFileName);
-        auto fragmentShader = newShader(fragmentFileName);
+*/
+        auto vertexShader = new shader(vertexFileName);
+        auto fragmentShader = new shader(fragmentFileName);
 
         auto program = new phi::program();
         program->addShader(vertexShader);
@@ -45,7 +45,6 @@ namespace phi
         liveShaderReloader::add(vertexFileName, program);
         liveShaderReloader::add(fragmentFileName, program);
 #endif
-
         return program;
     }
 }

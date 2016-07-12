@@ -20,4 +20,9 @@ namespace phi
             0.0f,
             1.0f);
     }
+
+    void material::release()
+    {
+        safeDelete(defaultMaterial);
+    }
 }

@@ -11,6 +11,7 @@ namespace phi
     class framebuffer
     {
     private:
+        const string _name;
         GLuint _id;
         GLint _maxColorAttachments;
         GLint _currentAttachment;
@@ -26,7 +27,7 @@ namespace phi
         RENDERING_API framebuffer(bool isDefaultFramebuffer);
 
     public:
-        RENDERING_API framebuffer();
+        RENDERING_API framebuffer(const string& name);
         RENDERING_API ~framebuffer();
 
         RENDERING_API void add(renderTarget* renderTarget, GLenum attachment);
@@ -50,5 +51,9 @@ namespace phi
         RENDERING_API GLfloat getZBufferValue(int x, int y);
 
         vector<renderTarget*> getRenderTargets() { return _renderTargets; }
+        string getName() const { return _name; }
+
+    public:
+        RENDERING_API static void release();
     };
 }

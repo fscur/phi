@@ -58,7 +58,7 @@ namespace phi
         return hexDigitToChar(a) * 16 + hexDigitToChar(b);
     }
 
-    guid::guid(const string &fromString)
+    guid::guid(const string& fromString)
     {
         _bytes.clear();
 
@@ -92,28 +92,30 @@ namespace phi
     {
     }
 
-    guid::guid(const guid &other) :
+    guid::guid(const guid& other) :
         _bytes(other._bytes)
     {
     }
 
-    guid &guid::operator=(const guid &other)
+    guid& guid::operator=(const guid& other)
     {
-        _bytes = other._bytes;
+        if (&other != this)
+            _bytes = other._bytes;
+
         return *this;
     }
 
-    bool guid::operator==(const guid &other) const
+    bool guid::operator==(const guid& other) const
     {
         return _bytes == other._bytes;
     }
 
-    bool guid::operator!=(const guid &other) const
+    bool guid::operator!=(const guid& other) const
     {
         return !((*this) == other);
     }
 
-    ostream &operator<<(ostream &s, const guid &guid)
+    ostream& operator<<(ostream& s, const guid& guid)
     {
         return s << hex << setfill('0')
             << setw(2) << (int)guid._bytes[0]

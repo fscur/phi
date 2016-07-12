@@ -21,6 +21,9 @@ namespace phi
     meshLayerBehaviour::~meshLayerBehaviour()
     {
         safeDelete(_adapter);
+        
+        for (auto& renderPass : _renderPasses)
+            safeDelete(renderPass);
     }
 
     void meshLayerBehaviour::onNodeAdded(node* node)

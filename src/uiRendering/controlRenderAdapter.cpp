@@ -15,7 +15,6 @@ namespace phi
 
     controlRenderAdapter::~controlRenderAdapter()
     {
-        safeDelete(_modelMatricesBuffer);
         safeDelete(_renderDataBuffer);
     }
 
@@ -45,7 +44,9 @@ namespace phi
         };
 
         _vao = vertexArrayObject::createQuadVao(controlQuad, renderFunction);
-        _vao->add(_modelMatricesBuffer);
+        _vao->addBuffer(_modelMatricesBuffer);
+
+        safeDelete(controlQuad);
     }
 
     void controlRenderAdapter::updateModelMatrix(control* control)

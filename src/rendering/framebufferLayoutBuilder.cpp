@@ -8,6 +8,15 @@ namespace phi
     {
     }
 
+    framebufferLayoutBuilder::framebufferLayoutBuilder(const framebufferLayoutBuilder& original) :
+        _framebufferLayout(original._framebufferLayout)
+    {
+    }
+
+    framebufferLayoutBuilder::~framebufferLayoutBuilder()
+    {
+    }
+
     framebufferLayoutBuilder framebufferLayoutBuilder::newFramebufferLayout(const string& name)
     {
         return framebufferLayoutBuilder(new framebufferLayout(name));

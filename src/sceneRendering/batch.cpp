@@ -22,10 +22,6 @@ namespace phi
 
     batch::~batch()
     {
-        safeDelete(_vao);
-        safeDelete(_materialsIdsBuffer);
-        safeDelete(_modelMatricesBuffer);
-        safeDelete(_selectionBuffer);
         safeDelete(_multiDrawCommandsBuffer);
 
         for (auto geometry : _geometries)
@@ -58,7 +54,7 @@ namespace phi
         vboAttribs.push_back(vertexBufferAttribute(3, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::tangent)));
 
         _vbo = new mappedVertexBuffer<const geometry*, vertex>("vbo", vboAttribs);
-        _ebo = new mappedBuffer<const geometry*, uint>("ebo", bufferTarget::element);
+        _ebo = new mappedIndexBuffer<const geometry*, uint>("ebo");
 
         auto selectionAttribs = { vertexBufferAttribute(4, 4, GL_FLOAT, 0, 0, 1) };
         _selectionBuffer = new multiDrawMappedBuffer<const meshInstance*, vec4>("selectionColor", selectionAttribs);
@@ -76,11 +72,11 @@ namespace phi
     void batch::initializeVao()
     {
         _vao = new vertexArrayObject();
-        _vao->add(_vbo);
-        _vao->setEbo(_ebo);
-        _vao->add(_selectionBuffer);
-        _vao->add(_materialsIdsBuffer);
-        _vao->add(_modelMatricesBuffer);
+        _vao->addBuffer(_vbo);
+        _vao->addBuffer(_ebo);
+        _vao->addBuffer(_selectionBuffer);
+        _vao->addBuffer(_materialsIdsBuffer);
+        _vao->addBuffer(_modelMatricesBuffer);
 
         _vao->setOnRender([=]
         {
@@ -152,7 +148,7 @@ namespace phi
 
     void batch::updateMultiDrawCommands()
     {
-        _multiDrawCommandsBuffer = new multiDrawElementsIndirectCommandBuffer();
+        _multiDrawCommandsBuffer->clear();
 
         for (auto& geometry : _geometries)
         {

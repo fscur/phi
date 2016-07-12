@@ -51,5 +51,8 @@ namespace phi
 
     private: 
         static material* createDefaultMaterial();
+
+    public:
+        CORE_API static void release();
     };
 }

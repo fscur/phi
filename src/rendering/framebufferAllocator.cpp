@@ -6,11 +6,16 @@ namespace phi
 {
     framebufferAllocator::framebufferAllocator()
     {
-
+        
     }
 
     framebufferAllocator::~framebufferAllocator()
     {
+        for (auto& item : _framebuffers)
+            safeDelete(item);
+
+        for (auto& pair : _renderTargets)
+            safeDelete(pair.second);
     }
 
     renderTarget* framebufferAllocator::getRenderTargetByName(string name) const
@@ -26,10 +31,10 @@ namespace phi
 
     framebuffer * framebufferAllocator::getFramebufferByName(string name) const
     {
-        for (auto& pair : _framebufferLayouts)
+        for (auto& item : _framebuffers)
         {
-            if (pair.second->name == name)
-                return pair.first;
+            if (item->getName() == name)
+                return item;
         }
 
         throw argumentException(name + " is not a valid framebuffer name. Framebuffer not found.");
@@ -97,16 +102,15 @@ namespace phi
         }
     }
 
-    framebuffer* framebufferAllocator::newFramebuffer(const framebufferLayout* framebufferLayout, const resolution& resolution)
+    framebuffer* framebufferAllocator::newFramebuffer(framebufferLayout* framebufferLayout, const resolution& resolution)
     {
-        auto framebuffer = new phi::framebuffer();
+        auto framebuffer = new phi::framebuffer(framebufferLayout->getName());
         auto renderTargetsLayouts = framebufferLayout->getRenderTargetsLayouts();
         addRenderTargetLayouts(framebuffer, renderTargetsLayouts, resolution);
 
         auto renderTargets = framebufferLayout->getRenderTargets();
         addRenderTargets(framebuffer, renderTargets, resolution);
 
-        _framebufferLayouts[framebuffer] = framebufferLayout;
         _framebuffers.push_back(framebuffer);
         return framebuffer;
     }

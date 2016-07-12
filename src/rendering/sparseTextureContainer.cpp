@@ -13,13 +13,8 @@ namespace phi
     void sparseTextureContainer::onCreate()
     {
         glActiveTexture(GL_TEXTURE0 + _unit);
-        
-
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        
-
         glTextureParameteri(_id, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
-        
 
         // TODO: This could be done once per internal format. For now, just do it every time.
         GLint indexCount = 0,
@@ -34,18 +29,13 @@ namespace phi
         auto internalFormat = _layout.internalFormat;
 
         glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 1, &indexCount);
-        
 
         for (GLint i = 0; i < indexCount; ++i)
         {
             glTextureParameteri(_id, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, i);
-            
             glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_VIRTUAL_PAGE_SIZE_X_ARB, 1, &xSize);
-            
             glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_VIRTUAL_PAGE_SIZE_Y_ARB, 1, &ySize);
-            
             glGetInternalformativ(GL_TEXTURE_2D_ARRAY, internalFormat, GL_VIRTUAL_PAGE_SIZE_Z_ARB, 1, &zSize);
-            
 
             if (zSize == 1)
             {
@@ -60,7 +50,6 @@ namespace phi
         if (bestIndex != -1)
         {
             glTextureParameteri(_id, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, bestIndex);
-            
         }
 
         glTextureStorage3D(_id,
@@ -69,16 +58,11 @@ namespace phi
             _size.w,
             _size.h,
             static_cast<GLsizei>(_maxPages));
-        
 
         glTextureParameteri(_id, GL_TEXTURE_WRAP_S, _layout.wrapMode);
-        
         glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
-        
         glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
-        
         glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
-        
     }
 
     void sparseTextureContainer::onLoadData(
@@ -100,7 +84,6 @@ namespace phi
                 levelHeight,
                 1,
                 GL_TRUE);
-            
 
             levelWidth = std::max(levelWidth / 2, 1);
             levelHeight = std::max(levelHeight / 2, 1);
@@ -109,10 +92,7 @@ namespace phi
         if (data != nullptr)
         {
             glActiveTexture(GL_TEXTURE0 + _unit);
-            
-
             glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-            
 
             glTextureSubImage3D(
                 _id,
@@ -126,10 +106,8 @@ namespace phi
                 _layout.dataFormat,
                 _layout.dataType,
                 data);
-            
 
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-            
         }
     }
 
@@ -139,10 +117,7 @@ namespace phi
         const void* const data)
     {
         glActiveTexture(GL_TEXTURE0 + _unit);
-        
-
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
-        
 
         glTextureSubImage3D(
             _id,
@@ -157,9 +132,6 @@ namespace phi
             _layout.dataType,
             data);
 
-        
-
         glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        
     }
 }

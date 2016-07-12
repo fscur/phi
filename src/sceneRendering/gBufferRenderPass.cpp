@@ -24,6 +24,7 @@ namespace phi
             .build();
 
         auto gBufferFramebuffer = framebufferAllocator->newFramebuffer(gBufferFramebufferLayout, resolution);
+        safeDelete(gBufferFramebufferLayout);
 
         auto program = programBuilder::buildProgram(shadersPath, "gBuffer", "gBuffer");
         program->addBuffer(meshAdapter->getMaterialRenderDataBuffer());

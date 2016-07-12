@@ -47,6 +47,7 @@ namespace phi
 
     public:
         CORE_API atlas(sizeui size);
+        CORE_API ~atlas();
 
         CORE_API atlasNode* insert(atlasItem* item);
         

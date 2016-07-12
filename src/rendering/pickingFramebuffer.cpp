@@ -14,8 +14,11 @@ namespace phi
             .build();
 
         _pickingFramebuffer = framebufferAllocator->newFramebuffer(pickingFramebufferLayout, resolution);
+
         _pickingRenderTarget = _pickingFramebuffer->getRenderTarget("pickingRenderTarget");
         _resolution = resolution;
+
+        safeDelete(pickingFramebufferLayout);
     }
 
     uint32_t pickingFramebuffer::pick(int mouseX, int mouseY)

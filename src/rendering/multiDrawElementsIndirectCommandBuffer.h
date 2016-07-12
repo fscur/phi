@@ -41,5 +41,6 @@ namespace phi
         RENDERING_API void create();
         RENDERING_API void bind();
         RENDERING_API void unbind();
+        RENDERING_API void clear();
     };
 }

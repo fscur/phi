@@ -7,6 +7,7 @@
 
 #include <rendering\mappedBuffer.h>
 #include <rendering\mappedVertexBuffer.h>
+#include <rendering\mappedIndexBuffer.h>
 #include <rendering\multiDrawMappedBuffer.h>
 #include <rendering\drawElementsIndirectCmd.h>
 #include <rendering\multiDrawElementsIndirectCommandBuffer.h>
@@ -31,7 +32,7 @@ namespace phi
 
         vertexArrayObject* _vao;
         mappedVertexBuffer<const geometry*, vertex>* _vbo;
-        mappedBuffer<const geometry*, uint>* _ebo;
+        mappedIndexBuffer<const geometry*, uint>* _ebo;
 
         multiDrawMappedBuffer<const meshInstance*, uint>* _materialsIdsBuffer;
         multiDrawMappedBuffer<const meshInstance*, mat4>* _modelMatricesBuffer;

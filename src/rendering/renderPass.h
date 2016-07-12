@@ -29,7 +29,7 @@ namespace phi
         program* _program;
         vector<vertexArrayObject*> _vaos;
         framebuffer* _framebuffer;
-        phi::resolution _resolution;
+        resolution _resolution;
         unordered_map<string, renderTarget*> _ins;
         unordered_map<string, renderTarget*> _outs;
 

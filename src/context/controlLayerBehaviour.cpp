@@ -19,6 +19,9 @@ namespace phi
     controlLayerBehaviour::~controlLayerBehaviour()
     {
         safeDelete(_adapter);
+
+        for (auto& renderPass : _renderPasses)
+            safeDelete(renderPass);
     }
 
     void controlLayerBehaviour::onNodeAdded(node* node)

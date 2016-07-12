@@ -60,6 +60,9 @@ namespace phi
         }
 
     private:
-        static image* image::createDefaultImage(const vec4 & color);
+        static image* createDefaultImage(const vec4 & color);
+
+    public:
+        CORE_API static void release();
     };
 }
