@@ -8,12 +8,6 @@ namespace phi
 {
     class programBuilder
     {
-    private:
-        static map<string, shader*> _shadersCache;
-
-    private:
-        ~programBuilder() {};
-
     public:
         RENDERING_API static program* buildProgram(
             const string& shadersPath,

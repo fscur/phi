@@ -61,6 +61,7 @@ namespace phi
         SCENE_RENDERING_API void updateSelectionBuffer(const meshInstance* instance, bool isSelected);
         SCENE_RENDERING_API void updateTransformBuffer(const meshInstance* instance);
 
-        SCENE_RENDERING_API vertexArrayObject* getVao() { return _vao; }
+        bool isEmpty() { return _geometries.size() == 0; }
+        vertexArrayObject* getVao() { return _vao; }
     };
 }

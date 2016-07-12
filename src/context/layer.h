@@ -53,9 +53,6 @@ namespace phi
 
         buffer* _frameUniformsBuffer;
 
-    public:
-        eventHandler<layer*> onInputChanged;
-
     private:
         void createFrameUniforms();
         void updateFrameUniforms();

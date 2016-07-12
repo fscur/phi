@@ -19,6 +19,8 @@ namespace phi
 
         for (auto batch : _batches)
             safeDelete(batch);
+
+        _onDelete();
     }
 
     void meshRenderAdapter::createBuffers()
@@ -81,7 +83,7 @@ namespace phi
         addToBatch(instance, batch);
 
         _batches.push_back(batch);
-        onBatchAdded->raise(batch); //TODO: AAAAAAAAAAAAAAAAAAAAAA SALVE OS TOKEN SEU BOSTA
+        onBatchAdded->raise(batch);
     }
 
     void meshRenderAdapter::addToBatch(meshInstance* instance)
@@ -119,9 +121,20 @@ namespace phi
     void meshRenderAdapter::remove(mesh* mesh)
     {
         auto instance = _meshesInstances[mesh];
-        _meshesBatches[mesh]->remove(instance);
+        auto batch = _meshesBatches[mesh];
 
-        //TODO: delete batch if shit
+        batch->remove(instance);
+
+        _meshesInstances.erase(mesh);
+        _meshesBatches.erase(mesh);
+
+        if (batch->isEmpty())
+        {
+            phi::removeIfContains(_batches, batch);
+            safeDelete(batch);
+        }
+
+        //TODO: remove material from gpu if this is the last mesh using it
     }
 
     void meshRenderAdapter::update(mesh* mesh)

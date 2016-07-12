@@ -7,8 +7,6 @@
 
 namespace phi
 {
-    using namespace phi;
-
     layer::layer(camera* camera) :
         _camera(camera),
         _root(new node("root"))

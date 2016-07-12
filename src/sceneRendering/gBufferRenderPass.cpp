@@ -35,12 +35,17 @@ namespace phi
         for (auto renderTarget : renderTargets)
             pass->addOut(renderTarget);
 
-        meshAdapter->onBatchAdded->assign([=](batch* batch)
+        auto batchAddedToken = meshAdapter->onBatchAdded->assign([=](batch* batch)
         {
             pass->addVao(batch->getVao());
         });
 
-        pass->setOnBeginRender([=] (phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
+        meshAdapter->onDelete([meshAdapter, batchAddedToken]()
+        {
+            meshAdapter->onBatchAdded->unassign(batchAddedToken);
+        });
+
+        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
 

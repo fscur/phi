@@ -17,12 +17,13 @@ namespace phi
     private:
         const uint MAX_MATERIALS_COUNT = 512;
 
-        unordered_map<mesh*, batch*> _meshesBatches;
-        unordered_map<material*, uint> _materialsIndices;
         vector<batch*> _batches;
+        unordered_map<mesh*, batch*> _meshesBatches;
+        unordered_map<mesh*, meshInstance*> _meshesInstances;
+        unordered_map<material*, uint> _materialsIndices;
         buffer* _materialRenderDataBuffer;
 
-        unordered_map<mesh*, meshInstance*> _meshesInstances;
+        std::function<void(void)> _onDelete;
 
     public:
         eventHandler<batch*>* onBatchAdded;
@@ -36,7 +37,6 @@ namespace phi
         void addNewBatch(meshInstance * instance);
         void addToBatch(meshInstance * instance);
 
-
     public:
         SCENE_RENDERING_API meshRenderAdapter();
         SCENE_RENDERING_API ~meshRenderAdapter();
@@ -47,6 +47,7 @@ namespace phi
         SCENE_RENDERING_API void updateSelection(mesh* mesh, bool isSelected);
         SCENE_RENDERING_API void updateTransform(mesh* mesh, const mat4& modelMatrix);
 
+        void onDelete(std::function<void(void)> onDelete) { _onDelete = onDelete; }; //TODO: tirar essa gambiarra braba
         buffer* getMaterialRenderDataBuffer() { return _materialRenderDataBuffer; }
     };
 }
