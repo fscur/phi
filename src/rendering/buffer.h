@@ -69,7 +69,7 @@ namespace phi
             bind();
         }
 
-        ~buffer()
+        virtual ~buffer()
         {
             glDeleteBuffers(1, &_id);
         }

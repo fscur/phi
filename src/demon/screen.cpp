@@ -149,13 +149,6 @@ namespace demon
             .withFont(font)
             .build();
 
-        _sceneLabel = labelBuilder::newLabel(L"abcde")
-            .withPosition(vec3(100.f, 100.f, 0.f))
-            .withControlColor(1.0f, 0.0f, 0.5f, 1.f)
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(font)
-            .build();
-
         auto changeContextButton = buttonBuilder::newButton()
             .withPosition(vec3(-200.f, -20.f, 0.f))
             .withText(L"Change context")
@@ -233,8 +226,6 @@ namespace demon
         //TODO: prevent components that are not dealt with it from being added to layer
 
         _constructionLayer->add(_constructionLabel);
-        _constructionLayer->add(_sceneLabel);
-
         _nandinhoLayer->add(_labelNandinho);
         _nandinhoLayer->add(_labelFps);
         _nandinhoLayer->add(changeContextButton);
@@ -376,8 +367,8 @@ namespace demon
         safeDelete(_designContext);
         safeDelete(_constructionContext);
 
-        safeDelete(_constructionLayer);
         safeDelete(_nandinhoLayer);
+        safeDelete(_constructionLayer);
         safeDelete(_sceneLayer);
 
         safeDelete(_sceneCamera);

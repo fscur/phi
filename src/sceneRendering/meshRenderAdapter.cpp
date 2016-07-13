@@ -21,6 +21,7 @@ namespace phi
             safeDelete(batch);
 
         _onDelete();
+        safeDelete(onBatchAdded);
     }
 
     void meshRenderAdapter::createBuffers()

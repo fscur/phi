@@ -90,6 +90,11 @@ namespace phi
             updateUniformBlock(uniformBlockBuffer, finalImageRenderTarget, resolution);
         });
 
+        pass->setOnDelete([uniformBlockBuffer]() mutable
+        {
+            safeDelete(uniformBlockBuffer);
+        });
+
         return pass;
     }
 }

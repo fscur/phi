@@ -16,6 +16,7 @@ namespace phi
         {
             void* address;
             size_t size;
+            size_t order;
             stackSymbol allocationSight;
             node* next;
         };
@@ -106,6 +107,7 @@ namespace phi
     public:
         bool shouldDump;
         size_t allocationCount;
+        size_t allocationOrder;
     private:
         void initializeStackTracer()
         {
@@ -139,11 +141,13 @@ namespace phi
                 while (entry)
                 {
                     sprintf_s(messageBuffer,
-                        "%s(%d): memory leak error: allocated %zd bytes at %s\n",
+                        "%s(%d): memory leak error: allocated %zd bytes (%p) at %s (%zd)\n",
                         entry->allocationSight.file.name,
                         entry->allocationSight.file.line,
                         entry->size,
-                        entry->allocationSight.name);
+                        entry->address,
+                        entry->allocationSight.name,
+                        entry->order);
 
                     OutputDebugString(messageBuffer);
                     entry = entry->next;
@@ -169,6 +173,7 @@ namespace phi
     public:
         HeapDumper() :
             allocationCount(0),
+            allocationOrder(0),
             shouldDump(false)
         {
 #ifdef DETAILED_MEMORY_TRACKING
@@ -196,12 +201,15 @@ namespace phi
     void* allocate(size_t size)
     {
         ++heap.allocationCount;
+        ++heap.allocationOrder;
+
         auto address = malloc(size);
 
 #ifdef DETAILED_MEMORY_TRACKING
         auto entry = static_cast<linkedList::node*>(malloc(sizeof(linkedList::node)));
         entry->address = address;
         entry->size = size;
+        entry->order = heap.allocationOrder;
         entry->allocationSight = stackTracer::optimizedCaptureAllocationSight();
         entry->next = nullptr;
 

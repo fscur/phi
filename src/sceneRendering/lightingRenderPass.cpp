@@ -75,7 +75,7 @@ namespace phi
             nullptr);
 
         auto finalImageRenderTarget = new renderTarget("finalImageRenderTarget", finalImageTexture);
-        
+
         auto finalImageFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("finalImageFramebuffer")
             .with(finalImageRenderTarget, GL_COLOR_ATTACHMENT0)
             .build();
@@ -148,6 +148,12 @@ namespace phi
                 rt1->texture,
                 rt2->texture,
                 rtDepth->texture);
+        });
+
+        pass->setOnDelete([rtsBuffer, quadVao]() mutable
+        {
+            safeDelete(rtsBuffer);
+            safeDelete(quadVao);
         });
 
         return pass;

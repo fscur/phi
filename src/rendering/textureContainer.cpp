@@ -38,6 +38,9 @@ namespace phi
 
         for (auto& pair : _atlases)
             safeDelete(pair.second);
+
+        for (auto& texture : _textures)
+            safeDelete(texture);
     }
 
     void textureContainer::create()
@@ -114,6 +117,8 @@ namespace phi
 
             auto subDataRect = rectangle<GLint>(x, y, w, h);
             loadSubData(subDataRect, page, texture->data);
+
+            _textures.push_back(texture);
 
             textureAddress = phi::textureAddress();
             textureAddress.containerId = _id;

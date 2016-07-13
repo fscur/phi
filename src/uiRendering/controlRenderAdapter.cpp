@@ -16,6 +16,7 @@ namespace phi
     controlRenderAdapter::~controlRenderAdapter()
     {
         safeDelete(_renderDataBuffer);
+        safeDelete(_vao);
     }
 
     void controlRenderAdapter::createBuffers()

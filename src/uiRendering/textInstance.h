@@ -21,13 +21,23 @@ namespace phi
         {
         }
 
+        void add(const mat4& modelMatrix)
+        {
+            _modelMatrices.push_back(modelMatrix);
+        }
+
+        void add(const glyphRenderData& renderData)
+        {
+            _glyphsRenderData.push_back(renderData);
+        }
+
         vector<mat4> getModelMatrices() const { return _modelMatrices; }
         vector<glyphRenderData> getGlyphsRenderData() const { return _glyphsRenderData; }
 
     public:
-        static textInstance* from(phi::text* text)
+        static textInstance from(phi::text* text)
         {
-            auto textInstance = new phi::textInstance();
+            auto textInstance = phi::textInstance();
 
             auto font = text->getFont();
             auto textString = text->getText();
@@ -68,8 +78,8 @@ namespace phi
 
                 auto renderData = glyphRenderData(glyphTextureData, shift, text->getColor());
 
-                textInstance->_glyphsRenderData.push_back(renderData);
-                textInstance->_modelMatrices.push_back(modelMatrix);
+                textInstance.add(renderData);
+                textInstance.add(modelMatrix);
 
                 previousGlyph = glyph;
             }

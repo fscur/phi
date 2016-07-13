@@ -39,6 +39,7 @@ namespace phi
         std::function<void(const vector<vertexArrayObject*>&)> _onRender;
         std::function<void(program*, framebuffer*, const resolution&)> _onEndRender;
         std::function<void(const resolution& resolution)> _onResize;
+        std::function<void(void)> _onDelete;
 
     public:
         RENDERING_API renderPass(program* program, framebuffer* framebuffer, const resolution& resolution);
@@ -54,6 +55,7 @@ namespace phi
         void setOnRender(std::function<void(const vector<vertexArrayObject*>&)> onRender) { _onRender = onRender; }
         void setOnEndRender(std::function<void(program*, framebuffer*, const resolution&)> onRender) { _onEndRender = onRender; }
         void setOnResize(std::function<void(const resolution&)> onResize) { _onResize = onResize; }
+        void setOnDelete(std::function<void(void)> onDelete) { _onDelete = onDelete; }
 
         void addVao(vertexArrayObject* vao) { _vaos.push_back(vao); }
         void addIn(renderTarget* in) { _ins[in->name] = in; }

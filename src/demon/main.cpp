@@ -118,8 +118,6 @@ void initializeDiagnostics(const char* executableFileName)
 
 int main(int argc, char* args[])
 {
-
-
     char executableFileName[FILENAME_MAX];
     strcpy_s(executableFileName, args[0]);
 

@@ -49,7 +49,7 @@ namespace phi
         _layer->addOnNodeSelectionChanged(std::bind(&meshLayerBehaviour::onNodeSelectionChanged, meshBehaviour, std::placeholders::_1));
         _layer->addRenderPasses(meshBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([meshBehaviour]
+        _layer->addOnDelete([meshBehaviour] () mutable
         {
             safeDelete(meshBehaviour);
         });
@@ -71,7 +71,7 @@ namespace phi
 
         _layer->addRenderPasses(glassyBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([glassyBehaviour]
+        _layer->addOnDelete([glassyBehaviour] () mutable
         {
             safeDelete(glassyBehaviour);
         });
@@ -90,7 +90,7 @@ namespace phi
 
         _layer->addRenderPasses(controlBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([controlBehaviour]
+        _layer->addOnDelete([controlBehaviour] () mutable
         {
             safeDelete(controlBehaviour);
         });
@@ -111,7 +111,7 @@ namespace phi
         _layer->addOnNodeSelectionChanged(std::bind(&textLayerBehaviour::onNodeSelectionChanged, textBehaviour, std::placeholders::_1));
         _layer->addRenderPasses(textBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([textBehaviour]
+        _layer->addOnDelete([textBehaviour] () mutable
         {
             safeDelete(textBehaviour);
         });

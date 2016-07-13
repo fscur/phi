@@ -20,7 +20,7 @@ namespace phi
     class batch
     {
     private:
-        const size_t MAX_VBO_SIZE = 1 * 1024 * 1024;
+        const size_t MAX_VAO_SIZE = 1 * 1024 * 1024;
         size_t _freeSpace;
         GLuint _objectsCount;
         bool _empty;
@@ -39,8 +39,7 @@ namespace phi
         multiDrawMappedBuffer<const meshInstance*, vec4>* _selectionBuffer;
 
     private:
-        void createVao(size_t vboSize);
-        void createBuffers(size_t vboSize);
+        void createBuffers(size_t vaoSize);
         void initializeVao();
         void initialize(const meshInstance* instance);
         void addGeometry(geometry* geometry);

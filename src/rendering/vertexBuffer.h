@@ -9,7 +9,7 @@
 namespace phi
 {
     class vertexBuffer :
-        public buffer, 
+        public buffer,
         public iVertexBuffer
     {
     private:
@@ -19,6 +19,10 @@ namespace phi
         vertexBuffer(const string& name, const vector<vertexBufferAttribute>& attribs) :
             buffer(name, bufferTarget::array),
             _attribs(attribs)
+        {
+        }
+
+        ~vertexBuffer()
         {
         }
 

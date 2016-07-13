@@ -14,8 +14,8 @@ namespace phi
     {
         safeDelete(_program);
 
-        for (auto& vao : _vaos)
-            safeDelete(vao);
+        if(_onDelete)
+            _onDelete();
     }
 
     void renderPass::initialize()

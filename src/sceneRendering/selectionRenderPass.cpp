@@ -76,6 +76,11 @@ namespace phi
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         });
 
+        pass->setOnDelete([quadVao] () mutable
+        {
+            safeDelete(quadVao);
+        });
+
         return pass;
     }
 }

@@ -48,6 +48,8 @@ namespace phi
         {
         }
 
+        ~mappedBuffer() {}
+
         void add(KEY key, DATA data)
         {
             auto index = _instanceCount++;

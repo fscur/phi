@@ -16,6 +16,7 @@ namespace phi
     textRenderAdapter::~textRenderAdapter()
     {
         safeDelete(_glyphRenderDataBuffer);
+        safeDelete(_vao);
     }
 
     void textRenderAdapter::createBuffers()
@@ -53,8 +54,8 @@ namespace phi
     void textRenderAdapter::add(text* text)
     {
         auto textInstance = textInstance::from(text);
-        auto modelMatrices = textInstance->getModelMatrices();
-        auto glyphsRenderData = textInstance->getGlyphsRenderData();
+        auto modelMatrices = textInstance.getModelMatrices();
+        auto glyphsRenderData = textInstance.getGlyphsRenderData();
 
         _glyphRenderDataBuffer->addRange(text, &glyphsRenderData[0], glyphsRenderData.size());
         _modelMatricesBuffer->addRange(text, &modelMatrices[0], modelMatrices.size());
@@ -69,8 +70,8 @@ namespace phi
     void textRenderAdapter::update(text* text)
     {
         auto textInstance = textInstance::from(text);
-        auto modelMatrices = textInstance->getModelMatrices();
-        auto glyphsRenderData = textInstance->getGlyphsRenderData();
+        auto modelMatrices = textInstance.getModelMatrices();
+        auto glyphsRenderData = textInstance.getGlyphsRenderData();
 
         _glyphRenderDataBuffer->updateRange(text, &glyphsRenderData[0], glyphsRenderData.size());
         _modelMatricesBuffer->updateRange(text, &modelMatrices[0], modelMatrices.size());

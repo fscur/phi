@@ -4,8 +4,6 @@
 
 #include <rendering\mappedVertexBuffer.h>
 #include <rendering\mappedBuffer.h>
-#include <rendering\vertexBuffer.h>
-#include <rendering\buffer.h>
 #include <rendering\shader.h>
 #include <rendering\program.h>
 #include <rendering\vertexArrayObject.h>

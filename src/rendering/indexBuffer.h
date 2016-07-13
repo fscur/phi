@@ -17,6 +17,8 @@ namespace phi
         {
         }
 
+        ~indexBuffer() {}
+
         void initialize() override
         {
             bind();

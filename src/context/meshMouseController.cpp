@@ -57,6 +57,8 @@ namespace phi
                     _commandsManager->executeCommand(
                         new selectSceneObjectCommand(selectedMesh->getNode(), selectedObjects));
                 }
+
+                clickComponent->onClick();
             }
         }
     }

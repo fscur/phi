@@ -18,6 +18,12 @@ namespace phi
         mat4 modelMatrix;
 
         geometry* getGeometry() const { return mesh->getGeometry(); }
-        size_t getVboSize() const { return mesh->getGeometry()->vboSize; }
+        size_t getVaoSize() const 
+        {
+            auto vboSize = mesh->getGeometry()->vboSize;
+            auto eboSize = mesh->getGeometry()->eboSize;
+
+            return std::max(vboSize, eboSize); 
+        }
     };
 }

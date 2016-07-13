@@ -39,7 +39,10 @@ namespace phi
     {
         auto quad = geometry::createQuad(2.0f);
         auto renderFunction = [] { glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); };
-        return createQuadVao(quad, renderFunction);
+        auto quadVao = createQuadVao(quad, renderFunction);
+        safeDelete(quad);
+
+        return quadVao;
     }
 
     vertexArrayObject* vertexArrayObject::createQuadVao(geometry* quad, std::function<void(void)> renderFunction)

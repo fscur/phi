@@ -22,6 +22,8 @@ namespace phi
         {
         }
 
+        ~mappedVertexBuffer() {}
+
         void initialize() override
         {
             glBindBuffer(_target, _id);

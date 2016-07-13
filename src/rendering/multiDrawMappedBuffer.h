@@ -17,7 +17,7 @@ namespace phi
 
         vector<KEY> _keys;
     public:
-        geometryInstanceBucket(size_t index) :
+        geometryInstanceBucket(size_t index =0) :
             _index(index),
             _size(0)
         {
@@ -39,9 +39,9 @@ namespace phi
 
         void decrementIndex() { --_index; }
 
-        size_t getKeyIndex(KEY key) {return phi::indexOf(_keys, key); }
-        size_t getIndex() { return _index; }
-        size_t getSize() { return _size; }
+        size_t getKeyIndex(KEY key) const {return phi::indexOf(_keys, key); }
+        size_t getIndex() const { return _index; }
+        size_t getSize() const { return _size; }
     };
 
     template <typename KEY, typename DATA>
@@ -52,36 +52,44 @@ namespace phi
         size_t _sizeOfDataType;
         size_t _capacity;
 
-        vector<DATA>* _bufferData;
-        map<geometry*, geometryInstanceBucket<KEY, DATA>*> _buckets;
+        vector<DATA> _bufferData;
+        map<geometry*, geometryInstanceBucket<KEY, DATA>> _buckets;
 
     private:
-        size_t getBucketIndex(geometryInstanceBucket<KEY, DATA>* bucket)
+        size_t getBucketIndex(const geometryInstanceBucket<KEY, DATA>* bucket)
         {
             size_t index = 0;
             for (auto& pair : _buckets)
             {
-                if (pair.second->getIndex() >= bucket->getIndex())
+                if (pair.second.getIndex() >= bucket->getIndex())
                     continue;
 
-                index += pair.second->getSize();
+                index += pair.second.getSize();
             }
 
             return index;
         }
 
+        size_t getInstanceIndex(const geometryInstanceBucket<KEY, DATA>* bucket, KEY key)
+        {
+            auto bucketIndex = getBucketIndex(bucket);
+            auto indexInBucket = bucket->getKeyIndex(key);
+
+            return bucketIndex + indexInBucket;
+        }
+
         void uploadData(size_t instanceIndex)
         {
-            auto needToResize = _capacity != _bufferData->capacity();
+            auto needToResize = _capacity != _bufferData.capacity();
             if (needToResize)
             {
-                _capacity = _bufferData->capacity();
-                this->data(_sizeOfDataType * _capacity, _bufferData->data(), bufferDataUsage::dynamicDraw);
+                _capacity = _bufferData.capacity();
+                this->data(_sizeOfDataType * _capacity, _bufferData.data(), bufferDataUsage::dynamicDraw);
             }
             else
             {
-                auto sizeOfDataToMove = (_bufferData->size() - instanceIndex) * _sizeOfDataType;
-                subData(_sizeOfDataType * instanceIndex, sizeOfDataToMove, _bufferData->data() + instanceIndex);
+                auto sizeOfDataToMove = (_bufferData.size() - instanceIndex) * _sizeOfDataType;
+                subData(_sizeOfDataType * instanceIndex, sizeOfDataToMove, _bufferData.data() + instanceIndex);
             }
         }
 
@@ -89,24 +97,9 @@ namespace phi
         multiDrawMappedBuffer(string name, vector<vertexBufferAttribute> attribs) :
             vertexBuffer(name, attribs),
             _sizeOfDataType(sizeof(DATA)),
-            _bufferData(new vector<DATA>()),
+            _bufferData(vector<DATA>()),
             _capacity(0)
         {
-        }
-
-        void addInstance(geometry* geometry, KEY key, const DATA& data)
-        {
-            auto containsGeometry = phi::contains(_buckets, geometry);
-            assert(containsGeometry);
-
-            auto bucket = _buckets[geometry];
-            auto bucketIndex = getBucketIndex(bucket);
-            auto indexInBucket = bucket->add(key, data);
-
-            auto instanceIndex = bucketIndex + indexInBucket;
-            _bufferData->insert(_bufferData->begin() + instanceIndex, data);
-
-            uploadData(instanceIndex);
         }
 
         void createBucket(geometry* geometry)
@@ -115,48 +108,56 @@ namespace phi
             assert(!containsGeometry);
 
             auto nextBucketIndex = _buckets.size();
-            auto bucket = new geometryInstanceBucket<KEY, DATA>(nextBucketIndex);
-            _buckets[geometry] = bucket;
+            _buckets[geometry] = geometryInstanceBucket<KEY, DATA>(nextBucketIndex);
+        }
+
+        void addInstance(geometry* geometry, KEY key, const DATA& data)
+        {
+            auto containsGeometry = phi::contains(_buckets, geometry);
+            assert(containsGeometry);
+
+            auto bucket = &_buckets[geometry];
+            auto bucketIndex = getBucketIndex(bucket);
+            auto indexInBucket = bucket->add(key, data);
+
+            auto instanceIndex = bucketIndex + indexInBucket;
+            _bufferData.insert(_bufferData.begin() + instanceIndex, data);
+
+            uploadData(instanceIndex);
         }
 
         void update(geometry* geometry, KEY key, DATA data)
         {
-            auto bucket = _buckets[geometry];
-            auto bucketIndex = getBucketIndex(bucket);
-            auto keyIndex = bucket->getKeyIndex(key);
+            auto bucket = &_buckets[geometry];
+            auto instanceIndex = getInstanceIndex(bucket, key);
 
-            auto instanceIndex = bucketIndex + keyIndex;
-
-            (*_bufferData)[instanceIndex] = data;
+            _bufferData[instanceIndex] = data;
             subData(_sizeOfDataType * instanceIndex, _sizeOfDataType, &data);
         }
 
         void removeInstance(geometry* geometry, KEY key)
         {
-            auto bucket = _buckets[geometry];
-
-            auto bucketIndex = getBucketIndex(bucket);
-            auto keyIndex = bucket->getKeyIndex(key);
+            auto bucket = &_buckets[geometry];
+            auto instanceIndex = getInstanceIndex(bucket, key);
 
             bucket->remove(key);
 
-            auto instanceIndex = bucketIndex + keyIndex;
-            _bufferData->erase(_bufferData->begin() + instanceIndex);
+            _bufferData.erase(_bufferData.begin() + instanceIndex);
 
             uploadData(instanceIndex);
         }
 
         void removeBucket(geometry* geometry)
         {
-            auto bucket = _buckets[geometry];
+            auto bucket = &_buckets[geometry];
             assert(bucket->getSize() == 0);
 
             _buckets.erase(geometry);
 
             for (auto& pair : _buckets)
             {
-                if (pair.second->getIndex() > bucket->getIndex())
-                    pair.second->decrementIndex();
+                if (pair.second.getIndex() > bucket->getIndex())
+                    pair.second.decrementIndex();
             }
         }
     };

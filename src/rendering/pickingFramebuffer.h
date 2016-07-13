@@ -21,6 +21,7 @@ namespace phi
         ~pickingFramebuffer() = delete;
 
         RENDERING_API static void initialize(framebufferAllocator* framebufferAllocator, const resolution& resolution);
+        void release();
         RENDERING_API static uint32_t pick(int mouseX, int mouseY);
         RENDERING_API static void resize(const resolution& resolution);
     };

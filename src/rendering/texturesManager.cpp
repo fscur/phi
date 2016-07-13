@@ -53,9 +53,6 @@ namespace phi
             for (auto& container : pair.second)
                 safeDelete(container);
         }
-
-        for (auto& pair : _textures)
-            safeDelete(pair.first);
     }
 
     inline uint texturesManager::getMaxLevels(const uint& w, const uint& h)

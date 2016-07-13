@@ -66,25 +66,6 @@ namespace phi
 
     void sceneCameraController::onMouseDown(phi::mouseEventArgs* e)
     {
-        if (e->leftButtonPressed)
-        {
-            //auto selectedMesh = _scene->pick(e->x, e->y);
-
-            //auto selectedObjects = _scene->getSelectedObjects();
-            //auto shouldUnselect = selectedObjects.size() > 0u;
-
-            /*if (selectedMesh)
-            {
-                _commandsManager->executeCommand(
-                    new selectSceneObjectCommand(selectedMesh->getNode(), selectedObjects));
-            }
-            else if (shouldUnselect)
-            {
-                _commandsManager->executeCommand(
-                    new unselectSceneObjectCommand(selectedObjects));
-            }*/
-        }
-
         if (e->middleButtonPressed && !_rotating)
             panMouseDown(e->x, e->y);
 

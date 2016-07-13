@@ -6,7 +6,6 @@ namespace phi
 {
     framebufferAllocator::framebufferAllocator()
     {
-        
     }
 
     framebufferAllocator::~framebufferAllocator()
