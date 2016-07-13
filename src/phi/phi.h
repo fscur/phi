@@ -33,14 +33,14 @@ namespace phi
     static const float PI_OVER_4 = 0.7853981634f;
 
     template<typename T>
-    void safeDelete(T value)
+    void safeDelete(T& value)
     {
         delete value;
         value = nullptr;
     }
 
     template<typename T>
-    void safeDeleteArray(T value)
+    void safeDeleteArray(T& value)
     {
         delete[] value;
         value = nullptr;
