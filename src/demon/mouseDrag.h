@@ -18,7 +18,6 @@ namespace demon
         phi::vector<phi::boxCollider*> _colliders;
         phi::vector<phi::transform*> _transforms;
         phi::plane _plane;
-        phi::vec3 _initialPlanePosition;
         phi::vec3 _initialObjectPosition;
 
     protected:
@@ -29,6 +28,7 @@ namespace demon
         phi::sweepCollision findFarthestValidCollision(phi::sweepCollisionResult* sweepResult, phi::vec3 offset);
         phi::vec3 getAdjustedOffset(phi::sweepCollision collision, phi::vec3 offset);
         void moveObject(phi::vec3 offset);
+        phi::vec3 castRayToPlane(phi::vec2 screenPosition);
 
     public:
         mouseDrag(phi::scene* scene) :

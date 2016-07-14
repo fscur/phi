@@ -30,16 +30,18 @@ namespace phi
         float _radiusFadeIn;
         float _radiusFadeOut;
         bool _showing;
-        texture* _gridTexture;
-        transform _transform;
-        vec2 _focusPosition;
         finitePlane _plane;
         bool _doingAnimation;
         double _animationTime;
         vec2 _animationInitialPosition;
         vec2 _animationDelta;
+        texture* _gridTexture;
+        transform _transform;
+        vec2 _focusPosition;
+        color _color;
 
     private:
+        void createShader();
         void createQuad();
         void renderQuad();
         void updateShaderUniforms();
@@ -57,6 +59,7 @@ namespace phi
         RENDERING_API void setImage(image* image);
         RENDERING_API void setPositionAndOrientation(vec3 position, vec3 direction);
         RENDERING_API void setFocusPosition(vec2 focusPosition);
+        RENDERING_API void setColor(color color) { _color = color; }
         RENDERING_API void animateFocusPosition(vec2 targetFocusPosition);
         RENDERING_API void projectAndSetFocusPosition(vec3 toProjectFocusPosition);
         RENDERING_API void projectAndAnimateFocusPosition(vec3 toProjectTargetFocusPosition);

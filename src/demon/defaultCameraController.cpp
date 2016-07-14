@@ -8,7 +8,7 @@
 #include <core\multiCommand.h>
 #include <rendering\camera.h>
 #include <scenes\selectSceneObjectCommand.h>
-#include <demon\obbMouseDrag.h>
+#include <demon\planesMouseDrag.h>
 
 using namespace phi;
 
@@ -50,7 +50,7 @@ namespace demon
         _panTargetCameraPos(phi::vec3()),
         _panLastMouseMoveTime(0.0),
         _panInertiaTime(0.0),
-        _mouseDrag(new obbMouseDrag(_scene))
+        _mouseDrag(new planesMouseDrag(_scene))
     {
     }
 

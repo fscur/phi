@@ -8,6 +8,7 @@ uniform vec2 expansionPosition;
 uniform int textureArrayIndex;
 uniform float texturePageIndex;
 uniform sampler2DArray textureArrays[32];
+uniform vec4 color;
 
 in vec2 fragTexCoord;
 out vec4 fragColor;
@@ -30,12 +31,12 @@ void main()
 
     vec2 uv = fragTexCoord * (1.0 / CELL_SIZE) + normalize(diff) * res + vec2(0.5);
 
-    vec4 color = texture(textureArrays[textureArrayIndex], vec3(uv, texturePageIndex));
+    vec4 texColor = texture(textureArrays[textureArrayIndex], vec3(uv, texturePageIndex));
     float alphaFadeIn = 1.0 - clamp(abs(min(dist - radiusFadeIn, 0.0)) / FADE_IN_DISTANCE, 0.0, 1.0);
     float alphaFadeOut = clamp((radiusFadeOut - dist) / FADE_OUT_DISTANCE, 0.0, 1.0);
 
-    float alpha = color.a * min(alphaFadeIn, alphaFadeOut);
+    float alpha = texColor.a * min(alphaFadeIn, alphaFadeOut);
     alpha += alpha * res * 0.3;
 
-    fragColor = vec4(color.rgb, alpha);
+    fragColor = vec4(texColor.rgb, alpha) * color;
 }

@@ -75,7 +75,8 @@ namespace demon
 
             initializeDragObjectData(node);
             setPlane(plane(obbCastPosition, normal));
-            showPlaneGrid(obb.getPositionAt(-_plane.getNormal()), color::white);
+            //showPlaneGrid(obb.getPositionAt(-_plane.getNormal()), color::white);
+            showPlaneGrid(obbCastPosition, color::white);
 
             phi::safeDeleteArray(normals);
             phi::safeDeleteArray(positions);

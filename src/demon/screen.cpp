@@ -106,12 +106,13 @@ namespace demon
         auto camera = _scene->getCamera();
 
         auto cameraTransform = camera->getTransform();
-        auto cameraPos = vec3(0.0f, 0.0f, 10.0f);
+        auto cameraPos = vec3(0.0f, 0.1f, 2.0f);
         cameraTransform->setLocalPosition(cameraPos);
         cameraTransform->setDirection(-cameraPos);
 
         auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         //floor->getTransform()->yaw(PI_OVER_4);
+        //floor->getTransform()->setLocalSize(vec3(100.0f, 1.0f, 100.0f));
         _scene->add(floor);
 
         auto floor2 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
@@ -121,25 +122,34 @@ namespace demon
 
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair0->getTransform()->yaw(PI_OVER_4);
-        chair0->getTransform()->setLocalPosition(vec3(0.f, .5f, .0f));
+        chair0->getTransform()->setLocalPosition(vec3(3.f, .5f, .0f));
 
-        auto chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair1->getTransform()->setLocalPosition(vec3(2.0f, .5f, 0.f));
+        //auto chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        //chair1->getTransform()->setLocalPosition(vec3(2.0f, .5f, 0.f));
 
-        auto chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair2->getTransform()->setLocalPosition(vec3(0.f, .5f, 2.0f));
+        //auto chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        //chair2->getTransform()->setLocalPosition(vec3(0.f, .5f, 2.0f));
 
-        auto chair3 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair3->getTransform()->setLocalPosition(vec3(2.0f, .5f, 2.0f));
+        //auto chair3 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        //chair3->getTransform()->setLocalPosition(vec3(2.0f, .5f, 2.0f));
 
         auto cube = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube->getTransform()->setLocalPosition(vec3(-2.0f, 0.7f, 0.0f));
+        cube->getTransform()->yaw(PI_OVER_4);
+        cube->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 0.0f));
 
-        _scene->add(chair0);
-        _scene->add(chair1);
-        _scene->add(chair2);
-        _scene->add(chair3);
+        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        cube1->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, 0.0f));
+
+        auto cube2 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        cube2->getTransform()->setLocalPosition(vec3(1.0f, 0.5f, 0.0f));
+
+        //_scene->add(chair0);
+        //_scene->add(chair1);
+        //_scene->add(chair2);
+        //_scene->add(chair3);
         _scene->add(cube);
+        _scene->add(cube1);
+        //_scene->add(cube2);
     }
 
     void screen::initUi()

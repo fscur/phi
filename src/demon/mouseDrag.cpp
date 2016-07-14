@@ -118,6 +118,11 @@ namespace demon
 
     void mouseDrag::moveObject(vec3 offset)
     {
+        if (isnan(offset.x) || offset == vec3())
+        {
+            phi::debug("errou!");
+        }
+
         auto finalOffset = offset;
         if (objectFitsInOffsetedPosition(offset))
         {
@@ -146,12 +151,21 @@ namespace demon
                         safeDelete(transform);
                     safeDelete(limitedOffsetTransforms);
                 }
+                //finalOffset = limitedOffset;
             }
 
             safeDelete(sweepResult);
         }
 
         _object->getTransform()->translate(finalOffset);
+    }
+
+    vec3 mouseDrag::castRayToPlane(vec2 screenPosition)
+    {
+        auto ray = _scene->getCamera()->screenPointToRay(screenPosition.x, screenPosition.y);
+        float t;
+        ray.intersects(_plane, t);
+        return ray.getOrigin() + ray.getDirection() * t;
     }
 
     void mouseDrag::startDrag(int mouseX, int mouseY)

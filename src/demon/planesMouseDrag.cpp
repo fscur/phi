@@ -7,20 +7,78 @@ using namespace phi;
 namespace demon
 {
     planesMouseDrag::planesMouseDrag(phi::scene* scene) :
-        obbMouseDrag(scene),
+        freeMouseDrag(scene),
         _lastMousePosition(),
-        _planeSource(nullptr),
+        _currentTouchingCollider(nullptr),
         _originalPlane(vec3(), vec3())
     {
     }
 
+    planesMouseDrag::touchingCollisionResult planesMouseDrag::findTouchingCollision(vec3 dragDirection)
+    {
+        auto cameraDirection = glm::normalize(_scene->getCamera()->getTransform()->getDirection());
+        auto cameraPosition = _scene->getCamera()->getTransform()->getPosition();
+        touchingCollisionResult touchResult;
+
+        auto minDot = 1.0f;
+
+        intersectionCollisionMultiTest touchTest;
+        touchTest.colliders = &_colliders;
+        touchTest.transforms = &_transforms;
+
+        auto result = _scene->getPhysicsWorld()->touchs(touchTest);
+        if (result.collided)
+        {
+            for (auto collision : result.collisions)
+            {
+                auto normal = collision.normal;
+                auto planePosition = _dragCollider->getObb().getPositionAt(-collision.normal);
+                auto toPlaneDir = glm::normalize(planePosition - cameraPosition);
+                auto discardedPlaneDot = glm::abs(glm::dot(normal, toPlaneDir));
+
+                if (_currentTouchingCollider != collision.collider && discardedPlaneDot <= 0.2f)
+                    continue;
+
+                auto chosenPlaneDot = glm::dot(normal, dragDirection);
+
+                if (chosenPlaneDot < minDot)
+                {
+                    minDot = chosenPlaneDot;
+                    touchResult.collider = collision.collider;
+                    touchResult.normal = collision.normal;
+                    touchResult.foundValidCollision = true;
+                }
+            }
+        }
+
+        touchResult.collisionsCount = static_cast<uint>(result.collisions.size());
+        return touchResult;
+    }
+
     void planesMouseDrag::startDrag(int mouseX, int mouseY)
     {
-        obbMouseDrag::startDrag(mouseX, mouseY);
+        freeMouseDrag::startDrag(mouseX, mouseY);
+
+        if (!_dragging)
+            return;
+
         _lastMousePosition = vec2(mouseX, mouseY);
-        _planeSource = nullptr;
+        _currentTouchingCollider = nullptr;
         _originalPlane = _plane;
         _planeOffsetToObject = _object->getTransform()->getLocalPosition() - _plane.getOrigin();
+
+        touchingCollisionResult touchCollision = findTouchingCollision(glm::vec3(1.0f, 0.0f, 0.0f));
+        if (touchCollision.foundValidCollision)
+        {
+            _currentTouchingCollider = touchCollision.collider;
+            _initialObjectPosition = _object->getTransform()->getLocalPosition();
+            setPlane(plane(_plane.getOrigin(), touchCollision.normal));
+
+            auto planePosition = _dragCollider->getObb().getPositionAt(-touchCollision.normal);
+            showPlaneGrid(planePosition, color::fromRGBA(0.4f, 0.4f, 1.0f, 1.0f));
+        }
+
+        //moveObject(vec3(0.5f, -0.5f, 0.0f));
     }
 
     void planesMouseDrag::drag(int mouseX, int mouseY)
@@ -28,78 +86,47 @@ namespace demon
         if (!_dragging)
             return;
 
-        intersectionCollisionMultiTest touchTest;
-        touchTest.colliders = &_colliders;
-        touchTest.transforms = &_transforms;
+        auto mouseDir = glm::normalize(vec2(static_cast<float>(_lastMousePosition.x - mouseX), static_cast<float>(_lastMousePosition.y - mouseY)));
+        auto cameraTransform = _scene->getCamera()->getTransform();
+        auto mouseOffsetWorld = glm::normalize(cameraTransform->getRight() * mouseDir.x + cameraTransform->getUp() * mouseDir.y);
 
-        auto result = _scene->getPhysicsWorld()->touchs(touchTest);
-
-        if (result.collided)
+        touchingCollisionResult touchCollision = findTouchingCollision(mouseOffsetWorld);
+        if (touchCollision.foundValidCollision)
         {
-            auto cameraTransform = _scene->getCamera()->getTransform();
-            auto mouseDir = glm::normalize(vec2(static_cast<float>(mouseX - _lastMousePosition.x), static_cast<float>(_lastMousePosition.y - mouseY)));
-            auto a = cameraTransform->getRight() * mouseDir.x + cameraTransform->getUp() * mouseDir.y;
-            auto worldMouseDir = vec3(a.x, a.y, 0.0f);
-
-            bool found = false;
-            for (auto collision : result.collisions)
+            if (_currentTouchingCollider != touchCollision.collider)
             {
-                auto normal = collision.normal;
-                auto dot = glm::dot(normal, worldMouseDir);
-                if (dot <= 0.95f)
-                {
-                    if (collision.collider != _planeSource)
-                    {
-                        auto ray = _scene->getCamera()->screenPointToRay(static_cast<float>(mouseX), static_cast<float>(mouseY));
-                        float t;
-                        ray.intersects(_plane, t);
-                        auto rayCastOnPlanePosition = ray.getOrigin() + ray.getDirection() * t;
-                        _initialPlanePosition = rayCastOnPlanePosition;
-                        _initialObjectPosition = _object->getTransform()->getLocalPosition();
-                        _plane = plane(rayCastOnPlanePosition, normal);
+                auto castPosition = castRayToPlane(_lastMousePosition);
 
-                        auto planePosition = _dragCollider->getObb().getPositionAt(-normal);
-                        planePosition = glm::normalize(planePosition) * (glm::length(planePosition) + DECIMAL_TRUNCATION);
-
-                        _planeGridPass->setPositionAndOrientation(planePosition, normal);
-                        _planeGridPass->projectAndSetFocusPosition(planePosition);
-                        _planeGridPass->show();
-                        _planeSource = collision.collider;
-                    }
-
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found && _planeSource != nullptr)
-            {
-                _plane = _originalPlane;
-                auto ray = _scene->getCamera()->screenPointToRay(static_cast<float>(mouseX), static_cast<float>(mouseY));
-                float t;
-                ray.intersects(_plane, t);
-                auto rayCastOnPlanePosition = ray.getOrigin() + ray.getDirection() * t;
-
-                auto planePosition = _dragCollider->getObb().getPositionAt(-_plane.getNormal());
-                planePosition = glm::normalize(planePosition) * (glm::length(planePosition) + DECIMAL_TRUNCATION);
-
-                _initialPlanePosition = rayCastOnPlanePosition;
                 _initialObjectPosition = _object->getTransform()->getLocalPosition();
-                _plane = plane(_object->getTransform()->getLocalPosition() + _planeOffsetToObject, _originalPlane.getNormal());
+                setPlane(plane(castPosition, touchCollision.normal));
+                auto planePosition = _dragCollider->getObb().getPositionAt(-touchCollision.normal);
+                showPlaneGrid(planePosition, color::fromRGBA(0.4f, 0.4f, 1.0f, 1.0f));
 
-                _planeGridPass->setPositionAndOrientation(planePosition, _plane.getNormal());
-                _planeGridPass->projectAndSetFocusPosition(planePosition);
-                _planeGridPass->show();
-                _planeSource = nullptr;
+                _currentTouchingCollider = touchCollision.collider;
+            }
+        }
+        else
+        {
+            if (_currentTouchingCollider != nullptr && touchCollision.collisionsCount > 0u)
+            {
+                auto castPosition = castRayToPlane(_lastMousePosition);
+
+                _initialObjectPosition = _object->getTransform()->getLocalPosition();
+                setPlane(plane(castPosition, _originalPlane.getNormal()));
+                auto planePosition = _dragCollider->getObb().getPositionAt(-_originalPlane.getNormal());
+                showPlaneGrid(planePosition, color::white);
+
+                _currentTouchingCollider = nullptr;
             }
         }
 
-        obbMouseDrag::drag(mouseX, mouseY);
+        freeMouseDrag::drag(mouseX, mouseY);
         _lastMousePosition = vec2(mouseX, mouseY);
     }
 
     void planesMouseDrag::endDrag()
     {
-        obbMouseDrag::endDrag();
+        freeMouseDrag::endDrag();
+        _currentTouchingCollider = nullptr;
     }
 }

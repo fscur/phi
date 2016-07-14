@@ -19,10 +19,27 @@ namespace phi
         _doingAnimation(false),
         _animationTime(0.0),
         _animationInitialPosition(vec2()),
-        _animationDelta(vec2())
+        _animationDelta(vec2()),
+        _gridTexture(nullptr),
+        _transform(),
+        _focusPosition(),
+        _color(color::green)
     {
+        createShader();
         createQuad();
+        _transform.setLocalSize(vec3(PLANE_SIZE));
+    }
 
+    planeGridRenderPass::~planeGridRenderPass()
+    {
+        safeDelete(_quad);
+        safeDelete(_quadVbo);
+        safeDelete(_quadEbo);
+        safeDelete(_gridTexture);
+    }
+
+    void planeGridRenderPass::createShader()
+    {
         vector<string> attribs;
         attribs.push_back("inPosition");
         attribs.push_back("inTexCoord");
@@ -38,16 +55,7 @@ namespace phi
         _shader->addUniform(6, "textureArrayIndex");
         _shader->addUniform(7, "texturePageIndex");
         _shader->addUniform(8, "textureArrays");
-
-        _transform.setLocalSize(vec3(PLANE_SIZE));
-    }
-
-    planeGridRenderPass::~planeGridRenderPass()
-    {
-        safeDelete(_quad);
-        safeDelete(_quadVbo);
-        safeDelete(_quadEbo);
-        safeDelete(_gridTexture);
+        _shader->addUniform(9, "color");
     }
 
     void planeGridRenderPass::createQuad()
@@ -170,6 +178,7 @@ namespace phi
         _shader->setUniform(5, _focusPosition + vec2(PLANE_SIZE * 0.5f));
         _shader->setUniform(6, _textureAddress.unit);
         _shader->setUniform(7, _textureAddress.page);
+        _shader->setUniform(9, _color);
 
         if (_gl->currentState.useBindlessTextures)
             _shader->setUniform(8, _gl->texturesManager->handles);
@@ -215,9 +224,17 @@ namespace phi
         glError::check();
         glDepthMask(GL_FALSE);
         glError::check();
+        glPolygonOffset(-1.0f, 0.0f);
+        glError::check();
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glError::check();
 
         renderQuad();
 
+        glDisable(GL_POLYGON_OFFSET_FILL);
+        glError::check();
+        glDepthFunc(GL_LESS);
+        glError::check();
         glDepthMask(GL_TRUE);
         glError::check();
         glEnable(GL_CULL_FACE);

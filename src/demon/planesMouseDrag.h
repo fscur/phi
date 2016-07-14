@@ -1,18 +1,37 @@
 #pragma once
 
 #include <phi.h>
-#include "obbMouseDrag.h"
+#include "freeMouseDrag.h"
 
 namespace demon
 {
     class planesMouseDrag :
-        public obbMouseDrag
+        public freeMouseDrag
     {
     private:
+        struct touchingCollisionResult
+        {
+            touchingCollisionResult() :
+                foundValidCollision(false),
+                collider(nullptr),
+                normal(),
+                collisionsCount(0u)
+            {
+            }
+
+            bool foundValidCollision;
+            phi::boxCollider* collider;
+            phi::vec3 normal;
+            phi::uint collisionsCount;
+        };
+
         phi::vec2 _lastMousePosition;
-        phi::boxCollider* _planeSource;
+        phi::boxCollider* _currentTouchingCollider;
         phi::plane _originalPlane;
         phi::vec3 _planeOffsetToObject;
+
+    private:
+        touchingCollisionResult findTouchingCollision(phi::vec3 dragDirection);
 
     public:
         planesMouseDrag(phi::scene* scene);

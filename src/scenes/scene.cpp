@@ -11,7 +11,7 @@ namespace phi
     scene::scene(gl* gl, float w, float h) :
         _gl(gl),
         _pipeline(new pipeline(gl, w, h)),
-        _camera(new camera("mainCamera", w, h, 0.1f, 1000.0f, PI_OVER_4)),
+        _camera(new camera("mainCamera", w, h, 0.1f, 100.0f, PI_OVER_4)),
         _sceneRoot(new node("sceneRoot")),
         _w(w),
         _h(h),
@@ -88,7 +88,7 @@ namespace phi
                 node->addComponent(collider);
 
                 _physicsWorld->addCollider(collider);
-                //_pipeline->_renderer->getBoxColliderRenderPass()->addCollider(collider);
+                _pipeline->_renderer->getBoxColliderRenderPass()->addCollider(collider);
             }
         });
     }
