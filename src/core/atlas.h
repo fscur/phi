@@ -51,7 +51,7 @@ namespace phi
 
         CORE_API atlasNode* insert(atlasItem* item);
         
-        CORE_API bool isFull() const { return _isFull; }
-        CORE_API bool isEmpty() const { return _root->isLeaf(); }
+        bool isFull() const { return _isFull; }
+        bool isEmpty() const { return _root->isLeaf(); }
     };
 }

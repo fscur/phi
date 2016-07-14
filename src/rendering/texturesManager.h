@@ -38,7 +38,7 @@ namespace phi
         RENDERING_API static texture* getTextureFromImage(image* image);
         RENDERING_API static textureAddress getTextureAddress(const texture* const texture);
         RENDERING_API static textureContainer* reserveContainer(sizeui size, textureLayout layout);
-        RENDERING_API static bool getIsBindless() { return _isBindless; }
-        RENDERING_API static bool getIsSparse() { return _isSparse; }
+        RENDERING_API static bool getIsBindless();
+        RENDERING_API static bool getIsSparse();
     };
 }

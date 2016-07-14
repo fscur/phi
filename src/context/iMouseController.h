@@ -16,5 +16,6 @@ namespace phi
         virtual void onKeyDown(keyboardEventArgs* e) = 0;
         virtual void onKeyUp(keyboardEventArgs* e) = 0;
         virtual void update() = 0;
+        virtual ~iMouseController() {}
     };
 }

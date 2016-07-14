@@ -10,13 +10,17 @@ namespace phi
 {
     batch::batch() :
         _freeSpace(MAX_VAO_SIZE),
-        _empty(true),
         _objectsCount(0),
-        _vao(nullptr),
+        _empty(true),
+        _multiDrawCommandsBuffer(new multiDrawElementsIndirectCommandBuffer()),
         _geometries(vector<geometry*>()),
+        _instances(map<geometry*, vector<const meshInstance*>>()),
+        _vao(nullptr),
+        _vbo(nullptr),
+        _ebo(nullptr),
         _materialsIdsBuffer(nullptr),
         _modelMatricesBuffer(nullptr),
-        _multiDrawCommandsBuffer(new multiDrawElementsIndirectCommandBuffer())
+        _selectionBuffer(nullptr)
     {
     }
 

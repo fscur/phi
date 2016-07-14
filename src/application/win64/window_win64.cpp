@@ -4,6 +4,7 @@
 #include <core\exception.h>
 
 #include <core\invalidInitializationException.h>
+#include <ShellScalingApi.h>
 
 namespace phi
 {
@@ -157,14 +158,22 @@ namespace phi
 
     vec2 getDpi(HWND hWnd)
     {
-        auto monitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+        //TODO: FIX DPI AWARE 
+
+        /*auto monitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 
         auto x = unsigned{};
         auto y = unsigned{};
 
         GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &x, &y);
 
-        return vec2(x, y);
+        return vec2(x, y);*/
+
+        HDC dc = GetDC(0);
+        const double dpiX = GetDeviceCaps(dc, LOGPIXELSX);
+        const double dpiY = GetDeviceCaps(dc, LOGPIXELSY);
+        ReleaseDC(0, dc);
+        return vec2(dpiX, dpiY);
     }
 
     LRESULT onActivate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -235,7 +244,7 @@ namespace phi
                 _isBeingFirstShown = false;
             }
         }
-        
+
         if (flags & SWP_HIDEWINDOW)
         {
             return 0;
@@ -452,8 +461,8 @@ namespace phi
             return onExitSizeMove(hWnd, message, wParam, lParam);
         case WM_WINDOWPOSCHANGED:
             return onWindowPosChanged(hWnd, message, wParam, lParam);
-        case WM_DPICHANGED:
-            return onDpiChanged(hWnd, message, wParam, lParam);
+        //case WM_DPICHANGED:
+            //return onDpiChanged(hWnd, message, wParam, lParam);
         }
 
         return DefWindowProcW(hWnd, message, wParam, lParam);

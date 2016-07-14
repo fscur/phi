@@ -31,7 +31,7 @@ target_link_libraries(application ${GLEW_LIBRARY})
 target_link_libraries(application ${OPENGL_LIBRARY})
 
 if(WIN32)
-    target_link_libraries(application Shcore.lib)
+    #target_link_libraries(application Shcore.lib)
 endif(WIN32)
 
 if (MINGW)

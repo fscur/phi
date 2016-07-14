@@ -51,7 +51,6 @@ namespace phi
     private:
         size_t _sizeOfDataType;
         size_t _capacity;
-
         vector<DATA> _bufferData;
         map<geometry*, geometryInstanceBucket<KEY, DATA>> _buckets;
 
@@ -97,15 +96,15 @@ namespace phi
         multiDrawMappedBuffer(string name, vector<vertexBufferAttribute> attribs) :
             vertexBuffer(name, attribs),
             _sizeOfDataType(sizeof(DATA)),
+            _capacity(0),
             _bufferData(vector<DATA>()),
-            _capacity(0)
+            _buckets(map<geometry*, geometryInstanceBucket<KEY, DATA>>())
         {
         }
 
         void createBucket(geometry* geometry)
         {
-            auto containsGeometry = phi::contains(_buckets, geometry);
-            assert(!containsGeometry);
+            assert(!phi::contains(_buckets, geometry));
 
             auto nextBucketIndex = _buckets.size();
             _buckets[geometry] = geometryInstanceBucket<KEY, DATA>(nextBucketIndex);
@@ -113,8 +112,7 @@ namespace phi
 
         void addInstance(geometry* geometry, KEY key, const DATA& data)
         {
-            auto containsGeometry = phi::contains(_buckets, geometry);
-            assert(containsGeometry);
+            assert(phi::contains(_buckets, geometry));
 
             auto bucket = &_buckets[geometry];
             auto bucketIndex = getBucketIndex(bucket);

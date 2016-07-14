@@ -16,8 +16,10 @@ namespace phi
         vector<layer*>&& layers) :
         _layers(layers),
         _framebufferAllocator(framebufferAllocator),
-        _commandsManager(commandsManager),
-        _resolution(resolution)
+        _resolution(resolution),
+        _pickingFramebuffer(nullptr),
+        _pickingRenderTarget(nullptr),
+        _commandsManager(commandsManager)
     {
         _pickingFramebuffer = framebufferAllocator->getFramebuffer("pickingFramebuffer");
         _pickingRenderTarget = _pickingFramebuffer->getRenderTarget("pickingRenderTarget");

@@ -55,7 +55,7 @@ namespace phi
             x -= glyphTextureData->glyph->offsetX;
 
             auto textLength = textString.length();
-            for (auto i = 0; i < textLength; i++)
+            for (auto i = 0u; i < textLength; i++)
             {
                 glyphTextureData = fontsManager::getGlyph(font, (ulong)textString[i]);
                 auto glyph = glyphTextureData->glyph;

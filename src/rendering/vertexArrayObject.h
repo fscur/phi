@@ -21,7 +21,7 @@ namespace phi
 
         RENDERING_API void addBuffer(iVertexBuffer* buffer);
         RENDERING_API void render();
-        RENDERING_API void setOnRender(std::function<void(void)> onRender) { _onRender = onRender; };
+        void setOnRender(std::function<void(void)> onRender) { _onRender = onRender; };
 
     public:
         RENDERING_API static vertexArrayObject* createPostProcessVao();

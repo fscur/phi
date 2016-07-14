@@ -60,6 +60,6 @@ namespace phi
         float getFar() const { return _far; }
         float getFov() const { return _fov; }
         resolution getResolution() const { return _resolution; }
-        transform* camera::getTransform() const { return _transform; }
+        transform* getTransform() const { return _transform; }
     };
 }

@@ -91,13 +91,13 @@ namespace std
 
             std::size_t seed = 0;
 
-            std::hash_combine(seed, hash_value(layout.dataFormat));
-            std::hash_combine(seed, hash_value(layout.dataType));
-            std::hash_combine(seed, hash_value(layout.levels));
-            std::hash_combine(seed, hash_value(layout.internalFormat));
-            std::hash_combine(seed, hash_value(layout.wrapMode));
-            std::hash_combine(seed, hash_value(layout.minFilter));
-            std::hash_combine(seed, hash_value(layout.magFilter));
+            std::hash_combine<GLenum>(seed, layout.dataFormat);
+            std::hash_combine<GLenum>(seed, layout.dataType);
+            std::hash_combine<GLsizei>(seed, layout.levels);
+            std::hash_combine<GLenum>(seed, layout.internalFormat);
+            std::hash_combine<GLint>(seed, layout.wrapMode);
+            std::hash_combine<GLint>(seed, layout.minFilter);
+            std::hash_combine<GLint>(seed, layout.magFilter);
 
             return seed;
         }

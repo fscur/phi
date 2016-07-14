@@ -26,7 +26,7 @@ namespace phi
 
         void initialize() override
         {
-            glBindBuffer(_target, _id);
+            glBindBuffer(buffer::_target, buffer::_id);
             auto attribsCount = _attribs.size();
 
             for (GLuint i = 0; i < attribsCount; i++)

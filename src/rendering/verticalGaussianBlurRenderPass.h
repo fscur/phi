@@ -14,7 +14,7 @@ namespace phi
         verticalGaussianBlurRenderPass() = delete;
         ~verticalGaussianBlurRenderPass() = delete;
 
-        RENDERING_API static renderPass* verticalGaussianBlurRenderPass::configure(
+        RENDERING_API static renderPass* configure(
             const resolution& resolution,
             const string & shadersPath,
             framebufferAllocator * framebufferAllocator);

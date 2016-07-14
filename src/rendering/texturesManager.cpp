@@ -269,4 +269,7 @@ namespace phi
 
         return createContainer(size, layout);
     }
+
+    bool texturesManager::getIsBindless() { return _isBindless; }
+    bool texturesManager::getIsSparse() { return _isSparse; }
 }

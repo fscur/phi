@@ -19,8 +19,8 @@ namespace phi
         RENDERING_API framebufferLayout(const framebufferLayout& original);
         RENDERING_API ~framebufferLayout();
 
-        RENDERING_API void addRenderTargetLayout(const GLenum attachment, const renderTargetLayout* renderTargetLayout);
-        RENDERING_API void addRenderTarget(const GLenum attachment, renderTarget* renderTarget);
+        RENDERING_API void addRenderTargetLayout(GLenum attachment, const renderTargetLayout* renderTargetLayout);
+        RENDERING_API void addRenderTarget(GLenum attachment, renderTarget* renderTarget);
 
         string getName() const { return _name; }
         unordered_map<GLenum, const renderTargetLayout*>* getRenderTargetsLayouts() const { return _renderTargetsLayouts; }

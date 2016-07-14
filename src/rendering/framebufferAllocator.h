@@ -36,7 +36,7 @@ namespace phi
         RENDERING_API framebuffer* newFramebuffer(framebufferLayout* framebufferLayout, const resolution& resolution);
         RENDERING_API void allocate(const resolution& resolution);
         RENDERING_API void reallocate(const resolution& resolution);
-        RENDERING_API renderTarget* getRenderTarget(string renderTargetName) const { return getRenderTargetByName(renderTargetName); }
-        RENDERING_API framebuffer* getFramebuffer(string framebufferName) const { return getFramebufferByName(framebufferName); }
+        RENDERING_API renderTarget* getRenderTarget(string renderTargetName) const;
+        RENDERING_API framebuffer* getFramebuffer(string framebufferName) const;
     };
 }

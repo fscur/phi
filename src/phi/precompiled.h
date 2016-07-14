@@ -46,7 +46,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
-#include <shellscalingapi.h>
+//#include <shellscalingapi.h>
 #elif APPLE
 #include <OpenGL\gl3.h>
 #endif

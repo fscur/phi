@@ -90,7 +90,7 @@ namespace phi
         auto h = glyphSlot->bitmap.rows;
         auto size = h * glyphSlot->bitmap.pitch;
 
-        void* buffer = new char[size];
+        byte* buffer = new byte[size];
         memcpy(buffer, glyphSlot->bitmap.buffer, size);
 
         const auto freetypeLcdScaleFactor = 3;

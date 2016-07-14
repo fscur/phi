@@ -38,14 +38,14 @@ namespace phi
         uint h;
         imageDataFormat::imageDataFormat dataFormat;
         imageDataType::imageDataType dataType;
-        void* data;
+        byte* data;
 
         image(
             uint w = 0u,
             uint h = 0u,
             imageDataFormat::imageDataFormat dataFormat = imageDataFormat::rgba8,
             imageDataType::imageDataType dataType = imageDataType::ubyte_dataType,
-            void* data = nullptr) :
+            byte* data = nullptr) :
             w(w),
             h(h),
             dataFormat(dataFormat),

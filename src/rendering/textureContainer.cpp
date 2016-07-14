@@ -24,7 +24,7 @@ namespace phi
 
         _unit = textureUnits::get();
 
-        for (auto i = 0; i < _maxPages; ++i)
+        for (auto i = 0u; i < _maxPages; ++i)
             _pages[static_cast<float>(i)] = false;
 
         _texelSize = vec2(1.0f / (float)size.w, 1.0f / (float)size.h);
@@ -142,7 +142,7 @@ namespace phi
 
     float textureContainer::getEmptyPage()
     {
-        for (auto i = 0; i < _maxPages; ++i)
+        for (auto i = 0u; i < _maxPages; ++i)
         {
             auto key = static_cast<float>(i);
             bool pageNotUsed = !_pages[key];
@@ -159,7 +159,7 @@ namespace phi
 
     float textureContainer::getAvailablePage()
     {
-        for (auto i = 0; i < _maxPages; ++i)
+        for (auto i = 0u; i < _maxPages; ++i)
         {
             auto key = static_cast<float>(i);
             bool pageNotUsed = !_pages[key];

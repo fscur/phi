@@ -173,4 +173,7 @@ namespace phi
         for (auto& framebuffer : _framebuffers)
             framebuffer->attachRenderTargets();
     }
+
+    inline renderTarget* framebufferAllocator::getRenderTarget(string renderTargetName) const { return getRenderTargetByName(renderTargetName); }
+    inline framebuffer* framebufferAllocator::getFramebuffer(string framebufferName) const { return getFramebufferByName(framebufferName); }
 }

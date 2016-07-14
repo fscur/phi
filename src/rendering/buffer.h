@@ -55,8 +55,8 @@ namespace phi
     class buffer
     {
     protected:
-        GLuint _id;
         const string _name;
+        GLuint _id;
         const bufferTarget::bufferTarget _target;
 
     public:

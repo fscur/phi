@@ -33,7 +33,7 @@ namespace phi
         UI_RENDERING_API void remove(text* text);
         UI_RENDERING_API void update(text* text);
 
-        UI_RENDERING_API vertexArrayObject* getVao() const { return _vao; };
-        UI_RENDERING_API mappedBuffer<text*, glyphRenderData>* getGlyphRenderDataBuffer() const { return _glyphRenderDataBuffer; };
+        vertexArrayObject* getVao() const { return _vao; };
+        mappedBuffer<text*, glyphRenderData>* getGlyphRenderDataBuffer() const { return _glyphRenderDataBuffer; };
     };
 }
