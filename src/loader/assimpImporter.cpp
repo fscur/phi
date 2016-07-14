@@ -162,6 +162,10 @@ namespace phi
 #endif
         const aiScene* assimpScene;
         auto flags =
+            aiProcess_Triangulate |
+            aiProcess_GenSmoothNormals;
+        const aiScene* assimpScene;
+        auto flags =
             aiProcess_JoinIdenticalVertices |
             aiProcess_Triangulate |
             aiProcess_GenNormals |
@@ -170,6 +174,9 @@ namespace phi
             aiProcess_ImproveCacheLocality |
             aiProcess_FixInfacingNormals;
 
+        auto properties = aiCreatePropertyStore();
+        aiSetImportPropertyFloat(properties, "PP_GSN_MAX_SMOOTHING_ANGLE", 80.0f);
+        assimpScene = aiImportFileExWithProperties(fileName.c_str(), flags, nullptr, properties);
         assimpScene = aiImportFile(fileName.c_str(), flags);
 
         if (assimpScene)

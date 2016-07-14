@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include <loader\loaderApi.h>
 #include <core\node.h>
 #include <core\material.h>
 #include <core\geometry.h>
@@ -29,7 +30,7 @@ namespace phi
             const vector<geometry*>& geometries);
 
     public:
-        static resource<node>* import(
+        LOADER_API static resource<node>* import(
             const string& fileName,
             resourcesRepository<material>* materialsRepo,
             resourcesRepository<geometry>* geometriesRepo);
