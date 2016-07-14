@@ -162,10 +162,6 @@ namespace phi
 #endif
         const aiScene* assimpScene;
         auto flags =
-            aiProcess_Triangulate |
-            aiProcess_GenSmoothNormals;
-        const aiScene* assimpScene;
-        auto flags =
             aiProcess_JoinIdenticalVertices |
             aiProcess_Triangulate |
             aiProcess_GenNormals |
