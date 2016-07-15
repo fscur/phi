@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Launch (GDB)",
+            "type": "cppdbg",
+            "request": "launch",
+            "launchOptionType": "Local",
+            "targetArchitecture": "x64",
+            "program": "${workspaceRoot}/bin/win64/gcc/debug/demon.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "miDebuggerPath": "C:/mingw64/mingw64/bin/gdb.exe"
+        },
+        {
+            "name": "C++ Attach (GDB)",
+            "type": "cppdbg",
+            "request": "launch",
+            "launchOptionType": "Local",
+            "targetArchitecture": "x64",
+            "program": "${workspaceRoot}/bin/win64/gcc/release/demon.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "processId": "enter program's process ID",
+            "externalConsole": false,
+            "miDebuggerPath": "C:/mingw64/mingw64/bin/gdb.exe"
+        }
+    ]
+}

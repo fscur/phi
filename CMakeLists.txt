@@ -23,6 +23,7 @@ add_subdirectory(src/application)
 add_subdirectory(src/demon)
 
 add_subdirectory(tests/phiTests)
+add_subdirectory(tests/diagnosticTests)
 add_subdirectory(tests/coreTests)
 add_subdirectory(tests/contextTests)
 

@@ -105,9 +105,10 @@ namespace phi
     private:
         linkedList _heapBuffer;
     public:
-        bool shouldDump;
         size_t allocationCount;
         size_t allocationOrder;
+        bool shouldDump;
+        
     private:
         void initializeStackTracer()
         {
