@@ -19,14 +19,6 @@ namespace phi
         int32_t _lastMousePosX;
         int32_t _lastMousePosY;
 
-        bool _rotating;
-        bool _rotationDoingInertia;
-        vec2 _rotationDelta;
-        vec3 _rotationTargetPos;
-        double _rotationLastMouseMoveTime;
-        double _rotationInertiaTime;
-        float _rotationInertiaLastPercent;
-
         bool _panning;
         bool _panDoingInertia;
         float _panEyeZ;
@@ -44,12 +36,6 @@ namespace phi
         void panMouseUp();
         void panUpdate();
         void panCancel();
-
-        void rotationMouseDown(int mouseX, int mouseY);
-        void rotationMouseMove();
-        void rotationMouseUp();
-        void rotationUpdate();
-        void rotationCancel();
 
         virtual void onKeyDown(keyboardEventArgs* e) override;
         virtual void onKeyUp(keyboardEventArgs* e) override;

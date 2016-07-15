@@ -20,13 +20,6 @@ namespace phi
         _mousePosY(0),
         _lastMousePosX(0),
         _lastMousePosY(0),
-        _rotating(false),
-        _rotationDoingInertia(false),
-        _rotationDelta(phi::vec2()),
-        _rotationTargetPos(phi::vec3()),
-        _rotationLastMouseMoveTime(0.0),
-        _rotationInertiaTime(0.0),
-        _rotationInertiaLastPercent(0.0f),
         _panning(false),
         _panDoingInertia(false),
         _panEyeZ(0.0f),
@@ -53,11 +46,8 @@ namespace phi
 
     void cameraInputController::onMouseDown(phi::mouseEventArgs* e)
     {
-        if (e->middleButtonPressed && !_rotating)
+        if (e->middleButtonPressed)
             panMouseDown(e->x, e->y);
-
-        if (e->rightButtonPressed && !_panning)
-            rotationMouseDown(e->x, e->y);
     }
 
     void cameraInputController::onMouseMove(phi::mouseEventArgs* e)
@@ -69,17 +59,12 @@ namespace phi
 
         if (_panning)
             panMouseMove();
-        if (_rotating)
-            rotationMouseMove();
     }
 
     void cameraInputController::onMouseUp(phi::mouseEventArgs* e)
     {
         if (e->middleButtonPressed)
             panMouseUp();
-
-        if (e->rightButtonPressed)
-            rotationMouseUp();
     }
 
     void cameraInputController::onMouseWheel(phi::mouseEventArgs* e)
@@ -88,7 +73,6 @@ namespace phi
 
     void cameraInputController::update()
     {
-        rotationUpdate();
         panUpdate();
 
         _lastMousePosX = _mousePosX;
@@ -97,7 +81,6 @@ namespace phi
 
     void cameraInputController::panMouseDown(int mouseX, int mouseY)
     {
-        rotationCancel();
         panCancel();
 
         auto y = static_cast<int>(_camera->getResolution().height) - mouseY;
@@ -199,95 +182,5 @@ namespace phi
     void cameraInputController::panCancel()
     {
         _panDelta = phi::vec3();
-    }
-
-    void cameraInputController::rotationMouseDown(int mouseX, int mouseY)
-    {
-        rotationCancel();
-        panCancel();
-
-        auto y = static_cast<int>(_camera->getResolution().height) - mouseY;
-        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(mouseX, y);
-
-        if (zBufferValue == 1.0f)
-            _rotationTargetPos = glm::vec3();
-        else
-        {
-            auto worldZ = _camera->getWorldZRelativeToCamera(zBufferValue);
-            auto worldPosition = _camera->getWorldPositionRelativeToCamera(mouseX, mouseY, worldZ);
-
-            auto transform = _camera->getTransform();
-            auto camPos = transform->getPosition();
-            auto camDir = transform->getDirection();
-            auto camRight = transform->getRight();
-            auto camUp = transform->getUp();
-
-            _rotationTargetPos =
-                camPos +
-                (-camRight * worldPosition.x) +
-                (camUp * worldPosition.y) +
-                (camDir * worldPosition.z);
-        }
-
-        _rotationLastMouseMoveTime = 0.0;
-        _rotating = true;
-    }
-
-    void cameraInputController::rotationMouseMove()
-    {
-        auto resolution = _camera->getResolution();
-        auto w = resolution.width;
-        auto h = resolution.height;
-
-        auto dx = _mousePosX - _lastMousePosX;
-        auto dy = _mousePosY - _lastMousePosY;
-
-        auto x = (dx / w) * 3.0f * phi::PI;
-        auto y = (dy / h) * 3.0f * phi::PI;
-
-        auto delta = phi::vec2(x, y);
-
-        auto lastRemainingRotation = (1.0f - _rotationInertiaLastPercent) * glm::length(_rotationDelta);
-        _rotationDelta = glm::normalize(delta) * (lastRemainingRotation + glm::length(delta));
-
-        _rotationLastMouseMoveTime = phi::time::totalSeconds * 1000.0;
-        _rotationInertiaTime = 0.0;
-        _rotationDoingInertia = true;
-        _rotationInertiaLastPercent = 0.0f;
-    }
-
-    void cameraInputController::rotationMouseUp()
-    {
-        _rotating = false;
-
-        if (glm::length(_rotationDelta) == 0.0f)
-            return;
-
-        auto nowMilliseconds = phi::time::totalSeconds * 1000.0;
-        auto deltaTime = static_cast<float>(glm::max(10.0, nowMilliseconds - _rotationLastMouseMoveTime));
-        auto lastRemainingRotation = (1.0f - _rotationInertiaLastPercent) * glm::length(_rotationDelta);
-        _rotationDelta = glm::normalize(_rotationDelta) * (lastRemainingRotation + lastRemainingRotation * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f))));
-    }
-
-    void cameraInputController::rotationUpdate()
-    {
-        if (!_rotationDoingInertia)
-            return;
-
-        auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0f;
-        _rotationInertiaTime += deltaMilliseconds;
-        auto desFactor = _rotating ? 100.0f : 325.0f;
-        auto percent = static_cast<float>(-glm::exp(_rotationInertiaTime / -desFactor) + 1.0);
-        auto delta = _rotationDelta * (percent - _rotationInertiaLastPercent);
-        _rotationInertiaLastPercent = percent;
-
-        _camera->orbit(_rotationTargetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), -delta.x, -delta.y);
-        if (percent >= 1.0f)
-            _rotationDoingInertia = false;
-    }
-
-    void cameraInputController::rotationCancel()
-    {
-        _rotationDelta = phi::vec2();
     }
 }
