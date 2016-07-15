@@ -6,12 +6,12 @@
 
 #include <rendering\camera.h>
 
-#include "iMouseController.h"
+#include "mouseController.h"
 
 namespace phi
 {
     class sceneCameraController :
-        public iMouseController
+        public mouseController
     {
     private:
         float const ZOOM_FACTOR = 1.0f;

@@ -11,7 +11,7 @@
 #include <rendering\buffer.h>
 #include <rendering\frameUniformBlock.h>
 
-#include "iMouseController.h"
+#include "mouseController.h"
 
 namespace phi
 {
@@ -49,7 +49,7 @@ namespace phi
         vector<std::function<void(node*)>> _onNodeTransformChanged;
         vector<std::function<void(node*)>> _onNodeSelectionChanged;
         vector<std::function<void(void)>> _onDelete;
-        vector<iMouseController*> _controllers;
+        vector<mouseController*> _controllers;
 
         buffer* _frameUniformsBuffer;
 
@@ -85,7 +85,7 @@ namespace phi
         void addOnNodeTransformChanged(std::function<void(node*)> onNodeTransformChanged) { _onNodeTransformChanged.push_back(onNodeTransformChanged); }
         void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged) { _onNodeSelectionChanged.push_back(onNodeSelectionChanged); }
 
-        void addMouseController(iMouseController* controller) { _controllers.push_back(controller); }
+        void addMouseController(mouseController* controller) { _controllers.push_back(controller); }
         void addRenderPass(renderPass* renderPass) { _renderPasses.push_back(renderPass); }
         void addRenderPasses(vector<renderPass*> renderPasses) { _renderPasses.insert(_renderPasses.end(), renderPasses.begin(), renderPasses.end()); }
         void addOnDelete(std::function<void(void)> onDelete) { _onDelete.push_back(onDelete); }

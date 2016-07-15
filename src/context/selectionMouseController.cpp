@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "meshMouseController.h"
+#include "selectionMouseController.h"
 
 #include <core\input.h>
 #include <core\mesh.h>
@@ -13,25 +13,25 @@
 
 namespace phi
 {
-    meshMouseController::meshMouseController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager) :
+    selectionMouseController::selectionMouseController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager) :
         _meshLayerBehaviour(meshLayerBehaviour),
         _commandsManager(commandsManager),
         _isCtrlPressed(false)
     {
     }
 
-    void meshMouseController::onKeyDown(keyboardEventArgs * e)
+    void selectionMouseController::onKeyDown(keyboardEventArgs * e)
     {
         _isCtrlPressed = e->key == PHIK_CTRL;
     }
 
-    void meshMouseController::onKeyUp(keyboardEventArgs * e)
+    void selectionMouseController::onKeyUp(keyboardEventArgs * e)
     {
         if (e->key == PHIK_CTRL)
             _isCtrlPressed = false;
     }
 
-    void meshMouseController::onMouseDown(phi::mouseEventArgs* e)
+    void selectionMouseController::onMouseDown(phi::mouseEventArgs* e)
     {
         if (e->leftButtonPressed)
         {
@@ -61,21 +61,5 @@ namespace phi
                 clickComponent->onClick();
             }
         }
-    }
-
-    void meshMouseController::onMouseMove(phi::mouseEventArgs* e)
-    {
-    }
-
-    void meshMouseController::onMouseUp(phi::mouseEventArgs* e)
-    {
-    }
-
-    void meshMouseController::onMouseWheel(phi::mouseEventArgs* e)
-    {
-    }
-
-    void meshMouseController::update()
-    {
     }
 }

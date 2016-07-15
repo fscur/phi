@@ -21,7 +21,7 @@
 #include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
 #include "sceneCameraController.h"
-#include "meshMouseController.h"
+#include "selectionMouseController.h"
 
 namespace phi
 {
@@ -55,7 +55,7 @@ namespace phi
         });
 
         _layer->addMouseController(new sceneCameraController(_layer->getCamera()));
-        _layer->addMouseController(new meshMouseController(meshBehaviour, _commandsManager));
+        _layer->addMouseController(new selectionMouseController(meshBehaviour, _commandsManager));
 
         return *this;
     }
