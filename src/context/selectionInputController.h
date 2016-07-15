@@ -17,12 +17,9 @@ namespace phi
     private:
         meshLayerBehaviour* _meshLayerBehaviour;
         commandsManager* _commandsManager;
-        bool _isCtrlPressed;
 
     private:
-        virtual void onMouseDown(mouseEventArgs* e) override;
-        virtual void onKeyDown(keyboardEventArgs* e) override;
-        virtual void onKeyUp(keyboardEventArgs* e) override;
+        virtual bool onMouseDown(mouseEventArgs* e) override;
 
     public:
         CONTEXT_API selectionInputController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager);

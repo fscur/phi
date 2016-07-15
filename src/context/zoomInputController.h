@@ -40,7 +40,8 @@ namespace phi
         zoomInputController(camera* camera);
         ~zoomInputController();
 
-        virtual void onMouseWheel(mouseEventArgs* e) override;
-        virtual void update() override;
+        void cancelZoom();
+        virtual bool onMouseWheel(mouseEventArgs* e) override;
+        virtual bool update() override;
     };
 }

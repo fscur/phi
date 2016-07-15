@@ -32,8 +32,14 @@ namespace phi
         if (_bounceAnimation)
         {
             phi::floatAnimator::cancelAnimation(_bounceAnimation);
-            safeDelete(_bounceAnimation);
+            _bounceAnimation = nullptr;
         }
+    }
+    
+    void zoomInputController::cancelZoom()
+    {
+        cancelBounceAnimation();
+        _speed = 0.0f;
     }
 
     void zoomInputController::startBounceAnimation(float speedPercent)
@@ -60,16 +66,12 @@ namespace phi
         phi::floatAnimator::animateFloat(_bounceAnimation);
     }
 
-    void zoomInputController::onMouseWheel(mouseEventArgs* e)
+    bool zoomInputController::onMouseWheel(mouseEventArgs* e)
     {
         if (e->wheelDelta > 0.0f && _bounceAnimation)
-            return;
+            return false;
 
-        if (_bounceAnimation)
-        {
-            phi::floatAnimator::cancelAnimation(_bounceAnimation);
-            _bounceAnimation = nullptr;
-        }
+        cancelBounceAnimation();
 
         auto y = static_cast<int>(_camera->getResolution().height) - e->y;
         auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(e->x, y);
@@ -101,15 +103,17 @@ namespace phi
         _distanceTraveled = 0.0f;
         _distanceLimit = glm::max(z - zNear - MAX_BOUNCE - Z_NEAR_AVOIDING_GAP, 0.0f);
         _startingCameraPosition = cameraTransform->getPosition();
+
+        return true;
     }
 
-    void zoomInputController::update()
+    bool zoomInputController::update()
     {
         auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
         _speedAccumulationTime = glm::max(_speedAccumulationTime - deltaMilliseconds, 0.0);
 
         if (_speed == 0.0f)
-            return;
+            return false;
 
         _inertiaTime += deltaMilliseconds;
         auto distancePercent = static_cast<float>(-glm::exp(_inertiaTime / -325.0f) + 1.0f);
@@ -129,5 +133,7 @@ namespace phi
         }
         else
             _camera->getTransform()->setLocalPosition(_startingCameraPosition + _direction * delta);
+
+        return true;
     }
 }

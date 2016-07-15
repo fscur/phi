@@ -21,8 +21,6 @@
 #include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
 #include "cameraInputController.h"
-#include "zoomInputController.h"
-#include "rotationInputController.h"
 #include "selectionInputController.h"
 
 namespace phi
@@ -57,8 +55,6 @@ namespace phi
         });
 
         _layer->addMouseController(new cameraInputController(_layer->getCamera()));
-        _layer->addMouseController(new zoomInputController(_layer->getCamera()));
-        _layer->addMouseController(new rotationInputController(_layer->getCamera()));
         _layer->addMouseController(new selectionInputController(meshBehaviour, _commandsManager));
 
         // Camera:

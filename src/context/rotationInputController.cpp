@@ -26,12 +26,13 @@ namespace phi
     void rotationInputController::cancelRotation()
     {
         _delta = phi::vec2();
+        _doingInertia = false;
     }
 
-    void rotationInputController::onMouseDown(mouseEventArgs* e)
+    bool rotationInputController::onMouseDown(mouseEventArgs* e)
     {
         if (!e->rightButtonPressed)
-            return;
+            return false;
 
         cancelRotation();
 
@@ -62,12 +63,14 @@ namespace phi
         _rotating = true;
         _lastMousePosX = e->x;
         _lastMousePosY = e->y;
+
+        return true;
     }
 
-    void rotationInputController::onMouseMove(mouseEventArgs* e)
+    bool rotationInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_rotating)
-            return;
+            return false;
 
         auto resolution = _camera->getResolution();
         auto w = resolution.width;
@@ -91,28 +94,32 @@ namespace phi
 
         _lastMousePosX = e->x;
         _lastMousePosY = e->y;
+
+        return true;
     }
 
-    void rotationInputController::onMouseUp(mouseEventArgs* e)
+    bool rotationInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->rightButtonPressed)
-            return;
+            return false;
 
         _rotating = false;
 
         if (glm::length(_delta) == 0.0f)
-            return;
+            return false;
 
         auto nowMilliseconds = phi::time::totalSeconds * 1000.0;
         auto deltaTime = static_cast<float>(glm::max(10.0, nowMilliseconds - _lastMouseMoveTime));
         auto lastRemainingRotation = (1.0f - _inertiaLastPercent) * glm::length(_delta);
         _delta = glm::normalize(_delta) * (lastRemainingRotation + lastRemainingRotation * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f))));
+
+        return true;
     }
 
-    void rotationInputController::update()
+    bool rotationInputController::update()
     {
         if (!_doingInertia)
-            return;
+            return false;
 
         auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0f;
         _inertiaTime += deltaMilliseconds;
@@ -124,5 +131,7 @@ namespace phi
         _camera->orbit(_targetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), -delta.x, -delta.y);
         if (percent >= 1.0f)
             _doingInertia = false;
+
+        return true;
     }
 }
