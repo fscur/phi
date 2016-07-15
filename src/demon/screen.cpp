@@ -163,8 +163,8 @@ namespace demon
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
-        _sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 10.0f));
+        _sceneCamera->getTransform()->yaw(PI);
 
         _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withMeshRenderer()

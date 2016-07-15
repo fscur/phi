@@ -6,10 +6,10 @@
 
 namespace phi
 {
-    class mouseController
+    class inputController
     {
     protected:
-        mouseController() {}
+        inputController() {}
 
     public:
         virtual void onMouseDown(mouseEventArgs* e) {}
@@ -19,6 +19,6 @@ namespace phi
         virtual void onKeyDown(keyboardEventArgs* e) {}
         virtual void onKeyUp(keyboardEventArgs* e) {}
         virtual void update() {}
-        virtual ~mouseController() {}
+        virtual ~inputController() {}
     };
 }

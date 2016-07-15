@@ -7,12 +7,12 @@
 #include <application\commandsManager.h>
 
 #include "meshLayerBehaviour.h"
-#include "mouseController.h"
+#include "inputController.h"
 
 namespace phi
 {
-    class selectionMouseController :
-        public mouseController
+    class selectionInputController :
+        public inputController
     {
     private:
         meshLayerBehaviour* _meshLayerBehaviour;
@@ -25,7 +25,7 @@ namespace phi
         virtual void onKeyUp(keyboardEventArgs* e) override;
 
     public:
-        CONTEXT_API selectionMouseController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager);
-        virtual ~selectionMouseController() {}
+        CONTEXT_API selectionInputController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager);
+        virtual ~selectionInputController() {}
     };
 }

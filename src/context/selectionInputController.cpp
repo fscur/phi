@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "selectionMouseController.h"
+#include "selectionInputController.h"
 
 #include <core\input.h>
 #include <core\mesh.h>
@@ -13,25 +13,25 @@
 
 namespace phi
 {
-    selectionMouseController::selectionMouseController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager) :
+    selectionInputController::selectionInputController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager) :
         _meshLayerBehaviour(meshLayerBehaviour),
         _commandsManager(commandsManager),
         _isCtrlPressed(false)
     {
     }
 
-    void selectionMouseController::onKeyDown(keyboardEventArgs * e)
+    void selectionInputController::onKeyDown(keyboardEventArgs * e)
     {
         _isCtrlPressed = e->key == PHIK_CTRL;
     }
 
-    void selectionMouseController::onKeyUp(keyboardEventArgs * e)
+    void selectionInputController::onKeyUp(keyboardEventArgs * e)
     {
         if (e->key == PHIK_CTRL)
             _isCtrlPressed = false;
     }
 
-    void selectionMouseController::onMouseDown(phi::mouseEventArgs* e)
+    void selectionInputController::onMouseDown(phi::mouseEventArgs* e)
     {
         if (e->leftButtonPressed)
         {
