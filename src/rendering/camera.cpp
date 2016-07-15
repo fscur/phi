@@ -147,7 +147,7 @@ namespace phi
         return vec3(x, y, z);
     }
 
-    float camera::getWorldZRelativeToCamera(int mouseX, int mouseY, float zBufferValue)
+    float camera::getWorldZRelativeToCamera(float zBufferValue)
     {
         return -_projectionMatrix[3].z / (zBufferValue * -2.0f + 1.0f - _projectionMatrix[2].z);
     }

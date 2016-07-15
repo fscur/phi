@@ -21,8 +21,8 @@
 #include "controlLayerBehaviour.h"
 #include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
-#include "sceneCameraController.h"
-#include "selectionMouseController.h"
+#include "cameraInputController.h"
+#include "selectionInputController.h"
 
 namespace phi
 {
@@ -55,8 +55,20 @@ namespace phi
             safeDelete(meshBehaviour);
         });
 
-        _layer->addMouseController(new sceneCameraController(_layer->getCamera()));
-        _layer->addMouseController(new selectionMouseController(meshBehaviour, _commandsManager));
+        _layer->addMouseController(new cameraInputController(_layer->getCamera()));
+        _layer->addMouseController(new selectionInputController(meshBehaviour, _commandsManager));
+
+        // Camera:
+            // Pan
+            // Rotate
+            // Zoom
+        // Objetos:
+            // Translate
+            // Rotate
+            // Selection
+        // UI:
+            // Drag and drop
+            // Resto
 
         return *this;
     }
