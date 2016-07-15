@@ -1,73 +1,74 @@
-#include "precompiled.h"
-#include "frameBuffer.h"
-#include "glError.h"
+#include <precompiled.h>
+#include "framebuffer.h"
+
+#include <core\invalidInitializationException.h>
+
+#include "texturesManager.h"
+#include "framebufferLayoutBuilder.h"
 
 namespace phi
 {
+    framebuffer* framebuffer::defaultFramebuffer = new framebuffer(true);
+
     framebuffer::framebuffer(bool isDefaultFramebuffer) :
+        _name("defaultFramebuffer"),
         _id(0),
         _maxColorAttachments(0),
         _currentAttachment(0),
-        _drawBuffers(vector<GLenum>())
+        _drawBuffers(vector<GLenum>()),
+        _isDefaultFramebuffer(true)
     {
-        if (!isDefaultFramebuffer)
-        {
-            glCreateFramebuffers(1, &_id);
-            glError::check();
-        }
+    }
 
+    framebuffer::framebuffer(const string& name) :
+        _name(name),
+        _id(0),
+        _maxColorAttachments(0),
+        _currentAttachment(0),
+        _drawBuffers(vector<GLenum>()),
+        _isDefaultFramebuffer(false)
+    {
+        glCreateFramebuffers(1, &_id);
         glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_maxColorAttachments);
-        glError::check();
     }
 
     framebuffer::~framebuffer()
     {
-        glDeleteFramebuffers(1, &_id);
-        glError::check();
+        if (!_isDefaultFramebuffer)
+            glDeleteFramebuffers(1, &_id);
     }
 
-    void framebuffer::add(renderTarget* renderTarget)
+    void framebuffer::add(renderTarget* renderTarget, GLenum attachment)
     {
-        if (_id == 0)
+        _renderTargets.push_back(renderTarget);
+        _renderTargetsAttachments[renderTarget] = attachment;
+
+        if (!(attachment == GL_DEPTH_ATTACHMENT ||
+            attachment == GL_STENCIL_ATTACHMENT ||
+            attachment == GL_DEPTH_STENCIL_ATTACHMENT))
+            _drawBuffers.push_back(attachment);
+    }
+
+    void framebuffer::attachRenderTargets()
+    {
+        for (auto& pair : _renderTargetsAttachments)
         {
-            phi::debug("trying to add render target to default framebuffer!?");
-            return;
-        }
+            auto renderTarget = pair.first;
+            auto attachment = pair.second;
 
-        auto att = renderTarget->attachment;
+            if (_isDefaultFramebuffer)
+                throw argumentException("Trying to add renderTarget to default framebuffer !?");
 
-        if (!(att == GL_DEPTH_ATTACHMENT ||
-            att == GL_STENCIL_ATTACHMENT ||
-            att == GL_DEPTH_STENCIL_ATTACHMENT))
-            _drawBuffers.push_back(att);
+            glBindFramebuffer(GL_FRAMEBUFFER, _id);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, _id);
-        glError::check();
+            auto address = texturesManager::getTextureAddress(renderTarget->texture);
 
-        glNamedFramebufferTextureLayer(
-            _id,
-            att,
-            renderTarget->textureAddress.containerId,
-            0,
-            static_cast<GLint>(renderTarget->textureAddress.page));
-        glError::check();
-
-        auto status = glCheckNamedFramebufferStatus(_id, GL_FRAMEBUFFER);
-        glError::check();
-
-        switch (status)
-        {
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            phi::debug("incomplete attachment");;
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            phi::debug("incomplete draw buffer");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-            phi::debug("incomplete layer targets");
-            break;
-        default:
-            break;
+            glNamedFramebufferTextureLayer(
+                _id,
+                attachment,
+                address.containerId,
+                0,
+                static_cast<GLint>(address.page));
         }
     }
 
@@ -84,61 +85,50 @@ namespace phi
     void framebuffer::bind(GLenum target)
     {
         glBindFramebuffer(target, _id);
-        glError::check();
+
     }
 
     void framebuffer::bindForDrawing()
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        glError::check();
 
-        glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
-        glError::check();
+        if (!_isDefaultFramebuffer)
+            glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
     }
 
     void framebuffer::bindForDrawing(GLenum* buffers, GLsizei buffersCount)
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        glError::check();
-
         glDrawBuffers(buffersCount, buffers);
-        glError::check();
+
     }
 
     void framebuffer::bindForReading()
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-        glError::check();
     }
 
     void framebuffer::bindForReading(const renderTarget* const sourceRenderTarget)
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-        glError::check();
-
-        glReadBuffer(sourceRenderTarget->attachment);
-        glError::check();
+        glReadBuffer(_renderTargetsAttachments[sourceRenderTarget]);
     }
 
     void framebuffer::unbind(GLenum target)
     {
         glBindFramebuffer(target, 0);
-        glError::check();
     }
 
     void framebuffer::blitToDefault(renderTarget * renderTarget, int x, int y, int w, int h)
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
         bindForReading(renderTarget);
+        //TODO: arrumar isso renderTarget->texture->w!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        if (w == -1)
-            w = renderTarget->w;
+        if (w == -1) w = renderTarget->texture->w;
+        if (h == -1) h = renderTarget->texture->h;
 
-        if (h == -1)
-            h = renderTarget->h;
-
-        glBlitFramebuffer(0, 0, renderTarget->w, renderTarget->h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        glBlitFramebuffer(0, 0, renderTarget->texture->w, renderTarget->texture->h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
 
     void framebuffer::blit(framebuffer * sourceFramebuffer, renderTarget * sourceRenderTarget, framebuffer * targetFramebuffer, renderTarget * targetRenderTarget)
@@ -148,16 +138,25 @@ namespace phi
         glBlitFramebuffer(
             0,
             0,
-            sourceRenderTarget->w,
-            sourceRenderTarget->h,
+            sourceRenderTarget->texture->w,
+            sourceRenderTarget->texture->h,
             0,
             0,
-            targetRenderTarget->w,
-            targetRenderTarget->h,
+            targetRenderTarget->texture->w,
+            targetRenderTarget->texture->h,
             GL_COLOR_BUFFER_BIT,
             GL_LINEAR);
+    }
 
-        glError::check();
+    renderTarget* framebuffer::getRenderTarget(string name)
+    {
+        for (auto& renderTarget : _renderTargets)
+        {
+            if (renderTarget->name == name)
+                return renderTarget;
+        }
+
+        throw exception("renderTarget " + name + " not found.");
     }
 
     GLfloat framebuffer::getZBufferValue(int x, int y)
@@ -165,8 +164,12 @@ namespace phi
         bindForReading();
         GLfloat zBufferValue;
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
-        glError::check();
 
         return zBufferValue;
+    }
+
+    void framebuffer::release()
+    {
+        safeDelete(defaultFramebuffer);
     }
 }

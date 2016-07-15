@@ -14,17 +14,17 @@ struct controlRenderData
     float pad5;
 };
 
-layout (std140, binding = 0) buffer ControlRenderData
+layout (std140, binding = 1) buffer ControlRenderDataBuffer
 {
     controlRenderData items[];
 } renderData;
 
-uniform sampler2DArray textureArrays[32];
+layout (location = 0) uniform sampler2DArray textureArrays[32];
 
 in vec2 fragTexCoord;
 flat in uint instanceId;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 vec4 fetch(vec2 uv)
 {
@@ -40,6 +40,6 @@ void main(void)
 {
     //fragColor = vec4(1.0, 0.0, 0.0, 1.0);
     fragColor = fetch(fragTexCoord);
-    //fragColor = vec4(1.0f);
+    //fragColor = vec4(1.0);
     //fragColor = vec4(instanceId);
 }

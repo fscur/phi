@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include "assimpImporter.h"
+
 #include <core\nodeOptimizer.h>
 #include <core\random.h>
 #include <core\color.h>
@@ -7,6 +8,7 @@
 #include <core\geometry.h>
 #include <core\mesh.h>
 #include <io\path.h>
+
 #include "importResourceException.h"
 
 namespace phi
@@ -89,10 +91,10 @@ namespace phi
                 auto albedoColor = color::fromHSL(hue, 0.83333f, 0.6667f);
 
                 auto material = new phi::material(
-                    nullptr,
-                    nullptr,
-                    nullptr,
-                    nullptr,
+                    image::defaultAlbedoImage,
+                    image::defaultNormalImage,
+                    image::defaultSpecularImage,
+                    image::defaultEmissiveImage,
                     vec3(albedoColor.r, albedoColor.g, albedoColor.b));
 
                 materials.push_back(material);
@@ -160,12 +162,18 @@ namespace phi
 #endif
         const aiScene* assimpScene;
         auto flags =
+            aiProcess_JoinIdenticalVertices |
             aiProcess_Triangulate |
-            aiProcess_GenSmoothNormals;
+            aiProcess_GenNormals |
+            aiProcess_GenUVCoords |
+            aiProcess_ValidateDataStructure |
+            aiProcess_ImproveCacheLocality |
+            aiProcess_FixInfacingNormals;
 
         auto properties = aiCreatePropertyStore();
         aiSetImportPropertyFloat(properties, "PP_GSN_MAX_SMOOTHING_ANGLE", 80.0f);
         assimpScene = aiImportFileExWithProperties(fileName.c_str(), flags, nullptr, properties);
+        assimpScene = aiImportFile(fileName.c_str(), flags);
 
         if (assimpScene)
         {

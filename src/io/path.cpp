@@ -144,10 +144,10 @@ namespace phi
     }
 
     string path::combine(const string& path0, const string& path1, const string& extension)
-    {
-        auto combined = path0 + "\\" + path1;
-
-        return combined + extension;
+    {   
+        auto combined = path0 + "\\" + path1 + extension;
+        std::replace(combined.begin(), combined.end(), '/', '\\');
+        return combined;
     }
 
     string path::combine(std::initializer_list<string> args)
@@ -158,6 +158,8 @@ namespace phi
         {
             combined += "\\" + arg;
         }
+
+        std::replace(combined.begin(), combined.end(), '/', '\\');
 
         return combined;
     }

@@ -5,20 +5,21 @@
 namespace phi
 {
     FT_Library fontsManager::_freeTypeLibrary = nullptr;
+    font* fontsManager::defaultFont = nullptr;
     bool fontsManager::_initialized = false;
+    string fontsManager::_path = "";
+    textureLayout fontsManager::_glyphLayout;
+    vec2 fontsManager::_texelSize;
+    map<std::tuple<string, uint>, font*> fontsManager::_fonts;
+    unordered_map<glyph*, glyphTextureData*> fontsManager::_glyphTextureDataCache;
 
-    fontsManager::fontsManager(string path, texturesManager* texturesManager) :
-        _path(path),
-        _texturesManager(texturesManager),
-        _fonts(map<std::tuple<string, uint>, font*>()),
-        _glyphAtlasContainer(nullptr),
-        _glyphAtlas(map<glyph*, glyphNode*>()),
-        _glyphAtlasRoot(nullptr),
-        _glyphAtlasTexture(nullptr),
-        _glyphCache(map<std::tuple<const font*, ulong>, glyph*>()),
-        _glyphAtlasSize(-1),
-        _glyphAtlasTextureAddress(textureAddress())
+    //TODO: see what happens when there is no space in the container...
+    GLint fontsManager::_maxGlyphAtlasSize = 1024;
+
+    void fontsManager::initialize(string path)
     {
+        _path = path;
+
         assert(!_initialized);
 
         if (!_initialized)
@@ -28,86 +29,65 @@ namespace phi
             font::FreeTypeLibrary = _freeTypeLibrary;
         }
 
-        auto glyphAtlasSize = 0;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glyphAtlasSize);
-
-        _glyphAtlasSize = std::min(glyphAtlasSize, 1024);
-        _glyphAtlasRoot = new glyphNode(rectangle(0, 0, _glyphAtlasSize, _glyphAtlasSize));
-
-        auto maxLevels = texturesManager::getMaxLevels(_glyphAtlasSize, _glyphAtlasSize);
-
-        auto layout = phi::textureContainerLayout();
-        layout.w = static_cast<GLsizei>(_glyphAtlasSize);
-        layout.h = static_cast<GLsizei>(_glyphAtlasSize);
-        layout.levels = maxLevels;
-        layout.internalFormat = GL_RGB8;
-        layout.dataFormat = GL_RGB;
-        layout.dataType = GL_UNSIGNED_BYTE;
-        layout.wrapMode = GL_CLAMP_TO_EDGE;
-        layout.minFilter = GL_LINEAR;
-        layout.magFilter = GL_LINEAR;
-
-        _glyphAtlasContainer = _texturesManager->reserveContainer(layout, 1);
-
-        _glyphAtlasTexture = new texture(
-            _glyphAtlasSize,
-            _glyphAtlasSize,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            nullptr,
-            GL_TEXTURE_2D,
-            GL_RGB8,
-            GL_CLAMP_TO_EDGE,
-            GL_LINEAR,
-            GL_LINEAR,
-            true);
-
-        glError::check();
-
-        _glyphAtlasTextureAddress = _texturesManager->add(_glyphAtlasTexture);
+        defaultFont = load("Consolas.ttf", 14);
+        createGlyphLayout();
     }
 
-    fontsManager::~fontsManager()
+    void fontsManager::release()
     {
-        for (auto pair : _fonts)
+        for (auto& pair : _fonts)
             safeDelete(pair.second);
         
-        FT_Done_FreeType(_freeTypeLibrary);
+        for (auto& pair : _glyphTextureDataCache)
+            safeDelete(pair.second);
 
-        safeDelete(_glyphAtlasRoot);
-        safeDelete(_glyphAtlasTexture);
+        FT_Done_FreeType(_freeTypeLibrary);
     }
 
-    glyph* fontsManager::getGlyph(font* const font, const ulong& glyphChar)
+    void fontsManager::createGlyphLayout()
     {
-        std::tuple<phi::font*, ulong> key(font, glyphChar);
+        auto glyphAtlasSize = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glyphAtlasSize);
+        glyphAtlasSize = std::min(glyphAtlasSize, _maxGlyphAtlasSize);
 
-        if (_glyphCache.find(key) != _glyphCache.end())
-            return _glyphCache[key];
+        auto maxLevels = texturesManager::getMaxLevels(glyphAtlasSize, glyphAtlasSize);
 
+        _glyphLayout = phi::textureLayout();
+        _glyphLayout.dataFormat = GL_RGB;
+        _glyphLayout.dataType = GL_UNSIGNED_BYTE;
+        _glyphLayout.levels = maxLevels;
+        _glyphLayout.internalFormat = GL_RGB8;
+        _glyphLayout.wrapMode = GL_CLAMP_TO_EDGE;
+        _glyphLayout.minFilter = GL_LINEAR;
+        _glyphLayout.magFilter = GL_LINEAR;
+
+        texturesManager::reserveContainer(sizeui(glyphAtlasSize, glyphAtlasSize, 1), _glyphLayout);
+
+        auto inverseGlyphAtlasSize = 1.0f / static_cast<float>(glyphAtlasSize);
+        _texelSize = vec2(inverseGlyphAtlasSize);
+    }
+
+    glyphTextureData* fontsManager::getGlyph(font* const font, const ulong& glyphChar)
+    {
         auto glyph = font->getGlyph(glyphChar);
 
-        auto glyphNode = _glyphAtlasRoot->insert(glyph);
-        _glyphAtlas[glyph] = glyphNode;
+        if (contains(_glyphTextureDataCache, glyph))
+            return _glyphTextureDataCache[glyph];
 
-        auto x = glyphNode->rect.x;
-        auto y = glyphNode->rect.y;
-        auto w = static_cast<GLsizei>(glyph->bitmapWidth);
-        auto h = static_cast<GLsizei>(glyph->bitmapHeight);
-        auto r = 1.0f / (float)_glyphAtlasSize;
+        auto glyphTexture = new texture(glyph->image, _glyphLayout, true, true);
+        auto address = texturesManager::addAtlasTexture(glyphTexture);
 
-        glyph->texPos = vec2((float)x * r, (float)y * r);
-        glyph->texSize = vec2((float)w * r, (float)h * r);
-        glyph->texUnit = _glyphAtlasTextureAddress.unit;
-        glyph->texPage = _glyphAtlasTextureAddress.page;
+        auto glyphTextureData = new phi::glyphTextureData(glyph);
 
-        auto rect = rectangle(x, y, w, h);
+        glyphTextureData->texturePosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
+        glyphTextureData->textureSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);
+        glyphTextureData->unit = address.unit;
+        glyphTextureData->page = address.page;
+        glyphTextureData->texelSize = _texelSize;
 
-        _glyphAtlasContainer->subData(_glyphAtlasTextureAddress.page, rect, glyph->data);
+        _glyphTextureDataCache[glyph] = glyphTextureData;
 
-        _glyphCache[key] = glyph;
-
-        return glyph;
+        return glyphTextureData;
     }
 
     font* fontsManager::load(string name, uint size)

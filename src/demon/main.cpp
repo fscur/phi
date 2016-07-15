@@ -1,18 +1,19 @@
-#include <precompiled.h>
-#include "demonApi.h"
+﻿#include <precompiled.h>
 
-#include <diagnostics\stackTracer.h>
-#include <diagnostics\stopwatch.h>
-#include <diagnostics\platformProcLoader.h>
+#include <core\input.h>
+#include <core\invalidInitializationException.h>
+#include <core\eventHandler.h>
+
+#include <diagnostic\stackTracer.h>
+#include <diagnostic\stopwatch.h>
+#include <diagnostic\platformProcLoader.h>
 
 #include <io\path.h>
 
-#include <apps\application.h>
-#include <apps\invalidInitializationException.h>
+#include <application\application.h>
 
-#include <demon\screen.h>
-
-#include <core\eventHandler.h>
+#include "screen.h"
+#include "demonApi.h"
 
 using namespace phi;
 
@@ -131,7 +132,7 @@ int main(int argc, char* args[])
     {
         auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
         auto application = phi::application(appStartInfo);
-        auto screen = demon::screen("?", 1920, 1080);
+        auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1920, 1080));
 
         application.run(&screen);
     }

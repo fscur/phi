@@ -46,6 +46,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
+//#include <shellscalingapi.h>
 #elif APPLE
 #include <OpenGL\gl3.h>
 #endif
@@ -86,6 +87,9 @@
 #include <assimp\postprocess.h>
 
 #include <PhysX\PxPhysicsAPI.h>
+
+#include <glslang\Include\ResourceLimits.h>
+#include <glslang\Public\ShaderLang.h>
 
 #ifdef MSVC
 #pragma warning(pop)

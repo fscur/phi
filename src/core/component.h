@@ -17,9 +17,10 @@ namespace phi
             DIRECTIONAL_LIGHT,
             POINT_LIGHT,
             SPOT_LIGHT,
-            BOX_COLLIDER,
-            CONTROL_RENDERER,
-            TEXT_RENDERER
+            CONTROL,
+            TEXT,
+            CLICK,
+            BOX_COLLIDER
         };
 
     protected:
@@ -46,7 +47,7 @@ namespace phi
 
         void virtual onNodeChanged(node* previousValue) { }
 
-        node* getNode() { return _node; }
+        node* getNode() const { return _node; }
 
         void setNode(node* value)
         {

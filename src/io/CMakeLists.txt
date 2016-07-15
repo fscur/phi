@@ -13,7 +13,7 @@ file(GLOB natvis_files *.natvis)
 
 add_library(io SHARED ${source_files} ${header_files} ${natvis_files})
 
-target_link_libraries(io diagnostics)
+target_link_libraries(io diagnostic)
 target_link_libraries(io core)
 
 if (MINGW)

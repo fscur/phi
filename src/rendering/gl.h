@@ -1,11 +1,10 @@
 #pragma once
 #include <phi.h>
 
-#include <core\material.h>
-
+#include <core\resolution.h>
 #include "renderingApi.h"
 #include "texturesManager.h"
-#include "shadersManager.h"
+#include "textureUnits.h"
 #include "fontsManager.h"
 
 namespace phi
@@ -58,7 +57,8 @@ namespace phi
                 swapInterval(swapInterval),
                 useBindlessTextures(useBindlessTextures),
                 useSparseTextures(useSparseTextures)
-            {}
+            {
+            }
         };
 
         struct glInfo
@@ -82,22 +82,10 @@ namespace phi
     private:
         void initOpenGLExtensions();
         void initState();
-        void createDefaultResources(const bool& hasSparseTextures);
-		image* createDefaultMaterialImage(const bool& hasSparseTextures, const vec4& color);
-        material* createDefaultMaterial();
 
     public:
-        texturesManager* texturesManager;
-        shadersManager* shadersManager;
-        fontsManager* fontsManager;
         gl::state currentState;
         map<string, bool> extensions;
-        material* defaultMaterial;
-        image* defaultAlbedoImage;
-        image* defaultNormalImage;
-        image* defaultSpecularImage;
-        image* defaultEmissiveImage;
-        font* defaultFont;
 
     public:
         RENDERING_API gl(gl::glInfo initInfo);
@@ -106,6 +94,7 @@ namespace phi
         string getVendor() { return string((char*)glGetString(GL_VENDOR)); };
         string getRenderer() { return string((char*)glGetString(GL_RENDERER)); };
         string getVersion() { return string((char*)glGetString(GL_VERSION)); };
-        RENDERING_API static void SyncPipeline();
+        RENDERING_API static void syncPipeline();
+        RENDERING_API static void resize(const resolution& resolution);
     };
 }

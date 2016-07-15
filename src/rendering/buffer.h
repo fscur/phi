@@ -1,8 +1,6 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
-#include "gl.h"
-#include "glError.h"
 
 namespace phi
 {
@@ -57,18 +55,56 @@ namespace phi
     class buffer
     {
     protected:
-        GLuint id;
-        bufferTarget::bufferTarget target;
+        const string _name;
+        GLuint _id;
+        const bufferTarget::bufferTarget _target;
 
     public:
-        RENDERING_API buffer(bufferTarget::bufferTarget  target);
-        RENDERING_API virtual ~buffer();
+        buffer(const string& name, const bufferTarget::bufferTarget target) :
+            _name(name),
+            _id(-1),
+            _target(target)
+        {
+            glCreateBuffers(1, &_id);
+            bind();
+        }
 
-        RENDERING_API void bind();
-        RENDERING_API void unbind();
-        RENDERING_API void bindBufferBase(GLuint location);
-        RENDERING_API void storage(GLsizeiptr size, const void* const data, bufferStorageUsage::bufferStorageUsage usage);
-        RENDERING_API void data(GLsizeiptr size, const void* const data, bufferDataUsage::bufferDataUsage usage);
-        RENDERING_API void subData(GLintptr offset, GLintptr size, const void* const data);
+        virtual ~buffer()
+        {
+            glDeleteBuffers(1, &_id);
+        }
+
+        void bind()
+        {
+            glBindBuffer(_target, _id);
+        }
+
+        void unbind()
+        {
+            glBindBuffer(_target, 0);
+        }
+
+        void bindBufferBase(GLuint location)
+        {
+            glBindBufferBase(_target, location, _id);
+        }
+
+        void storage(GLsizeiptr size, const void* const data, bufferStorageUsage::bufferStorageUsage usage)
+        {
+            glNamedBufferStorage(_id, size, data == nullptr ? NULL : data, usage);
+        }
+
+        void data(GLsizeiptr size, const void* const data, bufferDataUsage::bufferDataUsage usage)
+        {
+            glNamedBufferData(_id, size, data == nullptr ? NULL : data, usage);
+        }
+
+        void subData(GLintptr offset, GLintptr size, const void* const data)
+        {
+            glNamedBufferSubData(_id, offset, size, data);
+        }
+
+        bufferTarget::bufferTarget getTarget() const { return _target; }
+        string getName() const { return _name; }
     };
 }

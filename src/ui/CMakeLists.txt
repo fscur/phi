@@ -15,9 +15,9 @@ file(GLOB source_files *.cpp)
 file(GLOB natvis_files *.natvis)
 
 add_library(ui SHARED ${source_files} ${header_files} ${natvis_files})
-target_link_libraries(ui scenes)
 target_link_libraries(ui loader)
-        
+target_link_libraries(ui rendering)
+
 if (MINGW)
     set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
     install(TARGETS ui RUNTIME DESTINATION ${install_folder})

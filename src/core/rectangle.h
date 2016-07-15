@@ -2,18 +2,19 @@
 
 namespace phi
 {
+    template <typename T>
     struct rectangle
     {
-        int x;
-        int y;
-        int w;
-        int h;
+        T x;
+        T y;
+        T w;
+        T h;
 
         rectangle(
-            int x = 0,
-            int y = 0,
-            int w = 0,
-            int h = 0) :
+            T x = 0,
+            T y = 0,
+            T w = 0,
+            T h = 0) :
             x(x),
             y(y),
             w(w),

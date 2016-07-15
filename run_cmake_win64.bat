@@ -46,3 +46,5 @@ cd %return_gcc%
 REM set choice=
 REM set /P choice=
 REM if "%choice%"=="" goto start
+
+pause

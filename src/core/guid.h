@@ -35,17 +35,17 @@ namespace phi
         vector<byte> _bytes;
 
     private:
-        CORE_API friend std::ostream &operator<<(std::ostream &s, const guid &guid);
+        CORE_API friend std::ostream &operator<<(std::ostream& s, const guid& guid);
 
     public:
-        CORE_API guid(const vector<byte> &bytes);
+        CORE_API guid(const vector<byte>& bytes);
         CORE_API guid(const byte* bytes);
-        CORE_API guid(const string &fromString);
+        CORE_API guid(const string& fromString);
         CORE_API guid();
-        CORE_API guid(const guid &other);
-        CORE_API guid &operator=(const guid &other);
-        CORE_API bool operator==(const guid &other) const;
-        CORE_API bool operator!=(const guid &other) const;
+        CORE_API guid(const guid& other);
+        CORE_API guid& operator=(const guid& other);
+        CORE_API bool operator==(const guid& other) const;
+        CORE_API bool operator!=(const guid& other) const;
     };
 
     class guidGenerator

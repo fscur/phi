@@ -44,6 +44,11 @@ find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIR})
 target_link_libraries(rendering ${GLEW_LIBRARY})
 target_link_libraries(rendering ${FREETYPE_LIBRARY})
+
+# target_link_libraries(rendering ${GLSLANG_LIBRARY})
+# target_link_libraries(rendering ${GLSLANG_OSDEPENDENT_LIBRARY})
+# target_link_libraries(rendering ${GLSLANG_OGLCOMPILER_LIBRARY})
+# target_link_libraries(rendering ${GLSLANG_HLSL_LIBRARY})
     
 if (MINGW)
     set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})

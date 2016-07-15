@@ -1,6 +1,9 @@
 #pragma once
 #include <phi.h>
 #include "renderingApi.h"
+
+#include <core\resolution.h>
+
 #include "renderTarget.h"
 
 namespace phi
@@ -8,16 +11,28 @@ namespace phi
     class framebuffer
     {
     private:
+        const string _name;
         GLuint _id;
         GLint _maxColorAttachments;
         GLint _currentAttachment;
         vector<GLenum> _drawBuffers;
+        unordered_map<const renderTarget*, GLenum> _renderTargetsAttachments;
+        vector<renderTarget*> _renderTargets;
+        bool _isDefaultFramebuffer;
 
     public:
-        RENDERING_API framebuffer(bool isDefaultFramebuffer = false);
+        RENDERING_API static framebuffer* defaultFramebuffer;
+
+    private:
+        RENDERING_API framebuffer(bool isDefaultFramebuffer);
+
+    public:
+        RENDERING_API framebuffer(const string& name);
         RENDERING_API ~framebuffer();
 
-        RENDERING_API void add(renderTarget* renderTarget);
+        RENDERING_API void add(renderTarget* renderTarget, GLenum attachment);
+        RENDERING_API void attachRenderTargets();
+
         RENDERING_API vec4 readPixels(const renderTarget* const renderTarget, GLint x, GLint y, GLsizei w, GLsizei h);
         RENDERING_API void bind(GLenum target);
         RENDERING_API void bindForDrawing();
@@ -32,6 +47,13 @@ namespace phi
             framebuffer* targetFramebuffer,
             renderTarget* targetRenderTarget);
 
+        RENDERING_API renderTarget* getRenderTarget(string name);
         RENDERING_API GLfloat getZBufferValue(int x, int y);
+
+        vector<renderTarget*> getRenderTargets() { return _renderTargets; }
+        string getName() const { return _name; }
+
+    public:
+        RENDERING_API static void release();
     };
 }

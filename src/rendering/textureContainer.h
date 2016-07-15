@@ -1,78 +1,84 @@
 #pragma once
 #include <phi.h>
 #include <core\rectangle.h>
+#include <core\atlas.h>
 
 #include "texture.h"
 #include "textureAddress.h"
+#include "textureLayout.h"
 
 namespace phi
 {
-    struct textureContainerLayout
-    {
-        GLsizei w;
-        GLsizei h;
-        GLsizei levels;
-        GLenum internalFormat;
-        GLenum dataFormat;
-        GLenum dataType;
-        GLint wrapMode;
-        GLint minFilter;
-        GLint magFilter;
-
-        textureContainerLayout(
-            GLsizei w = 0,
-            GLsizei h = 0,
-            GLsizei levels = 0,
-            GLenum internalFormat = GL_RGBA8,
-            GLint wrapMode = GL_REPEAT,
-            GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
-            GLint magFilter = GL_LINEAR) :
-            w(w),
-            h(h),
-            levels(levels),
-            internalFormat(internalFormat),
-            wrapMode(wrapMode),
-            minFilter(minFilter),
-            magFilter(magFilter)
-        {
-        }
-    };
-
     class textureContainer
     {
     private:
-        textureContainerLayout _layout;
-        size_t _maxTextures;
-        size_t _freeSpace;
+        bool _created;
+        vec2 _texelSize;
+
+        unordered_map<float, bool> _pages;
+        unordered_map<float, atlas*> _atlases;
+
+    protected:
+        sizeui _size;
+        size_t _maxPages;
+        textureLayout _layout;
         GLint _unit;
-        bool _bindless;
-        bool _sparse;
+        GLuint _id;
+        GLuint64 _handle;
+        vector<const texture*> _textures;
+        map<const texture*, phi::textureAddress> _texturesAddresses;
 
     private:
         void create();
-        void load(const texture* const texture);
+        bool loadData(
+            const texture* const texture, 
+            textureAddress& textureAddress);
 
-    public:
-        GLuint id;
-        GLuint64 handle;
-        std::map<const texture*, phi::textureAddress> texturesAddresses;
-        vector<const texture*> textures;
+        void loadData(
+            float page, 
+            const void* const data);
+
+        bool loadSubData(
+            const texture* texture, 
+            textureAddress& textureAddress);
+
+        void loadSubData(
+            const rectangle<GLint>& rect, 
+            float page, 
+            const void* const data);
+
+        float getEmptyPage();
+        float getAvailablePage();
+
+    protected:
+        virtual void onCreate();
+
+        virtual void onLoadData(
+            float page,
+            const void* const data);
+
+        virtual void onLoadSubData(
+            const rectangle<GLint>& rect, 
+            float page, 
+            const void* const data);
 
     public:
         textureContainer(
-            textureContainerLayout layout,
-            size_t maxTextures,
-            GLint unit,
-            bool bindless,
-            bool sparse);
+            sizeui size,
+            textureLayout layout);
 
-        ~textureContainer();
+        virtual ~textureContainer();
 
         bool add(const texture* const texture, textureAddress& textureAddress);
+        void remove(const texture* texture);
+        bool isEmpty();
+        void release();
 
-        void subData(
-            const float& page,
-            const rectangle& rect,
-            const void* const data);
+        GLuint getId() const { return _id; }
+        textureLayout getLayout() const { return _layout; }
+        GLint getUnit() const { return _unit; }
+        GLuint64 getHandle() const { return _handle; }
+        vec2 getTexelSize() const { return _texelSize; }
+        sizeui getSize() const { return _size; }
     };
 }

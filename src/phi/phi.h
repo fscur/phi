@@ -36,14 +36,14 @@ namespace phi
     static const float DECIMAL_TRUNCATION_INV = 1.0f / DECIMAL_TRUNCATION;
 
     template<typename T>
-    void safeDelete(T value)
+    void safeDelete(T& value)
     {
         delete value;
         value = nullptr;
     }
 
     template<typename T>
-    void safeDeleteArray(T value)
+    void safeDeleteArray(T& value)
     {
         delete[] value;
         value = nullptr;
@@ -72,6 +72,30 @@ namespace phi
         return it != vector->end();
     }
 
+    template<typename T>
+    size_t indexOf(const vector<T>& vector, const T& value)
+    {
+        for (size_t i = 0; i < vector.size(); ++i)
+        {
+            if (vector[i] == value)
+                return i;
+        }
+
+        throw new std::exception();
+    }
+
+    template<typename T>
+    size_t indexOf(const vector<T>* vector, const T value)
+    {
+        for (size_t i = 0; i < vector->size(); ++i)
+        {
+            if ((*vector)[i] == value)
+                return i;
+        }
+
+        throw new std::exception();
+    }
+
     template<typename T, typename R>
     bool contains(const map<T, R> map, const T value)
     {
@@ -79,11 +103,29 @@ namespace phi
         return it != map.end();
     }
 
+    template<typename T, typename R>
+    bool contains(const unordered_map<T, R> map, const T value)
+    {
+        auto it = map.find(value);
+        return it != map.end();
+    }
+
     template<typename T>
-    void debug(T value)
+    void debug(T message)
     {
 #if _DEBUG
-        std::cout << value << std::endl;
+        std::cout << message << std::endl;
 #endif
+    }
+}
+
+namespace std
+{
+    //http://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x
+    template <class T>
+    inline void hash_combine(std::size_t& seed, const T& v)
+    {
+        std::hash<T> hasher;
+        seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 }

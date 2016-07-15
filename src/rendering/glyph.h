@@ -5,29 +5,12 @@
 
 namespace phi
 {
-    struct glyphInfo
-    {
-        color color;
-        vec2 pos;
-        vec2 size;
-        float shift;
-        float page;
-        float pad0;
-        float pad1;
-        int unit;
-        int pad2;
-        int pad3;
-        int pad4;
-    };
-
     struct glyph
     {
-        void* data;
+        image* image;
         uint index;
         float width;
         float height;
-        float bitmapWidth;
-        float bitmapHeight;
         float offsetX;
         float offsetY;
         float horiBearingX;
@@ -36,10 +19,8 @@ namespace phi
         float vertBearingX;
         float vertBearingY;
         float vertAdvance;
-        vec2 texPos;
-        vec2 texSize;
-        int texUnit;
-        float texPage;
+
+        glyph(phi::image* image);
 
         ~glyph();
     };

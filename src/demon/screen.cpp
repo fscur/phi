@@ -1,7 +1,9 @@
 ﻿#include <precompiled.h>
 #include "screen.h"
 
-#include <diagnostics\stopwatch.h>
+#include "changeContextCommand.h"
+
+#include <diagnostic\stopwatch.h>
 
 #include <core\multiCommand.h>
 
@@ -9,25 +11,34 @@
 
 #include <animation\floatAnimator.h>
 
-#include <scenes\unselectSceneObjectCommand.h>
-#include <scenes\groupSceneObjectsCommand.h>
-#include <scenes\deleteSceneObjectCommand.h>
+#include <rendering\pickingFramebuffer.h>
+#ifdef _DEBUG
+#include <rendering\liveShaderReloader.h>
+#endif
 
-#include <apps\application.h>
-#include <apps\undoCommand.h>
-#include <apps\redoCommand.h>
-
+#include <ui\labelBuilder.h>
+#include <ui\buttonBuilder.h>
 #include <ui\control.h>
 #include <ui\text.h>
 
-#include "addObjectCommand.h"
+#include <application\application.h>
+#include <application\undoCommand.h>
+#include <application\redoCommand.h>
+
+#include <context\layerBuilder.h>
+#include <context\deleteSceneObjectCommand.h>
+
+#include <core\input.h>
+#include <core\clickComponent.h>
 
 using namespace phi;
 
 namespace demon
 {
-    screen::screen(string name, uint width, uint height) :
-        window(name, width, height)
+    screen::screen(wstring title, resolution resolution) :
+        window(title, resolution),
+        _activeContext(nullptr),
+        _framebufferAllocator(nullptr)
     {
     }
 
@@ -38,22 +49,21 @@ namespace demon
     void screen::onInit()
     {
         initGL();
+        initPickingFramebuffer();
         initLibraries();
-        initScene();
-        initUi();
         initInput();
+        initContexts();
+        initWatcher();
+    }
 
+    void screen::initWatcher()
+    {
 #ifdef _DEBUG
         _messageQueue = new blockingQueue<phi::watcherMessage>();
-        _watcher = new watcher(application::resourcesPath + "/shaders", _messageQueue, [&](string shaderFileName)
+        auto shadersPath = path::combine(application::resourcesPath, "shaders");
+        _watcher = new watcher(shadersPath, _messageQueue, [&](fileInfo shaderFileInfo)
         {
-            auto fileExtension = path::getExtension(shaderFileName);
-            if (fileExtension == phi::shadersManager::FRAG_EXT ||
-                fileExtension == phi::shadersManager::VERT_EXT)
-            {
-                auto shaderName = path::getFileNameWithoutExtension(shaderFileName);
-                _gl->shadersManager->reloadShader(shaderName);
-            }
+            liveShaderReloader::reloadShader(shaderFileInfo.path);
         });
         _watcher->startWatch();
 #endif
@@ -90,6 +100,13 @@ namespace demon
             auto status = extensionStatus.second ? " [Ok]" : " [Not Ok]";
             application::logInfo(extensionStatus.first + status);
         }
+
+        _framebufferAllocator = new framebufferAllocator();
+    }
+
+    void screen::initPickingFramebuffer()
+    {
+        pickingFramebuffer::initialize(_framebufferAllocator, _resolution);
     }
 
     void screen::initLibraries()
@@ -100,126 +117,214 @@ namespace demon
         _projectLibrary = new library(application::path);
     }
 
-    void screen::initScene()
+    void screen::initContexts()
     {
-        _scene = new scene(_gl, static_cast<float>(_width), static_cast<float>(_height));
-        auto camera = _scene->getCamera();
+        auto font = fontsManager::load("Roboto-Thin.ttf", 10);
+        auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
-        auto cameraTransform = camera->getTransform();
-        auto cameraPos = vec3(0.0f, 0.1f, 2.0f);
-        cameraTransform->setLocalPosition(cameraPos);
-        cameraTransform->setDirection(-cameraPos);
+        _labelNandinho = labelBuilder::newLabel(L"ab")
+            .withPosition(vec3(-100.f, 50.f, 0.f))
+            .withControlColor(1.0f, 0.0f, 0.0f, 1.0f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .build();
 
-        auto floor = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        //floor->getTransform()->yaw(PI_OVER_4);
-        //floor->getTransform()->setLocalSize(vec3(100.0f, 1.0f, 100.0f));
-        _scene->add(floor);
+        _labelFps = labelBuilder::newLabel(L"abc")
+            .withPosition(vec3(-200.f, 100.f, 0.f))
+            .withControlColor(1.0f, 0.0f, 1.0f, 1.f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(fontFps)
+            .build();
 
-        auto floor2 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        floor2->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, -2.5f));
-        floor2->getTransform()->pitch(PI_OVER_2);
-        _scene->add(floor2);
+        _constructionLabel = labelBuilder::newLabel(L"abcd")
+            .withPosition(vec3(200.f, 50.f, 0.f))
+            .withControlColor(0.0f, 1.0f, 0.5f, 1.f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .build();
+
+        auto changeContextButton = buttonBuilder::newButton()
+            .withPosition(vec3(-200.f, -20.f, 0.f))
+            .withText(L"Change context")
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .withControlColor(.5f, .5f, .2f, 1.f)
+            .withAction([=](node* node)
+            {
+                _commandsManager->executeCommand(new changeContextCommand());
+            })
+            .build();
 
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair0->getTransform()->yaw(PI_OVER_4);
-        chair0->getTransform()->setLocalPosition(vec3(3.f, .5f, .0f));
+        chair0->getTransform()->setLocalPosition(vec3(0.f, .5f, .0f));
 
-        //auto chair1 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        //chair1->getTransform()->setLocalPosition(vec3(2.0f, .5f, 0.f));
+        chair0->getTransform()->setLocalPosition(vec3(4.f, .1f, -2.0f));
+        auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
-        //auto chair2 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        //chair2->getTransform()->setLocalPosition(vec3(0.f, .5f, 2.0f));
+        _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _sceneCamera->getTransform()->setLocalPosition(vec3(-5.0f, 5.0f, 20.0f));
+        _sceneCamera->getTransform()->setDirection(-vec3(-5.0f, 5.0f, 20.0f));
 
-        //auto chair3 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        //chair3->getTransform()->setLocalPosition(vec3(2.0f, .5f, 2.0f));
+        _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            .withMeshRenderer()
+            .build();
 
-        auto cube = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube->getTransform()->yaw(PI_OVER_4);
-        cube->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 0.0f));
+        _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        _constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube1->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, 0.0f));
+        _constructionLayer = layerBuilder::newLayer(_constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            .withControlRenderer()
+            .withTextRenderer()
+            .build();
 
-        auto cube2 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube2->getTransform()->setLocalPosition(vec3(1.0f, 0.5f, 0.0f));
+        _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        //_scene->add(chair0);
-        //_scene->add(chair1);
-        //_scene->add(chair2);
-        //_scene->add(chair3);
-        _scene->add(cube);
-        _scene->add(cube1);
-        //_scene->add(cube2);
-    }
+        _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            .withGlassyControlRenderer()
+            .withTextRenderer()
+            .build();
 
-    void screen::initUi()
-    {
-        camera* uiCamera = new camera("uiCamera", static_cast<float>(_width), static_cast<float>(_height), 0.1f, 10000.0f, PI_OVER_4);
+        _framebufferAllocator->allocate(_resolution);
 
-        _ui = new ui(uiCamera, _scene->getRenderer(), _gl, static_cast<float>(_width), static_cast<float>(_height));
+        _designContext = new context(
+            _resolution,
+            _framebufferAllocator,
+            _commandsManager,
+            { _sceneLayer, _nandinhoLayer });
 
-        //auto font = _gl->fontsManager->load("Roboto-Thin.ttf", 24);
-        //auto fontFps = _gl->fontsManager->load("Roboto-Thin.ttf", 12);
+        _constructionContext = new context(
+            _resolution,
+            _framebufferAllocator,
+            _commandsManager,
+            { _sceneLayer, _constructionLayer });
 
-        //auto labelNandinho = _ui->newLabel(L"nanddiiiiiiiinho", vec3(-100.0f, 0.0f, 0.0f));
-        //auto control = labelNandinho->getComponent<phi::control>();
-        //control->setColor(color::fromRGBA(0.9f, 0.9f, 0.9f, 1.0f));
-        //control->setIsGlassy(true);
+        _sceneLayer->add(chair0);
+        _sceneLayer->add(floor0);
+        _sceneLayer->add(cube0);
 
-        //auto text = labelNandinho->getComponent<phi::text>();
-        //text->setFont(font);
-        //text->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+        //_sceneLayer->add(_sceneLabel);
+        //TODO: prevent components that are not dealt with it from being added to layer
 
-        //_labelFps = _ui->newLabel(L"Fps: ", vec3(-200.f, 100.f, 0.f));
-        //auto fpsControl = _labelFps->getComponent<phi::control>();
-        //fpsControl->setColor(color::fromRGBA(.7f, .5f, .9f, 1.0f));
-        //fpsControl->setIsGlassy(true);
+        _constructionLayer->add(_constructionLabel);
+        _nandinhoLayer->add(_labelNandinho);
+        _nandinhoLayer->add(_labelFps);
+        _nandinhoLayer->add(changeContextButton);
 
-        //auto textFps = _labelFps->getComponent<phi::text>();
-        //textFps->setFont(fontFps);
-        //textFps->setColor(color::fromRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+        _activeContext = _designContext;
 
-        //_ui->add(labelNandinho);
-        //_ui->add(_labelFps);
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [=]()
+        {
+            auto nodesToDelete = { cube0 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [=]()
+        {
+            auto nodesToDelete = { chair0 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [=]()
+        {
+            auto nodesToDelete = { floor0 };
+            return new deleteSceneObjectCommand(nodesToDelete);
+        }));
     }
 
     void screen::initInput()
     {
+        input::mouseDown->assign(std::bind(&screen::onMouseDown, this, std::placeholders::_1));
+        input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
+        input::mouseUp->assign(std::bind(&screen::onMouseUp, this, std::placeholders::_1));
+        input::mouseWheel->assign(std::bind(&screen::onMouseWheel, this, std::placeholders::_1));
+        input::keyDown->assign(std::bind(&screen::onKeyDown, this, std::placeholders::_1));
+        input::keyUp->assign(std::bind(&screen::onKeyUp, this, std::placeholders::_1));
+
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
-        _commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
-        {
-            return new multiCommand(vector<command*>
-            {
-                new unselectSceneObjectCommand(_scene->getSelectedObjects()),
-                new deleteSceneObjectCommand(_scene->getSelectedObjects())
-            });
-        }));
 
-        _defaultController = new defaultCameraController(_scene, _commandsManager);
+        //_commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
+        //{
+        //    return new multiCommand(vector<command*>
+        //    {
+        //        new unselectSceneObjectCommand(_scene->getSelectedObjects()),
+        //        new deleteSceneObjectCommand(_scene->getSelectedObjects())
+        //    });
+        //}));
+
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
+    }
+
+    void screen::onMouseDown(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseDown(e);
+    }
+
+    void screen::onMouseMove(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseMove(e);
+    }
+
+    void screen::onMouseUp(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseUp(e);
+    }
+
+    void screen::onMouseWheel(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseWheel(e);
+    }
+
+    void screen::onKeyDown(phi::keyboardEventArgs* e)
+    {
+        _activeContext->onKeyDown(e);
+    }
+
+    void screen::onKeyUp(phi::keyboardEventArgs* e)
+    {
+        _activeContext->onKeyUp(e);
     }
 
     void screen::onUpdate()
     {
+        if (_design)
+            _activeContext = _designContext;
+        else
+            _activeContext = _constructionContext;
+
         phi::floatAnimator::update();
-        _defaultController->update();
-        _scene->update();
-        _ui->update();
+        _activeContext->update();
     }
 
     void screen::onRender()
     {
-        _scene->render();
-        _ui->render();
+        _activeContext->render();
     }
+
+    bool a = false;
 
     void screen::onTick()
     {
-        //auto label = _labelFps->getComponent<phi::text>();
-        //auto str = "fps: " + std::to_string(application::framesPerSecond);
+        auto label = _labelFps->getComponent<phi::text>();
+        auto str = "fps: " + std::to_string(application::framesPerSecond);
+        label->setText(wstring(str.begin(), str.end()));
 
-        //label->setText(wstring(str.begin(), str.end()));
+        if (a)
+        {
+            _constructionLabel->getComponent<phi::text>()->setText(L"edftg");
+            _nandinhoLayer->add(_labelFps);
+        }
+        else
+        {
+            _labelFps->getParent()->removeChild(_labelFps);
+        }
+
+        a = !a;
 
 #ifdef _DEBUG
         while (!_messageQueue->empty())
@@ -231,19 +336,48 @@ namespace demon
 #endif
     }
 
+    void screen::onSwapBuffers()
+    {
+        gl::syncPipeline();
+    }
+
     void screen::onClosing()
     {
         safeDelete(_commandsManager);
-        safeDelete(_defaultController);
         safeDelete(_gl);
         safeDelete(_userLibrary);
         safeDelete(_projectLibrary);
-        safeDelete(_scene);
-        safeDelete(_ui);
+
+        safeDelete(_designContext);
+        safeDelete(_constructionContext);
+
+        safeDelete(_nandinhoLayer);
+        safeDelete(_constructionLayer);
+        safeDelete(_sceneLayer);
+
+        safeDelete(_sceneCamera);
+        safeDelete(_nandinhoCamera);
+        safeDelete(_constructionCamera);
+
 #ifdef _DEBUG
         _watcher->endWatch();
         safeDelete(_watcher);
         safeDelete(_messageQueue);
-#endif 
+#endif
+
+        safeDelete(_framebufferAllocator);
+        phi::framebuffer::release();
+        phi::image::release();
+        phi::material::release();
+    }
+
+    void screen::onResize(phi::resolution resolution)
+    {
+        window::onResize(resolution);
+        gl::resize(resolution);
+        pickingFramebuffer::resize(resolution);
+
+        _framebufferAllocator->reallocate(resolution);
+        _activeContext->resize(resolution);
     }
 }

@@ -3,15 +3,15 @@
 in vec3 fragPosition;
 in vec2 fragTexCoord;
 
-uniform sampler2DArray textureArrays[32];
-uniform int unit;
-uniform float page;
-uniform vec2 resolution; 
+layout (location = 0) uniform int unit;
+layout (location = 1) uniform float page;
+layout (location = 2) uniform vec2 resolution;
+layout (location = 3) uniform sampler2DArray textureArrays[32];
  
 float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
 float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 vec3 fetch(vec2 uv)
 {
@@ -26,9 +26,10 @@ void main()
 
     for (int i = 1; i < 3; i++) 
     {
-        color += fetch(uv + vec2(0.0, offset[i] / resolution.x)) * weight[i];
-        color += fetch(uv - vec2(0.0, offset[i] / resolution.y)) * weight[i];
+        vec2 displacement = vec2(0.0, offset[i] / resolution.x);
+        color += fetch(uv + displacement) * weight[i];
+        color += fetch(uv - displacement) * weight[i];
     }
-    
+
     fragColor = vec4(color, 1.0);
 }

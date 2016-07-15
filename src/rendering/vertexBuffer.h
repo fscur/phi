@@ -1,42 +1,53 @@
 #pragma once
 #include <phi.h>
-#include "buffer.h"
 #include <core\vertex.h>
+
+#include "buffer.h"
+#include "iVertexBuffer.h"
+#include "vertexBufferAttribute.h"
 
 namespace phi
 {
-    struct vertexAttrib
+    class vertexBuffer :
+        public buffer,
+        public iVertexBuffer
     {
-    public:
-        GLuint location;
-        GLuint size;
-        GLenum type;
-        GLsizei stride;
-        const void* offset;
-        GLuint divisor;
-    public:
+    private:
+        vector<vertexBufferAttribute> _attribs;
 
-        vertexAttrib(
-            GLuint location = -1,
-            GLuint size = 0,
-            GLenum type = GL_NONE,
-            GLsizei stride = 0,
-            const void* offset = (const void*)0,
-            GLuint divisor = 0) :
-            location(location),
-            size(size),
-            type(type),
-            stride(stride),
-            offset(offset),
-            divisor(divisor)
+    public:
+        vertexBuffer(const string& name, const vector<vertexBufferAttribute>& attribs) :
+            buffer(name, bufferTarget::array),
+            _attribs(attribs)
         {
         }
-    };
 
-    class vertexBuffer :
-        public buffer
-    {
-    public:
-        RENDERING_API vertexBuffer(vector<vertexAttrib> attribs);
+        ~vertexBuffer()
+        {
+        }
+
+        void initialize() override
+        {
+            glBindBuffer(_target, _id);
+            auto attribsCount = _attribs.size();
+
+            for (GLuint i = 0; i < attribsCount; i++)
+            {
+                auto location = _attribs[i].location;
+
+                glEnableVertexAttribArray(location);
+
+                if (_attribs[i].type == GL_UNSIGNED_INT || _attribs[i].type == GL_INT)
+                {
+                    glVertexAttribIPointer(location, _attribs[i].size, _attribs[i].type, _attribs[i].stride, _attribs[i].offset);
+                }
+                else if (_attribs[i].type == GL_FLOAT)
+                {
+                    glVertexAttribPointer(location, _attribs[i].size, _attribs[i].type, GL_FALSE, _attribs[i].stride, _attribs[i].offset);
+                }
+
+                glVertexAttribDivisor(location, _attribs[i].divisor);
+            }
+        }
     };
 }

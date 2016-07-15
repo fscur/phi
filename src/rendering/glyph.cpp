@@ -3,8 +3,13 @@
 
 namespace phi
 {
+    glyph::glyph(phi::image* image) :
+        image(image)
+    {
+    }
+
     glyph::~glyph()
     {
-        free(data);
+        safeDelete(image);
     }
 }

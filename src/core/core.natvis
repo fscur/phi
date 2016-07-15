@@ -39,7 +39,7 @@
     <DisplayString>[{x}; {y}; {z}]</DisplayString>
     <Expand HideRawView="true" />
   </Type>
-
+  
   <Type Name="phi::aabb">
     <DisplayString>{min} >> {max}  </DisplayString>
     <Expand HideRawView="true" />
@@ -135,5 +135,10 @@
         <ValuePointer>_Mypair._Myval2._Myfirst, na</ValuePointer>
       </ArrayItems>
     </Expand>
+  </Type>
+
+  <Type Name="phi::rectangle&lt;*&gt;">
+    <DisplayString>({x}; {y}) [{w}; {h}] </DisplayString>
+    <Expand HideRawView="true" />
   </Type>
 </AutoVisualizer>

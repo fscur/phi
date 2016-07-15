@@ -1,48 +1,75 @@
 #pragma once
 #include <phi.h>
-#include <apps\window.h>
-#include <apps\commandsManager.h>
-#include <scenes\scene.h>
-#include <ui\ui.h>
 
-#include "defaultCameraController.h"
-#include "library.h"
+#include <core\resolution.h>
 
 #ifdef _DEBUG
 #include <io/watcher.h>
-#endif 
+#endif
+
+#include <rendering\framebufferAllocator.h>
+
+#include <application\window.h>
+#include <application\commandsManager.h>
+
+#include <context\layer.h>
+#include <context\context.h>
+
+#include <rendering\gl.h>
+
+#include "library.h"
+
 namespace demon
 {
     class screen :
         public phi::window
     {
     private:
-        bool _isMouseDown;
-        phi::vec2 _mouseDownPos;
-        phi::vec2 _lastMousePos;
-
         phi::gl* _gl;
-        phi::scene* _scene;
         library* _userLibrary;
         library* _projectLibrary;
 
-        phi::ui* _ui;
+        phi::context* _designContext;
+        phi::context* _constructionContext;
+        phi::context* _activeContext;
+
+        phi::layer* _sceneLayer;
+        phi::layer* _constructionLayer;
+        phi::layer* _nandinhoLayer;
+
+        phi::camera* _sceneCamera;
+        phi::camera* _nandinhoCamera;
+        phi::camera* _constructionCamera;
+
         phi::node* _labelFps;
+        phi::node* _labelNandinho;
+        phi::node* _constructionLabel;
+
         phi::commandsManager* _commandsManager;
-        defaultCameraController* _defaultController;
 #ifdef _DEBUG
         phi::watcher* _watcher;
         phi::blockingQueue<phi::watcherMessage>* _messageQueue;
-#endif 
+#endif
+
+        phi::framebufferAllocator* _framebufferAllocator;
+
     private:
         void initGL();
+        void initWatcher();
+        void initPickingFramebuffer();
         void initLibraries();
-        void initScene();
-        void initUi();
+        void initContexts();
         void initInput();
 
+        void onMouseDown(phi::mouseEventArgs* e);
+        void onMouseMove(phi::mouseEventArgs* e);
+        void onMouseUp(phi::mouseEventArgs* e);
+        void onMouseWheel(phi::mouseEventArgs* e);
+        void onKeyDown(phi::keyboardEventArgs* e);
+        void onKeyUp(phi::keyboardEventArgs* e);
+
     public:
-        screen(phi::string name, phi::uint witdh, phi::uint height);
+        screen(phi::wstring title, phi::resolution resolution);
         ~screen(void);
 
         void onInit() override;
@@ -50,5 +77,7 @@ namespace demon
         void onUpdate() override;
         void onRender() override;
         void onTick() override;
+        void onSwapBuffers() override;
+        void onResize(phi::resolution resolution) override;
     };
 }

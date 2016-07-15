@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include <core\rectangle.h>
 
 namespace phi
 {
@@ -8,5 +9,6 @@ namespace phi
         GLuint containerId;
         GLint unit;
         GLfloat page;
+        rectangle<uint> rect;
     };
 }

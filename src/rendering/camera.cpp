@@ -1,155 +1,107 @@
 #include <precompiled.h>
 #include "camera.h"
 #include <core\transform.h>
-#include <core\node.h>
 
 namespace phi
 {
     camera::camera(
-        std::string name, 
-        float width, 
-        float height, 
-        float near, 
-        float far, 
-        float fov) : 
-        component(component::componentType::CAMERA, name),
-        _width(width),
-        _height(height),
+        resolution resolution,
+        float near,
+        float far,
+        float fov) :
+        _resolution(resolution),
         _near(near),
         _far(far),
         _fov(fov),
-        _aspect(_width / _height),
         _projectionMatrix(mat4(1.0f)),
         _viewMatrix(mat4(1.0f)),
-        _changedProjection(false),
-        _changedView(false),
-        _transformChangedEventToken(eventToken())
+        _transform(new transform())
     {
         updateViewMatrix();
         updateProjectionMatrix();
+        _transformChangedEventToken = _transform->getChangedEvent()->assign(std::bind(&camera::transformChanged, this, std::placeholders::_1));
     }
 
     inline camera::~camera()
     {
-        if (_node)
-            _node->getTransform()->getChangedEvent()->unassign(_transformChangedEventToken);
+        _transform->getChangedEvent()->unassign(_transformChangedEventToken);
+        safeDelete(_transform);
     }
 
     void camera::updateViewMatrix()
     {
-        phi::vec3 position;
-        phi::vec3 target = glm::vec3(0.0f, 0.0, 1.0f);
-        if (_node != nullptr)
-        {
-            auto transform = _node->getTransform();
-            position = transform->getPosition();
-            target = position + transform->getDirection();
-        }
+        auto position = _transform->getPosition();
+        auto target = position + _transform->getDirection();
 
         _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
-        _changedView = false;
     }
 
     inline void camera::updateProjectionMatrix()
     {
-        _projectionMatrix = glm::perspective(_fov, _aspect, _near, _far);
-        _changedProjection = false;
+        _projectionMatrix = glm::perspective(_fov, _resolution.getAspect(), _near, _far);
     }
 
     inline void camera::transformChanged(transform* sender)
     {
-        _changedView = true;
-    }
-
-    inline void camera::onNodeChanged(node* previousValue)
-    {
-        if (previousValue)
-            previousValue->getTransform()->getChangedEvent()->unassign(_transformChangedEventToken);
-
-        if (_node)
-            _transformChangedEventToken = _node->getTransform()->getChangedEvent()->assign(std::bind(&camera::transformChanged, this, std::placeholders::_1));
+        updateViewMatrix();
     }
 
     inline mat4 camera::getViewMatrix()
     {
-        if (_changedView)
-            updateViewMatrix();
-
         return _viewMatrix;
     }
 
     inline mat4 camera::getProjectionMatrix()
     {
-        if (_changedProjection)
-            updateProjectionMatrix();
-
         return _projectionMatrix;
     }
 
-    inline transform* camera::getTransform()
+    void camera::setResolution(const resolution & resolution)
     {
-        if (_node == nullptr)
-            return nullptr;
-
-        return _node->getTransform();
+        _resolution = resolution;
+        updateProjectionMatrix();
     }
 
-    inline void camera::setWidth(float value)
+    inline void camera::setFov(float value)
     {
-        _width = value;
-        _aspect = _width / _height;
-        _changedProjection = true;
+        _fov = value;
+        updateProjectionMatrix();
     }
 
-    inline void camera::setHeight(float value)
+    inline void camera::setNear(float value)
     {
-        _height = value;
-        _aspect = _width / _height;
-        _changedProjection = true;
+        _near = value;
+        updateProjectionMatrix();
     }
 
-    inline void camera::setFov(float value) 
-    { 
-        _fov = value; 
-        _changedProjection = true; 
-    }
-
-    inline void camera::setNear(float value) 
-    { 
-        _near = value; 
-        _changedProjection = true; 
-    }
-
-    inline void camera::setFar(float value) 
-    { 
-        _far = value; 
-        _changedProjection = true; 
+    inline void camera::setFar(float value)
+    {
+        _far = value;
+        updateProjectionMatrix();
     }
 
     inline void camera::moveTo(vec3 position)
     {
-        getTransform()->setLocalPosition(position);
+        _transform->setLocalPosition(position);
     }
 
     void camera::zoom(vec3 offset)
     {
-        auto transform = getTransform();
-        auto position = transform->getPosition();
+        auto position = _transform->getPosition();
         vec3 newPosition = position + offset;
 
-        transform->setLocalPosition(newPosition);
+        _transform->setLocalPosition(newPosition);
 
-        _changedView = true;
+        updateViewMatrix();
     }
 
     void camera::orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY)
     {
-        auto transform = getTransform();
-        auto position = transform->getPosition();
+        auto position = _transform->getPosition();
         position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
         position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
 
-        auto target = transform->getPosition() + transform->getDirection();
+        auto target = _transform->getPosition() + _transform->getDirection();
         target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
         target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
 
@@ -168,18 +120,18 @@ namespace phi
         auto angle = orientedAngle(q1 * vec3(1.0f, 0.0f, 0.0f), right, dir);
         auto q2 = angleAxis(angle, dir);
 
-        transform->setLocalPosition(position);
-        transform->setLocalOrientation(q2 * q1);
+        _transform->setLocalPosition(position);
+        _transform->setLocalOrientation(q2 * q1);
 
-        _changedView = true;
+        updateViewMatrix();
     }
-    
+
     vec3 camera::getWorldPositionRelativeToCamera(int mouseX, int mouseY, float z)
     {
         auto tg = tan(_fov * 0.5f) * _near;
 
-        auto hw = _width * 0.5f;
-        auto hh = _height * 0.5f;
+        auto hw = _resolution.width * 0.5f;
+        auto hh = _resolution.height * 0.5f;
 
         auto ys0 = mouseY - hh;
         auto yp0 = ys0 / hh;
@@ -187,7 +139,7 @@ namespace phi
 
         auto xs0 = mouseX - hw;
         auto xp0 = xs0 / hw;
-        auto xm0 = xp0 * tg * _aspect;
+        auto xm0 = xp0 * tg * _resolution.getAspect();
 
         auto x = (xm0 / _near) * z;
         auto y = (ym0 / _near) * z;
@@ -202,8 +154,8 @@ namespace phi
 
     ray camera::screenPointToRay(float mouseX, float mouseY)
     {
-        float x = (2.0f * mouseX) / _width - 1.0f;
-        float y = 1.0f - (2.0f * mouseY) / _height;
+        float x = (2.0f * mouseX) / _resolution.width - 1.0f;
+        float y = 1.0f - (2.0f * mouseY) / _resolution.height;
 
         auto ip = inverse(_projectionMatrix);
         auto iv = inverse(_viewMatrix);
@@ -216,7 +168,7 @@ namespace phi
         auto rayWorld = vec3(iv * rayEye);
         rayWorld = glm::normalize(rayWorld);
 
-        auto origin = getTransform()->getLocalPosition();
+        auto origin = _transform->getLocalPosition();
         return ray(origin, rayWorld);
     }
 }

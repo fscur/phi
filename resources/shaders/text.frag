@@ -8,13 +8,11 @@ flat in int unit;
 flat in float page;
 flat in float shift;
 flat in vec4 color;
+flat in vec2 texelSize;
 
-uniform sampler2DArray textureArrays[32];
-uniform vec2 texelSize;
+layout (location = 0) uniform sampler2DArray textureArrays[32];
 
-float gamma = 1.75;
-
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 vec4 fetch(vec2 uv)
 {
@@ -23,6 +21,7 @@ vec4 fetch(vec2 uv)
 
 void main(void)
 {
+    float gamma = 2.25;
     vec4 current = fetch(fragTexCoord);
     vec4 previous= fetch(fragTexCoord + vec2(-1.0, 0.0) * texelSize.xy);
 
@@ -61,6 +60,7 @@ void main(void)
 
    fragColor = vec4(gcolor.rgb, color.a * gcolor.a);
    //fragColor = fetch(fragTexCoord);
+   //fragColor = vec4(0.0);
    //fragColor = vec4((1.0 + float(unit))/4.0);
    //fragColor = color;
 }

@@ -2,7 +2,7 @@
 #include "coreApi.h"
 #include <phi.h>
 
-#include <diagnostics\stackSymbol.h>
+#include <diagnostic\stackSymbol.h>
 
 namespace phi
 {

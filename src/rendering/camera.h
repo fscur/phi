@@ -2,10 +2,8 @@
 #include <phi.h>
 #include "renderingApi.h"
 
-#include <core\node.h>
-#include <core\component.h>
 #include <core\eventHandler.h>
-
+#include <core\resolution.h>
 #include <core\ray.h>
 
 #undef near
@@ -15,48 +13,37 @@ namespace phi
 {
     class transform;
 
-    class camera :
-        public component
+    class camera
     {
     private:
-        float _width;
-        float _height;
+        resolution _resolution;
         float _near;
         float _far;
         float _fov;
-        float _aspect;
-        float _focus;
+
         mat4 _projectionMatrix;
         mat4 _viewMatrix;
-        bool _changedProjection;
-        bool _changedView;
+        transform* _transform;
         eventToken _transformChangedEventToken;
 
     private:
         void updateViewMatrix();
         void updateProjectionMatrix();
-        void transformChanged(transform* sender);
-
-    protected:
-        RENDERING_API void onNodeChanged(node* previousValue) override;
+        void transformChanged(transform * sender);
 
     public:
         RENDERING_API  camera(
-            string name,
-            float width,
-            float height,
+            resolution resolution,
             float near,
             float far,
             float fov);
 
         RENDERING_API virtual ~camera();
 
-        RENDERING_API  mat4 getViewMatrix();
-        RENDERING_API  mat4 getProjectionMatrix();
-        RENDERING_API  transform* getTransform();
+        RENDERING_API mat4 getViewMatrix();
+        RENDERING_API mat4 getProjectionMatrix();
 
-        RENDERING_API void setWidth(float value);
-        RENDERING_API void setHeight(float value);
+        RENDERING_API void setResolution(const resolution& resolution);
         RENDERING_API void setFov(float value);
         RENDERING_API void setNear(float value);
         RENDERING_API void setFar(float value);
@@ -71,12 +58,8 @@ namespace phi
 
         float getNear() const { return _near; }
         float getFar() const { return _far; }
-        float getAspect() const { return _aspect; }
-        float getWidth() const { return _width; }
-        float getHeight() const { return _height; }
         float getFov() const { return _fov; }
-        float getFocus() const { return _focus; }
-
-        static componentType getComponentType() { return componentType::CAMERA; }
+        resolution getResolution() const { return _resolution; }
+        transform* getTransform() const { return _transform; }
     };
 }

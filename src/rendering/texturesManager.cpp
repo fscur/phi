@@ -1,40 +1,56 @@
 #include <precompiled.h>
+
+#include <core\invalidInitializationException.h>
+#include <core\keyNotFoundException.h>
+
 #include "texturesManager.h"
+#include "bindlessTextureContainer.h"
+#include "sparseTextureContainer.h"
+#include "sparseBindlessTextureContainer.h"
+#include "textureUnits.h"
 
 namespace phi
 {
+    //TODO: calcular quanto de memoria tem disponivel na GPU
+    //TODO: verificar quando de memoria nosso gbuffer + shadow maps usam e ver quanto sobra pra texturas
+    //TODO: controlar a memoria da gpu usada
+
     bool texturesManager::_initialized = false;
+    map<image*, texture*> texturesManager::_imageTextures;
 
-    texturesManager::texturesManager(
-        bool bindless = false,
-        bool sparse = false) :
-        _bindless(bindless),
-        _sparse(sparse),
-        _currentTextureUnit(-1),
-        _maxContainerSize(MAX_CONTAINER_ITEMS)
+    unordered_map<textureLayout, vector<textureContainer*>> texturesManager::_containers;
+    map<const texture*, textureAddress> texturesManager::_textures;
+
+    bool texturesManager::_isBindless = false;
+    bool texturesManager::_isSparse = false;
+    uint texturesManager::_maxPages = texturesManager::DEFAULT_MAX_PAGES;
+
+    vector<GLuint64> texturesManager::handles;
+
+    void texturesManager::initialize(bool sparse, bool bindless)
     {
-        assert(!_initialized);
-        _initialized = true;
-        //TODO: calcular quanto de memoria tem disponivel na GPU
-        //TODO: verificar quando de memoria nosso gbuffer + shadow maps usam e ver quanto sobra pra texturas
-        //TODO: controlar a memoria da gpu usada
+        if (_initialized)
+            throw invalidInitializationException("texturesManager is already initialized.");
 
-        if (_sparse)
+        _initialized = true;
+
+        _isSparse = sparse;
+        _isBindless = bindless;
+        if (_isSparse)
         {
-            GLint maxContainerSize;
-            glGetIntegerv(GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS_ARB, &maxContainerSize);
-            phi::glError::check();
-            _maxContainerSize = static_cast<size_t>(maxContainerSize);
+            GLint maxPages;
+            glGetIntegerv(GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS, &maxPages);
+            _maxPages = static_cast<size_t>(maxPages);
         }
 
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB, &_maxTextureUnits);
+        textureUnits::initialize();
     }
 
-    texturesManager::~texturesManager()
+    void texturesManager::release()
     {
         for (auto& pair : _containers)
         {
-            for (auto container : pair.second)
+            for (auto& container : pair.second)
                 safeDelete(container);
         }
     }
@@ -45,47 +61,27 @@ namespace phi
         return static_cast<uint>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
     }
 
-    textureAddress texturesManager::add(const texture* const texture)
+    textureAddress texturesManager::addAtlasTexture(const texture* const texture)
     {
-        GLsizei maxLevels = 1;
-
-        if (texture->generateMipmaps)
-            maxLevels = static_cast<GLsizei>(getMaxLevels(texture->w, texture->h));
-
-        auto layout = textureContainerLayout();
-        layout.w = texture->w;
-        layout.h = texture->h;
-        layout.levels = maxLevels;
-        layout.internalFormat = texture->internalFormat;
-        layout.dataFormat = texture->dataFormat;
-        layout.dataType = texture->dataType;
-        layout.wrapMode = texture->wrapMode;
-        layout.minFilter = texture->minFilter;
-        layout.magFilter = texture->magFilter;
-
-        auto key = std::make_tuple(
-            layout.w,
-            layout.h,
-            layout.levels,
-            layout.internalFormat,
-            layout.dataFormat,
-            layout.dataType,
-            layout.wrapMode,
-            layout.minFilter,
-            layout.magFilter);
-
         auto textureAddress = phi::textureAddress();
+        textureContainer* container;
+        sizeui containerSize = sizeui(texture->w, texture->h, _maxPages);
+        auto layout = texture->layout;
 
-        auto it = _containers.find(key);
+        auto it = _containers.find(layout);
         if (it != _containers.end())
         {
-            auto containers = _containers[key];
+            auto containers = (*it).second;
             uint i = 0;
             bool added = false;
             auto containersCount = containers.size();
 
             while (!added && i < containersCount)
-                added = containers[i++]->add(texture, textureAddress);
+            {
+                container = containers[i++];
+                containerSize = container->getSize();
+                added = container->add(texture, textureAddress);
+            }
 
             if (added)
             {
@@ -94,42 +90,186 @@ namespace phi
             }
         }
 
-        auto container = new textureContainer(layout, _maxContainerSize, ++_currentTextureUnit, _bindless, _sparse);
+        container = createContainer(containerSize, layout);
         container->add(texture, textureAddress);
-        _containers[key].push_back(container);
-        handles.push_back(container->handle);
-        units.push_back(_currentTextureUnit);
+        _textures[texture] = textureAddress;
 
         return textureAddress;
     }
 
-    textureAddress texturesManager::get(const texture* const texture)
+    void texturesManager::remove(texture* texture)
     {
-        return _textures[texture];
+        auto address = getTextureAddress(texture);
+
+        auto container = findContainer(address.containerId);
+
+        container->remove(texture);
+
+        if (container->isEmpty())
+        {
+            if (_isBindless)
+            {
+                auto handle = container->getHandle();
+                phi::removeIfContains(handles, handle);
+            }
+
+            container->release();
+            removeContainer(container);
+            safeDelete(container);
+        }
+    }
+
+    textureAddress texturesManager::add(const texture* const texture)
+    {   
+        auto layout = texture->layout;
+
+        auto textureAddress = phi::textureAddress();
+        textureContainer* container;
+        sizeui size = sizeui(texture->w, texture->h, _maxPages);
+
+        auto it = _containers.find(layout);
+        if (it != _containers.end())
+        {
+            auto containers = (*it).second;
+            uint i = 0;
+            bool added = false;
+            auto containersCount = containers.size();
+            sizeui containerSize = sizeui(0);
+
+            while (!added && i < containersCount)
+            {
+                container = containers[i++];
+                containerSize = container->getSize();
+                
+                if (containerSize.w != texture->w || containerSize.h != texture->h)
+                    continue;
+
+                added = container->add(texture, textureAddress);
+            }
+
+            if (added)
+            {
+                _textures[texture] = textureAddress;
+                return textureAddress;
+            }
+        }
+
+        container = createContainer(size, layout);
+        container->add(texture, textureAddress);
+        _textures[texture] = textureAddress;
+
+        return textureAddress;
+    }
+
+    textureAddress texturesManager::getTextureAddress(const texture* const texture)
+    {
+        if (!_initialized)
+            throw invalidInitializationException("texturesManager not initialized.");
+
+        if (contains(texture))
+            return _textures[texture];
+
+        throw keyNotFoundException("texture not found.");
+    }
+
+    texture* texturesManager::getTextureFromImage(phi::image* image)
+    {
+        if (!image)
+            throw argumentException("image cant be nullptr.");
+
+        phi::texture* texture = nullptr;
+
+        if (_imageTextures.find(image) != _imageTextures.end())
+        {
+            return _imageTextures[image];
+        }
+        else
+        {
+            auto layout = textureLayout();
+            layout.levels = 0;
+            layout.dataFormat = textureLayout::translateDataFormat(image->dataFormat);
+            layout.dataType = textureLayout::translateDataType(image->dataType);
+            layout.internalFormat = GL_RGBA8;
+            layout.wrapMode = GL_REPEAT;
+            layout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
+            layout.magFilter = GL_LINEAR;
+            layout.levels = static_cast<GLsizei>(getMaxLevels(image->w, image->h));
+
+            texture = new phi::texture(
+                image,
+                layout,
+                false,
+                GL_TEXTURE_2D);
+
+            _imageTextures[image] = texture;
+            return texture;
+        }
     }
 
     bool texturesManager::contains(const texture* const texture)
     {
-        return _textures.find(texture) != _textures.end();
+        return phi::contains(_textures, texture);
     }
 
-    textureContainer* texturesManager::reserveContainer(textureContainerLayout layout, size_t size)
+    textureContainer* texturesManager::createContainer(sizeui size, textureLayout layout)
     {
-        auto key = std::make_tuple(
-            layout.w,
-            layout.h,
-            layout.levels,
-            layout.internalFormat,
-            layout.dataFormat,
-            layout.dataType,
-            layout.wrapMode,
-            layout.minFilter,
-            layout.magFilter);
+        textureContainer* container;
 
-        auto container = new textureContainer(layout, std::min(_maxContainerSize, size), ++_currentTextureUnit, _bindless, _sparse);
-        _containers[key].push_back(container);
-        handles.push_back(container->handle);
-        units.push_back(_currentTextureUnit);
+        if (_isSparse && _isBindless)
+            container = new sparseBindlessTextureContainer(size, layout);
+        else if (_isSparse)
+            container = new sparseTextureContainer(size, layout);
+        else if (_isBindless)
+            container = new bindlessTextureContainer(size, layout);
+        else
+            container = new textureContainer(size, layout);
+
+        _containers[layout].push_back(container);
+
+        if (_isBindless)
+            handles.push_back(container->getHandle());
+
         return container;
     }
+
+    textureContainer* texturesManager::findContainer(const GLuint containerId)
+    {
+        for (auto& pair : _containers)
+        {
+            auto containers = pair.second;
+
+            auto it = std::find_if(
+                containers.begin(),
+                containers.end(),
+                [=](textureContainer* container)
+                { 
+                    return container->getId() == containerId;
+                }
+            );
+
+            if (it != containers.end())
+                return *it;
+        }
+
+        throw argumentException(containerId + " containerId not found.");
+    }
+
+    void texturesManager::removeContainer(textureContainer* container)
+    {
+        phi::removeIfContains(_containers[container->getLayout()], container);
+    }
+
+    textureContainer* texturesManager::reserveContainer(sizeui size, textureLayout layout)
+    {
+        if (!_initialized)
+            throw invalidInitializationException("texturesManager not initialized.");
+
+        auto maxPages = std::min(_maxPages, size.d);
+        size.d = maxPages;
+
+        return createContainer(size, layout);
+    }
+
+    bool texturesManager::getIsBindless() { return _isBindless; }
+    bool texturesManager::getIsSparse() { return _isSparse; }
 }
