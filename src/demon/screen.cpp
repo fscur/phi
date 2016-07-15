@@ -30,7 +30,7 @@
 
 #include <core\input.h>
 #include <core\clickComponent.h>
-
+#include <core\boxCollider.h>
 using namespace phi;
 
 namespace demon
@@ -158,6 +158,9 @@ namespace demon
         auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         chair0->getTransform()->setLocalPosition(vec3(0.f, .5f, .0f));
 
+        chair0->addComponent(new boxCollider("boxCollider", vec3(0.0f), vec3(1.0f)));
+
+
         chair0->getTransform()->setLocalPosition(vec3(4.f, .1f, -2.0f));
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
@@ -168,6 +171,7 @@ namespace demon
 
         _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withMeshRenderer()
+            .withDebugRenderer()
             .build();
 
         _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);

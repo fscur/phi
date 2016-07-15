@@ -24,7 +24,9 @@ namespace phi
         mappedBuffer<control*, controlRenderData>* _renderDataBuffer;
 
     private:
-        void createBuffers();
+        void createVao();
+        geometry* createControlQuad();
+        void createControlRenderDataBuffer();
         void updateModelMatrix(control* control);
         void updateControlRenderData(control* control);
 

@@ -79,7 +79,8 @@ namespace phi
                 pickingId::setNextId(clickComponent);
 
             for (auto onNodeAddedFunction : _onNodeAdded)
-                onNodeAddedFunction(node);
+                if (onNodeAddedFunction)
+                    onNodeAddedFunction(node);
         });
     }
 
@@ -91,20 +92,23 @@ namespace phi
             _nodeTokens.erase(node);
 
             for (auto onNodeRemovedFunction : _onNodeRemoved)
-                onNodeRemovedFunction(node);
+                if (onNodeRemovedFunction)
+                    onNodeRemovedFunction(node);
         });
     }
 
     void layer::nodeTransformChanged(node* changedNode)
     {
         for (auto onNodeTransformChangedFunction : _onNodeTransformChanged)
+            if (onNodeTransformChangedFunction)
             onNodeTransformChangedFunction(changedNode);
     }
 
     void layer::nodeSelectionChanged(node* changedNode)
     {
         for (auto onNodeSelectionChangedFunction : _onNodeSelectionChanged)
-            onNodeSelectionChangedFunction(changedNode);
+            if (onNodeSelectionChangedFunction)
+                onNodeSelectionChangedFunction(changedNode);
     }
 
     void layer::add(node* node)

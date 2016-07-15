@@ -10,7 +10,8 @@ namespace phi
 {
     controlRenderAdapter::controlRenderAdapter()
     {
-        createBuffers();
+        createVao();
+        createControlRenderDataBuffer();
     }
 
     controlRenderAdapter::~controlRenderAdapter()
@@ -19,15 +20,29 @@ namespace phi
         safeDelete(_vao);
     }
 
-    void controlRenderAdapter::createBuffers()
+    void controlRenderAdapter::createVao()
     {
         vector<vertexBufferAttribute> modelMatricesAttribs;
         for (uint i = 0; i < 4; ++i)
             modelMatricesAttribs.push_back(vertexBufferAttribute(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
 
         _modelMatricesBuffer = new mappedVertexBuffer<control*, mat4>("modelMatrices", modelMatricesAttribs);
-        _renderDataBuffer = new mappedBuffer<control*, controlRenderData>("ControlRenderDataBuffer", bufferTarget::shader);
 
+        auto renderFunction = [&]
+        {
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_modelMatricesBuffer->getInstanceCount()));
+        };
+
+        auto controlQuad = createControlQuad();
+
+        _vao = vertexArrayObject::createQuadVao(controlQuad, renderFunction);
+        _vao->addBuffer(_modelMatricesBuffer);
+
+        safeDelete(controlQuad);
+    }
+
+    geometry* controlRenderAdapter::createControlQuad()
+    {
         auto vertices = vector<vertex>
         {
             vertex(vec3(0.0f, 0.0f, +0.0f), vec2(0.0f, 0.0f)),
@@ -37,17 +52,12 @@ namespace phi
         };
 
         auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
-        auto controlQuad = geometry::create(vertices, indices);
+        return geometry::create(vertices, indices);
+    }
 
-        auto renderFunction = [&]
-        {
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_renderDataBuffer->getInstanceCount()));
-        };
-
-        _vao = vertexArrayObject::createQuadVao(controlQuad, renderFunction);
-        _vao->addBuffer(_modelMatricesBuffer);
-
-        safeDelete(controlQuad);
+    void controlRenderAdapter::createControlRenderDataBuffer()
+    {
+        _renderDataBuffer = new mappedBuffer<control*, controlRenderData>("ControlRenderDataBuffer", bufferTarget::shader);
     }
 
     void controlRenderAdapter::updateModelMatrix(control* control)
