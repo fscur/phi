@@ -248,53 +248,53 @@ void deallocate(int address)
 
 int main(int argc, char* args[])
 {
-    allocate(1);
-    deallocate(1);
+    //allocate(1);
+    //deallocate(1);
 
-    allocate(2);
-    allocate(2);
-    deallocate(2);
-    allocate(2);
-    allocate(2);
-    deallocate(2);
+    //allocate(2);
+    //allocate(2);
+    //deallocate(2);
+    //allocate(2);
+    //allocate(2);
+    //deallocate(2);
 
-    allocate(2);
-    allocate(2);
+    //allocate(2);
+    //allocate(2);
 
-    allocate(3);
-    deallocate(3);
-    deallocate(3);
+    //allocate(3);
+    //deallocate(3);
+    //deallocate(3);
 
-    allocate(1);
-    deallocate(1);
+    //allocate(1);
+    //deallocate(1);
 
-    heap.dump();
-    system("pause");
+    //heap.dump();
+    //system("pause");
 
-    // char executableFileName[FILENAME_MAX];
-    // strcpy_s(executableFileName, args[0]);
+     char executableFileName[FILENAME_MAX];
+     strcpy_s(executableFileName, args[0]);
 
-    // initializeDiagnostics(executableFileName);
-    // initializeGetText();
-    // initializeCommandLineCommands();
-    // processCommandLine(argc, args);
-    // executeCommands();
+     initializeDiagnostics(executableFileName);
+     initializeGetText();
+     initializeCommandLineCommands();
+     processCommandLine(argc, args);
+     executeCommands();
 
-    // try
-    // {
-    //     auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
-    //     auto application = phi::application(appStartInfo);
-    //     auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1920, 1080));
+     try
+     {
+         auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
+         auto application = phi::application(appStartInfo);
+         auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1920, 1080));
 
-    //     application.run(&screen);
-    // }
-    // catch (const phi::invalidInitializationException& exception)
-    // {
-    //     application::logError(exception.what());
-    //     system("pause");
-    // }
+         application.run(&screen);
+     }
+     catch (const phi::invalidInitializationException& exception)
+     {
+         application::logError(exception.what());
+         system("pause");
+     }
 
-    // phi::input::release();
+     phi::input::release();
 
     return 0;
 }

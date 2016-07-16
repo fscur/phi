@@ -113,7 +113,9 @@ namespace phi
         void initializeStackTracer()
         {
             char currentDirectoryPath[FILENAME_MAX];
-            assert(GetModuleFileName(NULL, currentDirectoryPath, FILENAME_MAX));
+            auto result = GetModuleFileName(NULL, currentDirectoryPath, FILENAME_MAX);
+            assert(result);
+
             platformProcLoader::load(currentDirectoryPath);
         }
 
