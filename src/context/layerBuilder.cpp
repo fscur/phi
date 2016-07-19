@@ -23,6 +23,7 @@
 #include "textLayerBehaviour.h"
 #include "cameraInputController.h"
 #include "selectionInputController.h"
+#include "obbDragInputController.h"
 
 namespace phi
 {
@@ -57,6 +58,7 @@ namespace phi
 
         _layer->addMouseController(new cameraInputController(_layer->getCamera()));
         _layer->addMouseController(new selectionInputController(meshBehaviour, _commandsManager));
+        _layer->addMouseController(new obbDragInputController(_layer->getCamera()));
 
         // Camera:
             // Pan
