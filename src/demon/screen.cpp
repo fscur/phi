@@ -116,7 +116,7 @@ namespace demon
 
         _projectLibrary = new library(application::path);
     }
-
+    
     void screen::initContexts()
     {
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
@@ -155,8 +155,8 @@ namespace demon
             })
             .build();
 
-        auto chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
-        chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
+        _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
@@ -202,7 +202,7 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        _sceneLayer->add(chair0);
+        _sceneLayer->add(_chair0);
         //_sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
 
@@ -224,7 +224,7 @@ namespace demon
 
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [=]()
         {
-            auto nodesToDelete = { chair0 };
+            auto nodesToDelete = { _chair0 };
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
 
@@ -289,9 +289,13 @@ namespace demon
     {
         _activeContext->onKeyUp(e);
     }
-
+    float t = 0;
     void screen::onUpdate()
     {
+        t += 0.01f;
+        vec3 pos = vec3(glm::cos(t), 0.0f, glm::sin(t));
+        _chair0->getTransform()->setLocalPosition(pos);
+
         if (_design)
             _activeContext = _designContext;
         else

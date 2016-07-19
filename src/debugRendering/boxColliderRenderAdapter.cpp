@@ -81,13 +81,14 @@ namespace phi
 
     void boxColliderRenderAdapter::updateModelMatrix(boxCollider* boxCollider)
     {
-        throw notImplementedException();
+        auto modelMatrix = boxCollider->getLocalModelMatrix();
+        _modelMatricesBuffer->update(boxCollider, modelMatrix);
     }
 
     void boxColliderRenderAdapter::add(boxCollider* boxCollider)
     {
-        auto nodeModelMatrix = boxCollider->getLocalModelMatrix();
-        _modelMatricesBuffer->add(boxCollider, nodeModelMatrix);
+        auto modelMatrix = boxCollider->getLocalModelMatrix();
+        _modelMatricesBuffer->add(boxCollider, modelMatrix);
     }
 
     void boxColliderRenderAdapter::remove(boxCollider* boxCollider)
