@@ -40,8 +40,8 @@ namespace phi
 
     void layer::trackNode(node* node)
     {
-        auto childAddedToken = node->childAdded.assign(std::bind(&layer::nodeChildAdded, this, std::placeholders::_1));
-        auto childRemovedToken = node->childRemoved.assign(std::bind(&layer::nodeChildRemoved, this, std::placeholders::_1));
+        auto childAddedToken = node->childAdded.assign(std::bind(&layer::nodeAdded, this, std::placeholders::_1));
+        auto childRemovedToken = node->childRemoved.assign(std::bind(&layer::nodeRemoved, this, std::placeholders::_1));
         auto transformChangedToken = node->transformChanged.assign(std::bind(&layer::nodeTransformChanged, this, std::placeholders::_1));
         auto selectionChangedToken = node->selectionChanged.assign(std::bind(&layer::nodeSelectionChanged, this, std::placeholders::_1));
 
@@ -68,32 +68,32 @@ namespace phi
         _frameUniformsBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniform);
     }
 
-    void layer::nodeChildAdded(node* addedChild)
+    void layer::nodeAdded(node* node)
     {
-        addedChild->traverse([&](phi::node* node)
+        node->traverse([&](phi::node* addedNode)
         {
-            trackNode(node);
+            trackNode(addedNode);
 
-            auto clickComponent = node->getComponent<phi::clickComponent>();
+            auto clickComponent = addedNode->getComponent<phi::clickComponent>();
             if (clickComponent)
                 pickingId::setNextId(clickComponent);
 
             for (auto onNodeAddedFunction : _onNodeAdded)
                 if (onNodeAddedFunction)
-                    onNodeAddedFunction(node);
+                    onNodeAddedFunction(addedNode);
         });
     }
 
-    void layer::nodeChildRemoved(node* removedChild)
+    void layer::nodeRemoved(node* node)
     {
-        removedChild->traverse([&](phi::node* node)
+        node->traverse([&](phi::node* removedNode)
         {
-            untrackNode(node);
-            _nodeTokens.erase(node);
+            untrackNode(removedNode);
+            _nodeTokens.erase(removedNode);
 
             for (auto onNodeRemovedFunction : _onNodeRemoved)
                 if (onNodeRemovedFunction)
-                    onNodeRemovedFunction(node);
+                    onNodeRemovedFunction(removedNode);
         });
     }
 

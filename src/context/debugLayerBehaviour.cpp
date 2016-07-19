@@ -5,6 +5,7 @@
 #include <io\path.h>
 #include <rendering\framebufferAllocator.h>
 #include <debugRendering\boxColliderRenderPass.h>
+#include <core\mesh.h>
 
 namespace phi
 {
@@ -49,6 +50,7 @@ namespace phi
     void debugLayerBehaviour::onNodeTransformChanged(node* node)
     {
         auto boxCollider = node->getComponent<phi::boxCollider>();
+
         if (boxCollider)
             _adapter->update(boxCollider);
     }

@@ -12,6 +12,15 @@ namespace phi
     {
     }
 
+    text::text(const text& text) :
+        component(componentType::TEXT, text._name),
+        _font(text._font),
+        _control(text._control),
+        _text(text._text),
+        _color(text._color)
+    {
+    }
+
     text::~text()
     {
     }
@@ -32,5 +41,11 @@ namespace phi
     { 
         _font = value; 
         updateControl();
+    }
+
+    component* text::clone() const 
+    {
+        auto t = static_cast<const text*>(this);
+        return new text(*t);
     }
 }

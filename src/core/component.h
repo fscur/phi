@@ -39,7 +39,7 @@ namespace phi
     public:
         virtual ~component() {};
 
-        virtual component* clone() const { return new component(*this); }
+        virtual component* clone() const = 0;
 
         int getType() const { return _type; }
 

@@ -58,8 +58,8 @@ namespace phi
         void updateFrameUniforms();
         void trackNode(node* node);
         void untrackNode(node * node);
-        void nodeChildAdded(node* addedChild);
-        void nodeChildRemoved(node* removedChild);
+        void nodeAdded(node* node);
+        void nodeRemoved(node* node);
         void nodeTransformChanged(node* changedNode);
         void nodeSelectionChanged(node * changedNode);
 
