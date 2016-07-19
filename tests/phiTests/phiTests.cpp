@@ -1,7 +1,8 @@
 #include <precompiled.h>
+#include <phi.h>
+
 #include <gtest\gtest.h>
 #include <fakeit\fakeit.hpp>
-#include <phi.h>
 
 class mapContainsFixture : public testing::Test
 {
@@ -22,7 +23,7 @@ public:
     }
 };
 
-class vectorFixture : 
+class vectorFixture :
     public testing::Test
 {
 public:
@@ -97,4 +98,23 @@ TEST_F(vectorFixture, removeIfContains_vectorNotContainingValue_VectorRemainsUnt
 
     for(auto value : vectorValues)
         ASSERT_TRUE(phi::contains(vector, value));
+}
+
+TEST_F(vectorFixture, getLastElementOf_vectorContainingValue_ReturnsLastElement)
+{
+    //Arrange & Act
+    auto result = phi::getLastElementOf(vector);
+
+    //Assert
+    auto expected = 38;
+    ASSERT_EQ(expected, result);
+}
+
+TEST(getLastElementOf, getLastElementOf_emptyVector_ThrowsException)
+{
+    //Arrange
+    auto vector = phi::vector<int>();
+
+    //Act and Assert
+    ASSERT_THROW(phi::getLastElementOf(vector), std::exception);
 }

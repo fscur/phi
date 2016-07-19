@@ -19,14 +19,23 @@ namespace phi
     using string = std::string;
     using wstring = std::wstring;
 
-    template<class T>
-    using vector = std::vector<T>;
+    template<typename T, typename Allocator = std::allocator<T>>
+    using vector = std::vector<T, Allocator>;
 
-    template<class T, class R>
-    using map = std::map<T, R>;
+    template<
+        typename Key,
+        typename Value,
+        typename Comparer = std::less<Key>,
+        typename Allocator = std::allocator<std::pair<const Key, Value>>>
+    using map = std::map<Key, Value, Comparer, Allocator>;
 
-    template<class T, class R>
-    using unordered_map = std::unordered_map<T, R>;
+    template<
+        typename Key,
+        typename Value,
+        typename Hasher = std::hash<Key>,
+        typename KeyEqual = std::equal_to<Key>,
+        typename Allocator = std::allocator<std::pair<Key, Value>>>
+    using unordered_map = std::unordered_map<Key, Value, Hasher, KeyEqual, Allocator>;
 
     static const float PI = 3.1415926536f;
     static const float PI_OVER_2 = 1.5707963268f;
@@ -46,8 +55,8 @@ namespace phi
         value = nullptr;
     }
 
-    template<typename T>
-    void removeIfContains(vector<T>& vector, T& value)
+    template<typename T, typename Allocator>
+    void removeIfContains(vector<T, Allocator>& vector, T& value)
     {
         auto it = std::find(vector.begin(), vector.end(), value);
 
@@ -55,22 +64,22 @@ namespace phi
             vector.erase(it);
     }
 
-    template<typename T>
-    bool contains(const vector<T>& vector, const T value)
+    template<typename T, typename Allocator>
+    bool contains(const vector<T, Allocator>& vector, const T value)
     {
         auto it = std::find(vector.begin(), vector.end(), value);
         return it != vector.end();
     }
 
-    template<typename T>
-    bool contains(const vector<T>* const vector, const T value)
+    template<typename T, typename Allocator>
+    bool contains(const vector<T, Allocator>* const vector, const T value)
     {
         auto it = std::find(vector->begin(), vector->end(), value);
         return it != vector->end();
     }
 
-    template<typename T>
-    size_t indexOf(const vector<T>& vector, const T& value)
+    template<typename T, typename Allocator>
+    size_t indexOf(const vector<T, Allocator>& vector, const T& value)
     {
         for (size_t i = 0; i < vector.size(); ++i)
         {
@@ -81,8 +90,8 @@ namespace phi
         throw new std::exception();
     }
 
-    template<typename T>
-    size_t indexOf(const vector<T>* vector, const T value)
+    template<typename T, typename Allocator>
+    size_t indexOf(const vector<T, Allocator>* vector, const T value)
     {
         for (size_t i = 0; i < vector->size(); ++i)
         {
@@ -93,17 +102,36 @@ namespace phi
         throw new std::exception();
     }
 
-    template<typename T, typename R>
-    bool contains(const map<T, R> map, const T value)
+    template<typename T, typename Allocator>
+    T getLastElementOf(const vector<T, Allocator>& vector)
     {
-        auto it = map.find(value);
+        if (vector.size() < 1)
+            throw std::exception("Vector cannot be empty");
+
+        auto lastIndex = vector.size() - 1;
+        return vector[lastIndex];
+    }
+
+    template<
+        typename Key,
+        typename Value,
+        typename Comparer,
+        typename Allocator>
+    bool contains(const map<Key, Value, Comparer, Allocator> map, const Key key)
+    {
+        auto it = map.find(key);
         return it != map.end();
     }
 
-    template<typename T, typename R>
-    bool contains(const unordered_map<T, R> map, const T value)
+    template<
+        typename Key,
+        typename Value,
+        typename Hasher,
+        typename KeyEqual,
+        typename Allocator>
+    bool contains(const unordered_map<Key, Value, Hasher, KeyEqual, Allocator> map, const Key key)
     {
-        auto it = map.find(value);
+        auto it = map.find(key);
         return it != map.end();
     }
 
