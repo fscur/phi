@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+#include "uiApi.h"
 #include <core\component.h>
 #include <core\color.h>
 #include <core\image.h>
@@ -22,7 +23,11 @@ namespace phi
 
     public:
         control(string name);
+        control(const control& control);
         ~control();
+
+        UI_API component* clone() const override;
+
         image* getBackgroundImage() const { return _image; }
         color getBackgroundColor() const { return _color; }
         vec3 getSize() const { return _size; }

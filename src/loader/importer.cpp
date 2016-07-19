@@ -5,6 +5,7 @@
 #include <core\base64.h>
 #include <core\random.h>
 #include <core\clickComponent.h>
+#include <core\boxCollider.h>
 
 #include <io\path.h>
 
@@ -40,27 +41,32 @@ namespace phi
 
             switch (type)
             {
-            case 0:
-            {
-                objectNode->addComponent(new phi::model(components[i]["Name"].GetString()));
-                break;
-            }
-            case 1:
-            {
-                auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
-                auto geometry = geometriesRepo->getResource(geometryGuid)->getOriginalObject();
+                case 0:
+                {
+                    objectNode->addComponent(new phi::model(components[i]["Name"].GetString()));
+                    break;
+                }
+                case 1:
+                {
+                    auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
+                    auto geometry = geometriesRepo->getResource(geometryGuid)->getOriginalObject();
 
-                material* material = material::defaultMaterial;
+                    material* material = material::defaultMaterial;
 
-                auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
-                auto materialResource = materialsRepo->getResource(materialGuid);
-                if (materialResource != nullptr)
-                    material = materialResource->getOriginalObject();
+                    auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
+                    auto materialResource = materialsRepo->getResource(materialGuid);
 
-                objectNode->addComponent(new phi::mesh(components[i]["Name"].GetString(), geometry, material));
-                objectNode->addComponent(new phi::clickComponent("meshClick"));
-                break;
-            }
+                    if (materialResource != nullptr)
+                        material = materialResource->getOriginalObject();
+
+                    objectNode->addComponent(new phi::mesh(components[i]["Name"].GetString(), geometry, material));
+
+                    auto aabb = geometry->aabb;
+                    objectNode->addComponent(new phi::boxCollider("obbCollider", aabb->center, vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
+                    objectNode->addComponent(new phi::clickComponent("meshClick"));
+
+                    break;
+                }
             }
         }
 

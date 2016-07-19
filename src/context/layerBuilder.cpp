@@ -17,6 +17,7 @@
 #include <uiRendering\textRenderer.h>
 
 #include "meshLayerBehaviour.h"
+#include "debugLayerBehaviour.h"
 #include "controlLayerBehaviour.h"
 #include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
@@ -71,6 +72,23 @@ namespace phi
             // Drag and drop
             // Resto
 
+        return *this;
+    }
+
+    layerBuilder layerBuilder::withDebugRenderer()
+    {
+        auto debugBehaviour = new debugLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&debugLayerBehaviour::onNodeAdded, debugBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&debugLayerBehaviour::onNodeRemoved, debugBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&debugLayerBehaviour::onNodeTransformChanged, debugBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(debugBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([debugBehaviour]() mutable
+        {
+            safeDelete(debugBehaviour);
+        });
+        
         return *this;
     }
 

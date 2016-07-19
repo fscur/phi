@@ -26,7 +26,10 @@ namespace phi
 
     public:
         text(string name);
+        text(const text& text);
         ~text();
+
+        UI_API component* clone() const override;
 
         wstring getText() const { return _text; }
         font* getFont() const { return  _font; }
