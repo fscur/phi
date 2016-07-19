@@ -87,7 +87,7 @@ namespace phi
                 return i;
         }
 
-        throw new std::exception();
+        throw std::exception();
     }
 
     template<typename T, typename Allocator>
@@ -99,7 +99,7 @@ namespace phi
                 return i;
         }
 
-        throw new std::exception();
+        throw std::exception();
     }
 
     template<typename T, typename Allocator>
