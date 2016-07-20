@@ -203,7 +203,7 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(_chair0);
-        //_sceneLayer->add(floor0);
+        _sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
 
         //_sceneLayer->add(_sceneLabel);

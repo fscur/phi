@@ -74,13 +74,6 @@ namespace phi
 
         _scene->addActor(*data->body);
         _colliders[collider] = data;
-
-        //if (halfSizes.x > 2.0f)
-        //{
-        //    auto filterData = physx::PxFilterData();
-        //    filterData.word0 = 1u;
-        //    data->shape->setQueryFilterData(filterData);
-        //}
     }
 
     void physicsWorld::removeCollider(boxCollider* collider)
