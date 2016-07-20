@@ -32,7 +32,12 @@ namespace phi
         _resolution(resolution),
         _resourcesPath(resourcesPath),
         _framebufferAllocator(framebufferAllocator),
-        _commandsManager(commandsManager)
+        _commandsManager(commandsManager),
+        _withMeshRenderer(false),
+        _withDebugRenderer(false),
+        _withControlRenderer(false),
+        _withGlassyControlRenderer(false),
+        _withTextRenderer(false)
     {
     }
 
@@ -41,7 +46,7 @@ namespace phi
         return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath, framebufferAllocator, commandsManager);
     }
 
-    layerBuilder layerBuilder::withMeshRenderer()
+    void layerBuilder::buildMeshRenderer()
     {
         auto meshBehaviour = new meshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
@@ -71,11 +76,9 @@ namespace phi
         // UI:
             // Drag and drop
             // Resto
-
-        return *this;
     }
 
-    layerBuilder layerBuilder::withDebugRenderer()
+    void layerBuilder::buildDebugRenderer()
     {
         auto debugBehaviour = new debugLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
         _layer->addOnNodeAdded(std::bind(&debugLayerBehaviour::onNodeAdded, debugBehaviour, std::placeholders::_1));
@@ -88,11 +91,9 @@ namespace phi
         {
             safeDelete(debugBehaviour);
         });
-        
-        return *this;
     }
 
-    layerBuilder layerBuilder::withGlassyControlRenderer()
+    void layerBuilder::buildGlassyControlRenderer()
     {
         auto glassyBehaviour = new glassyControlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
@@ -107,11 +108,9 @@ namespace phi
         {
             safeDelete(glassyBehaviour);
         });
-
-        return *this;
     }
 
-    layerBuilder layerBuilder::withControlRenderer()
+    void layerBuilder::buildControlRenderer()
     {
         auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
@@ -126,11 +125,9 @@ namespace phi
         {
             safeDelete(controlBehaviour);
         });
-
-        return *this;
     }
 
-    layerBuilder layerBuilder::withTextRenderer()
+    void layerBuilder::buildTextRenderer()
     {
         auto textBehaviour = new textLayerBehaviour(
             _resolution,
@@ -147,12 +144,16 @@ namespace phi
         {
             safeDelete(textBehaviour);
         });
-
-        return *this;
     }
 
     layer* layerBuilder::build()
     {
+        if (_withMeshRenderer) buildMeshRenderer();
+        if (_withDebugRenderer) buildDebugRenderer();
+        if (_withGlassyControlRenderer) buildGlassyControlRenderer();
+        if (_withControlRenderer) buildControlRenderer();
+        if (_withTextRenderer) buildTextRenderer();
+
         return _layer;
     }
 }

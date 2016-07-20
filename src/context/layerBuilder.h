@@ -25,16 +25,29 @@ namespace phi
         vector<renderPass*> _glassyControlRenderPasses;
         vector<renderPass*> _textRenderPasses;
 
+        bool _withMeshRenderer;
+        bool _withDebugRenderer;
+        bool _withControlRenderer;
+        bool _withGlassyControlRenderer;
+        bool _withTextRenderer;
+
     private:
         layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
 
+        void buildMeshRenderer();
+        void buildDebugRenderer();
+        void buildControlRenderer();
+        void buildGlassyControlRenderer();
+        void buildTextRenderer();
+
     public:
         CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
-        CONTEXT_API layerBuilder withMeshRenderer();
-        CONTEXT_API layerBuilder withDebugRenderer();
-        CONTEXT_API layerBuilder withControlRenderer();
-        CONTEXT_API layerBuilder withGlassyControlRenderer();
-        CONTEXT_API layerBuilder withTextRenderer();
+        layerBuilder withMeshRenderer() { _withMeshRenderer = true; return *this; }
+        layerBuilder withDebugRenderer() { _withDebugRenderer = true; return *this; }
+        layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
+        layerBuilder withGlassyControlRenderer() { _withGlassyControlRenderer = true; return *this; }
+        layerBuilder withTextRenderer() { _withTextRenderer = true; return *this; }
+
         CONTEXT_API layer* build();
     };
 }

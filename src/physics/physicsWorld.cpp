@@ -3,6 +3,8 @@
 #include <core\node.h>
 #include "physicsWorld.h"
 
+using namespace physx;
+
 namespace phi
 {
     physicsWorld::physicsWorld() :
@@ -12,18 +14,18 @@ namespace phi
         if (!_foundation)
             phi::debug("PxCreateFoundation failed!");
 
-        _profileZoneManager = &physx::PxProfileZoneManager::createProfileZoneManager(_foundation);
+        _profileZoneManager = &PxProfileZoneManager::createProfileZoneManager(_foundation);
         if (!_profileZoneManager)
             phi::debug("PxProfileZoneManager::createProfileZoneManager failed!");
 
-        _physics = PxCreatePhysics(PX_PHYSICS_VERSION, *_foundation, physx::PxTolerancesScale(), true, _profileZoneManager);
+        _physics = PxCreatePhysics(PX_PHYSICS_VERSION, *_foundation, PxTolerancesScale(), true, _profileZoneManager);
         if (!_physics)
             phi::debug("PxCreatePhysics failed!");
 
-        physx::PxSceneDesc sceneDesc(_physics->getTolerancesScale());
-        _dispatcher = physx::PxDefaultCpuDispatcherCreate(2);
+        PxSceneDesc sceneDesc(_physics->getTolerancesScale());
+        _dispatcher = PxDefaultCpuDispatcherCreate(2);
         sceneDesc.cpuDispatcher = _dispatcher;
-        sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+        sceneDesc.filterShader = PxDefaultSimulationFilterShader;
         _scene = _physics->createScene(sceneDesc);
     }
 
@@ -42,24 +44,24 @@ namespace phi
         _foundation->release();
     }
 
-    physx::PxTransform physicsWorld::createPose(const boxCollider* collider, transform* transform)
+    PxTransform physicsWorld::createPose(const boxCollider* collider, transform* transform)
     {
         auto rotation = transform->getOrientation();
         auto center = rotation * collider->getPosition();
         auto position = center + transform->getPosition();
 
-        return physx::PxTransform(
-            physx::PxVec3(position.x, position.y, position.z),
-            physx::PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
+        return PxTransform(
+            PxVec3(position.x, position.y, position.z),
+            PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
     }
 
     void physicsWorld::addCollider(boxCollider* collider)
     {
         auto data = new colliderData();
-        data->body = _physics->createRigidStatic(physx::PxTransform(physx::PxVec3()));
+        data->body = _physics->createRigidStatic(PxTransform(PxVec3()));
 
         auto halfSizes = collider->getHalfSizes();
-        data->geometry = new physx::PxBoxGeometry(halfSizes.x, halfSizes.y, halfSizes.z);
+        data->geometry = new PxBoxGeometry(halfSizes.x, halfSizes.y, halfSizes.z);
         auto material = _physics->createMaterial(0.0f, 0.0f, 0.0f);
         data->shape = data->body->createShape(*data->geometry, *material);
         data->body->userData = collider;
@@ -92,7 +94,7 @@ namespace phi
         for (auto collider : (*colliders))
         {
             auto data = _colliders[collider];
-            data->shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+            data->shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
         }
     }
 
@@ -101,13 +103,13 @@ namespace phi
         for (auto collider : (*colliders))
         {
             auto data = _colliders[collider];
-            data->shape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, false);
+            data->shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);
         }
     }
 
     void physicsWorld::setGroupOn(vector<boxCollider*>* colliders, uint16_t group)
     {
-        auto groupFilterData = physx::PxFilterData();
+        auto groupFilterData = PxFilterData();
         groupFilterData.word0 = group;
 
         for (auto collider : (*colliders))
@@ -122,9 +124,9 @@ namespace phi
         auto geometry = _colliders[test.collider]->geometry;
         auto pose = createPose(test.collider, test.transform);
 
-        auto hit = physx::PxOverlapBuffer();
+        auto hit = PxOverlapBuffer();
         auto foundIntersection = false;
-        physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxQueryFlag::eANY_HIT | physx::PxQueryFlag::eSTATIC);
+        PxQueryFilterData filterData = PxQueryFilterData(PxQueryFlag::eANY_HIT | PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
         if (_scene->overlap(
             *geometry,
@@ -199,22 +201,22 @@ namespace phi
         auto dir = glm::normalize(test.offset);
         auto distance = glm::length(test.offset);
 
-        auto geometrySource = physx::PxBoxGeometry(*static_cast<physx::PxBoxGeometry*>(_colliders[test.colliderSource]->geometry));
+        auto geometrySource = PxBoxGeometry(*static_cast<PxBoxGeometry*>(_colliders[test.colliderSource]->geometry));
         auto poseSource = createPose(test.colliderSource, test.transformSource);
 
-        auto geometryTarget = physx::PxBoxGeometry(*static_cast<physx::PxBoxGeometry*>(_colliders[test.colliderTarget]->geometry));
+        auto geometryTarget = PxBoxGeometry(*static_cast<PxBoxGeometry*>(_colliders[test.colliderTarget]->geometry));
         auto poseTarget = createPose(test.colliderTarget, test.transformTarget);
 
-        physx::PxSweepHit hit;
-        if (physx::PxGeometryQuery::sweep(
-            physx::PxVec3(dir.x, dir.y, dir.z),
+        PxSweepHit hit;
+        if (PxGeometryQuery::sweep(
+            PxVec3(dir.x, dir.y, dir.z),
             distance,
             geometrySource,
             poseSource,
             geometryTarget,
             poseTarget,
             hit,
-            physx::PxHitFlag::eDEFAULT | physx::PxHitFlag::eMTD))
+            PxHitFlag::eDEFAULT | PxHitFlag::eMTD))
         {
             auto collision = sweepCollision();
             collision.collider = test.colliderTarget;
@@ -235,23 +237,23 @@ namespace phi
         auto geometry = _colliders[test.collider]->geometry;
         auto pose = createPose(test.collider, test.transform);
 
-        physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxQueryFlag::eSTATIC);
+        PxQueryFilterData filterData = PxQueryFilterData(PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
-        physx::PxSweepHit hitBuffer[32];
-        auto hit = physx::PxSweepBuffer(hitBuffer, 32);
+        PxSweepHit hitBuffer[32];
+        auto hit = PxSweepBuffer(hitBuffer, 32);
         if (_scene->sweep(
             *geometry,
             pose,
-            physx::PxVec3(test.direction.x, test.direction.y, test.direction.z),
+            PxVec3(test.direction.x, test.direction.y, test.direction.z),
             test.distance,
             hit,
-            physx::PxHitFlag::eDEFAULT | physx::PxHitFlag::ePRECISE_SWEEP,
+            PxHitFlag::eDEFAULT | PxHitFlag::ePRECISE_SWEEP,
             filterData))
         {
             auto touchesCount = hit.getNbTouches();
             for (size_t i = 0; i < touchesCount; i++)
             {
-                auto touch = hit.getTouch(static_cast<physx::PxU32>(i));
+                auto touch = hit.getTouch(static_cast<PxU32>(i));
                 auto collidedCollider = reinterpret_cast<boxCollider*>(touch.actor->userData);
                 auto normal = vec3(touch.normal.x, touch.normal.y, touch.normal.z);
 
