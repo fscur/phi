@@ -194,16 +194,16 @@ namespace phi
                 dumpMemory();
         }
 
-        void addEntry(linkedList::node* entry)
+        void addEntry(void* address)//linkedList::node* entry)
         { 
-            //_heapRecorder.registerAllocation(address);
-            _heapBuffer.addEntry(entry);
+            _heapRecorder.registerAllocation(address);
+            //_heapBuffer.addEntry(entry);
         }
 
         void removeEntry(void* address)
         {
-            //_heapRecorder.registerDeallocation(address);
-            _heapBuffer.removeEntry(address);
+            _heapRecorder.registerDeallocation(address);
+            //_heapBuffer.removeEntry(address);
         }
     } heap;
 
@@ -213,6 +213,7 @@ namespace phi
         ++heap.allocationOrder;
 
         auto address = malloc(size);
+        heap.addEntry(address);
 
 #ifdef DETAILED_MEMORY_TRACKING
         auto entry = static_cast<linkedList::node*>(malloc(sizeof(linkedList::node)));
@@ -233,6 +234,7 @@ namespace phi
         heap.removeEntry(address);
 #endif
         --heap.allocationCount;
+        heap.removeEntry(address);
         free(address);
     }
 

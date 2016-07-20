@@ -136,63 +136,6 @@ TEST(heapRecorder, heap_AllocationDeallocationAllocationDeallocationOfTheSameAdd
     ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
 }
 
-TEST(heapRecorder, heap_TwoAllocationOfTheSameAddress_ReturnsTwoMemoryLeaksAndZeroUnnecessaryDeallocation)
-{
-    //Arrange
-    auto heap = heapRecorder();
-    auto address = reinterpret_cast<void*>(1);
-
-    //Act
-    heap.registerAllocation(address);
-    heap.registerAllocation(address);
-
-    //Assert
-    auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
-
-    ASSERT_EQ(memoryLeaks.size(), 2u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
-}
-
-TEST(heapRecorder, heap_AllocationAllocationDeallocationOfTheSameAddress_ReturnsOneMemoryLeakAndZeroUnnecessaryDeallocation)
-{
-    //Arrange
-    auto heap = heapRecorder();
-    auto address = reinterpret_cast<void*>(1);
-
-    //Act
-    heap.registerAllocation(address);
-    heap.registerAllocation(address);
-    heap.registerDeallocation(address);
-
-    //Assert
-    auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
-
-    ASSERT_EQ(memoryLeaks.size(), 1u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
-}
-
-TEST(heapRecorder, heap_AllocationAllocationDeallocationDeallocationOfTheSameAddress_ReturnsOneMemoryLeakAndOneUnnecessaryDeallocation)
-{
-    //Arrange
-    auto heap = heapRecorder();
-    auto address = reinterpret_cast<void*>(1);
-
-    //Act
-    heap.registerAllocation(address);
-    heap.registerAllocation(address);
-    heap.registerDeallocation(address);
-    heap.registerDeallocation(address);
-
-    //Assert
-    auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
-
-    ASSERT_EQ(memoryLeaks.size(), 1u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 1u);
-}
-
 TEST(heapRecorder, heap_ThreeAllocationsAndTwoDeallocations_ReturnsOneMemoryLeakAndZeroUnnecessaryDeallocation)
 {
     //Arrange
@@ -234,6 +177,7 @@ TEST(heapRecorder, heap_ThreeAllocationsAndThreeDeallocations_ReturnsOneMemoryLe
 
     heap.registerAllocation(address3);
     heap.registerDeallocation(address3);
+
     heap.registerDeallocation(address1);
 
     //Assert

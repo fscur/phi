@@ -25,36 +25,61 @@ namespace phi
     {
     }
 
+    bool heapRecorder::isFirstDelete(void* address)
+    {
+        return phi::contains(_initiatedAllocations, address);
+    }
+
+    bool heapRecorder::hasAlreadyBeenDeleted(void* address)
+    {
+        return phi::contains(_completedOperations, address);
+    }
+
+    void heapRecorder::completeOperation(void* address)
+    {
+        auto operation = _initiatedAllocations[address];
+        operation->add(make<phi::deallocation>());
+        _completedOperations[address].push_back(operation);
+        _initiatedAllocations.erase(address);
+    }
+
+    void heapRecorder::addUnnecessaryDeallocation(void* address)
+    {
+        auto addressOperations = _completedOperations[address];
+        auto lastAddressOperation = phi::getLastElementOf(addressOperations);
+        lastAddressOperation->add(make<phi::deallocation>());
+    }
+
+    void heapRecorder::addUnnalocatedDeallocation(void* address)
+    {
+        auto operation = make<memoryOperation>();
+        operation->add(make<phi::deallocation>());
+        _unallocatedDeallocations[address].push_back(operation);
+    }
+
+    void heapRecorder::initiateOperation(void* address)
+    {
+        _initiatedAllocations[address] = make<memoryOperation>(make<allocation>());
+    }
+
     void heapRecorder::registerAllocation(void* address)
     {
-        if (phi::contains(_initiatedAllocations, address))
-            _incompleteOperations[address].push_back(_initiatedAllocations[address]);
-
-        _initiatedAllocations[address] = make<memoryOperation>(make<allocation>());
+        initiateOperation(address);
     }
 
     void heapRecorder::registerDeallocation(void* address)
     {
-        auto deallocation = make<phi::deallocation>();
-
-        if (phi::contains(_initiatedAllocations, address))
+        if (isFirstDelete(address))
         {
-            auto operation = _initiatedAllocations[address];
-            operation->add(deallocation);
-            _completedOperations[address].push_back(operation);
-            _initiatedAllocations.erase(address);
+            completeOperation(address);
         }
-        else if (phi::contains(_completedOperations, address))
+        else if (hasAlreadyBeenDeleted(address))
         {
-            auto addressOperations = _completedOperations[address];
-            auto lastAddressOperation = phi::getLastElementOf(addressOperations);
-            lastAddressOperation->add(deallocation);
+            addUnnecessaryDeallocation(address);
         }
         else
         {
-            auto operation = make<memoryOperation>();
-            operation->add(deallocation);
-            _unallocatedDeallocations[address].push_back(operation);
+            addUnnalocatedDeallocation(address);
         }
     }
 
@@ -65,15 +90,6 @@ namespace phi
         for (auto& pair : _initiatedAllocations)
         {
             memoryLeaks.push_back(pair.second);
-        }
-
-        for (auto& pair : _incompleteOperations)
-        {
-            auto address = pair.first;
-            auto operations = pair.second;
-
-            for (auto& operation : operations)
-                memoryLeaks.push_back(operation);
         }
 
         return memoryLeaks;

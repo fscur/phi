@@ -21,6 +21,15 @@ namespace phi
         mallocMap<void*, mallocVector<memoryOperation*>> _incompleteOperations;
         mallocMap<void*, mallocVector<memoryOperation*>> _unallocatedDeallocations;
 
+    private:
+        bool isFirstDelete(void * address);
+        bool hasAlreadyBeenDeleted(void * address);
+        void completeOperation(void * address);
+        void addUnnecessaryDeallocation(void * address);
+        void addUnnalocatedDeallocation(void * address);
+
+        void initiateOperation(void * address);
+
     public:
         DIAGNOSTIC_API heapRecorder();
         DIAGNOSTIC_API ~heapRecorder();
