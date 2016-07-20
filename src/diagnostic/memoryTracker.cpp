@@ -1,6 +1,9 @@
 #include <precompiled.h>
 #include "memoryTracker.h"
 
+#include "heapRecorder.h"
+#include "mallocAllocator.h"
+
 #include "stackSymbol.h"
 #include "stackTracer.h"
 #include "platformProcLoader.h"
@@ -104,6 +107,7 @@ namespace phi
     {
     private:
         linkedList _heapBuffer;
+        heapRecorder _heapRecorder;
     public:
         size_t allocationCount;
         size_t allocationOrder;
@@ -191,12 +195,14 @@ namespace phi
         }
 
         void addEntry(linkedList::node* entry)
-        {
+        { 
+            //_heapRecorder.registerAllocation(address);
             _heapBuffer.addEntry(entry);
         }
 
         void removeEntry(void* address)
         {
+            //_heapRecorder.registerDeallocation(address);
             _heapBuffer.removeEntry(address);
         }
     } heap;
