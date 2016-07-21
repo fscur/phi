@@ -13,7 +13,7 @@
 
 namespace phi
 {
-    class obbDragInputController :
+    class obbTranslationInputController :
         public inputController
     {
     private:
@@ -30,7 +30,7 @@ namespace phi
         void showPlaneGrid(vec3 position, color color);
 
     public:
-        obbDragInputController(camera* camera);
+        obbTranslationInputController(camera* camera);
 
         bool onMouseDown(mouseEventArgs* e) override;
         bool onMouseMove(mouseEventArgs* e) override;

@@ -3,11 +3,11 @@
 #include <core\node.h>
 #include <core\boxCollider.h>
 
-#include "obbDragInputController.h"
+#include "obbTranslationInputController.h"
 
 namespace phi
 {
-    obbDragInputController::obbDragInputController(camera* camera) :
+    obbTranslationInputController::obbTranslationInputController(camera* camera) :
         inputController(),
         _camera(camera),
         _draggingCollider(nullptr),
@@ -18,7 +18,7 @@ namespace phi
     {
     }
 
-    void obbDragInputController::initializeDragData(node* node)
+    void obbTranslationInputController::initializeDragData(node* node)
     {
         _draggingCollider = node->getComponent<boxCollider>();
         _draggingRootNode = node;
@@ -34,14 +34,14 @@ namespace phi
         //});
     }
 
-    void obbDragInputController::setPlane(plane plane)
+    void obbTranslationInputController::setPlane(plane plane)
     {
         _plane = plane;
         _initialObjectPosition = _draggingRootNode->getTransform()->getLocalPosition();
         _dragging = true;
     }
 
-    void obbDragInputController::showPlaneGrid(vec3 position, color color)
+    void obbTranslationInputController::showPlaneGrid(vec3 position, color color)
     {
         //_planeGridPass->setPositionAndOrientation(position, _plane.getNormal());
         //_planeGridPass->setFocusPosition(phi::vec2());
@@ -49,7 +49,7 @@ namespace phi
         //_planeGridPass->show();
     }
 
-    bool obbDragInputController::onMouseDown(mouseEventArgs* e)
+    bool obbTranslationInputController::onMouseDown(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed)
             return false;
@@ -84,7 +84,7 @@ namespace phi
         return true;
     }
 
-    bool obbDragInputController::onMouseMove(mouseEventArgs* e)
+    bool obbTranslationInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_dragging)
             return false;
@@ -105,7 +105,7 @@ namespace phi
         return true;
     }
 
-    bool obbDragInputController::onMouseUp(mouseEventArgs* e)
+    bool obbTranslationInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed || !_dragging)
             return false;

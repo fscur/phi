@@ -27,6 +27,7 @@
 
 #include <context\layerBuilder.h>
 #include <context\deleteSceneObjectCommand.h>
+#include <context\invalidLayerConfigurationException.h>
 
 #include <core\input.h>
 #include <core\clickComponent.h>
@@ -165,28 +166,38 @@ namespace demon
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 10.0f));
         _sceneCamera->getTransform()->yaw(PI);
 
-        _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-            .withMeshRenderer()
-            .withDebugRenderer()
-            .build();
+        try
+        {
+            _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+                .withMeshRenderer()
+                .withDebugRenderer()
+                .withCameraController()
+                .withSelectionController()
+                .withObbTranslationController()
+                .build();
 
-        _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        _constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+            _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+            _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+            _constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _constructionLayer = layerBuilder::newLayer(_constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-            .withControlRenderer()
-            .withTextRenderer()
-            .build();
+            _constructionLayer = layerBuilder::newLayer(_constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+                .withControlRenderer()
+                .withTextRenderer()
+                .build();
 
-        _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+            _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+            _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
-        _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-            .withGlassyControlRenderer()
-            .withTextRenderer()
-            .build();
+            _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+                .withGlassyControlRenderer()
+                .withTextRenderer()
+                .build();
+        }
+        catch (phi::invalidLayerConfigurationException& ex)
+        {
+            phi::application::logError(ex.what());
+        }
 
         _framebufferAllocator->allocate(_resolution);
 
