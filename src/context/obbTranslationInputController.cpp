@@ -8,14 +8,25 @@
 namespace phi
 {
     obbTranslationInputController::obbTranslationInputController(camera* camera) :
+        obbTranslationInputController(camera, new transformTranslator())
+    {
+    }
+
+    obbTranslationInputController::obbTranslationInputController(camera* camera, transformTranslator* transformTranslator) :
         inputController(),
         _camera(camera),
+        _transformTranslator(transformTranslator),
         _draggingCollider(nullptr),
         _draggingRootNode(nullptr),
         _dragging(false),
         _plane(vec3(), vec3()),
         _initialObjectPosition()
     {
+    }
+
+    obbTranslationInputController::~obbTranslationInputController()
+    {
+        safeDelete(_transformTranslator);
     }
 
     void obbTranslationInputController::initializeDragData(node* node)
@@ -25,6 +36,7 @@ namespace phi
         while (_draggingRootNode->getParent()->getParent() != nullptr)
             _draggingRootNode = _draggingRootNode->getParent();
 
+        _transformTranslator->setTransform(_draggingRootNode->getTransform());
         //_colliders = vector<boxCollider*>();
         //_transforms = vector<transform*>();
         //_object->traverse<boxCollider>([this](boxCollider* b)
@@ -97,8 +109,8 @@ namespace phi
         auto offsetOnPlane = rayCastOnPlanePosition - _plane.getOrigin();
         auto finalPosition = _initialObjectPosition + offsetOnPlane;
 
-        //moveObject(finalPosition - _object->getTransform()->getLocalPosition());
-        _draggingRootNode->getTransform()->setLocalPosition(finalPosition);
+        auto offset = finalPosition - _draggingRootNode->getTransform()->getLocalPosition();
+        _transformTranslator->translateTransform(offset);
 
         //_planeGridPass->projectAndAnimateFocusPosition(_dragCollider->getObb().center);
 
