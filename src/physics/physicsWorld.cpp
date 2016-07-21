@@ -12,15 +12,15 @@ namespace phi
     {
         _foundation = PxCreateFoundation(PX_PHYSICS_VERSION, _allocatorCallback, _errorCallback);
         if (!_foundation)
-            phi::debug("PxCreateFoundation failed!");
+            phi::debug("PxCreateFoundation failed!"); // TODO: throw exception
 
         _profileZoneManager = &PxProfileZoneManager::createProfileZoneManager(_foundation);
         if (!_profileZoneManager)
-            phi::debug("PxProfileZoneManager::createProfileZoneManager failed!");
+            phi::debug("PxProfileZoneManager::createProfileZoneManager failed!"); // TODO: throw exception
 
         _physics = PxCreatePhysics(PX_PHYSICS_VERSION, *_foundation, PxTolerancesScale(), true, _profileZoneManager);
         if (!_physics)
-            phi::debug("PxCreatePhysics failed!");
+            phi::debug("PxCreatePhysics failed!"); // TODO: throw exception
 
         PxSceneDesc sceneDesc(_physics->getTolerancesScale());
         _dispatcher = PxDefaultCpuDispatcherCreate(2);

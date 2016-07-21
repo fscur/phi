@@ -171,6 +171,7 @@ namespace demon
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withDebugRenderer()
+                .withPhysics()
                 .withCameraController()
                 .withSelectionController()
                 .withObbTranslationController()
