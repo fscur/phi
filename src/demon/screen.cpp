@@ -31,6 +31,8 @@
 #include <core\input.h>
 #include <core\clickComponent.h>
 #include <core\boxCollider.h>
+#include <ui\planeGrid.h>
+
 using namespace phi;
 
 namespace demon
@@ -116,7 +118,7 @@ namespace demon
 
         _projectLibrary = new library(application::path);
     }
-    
+
     void screen::initContexts()
     {
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
@@ -150,24 +152,45 @@ namespace demon
             .withFont(font)
             .withControlColor(.5f, .5f, .2f, 1.f)
             .withAction([=](node* node)
-            {
-                _commandsManager->executeCommand(new changeContextCommand());
-            })
+        {
+            _commandsManager->executeCommand(new changeContextCommand());
+        })
             .build();
+
+        auto planeImage = importer::importImage("D:\\Phi\\library\\textures\\metals\\sdf_dst.bmp");
+
+        auto planeNode = new node("plane");
+        auto planeGrid = new phi::planeGrid("name");
+        planeGrid->setImage(planeImage);
+
+        //planeNode->getTransform()->setLocalSize(vec3(2.0));
+        planeNode->addComponent(planeGrid);
+        //planeNode->getTransform()->setLocalPosition(vec3(0.25, 0.33, 0.0));
+
+        _planeNode1 = new node("plane");
+        auto planeGrid1 = new phi::planeGrid("name");
+        planeGrid1->setImage(planeImage);
+        _planeNode1->addComponent(planeGrid1);
+        //_planeNode1->getTransform()->setLocalSize(vec3(2.0));
+        _planeNode1->getTransform()->yaw(PI_OVER_2 - 0.8f);
+        _planeNode1->getTransform()->pitch(PI_OVER_2 - 0.4f);
 
         _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        //cube0->getTransform()->translate(vec3(0.5));
+        cube0->getTransform()->setLocalSize(vec3(0.1f));
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 10.0f));
         _sceneCamera->getTransform()->yaw(PI);
-
+        
         _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
             .withMeshRenderer()
-            .withDebugRenderer()
+            .withBoxColliderRenderer()
+            .withPlaneGridRenderer()
             .build();
 
         _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -204,6 +227,8 @@ namespace demon
 
         _sceneLayer->add(_chair0);
         //_sceneLayer->add(floor0);
+        _sceneLayer->add(planeNode);
+        _sceneLayer->add(_planeNode1);
         _sceneLayer->add(cube0);
 
         //_sceneLayer->add(_sceneLabel);
@@ -293,8 +318,9 @@ namespace demon
     void screen::onUpdate()
     {
         t += 0.01f;
-        vec3 pos = vec3(glm::cos(t), 0.0f, glm::sin(t));
-        _chair0->getTransform()->setLocalPosition(pos);
+        vec3 pos = vec3(glm::cos(t) * 3.2f, 0.0f, glm::sin(t) * 3.2f);
+        //_planeNode1->getTransform()->roll(0.01f);
+        //_planeNode1->getTransform()->setLocalPosition(pos);
 
         if (_design)
             _activeContext = _designContext;

@@ -35,7 +35,7 @@ namespace phi
         RENDERING_API static textureAddress add(const texture* const texture);
         RENDERING_API static textureAddress addAtlasTexture(const texture* const texture);
         RENDERING_API static void remove(texture* texture);
-        RENDERING_API static texture* getTextureFromImage(image* image);
+        RENDERING_API static texture* getTextureFromImage(image* image, const bool generateMipmaps = true);
         RENDERING_API static textureAddress getTextureAddress(const texture* const texture);
         RENDERING_API static textureContainer* reserveContainer(sizeui size, textureLayout layout);
         RENDERING_API static bool getIsBindless();

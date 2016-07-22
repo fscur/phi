@@ -34,6 +34,7 @@ namespace demon
         phi::context* _activeContext;
 
         phi::layer* _sceneLayer;
+        phi::layer* _onDemandLayer;
         phi::layer* _constructionLayer;
         phi::layer* _nandinhoLayer;
 
@@ -45,6 +46,7 @@ namespace demon
         phi::node* _labelNandinho;
         phi::node* _constructionLabel;
         phi::node* _chair0;
+        phi::node* _planeNode1;
 
         phi::commandsManager* _commandsManager;
 #ifdef _DEBUG

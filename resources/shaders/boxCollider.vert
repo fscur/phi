@@ -14,5 +14,5 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
 void main()
 {
     mat4 mvp = frameUniforms.p * frameUniforms.v * inModelMatrix;
-    gl_Position = mvp * vec4(inPosition, 1.0);
+    gl_Position = mvp * vec4(inPosition * vec3(1.0001), 1.0);
 }

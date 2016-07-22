@@ -31,7 +31,8 @@ namespace phi
     public:
         CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
         CONTEXT_API layerBuilder withMeshRenderer();
-        CONTEXT_API layerBuilder withDebugRenderer();
+        CONTEXT_API layerBuilder withBoxColliderRenderer();
+        CONTEXT_API layerBuilder withPlaneGridRenderer();
         CONTEXT_API layerBuilder withControlRenderer();
         CONTEXT_API layerBuilder withGlassyControlRenderer();
         CONTEXT_API layerBuilder withTextRenderer();

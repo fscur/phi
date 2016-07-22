@@ -20,7 +20,8 @@ namespace phi
             CONTROL,
             TEXT,
             CLICK,
-            BOX_COLLIDER
+            BOX_COLLIDER,
+            PLANE_GRID
         };
 
     protected:
