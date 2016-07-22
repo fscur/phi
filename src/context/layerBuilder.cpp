@@ -38,7 +38,8 @@ namespace phi
         _meshBehaviour(nullptr),
         _commandsManager(commandsManager),
         _withMeshRenderer(false),
-        _withDebugRenderer(false),
+        _withBoxColliderRenderer(false),
+        _withPlaneGridRenderer(false),
         _withControlRenderer(false),
         _withGlassyControlRenderer(false),
         _withTextRenderer(false),
@@ -84,7 +85,7 @@ namespace phi
             // Resto
     }
 
-    layerBuilder layerBuilder::withBoxColliderRenderer()
+    void layerBuilder::buildBoxColliderRenderer()
     {
         auto boxColliderBehaviour = new boxColliderLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
         _layer->addOnNodeAdded(std::bind(&boxColliderLayerBehaviour::onNodeAdded, boxColliderBehaviour, std::placeholders::_1));
@@ -97,11 +98,9 @@ namespace phi
         {
             safeDelete(boxColliderBehaviour);
         });
-
-        return *this;
     }
 
-    layerBuilder layerBuilder::withPlaneGridRenderer()
+    void layerBuilder::buildPlaneGridRenderer()
     {
         auto planeGridBehaviour = new planeGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
         _layer->addOnNodeAdded(std::bind(&planeGridLayerBehaviour::onNodeAdded, planeGridBehaviour, std::placeholders::_1));
@@ -201,8 +200,11 @@ namespace phi
         if (_withMeshRenderer)
             buildMeshRenderer();
 
-        if (_withDebugRenderer)
-            buildDebugRenderer();
+        if (_withBoxColliderRenderer)
+            buildBoxColliderRenderer();
+
+        if (_withPlaneGridRenderer)
+            buildPlaneGridRenderer();
 
         if (_withGlassyControlRenderer)
             buildGlassyControlRenderer();

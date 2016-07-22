@@ -58,6 +58,6 @@ void main()
     //fragTexCoord = (inTexCoord);
     //fragTexCoord = (inTexCoord - 0.5) * 100 - inPosition.xy;
     fragTexCoord = ((inTexCoord - 0.5) * planeSize + projected);
-    planeCenter = inTexCoord;
+    planeCenter = (inTexCoord - 0.5) * planeSize;
     instanceId = gl_InstanceID;
 }

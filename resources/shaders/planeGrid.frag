@@ -113,10 +113,10 @@ void main()
 
     // weighted average, with 4 extra points having 0.5 weight each,
     // so 1 + 0.5*4 = 3 is the divisor
-    alpha = (alpha + 0.5 * asum) / 3.0 + 0.1;
+    alpha = (alpha + 0.5 * asum) / 3.0 + 0.5;
 
-    float d = length(planeCenter - 0.5);
-    float f = 1.0 - smoothstep(0.0, 0.5, d);
+    float d = length(planeCenter + 0.5);
+    float f = 1.0 - smoothstep(0.0, 5.5, d);
 
-    fragColor = vec4(vec3(0.6, 0.8, 1.0), alpha * f);
+    fragColor = vec4(data.color.rgb, alpha * f);
 }
