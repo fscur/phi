@@ -16,15 +16,17 @@
 #include <uiRendering\glassyControlRenderer.h>
 #include <uiRendering\textRenderer.h>
 
+#include "invalidLayerConfigurationException.h"
 #include "meshLayerBehaviour.h"
 #include "boxColliderLayerBehaviour.h"
 #include "planeGridLayerBehaviour.h"
 #include "controlLayerBehaviour.h"
 #include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
+#include "physicsLayerBehaviour.h"
 #include "cameraInputController.h"
 #include "selectionInputController.h"
-#include "obbDragInputController.h"
+#include "obbTranslationInputController.h"
 
 namespace phi
 {
@@ -33,7 +35,17 @@ namespace phi
         _resolution(resolution),
         _resourcesPath(resourcesPath),
         _framebufferAllocator(framebufferAllocator),
-        _commandsManager(commandsManager)
+        _meshBehaviour(nullptr),
+        _commandsManager(commandsManager),
+        _withMeshRenderer(false),
+        _withDebugRenderer(false),
+        _withControlRenderer(false),
+        _withGlassyControlRenderer(false),
+        _withTextRenderer(false),
+        _withPhysics(false),
+        _withCameraController(false),
+        _withSelectionController(false),
+        _withObbTranslationController(false)
     {
     }
 
@@ -42,7 +54,7 @@ namespace phi
         return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath, framebufferAllocator, commandsManager);
     }
 
-    layerBuilder layerBuilder::withMeshRenderer()
+    void layerBuilder::buildMeshRenderer()
     {
         auto meshBehaviour = new meshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
@@ -57,9 +69,7 @@ namespace phi
             safeDelete(meshBehaviour);
         });
 
-        _layer->addMouseController(new cameraInputController(_layer->getCamera()));
-        _layer->addMouseController(new selectionInputController(meshBehaviour, _commandsManager));
-        _layer->addMouseController(new obbDragInputController(_layer->getCamera()));
+        _meshBehaviour = meshBehaviour;
 
         // Camera:
             // Pan
@@ -72,8 +82,6 @@ namespace phi
         // UI:
             // Drag and drop
             // Resto
-
-        return *this;
     }
 
     layerBuilder layerBuilder::withBoxColliderRenderer()
@@ -106,11 +114,9 @@ namespace phi
         {
             safeDelete(planeGridBehaviour);
         });
-        
-        return *this;
     }
 
-    layerBuilder layerBuilder::withGlassyControlRenderer()
+    void layerBuilder::buildGlassyControlRenderer()
     {
         auto glassyBehaviour = new glassyControlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
@@ -125,11 +131,9 @@ namespace phi
         {
             safeDelete(glassyBehaviour);
         });
-
-        return *this;
     }
 
-    layerBuilder layerBuilder::withControlRenderer()
+    void layerBuilder::buildControlRenderer()
     {
         auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
@@ -144,11 +148,9 @@ namespace phi
         {
             safeDelete(controlBehaviour);
         });
-
-        return *this;
     }
 
-    layerBuilder layerBuilder::withTextRenderer()
+    void layerBuilder::buildTextRenderer()
     {
         auto textBehaviour = new textLayerBehaviour(
             _resolution,
@@ -165,12 +167,69 @@ namespace phi
         {
             safeDelete(textBehaviour);
         });
+    }
 
-        return *this;
+    void layerBuilder::buildPhysics()
+    {
+        auto physicsBehaviour = new physicsLayerBehaviour();
+
+        _layer->addOnNodeAdded(std::bind(&physicsLayerBehaviour::onNodeAdded, physicsBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&physicsLayerBehaviour::onNodeRemoved, physicsBehaviour, std::placeholders::_1));
+        _layer->addOnDelete([physicsBehaviour]() mutable
+        {
+            safeDelete(physicsBehaviour);
+        });
+    }
+
+    void layerBuilder::buildCameraController()
+    {
+        _layer->addMouseController(new cameraInputController(_layer->getCamera()));
+    }
+
+    void layerBuilder::buildSelectionController(meshLayerBehaviour* meshBehaviour)
+    {
+        _layer->addMouseController(new selectionInputController(meshBehaviour, _commandsManager));
+    }
+
+    void layerBuilder::buildObbTranslationController()
+    {
+        _layer->addMouseController(new obbTranslationInputController(_layer->getCamera()));
     }
 
     layer* layerBuilder::build()
     {
+        if (_withMeshRenderer)
+            buildMeshRenderer();
+
+        if (_withDebugRenderer)
+            buildDebugRenderer();
+
+        if (_withGlassyControlRenderer)
+            buildGlassyControlRenderer();
+
+        if (_withControlRenderer)
+            buildControlRenderer();
+
+        if (_withTextRenderer)
+            buildTextRenderer();
+
+        if (_withPhysics)
+            buildPhysics();
+
+        if (_withCameraController)
+            buildCameraController();
+
+        if (_withSelectionController)
+        {
+            if (_withMeshRenderer)
+                buildSelectionController(_meshBehaviour);
+            else
+                throw invalidLayerConfigurationException("Selection Controller could not be added. It requires a Mesh Renderer.");
+        }
+
+        if (_withObbTranslationController)
+            buildObbTranslationController();
+
         return _layer;
     }
 }

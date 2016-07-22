@@ -10,14 +10,16 @@
 
 #include "inputController.h"
 #include "pickingId.h"
+#include "transformTranslator.h"
 
 namespace phi
 {
-    class obbDragInputController :
+    class obbTranslationInputController :
         public inputController
     {
     private:
         camera* _camera;
+        transformTranslator* _transformTranslator;
         boxCollider* _draggingCollider;
         node* _draggingRootNode;
         bool _dragging;
@@ -30,7 +32,9 @@ namespace phi
         void showPlaneGrid(vec3 position, color color);
 
     public:
-        obbDragInputController(camera* camera);
+        obbTranslationInputController(camera* camera);
+        obbTranslationInputController(camera* camera, transformTranslator* transformTranslator);
+        ~obbTranslationInputController();
 
         bool onMouseDown(mouseEventArgs* e) override;
         bool onMouseMove(mouseEventArgs* e) override;

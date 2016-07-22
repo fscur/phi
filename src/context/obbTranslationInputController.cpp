@@ -3,13 +3,19 @@
 #include <core\node.h>
 #include <core\boxCollider.h>
 
-#include "obbDragInputController.h"
+#include "obbTranslationInputController.h"
 
 namespace phi
 {
-    obbDragInputController::obbDragInputController(camera* camera) :
+    obbTranslationInputController::obbTranslationInputController(camera* camera) :
+        obbTranslationInputController(camera, new transformTranslator())
+    {
+    }
+
+    obbTranslationInputController::obbTranslationInputController(camera* camera, transformTranslator* transformTranslator) :
         inputController(),
         _camera(camera),
+        _transformTranslator(transformTranslator),
         _draggingCollider(nullptr),
         _draggingRootNode(nullptr),
         _dragging(false),
@@ -18,13 +24,19 @@ namespace phi
     {
     }
 
-    void obbDragInputController::initializeDragData(node* node)
+    obbTranslationInputController::~obbTranslationInputController()
+    {
+        safeDelete(_transformTranslator);
+    }
+
+    void obbTranslationInputController::initializeDragData(node* node)
     {
         _draggingCollider = node->getComponent<boxCollider>();
         _draggingRootNode = node;
         while (_draggingRootNode->getParent()->getParent() != nullptr)
             _draggingRootNode = _draggingRootNode->getParent();
 
+        _transformTranslator->setTransform(_draggingRootNode->getTransform());
         //_colliders = vector<boxCollider*>();
         //_transforms = vector<transform*>();
         //_object->traverse<boxCollider>([this](boxCollider* b)
@@ -34,14 +46,14 @@ namespace phi
         //});
     }
 
-    void obbDragInputController::setPlane(plane plane)
+    void obbTranslationInputController::setPlane(plane plane)
     {
         _plane = plane;
         _initialObjectPosition = _draggingRootNode->getTransform()->getLocalPosition();
         _dragging = true;
     }
 
-    void obbDragInputController::showPlaneGrid(vec3 position, color color)
+    void obbTranslationInputController::showPlaneGrid(vec3 position, color color)
     {
         //_planeGridPass->setPositionAndOrientation(position, _plane.getNormal());
         //_planeGridPass->setFocusPosition(phi::vec2());
@@ -49,7 +61,7 @@ namespace phi
         //_planeGridPass->show();
     }
 
-    bool obbDragInputController::onMouseDown(mouseEventArgs* e)
+    bool obbTranslationInputController::onMouseDown(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed)
             return false;
@@ -84,7 +96,7 @@ namespace phi
         return true;
     }
 
-    bool obbDragInputController::onMouseMove(mouseEventArgs* e)
+    bool obbTranslationInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_dragging)
             return false;
@@ -97,15 +109,15 @@ namespace phi
         auto offsetOnPlane = rayCastOnPlanePosition - _plane.getOrigin();
         auto finalPosition = _initialObjectPosition + offsetOnPlane;
 
-        //moveObject(finalPosition - _object->getTransform()->getLocalPosition());
-        _draggingRootNode->getTransform()->setLocalPosition(finalPosition);
+        auto offset = finalPosition - _draggingRootNode->getTransform()->getLocalPosition();
+        _transformTranslator->translateTransform(offset);
 
         //_planeGridPass->projectAndAnimateFocusPosition(_dragCollider->getObb().center);
 
         return true;
     }
 
-    bool obbDragInputController::onMouseUp(mouseEventArgs* e)
+    bool obbTranslationInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed || !_dragging)
             return false;

@@ -21,6 +21,7 @@ add_subdirectory(src/sceneRendering)
 add_subdirectory(src/debugRendering)
 add_subdirectory(src/context)
 add_subdirectory(src/application)
+add_subdirectory(src/physics)
 add_subdirectory(src/demon)
 
 add_subdirectory(tests/phiTests)
@@ -54,6 +55,7 @@ set_target_properties(sceneRendering PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE
 set_target_properties(debugRendering PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(context PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(application PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
+set_target_properties(physics PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(demon PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 
 set_target_properties(coreTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
