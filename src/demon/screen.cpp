@@ -319,9 +319,9 @@ namespace demon
     void screen::onUpdate()
     {
         t += 0.01f;
-        vec3 pos = vec3(glm::cos(t) * 3.2f, 0.0f, glm::sin(t) * 3.2f);
+        vec3 pos = vec3(glm::cos(t) * 3.2f, glm::sin(t) * 3.2f, 0.0f);
         //_planeNode1->getTransform()->roll(0.01f);
-        //_planeNode1->getTransform()->setLocalPosition(pos);
+        _planeNode1->getTransform()->setLocalPosition(pos);
 
         if (_design)
             _activeContext = _designContext;

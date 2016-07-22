@@ -10,11 +10,15 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
     mat4 v;
     mat4 vp;
     mat4 ip;
+    vec2 resolution;
+    float time;
+    float pad0;
 } frameUniforms;
 
 out vec2 fragTexCoord;
 out vec2 planeCenter;
 flat out uint instanceId;
+flat out float time;
 
 vec2 projectPoint(in vec3 point, in vec3 xAxis, in vec3 yAxis)
 {
@@ -60,4 +64,5 @@ void main()
     fragTexCoord = ((inTexCoord - 0.5) * planeSize + projected);
     planeCenter = (inTexCoord - 0.5) * planeSize;
     instanceId = gl_InstanceID;
+    time = frameUniforms.time;
 }
