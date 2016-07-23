@@ -19,6 +19,12 @@ namespace phi
         {
         }
 
+        ~physicsLayerBehaviour()
+        {
+            safeDelete(_physicsWorld);
+        }
+
+        physicsWorld* getPhysicsWorld() { return _physicsWorld; }
         void onNodeAdded(node* node);
         void onNodeRemoved(node* node);
     };

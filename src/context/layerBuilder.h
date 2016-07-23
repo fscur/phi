@@ -9,6 +9,8 @@
 
 #include "layer.h"
 #include "meshLayerBehaviour.h"
+#include "physicsLayerBehaviour.h"
+#include "nodeTranslator.h"
 
 namespace phi
 {
@@ -21,6 +23,7 @@ namespace phi
         framebufferAllocator* _framebufferAllocator;
         commandsManager* _commandsManager;
         meshLayerBehaviour* _meshBehaviour;
+        physicsLayerBehaviour* _physicsBehaviour;
 
         vector<renderPass*> _meshRenderPasses;
         vector<renderPass*> _controlRenderPasses;

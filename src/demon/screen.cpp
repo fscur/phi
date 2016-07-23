@@ -306,7 +306,7 @@ namespace demon
     {
         t += 0.01f;
         vec3 pos = vec3(glm::cos(t), 0.0f, glm::sin(t));
-        _chair0->getTransform()->setLocalPosition(pos);
+        //_chair0->getTransform()->setLocalPosition(pos);
 
         if (_design)
             _activeContext = _designContext;

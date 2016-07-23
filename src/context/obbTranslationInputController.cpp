@@ -7,26 +7,23 @@
 
 namespace phi
 {
-    obbTranslationInputController::obbTranslationInputController(camera* camera) :
-        obbTranslationInputController(camera, new transformTranslator())
-    {
-    }
-
-    obbTranslationInputController::obbTranslationInputController(camera* camera, transformTranslator* transformTranslator) :
+    obbTranslationInputController::obbTranslationInputController(camera* camera, nodeTranslator* nodeTranslator) :
         inputController(),
         _camera(camera),
-        _transformTranslator(transformTranslator),
+        _nodeTranslator(nodeTranslator),
+        _collisionNodeTranslator(nullptr),
         _draggingCollider(nullptr),
         _draggingRootNode(nullptr),
         _dragging(false),
         _plane(vec3(), vec3()),
-        _initialObjectPosition()
+        _initialObjectPosition(),
+        _disableCollision(false)
     {
     }
 
     obbTranslationInputController::~obbTranslationInputController()
     {
-        safeDelete(_transformTranslator);
+        safeDelete(_nodeTranslator);
     }
 
     void obbTranslationInputController::initializeDragData(node* node)
@@ -36,14 +33,9 @@ namespace phi
         while (_draggingRootNode->getParent()->getParent() != nullptr)
             _draggingRootNode = _draggingRootNode->getParent();
 
-        _transformTranslator->setTransform(_draggingRootNode->getTransform());
-        //_colliders = vector<boxCollider*>();
-        //_transforms = vector<transform*>();
-        //_object->traverse<boxCollider>([this](boxCollider* b)
-        //{
-        //    _colliders.push_back(b);
-        //    _transforms.push_back(b->getNode()->getTransform());
-        //});
+        _nodeTranslator->setNode(_draggingRootNode);
+        if (_collisionNodeTranslator)
+            _collisionNodeTranslator->setNode(_draggingRootNode);
     }
 
     void obbTranslationInputController::setPlane(plane plane)
@@ -51,6 +43,9 @@ namespace phi
         _plane = plane;
         _initialObjectPosition = _draggingRootNode->getTransform()->getLocalPosition();
         _dragging = true;
+
+        if (_collisionNodeTranslator)
+            _collisionNodeTranslator->setPlane(_plane);
     }
 
     void obbTranslationInputController::showPlaneGrid(vec3 position, color color)
@@ -69,7 +64,7 @@ namespace phi
         auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
         auto clickComponent = pickingId::get(idOnMousePosition);
 
-        if (clickComponent == nullptr)
+        if (!clickComponent)
             return false;
 
         auto node = clickComponent->getNode();
@@ -91,9 +86,15 @@ namespace phi
 
             phi::safeDeleteArray(normals);
             phi::safeDeleteArray(positions);
+
+            _nodeTranslator->beginTranslations();
+            if (_collisionNodeTranslator)
+                _collisionNodeTranslator->beginTranslations();
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     bool obbTranslationInputController::onMouseMove(mouseEventArgs* e)
@@ -110,7 +111,11 @@ namespace phi
         auto finalPosition = _initialObjectPosition + offsetOnPlane;
 
         auto offset = finalPosition - _draggingRootNode->getTransform()->getLocalPosition();
-        _transformTranslator->translateTransform(offset);
+
+        if (_collisionNodeTranslator && !_disableCollision)
+            _collisionNodeTranslator->translateNode(offset);
+        else
+            _nodeTranslator->translateNode(offset);
 
         //_planeGridPass->projectAndAnimateFocusPosition(_dragCollider->getObb().center);
 
@@ -124,6 +129,33 @@ namespace phi
 
         _dragging = false;
         //_planeGridPass->hide();
+
+        _nodeTranslator->endTranslations();
+        if (_collisionNodeTranslator)
+            _collisionNodeTranslator->endTranslations();
+
         return true;
+    }
+
+    bool obbTranslationInputController::onKeyDown(keyboardEventArgs* e)
+    {
+        if (e->key == PHIK_CTRL)
+        {
+            _disableCollision = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool obbTranslationInputController::onKeyUp(keyboardEventArgs* e)
+    {
+        if (e->key == PHIK_CTRL)
+        {
+            _disableCollision = false;
+            return true;
+        }
+
+        return false;
     }
 }

@@ -35,6 +35,7 @@ namespace phi
         _resourcesPath(resourcesPath),
         _framebufferAllocator(framebufferAllocator),
         _meshBehaviour(nullptr),
+        _physicsBehaviour(nullptr),
         _commandsManager(commandsManager),
         _withMeshRenderer(false),
         _withDebugRenderer(false),
@@ -63,7 +64,7 @@ namespace phi
         _layer->addOnNodeSelectionChanged(std::bind(&meshLayerBehaviour::onNodeSelectionChanged, meshBehaviour, std::placeholders::_1));
         _layer->addRenderPasses(meshBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([meshBehaviour] () mutable
+        _layer->addOnDelete([meshBehaviour]() mutable
         {
             safeDelete(meshBehaviour);
         });
@@ -109,7 +110,7 @@ namespace phi
 
         _layer->addRenderPasses(glassyBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([glassyBehaviour] () mutable
+        _layer->addOnDelete([glassyBehaviour]() mutable
         {
             safeDelete(glassyBehaviour);
         });
@@ -126,7 +127,7 @@ namespace phi
 
         _layer->addRenderPasses(controlBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([controlBehaviour] () mutable
+        _layer->addOnDelete([controlBehaviour]() mutable
         {
             safeDelete(controlBehaviour);
         });
@@ -145,7 +146,7 @@ namespace phi
         _layer->addOnNodeSelectionChanged(std::bind(&textLayerBehaviour::onNodeSelectionChanged, textBehaviour, std::placeholders::_1));
         _layer->addRenderPasses(textBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([textBehaviour] () mutable
+        _layer->addOnDelete([textBehaviour]() mutable
         {
             safeDelete(textBehaviour);
         });
@@ -161,6 +162,8 @@ namespace phi
         {
             safeDelete(physicsBehaviour);
         });
+
+        _physicsBehaviour = physicsBehaviour;
     }
 
     void layerBuilder::buildCameraController()
@@ -170,12 +173,19 @@ namespace phi
 
     void layerBuilder::buildSelectionController(meshLayerBehaviour* meshBehaviour)
     {
+        if (!_withMeshRenderer)
+            throw invalidLayerConfigurationException("Selection Controller could not be added. It requires a Mesh Renderer.");
+
         _layer->addMouseController(new selectionInputController(meshBehaviour, _commandsManager));
     }
 
     void layerBuilder::buildObbTranslationController()
     {
-        _layer->addMouseController(new obbTranslationInputController(_layer->getCamera()));
+        auto obbTranslationController = new obbTranslationInputController(_layer->getCamera(), new nodeTranslator());
+        _layer->addMouseController(obbTranslationController);
+
+        if (_withPhysics)
+            obbTranslationController->setCollisionNodeTranslator(new collisionNodeTranslator(_physicsBehaviour->getPhysicsWorld()));
     }
 
     layer* layerBuilder::build()
@@ -202,12 +212,7 @@ namespace phi
             buildCameraController();
 
         if (_withSelectionController)
-        {
-            if (_withMeshRenderer)
-                buildSelectionController(_meshBehaviour);
-            else
-                throw invalidLayerConfigurationException("Selection Controller could not be added. It requires a Mesh Renderer.");
-        }
+            buildSelectionController(_meshBehaviour);
 
         if (_withObbTranslationController)
             buildObbTranslationController();
