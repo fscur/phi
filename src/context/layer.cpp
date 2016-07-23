@@ -2,9 +2,9 @@
 #include "layer.h"
 
 #include <core\clickComponent.h>
+#include <core\time.h>
 
 #include "pickingId.h"
-
 namespace phi
 {
     layer::layer(camera* camera) :
@@ -34,7 +34,12 @@ namespace phi
     {
         _frameUniformsBuffer = new buffer("FrameUniformsDataBuffer", bufferTarget::uniform);
 
-        auto frameUniform = frameUniformBlock(_camera->getProjectionMatrix(), _camera->getViewMatrix());
+        auto frameUniform = frameUniformBlock(
+            _camera->getProjectionMatrix(),
+            _camera->getViewMatrix(),
+            _camera->getResolution(),
+            (float)time::totalSeconds);
+
         _frameUniformsBuffer->storage(sizeof(frameUniformBlock), &frameUniform, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
 
@@ -64,7 +69,15 @@ namespace phi
 
     void layer::updateFrameUniforms()
     {
-        auto frameUniform = phi::frameUniformBlock(_camera->getProjectionMatrix(), _camera->getViewMatrix());
+        auto t = (float)time::totalSeconds;
+        //phi::debug("time: " + std::to_string(t));
+
+        auto frameUniform = phi::frameUniformBlock(
+            _camera->getProjectionMatrix(), 
+            _camera->getViewMatrix(),
+            _camera->getResolution(),
+            t);
+
         _frameUniformsBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniform);
     }
 

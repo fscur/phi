@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "debugLayerBehaviour.h"
+#include "boxColliderLayerBehaviour.h"
 
 #include <core\notImplementedException.h>
 #include <io\path.h>
@@ -9,7 +9,7 @@
 
 namespace phi
 {
-    debugLayerBehaviour::debugLayerBehaviour(
+    boxColliderLayerBehaviour::boxColliderLayerBehaviour(
         const resolution & resolution,
         const string & resourcesPath,
         framebufferAllocator* framebufferAllocator) :
@@ -23,7 +23,7 @@ namespace phi
         _renderPasses = { boxRenderPass };
     }
 
-    debugLayerBehaviour::~debugLayerBehaviour()
+    boxColliderLayerBehaviour::~boxColliderLayerBehaviour()
     {
         safeDelete(_adapter);
 
@@ -31,7 +31,7 @@ namespace phi
             safeDelete(renderPass);
     }
 
-    void debugLayerBehaviour::onNodeAdded(node* node)
+    void boxColliderLayerBehaviour::onNodeAdded(node* node)
     {
         auto boxCollider = node->getComponent<phi::boxCollider>();
 
@@ -39,7 +39,7 @@ namespace phi
             _adapter->add(boxCollider);
     }
 
-    void debugLayerBehaviour::onNodeRemoved(node* node)
+    void boxColliderLayerBehaviour::onNodeRemoved(node* node)
     {
         auto boxCollider = node->getComponent<phi::boxCollider>();
 
@@ -47,7 +47,7 @@ namespace phi
             _adapter->remove(boxCollider);
     }
 
-    void debugLayerBehaviour::onNodeTransformChanged(node* node)
+    void boxColliderLayerBehaviour::onNodeTransformChanged(node* node)
     {
         auto boxCollider = node->getComponent<phi::boxCollider>();
 
@@ -55,7 +55,7 @@ namespace phi
             _adapter->update(boxCollider);
     }
 
-    void debugLayerBehaviour::onNodeSelectionChanged(node* node)
+    void boxColliderLayerBehaviour::onNodeSelectionChanged(node* node)
     {
         throw notImplementedException();
     }

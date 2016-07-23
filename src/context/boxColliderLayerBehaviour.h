@@ -9,12 +9,11 @@
 #include <rendering\renderPass.h>
 #include <rendering\framebufferAllocator.h>
 
-#include <debugRendering\debugRenderer.h>
 #include <debugRendering\boxColliderRenderAdapter.h>
 
 namespace phi
 {
-    class debugLayerBehaviour
+    class boxColliderLayerBehaviour
     {
     private:
         boxColliderRenderAdapter* _adapter;
@@ -26,8 +25,8 @@ namespace phi
         string _resourcesPath;
 
     public:
-        CONTEXT_API debugLayerBehaviour(const resolution& resolution, const string& resourcesPath, framebufferAllocator* framebufferAllocator);
-        CONTEXT_API ~debugLayerBehaviour();
+        CONTEXT_API boxColliderLayerBehaviour(const resolution& resolution, const string& resourcesPath, framebufferAllocator* framebufferAllocator);
+        CONTEXT_API ~boxColliderLayerBehaviour();
 
         CONTEXT_API void onNodeAdded(node* node);
         CONTEXT_API void onNodeRemoved(node* node);

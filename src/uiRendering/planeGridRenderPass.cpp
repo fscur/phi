@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "boxColliderRenderPass.h"
+#include "planeGridRenderPass.h"
 
 #include <core\time.h>
 #include <core\geometry.h>
@@ -17,26 +17,41 @@
 
 namespace phi
 {
-    renderPass* boxColliderRenderPass::configure(
-        const boxColliderRenderAdapter* renderAdapter,
+    renderPass* planeGridRenderPass::configure(
+        const planeGridRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
-        auto boxColliderProgram = programBuilder::buildProgram(shadersPath, "boxCollider", "boxCollider");
+        //auto finalImageFramebuffer = framebufferAllocator->getFramebuffer("finalImageFramebuffer");
+        //auto finalImageRenderTarget = finalImageFramebuffer->getRenderTarget("finalImageRenderTarget");
 
-        auto pass = new renderPass(boxColliderProgram, framebuffer::defaultFramebuffer, resolution);
+        auto planeGridProgram = programBuilder::buildProgram(shadersPath, "planeGrid", "planeGrid");
+        planeGridProgram->addBuffer(renderAdapter->getPlaneGridRenderDataBuffer());
+
+
+        auto pass = new renderPass(planeGridProgram, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
+        
+
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
             //glClearColor(0.0, 0.0, 0.0, 1.0);
             //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glDisable(GL_CULL_FACE);
+            glDepthMask(GL_FALSE);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            
             program->bind();
 
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_POLYGON_OFFSET_FILL);
+            if (texturesManager::getIsBindless())
+                program->setUniform(0, texturesManager::handles);
+            else
+                program->setUniform(0, textureUnits::units);
+
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
@@ -49,8 +64,10 @@ namespace phi
         {
             program->unbind();
 
+            glDisable(GL_BLEND);
             glDisable(GL_DEPTH_TEST);
-            glDisable(GL_POLYGON_OFFSET_FILL);
+            glDepthMask(GL_TRUE);
+            glEnable(GL_CULL_FACE);
         });
 
         return pass;

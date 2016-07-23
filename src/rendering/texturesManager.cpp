@@ -172,7 +172,7 @@ namespace phi
         throw keyNotFoundException("texture not found.");
     }
 
-    texture* texturesManager::getTextureFromImage(phi::image* image)
+    texture* texturesManager::getTextureFromImage(phi::image* image, bool generateMipmaps)
     {
         if (!image)
             throw argumentException("image cant be nullptr.");
@@ -186,14 +186,13 @@ namespace phi
         else
         {
             auto layout = textureLayout();
-            layout.levels = 0;
             layout.dataFormat = textureLayout::translateDataFormat(image->dataFormat);
             layout.dataType = textureLayout::translateDataType(image->dataType);
             layout.internalFormat = GL_RGBA8;
             layout.wrapMode = GL_REPEAT;
             layout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
             layout.magFilter = GL_LINEAR;
-            layout.levels = static_cast<GLsizei>(getMaxLevels(image->w, image->h));
+            layout.levels = generateMipmaps ? static_cast<GLsizei>(getMaxLevels(image->w, image->h)) : 1;
 
             texture = new phi::texture(
                 image,

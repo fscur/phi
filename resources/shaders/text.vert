@@ -24,6 +24,9 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
     mat4 v;
     mat4 vp;
     mat4 ip;
+    vec2 resolution;
+    float time;
+    float pad0;
 } frameUniforms;
 
 layout (std140, binding = 1) buffer GlyphRenderData

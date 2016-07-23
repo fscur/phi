@@ -68,7 +68,7 @@ namespace phi
                     {
                         char *p = (char*)fni;
                         fni = (FILE_NOTIFY_INFORMATION*)(p + fni->NextEntryOffset);
-                        safeDelete(p);
+                        //safeDelete(p);
                     }
                     else
                     {

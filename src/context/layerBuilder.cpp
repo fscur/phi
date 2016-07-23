@@ -18,7 +18,8 @@
 
 #include "invalidLayerConfigurationException.h"
 #include "meshLayerBehaviour.h"
-#include "debugLayerBehaviour.h"
+#include "boxColliderLayerBehaviour.h"
+#include "planeGridLayerBehaviour.h"
 #include "controlLayerBehaviour.h"
 #include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
@@ -38,7 +39,8 @@ namespace phi
         _physicsBehaviour(nullptr),
         _commandsManager(commandsManager),
         _withMeshRenderer(false),
-        _withDebugRenderer(false),
+        _withBoxColliderRenderer(false),
+        _withPlaneGridRenderer(false),
         _withControlRenderer(false),
         _withGlassyControlRenderer(false),
         _withTextRenderer(false),
@@ -84,18 +86,33 @@ namespace phi
             // Resto
     }
 
-    void layerBuilder::buildDebugRenderer()
+    void layerBuilder::buildBoxColliderRenderer()
     {
-        auto debugBehaviour = new debugLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
-        _layer->addOnNodeAdded(std::bind(&debugLayerBehaviour::onNodeAdded, debugBehaviour, std::placeholders::_1));
-        _layer->addOnNodeRemoved(std::bind(&debugLayerBehaviour::onNodeRemoved, debugBehaviour, std::placeholders::_1));
-        _layer->addOnNodeTransformChanged(std::bind(&debugLayerBehaviour::onNodeTransformChanged, debugBehaviour, std::placeholders::_1));
+        auto boxColliderBehaviour = new boxColliderLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&boxColliderLayerBehaviour::onNodeAdded, boxColliderBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&boxColliderLayerBehaviour::onNodeRemoved, boxColliderBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&boxColliderLayerBehaviour::onNodeTransformChanged, boxColliderBehaviour, std::placeholders::_1));
 
-        _layer->addRenderPasses(debugBehaviour->getRenderPasses());
+        _layer->addRenderPasses(boxColliderBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([debugBehaviour]() mutable
+        _layer->addOnDelete([boxColliderBehaviour]() mutable
         {
-            safeDelete(debugBehaviour);
+            safeDelete(boxColliderBehaviour);
+        });
+    }
+
+    void layerBuilder::buildPlaneGridRenderer()
+    {
+        auto planeGridBehaviour = new planeGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&planeGridLayerBehaviour::onNodeAdded, planeGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&planeGridLayerBehaviour::onNodeRemoved, planeGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&planeGridLayerBehaviour::onNodeTransformChanged, planeGridBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(planeGridBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([planeGridBehaviour]() mutable
+        {
+            safeDelete(planeGridBehaviour);
         });
     }
 
@@ -193,8 +210,11 @@ namespace phi
         if (_withMeshRenderer)
             buildMeshRenderer();
 
-        if (_withDebugRenderer)
-            buildDebugRenderer();
+        if (_withBoxColliderRenderer)
+            buildBoxColliderRenderer();
+
+        if (_withPlaneGridRenderer)
+            buildPlaneGridRenderer();
 
         if (_withGlassyControlRenderer)
             buildGlassyControlRenderer();

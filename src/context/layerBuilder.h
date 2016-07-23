@@ -31,7 +31,8 @@ namespace phi
         vector<renderPass*> _textRenderPasses;
 
         bool _withMeshRenderer;
-        bool _withDebugRenderer;
+        bool _withBoxColliderRenderer;
+        bool _withPlaneGridRenderer;
         bool _withControlRenderer;
         bool _withGlassyControlRenderer;
         bool _withTextRenderer;
@@ -44,7 +45,8 @@ namespace phi
         layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
 
         void buildMeshRenderer();
-        void buildDebugRenderer();
+        void buildBoxColliderRenderer();
+        void buildPlaneGridRenderer();
         void buildControlRenderer();
         void buildGlassyControlRenderer();
         void buildTextRenderer();
@@ -56,7 +58,8 @@ namespace phi
     public:
         CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
         layerBuilder withMeshRenderer() { _withMeshRenderer = true; return *this; }
-        layerBuilder withDebugRenderer() { _withDebugRenderer = true; return *this; }
+        layerBuilder withBoxColliderRenderer() { _withBoxColliderRenderer = true; return *this; }
+        layerBuilder withPlaneGridRenderer() { _withPlaneGridRenderer = true; return *this; }
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
         layerBuilder withGlassyControlRenderer() { _withGlassyControlRenderer = true; return *this; }
         layerBuilder withTextRenderer() { _withTextRenderer = true; return *this; }

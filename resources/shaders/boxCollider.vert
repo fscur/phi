@@ -9,10 +9,13 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     mat4 v;
     mat4 vp;
     mat4 ip;
+    vec2 resolution;
+    float time;
+    float pad0;
 } frameUniforms;
 
 void main()
 {
     mat4 mvp = frameUniforms.p * frameUniforms.v * inModelMatrix;
-    gl_Position = mvp * vec4(inPosition, 1.0);
+    gl_Position = mvp * vec4(inPosition * vec3(1.0001), 1.0);
 }

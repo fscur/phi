@@ -32,6 +32,8 @@
 #include <core\input.h>
 #include <core\clickComponent.h>
 #include <core\boxCollider.h>
+#include <ui\planeGrid.h>
+
 using namespace phi;
 
 namespace demon
@@ -117,7 +119,7 @@ namespace demon
 
         _projectLibrary = new library(application::path);
     }
-    
+
     void screen::initContexts()
     {
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
@@ -156,10 +158,20 @@ namespace demon
             })
             .build();
 
+        auto planeImagePath = path::combine(application::resourcesPath, "images\\grid.bmp");
+        auto planeImage = importer::importImage(planeImagePath);
+
+        _planeNode1 = new node("plane");
+        auto planeGrid1 = new phi::planeGrid("why nandinho!? whyyyyy???");
+        planeGrid1->setImage(planeImage);
+        _planeNode1->addComponent(planeGrid1);
+
         _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        //cube0->getTransform()->translate(vec3(0.5));
+        //cube0->getTransform()->setLocalSize(vec3(0.1f));
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -170,7 +182,8 @@ namespace demon
         {
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
-                .withDebugRenderer()
+                .withBoxColliderRenderer()
+                .withPlaneGridRenderer()
                 .withPhysics()
                 .withCameraController()
                 .withSelectionController()
@@ -215,6 +228,7 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(_chair0);
+        _sceneLayer->add(_planeNode1);
         _sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
 
@@ -305,8 +319,9 @@ namespace demon
     void screen::onUpdate()
     {
         t += 0.01f;
-        vec3 pos = vec3(glm::cos(t), 0.0f, glm::sin(t));
-        //_chair0->getTransform()->setLocalPosition(pos);
+        vec3 pos = vec3(glm::cos(t) * 3.2f, glm::sin(t) * 3.2f, 0.0f);
+        //_planeNode1->getTransform()->roll(0.01f);
+        _planeNode1->getTransform()->setLocalPosition(pos);
 
         if (_design)
             _activeContext = _designContext;
