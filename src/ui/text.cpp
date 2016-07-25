@@ -3,8 +3,8 @@
 
 namespace phi
 {
-    text::text(string name) :
-        component(component::TEXT, name),
+    text::text() :
+        component(component::TEXT),
         _font(nullptr),
         _control(nullptr),
         _text(L""),
@@ -13,7 +13,7 @@ namespace phi
     }
 
     text::text(const text& text) :
-        component(componentType::TEXT, text._name),
+        component(componentType::TEXT),
         _font(text._font),
         _control(text._control),
         _text(text._text),

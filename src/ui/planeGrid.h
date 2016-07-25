@@ -18,7 +18,7 @@ namespace phi
         }
 
     public:
-        UI_API planeGrid(const string& name);
+        UI_API planeGrid();
         UI_API planeGrid(const planeGrid& planeGrid);
         UI_API ~planeGrid();
 

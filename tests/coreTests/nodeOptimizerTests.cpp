@@ -13,7 +13,7 @@ TEST(nodeOptimizer, optimize_nodeTreeWithOneUselessNode_usefullChildBecomesRootA
     auto root = new node("root");
     root->getTransform()->translate(vec3(10.0f, 0.0f, 0.0f));
     auto child = new node("child");
-    auto component = new mesh("mesh", nullptr, nullptr);
+    auto component = new mesh(nullptr, nullptr);
     child->addComponent(component);
     root->addChild(child);
 
@@ -27,9 +27,6 @@ TEST(nodeOptimizer, optimize_nodeTreeWithOneUselessNode_usefullChildBecomesRootA
     auto expectedComponentCount = 1u;
     auto componentCount = result->getComponents()->size();
 
-    auto expectedComponentName = string("mesh");
-    auto componentName = (*result->getComponents())[0]->getName();
-
     auto expectedLocalPosition = vec3(10.0f, 0.0f, 0.0f);
     auto localPosition = result->getTransform()->getPosition();
 
@@ -39,7 +36,6 @@ TEST(nodeOptimizer, optimize_nodeTreeWithOneUselessNode_usefullChildBecomesRootA
     ASSERT_EQ(expectedParent, parent);
     ASSERT_EQ(expectedChildCount, childCount);
     ASSERT_EQ(expectedComponentCount, componentCount);
-    ASSERT_EQ(expectedComponentName, componentName);
     ASSERT_EQ(expectedLocalPosition, localPosition);
 }
 
@@ -56,7 +52,7 @@ TEST(nodeOptimizer, optimize_nodeTreeWithTwoUselessNodes_usefullChildBecomesRoot
     child->getTransform()->rotate(phi::PI_OVER_2, vec3(0.0f, 1.0f, 0.0f));
     child->addChild(grandson);
 
-    auto component = new mesh("mesh", nullptr, nullptr);
+    auto component = new mesh(nullptr, nullptr);
     grandson->addComponent(component);
 
     //Act
@@ -68,9 +64,6 @@ TEST(nodeOptimizer, optimize_nodeTreeWithTwoUselessNodes_usefullChildBecomesRoot
 
     auto expectedComponentCount = 1u;
     auto componentCount = result->getComponents()->size();
-
-    auto expectedComponentName = string("mesh");
-    auto componentName = (*result->getComponents())[0]->getName();
 
     auto expectedNodeName = string("grandson");
     auto nodeName = result->getName();
@@ -87,7 +80,6 @@ TEST(nodeOptimizer, optimize_nodeTreeWithTwoUselessNodes_usefullChildBecomesRoot
     ASSERT_EQ(expectedParent, parent);
     ASSERT_EQ(expectedChildCount, childCount);
     ASSERT_EQ(expectedComponentCount, componentCount);
-    ASSERT_EQ(expectedComponentName, componentName);
     ASSERT_EQ(expectedNodeName, nodeName);
     ASSERT_EQ(expectedLocalPosition, localPosition);
     ASSERT_EQ(expectedLocalOrientation, localOrientation);
@@ -104,10 +96,10 @@ TEST(nodeOptimizer, optimize_nodeTreeWithARootAndTwoChildreNodesWithComponents_t
     root->addChild(child0);
     root->addChild(child1);
 
-    auto component0 = new mesh("mesh0", nullptr, nullptr);
+    auto component0 = new mesh(nullptr, nullptr);
     child0->addComponent(component0);
 
-    auto component1 = new mesh("mesh1", nullptr, nullptr);
+    auto component1 = new mesh(nullptr, nullptr);
     child1->addComponent(component1);
 
     //Act
@@ -119,12 +111,6 @@ TEST(nodeOptimizer, optimize_nodeTreeWithARootAndTwoChildreNodesWithComponents_t
 
     auto expectedComponentCount = 0u;
     auto componentCount = result->getComponents()->size();
-
-    auto expectedComponent0Name = string("mesh0");
-    auto component0Name = result->getChildren()->at(0)->getComponents()->at(0)->getName();
-
-    auto expectedComponent1Name = string("mesh1");
-    auto component1Name = result->getChildren()->at(1)->getComponents()->at(0)->getName();
 
     auto expectedNodeName = string("root");
     auto nodeName = result->getName();
@@ -138,8 +124,6 @@ TEST(nodeOptimizer, optimize_nodeTreeWithARootAndTwoChildreNodesWithComponents_t
     ASSERT_EQ(expectedParent, parent);
     ASSERT_EQ(expectedChildCount, childCount);
     ASSERT_EQ(expectedComponentCount, componentCount);
-    ASSERT_EQ(expectedComponent0Name, component0Name);
-    ASSERT_EQ(expectedComponent1Name, component1Name);
     ASSERT_EQ(expectedNodeName, nodeName);
     ASSERT_EQ(expectedLocalPosition, localPosition);
 }
@@ -161,10 +145,10 @@ TEST(nodeOptimizer, optimize_nodeTreeWithARootAUselessChildNodeAndTwoGrandsonsNo
     child->addChild(grandson0);
     child->addChild(grandson1);
 
-    auto component0 = new mesh("mesh0", nullptr, nullptr);
+    auto component0 = new mesh(nullptr, nullptr);
     grandson0->addComponent(component0);
 
-    auto component1 = new mesh("mesh1", nullptr, nullptr);
+    auto component1 = new mesh(nullptr, nullptr);
     grandson1->addComponent(component1);
 
     //Act
@@ -176,12 +160,6 @@ TEST(nodeOptimizer, optimize_nodeTreeWithARootAUselessChildNodeAndTwoGrandsonsNo
 
     auto expectedComponentCount = 0u;
     auto componentCount = result->getComponents()->size();
-
-    auto expectedComponent0Name = string("mesh0");
-    auto component0Name = result->getChildren()->at(0)->getComponents()->at(0)->getName();
-
-    auto expectedComponent1Name = string("mesh1");
-    auto component1Name = result->getChildren()->at(1)->getComponents()->at(0)->getName();
 
     auto expectedNodeName = string("child");
     auto nodeName = result->getName();
@@ -198,8 +176,6 @@ TEST(nodeOptimizer, optimize_nodeTreeWithARootAUselessChildNodeAndTwoGrandsonsNo
     ASSERT_EQ(expectedParent, parent);
     ASSERT_EQ(expectedChildCount, childCount);
     ASSERT_EQ(expectedComponentCount, componentCount);
-    ASSERT_EQ(expectedComponent0Name, component0Name);
-    ASSERT_EQ(expectedComponent1Name, component1Name);
     ASSERT_EQ(expectedNodeName, nodeName);
     ASSERT_EQ(expectedLocalPosition, localPosition);
     ASSERT_EQ(expectedLocalOrientation, localOrientation);
@@ -214,9 +190,9 @@ TEST(nodeOptimizer, optimize_rootWithTwoChildrenAndOneIsUselessWithSubTree_usele
     auto grandson0 = new node("grandson0");
     auto grangrandson0 = new node("grangrandson0");
     auto grangrandson1 = new node("grangrandson1");
-    auto component0 = new mesh("mesh0", nullptr, nullptr);
-    auto component1 = new mesh("mesh1", nullptr, nullptr);
-    auto component2 = new mesh("mesh2", nullptr, nullptr);
+    auto component0 = new mesh(nullptr, nullptr);
+    auto component1 = new mesh(nullptr, nullptr);
+    auto component2 = new mesh(nullptr, nullptr);
 
     root->getTransform()->translate(vec3(10.0f, 0.0f, 0.0f));
 
@@ -265,15 +241,6 @@ TEST(nodeOptimizer, optimize_rootWithTwoChildrenAndOneIsUselessWithSubTree_usele
     auto expectedGrandson1ComponentCount = 1u;
     auto grandson1ComponentCount = result->getChildren()->at(1)->getChildren()->at(1)->getComponents()->size();
 
-    auto expectedChild0ComponentName = string("mesh0");
-    auto child0ComponentName = result->getChildren()->at(0)->getComponents()->at(0)->getName();
-
-    auto expectedGrandson0ComponentName = string("mesh1");
-    auto grandson0ComponentName = result->getChildren()->at(1)->getChildren()->at(0)->getComponents()->at(0)->getName();
-
-    auto expectedGrandson1ComponentName = string("mesh2");
-    auto grandson1ComponentName = result->getChildren()->at(1)->getChildren()->at(1)->getComponents()->at(0)->getName();
-
     auto expectedNodeName = string("root");
     auto nodeName = result->getName();
 
@@ -298,9 +265,6 @@ TEST(nodeOptimizer, optimize_rootWithTwoChildrenAndOneIsUselessWithSubTree_usele
     ASSERT_EQ(expectedChild1ComponentCount, child1ComponentCount);
     ASSERT_EQ(expectedGrandson0ComponentCount, grandson0ComponentCount);
     ASSERT_EQ(expectedGrandson1ComponentCount, grandson1ComponentCount);
-    ASSERT_EQ(expectedChild0ComponentName, child0ComponentName);
-    ASSERT_EQ(expectedGrandson0ComponentName, grandson0ComponentName);
-    ASSERT_EQ(expectedGrandson1ComponentName, grandson1ComponentName);
     ASSERT_EQ(expectedNodeName, nodeName);
     ASSERT_EQ(expectedChild1NodeName, child1NodeName);
     ASSERT_EQ(expectedLocalPosition, localPosition);
@@ -314,7 +278,7 @@ TEST(nodeOptimizer, optimize_rootWithTwoChildrenAndOneEmptyChildNode_returnsRoot
     auto root = new node("root");
     auto child0 = new node("child0");
     auto child1 = new node("child1");
-    auto component0 = new mesh("mesh0", nullptr, nullptr);
+    auto component0 = new mesh(nullptr, nullptr);
 
     root->addChild(child0);
     root->addChild(child1);
@@ -330,16 +294,12 @@ TEST(nodeOptimizer, optimize_rootWithTwoChildrenAndOneEmptyChildNode_returnsRoot
     auto expectedComponentCount = 1u;
     auto componentCount = result->getComponents()->size();
 
-    auto expectedComponentName = string("mesh0");
-    auto componentName = result->getComponents()->at(0)->getName();
-
     auto expectedParent = nullptr;
     auto parent = result->getParent();
 
     ASSERT_EQ(expectedParent, parent);
     ASSERT_EQ(expectedChildCount, childCount);
     ASSERT_EQ(expectedComponentCount, componentCount);
-    ASSERT_EQ(expectedComponentName, componentName);
 }
 
 TEST(nodeOptimizer, optimize_rootWithThreeChildrenOneEmptyOneSubTreeWithOneEmptyNode_returnsRootWithTwoChildrenWithComponents)
@@ -353,8 +313,8 @@ TEST(nodeOptimizer, optimize_rootWithThreeChildrenOneEmptyOneSubTreeWithOneEmpty
     auto grandson0 = new node("grandson0");
     auto grandson1 = new node("grandson1");
 
-    auto component0 = new mesh("mesh0", nullptr, nullptr);
-    auto component1 = new mesh("mesh1", nullptr, nullptr);
+    auto component0 = new mesh(nullptr, nullptr);
+    auto component1 = new mesh(nullptr, nullptr);
 
     root->addChild(child0);
     root->addChild(child1);
@@ -379,19 +339,11 @@ TEST(nodeOptimizer, optimize_rootWithThreeChildrenOneEmptyOneSubTreeWithOneEmpty
     auto expectedChild1ComponentCount = 1u;
     auto child1ComponentCount = result->getChildren()->at(1)->getComponents()->size();
 
-    auto expectedChild0ComponentName = string("mesh1");
-    auto child0ComponentName = result->getChildren()->at(0)->getComponents()->at(0)->getName();
-
-    auto expectedChild1ComponentName = string("mesh0");
-    auto child1ComponentName = result->getChildren()->at(1)->getComponents()->at(0)->getName();
-
     auto expectedParent = nullptr;
     auto parent = result->getParent();
 
     ASSERT_EQ(expectedParent, parent);
     ASSERT_EQ(expectedChildCount, childCount);
     ASSERT_EQ(expectedChild0ComponentCount, child0ComponentCount);
-    ASSERT_EQ(expectedChild1ComponentCount, child1ComponentCount);
-    ASSERT_EQ(expectedChild0ComponentName, child0ComponentName);
-    ASSERT_EQ(expectedChild1ComponentName, child1ComponentName);
+    ASSERT_EQ(expectedChild1ComponentCount, child1ComponentCount);    
 }

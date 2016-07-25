@@ -43,7 +43,7 @@ namespace phi
             {
                 case 0:
                 {
-                    objectNode->addComponent(new phi::model(components[i]["Name"].GetString()));
+                    objectNode->addComponent(new phi::model());
                     break;
                 }
                 case 1:
@@ -59,11 +59,11 @@ namespace phi
                     if (materialResource != nullptr)
                         material = materialResource->getOriginalObject();
 
-                    objectNode->addComponent(new phi::mesh(components[i]["Name"].GetString(), geometry, material));
+                    objectNode->addComponent(new phi::mesh(geometry, material));
 
                     auto aabb = geometry->aabb;
-                    objectNode->addComponent(new phi::boxCollider("obbCollider", aabb->center, vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
-                    objectNode->addComponent(new phi::clickComponent("meshClick"));
+                    objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
+                    objectNode->addComponent(new phi::clickComponent());
 
                     break;
                 }

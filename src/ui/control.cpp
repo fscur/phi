@@ -3,8 +3,8 @@
 
 namespace phi
 {
-    control::control(string name) :
-        component(component::CONTROL, name),
+    control::control() :
+        component(component::CONTROL),
         _image(image::defaultAlbedoImage),
         _onSizeChanged(new eventHandler<vec3>()),
         _color(color::transparent),
@@ -13,7 +13,7 @@ namespace phi
     }
 
     control::control(const control& original) :
-        component(component::CONTROL, original._name),
+        component(component::CONTROL),
         _image(original._image),
         _onSizeChanged(new eventHandler<vec3>()),
         _color(original._color),

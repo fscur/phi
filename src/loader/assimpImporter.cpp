@@ -132,7 +132,7 @@ namespace phi
             auto geometry = geometries[assimpMeshIndex];
             auto material = materials[assimpMesh->mMaterialIndex];
             auto meshName = string(scene->mMeshes[n]->mName.C_Str());
-            auto mesh = new phi::mesh(meshName, geometry, material);
+            auto mesh = new phi::mesh(geometry, material);
 
             auto meshNode = new phi::node(meshName);
             meshNode->addComponent(mesh);

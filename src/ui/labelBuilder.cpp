@@ -38,8 +38,8 @@ namespace phi
     labelBuilder phi::labelBuilder::newLabel(wstring text)
     {
         auto node = new phi::node("label");
-        auto control = new phi::control("labelControl");
-        auto label = new phi::text("labelText");
+        auto control = new phi::control();
+        auto label = new phi::text();
         node->addComponent(control);
         node->addComponent(label);
 

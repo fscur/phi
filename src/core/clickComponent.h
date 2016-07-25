@@ -16,7 +16,7 @@ namespace phi
         uint32_t _pickId;
 
     public:
-        CORE_API clickComponent(const string& name);
+        CORE_API clickComponent();
         CORE_API clickComponent(const clickComponent& original);
         CORE_API ~clickComponent();
 

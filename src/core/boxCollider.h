@@ -26,7 +26,7 @@ namespace phi
         void onNodeChanged(node* previousValue) override;
 
     public:
-        CORE_API boxCollider(std::string name, vec3 position, vec3 halfSizes);
+        CORE_API boxCollider(vec3 position, vec3 halfSizes);
         CORE_API boxCollider(const boxCollider& original);
         CORE_API ~boxCollider();
         CORE_API component* clone() const override;

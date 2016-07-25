@@ -3,8 +3,8 @@
 
 namespace phi
 {
-    mesh::mesh(string name, phi::geometry* geometry, phi::material* material) :
-        component(componentType::MESH, name),
+    mesh::mesh(phi::geometry* geometry, phi::material* material) :
+        component(componentType::MESH),
         _geometry(geometry),
         _material(material)
     {
@@ -15,7 +15,7 @@ namespace phi
     }
 
     mesh::mesh(const mesh& mesh) :
-        component(componentType::MESH, mesh._name),
+        component(componentType::MESH),
         _geometry(mesh._geometry),
         _material(mesh._material)
     {

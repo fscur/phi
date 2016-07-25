@@ -8,8 +8,8 @@ namespace phi
         public component
     {
     public:
-        model(string name) :
-            component(componentType::MODEL, name)
+        model() :
+            component(componentType::MODEL)
         {
         }
 
