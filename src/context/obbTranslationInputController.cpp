@@ -3,27 +3,37 @@
 #include <core\node.h>
 #include <core\boxCollider.h>
 
+#include <io\path.h>
+#include <loader\importer.h>
+#include <ui\planeGrid.h>
+#include <application\application.h>
+
 #include "obbTranslationInputController.h"
 
 namespace phi
 {
-    obbTranslationInputController::obbTranslationInputController(camera* camera, nodeTranslator* nodeTranslator) :
+    obbTranslationInputController::obbTranslationInputController(camera* camera, layer* planesLayer) :
         inputController(),
         _camera(camera),
-        _nodeTranslator(nodeTranslator),
+        _nodeTranslator(new nodeTranslator()),
         _collisionNodeTranslator(nullptr),
+        _planesLayer(planesLayer),
+        _dragging(false),
         _draggingCollider(nullptr),
         _draggingRootNode(nullptr),
-        _dragging(false),
         _plane(vec3(), vec3()),
         _initialObjectPosition(),
         _disableCollision(false)
     {
+        auto planeImagePath = path::combine(application::resourcesPath, "images\\grid.bmp");
+        _planeImage = importer::importImage(planeImagePath);
     }
 
     obbTranslationInputController::~obbTranslationInputController()
     {
         safeDelete(_nodeTranslator);
+        safeDelete(_collisionNodeTranslator);
+        safeDelete(_planeImage);
     }
 
     void obbTranslationInputController::initializeDragData(node* node)
@@ -48,12 +58,46 @@ namespace phi
             _collisionNodeTranslator->setPlane(_plane);
     }
 
-    void obbTranslationInputController::showPlaneGrid(vec3 position, color color)
+    void obbTranslationInputController::clearPlaneGrids()
     {
+        for (auto node : _planeNodes)
+        {
+            node->getParent()->removeChild(node);
+            safeDelete(node);
+        }
+
+        _planeNodes.clear();
+    }
+
+    void obbTranslationInputController::addPlaneGrid(vec3 position, color color)
+    {
+        auto planeNode = new node("plane");
+        auto planeTransform = planeNode->getTransform();
+        planeTransform->setLocalPosition(position);
+        planeTransform->setDirection(_plane.getNormal());
+
+        auto planeGrid = new phi::planeGrid("why nandinho!? whyyyyy???");
+        planeGrid->setImage(_planeImage);
+        planeNode->addComponent(planeGrid);
+
+        _planeNodes.push_back(planeNode);
+        _planesLayer->add(planeNode);
+
         //_planeGridPass->setPositionAndOrientation(position, _plane.getNormal());
         //_planeGridPass->setFocusPosition(phi::vec2());
         //_planeGridPass->setColor(color);
         //_planeGridPass->show();
+    }
+
+    void obbTranslationInputController::updatePlaneGrids()
+    {
+        for (auto planeNode : _planeNodes)
+        {
+            auto planeTransform = planeNode->getTransform();
+            auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
+            
+            planeTransform->setLocalPosition(plane.projectPoint(_draggingCollider->getObb().center));
+        }
     }
 
     bool obbTranslationInputController::onMouseDown(mouseEventArgs* e)
@@ -82,7 +126,7 @@ namespace phi
 
             initializeDragData(node);
             setPlane(plane(obbCastPosition, normal));
-            showPlaneGrid(obb.getPositionAt(-_plane.getNormal()), color::white);
+            addPlaneGrid(obb.getPositionAt(-_plane.getNormal()), color::white);
 
             phi::safeDeleteArray(normals);
             phi::safeDeleteArray(positions);
@@ -117,6 +161,7 @@ namespace phi
         else
             _nodeTranslator->translateNode(offset);
 
+        updatePlaneGrids();
         //_planeGridPass->projectAndAnimateFocusPosition(_dragCollider->getObb().center);
 
         return true;
@@ -133,6 +178,8 @@ namespace phi
         _nodeTranslator->endTranslations();
         if (_collisionNodeTranslator)
             _collisionNodeTranslator->endTranslations();
+
+        clearPlaneGrids();
 
         return true;
     }

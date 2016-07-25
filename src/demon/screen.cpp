@@ -158,14 +158,6 @@ namespace demon
             })
             .build();
 
-        auto planeImagePath = path::combine(application::resourcesPath, "images\\grid.bmp");
-        auto planeImage = importer::importImage(planeImagePath);
-
-        _planeNode1 = new node("plane");
-        auto planeGrid1 = new phi::planeGrid("why nandinho!? whyyyyy???");
-        planeGrid1->setImage(planeImage);
-        _planeNode1->addComponent(planeGrid1);
-
         _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
@@ -228,7 +220,6 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(_chair0);
-        _sceneLayer->add(_planeNode1);
         _sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
 
@@ -321,7 +312,7 @@ namespace demon
         t += 0.01f;
         vec3 pos = vec3(glm::cos(t) * 3.2f, glm::sin(t) * 3.2f, 0.0f);
         //_planeNode1->getTransform()->roll(0.01f);
-        _planeNode1->getTransform()->setLocalPosition(pos);
+        //_planeNode1->getTransform()->setLocalPosition(pos);
 
         if (_design)
             _activeContext = _designContext;

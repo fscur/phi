@@ -198,7 +198,7 @@ namespace phi
 
     void layerBuilder::buildObbTranslationController()
     {
-        auto obbTranslationController = new obbTranslationInputController(_layer->getCamera(), new nodeTranslator());
+        auto obbTranslationController = new obbTranslationInputController(_layer->getCamera(), _layer);
         _layer->addMouseController(obbTranslationController);
 
         if (_withPhysics)

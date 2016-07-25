@@ -46,7 +46,6 @@ namespace demon
         phi::node* _labelNandinho;
         phi::node* _constructionLabel;
         phi::node* _chair0;
-        phi::node* _planeNode1;
 
         phi::commandsManager* _commandsManager;
 #ifdef _DEBUG
