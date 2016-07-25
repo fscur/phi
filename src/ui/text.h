@@ -25,7 +25,7 @@ namespace phi
         static componentType getComponentType() { return componentType::TEXT; }
 
     public:
-        text(string name);
+        text();
         text(const text& text);
         ~text();
 

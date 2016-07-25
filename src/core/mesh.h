@@ -18,7 +18,7 @@ namespace phi
         material* _material;
 
     public:
-        CORE_API mesh(string name, phi::geometry* geometry, phi::material* material);
+        CORE_API mesh(phi::geometry* geometry, phi::material* material);
         CORE_API mesh(const mesh& mesh);
         CORE_API ~mesh();
 

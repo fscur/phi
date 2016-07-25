@@ -3,15 +3,15 @@
 
 namespace phi
 {
-    clickComponent::clickComponent(const string& name) :
-        component(componentType::CLICK, name),
+    clickComponent::clickComponent() :
+        component(componentType::CLICK),
         _onClick(vector<std::function<void(node*)>>()),
         _pickId(0)
     {
     }
 
     clickComponent::clickComponent(const clickComponent& original) :
-        component(componentType::CLICK, original._name),
+        component(componentType::CLICK),
         _onClick(original._onClick),
         _pickId(0)
     {

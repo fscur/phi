@@ -75,11 +75,10 @@ namespace phi
         auto planeTransform = planeNode->getTransform();
         planeTransform->setLocalPosition(position);
         planeTransform->setDirection(_plane.getNormal());
-
-        auto planeGrid = new phi::planeGrid("why nandinho!? whyyyyy???");
+        
+        auto planeGrid = new phi::planeGrid();
         planeGrid->setImage(_planeImage);
         planeNode->addComponent(planeGrid);
-
         _planeNodes.push_back(planeNode);
         _planesLayer->add(planeNode);
 

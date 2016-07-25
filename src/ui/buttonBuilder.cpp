@@ -35,7 +35,7 @@ namespace phi
     buttonBuilder buttonBuilder::withText(wstring text)
     {
         auto control = _button->getComponent<phi::control>();
-        auto label = new phi::text("controlText");
+        auto label = new phi::text();
 
         label->setControl(control);
         label->setFont(fontsManager::defaultFont);
@@ -68,8 +68,8 @@ namespace phi
     buttonBuilder phi::buttonBuilder::newButton()
     {
         auto node = new phi::node("button");
-        auto control = new phi::control("buttonControl");
-        auto clickComponent = new phi::clickComponent("buttonClick");
+        auto control = new phi::control();
+        auto clickComponent = new phi::clickComponent();
 
         node->addComponent(control);
         node->addComponent(clickComponent);

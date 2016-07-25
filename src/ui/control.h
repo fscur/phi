@@ -22,7 +22,7 @@ namespace phi
         static componentType getComponentType() { return componentType::CONTROL; }
 
     public:
-        control(string name);
+        control();
         control(const control& control);
         ~control();
 

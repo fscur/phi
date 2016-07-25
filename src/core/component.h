@@ -26,13 +26,11 @@ namespace phi
 
     protected:
         componentType _type;
-        string _name;
         node* _node;
 
     protected:
-        component(componentType type, string name) :
+        component(componentType type) :
             _type(type),
-            _name(name),
             _node(nullptr)
         {
         }
@@ -43,8 +41,6 @@ namespace phi
         virtual component* clone() const = 0;
 
         int getType() const { return _type; }
-
-        string getName() const { return _name; }
 
         void virtual onNodeChanged(node* previousValue) { }
 
@@ -59,8 +55,7 @@ namespace phi
 
         virtual bool operator==(const component& other)
         {
-            return _name == other._name &&
-                _type == other._type;
+            return _type == other._type; //TODO::WTF???
         }
         
         virtual bool operator!=(const component& other)

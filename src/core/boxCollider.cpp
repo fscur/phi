@@ -4,8 +4,8 @@
 
 namespace phi
 {
-    boxCollider::boxCollider(std::string name, vec3 position, vec3 halfSizes) :
-        component(component::componentType::BOX_COLLIDER, name),
+    boxCollider::boxCollider(vec3 position, vec3 halfSizes) :
+        component(component::componentType::BOX_COLLIDER),
         _position(position),
         _halfSizes(vec3(glm::max(halfSizes.x, DECIMAL_TRUNCATION), glm::max(halfSizes.y, DECIMAL_TRUNCATION), glm::max(halfSizes.z, DECIMAL_TRUNCATION))),
         _obb(obb(position, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), halfSizes)),
@@ -16,7 +16,7 @@ namespace phi
     }
 
     boxCollider::boxCollider(const boxCollider& original) :
-        component(component::componentType::BOX_COLLIDER, original._name),
+        component(component::componentType::BOX_COLLIDER),
         _position(original._position),
         _halfSizes(original._halfSizes),
         _obb(original._obb),

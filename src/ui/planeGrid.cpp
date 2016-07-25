@@ -3,13 +3,13 @@
 
 namespace phi
 {
-    planeGrid::planeGrid(const string& name) :
-        component(component::PLANE_GRID, name)
+    planeGrid::planeGrid() :
+        component(component::PLANE_GRID)
     {
     }
 
     planeGrid::planeGrid(const planeGrid& planeGrid) :
-        component(componentType::PLANE_GRID, planeGrid._name),
+        component(componentType::PLANE_GRID),
         _image(planeGrid._image)
     {
     }
