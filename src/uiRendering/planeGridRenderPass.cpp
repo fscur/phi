@@ -44,7 +44,9 @@ namespace phi
             glDepthMask(GL_FALSE);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_BLEND);
-            
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(-1.0f, 0.0f);
+
             program->bind();
 
             if (texturesManager::getIsBindless())
@@ -63,7 +65,8 @@ namespace phi
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             program->unbind();
-
+            glPolygonOffset(0.0f, 0.0f);
+            glDisable(GL_POLYGON_OFFSET_FILL);
             glDisable(GL_BLEND);
             glDisable(GL_DEPTH_TEST);
             glDepthMask(GL_TRUE);

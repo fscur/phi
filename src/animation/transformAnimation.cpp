@@ -6,17 +6,25 @@ namespace phi
     transformAnimation::transformAnimation(
         transform* value, 
         std::function<double(double)> easingFunction) :
-        animation<transform>(value, easingFunction)
+        animation(easingFunction),
+        _value(value)
     {
     }
 
     transformAnimation::transformAnimation(const transformAnimation & original) :
-        animation<transform>(original)
+        animation(original)
     {
     }
 
     transformAnimation::~transformAnimation()
     {
+    }
+
+    void transformAnimation::start(transform* from, transform* to, double duration)
+    {
+        animation::start(duration);
+        _from = from;
+        _to = to;
     }
 
     void transformAnimation::update(double t)
@@ -27,7 +35,7 @@ namespace phi
         _value->setLocalPosition(position);
     }
 
-    iAnimation* transformAnimation::clone()
+    animation* transformAnimation::clone()
     {
         auto original = static_cast<const transformAnimation*>(this);
         return new transformAnimation(*original);

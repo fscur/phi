@@ -1,80 +1,32 @@
 #pragma once
 #include <phi.h>
+#include "animationApi.h"
 #include <core\time.h>
 #include <core\notImplementedException.h>
-#include "iAnimation.h"
 
 namespace phi
 {
-    template <typename TYPE>
-    class animation :
-        public iAnimation
+    class animation
     {
     protected:
-        TYPE* _value;
-        TYPE* _from; 
-        TYPE* _to;
-
         bool _isAnimating;
         double _duration;
         double _elapsed;
         std::function<double(double)> _easingFunction;
+
+    protected:
         virtual void update(double t) = 0;
+        virtual ~animation();
+        
+        void start(double duration);
 
     public:
-        animation(
-            TYPE* value, 
-            std::function<double(double)> easingFunction) :
-            _value(value),
-            _from(nullptr),
-            _to(nullptr),
-            _isAnimating(false),
-            _duration(0.0),
-            _elapsed(0.0),
-            _easingFunction(easingFunction)
-        {
-        }
+        ANIMATION_API animation(std::function<double(double)> easingFunction);
+        ANIMATION_API animation(const animation& original);
 
-        animation(const animation& original) :
-            _isAnimating(original._isAnimating),
-            _duration(original._duration),
-            _elapsed(original._elapsed),
-            _easingFunction(original._easingFunction)
-        {
-        
-        }
+        ANIMATION_API void animate();
+        ANIMATION_API void stop();
 
-        ~animation()
-        {
-        }
-
-        void start(TYPE* from, TYPE* to, double duration)
-        {
-            _from = from;
-            _to = to;
-            _duration = duration;
-            _elapsed = 0.0;
-            _isAnimating = true;
-        }
-
-        void animate()
-        {
-            if (!_isAnimating)
-                return;
-
-            _elapsed += time::deltaSeconds;
-
-            auto percent = glm::min(_elapsed / _duration, 1.0);
-
-            update(_easingFunction(percent));
-
-            if (_elapsed > _duration)
-                stop();
-        }
-
-        void stop()
-        {
-            _isAnimating = false;
-        }
+        ANIMATION_API virtual animation* clone() = 0;
     };
 }

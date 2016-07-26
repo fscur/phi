@@ -5,7 +5,7 @@ namespace phi
 {
     animator::animator() :
         component(componentType::ANIMATOR),
-        _animations(vector<iAnimation*>())
+        _animations(vector<animation*>())
     {
     }
 
@@ -20,7 +20,7 @@ namespace phi
     {
     }
 
-    void animator::addAnimation(iAnimation* animation)
+    void animator::addAnimation(animation* animation)
     {
         _animations.push_back(animation);
     }

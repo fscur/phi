@@ -1,7 +1,7 @@
 #pragma once
 #include <phi.h>
 #include "animationApi.h"
-#include "iAnimation.h"
+#include "animation.h"
 
 #include <core\component.h>
 
@@ -11,7 +11,7 @@ namespace phi
         public component
     {
     private:
-        vector<iAnimation*> _animations;
+        vector<animation*> _animations;
 
     public:
         static componentType getComponentType() { return componentType::ANIMATOR; }
@@ -20,7 +20,7 @@ namespace phi
         ANIMATION_API animator();
         ANIMATION_API animator(const animator& original);
         ANIMATION_API ~animator();
-        ANIMATION_API void addAnimation(iAnimation* animation);
+        ANIMATION_API void addAnimation(animation* animation);
         ANIMATION_API void animate();
 
         ANIMATION_API component* clone() const override;
