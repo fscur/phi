@@ -2,12 +2,12 @@
 
 #include <phi.h>
 
-#include <animation\floatAnimator.h>
-
 #include <rendering\camera.h>
 
 #include "contextApi.h"
 #include "inputController.h"
+
+#include <animation\floatAnimation.h>
 
 namespace phi
 {
@@ -28,6 +28,7 @@ namespace phi
         float _speed;
         float _distanceTraveled;
         float _distanceLimit;
+        float _bounceDistance;
         double _speedAccumulationTime;
         double _inertiaTime;
         floatAnimation* _bounceAnimation;

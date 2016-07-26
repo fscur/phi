@@ -9,7 +9,7 @@
 
 #include <loader\importer.h>
 
-#include <animation\floatAnimator.h>
+//#include <animation\floatAnimator.h>
 
 #include <rendering\pickingFramebuffer.h>
 #ifdef _DEBUG
@@ -141,7 +141,7 @@ namespace demon
 
         _constructionLabel = labelBuilder::newLabel(L"abcd")
             .withPosition(vec3(200.f, 50.f, 0.f))
-            .withControlColor(0.0f, 1.0f, 0.5f, 1.f)
+            .withControlColor(0.0f, 1.0f, 0.5, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
@@ -151,7 +151,7 @@ namespace demon
             .withText(L"Change context")
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
-            .withControlColor(.5f, .5f, .2f, 1.f)
+            .withControlColor(.5, .5, .2f, 1.f)
             .withAction([=](node* node)
             {
                 _commandsManager->executeCommand(new changeContextCommand());
@@ -174,9 +174,10 @@ namespace demon
         {
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
-                .withBoxColliderRenderer()
+                //.withBoxColliderRenderer()
                 .withPlaneGridRenderer()
                 .withPhysics()
+                .withAnimation()
                 .withCameraController()
                 .withSelectionController()
                 .withObbTranslationController()
@@ -319,7 +320,7 @@ namespace demon
         else
             _activeContext = _constructionContext;
 
-        phi::floatAnimator::update();
+        //phi::floatAnimator::update();
         _activeContext->update();
     }
 

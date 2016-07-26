@@ -16,9 +16,10 @@ namespace phi
         _speed(0.0f),
         _distanceTraveled(0.0f),
         _distanceLimit(0.0f),
+        _bounceDistance(0.0f),
         _speedAccumulationTime(0.0),
         _inertiaTime(0.0),
-        _bounceAnimation(nullptr)
+        _bounceAnimation(new floatAnimation(&_bounceDistance))
     {
     }
 
@@ -29,11 +30,12 @@ namespace phi
 
     void zoomInputController::cancelBounceAnimation()
     {
-        if (_bounceAnimation)
+        _bounceAnimation->stop();
+        /*if (_bounceAnimation)
         {
             phi::floatAnimator::cancelAnimation(_bounceAnimation);
             _bounceAnimation = nullptr;
-        }
+        }*/
     }
     
     void zoomInputController::cancelZoom()
@@ -49,6 +51,8 @@ namespace phi
         auto bounceDistance = MIN_BOUNCE + (MAX_BOUNCE * speedPercent);
         auto cameraPosition = _camera->getTransform()->getPosition();
 
+        /*_bounceAnimation->start();
+
         _bounceAnimation = new phi::floatAnimation
         (
             0.0f,
@@ -63,12 +67,12 @@ namespace phi
             [&] { _bounceAnimation = nullptr; }
         );
 
-        phi::floatAnimator::animateFloat(_bounceAnimation);
+        phi::floatAnimator::animateFloat(_bounceAnimation);*/
     }
 
     bool zoomInputController::onMouseWheel(mouseEventArgs* e)
     {
-        if (e->wheelDelta > 0.0f && _bounceAnimation)
+        if (e->wheelDelta > 0.0f) // && _bounceAnimation)
             return false;
 
         cancelBounceAnimation();
