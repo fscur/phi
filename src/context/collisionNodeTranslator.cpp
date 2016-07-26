@@ -166,7 +166,7 @@ namespace phi
                     auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset);
 
                     if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
-                        finalOffset = limitedOffset + glm::normalize(adjustedOffset) * (*adjustSweepResult->collisions.begin()).distance;
+                        finalOffset = limitedOffset + glm::normalize(adjustedOffset) * ((*adjustSweepResult->collisions.begin()).distance + DECIMAL_TRUNCATION);
                     else
                         finalOffset = limitedOffset + adjustedOffset;
 
