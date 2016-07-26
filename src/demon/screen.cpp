@@ -162,7 +162,8 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        //cube0->getTransform()->translate(vec3(0.5));
+        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        cube1->getTransform()->translate(vec3(1.0));
         //cube0->getTransform()->setLocalSize(vec3(0.1f));
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
@@ -223,6 +224,7 @@ namespace demon
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
+        _sceneLayer->add(cube1);
 
         //_sceneLayer->add(_sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer

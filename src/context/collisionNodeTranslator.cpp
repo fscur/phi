@@ -142,10 +142,10 @@ namespace phi
 
     void collisionNodeTranslator::translateNode(vec3 offset)
     {
-        if (isnan(offset.x) || offset == vec3())
-        {
-            phi::debug("errou!");
-        }
+        assert(!isnan(offset.x));
+        assert(!isnan(offset.y));
+        assert(!isnan(offset.z));
+        assert(offset != vec3());
 
         auto finalOffset = offset;
         if (objectFitsInOffsetedPosition(offset))
@@ -155,7 +155,7 @@ namespace phi
             {
                 auto farthestCollision = findFarthestValidCollision(sweepResult, offset);
 
-                auto limitedOffset = glm::normalize(offset) * farthestCollision.distance;
+                auto limitedOffset = glm::normalize(offset) * (farthestCollision.distance - DECIMAL_TRUNCATION);
                 auto adjustedOffset = getAdjustedOffset(farthestCollision, offset - limitedOffset);
 
                 if (adjustedOffset == vec3())
@@ -166,7 +166,7 @@ namespace phi
                     auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset);
 
                     if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
-                        finalOffset = limitedOffset + glm::normalize(adjustedOffset) * (*adjustSweepResult->collisions.begin()).distance;
+                        finalOffset = limitedOffset + glm::normalize(adjustedOffset) * ((*adjustSweepResult->collisions.begin()).distance + DECIMAL_TRUNCATION);
                     else
                         finalOffset = limitedOffset + adjustedOffset;
 
