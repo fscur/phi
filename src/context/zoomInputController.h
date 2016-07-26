@@ -7,7 +7,7 @@
 #include "contextApi.h"
 #include "inputController.h"
 
-#include <animation\floatAnimation.h>
+#include <animation\positionAnimation.h>
 
 namespace phi
 {
@@ -31,7 +31,7 @@ namespace phi
         float _bounceDistance;
         double _speedAccumulationTime;
         double _inertiaTime;
-        floatAnimation* _bounceAnimation;
+        positionAnimation* _bounceAnimation;
 
     private:
         void cancelBounceAnimation();

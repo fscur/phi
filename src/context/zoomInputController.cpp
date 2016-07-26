@@ -19,7 +19,7 @@ namespace phi
         _bounceDistance(0.0f),
         _speedAccumulationTime(0.0),
         _inertiaTime(0.0),
-        _bounceAnimation(new floatAnimation(&_bounceDistance))
+        _bounceAnimation(new positionAnimation(_camera->getTransform(), easingFunctions::easeRubberBack))
     {
     }
 
@@ -31,11 +31,6 @@ namespace phi
     void zoomInputController::cancelBounceAnimation()
     {
         _bounceAnimation->stop();
-        /*if (_bounceAnimation)
-        {
-            phi::floatAnimator::cancelAnimation(_bounceAnimation);
-            _bounceAnimation = nullptr;
-        }*/
     }
     
     void zoomInputController::cancelZoom()
@@ -51,28 +46,12 @@ namespace phi
         auto bounceDistance = MIN_BOUNCE + (MAX_BOUNCE * speedPercent);
         auto cameraPosition = _camera->getTransform()->getPosition();
 
-        /*_bounceAnimation->start();
-
-        _bounceAnimation = new phi::floatAnimation
-        (
-            0.0f,
-            bounceDistance,
-            400,
-            [this, cameraPosition](float t)
-            {
-                _camera->getTransform()->setLocalPosition(cameraPosition + _direction * t);
-            },
-            0,
-            phi::easingFunctions::easeRubberBack,
-            [&] { _bounceAnimation = nullptr; }
-        );
-
-        phi::floatAnimator::animateFloat(_bounceAnimation);*/
+        _bounceAnimation->start(cameraPosition, cameraPosition + (_direction * bounceDistance), 0.4);
     }
 
     bool zoomInputController::onMouseWheel(mouseEventArgs* e)
     {
-        if (e->wheelDelta > 0.0f) // && _bounceAnimation)
+        if (e->wheelDelta > 0.0f && _bounceAnimation->getIsAnimating())
             return false;
 
         cancelBounceAnimation();
@@ -115,6 +94,8 @@ namespace phi
     {
         auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
         _speedAccumulationTime = glm::max(_speedAccumulationTime - deltaMilliseconds, 0.0);
+
+        _bounceAnimation->animate();
 
         if (_speed == 0.0f)
             return false;

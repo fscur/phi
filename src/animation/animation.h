@@ -28,5 +28,7 @@ namespace phi
         ANIMATION_API void stop();
 
         ANIMATION_API virtual animation* clone() = 0;
+
+        bool getIsAnimating() const { return _isAnimating; }
     };
 }
