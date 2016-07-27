@@ -15,7 +15,9 @@ namespace phi
     {
         safeDelete(_left);
         safeDelete(_right);
-        safeDelete(_item);
+
+        if (_item)
+            safeDelete(_item);
     }
 
     inline bool atlasNode::isLeaf()
@@ -38,7 +40,7 @@ namespace phi
         }
         else
         {
-            if (node->_item != nullptr)
+            if (node->_item)
                 return nullptr;
 
             auto w = item->rect.w;

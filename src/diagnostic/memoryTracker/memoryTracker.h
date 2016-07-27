@@ -1,14 +1,14 @@
 #pragma once
 #include <phi.h>
-#include "diagnosticApi.h"
+#include <diagnostic\diagnosticApi.h>
 
 #ifdef _DEBUG
 
 namespace phi
 {
-    DIAGNOSTIC_API void* allocate(size_t size);
-    DIAGNOSTIC_API void deallocate(void* ptr);
-    DIAGNOSTIC_API void setDumpMemory(bool shouldDump);
+    DIAGNOSTIC_API void* allocate(size_t);
+    DIAGNOSTIC_API void deallocate(void*);
+    DIAGNOSTIC_API void setShouldPrintMemoryAnalysisResult(bool);
 }
 
 void* operator new(size_t mem)

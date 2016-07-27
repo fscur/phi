@@ -22,6 +22,12 @@ namespace phi
     template<typename T, typename Allocator = std::allocator<T>>
     using vector = std::vector<T, Allocator>;
 
+    template<typename R, typename... Args>
+    using function = std::function<R(Args...)>;
+
+    template<typename... Args>
+    using action = std::function<void(Args...)>;
+
     template<
         typename Key,
         typename Value,
@@ -53,6 +59,20 @@ namespace phi
     {
         delete[] value;
         value = nullptr;
+    }
+
+    template<typename T, typename... Args>
+    T* make(Args&&... args)
+    {
+        auto address = malloc(sizeof(T));
+        return new(address)T(args...);
+    };
+
+    template<typename T>
+    void destroy(T* obj)
+    {
+        obj->T::~T();
+        free(obj);
     }
 
     template<typename T, typename Allocator>

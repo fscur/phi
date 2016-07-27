@@ -1,5 +1,7 @@
 #include <precompiled.h>
-#include <diagnostic\heapRecorder.h>
+#include <diagnostic\memoryTracker\heapRecorder.h>
+#include <diagnostic\memoryTracker\allocation.h>
+#include <diagnostic\memoryTracker\deallocation.h>
 
 #include <gtest\gtest.h>
 
@@ -8,7 +10,7 @@ using namespace phi;
 TEST(heapRecorder, heap_OneAllocationAndOneDelete_ReturnZeroMemoryLeaksAndZeroUnnecessaryDeallocations)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address = reinterpret_cast<void*>(1);
 
     //Act
@@ -17,16 +19,16 @@ TEST(heapRecorder, heap_OneAllocationAndOneDelete_ReturnZeroMemoryLeaksAndZeroUn
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 0u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
+    ASSERT_EQ(redundantDeallocations.size(), 0u);
 }
 
 TEST(heapRecorder, heap_OneAllocation_ReturnsOneMemoryLeak)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address = reinterpret_cast<void*>(1);
 
     //Act
@@ -34,16 +36,16 @@ TEST(heapRecorder, heap_OneAllocation_ReturnsOneMemoryLeak)
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 1u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
+    ASSERT_EQ(redundantDeallocations.size(), 0u);
 }
 
 TEST(heapRecorder, heap_DeallocationWithoutAllocation_ReturnsOneUnnecessaryDeallocation)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address = reinterpret_cast<void*>(1);
 
     //Act
@@ -51,16 +53,16 @@ TEST(heapRecorder, heap_DeallocationWithoutAllocation_ReturnsOneUnnecessaryDeall
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 0u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 1u);
+    ASSERT_EQ(redundantDeallocations.size(), 1u);
 }
 
 TEST(heapRecorder, heap_OneAllocationAndTwoDeletes_ReturnsOneUnnecessaryDeallocation)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address = reinterpret_cast<void*>(1);
 
     //Act
@@ -70,16 +72,16 @@ TEST(heapRecorder, heap_OneAllocationAndTwoDeletes_ReturnsOneUnnecessaryDealloca
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 0u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 1u);
+    ASSERT_EQ(redundantDeallocations.size(), 1u);
 }
 
 TEST(heapRecorder, heap_TwoAllocationsAndTwoDeletesOfDifferentAddresses_ReturnsZeroMemoryLeaksAndZeroUnnecessaryDeallocation)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address1 = reinterpret_cast<void*>(1);
     auto address2 = reinterpret_cast<void*>(2);
 
@@ -91,16 +93,16 @@ TEST(heapRecorder, heap_TwoAllocationsAndTwoDeletesOfDifferentAddresses_ReturnsZ
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 0u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
+    ASSERT_EQ(redundantDeallocations.size(), 0u);
 }
 
 TEST(heapRecorder, heap_AllocationDeallocationAllocationOfTheSameAddress_ReturnsOneMemoryLeaksAndZeroUnnecessaryDeallocation)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address = reinterpret_cast<void*>(1);
 
     //Act
@@ -110,16 +112,16 @@ TEST(heapRecorder, heap_AllocationDeallocationAllocationOfTheSameAddress_Returns
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 1u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
+    ASSERT_EQ(redundantDeallocations.size(), 0u);
 }
 
 TEST(heapRecorder, heap_AllocationDeallocationAllocationDeallocationOfTheSameAddress_ReturnsZeroMemoryLeaksAndZeroUnnecessaryDeallocation)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address = reinterpret_cast<void*>(1);
 
     //Act
@@ -130,16 +132,16 @@ TEST(heapRecorder, heap_AllocationDeallocationAllocationDeallocationOfTheSameAdd
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 0u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
+    ASSERT_EQ(redundantDeallocations.size(), 0u);
 }
 
 TEST(heapRecorder, heap_ThreeAllocationsAndTwoDeallocations_ReturnsOneMemoryLeakAndZeroUnnecessaryDeallocation)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address1 = reinterpret_cast<void*>(1);
     auto address2 = reinterpret_cast<void*>(2);
     auto address3 = reinterpret_cast<void*>(3);
@@ -155,16 +157,16 @@ TEST(heapRecorder, heap_ThreeAllocationsAndTwoDeallocations_ReturnsOneMemoryLeak
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 1u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 0u);
+    ASSERT_EQ(redundantDeallocations.size(), 0u);
 }
 
 TEST(heapRecorder, heap_ThreeAllocationsAndThreeDeallocations_ReturnsOneMemoryLeakAndOneUnnecessaryDeallocation)
 {
     //Arrange
-    auto heap = heapRecorder();
+    auto heap = heapRecorder<allocation, deallocation>();
     auto address1 = reinterpret_cast<void*>(1);
     auto address2 = reinterpret_cast<void*>(2);
     auto address3 = reinterpret_cast<void*>(3);
@@ -182,8 +184,8 @@ TEST(heapRecorder, heap_ThreeAllocationsAndThreeDeallocations_ReturnsOneMemoryLe
 
     //Assert
     auto memoryLeaks = heap.getMemoryLeaks();
-    auto unnecessaryDeallocations = heap.getUnnecessaryDeallocations();
+    auto redundantDeallocations = heap.getRedundantDeallocations();
 
     ASSERT_EQ(memoryLeaks.size(), 1u);
-    ASSERT_EQ(unnecessaryDeallocations.size(), 1u);
+    ASSERT_EQ(redundantDeallocations.size(), 1u);
 }

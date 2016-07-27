@@ -195,9 +195,9 @@ namespace phi
                 bounceDistance,
                 400,
                 [this, cameraPosition](float t)
-            {
-                _camera->getTransform()->setLocalPosition(cameraPosition + _zoomDir * t);
-            },
+                {
+                    _camera->getTransform()->setLocalPosition(cameraPosition + _zoomDir * t);
+                },
                 0,
                 phi::easingFunctions::easeRubberBack,
                 [&] { _zoomBounceAnimation = nullptr; }
@@ -212,10 +212,7 @@ namespace phi
     void sceneCameraController::zoomCancel()
     {
         if (_zoomBounceAnimation)
-        {
             phi::floatAnimator::cancelAnimation(_zoomBounceAnimation);
-            safeDelete(_zoomBounceAnimation);
-        }
 
         _zoomSpeed = 0.0f;
     }

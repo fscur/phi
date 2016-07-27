@@ -10,6 +10,7 @@
 #include <animation\floatAnimator.h>
 
 #include <rendering\pickingFramebuffer.h>
+
 #ifdef _DEBUG
 #include <rendering\liveShaderReloader.h>
 #endif
@@ -44,12 +45,15 @@ namespace demon
 
     void screen::onInit()
     {
-        initGL();
-        initPickingFramebuffer();
-        initLibraries();
-        initScene();
-        initInput();
-        initUi();
+        phi::stopwatch::measure([&]
+        {
+            initGL();
+            initPickingFramebuffer();
+            initLibraries();
+            initScene();
+            initInput();
+            initUi();
+        }, "init");
 
 #ifdef _DEBUG
         _messageQueue = new blockingQueue<phi::watcherMessage>();
@@ -193,17 +197,6 @@ namespace demon
             .withTextRenderer()
             .build();
 
-        //TODO: onDemandUI
-        //sceneLayer->addOnNodeAdded([=](node* node)
-        //{
-            //node->addOnClick([=](layer* layer)
-            //{
-                //auto onDemandBillboard = onDemandBillboardUI::from(node, sceneCamera);
-                //auto onDemand = onDemandUI::from(node);
-                //layer->add(onDemand);
-            //});
-        //});
-
         _framebufferAllocator->allocate(_resolution);
 
         _designContext = new context(
@@ -263,16 +256,6 @@ namespace demon
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
-
-        //_commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
-        //{
-        //    return new multiCommand(vector<command*>
-        //    {
-        //        new unselectSceneObjectCommand(_scene->getSelectedObjects()),
-        //        new deleteSceneObjectCommand(_scene->getSelectedObjects())
-        //    });
-        //}));
-
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
     }
 
@@ -322,25 +305,11 @@ namespace demon
         _activeContext->render();
     }
 
-    bool a = false;
-
     void screen::onTick()
     {
         auto label = _labelFps->getComponent<phi::text>();
         auto str = "fps: " + std::to_string(application::framesPerSecond);
         label->setText(wstring(str.begin(), str.end()));
-
-        if (a)
-        {
-            _constructionLabel->getComponent<phi::text>()->setText(L"edftg");
-            _nandinhoLayer->add(_labelFps);
-        }
-        else
-        {
-            _labelFps->getParent()->removeChild(_labelFps);
-        }
-
-        a = !a;
 
 #ifdef _DEBUG
         while (!_messageQueue->empty())

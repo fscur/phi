@@ -266,7 +266,7 @@ namespace phi
         return stackSymbol;
     }
 
-    stackSymbol stackTracer::optimizedCaptureAllocationSight()
+    stackSymbol stackTracer::optimizedCaptureAllocationSight(int framesToSkip)
     {
         auto thread = GetCurrentThread();
         auto process = GetCurrentProcess();
@@ -316,7 +316,6 @@ namespace phi
         char const* cppExtension = ".cpp";
         char const* headerExtension = ".h";
 
-        int framesToSkip = 3;
         while (win64ProcLibrary::stackWalk64(
             imageType,
             process,

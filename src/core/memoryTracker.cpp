@@ -1,2 +1,2 @@
 #include <precompiled.h>
-#include <diagnostic\memoryTracker.h>
+#include <diagnostic\memoryTracker\memoryTracker.h>
