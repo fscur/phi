@@ -155,7 +155,7 @@ namespace phi
             {
                 auto farthestCollision = findFarthestValidCollision(sweepResult, offset);
 
-                auto limitedOffset = glm::normalize(offset) * (farthestCollision.distance - DECIMAL_TRUNCATION);
+                auto limitedOffset = glm::normalize(offset) * farthestCollision.distance;
                 auto adjustedOffset = getAdjustedOffset(farthestCollision, offset - limitedOffset);
 
                 if (adjustedOffset == vec3())
@@ -166,7 +166,10 @@ namespace phi
                     auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset);
 
                     if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
-                        finalOffset = limitedOffset + glm::normalize(adjustedOffset) * ((*adjustSweepResult->collisions.begin()).distance + DECIMAL_TRUNCATION);
+                    {
+                        auto firstCollision = adjustSweepResult->collisions.begin();
+                        finalOffset = limitedOffset + glm::normalize(adjustedOffset) * firstCollision->distance;
+                    }
                     else
                         finalOffset = limitedOffset + adjustedOffset;
 
