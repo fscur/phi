@@ -142,6 +142,32 @@ namespace phi
         return false;
     }
 
+    bool cameraInputController::onBeginMouseWheel(mouseEventArgs* e)
+    {
+        if (_zoomController.onBeginMouseWheel(e))
+        {
+            _rotationController.cancelRotation();
+            _panController.cancelPan();
+            return true;
+        }
+
+        if (_rotationController.onBeginMouseWheel(e))
+        {
+            _zoomController.cancelZoom();
+            _panController.cancelPan();
+            return true;
+        }
+
+        if (_panController.onBeginMouseWheel(e))
+        {
+            _zoomController.cancelZoom();
+            _rotationController.cancelRotation();
+            return true;
+        }
+
+        return false;
+    }
+
     bool cameraInputController::onMouseWheel(mouseEventArgs* e)
     {
         if (_zoomController.onMouseWheel(e))
@@ -159,6 +185,32 @@ namespace phi
         }
 
         if (_panController.onMouseWheel(e))
+        {
+            _zoomController.cancelZoom();
+            _rotationController.cancelRotation();
+            return true;
+        }
+
+        return false;
+    }
+
+    bool cameraInputController::onEndMouseWheel(mouseEventArgs* e)
+    {
+        if (_zoomController.onEndMouseWheel(e))
+        {
+            _rotationController.cancelRotation();
+            _panController.cancelPan();
+            return true;
+        }
+
+        if (_rotationController.onEndMouseWheel(e))
+        {
+            _zoomController.cancelZoom();
+            _panController.cancelPan();
+            return true;
+        }
+
+        if (_panController.onEndMouseWheel(e))
         {
             _zoomController.cancelZoom();
             _rotationController.cancelRotation();

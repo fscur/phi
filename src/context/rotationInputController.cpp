@@ -43,8 +43,8 @@ namespace phi
             _targetPos = glm::vec3();
         else
         {
-            auto worldZ = _camera->getWorldZRelativeToCamera(zBufferValue);
-            auto worldPosition = _camera->getWorldPositionRelativeToCamera(e->x, e->y, worldZ);
+            auto depth = _camera->zBufferToDepth(zBufferValue);
+            auto worldPosition = _camera->screenPointToView(e->x, e->y, depth);
 
             auto transform = _camera->getTransform();
             auto camPos = transform->getPosition();

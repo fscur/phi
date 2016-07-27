@@ -14,6 +14,7 @@ namespace phi
         bool rightButtonPressed;
         bool middleButtonPressed;
         float wheelDelta;
+        double elapsed;
         bool handled;
 
         mouseEventArgs() :
@@ -25,6 +26,7 @@ namespace phi
             rightButtonPressed(false),
             middleButtonPressed(false),
             wheelDelta(0.0f),
+            elapsed(0.0),
             handled(false)
         {
         }

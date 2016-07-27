@@ -172,10 +172,22 @@ namespace phi
             controller->onMouseUp(e);
     }
 
+    void layer::onBeginMouseWheel(mouseEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            controller->onBeginMouseWheel(e);
+    }
+
     void layer::onMouseWheel(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             controller->onMouseWheel(e);
+    }
+
+    void layer::onEndMouseWheel(mouseEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            controller->onEndMouseWheel(e);
     }
 
     void layer::onKeyDown(keyboardEventArgs* e)

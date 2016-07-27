@@ -61,9 +61,9 @@ namespace phi
 
         float z = 10.0;
         if (zBufferValue != 1.0f)
-            z = _camera->getWorldZRelativeToCamera(zBufferValue);
+            z = _camera->zBufferToDepth(zBufferValue);
 
-        auto position = _camera->getWorldPositionRelativeToCamera(e->x, e->y, z);
+        auto position = _camera->screenPointToView(e->x, e->y, z);
 
         auto cameraTransform = _camera->getTransform();
         auto cameraOrientation = cameraTransform->getOrientation();
