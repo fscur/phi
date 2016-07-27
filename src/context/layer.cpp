@@ -137,6 +137,9 @@ namespace phi
 
     void layer::update()
     {
+        for (auto& onUpdateFunction : _onUpdate)
+            onUpdateFunction();
+
         for (auto& controller : _controllers)
             controller->update();
 

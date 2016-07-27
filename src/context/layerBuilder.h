@@ -24,7 +24,7 @@ namespace phi
         commandsManager* _commandsManager;
         meshLayerBehaviour* _meshBehaviour;
         physicsLayerBehaviour* _physicsBehaviour;
-
+        
         vector<renderPass*> _meshRenderPasses;
         vector<renderPass*> _controlRenderPasses;
         vector<renderPass*> _glassyControlRenderPasses;
@@ -37,6 +37,7 @@ namespace phi
         bool _withGlassyControlRenderer;
         bool _withTextRenderer;
         bool _withPhysics;
+        bool _withAnimation;
         bool _withCameraController;
         bool _withSelectionController;
         bool _withObbTranslationController;
@@ -51,6 +52,7 @@ namespace phi
         void buildGlassyControlRenderer();
         void buildTextRenderer();
         void buildPhysics();
+        void buildAnimation();
         void buildCameraController();
         void buildSelectionController(meshLayerBehaviour* meshBehaviour);
         void buildObbTranslationController();
@@ -64,6 +66,7 @@ namespace phi
         layerBuilder withGlassyControlRenderer() { _withGlassyControlRenderer = true; return *this; }
         layerBuilder withTextRenderer() { _withTextRenderer = true; return *this; }
         layerBuilder withPhysics() { _withPhysics = true; return *this; }
+        layerBuilder withAnimation() { _withAnimation = true; return *this; }
         layerBuilder withCameraController() { _withCameraController = true; return *this; }
         layerBuilder withSelectionController() { _withSelectionController = true; return *this; }
         layerBuilder withObbTranslationController() { _withObbTranslationController = true; return *this; }

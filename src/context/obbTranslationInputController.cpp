@@ -60,13 +60,16 @@ namespace phi
 
     void obbTranslationInputController::clearPlaneGrids()
     {
-        for (auto node : _planeNodes)
+        for (auto pair : _planeNodesAnimations)
         {
-            node->getParent()->removeChild(node);
-            safeDelete(node);
-        }
+            auto planeNode = pair.first;
+            auto animation = pair.second;
 
-        _planeNodes.clear();
+            planeNode->getParent()->removeChild(planeNode);
+            safeDelete(planeNode);
+        }
+        //TODO:fix it
+        _planeNodesAnimations.clear();
     }
 
     void obbTranslationInputController::addPlaneGrid(vec3 position, color color)
@@ -76,10 +79,17 @@ namespace phi
         planeTransform->setLocalPosition(position);
         planeTransform->setDirection(_plane.getNormal());
         
+        auto animator = new phi::animator();
+        auto animation = new transformAnimation(planeTransform, easingFunctions::easeOutCubic);
+        animator->addAnimation(animation);
+
         auto planeGrid = new phi::planeGrid();
         planeGrid->setImage(_planeImage);
         planeNode->addComponent(planeGrid);
-        _planeNodes.push_back(planeNode);
+        planeNode->addComponent(animator);
+
+        _planeNodesAnimations[planeNode] = animation;
+
         _planesLayer->add(planeNode);
 
         //_planeGridPass->setPositionAndOrientation(position, _plane.getNormal());
@@ -90,12 +100,23 @@ namespace phi
 
     void obbTranslationInputController::updatePlaneGrids()
     {
-        for (auto planeNode : _planeNodes)
+        for (auto pair : _planeNodesAnimations)
         {
+            auto planeNode = pair.first;
+            auto animation = pair.second;
+
             auto planeTransform = planeNode->getTransform();
             auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
             
-            planeTransform->setLocalPosition(plane.projectPoint(_draggingCollider->getObb().center));
+            auto fromPlaneTransform = new transform();
+            auto fromPosition = planeTransform->getLocalPosition();
+            fromPlaneTransform->setLocalPosition(fromPosition);
+
+            auto toPlaneTransform = new transform();
+            auto toPosition = plane.projectPoint(_draggingCollider->getObb().center);
+            toPlaneTransform->setLocalPosition(toPosition);
+
+            animation->start(fromPlaneTransform, toPlaneTransform, 0.33);
         }
     }
 
@@ -117,6 +138,7 @@ namespace phi
         vec3* positions;
         vec3* normals;
         size_t count;
+
         auto ray = _camera->screenPointToRay(static_cast<float>(e->x), static_cast<float>(e->y));
         if (ray.intersects(obb, positions, normals, count))
         {

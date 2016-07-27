@@ -14,6 +14,11 @@
 #include "nodeTranslator.h"
 #include "pickingId.h"
 
+#include <animation\animator.h>
+#include <animation\animation.h>
+#include <animation\floatAnimation.h>
+#include <animation\transformAnimation.h>
+
 namespace phi
 {
     class obbTranslationInputController :
@@ -32,7 +37,7 @@ namespace phi
         plane _plane;
         vec3 _initialObjectPosition;
         bool _disableCollision;
-        vector<node*> _planeNodes;
+        map<node*, transformAnimation*> _planeNodesAnimations;
 
     private:
         void initializeDragData(node* node);

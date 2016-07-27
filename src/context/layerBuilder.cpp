@@ -24,6 +24,8 @@
 #include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
 #include "physicsLayerBehaviour.h"
+#include "animatorLayerBehaviour.h"
+
 #include "cameraInputController.h"
 #include "selectionInputController.h"
 #include "obbTranslationInputController.h"
@@ -183,6 +185,20 @@ namespace phi
         _physicsBehaviour = physicsBehaviour;
     }
 
+    void layerBuilder::buildAnimation()
+    {
+        auto animatorBehaviour = new animatorLayerBehaviour();
+
+        _layer->addOnUpdate(std::bind(&animatorLayerBehaviour::onUpdate, animatorBehaviour));
+        _layer->addOnNodeAdded(std::bind(&animatorLayerBehaviour::onNodeAdded, animatorBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&animatorLayerBehaviour::onNodeRemoved, animatorBehaviour, std::placeholders::_1));
+
+        _layer->addOnDelete([animatorBehaviour]() mutable
+        {
+            safeDelete(animatorBehaviour);
+        });
+    }
+
     void layerBuilder::buildCameraController()
     {
         _layer->addMouseController(new cameraInputController(_layer->getCamera()));
@@ -227,6 +243,9 @@ namespace phi
 
         if (_withPhysics)
             buildPhysics();
+
+        if (_withAnimation)
+            buildAnimation();
 
         if (_withCameraController)
             buildCameraController();

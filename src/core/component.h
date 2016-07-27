@@ -11,17 +11,18 @@ namespace phi
     public:
         enum componentType
         {
-            MODEL,
-            MESH,
-            CAMERA,
-            DIRECTIONAL_LIGHT,
-            POINT_LIGHT,
-            SPOT_LIGHT,
-            CONTROL,
-            TEXT,
-            CLICK,
-            BOX_COLLIDER,
-            PLANE_GRID
+            MODEL = 0,
+            MESH = 1,
+            CAMERA = 2,
+            DIRECTIONAL_LIGHT = 3,
+            POINT_LIGHT = 4,
+            SPOT_LIGHT = 5,
+            CONTROL = 6,
+            TEXT = 7,
+            CLICK = 8,
+            BOX_COLLIDER = 9,
+            PLANE_GRID = 10,
+            ANIMATOR = 11
         };
 
     protected:

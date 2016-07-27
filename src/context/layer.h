@@ -44,6 +44,7 @@ namespace phi
         map<node*, nodeEventTokens*> _nodeTokens;
 
         vector<renderPass*> _renderPasses;
+        vector<std::function<void(void)>> _onUpdate;
         vector<std::function<void(node*)>> _onNodeAdded;
         vector<std::function<void(node*)>> _onNodeRemoved;
         vector<std::function<void(node*)>> _onNodeTransformChanged;
@@ -80,6 +81,7 @@ namespace phi
         CONTEXT_API void onKeyDown(keyboardEventArgs* e);
         CONTEXT_API void onKeyUp(keyboardEventArgs* e);
 
+        void addOnUpdate(std::function<void(void)> onUpdate) { _onUpdate.push_back(onUpdate); }
         void addOnNodeAdded(std::function<void(node*)> onNodeAdded) { _onNodeAdded.push_back(onNodeAdded); }
         void addOnNodeRemoved(std::function<void(node*)> onNodeRemoved) { _onNodeRemoved.push_back(onNodeRemoved); }
         void addOnNodeTransformChanged(std::function<void(node*)> onNodeTransformChanged) { _onNodeTransformChanged.push_back(onNodeTransformChanged); }

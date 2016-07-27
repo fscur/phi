@@ -44,7 +44,7 @@ namespace phi
             auto pickingRenderTargetAddress = texturesManager::getTextureAddress(pickingRenderTarget->texture);
 
             program->setUniform(0, resolution.toVec2());
-            program->setUniform(1, 0.5f);
+            program->setUniform(1, 1.0f);
             program->setUniform(2, static_cast<float>(time::totalSeconds));
             program->setUniform(3, pickingRenderTargetAddress.unit);
             program->setUniform(4, pickingRenderTargetAddress.page);

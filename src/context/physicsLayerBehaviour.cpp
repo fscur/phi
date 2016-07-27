@@ -6,6 +6,16 @@
 
 namespace phi
 {
+    physicsLayerBehaviour::physicsLayerBehaviour() :
+        _physicsWorld(new physicsWorld())
+    {
+    }
+
+    physicsLayerBehaviour::~physicsLayerBehaviour()
+    {
+        safeDelete(_physicsWorld);
+    }
+
     void physicsLayerBehaviour::onNodeAdded(node* node)
     {
         auto collider = node->getComponent<boxCollider>();

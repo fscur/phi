@@ -2,8 +2,6 @@
 #include <phi.h>
 #include "contextApi.h"
 
-#include <animation\floatAnimator.h>
-
 #include <application\commandsManager.h>
 
 #include "meshLayerBehaviour.h"

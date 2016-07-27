@@ -14,15 +14,8 @@ namespace phi
         physicsWorld* _physicsWorld;
 
     public:
-        physicsLayerBehaviour() :
-            _physicsWorld(new physicsWorld())
-        {
-        }
-
-        ~physicsLayerBehaviour()
-        {
-            safeDelete(_physicsWorld);
-        }
+        physicsLayerBehaviour();
+        ~physicsLayerBehaviour();
 
         physicsWorld* getPhysicsWorld() { return _physicsWorld; }
         void onNodeAdded(node* node);
