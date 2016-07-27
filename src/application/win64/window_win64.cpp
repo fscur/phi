@@ -2,12 +2,14 @@
 #include "..\window.h"
 #include <core\input.h>
 #include <core\exception.h>
-
+#include <diagnostic\stopwatch.h>
 #include <core\invalidInitializationException.h>
 #include <ShellScalingApi.h>
 
 namespace phi
 {
+    using namespace std::chrono;
+
     //TODO: free memory
     HWND _windowHandle;
     HINSTANCE _applicationInstance;
@@ -17,6 +19,11 @@ namespace phi
     DWORD _windowStyle = WS_OVERLAPPEDWINDOW;
     LPARAM _lastMouseMove;
     resolution _currentResolution;
+
+    nanoseconds _lastMouseWheelElapsed;
+    nanoseconds _firstMouseWheelElapsed;
+    int _mouseWheelDelta;
+    bool _isMouseWheeling = false;
 
     bool _isBeingFirstShown = true;
     bool _hasEnteredSizeMove = false;
@@ -337,7 +344,26 @@ namespace phi
         point.x = GET_X_LPARAM(lParam);
         point.y = GET_Y_LPARAM(lParam);
         ScreenToClient(_windowHandle, &point);
-        input::notifyMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), point.x, point.y);
+        auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+        auto now = high_resolution_clock::now().time_since_epoch();
+
+        if (!_isMouseWheeling)
+        {
+            _isMouseWheeling = true;
+            _mouseWheelDelta = delta;
+            _firstMouseWheelElapsed = now;
+            input::notifyBeginMouseWheel(delta, point.x, point.y);
+            input::notifyMouseWheel(delta, point.x, point.y);
+        }
+        else
+        {
+            _mouseWheelDelta += delta;
+            input::notifyMouseWheel(delta, point.x, point.y);
+        }
+
+        _lastMouseWheelElapsed = now;
+
         return 0;
     }
 
@@ -645,6 +671,24 @@ namespace phi
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+    }
+
+    void window::update()
+    {
+        if (_isMouseWheeling)
+        {
+            auto now = high_resolution_clock::now().time_since_epoch();
+            auto lastMouseWheelElapsed = duration_cast<duration<double>>(now - _lastMouseWheelElapsed).count();
+
+            if(lastMouseWheelElapsed > 0.1f)
+            {
+                auto elapsed = duration_cast<duration<double>>(now - _firstMouseWheelElapsed).count();
+                input::notifyEndMouseWheel(_mouseWheelDelta, elapsed);
+                _isMouseWheeling = false;
+            }
+        }
+
+        onUpdate();
     }
 
     void window::swapBuffers()

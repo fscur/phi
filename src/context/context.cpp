@@ -67,10 +67,22 @@ namespace phi
             layer->onMouseUp(e);
     }
 
+    void context::onBeginMouseWheel(mouseEventArgs* e)
+    {
+        for (auto& layer : _layers)
+            layer->onBeginMouseWheel(e);
+    }
+
     void context::onMouseWheel(mouseEventArgs* e)
     {
         for (auto& layer : _layers)
             layer->onMouseWheel(e);
+    }
+
+    void context::onEndMouseWheel(mouseEventArgs* e)
+    {
+        for (auto& layer : _layers)
+            layer->onEndMouseWheel(e);
     }
 
     void context::onKeyDown(keyboardEventArgs* e)

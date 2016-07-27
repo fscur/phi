@@ -66,7 +66,9 @@ namespace demon
         void onMouseDown(phi::mouseEventArgs* e);
         void onMouseMove(phi::mouseEventArgs* e);
         void onMouseUp(phi::mouseEventArgs* e);
+        void onBeginMouseWheel(phi::mouseEventArgs* e);
         void onMouseWheel(phi::mouseEventArgs* e);
+        void onEndMouseWheel(phi::mouseEventArgs* e);
         void onKeyDown(phi::keyboardEventArgs* e);
         void onKeyUp(phi::keyboardEventArgs* e);
 

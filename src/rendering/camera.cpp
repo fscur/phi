@@ -126,7 +126,7 @@ namespace phi
         updateViewMatrix();
     }
 
-    vec3 camera::getWorldPositionRelativeToCamera(int mouseX, int mouseY, float z)
+    vec3 camera::screenPointToView(int mouseX, int mouseY, float depth)
     {
         auto tg = tan(_fov * 0.5f) * _near;
 
@@ -141,13 +141,13 @@ namespace phi
         auto xp0 = xs0 / hw;
         auto xm0 = xp0 * tg * _resolution.getAspect();
 
-        auto x = (xm0 / _near) * z;
-        auto y = (ym0 / _near) * z;
+        auto x = (xm0 / _near) * depth;
+        auto y = (ym0 / _near) * depth;
 
-        return vec3(x, y, z);
+        return vec3(x, y, depth);
     }
 
-    float camera::getWorldZRelativeToCamera(float zBufferValue)
+    float camera::zBufferToDepth(float zBufferValue)
     {
         return -_projectionMatrix[3].z / (zBufferValue * -2.0f + 1.0f - _projectionMatrix[2].z);
     }

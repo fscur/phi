@@ -12,7 +12,9 @@ namespace phi
         static void raiseMouseMoveEvent(mouseEventArgs* e);
         static void raiseMouseDownEvent(mouseEventArgs* e);
         static void raiseMouseUpEvent(mouseEventArgs* e);
+        static void raiseBeginMouseWheelEvent(mouseEventArgs* e);
         static void raiseMouseWheelEvent(mouseEventArgs* e);
+        static void raiseEndMouseWheelEvent(mouseEventArgs* e);
         static void raiseKeyDownEvent(keyboardEventArgs* e);
         static void raiseKeyUpEvent(keyboardEventArgs* e);
 
@@ -26,7 +28,10 @@ namespace phi
         static void notifyMiddleMouseUp(int x, int y);
 
         static void notifyMouseMove(int x, int y);
+
+        static void notifyBeginMouseWheel(int delta, int x, int y);
         static void notifyMouseWheel(int delta, int x, int y);
+        static void notifyEndMouseWheel(int delta, double elapsed);
 
         static void notifyKeyDown(int key);
         static void notifyKeyUp(int key);
@@ -36,7 +41,9 @@ namespace phi
         static mouseEventHandler* mouseMove;
         static mouseEventHandler* mouseDown;
         static mouseEventHandler* mouseUp;
+        static mouseEventHandler* beginMouseWheel;
         static mouseEventHandler* mouseWheel;
+        static mouseEventHandler* endMouseWheel;
         static keyboardEventHandler* keyDown;
         static keyboardEventHandler* keyUp;
     };

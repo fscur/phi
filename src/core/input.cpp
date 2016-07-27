@@ -6,7 +6,9 @@ namespace phi
     mouseEventHandler* input::mouseDown = new mouseEventHandler();
     mouseEventHandler* input::mouseUp = new mouseEventHandler();
     mouseEventHandler* input::mouseMove = new mouseEventHandler();
+    mouseEventHandler* input::beginMouseWheel = new mouseEventHandler();
     mouseEventHandler* input::mouseWheel = new mouseEventHandler();
+    mouseEventHandler* input::endMouseWheel = new mouseEventHandler();
     keyboardEventHandler* input::keyDown = new keyboardEventHandler();
     keyboardEventHandler* input::keyUp = new keyboardEventHandler();
 
@@ -25,11 +27,20 @@ namespace phi
         mouseUp->raise(e);
     }
 
+    void input::raiseBeginMouseWheelEvent(mouseEventArgs* e)
+    {
+        beginMouseWheel->raise(e);
+    }
+    
     void input::raiseMouseWheelEvent(mouseEventArgs* e)
     {
         mouseWheel->raise(e);
     }
-
+    
+    void input::raiseEndMouseWheelEvent(mouseEventArgs* e)
+    {
+        endMouseWheel->raise(e);
+    }
     void input::raiseKeyDownEvent(keyboardEventArgs* e)
     {
         keyDown->raise(e);
@@ -102,6 +113,15 @@ namespace phi
         raiseMouseUpEvent(&mouseArgs);
     }
 
+    void input::notifyBeginMouseWheel(int delta, int x, int y)
+    {
+        auto mouseArgs = mouseEventArgs();
+        mouseArgs.wheelDelta = static_cast<float>(delta);
+        mouseArgs.x = x;
+        mouseArgs.y = y;
+        raiseBeginMouseWheelEvent(&mouseArgs);
+    }
+
     void input::notifyMouseWheel(int delta, int x, int y)
     {
         auto mouseArgs = mouseEventArgs();
@@ -109,6 +129,14 @@ namespace phi
         mouseArgs.x = x;
         mouseArgs.y = y;
         raiseMouseWheelEvent(&mouseArgs);
+    }
+
+    void input::notifyEndMouseWheel(int delta, double elapsed)
+    {
+        auto mouseArgs = mouseEventArgs();
+        mouseArgs.wheelDelta = static_cast<float>(delta);
+        mouseArgs.elapsed = elapsed;
+        raiseEndMouseWheelEvent(&mouseArgs);
     }
 
     void input::notifyKeyDown(int key)

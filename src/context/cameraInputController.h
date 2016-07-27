@@ -26,7 +26,9 @@ namespace phi
         virtual bool onMouseDown(mouseEventArgs* e) override;
         virtual bool onMouseMove(mouseEventArgs* e) override;
         virtual bool onMouseUp(mouseEventArgs* e) override;
+        virtual bool onBeginMouseWheel(mouseEventArgs* e) override;
         virtual bool onMouseWheel(mouseEventArgs* e) override;
+        virtual bool onEndMouseWheel(mouseEventArgs* e) override;
 
     public:
         CONTEXT_API cameraInputController(camera* camera);

@@ -24,11 +24,6 @@ namespace phi
         onRender();
     }
 
-    void window::update() 
-    {
-        onUpdate();
-    }
-
     void window::tick() 
     {
         onTick();

@@ -168,7 +168,7 @@ namespace demon
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 10.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 1.5f));
         _sceneCamera->getTransform()->yaw(PI);
 
         try
@@ -260,7 +260,9 @@ namespace demon
         input::mouseDown->assign(std::bind(&screen::onMouseDown, this, std::placeholders::_1));
         input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
         input::mouseUp->assign(std::bind(&screen::onMouseUp, this, std::placeholders::_1));
+        input::beginMouseWheel->assign(std::bind(&screen::onBeginMouseWheel, this, std::placeholders::_1));
         input::mouseWheel->assign(std::bind(&screen::onMouseWheel, this, std::placeholders::_1));
+        input::endMouseWheel->assign(std::bind(&screen::onEndMouseWheel, this, std::placeholders::_1));
         input::keyDown->assign(std::bind(&screen::onKeyDown, this, std::placeholders::_1));
         input::keyUp->assign(std::bind(&screen::onKeyUp, this, std::placeholders::_1));
 
@@ -295,9 +297,19 @@ namespace demon
         _activeContext->onMouseUp(e);
     }
 
+    void screen::onBeginMouseWheel(phi::mouseEventArgs* e)
+    {
+        _activeContext->onBeginMouseWheel(e);
+    }
+
     void screen::onMouseWheel(phi::mouseEventArgs* e)
     {
         _activeContext->onMouseWheel(e);
+    }
+
+    void screen::onEndMouseWheel(phi::mouseEventArgs* e)
+    {
+        _activeContext->onEndMouseWheel(e);
     }
 
     void screen::onKeyDown(phi::keyboardEventArgs* e)
@@ -309,7 +321,9 @@ namespace demon
     {
         _activeContext->onKeyUp(e);
     }
+
     float t = 0;
+
     void screen::onUpdate()
     {
         t += 0.01f;

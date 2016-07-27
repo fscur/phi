@@ -52,9 +52,9 @@ namespace phi
         RENDERING_API void zoom(vec3 offset);
         RENDERING_API void orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY);
 
-        RENDERING_API vec3 getWorldPositionRelativeToCamera(int mouseX, int mouseY, float zBufferValue);
-        RENDERING_API float getWorldZRelativeToCamera(float zBufferValue);
+        RENDERING_API vec3 screenPointToView(int mouseX, int mouseY, float depth);
         RENDERING_API ray screenPointToRay(float mouseX, float mouseY);
+        RENDERING_API float zBufferToDepth(float zBufferValue);
 
         float getNear() const { return _near; }
         float getFar() const { return _far; }

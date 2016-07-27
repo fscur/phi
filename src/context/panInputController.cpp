@@ -45,7 +45,7 @@ namespace phi
         if (zBufferValue == 1.0f)
             _eyeZ = 20.0f;
         else
-            _eyeZ = _camera->getWorldZRelativeToCamera(zBufferValue);
+            _eyeZ = _camera->zBufferToDepth(zBufferValue);
 
         auto cameraTransform = _camera->getTransform();
         _cameraPos = _targetCameraPos = cameraTransform->getPosition();
