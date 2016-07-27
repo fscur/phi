@@ -43,7 +43,7 @@ namespace phi
     {
         cancelBounceAnimation();
 
-        auto bounceDistance = MIN_BOUNCE + (MAX_BOUNCE * speedPercent);
+        auto bounceDistance = MIN_BOUNCE + ((MAX_BOUNCE - MIN_BOUNCE) * speedPercent);
         auto cameraPosition = _camera->getTransform()->getPosition();
 
         _bounceAnimation->start(cameraPosition, cameraPosition + (_direction * bounceDistance), 0.4);
