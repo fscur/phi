@@ -2,7 +2,7 @@
 #include <phi.h>
 #include "uiApi.h"
 #include <core\component.h>
-#include <core\image.h>
+#include <core\color.h>
 
 namespace phi
 {
@@ -10,7 +10,9 @@ namespace phi
         public component
     {
     private:
-        image* _image;
+        color _color;
+        float _size;
+
     public:
         static componentType getComponentType() 
         { 
@@ -22,8 +24,11 @@ namespace phi
         UI_API planeGrid(const planeGrid& planeGrid);
         UI_API ~planeGrid();
 
-        void setImage(image* value) { _image = value; }
-        image* getImage() const { return _image; }
+        UI_API color getColor() const { return _color; }
+        UI_API float getSize() const { return _size; }
+
+        UI_API void setColor(const color& value) { _color = value; }
+        UI_API void setSize(const float value) { _size = value; }
 
         UI_API component* clone() const override;
     };

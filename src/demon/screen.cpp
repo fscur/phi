@@ -163,8 +163,8 @@ namespace demon
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube1->getTransform()->translate(vec3(1.0));
         //cube0->getTransform()->setLocalSize(vec3(0.1f));
+        cube1->getTransform()->translate(vec3(1.0));
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);

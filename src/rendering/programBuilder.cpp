@@ -25,7 +25,12 @@ namespace phi
         auto program = new phi::program();
         program->addShader(vertexShader);
         program->addShader(fragmentShader);
-        program->compile();
+
+        auto result = program->compile();
+        
+        if (!result.getSucceeded())
+            debug(result.toString());
+        
         program->link();
 
 #ifdef _DEBUG

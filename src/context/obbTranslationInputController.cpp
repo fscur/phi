@@ -84,7 +84,8 @@ namespace phi
         animator->addAnimation(animation);
 
         auto planeGrid = new phi::planeGrid();
-        planeGrid->setImage(_planeImage);
+        planeGrid->setColor(color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
+        planeGrid->setSize(10.0f);
         planeNode->addComponent(planeGrid);
         planeNode->addComponent(animator);
 
@@ -183,6 +184,11 @@ namespace phi
             _nodeTranslator->translateNode(offset);
 
         updatePlaneGrids();
+
+        
+
+
+
         //_planeGridPass->projectAndAnimateFocusPosition(_dragCollider->getObb().center);
 
         return true;

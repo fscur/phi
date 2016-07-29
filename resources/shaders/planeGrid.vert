@@ -15,10 +15,26 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
     float pad0;
 } frameUniforms;
 
+struct planeGridRenderData
+{
+    vec4 color;
+    float startTime;
+    float planeSize;
+    float pad0;
+    float pad1;
+};
+
+layout (std140, binding = 1) buffer PlaneGridRenderDataBuffer
+{
+    planeGridRenderData items[];
+} renderData;
+
+out vec2 worldFragTexCoord;
 out vec2 fragTexCoord;
-out vec2 planeCenter;
+flat out float planeSize;
+flat out float planeDist;
 flat out uint instanceId;
-flat out float time;
+flat out float globalTime;
 
 vec2 projectPoint(in vec3 point, in vec3 xAxis, in vec3 yAxis)
 {
@@ -26,43 +42,30 @@ vec2 projectPoint(in vec3 point, in vec3 xAxis, in vec3 yAxis)
     float y = dot(normalize(yAxis), point);
 
     return vec2(x, y);
-
-    //float dist = dot(point, normal);
-    //return point - normal * dist;
 }
-
-float planeSize = 10.0;
 
 void main()
 {
     mat4 modelMatrix = inModelMatrix;
-
-    //modelMatrix[0][0] = 1.0; modelMatrix[0][1] = 0.0; modelMatrix[0][2] = 0.0; modelMatrix[0][3] = 0.0; 
-    //modelMatrix[1][0] = 0.0; modelMatrix[1][1] = 1.0; modelMatrix[1][2] = 0.0; modelMatrix[1][3] = 0.0; 
-    //modelMatrix[2][0] = 0.0; modelMatrix[2][1] = 0.0; modelMatrix[2][2] = 1.0; modelMatrix[2][3] = 0.0; 
-    //modelMatrix[3][0] = 0.0; modelMatrix[3][1] = 0.0; modelMatrix[3][2] = 0.0; modelMatrix[3][3] = 1.0; 
-
+    planeGridRenderData data = renderData.items[instanceId];
+    
     vec3 xAxis = vec3(modelMatrix[0][0], modelMatrix[0][1], modelMatrix[0][2]);
     vec3 yAxis = vec3(modelMatrix[1][0], modelMatrix[1][1], modelMatrix[1][2]);
-    ////vec3 zAxis = vec3(modelMatrix[2][0], modelMatrix[2][1], modelMatrix[2][2]);
 
     vec3 translation = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
     vec2 projected = projectPoint(translation, xAxis, yAxis);
 
+    planeDist = -(frameUniforms.v * modelMatrix * vec4(vec3(0.0), 1.0)).z;
+    planeSize = planeDist * 1.2;
+
     vec4 inPos = vec4(inPosition, 1.0);
     inPos.xy *= planeSize;
-    inPos.xy += 0.5;
 
     vec4 pos =  modelMatrix * inPos;
 
     gl_Position = frameUniforms.p * frameUniforms.v * pos;
-    //gl_Position.z = 0.0;
-    //gl_Position.w = 1.0;
-    //gl_Position.z /= gl_Position.w;
-    //fragTexCoord = (inTexCoord);
-    //fragTexCoord = (inTexCoord - 0.5) * 100 - inPosition.xy;
-    fragTexCoord = ((inTexCoord - 0.5) * planeSize + projected);
-    planeCenter = (inTexCoord - 0.5) * planeSize;
+    worldFragTexCoord = ((inTexCoord) * planeSize + projected);
+    fragTexCoord = (inTexCoord) * planeSize;
     instanceId = gl_InstanceID;
-    time = frameUniforms.time;
+    globalTime = frameUniforms.time;
 }
