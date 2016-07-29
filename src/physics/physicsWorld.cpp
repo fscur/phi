@@ -211,10 +211,8 @@ namespace phi
         if (PxGeometryQuery::sweep(
             PxVec3(dir.x, dir.y, dir.z),
             distance,
-            geometrySource,
-            poseSource,
-            geometryTarget,
-            poseTarget,
+            geometrySource, poseSource,
+            geometryTarget, poseTarget,
             hit,
             PxHitFlag::eDEFAULT | PxHitFlag::eMTD))
         {
@@ -237,7 +235,7 @@ namespace phi
         auto geometry = _colliders[test.collider]->geometry;
         auto pose = createPose(test.collider, test.transform);
 
-        PxQueryFilterData filterData = PxQueryFilterData(PxQueryFlag::eSTATIC);
+        auto filterData = PxQueryFilterData(PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
         PxSweepHit hitBuffer[32];
         auto hit = PxSweepBuffer(hitBuffer, 32);
@@ -257,27 +255,29 @@ namespace phi
                 auto collidedCollider = reinterpret_cast<boxCollider*>(touch.actor->userData);
                 auto normal = vec3(touch.normal.x, touch.normal.y, touch.normal.z);
 
-                if (touch.distance == 0.0f)
-                {
-                    sweepCollisionPairTest pairTest;
-                    pairTest.colliderSource = test.collider;
-                    pairTest.transformSource = test.transform;
-                    pairTest.offset = test.direction * DECIMAL_TRUNCATION;
-                    pairTest.colliderTarget = collidedCollider;
-                    pairTest.transformTarget = collidedCollider->getNode()->getTransform();
-                    auto mtdResult = sweepPenetration(pairTest);
-                    if (mtdResult.collided)
-                    {
-                        normal = collidedCollider->getObb().findClosestNormal(mtdResult.collisions[0].normal);
-                        auto dot = glm::dot(normal, test.direction);
-                        if (test.disregardDivergentNormals && (mathUtils::isClose(dot, 0.0f) || dot > 0.0f))
-                            continue;
-                    }
-                    else
-                        continue;
-                }
+                // TODO: check if this is going to be necessary
+                // Penetration check for invalid normals
+                //if (touch.distance == 0.0f)
+                //{
+                //    sweepCollisionPairTest pairTest;
+                //    pairTest.colliderSource = test.collider;
+                //    pairTest.transformSource = test.transform;
+                //    pairTest.offset = test.direction * DECIMAL_TRUNCATION;
+                //    pairTest.colliderTarget = collidedCollider;
+                //    pairTest.transformTarget = collidedCollider->getNode()->getTransform();
+                //    auto penetrationResult = sweepPenetration(pairTest);
+                //    if (penetrationResult.collided)
+                //    {
+                //        normal = collidedCollider->getObb().findClosestNormal(penetrationResult.collisions[0].normal);
+                //        auto dot = glm::dot(normal, test.direction);
+                //        if (test.disregardDivergentNormals && (mathUtils::isClose(dot, 0.0f) || dot > 0.0f))
+                //            continue;
+                //    }
+                //    else
+                //        continue;
+                //}
 
-                result.collisions.push_back(sweepCollision(collidedCollider, touch.distance, normal));
+                result.collisions.push_back(sweepCollision(collidedCollider, touch.distance - DECIMAL_TRUNCATION, normal));
                 result.collided = true;
             }
         }
