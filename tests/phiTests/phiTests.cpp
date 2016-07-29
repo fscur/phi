@@ -134,7 +134,7 @@ TEST(phi, indexOf_vectorContainingValue_ReturnsValueIndex)
     auto result = phi::indexOf(v, 2);
 
     //Assert
-    auto expected = 2;
+    auto expected = 2u;
     ASSERT_EQ(expected, result);
 }
 
@@ -164,7 +164,7 @@ TEST(phi, indexOf_vectorPtrContainingValue_ReturnsValueIndex)
     auto result = phi::indexOf(v, 2);
 
     //Assert
-    auto expected = 2;
+    auto expected = 2u;
     ASSERT_EQ(expected, result);
 
     safeDelete(v);
@@ -188,7 +188,7 @@ TEST(phi, indexOf_vectorPtrContainingValuePtr_ReturnsValuePtrIndex)
     auto result = phi::indexOf(v, three);
 
     //Assert
-    auto expected = 3;
+    auto expected = 3u;
     ASSERT_EQ(expected, result);
 
     safeDelete(zero);

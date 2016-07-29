@@ -75,21 +75,21 @@ namespace phi
 
         void printAnalysisResult(action<char*> print)
         {
-            print("\nMemory Leaks:\n");
+            print((char*)"\nMemory Leaks:\n");
 
             for (auto& leak : getMemoryLeaks())
             {
                 leak->print(print);
             }
 
-            print("\nUnnecessary deallocations:\n");
+            print((char*)"\nUnnecessary deallocations:\n");
 
             for (auto& deallocation : _redundantDeallocations)
             {
                 deallocation->print(print);
             }
 
-            print("\n");
+            print((char*)"\n");
         }
     };
 }

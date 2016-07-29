@@ -29,6 +29,7 @@ namespace phi
         char currentDirectoryPath[FILENAME_MAX];
         auto result = GetModuleFileName(NULL, currentDirectoryPath, FILENAME_MAX);
         assert(result);
+        _unused(result);
 
         platformProcLoader::load(currentDirectoryPath);
     }

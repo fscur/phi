@@ -2,6 +2,8 @@
 
 namespace phi
 {
+    #define _unused(x) ((void)(x))
+
     using uint = unsigned int;
     using ulong = unsigned long;
     using uint64 = unsigned long long;
@@ -66,7 +68,7 @@ namespace phi
     {
         auto address = malloc(sizeof(T));
         return new(address)T(args...);
-    };
+    }
 
     template<typename T>
     void destroy(T* obj)
@@ -126,7 +128,7 @@ namespace phi
     T getLastElementOf(const vector<T, Allocator>& vector)
     {
         if (vector.size() < 1)
-            throw std::exception("Vector cannot be empty");
+            throw std::exception();
 
         auto lastIndex = vector.size() - 1;
         return vector[lastIndex];
