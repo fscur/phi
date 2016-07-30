@@ -9,7 +9,7 @@ namespace phi
     {
         color color;
         float startTime;
-        float planeSize;
+        float lineThickness;
         float pad0;
         float pad1;
 
@@ -18,7 +18,7 @@ namespace phi
             auto data = planeGridRenderData();
             data.color = planeGrid->getColor();
             data.startTime = static_cast<float>(time::totalSeconds);
-            data.planeSize = planeGrid->getSize();
+            data.lineThickness = planeGrid->getLineThickness();
             return data;
         }
     };

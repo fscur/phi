@@ -34,11 +34,16 @@ namespace phi
     {
         _frameUniformsBuffer = new buffer("FrameUniformsDataBuffer", bufferTarget::uniform);
 
-        auto frameUniform = frameUniformBlock(
-            _camera->getProjectionMatrix(),
-            _camera->getViewMatrix(),
-            _camera->getResolution(),
-            (float)time::totalSeconds);
+        auto frameUniform = frameUniformBlock();
+        frameUniform.p = _camera->getProjectionMatrix();
+        frameUniform.v = _camera->getViewMatrix();
+        frameUniform.ip = _camera->getInverseProjectionMatrix();
+        frameUniform.vp = _camera->getViewProjectionMatrix();
+        frameUniform.resolution = _camera->getResolution().toVec2();
+        frameUniform.far = _camera->getFar();
+        frameUniform.near = _camera->getNear();
+        frameUniform.halfFovTangent = _camera->getHalfFovTangent();
+        frameUniform.time = (float)time::totalSeconds;
 
         _frameUniformsBuffer->storage(sizeof(frameUniformBlock), &frameUniform, bufferStorageUsage::dynamic | bufferStorageUsage::write);
     }
@@ -69,14 +74,16 @@ namespace phi
 
     void layer::updateFrameUniforms()
     {
-        auto t = (float)time::totalSeconds;
-        //phi::debug("time: " + std::to_string(t));
-
-        auto frameUniform = phi::frameUniformBlock(
-            _camera->getProjectionMatrix(), 
-            _camera->getViewMatrix(),
-            _camera->getResolution(),
-            t);
+        auto frameUniform = frameUniformBlock();
+        frameUniform.p = _camera->getProjectionMatrix();
+        frameUniform.v = _camera->getViewMatrix();
+        frameUniform.ip = _camera->getInverseProjectionMatrix();
+        frameUniform.vp = _camera->getViewProjectionMatrix();
+        frameUniform.resolution = _camera->getResolution().toVec2();
+        frameUniform.far = _camera->getFar();
+        frameUniform.near = _camera->getNear();
+        frameUniform.halfFovTangent = _camera->getHalfFovTangent();
+        frameUniform.time = (float)time::totalSeconds;
 
         _frameUniformsBuffer->subData(0, sizeof(phi::frameUniformBlock), &frameUniform);
     }

@@ -5,7 +5,7 @@ struct planeGridRenderData
 {
     vec4 color;
     float startTime;
-    float planeSize;
+    float lineThickness;
     float pad0;
     float pad1;
 };
@@ -22,8 +22,12 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
     mat4 vp;
     mat4 ip;
     vec2 resolution;
-    float time;
+    float near;
+    float far;
+    float halfFovTangent;
+    float time; 
     float pad0;
+    float pad1;
 } frameUniforms;
 
 layout (location = 0) uniform sampler2DArray textureArrays[32];
@@ -35,6 +39,7 @@ flat in uint instanceId;
 flat in float globalTime;
 flat in float planeSize;
 flat in float planeDist;
+in float planeDist2;
 
 layout (location = 0) out vec4 fragColor;
 
@@ -157,12 +162,16 @@ float invLerp(float lowerBound, float upperBound, float value)
     return (value-lowerBound) / (upperBound-lowerBound);
 }
 
-float createGrid(vec2 uv)
+float screenToWorld(float value)
 {
-    float pixels = 5.0;
-    float tg = 0.4142135623730950488016887242097; //tan(fov * 0.5)
+    float tg = frameUniforms.halfFovTangent;
     float halfRes = frameUniforms.resolution.y * 0.5;
-    float thickness = (pixels/halfRes) * planeDist;
+    return (10.0/halfRes) * (planeDist) * tg;
+}
+
+float createGrid(vec2 uv, float thicknessInPixels)
+{
+    float thickness = screenToWorld(thicknessInPixels);
 
     int innerGridIndex = getGridIndex(planeDist);
     float innerGridDist = planeDistances[innerGridIndex];
@@ -175,6 +184,7 @@ float createGrid(vec2 uv)
     float outerGrid = createGrid(uv, thickness, outerGridSize);
     float factor = invLerp(innerGridDist, outerGridDist, planeDist);
     return clamp(mix(innerGrid, outerGrid, factor + 0.5), 0.0, 1.0);
+    //return innerGrid;
 }
 
 float fadeBorder(float rippleSpeed, float time)
@@ -195,7 +205,7 @@ void main()
     vec3 rippleFunc = ripple(worldFragTexCoord, time, rippleRadius);
     vec2 uv = rippleFunc.xy;
 
-    float grid = createGrid(uv);
+    float grid = createGrid(uv, data.lineThickness);
     
     grid += 0.5;
     grid += grid * rippleFunc.z * 0.3;
@@ -203,4 +213,6 @@ void main()
     float fadeFactor = fadeBorder(rippleRadius, time);
 
     fragColor = vec4(data.color.rgb, grid * fadeFactor);
+
+    //fragColor= vec4(planeDist2 - planeDist, 0.0, 0.0, 1.0);
 }

@@ -11,7 +11,7 @@ namespace phi
     planeGrid::planeGrid(const planeGrid& original) :
         component(componentType::PLANE_GRID),
         _color(original._color),
-        _size(original._size)
+        _lineThickness(original._lineThickness)
     {
     }
 

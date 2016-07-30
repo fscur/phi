@@ -85,7 +85,7 @@ namespace phi
 
         auto planeGrid = new phi::planeGrid();
         planeGrid->setColor(color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
-        planeGrid->setSize(10.0f);
+        planeGrid->setLineThickness(10.0f);
         planeNode->addComponent(planeGrid);
         planeNode->addComponent(animator);
 

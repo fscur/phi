@@ -10,8 +10,12 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     mat4 vp;
     mat4 ip;
     vec2 resolution;
-    float time;
+    float near;
+    float far;
+    float halfFovTangent;
+    float time; 
     float pad0;
+    float pad1;
 } frameUniforms;
 
 void main()

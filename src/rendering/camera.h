@@ -20,6 +20,7 @@ namespace phi
         float _near;
         float _far;
         float _fov;
+        float _halfFovTangent;
 
         mat4 _projectionMatrix;
         mat4 _viewMatrix;
@@ -42,7 +43,8 @@ namespace phi
 
         RENDERING_API mat4 getViewMatrix();
         RENDERING_API mat4 getProjectionMatrix();
-
+        RENDERING_API mat4 getInverseProjectionMatrix();
+        RENDERING_API mat4 getViewProjectionMatrix();
         RENDERING_API void setResolution(const resolution& resolution);
         RENDERING_API void setFov(float value);
         RENDERING_API void setNear(float value);
@@ -59,6 +61,8 @@ namespace phi
         float getNear() const { return _near; }
         float getFar() const { return _far; }
         float getFov() const { return _fov; }
+        float getHalfFovTangent() const { return _halfFovTangent; }
+
         resolution getResolution() const { return _resolution; }
         transform* getTransform() const { return _transform; }
     };

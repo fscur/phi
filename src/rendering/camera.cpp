@@ -13,6 +13,7 @@ namespace phi
         _near(near),
         _far(far),
         _fov(fov),
+        _halfFovTangent(glm::tan(fov * 0.5f)),
         _projectionMatrix(mat4(1.0f)),
         _viewMatrix(mat4(1.0f)),
         _transform(new transform())
@@ -56,6 +57,16 @@ namespace phi
         return _projectionMatrix;
     }
 
+    inline mat4 camera::getInverseProjectionMatrix()
+    {
+        return glm::inverse(_projectionMatrix);
+    }
+
+    inline mat4 camera::getViewProjectionMatrix()
+    {
+        return _viewMatrix * _projectionMatrix;
+    }
+
     void camera::setResolution(const resolution & resolution)
     {
         _resolution = resolution;
@@ -65,6 +76,7 @@ namespace phi
     inline void camera::setFov(float value)
     {
         _fov = value;
+        _halfFovTangent = glm::tan(_fov * 0.5f);
         updateProjectionMatrix();
     }
 
@@ -128,7 +140,7 @@ namespace phi
 
     vec3 camera::screenPointToView(int mouseX, int mouseY, float depth)
     {
-        auto tg = tan(_fov * 0.5f) * _near;
+        auto tg = _halfFovTangent * _near;
 
         auto hw = _resolution.width * 0.5f;
         auto hh = _resolution.height * 0.5f;

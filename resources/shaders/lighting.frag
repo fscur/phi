@@ -13,6 +13,13 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
     mat4 v;
     mat4 vp;
     mat4 ip;
+    vec2 resolution;
+    float near;
+    float far;
+    float halfFovTangent;
+    float time; 
+    float pad0;
+    float pad1;
 } frameUniforms;
 
 layout (std140, binding = 1) uniform gBufferRTAddresses

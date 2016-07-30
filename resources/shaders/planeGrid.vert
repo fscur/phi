@@ -11,15 +11,19 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
     mat4 vp;
     mat4 ip;
     vec2 resolution;
-    float time;
+    float near;
+    float far;
+    float halfFovTangent;
+    float time; 
     float pad0;
+    float pad1;
 } frameUniforms;
 
 struct planeGridRenderData
 {
     vec4 color;
     float startTime;
-    float planeSize;
+    float lineThickness;
     float pad0;
     float pad1;
 };
@@ -33,6 +37,7 @@ out vec2 worldFragTexCoord;
 out vec2 fragTexCoord;
 flat out float planeSize;
 flat out float planeDist;
+out float planeDist2;
 flat out uint instanceId;
 flat out float globalTime;
 
@@ -56,7 +61,8 @@ void main()
     vec2 projected = projectPoint(translation, xAxis, yAxis);
 
     planeDist = -(frameUniforms.v * modelMatrix * vec4(vec3(0.0), 1.0)).z;
-    planeSize = planeDist * 1.2;
+    planeSize = planeDist * 1.5;
+    planeDist2 = -(frameUniforms.v * modelMatrix * vec4(inPosition * planeSize, 1.0)).z;
 
     vec4 inPos = vec4(inPosition, 1.0);
     inPos.xy *= planeSize;
