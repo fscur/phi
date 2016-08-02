@@ -10,7 +10,7 @@ namespace phi
         color color;
         float startTime;
         float lineThickness;
-        float pad0;
+        float opacity;
         float pad1;
 
         static planeGridRenderData from(const planeGrid* planeGrid)
@@ -19,6 +19,7 @@ namespace phi
             data.color = planeGrid->getColor();
             data.startTime = static_cast<float>(time::totalSeconds);
             data.lineThickness = planeGrid->getLineThickness();
+            data.opacity = planeGrid->getOpacity();
             return data;
         }
     };

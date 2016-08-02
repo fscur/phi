@@ -24,7 +24,7 @@ struct planeGridRenderData
     vec4 color;
     float startTime;
     float lineThickness;
-    float pad0;
+    float opacity;
     float pad1;
 };
 
@@ -61,7 +61,7 @@ void main()
     vec2 projected = projectPoint(translation, xAxis, yAxis);
 
     planeDist = -(frameUniforms.v * modelMatrix * vec4(vec3(0.0), 1.0)).z;
-    planeSize = planeDist * 1.5;
+    planeSize = planeDist * 2.0;
     planeDist2 = -(frameUniforms.v * modelMatrix * vec4(inPosition * planeSize, 1.0)).z;
 
     vec4 inPos = vec4(inPosition, 1.0);

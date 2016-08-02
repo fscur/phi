@@ -78,14 +78,15 @@ namespace phi
         auto planeTransform = planeNode->getTransform();
         planeTransform->setLocalPosition(position);
         planeTransform->setDirection(_plane.getNormal());
-        
+
         auto animator = new phi::animator();
         auto animation = new transformAnimation(planeTransform, easingFunctions::easeOutCubic);
         animator->addAnimation(animation);
 
         auto planeGrid = new phi::planeGrid();
         planeGrid->setColor(color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
-        planeGrid->setLineThickness(10.0f);
+        planeGrid->setLineThickness(7.0f);
+        planeGrid->setOpacity(0.4f);
         planeNode->addComponent(planeGrid);
         planeNode->addComponent(animator);
 
@@ -108,7 +109,7 @@ namespace phi
 
             auto planeTransform = planeNode->getTransform();
             auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
-            
+
             auto fromPlaneTransform = new transform();
             auto fromPosition = planeTransform->getLocalPosition();
             fromPlaneTransform->setLocalPosition(fromPosition);
@@ -125,6 +126,18 @@ namespace phi
     {
         if (!e->leftButtonPressed)
             return false;
+
+
+
+        auto y = static_cast<int>(_camera->getResolution().height) - e->y;
+        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(e->x, y);
+
+        float z = 10.0;
+        if (zBufferValue != 1.0f)
+            z = _camera->zBufferToDepth(zBufferValue);
+
+        debug(std::to_string(z));
+
 
         auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
         auto clickComponent = pickingId::get(idOnMousePosition);
@@ -185,7 +198,7 @@ namespace phi
 
         updatePlaneGrids();
 
-        
+
 
 
 

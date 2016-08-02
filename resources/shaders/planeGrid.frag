@@ -6,7 +6,7 @@ struct planeGridRenderData
     vec4 color;
     float startTime;
     float lineThickness;
-    float pad0;
+    float opacity;
     float pad1;
 };
 
@@ -47,10 +47,11 @@ const float PI = 3.1415926535897932384626433832795;
 const float INV_PI = 0.31830988618379067153776752674503;
 const float MIN_RIPPLE_SPEED = 10.0;
 
-const float[] planeDistances = { 0.0, 10.0, 50.0, 100.0, 200.0 };
-const float[] gridInnerThickness = { 1000.0, 50.0, 20.0, 10.0 };
-const float[] gridOuterThickness = { 10.0, 50.0, 20.0, 10.0 };
-const float[] gridSizes = { 0.1, 1.0, 10.0, 100.0, 1000.0 };
+const float[] planeDistances = { 0.0, 1.0, 5.0, 100.0, 500.0, 5000.0};
+const float[] gridSizes      = { 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0 };
+
+//const float[] planeDistances = { 0.0, 10.0, 20.0, 50.0, 500.0, 5000.0};
+//const float[] gridSizes      = { 0.1, 1.0, 2.0, 10.0, 100.0, 1000.0 };
 
 int getGridIndex(float dist)
 {
@@ -146,15 +147,15 @@ float createGrid(in vec2 uv, in float thickness, in float size)
     return grid;
 }
 
-float twoWayLerp(float lowerBound, float upperBound, float value)
-{
-    float lerp = (value-lowerBound) / (upperBound-lowerBound);
-    return lerp * (1 - lerp) * 4;
-}
-
 float lerp(float a, float b, float w)
 {
   return a + w*(b-a);
+}
+
+float twoWayLerp(float lowerBound, float upperBound, float value)
+{
+    float factor = lerp(lowerBound, upperBound, value);
+    return factor * (1 - factor) * 4;
 }
 
 float invLerp(float lowerBound, float upperBound, float value)
@@ -162,11 +163,17 @@ float invLerp(float lowerBound, float upperBound, float value)
     return (value-lowerBound) / (upperBound-lowerBound);
 }
 
+float twoWayInvLerp(float lowerBound, float upperBound, float value)
+{
+    float factor = invLerp(lowerBound, upperBound, value);
+    return factor * (1 - factor) * 4;
+}
+
 float screenToWorld(float value)
 {
     float tg = frameUniforms.halfFovTangent;
     float halfRes = frameUniforms.resolution.y * 0.5;
-    return (10.0/halfRes) * (planeDist) * tg;
+    return (value/halfRes) * (planeDist2) * tg;
 }
 
 float createGrid(vec2 uv, float thicknessInPixels)
@@ -176,15 +183,20 @@ float createGrid(vec2 uv, float thicknessInPixels)
     int innerGridIndex = getGridIndex(planeDist);
     float innerGridDist = planeDistances[innerGridIndex];
     float innerGridSize = gridSizes[innerGridIndex];
-    float innerGrid = createGrid(uv, thickness, innerGridSize);
-    
+
     int outerGridIndex = innerGridIndex + 1;
     float outerGridDist = planeDistances[outerGridIndex];
     float outerGridSize = gridSizes[outerGridIndex];
+    float distFactor = invLerp(innerGridDist, outerGridDist, planeDist);
+    float outerFactor = -exp(-10.0 * distFactor) + 1.0;
+    float innerFactor = pow(distFactor, 2) - (2.0 * distFactor) + 1.0;
+    
+    float innerGrid = createGrid(uv, thickness, innerGridSize);
     float outerGrid = createGrid(uv, thickness, outerGridSize);
-    float factor = invLerp(innerGridDist, outerGridDist, planeDist);
-    return clamp(mix(innerGrid, outerGrid, factor + 0.5), 0.0, 1.0);
-    //return innerGrid;
+
+    return innerGrid * clamp(innerFactor - 0.25, 0.0, 1.0) + outerGrid * clamp(outerFactor + 0.25, 0.0, 1.0);
+    
+    //return innerGrid * innerFactor;
 }
 
 float fadeBorder(float rippleSpeed, float time)
@@ -207,12 +219,10 @@ void main()
 
     float grid = createGrid(uv, data.lineThickness);
     
-    grid += 0.5;
+    grid += data.opacity;
     grid += grid * rippleFunc.z * 0.3;
 
     float fadeFactor = fadeBorder(rippleRadius, time);
 
     fragColor = vec4(data.color.rgb, grid * fadeFactor);
-
-    //fragColor= vec4(planeDist2 - planeDist, 0.0, 0.0, 1.0);
 }
