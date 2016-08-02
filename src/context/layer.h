@@ -94,7 +94,6 @@ namespace phi
         void addRenderPasses(vector<renderPass*> renderPasses) { _renderPasses.insert(_renderPasses.end(), renderPasses.begin(), renderPasses.end()); }
         void addOnDelete(std::function<void(void)> onDelete) { _onDelete.push_back(onDelete); }
 
-        unordered_map<string, renderTarget*> getOuts() { return _renderPasses.back()->getOuts(); }
         camera* getCamera() { return _camera; }
 
         void resize(const resolution& resolution);

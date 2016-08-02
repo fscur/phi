@@ -40,15 +40,15 @@ namespace phi
         program->addBuffer(renderAdapter->getControlRenderDataBuffer());
         program->addBuffer(uniformBlockBuffer);
         
-        auto finalImageFramebuffer = framebufferAllocator->getFramebuffer("finalImageFramebuffer");
-        auto finalImageRenderTarget = finalImageFramebuffer->getRenderTarget("finalImageRenderTarget");
+        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
         
         pass->setOnInitialize([=] 
         {
-            updateUniformBlock(uniformBlockBuffer, finalImageRenderTarget, resolution);
+            updateUniformBlock(uniformBlockBuffer, defaultRenderTarget, resolution);
         });
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
@@ -87,7 +87,7 @@ namespace phi
 
         pass->setOnResize([=](const phi::resolution& resolution)
         {
-            updateUniformBlock(uniformBlockBuffer, finalImageRenderTarget, resolution);
+            updateUniformBlock(uniformBlockBuffer, defaultRenderTarget, resolution);
         });
 
         pass->setOnDelete([uniformBlockBuffer]() mutable

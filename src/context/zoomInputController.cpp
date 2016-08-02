@@ -3,7 +3,7 @@
 #include <core\time.h>
 
 #include <rendering\framebuffer.h>
-
+#include <rendering\defaultFramebuffer.h>
 #include "zoomInputController.h"
 
 namespace phi
@@ -57,7 +57,7 @@ namespace phi
         cancelBounceAnimation();
 
         auto y = static_cast<int>(_camera->getResolution().height) - e->y;
-        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(e->x, y);
+        auto zBufferValue = defaultFramebuffer::getZBufferValue(e->x, y);
 
         float z = 10.0;
         if (zBufferValue != 1.0f)

@@ -123,17 +123,13 @@ namespace phi
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         bindForReading(renderTarget);
-        //TODO: arrumar isso renderTarget->texture->w!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        if (w == -1) w = renderTarget->texture->w;
-        if (h == -1) h = renderTarget->texture->h;
 
         glBlitFramebuffer(0, 0, renderTarget->texture->w, renderTarget->texture->h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
 
-    void framebuffer::blit(framebuffer * sourceFramebuffer, renderTarget * sourceRenderTarget, framebuffer * targetFramebuffer, renderTarget * targetRenderTarget)
+    void framebuffer::blit(renderTarget * sourceRenderTarget, framebuffer * targetFramebuffer, renderTarget * targetRenderTarget)
     {
-        sourceFramebuffer->bindForReading(sourceRenderTarget);
+        bindForReading(sourceRenderTarget);
 
         glBlitFramebuffer(
             0,
@@ -162,8 +158,11 @@ namespace phi
     GLfloat framebuffer::getZBufferValue(int x, int y)
     {
         bindForReading();
-        GLfloat zBufferValue;
+        GLfloat zBufferValue = -1.0f;
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+
+        
+        debug(std::to_string(zBufferValue));
 
         return zBufferValue;
     }

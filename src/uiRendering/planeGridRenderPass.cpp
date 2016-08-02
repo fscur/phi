@@ -23,23 +23,18 @@ namespace phi
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
-        //auto finalImageFramebuffer = framebufferAllocator->getFramebuffer("finalImageFramebuffer");
-        //auto finalImageRenderTarget = finalImageFramebuffer->getRenderTarget("finalImageRenderTarget");
+        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto planeGridProgram = programBuilder::buildProgram(shadersPath, "planeGrid", "planeGrid");
         planeGridProgram->addBuffer(renderAdapter->getPlaneGridRenderDataBuffer());
 
-
-        auto pass = new renderPass(planeGridProgram, framebuffer::defaultFramebuffer, resolution);
+        auto pass = new renderPass(planeGridProgram, defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
-        
-
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
-            //glClearColor(0.0, 0.0, 0.0, 1.0);
-            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glDisable(GL_CULL_FACE);
             glDepthMask(GL_FALSE);
             glEnable(GL_DEPTH_TEST);
@@ -53,7 +48,6 @@ namespace phi
                 program->setUniform(0, texturesManager::handles);
             else
                 program->setUniform(0, textureUnits::units);
-
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
@@ -68,9 +62,23 @@ namespace phi
             glPolygonOffset(0.0f, 0.0f);
             glDisable(GL_POLYGON_OFFSET_FILL);
             glDisable(GL_BLEND);
-            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_DEPTH_TEST);
             glDepthMask(GL_TRUE);
             glEnable(GL_CULL_FACE);
+
+            auto w = static_cast<GLint>(resolution.width);
+            auto h = static_cast<GLint>(resolution.height);
+
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+            framebuffer->bindForReading(defaultRenderTarget);
+
+            glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+            auto address = texturesManager::getTextureAddress(defaultRenderTarget->texture);
+            glActiveTexture(GL_TEXTURE0 + address.unit);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, address.containerId);
+            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         });
 
         return pass;
