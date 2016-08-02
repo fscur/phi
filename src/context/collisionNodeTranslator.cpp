@@ -114,8 +114,8 @@ namespace phi
 
         auto normalOffsetCross = glm::normalize(glm::cross(collision.normal, offsetNormal));
         auto adjustedNormal = glm::normalize(glm::cross(collision.normal, normalOffsetCross));
-        auto amountOnPlaneNormal = glm::dot(adjustedNormal, _plane.getNormal());
-        adjustedNormal -= amountOnPlaneNormal * _plane.getNormal();
+        auto amountOnPlaneNormal = glm::dot(adjustedNormal, _plane.normal);
+        adjustedNormal -= amountOnPlaneNormal * _plane.normal;
 
         auto adjustedMagnitude = glm::dot(offset, adjustedNormal);
 
