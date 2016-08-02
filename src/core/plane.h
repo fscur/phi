@@ -6,24 +6,34 @@ namespace phi
 {
     class plane
     {
-    private:
-        vec3 _origin;
-        vec3 _normal;
+    public:
+        vec3 origin;
+        vec3 normal;
 
     public:
-        plane(vec3 origin, vec3 normal) :
-            _origin(origin),
-            _normal(normal)
+        plane() :
+            origin(vec3()),
+            normal(vec3(0.0f, 0.0f, 1.0f))
         {
         }
 
-        vec3 getOrigin() { return _origin; }
-        vec3 getNormal() { return _normal; }
-
-        vec3 projectPoint(vec3 point)
+        plane(vec3 origin, vec3 normal) :
+            origin(origin),
+            normal(normal)
         {
-            auto dist = dot(point, _normal) - dot(_origin, _normal);
-            return point - _normal * dist;
+        }
+
+        vec3 projectPoint(const vec3 point) const
+        {
+            auto dist = dot(point, normal) - dot(origin, normal);
+            return point - normal * dist;
+        }
+
+        bool operator==(const plane& plane)
+        {
+            return
+                origin == plane.origin &&
+                normal == plane.normal;
         }
     };
 }

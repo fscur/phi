@@ -11,12 +11,14 @@ namespace phi
         intersectionCollisionTest() :
             collider(nullptr),
             transform(nullptr),
-            group(0u)
+            group(0u),
+            inflation(0.0f)
         {
         }
 
         boxCollider* collider;
         transform* transform;
         uint16_t group;
+        float inflation;
     };
 }

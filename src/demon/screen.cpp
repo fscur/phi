@@ -166,6 +166,9 @@ namespace demon
         cube1->getTransform()->translate(vec3(1.0));
         //cube0->getTransform()->setLocalSize(vec3(0.1f));
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        wall->getTransform()->pitch(PI_OVER_2);
+        wall->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 1.5f));
@@ -181,7 +184,7 @@ namespace demon
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withObbTranslationController()
+                .withPlanesTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -224,7 +227,8 @@ namespace demon
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
-        _sceneLayer->add(cube1);
+        _sceneLayer->add(wall);
+
 
         //_sceneLayer->add(_sceneLabel);
         //TODO: prevent components that are not dealt with it from being added to layer

@@ -40,7 +40,8 @@ namespace phi
         bool _withAnimation;
         bool _withCameraController;
         bool _withSelectionController;
-        bool _withObbTranslationController;
+        bool _withTranslationController;
+        bool _withPlanesTranslationController;
 
     private:
         layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
@@ -54,8 +55,9 @@ namespace phi
         void buildPhysics();
         void buildAnimation();
         void buildCameraController();
-        void buildSelectionController(meshLayerBehaviour* meshBehaviour);
-        void buildObbTranslationController();
+        void buildSelectionController();
+        void buildTranslationController();
+        void buildPlanesTranslationController();
 
     public:
         CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
@@ -69,7 +71,8 @@ namespace phi
         layerBuilder withAnimation() { _withAnimation = true; return *this; }
         layerBuilder withCameraController() { _withCameraController = true; return *this; }
         layerBuilder withSelectionController() { _withSelectionController = true; return *this; }
-        layerBuilder withObbTranslationController() { _withObbTranslationController = true; return *this; }
+        layerBuilder withTranslationController() { _withTranslationController = true; return *this; }
+        layerBuilder withPlanesTranslationController() { _withPlanesTranslationController = true; return *this; }
 
         CONTEXT_API layer* build();
     };
