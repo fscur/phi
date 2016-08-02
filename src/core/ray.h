@@ -9,6 +9,13 @@
 
 namespace phi
 {
+    struct rayIntersection
+    {
+        vec3 position;
+        vec3 normal;
+        float t;
+    };
+
     class ray
     {
     private:
@@ -22,8 +29,8 @@ namespace phi
 
         CORE_API bool intersects(const aabb& aabb, float& t);
         CORE_API bool intersects(const aabb& aabb);
-        CORE_API bool intersects(aabb& aabb, vec3*& position, vec3*& normal, size_t& size);
-        CORE_API bool intersects(obb& obb, vec3*& position, vec3*& normal, size_t& size);
+        CORE_API bool intersects(aabb& aabb, vector<rayIntersection>& intersections);
+        CORE_API bool intersects(obb& obb, vector<rayIntersection>& intersections);
         CORE_API bool intersects(plane& plane, float& t);
         CORE_API bool intersects(finitePlane& plane, float& t);
 

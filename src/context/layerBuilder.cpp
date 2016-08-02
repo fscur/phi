@@ -28,7 +28,8 @@
 
 #include "cameraInputController.h"
 #include "selectionInputController.h"
-#include "obbTranslationInputController.h"
+#include "translationInputController.h"
+#include "planesTranslationInputController.h"
 
 namespace phi
 {
@@ -49,7 +50,8 @@ namespace phi
         _withPhysics(false),
         _withCameraController(false),
         _withSelectionController(false),
-        _withObbTranslationController(false)
+        _withTranslationController(false),
+        _withPlanesTranslationController(false)
     {
     }
 
@@ -204,21 +206,32 @@ namespace phi
         _layer->addMouseController(new cameraInputController(_layer->getCamera()));
     }
 
-    void layerBuilder::buildSelectionController(meshLayerBehaviour* meshBehaviour)
+    void layerBuilder::buildSelectionController()
     {
         if (!_withMeshRenderer)
             throw invalidLayerConfigurationException("Selection Controller could not be added. It requires a Mesh Renderer.");
 
-        _layer->addMouseController(new selectionInputController(meshBehaviour, _commandsManager));
+        _layer->addMouseController(new selectionInputController(_meshBehaviour, _commandsManager));
     }
 
-    void layerBuilder::buildObbTranslationController()
+    void layerBuilder::buildTranslationController()
     {
-        auto obbTranslationController = new obbTranslationInputController(_layer->getCamera(), _layer);
-        _layer->addMouseController(obbTranslationController);
-
+        auto obbTranslationController = new translationInputController(_layer->getCamera(), _layer);
         if (_withPhysics)
             obbTranslationController->setCollisionNodeTranslator(new collisionNodeTranslator(_physicsBehaviour->getPhysicsWorld()));
+
+        _layer->addMouseController(obbTranslationController);
+    }
+
+    void layerBuilder::buildPlanesTranslationController()
+    {
+        if (!_withPhysics)
+            throw invalidLayerConfigurationException("Planes Translation Controller could not be added. It requires Physics.");
+
+        auto planesTranslationController = new planesTranslationInputController(_layer->getCamera(), _layer, _physicsBehaviour);
+        planesTranslationController->setCollisionNodeTranslator(new collisionNodeTranslator(_physicsBehaviour->getPhysicsWorld()));
+
+        _layer->addMouseController(planesTranslationController);
     }
 
     layer* layerBuilder::build()
@@ -251,10 +264,13 @@ namespace phi
             buildCameraController();
 
         if (_withSelectionController)
-            buildSelectionController(_meshBehaviour);
+            buildSelectionController();
 
-        if (_withObbTranslationController)
-            buildObbTranslationController();
+        if (_withTranslationController)
+            buildTranslationController();
+
+        if (_withPlanesTranslationController)
+            buildPlanesTranslationController();
 
         return _layer;
     }

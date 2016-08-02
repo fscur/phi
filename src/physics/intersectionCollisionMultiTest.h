@@ -11,12 +11,14 @@ namespace phi
         intersectionCollisionMultiTest() :
             colliders(),
             transforms(),
-            group(0u)
+            group(0u),
+            inflation(0.0f)
         {
         }
 
         vector<boxCollider*>* colliders;
         vector<transform*>* transforms;
         uint16_t group;
+        float inflation;
     };
 }

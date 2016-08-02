@@ -26,6 +26,9 @@ namespace phi
     public:
         collisionNodeTranslator(physicsWorld* physicsWorld);
 
+        vector<boxCollider*>* getColliders() { return &_colliders; }
+        vector<transform*>* getTransforms() { return &_transforms; }
+
         void setPlane(plane value) { _plane = value; }
         void setNode(node* node) override;
 
