@@ -163,8 +163,8 @@ namespace demon
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube1->getTransform()->translate(vec3(1.0));
         //cube0->getTransform()->setLocalSize(vec3(0.1f));
+        cube1->getTransform()->translate(vec3(1.0));
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         wall->getTransform()->pitch(PI_OVER_2);

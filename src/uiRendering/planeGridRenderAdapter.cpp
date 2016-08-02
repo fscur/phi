@@ -45,10 +45,10 @@ namespace phi
     {
         auto vertices = vector<vertex>
         {
-            vertex(vec3(-0.5f, -0.5f, 0.0f), vec2(0.0f, 0.0f)),
-            vertex(vec3(+0.5f, -0.5f, 0.0f), vec2(1.0f, 0.0f)),
-            vertex(vec3(+0.5f, +0.5f, 0.0f), vec2(1.0f, 1.0f)),
-            vertex(vec3(-0.5f, +0.5f, 0.0f), vec2(0.0f, 1.0f))
+            vertex(vec3(-0.5f, -0.5f, 0.0f), vec2(-0.5f, -0.5f)),
+            vertex(vec3(+0.5f, -0.5f, 0.0f), vec2(+0.5f, -0.5f)),
+            vertex(vec3(+0.5f, +0.5f, 0.0f), vec2(+0.5f, +0.5f)),
+            vertex(vec3(-0.5f, +0.5f, 0.0f), vec2(-0.5f, +0.5f))
         };
 
         auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
@@ -78,6 +78,7 @@ namespace phi
     void planeGridRenderAdapter::remove(planeGrid* planeGrid)
     {
         _modelMatricesBuffer->remove(planeGrid);
+        _planeGridRenderDataBuffer->remove(planeGrid);
     }
 
     void planeGridRenderAdapter::update(planeGrid* planeGrid)
