@@ -127,18 +127,6 @@ namespace phi
         if (!e->leftButtonPressed)
             return false;
 
-
-
-        auto y = static_cast<int>(_camera->getResolution().height) - e->y;
-        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(e->x, y);
-
-        float z = 10.0;
-        if (zBufferValue != 1.0f)
-            z = _camera->zBufferToDepth(zBufferValue);
-
-        debug(std::to_string(z));
-
-
         auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
         auto clickComponent = pickingId::get(idOnMousePosition);
 
