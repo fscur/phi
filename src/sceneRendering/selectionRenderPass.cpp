@@ -22,14 +22,13 @@ namespace phi
         framebufferAllocator* framebufferAllocator)
     {
         auto pickingRenderTarget = framebufferAllocator->getRenderTarget("pickingRenderTarget");
-        auto finalImageFramebuffer = framebufferAllocator->getFramebuffer("finalImageFramebuffer");
-        auto finalImageRenderTarget = finalImageFramebuffer->getRenderTarget("finalImageRenderTarget");
+        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto quadVao = vertexArrayObject::createPostProcessVao();
         auto selectionProgram = programBuilder::buildProgram(shadersPath, "selection", "selection");
         
-        auto pass = new renderPass(selectionProgram, finalImageFramebuffer, resolution);
-        pass->addOut(finalImageRenderTarget);
+        auto pass = new renderPass(selectionProgram, defaultFramebuffer, resolution);
         pass->addVao(quadVao);
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
@@ -64,16 +63,7 @@ namespace phi
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             program->unbind();
-
             glDisable(GL_BLEND);
-
-            framebuffer->unbind(GL_FRAMEBUFFER);
-            framebuffer->blitToDefault(finalImageRenderTarget);
-
-            auto address = texturesManager::getTextureAddress(finalImageRenderTarget->texture);
-            glActiveTexture(GL_TEXTURE0 + address.unit);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, address.containerId);
-            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         });
 
         pass->setOnDelete([quadVao] () mutable

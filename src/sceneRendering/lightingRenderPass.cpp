@@ -49,39 +49,10 @@ namespace phi
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
-        auto renderTargets = gBufferRenderPass->getOuts();
-
-        auto rt0 = renderTargets["rt0"];
-        auto rt1 = renderTargets["rt1"];
-        auto rt2 = renderTargets["rt2"];
-        auto rtDepth = renderTargets["depth"];
-
-        auto w = static_cast<uint>(resolution.width);
-        auto h = static_cast<uint>(resolution.height);
-
-        auto finalImageLayout = textureLayout();
-        finalImageLayout.dataFormat = GL_RGBA;
-        finalImageLayout.dataType = GL_UNSIGNED_BYTE;
-        finalImageLayout.internalFormat = GL_RGBA8;
-        finalImageLayout.wrapMode = GL_CLAMP_TO_EDGE;
-        finalImageLayout.minFilter = GL_LINEAR_MIPMAP_LINEAR;
-        finalImageLayout.magFilter = GL_LINEAR;
-        finalImageLayout.levels = texturesManager::getMaxLevels(w, h);
-
-        auto finalImageTexture = new texture(
-            w,
-            h,
-            finalImageLayout,
-            nullptr);
-
-        auto finalImageRenderTarget = new renderTarget("finalImageRenderTarget", finalImageTexture);
-
-        auto finalImageFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("finalImageFramebuffer")
-            .with(finalImageRenderTarget, GL_COLOR_ATTACHMENT0)
-            .build();
-
-        auto finalImageFramebuffer = framebufferAllocator->newFramebuffer(finalImageFramebufferLayout, resolution);
-        safeDelete(finalImageFramebufferLayout);
+        auto rt0 = framebufferAllocator->getRenderTarget("gBuffer_rt0");
+        auto rt1 = framebufferAllocator->getRenderTarget("gBuffer_rt1");
+        auto rt2 = framebufferAllocator->getRenderTarget("gBuffer_rt2");
+        auto rtDepth = framebufferAllocator->getRenderTarget("depthRenderTarget");;
 
         auto quadVao = vertexArrayObject::createPostProcessVao();
 
@@ -95,14 +66,11 @@ namespace phi
         auto program = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
         program->addBuffer(rtsBuffer);
 
-        auto pass = new renderPass(program, finalImageFramebuffer, resolution);
-        pass->addVao(quadVao);
+        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
-        pass->addOut(rt0);
-        pass->addOut(rt1);
-        pass->addOut(rt2);
-        pass->addOut(rtDepth);
-        pass->addOut(finalImageRenderTarget);
+        auto pass = new renderPass(program, defaultFramebuffer, resolution);
+        pass->addVao(quadVao);
 
         pass->setOnInitialize([=]()
         {
@@ -118,6 +86,7 @@ namespace phi
         {
             framebuffer->bindForDrawing();
             glDisable(GL_DEPTH_TEST);
+            glDepthMask(GL_FALSE);
             glClear(GL_COLOR_BUFFER_BIT);
 
             program->bind();
@@ -137,7 +106,6 @@ namespace phi
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             program->unbind();
-            glEnable(GL_DEPTH_TEST);
         });
 
         pass->setOnResize([=](const phi::resolution& resolution)

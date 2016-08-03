@@ -8,21 +8,6 @@
 
 namespace phi
 {
-    struct renderPassIn
-    {
-        renderTarget* renderTarget;
-    };
-
-    struct renderPassOut
-    {
-        renderPassOut(renderTarget* renderTarget) :
-            renderTarget(renderTarget)
-        {
-        }
-
-        renderTarget* renderTarget;
-    };
-
     class renderPass
     {
     private:
@@ -30,8 +15,6 @@ namespace phi
         vector<vertexArrayObject*> _vaos;
         framebuffer* _framebuffer;
         resolution _resolution;
-        unordered_map<string, renderTarget*> _ins;
-        unordered_map<string, renderTarget*> _outs;
 
         std::function<void()> _onInitialize;
         std::function<void(program*)> _onUpdate;
@@ -58,11 +41,6 @@ namespace phi
         void setOnDelete(std::function<void(void)> onDelete) { _onDelete = onDelete; }
 
         void addVao(vertexArrayObject* vao) { _vaos.push_back(vao); }
-        void addIn(renderTarget* in) { _ins[in->name] = in; }
-        void addOut(renderTarget* out) { _outs[out->name] = out; }
-
-        unordered_map<string, renderTarget*> getIns() const { return _ins; }
-        unordered_map<string, renderTarget*> getOuts() const { return _outs; }
 
         RENDERING_API void resize(const resolution& resolution);
     };
