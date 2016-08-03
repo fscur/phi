@@ -18,11 +18,17 @@ namespace phi
         vertexArrayObject* _vao;
         mappedVertexBuffer<planeGrid*, mat4>* _modelMatricesBuffer;
         mappedBuffer<planeGrid*, planeGridRenderData>* _planeGridRenderDataBuffer;
+        unordered_map<planeGrid*, eventToken> _planeGridEventTokens;
 
     private:
         void createVao();
         void createPlaneGridRenderDataBuffer();
         geometry* createPlaneQuad();
+        void addPlaneGridToBuffers(planeGrid* planeGrid);
+        void removePlaneGridFromBuffers(planeGrid* planeGrid);
+        void assignVisibleChangedEvent(planeGrid* planeGrid);
+        void unassignVisibleChangedEvent(planeGrid* planeGrid);
+        void planeGridVisibleChanged(planeGrid* planeGrid);
         void updateModelMatrix(planeGrid* planeGrid);
 
     public:

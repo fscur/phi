@@ -72,6 +72,8 @@ namespace phi
 
         void update(KEY key, DATA data)
         {
+            assert(_instances.find(key) != _instances.end());
+
             auto index = _instances[key].index;
             _bufferData[index] = data;
             uploadData(index, 1);
@@ -97,6 +99,8 @@ namespace phi
 
         void remove(KEY key)
         {
+            assert(_instances.find(key) != _instances.end());
+
             auto index = _instances[key].index;
             auto size = _instances[key].size;
             auto dataCount = _instanceCount - (index + size);

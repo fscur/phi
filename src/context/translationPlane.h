@@ -6,6 +6,7 @@
 #include <core\node.h>
 #include <core\plane.h>
 #include <animation\transformAnimation.h>
+#include <ui\planeGrid.h>
 
 namespace phi
 {
@@ -24,6 +25,16 @@ namespace phi
             planeGridNode(nullptr),
             planeGridAnimation(nullptr)
         {
+        }
+
+        void showGrid()
+        {
+            planeGridNode->getComponent<planeGrid>()->show();
+        }
+
+        void hideGrid()
+        {
+            planeGridNode->getComponent<planeGrid>()->hide();
         }
     };
 }

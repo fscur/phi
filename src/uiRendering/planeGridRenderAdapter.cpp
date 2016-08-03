@@ -8,7 +8,8 @@
 
 namespace phi
 {
-    planeGridRenderAdapter::planeGridRenderAdapter()
+    planeGridRenderAdapter::planeGridRenderAdapter() :
+        _planeGridEventTokens(unordered_map<planeGrid*, eventToken>())
     {
         createVao();
         createPlaneGridRenderDataBuffer();
@@ -58,7 +59,43 @@ namespace phi
     void planeGridRenderAdapter::createPlaneGridRenderDataBuffer()
     {
         _planeGridRenderDataBuffer = new mappedBuffer<planeGrid*, planeGridRenderData>("PlaneGridRenderDataBuffer", bufferTarget::shader);
-     }
+    }
+
+    void planeGridRenderAdapter::addPlaneGridToBuffers(planeGrid* planeGrid)
+    {
+        auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
+        _modelMatricesBuffer->add(planeGrid, modelMatrix);
+
+        auto planeGridRenderData = planeGridRenderData::from(planeGrid);
+        _planeGridRenderDataBuffer->add(planeGrid, planeGridRenderData);
+    }
+
+    void planeGridRenderAdapter::removePlaneGridFromBuffers(planeGrid* planeGrid)
+    {
+        _modelMatricesBuffer->remove(planeGrid);
+        _planeGridRenderDataBuffer->remove(planeGrid);
+    }
+
+    void planeGridRenderAdapter::assignVisibleChangedEvent(planeGrid* planeGrid)
+    {
+        auto token = planeGrid->getVisibleChanged()->assign(std::bind(&planeGridRenderAdapter::planeGridVisibleChanged, this, std::placeholders::_1));
+        _planeGridEventTokens[planeGrid] = token;
+    }
+
+    void planeGridRenderAdapter::unassignVisibleChangedEvent(planeGrid* planeGrid)
+    {
+        auto token = _planeGridEventTokens[planeGrid];
+        planeGrid->getVisibleChanged()->unassign(token);
+        _planeGridEventTokens.erase(planeGrid);
+    }
+
+    void planeGridRenderAdapter::planeGridVisibleChanged(planeGrid* planeGrid)
+    {
+        if (planeGrid->getVisible())
+            addPlaneGridToBuffers(planeGrid);
+        else
+            removePlaneGridFromBuffers(planeGrid);
+    }
 
     void planeGridRenderAdapter::updateModelMatrix(planeGrid* planeGrid)
     {
@@ -68,21 +105,23 @@ namespace phi
 
     void planeGridRenderAdapter::add(planeGrid* planeGrid)
     {
-        auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
-        _modelMatricesBuffer->add(planeGrid, modelMatrix);
+        if (planeGrid->getVisible())
+            addPlaneGridToBuffers(planeGrid);
 
-        auto planeGridRenderData = planeGridRenderData::from(planeGrid);
-        _planeGridRenderDataBuffer->add(planeGrid, planeGridRenderData);
+        assignVisibleChangedEvent(planeGrid);
     }
 
     void planeGridRenderAdapter::remove(planeGrid* planeGrid)
     {
-        _modelMatricesBuffer->remove(planeGrid);
-        _planeGridRenderDataBuffer->remove(planeGrid);
+        if (planeGrid->getVisible())
+            removePlaneGridFromBuffers(planeGrid);
+
+        unassignVisibleChangedEvent(planeGrid);
     }
 
     void planeGridRenderAdapter::update(planeGrid* planeGrid)
     {
-        updateModelMatrix(planeGrid);
+        if (planeGrid->getVisible())
+            updateModelMatrix(planeGrid);
     }
 }
