@@ -242,8 +242,8 @@ namespace phi
 
         auto filterData = PxQueryFilterData(PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
-        PxSweepHit hitBuffer[32];
-        auto hit = PxSweepBuffer(hitBuffer, 32);
+        auto hitBuffer = new PxSweepHit[test.maximumHits];
+        auto hit = PxSweepBuffer(hitBuffer, test.maximumHits);
         if (_scene->sweep(
             *geometry,
             pose,
@@ -315,6 +315,7 @@ namespace phi
             singleTest.group = test.group;
             singleTest.disregardDivergentNormals = test.disregardDivergentNormals;
             singleTest.inflation = test.inflation;
+            singleTest.maximumHits = test.maximumHits;
             auto result = sweep(singleTest);
 
             if (result.collided)
@@ -367,6 +368,7 @@ namespace phi
         multiTest.transforms = test.transforms;
         multiTest.direction = test.direction;
         multiTest.distance = test.distance;
+        multiTest.maximumHits = test.maximumHits;
         multiTest.group = 1u;
         multiTest.disregardDivergentNormals = test.disregardDivergentNormals;
 

@@ -13,12 +13,14 @@ namespace phi
             intersectionCollisionTest(),
             distance(0.0f),
             direction(vec3()),
-            disregardDivergentNormals(true)
+            disregardDivergentNormals(true),
+            maximumHits(32u)
         {
         }
 
         float distance;
         vec3 direction;
         bool disregardDivergentNormals;
+        uint32_t maximumHits;
     };
 }
