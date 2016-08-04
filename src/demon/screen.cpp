@@ -176,7 +176,7 @@ namespace demon
         wall->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 10.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
         _sceneCamera->getTransform()->yaw(PI);
 
         try
@@ -189,7 +189,7 @@ namespace demon
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withPlanesTranslationController()
+                .withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -230,8 +230,8 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         //_sceneLayer->add(planeNode);
-        _sceneLayer->add(_chair0);
-        _sceneLayer->add(floor0);
+        //_sceneLayer->add(_chair0);
+        //_sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
         _sceneLayer->add(cube1);
         _sceneLayer->add(wall);

@@ -15,6 +15,8 @@
 #include "sweepCollisionPairTest.h"
 #include "sweepCollision.h"
 #include "sweepCollisionResult.h"
+#include "rayCastResult.h"
+#include "rayCastTest.h"
 
 namespace phi
 {
@@ -65,5 +67,7 @@ namespace phi
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionTest test);
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionMultiTest test);
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionGroupTest test);
+
+        PHYSICS_API rayCastResult rayCast(const rayCastTest& test);
     };
 }
