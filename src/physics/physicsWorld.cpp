@@ -377,4 +377,37 @@ namespace phi
 
         return result;
     }
+
+    rayCastResult physicsWorld::rayCast(const rayCastTest& test)
+    {
+        PxQueryFilterData queryFilter;
+        queryFilter.flags |= PxQueryFlag::eANY_HIT; // note the OR with the default value
+
+        auto rayDirection = test.ray.getDirection();
+        auto rayOrigin = test.ray.getOrigin();
+
+        auto origin = PxVec3(rayOrigin.x, rayOrigin.y, rayOrigin.z);
+        auto direction = PxVec3(rayDirection.x, rayDirection.y, rayDirection.z);
+        
+        PxRaycastBuffer hit;
+
+        bool status = _scene->raycast(origin, direction, test.maxDistance, hit, PxHitFlags(PxHitFlag::eDEFAULT), queryFilter);
+
+        if (status)
+        {
+            auto firstHit = hit.getAnyHit(0);
+            auto firstHitNormal = firstHit.normal;
+            auto firstHitPosition = firstHit.position + firstHitNormal * DECIMAL_TRUNCATION;
+            auto firstHitBoxCollider = reinterpret_cast<boxCollider*>(firstHit.actor->userData);
+
+            auto hit = rayCastHit();
+            hit.position = vec3(firstHitPosition.x, firstHitPosition.y, firstHitPosition.z);
+            hit.normal = vec3(firstHitNormal.x, firstHitNormal.y, firstHitNormal.z);
+            hit.collider = firstHitBoxCollider;
+
+            return rayCastResult({hit});
+        }
+
+        return rayCastResult();
+    }
 }

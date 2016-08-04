@@ -162,7 +162,7 @@ namespace phi
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
 
         
-        debug(std::to_string(zBufferValue));
+        //debug(std::to_string(zBufferValue));
 
         return zBufferValue;
     }

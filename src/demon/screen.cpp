@@ -166,17 +166,15 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        //cube0->getTransform()->setLocalSize(vec3(0.1f));
+        cube0->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 0.0f));
 
-        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube1->getTransform()->translate(vec3(1.0));
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         wall->getTransform()->pitch(PI_OVER_2);
         wall->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 10.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
         _sceneCamera->getTransform()->yaw(PI);
 
         try
@@ -189,7 +187,7 @@ namespace demon
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withPlanesTranslationController()
+                .withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -230,8 +228,8 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         //_sceneLayer->add(planeNode);
-        _sceneLayer->add(_chair0);
-        _sceneLayer->add(floor0);
+        //_sceneLayer->add(_chair0);
+        //_sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
         _sceneLayer->add(wall);
 
