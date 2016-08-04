@@ -6,8 +6,23 @@ namespace phi
 {
     planesTranslationInputController::planesTranslationInputController(camera* camera, layer* planesLayer, physicsLayerBehaviour* physicsBehaviour) :
         translationInputController(camera, planesLayer),
-        _physicsBehaviour(physicsBehaviour)
+        _physicsBehaviour(physicsBehaviour),
+        _lastChosenTranslationPlane(nullptr)
     {
+    }
+
+    void planesTranslationInputController::addTranslationPlane(translationPlane* translationPlane)
+    {
+        _translationPlanes.push_back(translationPlane);
+        if (_translationPlanes.size() >= 1)
+            _defaultTranslationPlane->hideGrid();
+    }
+
+    void planesTranslationInputController::removeTranslationPlane(translationPlane* translationPlane)
+    {
+        phi::removeIfContains(_translationPlanes, translationPlane);
+        if (_translationPlanes.size() == 0)
+            _defaultTranslationPlane->showGrid();
     }
 
     bool planesTranslationInputController::canTranslateAt(sweepCollision collision)
@@ -61,12 +76,14 @@ namespace phi
             if (existsTranslationPlaneWithNormal(collisionNormal))
                 continue;
 
-            auto planeOrigin = _translationPlane->plane.origin;
-            auto planePosition = _draggingCollider->getObb().getPositionAt(-collision.normal);
-            auto plane = phi::plane(planeOrigin, collision.normal);
-            auto translationPlane = createTranslationPlane(plane, planePosition, collision.collider);
+            auto planePosition = collision.collider->getObb().getPositionAt(collision.normal);
+            planePosition = plane(planePosition, collision.normal).projectPoint(_draggingCollider->getObb().center);
+
+            auto plane = phi::plane(vec3(), collision.normal);
+            auto translationPlane = createTranslationPlane(plane, planePosition, collision.collider, color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
             addTranslationPlane(translationPlane);
-            addPlaneGrid(translationPlane);
+            _planesLayer->add(translationPlane->planeGridNode);
+            translationPlane->showGrid();
         }
     }
 
@@ -76,6 +93,8 @@ namespace phi
         for (size_t i = 0; i < translationPlanesCount; ++i)
         {
             auto translationPlane = _translationPlanes[i];
+            if (translationPlane == _lastChosenTranslationPlane)
+                continue;
 
             auto translationPlaneNormal = translationPlane->plane.normal;
             auto touchsSearch = std::find_if(touchs.begin(), touchs.end(),
@@ -101,10 +120,58 @@ namespace phi
         if (!_dragging)
             return false;
 
+        _lastChosenTranslationPlane = nullptr;
+
         auto touchs = findTouchCollisions();
         addPlanesIfNeeded(touchs);
 
         return true;
+    }
+
+    vec3 planesTranslationInputController::mouseOffsetToWorld(ivec2 mousePosition)
+    {
+        auto mouseDir = glm::normalize(vec2(_lastMousePosition - mousePosition));
+        auto cameraTransform = _camera->getTransform();
+        return glm::normalize(cameraTransform->getRight() * mouseDir.x + cameraTransform->getUp() * mouseDir.y);
+    }
+
+    translationPlane* planesTranslationInputController::findBestPlaneToDrag(vec3 dragDirection)
+    {
+        auto minNormalOnDragDirection = 1.0f;
+        translationPlane* chosenPlane = nullptr;
+
+        for (auto& translationPlane : _translationPlanes)
+        {
+            auto normalOnDragDirection = glm::dot(translationPlane->plane.normal, dragDirection);
+            if (normalOnDragDirection < minNormalOnDragDirection)
+            {
+                minNormalOnDragDirection = normalOnDragDirection;
+                chosenPlane = translationPlane;
+            }
+        }
+
+        return chosenPlane;
+    }
+
+    void planesTranslationInputController::translateOn(translationPlane* translationPlane, ivec2 mousePosition)
+    {
+        if (translationPlane != _lastChosenTranslationPlane)
+        {
+            if (_lastChosenTranslationPlane)
+                translationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->plane);
+            else
+                translationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->plane);
+
+            setupTranslationPlane(translationPlane);
+        }
+
+        auto offset = getTranslationOffset(mousePosition, translationPlane);
+
+        translateNode(offset);
+        translatePlaneGrid(translationPlane);
+
+        _lastChosenTranslationPlane = translationPlane;
+        _lastMousePosition = mousePosition;
     }
 
     bool planesTranslationInputController::onMouseMove(mouseEventArgs* e)
@@ -116,6 +183,41 @@ namespace phi
         addPlanesIfNeeded(touchs);
         removeDetachedPlanes(touchs);
 
-        return translationInputController::onMouseMove(e);
+        auto mousePosition = ivec2(e->x, e->y);
+        auto dragDirection = mouseOffsetToWorld(mousePosition);
+        auto chosenTranslationPlane = findBestPlaneToDrag(dragDirection);
+
+        if (!chosenTranslationPlane && _lastChosenTranslationPlane)
+            chosenTranslationPlane = _lastChosenTranslationPlane;
+
+        if (chosenTranslationPlane)
+        {
+            translateOn(chosenTranslationPlane, mousePosition);
+            return true;
+        }
+        else
+        {
+            if (_lastChosenTranslationPlane)
+            {
+                _defaultTranslationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->plane);
+                setupTranslationPlane(_defaultTranslationPlane);
+                _lastChosenTranslationPlane = nullptr;
+            }
+
+            return translationInputController::onMouseMove(e);
+        }
+    }
+
+    bool planesTranslationInputController::onMouseUp(mouseEventArgs* e)
+    {
+        if (!_dragging)
+            return false;
+
+        for (auto& translationPlane : _translationPlanes)
+            deletePlane(translationPlane);
+
+        _translationPlanes.clear();
+
+        return translationInputController::onMouseUp(e);
     }
 }

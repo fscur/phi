@@ -159,14 +159,9 @@ namespace phi
         return vec3(x, y, depth);
     }
 
-    float camera::zBufferToDepth(float zBufferValue)
+    ray camera::screenPointToRay(int mouseX, int mouseY)
     {
-        return -_projectionMatrix[3].z / (zBufferValue * -2.0f + 1.0f - _projectionMatrix[2].z);
-    }
-
-    ray camera::screenPointToRay(float mouseX, float mouseY)
-    {
-        float x = (2.0f * mouseX) / _resolution.width - 1.0f;
+        float x = (2.0f * static_cast<float>(mouseX)) / _resolution.width - 1.0f;
         float y = 1.0f - (2.0f * mouseY) / _resolution.height;
 
         auto ip = inverse(_projectionMatrix);
@@ -182,5 +177,18 @@ namespace phi
 
         auto origin = _transform->getLocalPosition();
         return ray(origin, rayWorld);
+    }
+
+    float camera::zBufferToDepth(float zBufferValue)
+    {
+        return -_projectionMatrix[3].z / (zBufferValue * -2.0f + 1.0f - _projectionMatrix[2].z);
+    }
+
+    vec3 camera::castRayToPlane(int mouseX, int mouseY, plane plane)
+    {
+        auto ray = screenPointToRay(mouseX, mouseY);
+        float t;
+        ray.intersects(plane, t);
+        return ray.getOrigin() + ray.getDirection() * t;
     }
 }

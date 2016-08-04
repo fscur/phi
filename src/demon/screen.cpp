@@ -47,7 +47,7 @@ namespace demon
     void screen::onInit()
     {
         initGL();
-        initPickingFramebuffer();
+        initFramebuffers();
         initLibraries();
         initInput();
         initContexts();
@@ -102,7 +102,7 @@ namespace demon
         _framebufferAllocator = new framebufferAllocator();
     }
 
-    void screen::initPickingFramebuffer()
+    void screen::initFramebuffers()
     {
         defaultFramebuffer::initialize(_framebufferAllocator, _resolution);
         pickingFramebuffer::initialize(_framebufferAllocator, _resolution);
@@ -167,7 +167,9 @@ namespace demon
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
         cube0->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 0.0f));
-
+        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
+        cube1->getTransform()->translate(vec3(1.0));
+        cube1->getTransform()->yaw(PI_OVER_4);
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         wall->getTransform()->pitch(PI_OVER_2);
@@ -231,6 +233,7 @@ namespace demon
         //_sceneLayer->add(_chair0);
         //_sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
+        _sceneLayer->add(cube1);
         _sceneLayer->add(wall);
 
 

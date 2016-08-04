@@ -13,6 +13,12 @@ namespace phi
         color _color;
         float _lineThickness;
         float _opacity;
+        bool _visible;
+
+        eventHandler<planeGrid*> _colorChanged;
+        eventHandler<planeGrid*> _lineThicknessChanged;
+        eventHandler<planeGrid*> _opacityChanged;
+        eventHandler<planeGrid*> _visibleChanged;
 
     public:
         static componentType getComponentType() 
@@ -25,13 +31,21 @@ namespace phi
         UI_API planeGrid(const planeGrid& planeGrid);
         UI_API ~planeGrid();
 
-        UI_API color getColor() const { return _color; }
-        UI_API float getLineThickness() const { return _lineThickness; }
-        UI_API float getOpacity() const { return _opacity; }
+        color getColor() const { return _color; }
+        float getLineThickness() const { return _lineThickness; }
+        float getOpacity() const { return _opacity; }
+        bool getVisible() const { return _visible; }
+        eventHandler<planeGrid*>* getColorChanged() { return &_colorChanged; }
+        eventHandler<planeGrid*>* getLineThicknessChanged() { return &_lineThicknessChanged; }
+        eventHandler<planeGrid*>* getOpacityChanged() { return &_opacityChanged; }
+        eventHandler<planeGrid*>* getVisibleChanged() { return &_visibleChanged; }
 
-        UI_API void setColor(const color& value) { _color = value; }
-        UI_API void setLineThickness(const float value) { _lineThickness = value; }
-        UI_API void setOpacity(const float value) { _opacity = value; }
+        UI_API void setColor(const color& value);
+        UI_API void setLineThickness(const float value);
+        UI_API void setOpacity(const float value);
+
+        UI_API void hide();
+        UI_API void show();
 
         UI_API component* clone() const override;
     };

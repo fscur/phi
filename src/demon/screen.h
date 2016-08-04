@@ -58,7 +58,7 @@ namespace demon
     private:
         void initGL();
         void initWatcher();
-        void initPickingFramebuffer();
+        void initFramebuffers();
         void initLibraries();
         void initContexts();
         void initInput();

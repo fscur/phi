@@ -8,7 +8,8 @@
 
 namespace phi
 {
-    planeGridRenderAdapter::planeGridRenderAdapter()
+    planeGridRenderAdapter::planeGridRenderAdapter() :
+        _planeGridEventTokens(unordered_map<planeGrid*, planeGridEventTokens>())
     {
         createVao();
         createPlaneGridRenderDataBuffer();
@@ -58,15 +59,9 @@ namespace phi
     void planeGridRenderAdapter::createPlaneGridRenderDataBuffer()
     {
         _planeGridRenderDataBuffer = new mappedBuffer<planeGrid*, planeGridRenderData>("PlaneGridRenderDataBuffer", bufferTarget::shader);
-     }
-
-    void planeGridRenderAdapter::updateModelMatrix(planeGrid* planeGrid)
-    {
-        auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
-        _modelMatricesBuffer->update(planeGrid, modelMatrix);
     }
 
-    void planeGridRenderAdapter::add(planeGrid* planeGrid)
+    void planeGridRenderAdapter::addPlaneGridToBuffers(planeGrid* planeGrid)
     {
         auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
         _modelMatricesBuffer->add(planeGrid, modelMatrix);
@@ -75,10 +70,80 @@ namespace phi
         _planeGridRenderDataBuffer->add(planeGrid, planeGridRenderData);
     }
 
-    void planeGridRenderAdapter::remove(planeGrid* planeGrid)
+    void planeGridRenderAdapter::removePlaneGridFromBuffers(planeGrid* planeGrid)
     {
         _modelMatricesBuffer->remove(planeGrid);
         _planeGridRenderDataBuffer->remove(planeGrid);
+    }
+
+    void planeGridRenderAdapter::planeGridVisibleChanged(planeGrid* planeGrid)
+    {
+        if (planeGrid->getVisible())
+            addPlaneGridToBuffers(planeGrid);
+        else
+            removePlaneGridFromBuffers(planeGrid);
+    }
+
+    void planeGridRenderAdapter::updateModelMatrix(planeGrid* planeGrid)
+    {
+        if (!planeGrid->getVisible())
+            return;
+
+        auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
+        _modelMatricesBuffer->update(planeGrid, modelMatrix);
+    }
+
+    void planeGridRenderAdapter::updateRenderData(planeGrid* planeGrid)
+    {
+        if (!planeGrid->getVisible())
+            return;
+
+        auto planeGridRenderData = planeGridRenderData::from(planeGrid);
+        _planeGridRenderDataBuffer->update(planeGrid, planeGridRenderData);
+    }
+
+    void planeGridRenderAdapter::assignChangedEvents(planeGrid* planeGrid)
+    {
+        auto colorChangedToken = planeGrid->getColorChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto lineThicknessChangedToken = planeGrid->getLineThicknessChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto opacityChangedToken = planeGrid->getOpacityChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto visibleChangedToken = planeGrid->getVisibleChanged()->assign(std::bind(&planeGridRenderAdapter::planeGridVisibleChanged, this, std::placeholders::_1));
+
+        auto tokens = planeGridEventTokens();
+        tokens.colorChangedEventToken = colorChangedToken;
+        tokens.lineThicknessChangedEventToken = lineThicknessChangedToken;
+        tokens.opacityChangedEventToken = opacityChangedToken;
+        tokens.visibleChangedEventToken = visibleChangedToken;
+
+        _planeGridEventTokens[planeGrid] = tokens;
+    }
+
+    void planeGridRenderAdapter::unassignChangedEvents(planeGrid* planeGrid)
+    {
+        auto tokens = _planeGridEventTokens[planeGrid];
+
+        planeGrid->getColorChanged()->unassign(tokens.colorChangedEventToken);
+        planeGrid->getLineThicknessChanged()->unassign(tokens.lineThicknessChangedEventToken);
+        planeGrid->getOpacityChanged()->unassign(tokens.opacityChangedEventToken);
+        planeGrid->getVisibleChanged()->unassign(tokens.visibleChangedEventToken);
+
+        _planeGridEventTokens.erase(planeGrid);
+    }
+
+    void planeGridRenderAdapter::add(planeGrid* planeGrid)
+    {
+        if (planeGrid->getVisible())
+            addPlaneGridToBuffers(planeGrid);
+
+        assignChangedEvents(planeGrid);
+    }
+
+    void planeGridRenderAdapter::remove(planeGrid* planeGrid)
+    {
+        if (planeGrid->getVisible())
+            removePlaneGridFromBuffers(planeGrid);
+
+        unassignChangedEvents(planeGrid);
     }
 
     void planeGridRenderAdapter::update(planeGrid* planeGrid)

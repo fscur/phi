@@ -79,9 +79,7 @@ namespace phi
             auto h = static_cast<GLint>(resolution.height);
 
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-            framebuffer->bindForReading(depthRenderTarget);
             glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-
         });
 
         return pass;
