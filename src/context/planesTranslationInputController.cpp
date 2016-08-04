@@ -80,7 +80,7 @@ namespace phi
             planePosition = plane(planePosition, collision.normal).projectPoint(_draggingCollider->getObb().center);
 
             auto plane = phi::plane(vec3(), collision.normal);
-            auto translationPlane = createTranslationPlane(plane, planePosition, collision.collider);
+            auto translationPlane = createTranslationPlane(plane, planePosition, collision.collider, color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
             addTranslationPlane(translationPlane);
             _planesLayer->add(translationPlane->planeGridNode);
             translationPlane->showGrid();

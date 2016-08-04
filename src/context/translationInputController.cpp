@@ -71,7 +71,7 @@ namespace phi
         safeDelete(translationPlane->planeGridNode);
     }
 
-    translationPlane* translationInputController::createTranslationPlane(plane plane, vec3 position, boxCollider* collider)
+    translationPlane* translationInputController::createTranslationPlane(plane plane, vec3 position, boxCollider* collider, color color)
     {
         auto planeNode = new node("plane");
         auto planeTransform = planeNode->getTransform();
@@ -83,7 +83,7 @@ namespace phi
         animator->addAnimation(animation);
 
         auto planeGrid = new phi::planeGrid();
-        planeGrid->setColor(color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
+        planeGrid->setColor(color);
         planeGrid->setLineThickness(7.0f);
         planeGrid->setOpacity(0.4f);
         planeNode->addComponent(planeGrid);

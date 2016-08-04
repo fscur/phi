@@ -14,11 +14,19 @@ namespace phi
 {
     class planeGridRenderAdapter
     {
+        struct planeGridEventTokens
+        {
+            eventToken colorChangedEventToken;
+            eventToken lineThicknessChangedEventToken;
+            eventToken opacityChangedEventToken;
+            eventToken visibleChangedEventToken;
+        };
+
     private:
         vertexArrayObject* _vao;
         mappedVertexBuffer<planeGrid*, mat4>* _modelMatricesBuffer;
         mappedBuffer<planeGrid*, planeGridRenderData>* _planeGridRenderDataBuffer;
-        unordered_map<planeGrid*, eventToken> _planeGridEventTokens;
+        unordered_map<planeGrid*, planeGridEventTokens> _planeGridEventTokens;
 
     private:
         void createVao();
@@ -26,10 +34,11 @@ namespace phi
         geometry* createPlaneQuad();
         void addPlaneGridToBuffers(planeGrid* planeGrid);
         void removePlaneGridFromBuffers(planeGrid* planeGrid);
-        void assignVisibleChangedEvent(planeGrid* planeGrid);
-        void unassignVisibleChangedEvent(planeGrid* planeGrid);
+        void assignChangedEvents(planeGrid* planeGrid);
+        void unassignChangedEvents(planeGrid* planeGrid);
         void planeGridVisibleChanged(planeGrid* planeGrid);
         void updateModelMatrix(planeGrid* planeGrid);
+        void updateRenderData(planeGrid* planeGrid);
 
     public:
         UI_RENDERING_API planeGridRenderAdapter();

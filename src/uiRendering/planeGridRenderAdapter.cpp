@@ -9,7 +9,7 @@
 namespace phi
 {
     planeGridRenderAdapter::planeGridRenderAdapter() :
-        _planeGridEventTokens(unordered_map<planeGrid*, eventToken>())
+        _planeGridEventTokens(unordered_map<planeGrid*, planeGridEventTokens>())
     {
         createVao();
         createPlaneGridRenderDataBuffer();
@@ -76,19 +76,6 @@ namespace phi
         _planeGridRenderDataBuffer->remove(planeGrid);
     }
 
-    void planeGridRenderAdapter::assignVisibleChangedEvent(planeGrid* planeGrid)
-    {
-        auto token = planeGrid->getVisibleChanged()->assign(std::bind(&planeGridRenderAdapter::planeGridVisibleChanged, this, std::placeholders::_1));
-        _planeGridEventTokens[planeGrid] = token;
-    }
-
-    void planeGridRenderAdapter::unassignVisibleChangedEvent(planeGrid* planeGrid)
-    {
-        auto token = _planeGridEventTokens[planeGrid];
-        planeGrid->getVisibleChanged()->unassign(token);
-        _planeGridEventTokens.erase(planeGrid);
-    }
-
     void planeGridRenderAdapter::planeGridVisibleChanged(planeGrid* planeGrid)
     {
         if (planeGrid->getVisible())
@@ -99,8 +86,48 @@ namespace phi
 
     void planeGridRenderAdapter::updateModelMatrix(planeGrid* planeGrid)
     {
+        if (!planeGrid->getVisible())
+            return;
+
         auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
         _modelMatricesBuffer->update(planeGrid, modelMatrix);
+    }
+
+    void planeGridRenderAdapter::updateRenderData(planeGrid* planeGrid)
+    {
+        if (!planeGrid->getVisible())
+            return;
+
+        auto planeGridRenderData = planeGridRenderData::from(planeGrid);
+        _planeGridRenderDataBuffer->update(planeGrid, planeGridRenderData);
+    }
+
+    void planeGridRenderAdapter::assignChangedEvents(planeGrid* planeGrid)
+    {
+        auto colorChangedToken = planeGrid->getColorChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto lineThicknessChangedToken = planeGrid->getLineThicknessChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto opacityChangedToken = planeGrid->getOpacityChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto visibleChangedToken = planeGrid->getVisibleChanged()->assign(std::bind(&planeGridRenderAdapter::planeGridVisibleChanged, this, std::placeholders::_1));
+
+        auto tokens = planeGridEventTokens();
+        tokens.colorChangedEventToken = colorChangedToken;
+        tokens.lineThicknessChangedEventToken = lineThicknessChangedToken;
+        tokens.opacityChangedEventToken = opacityChangedToken;
+        tokens.visibleChangedEventToken = visibleChangedToken;
+
+        _planeGridEventTokens[planeGrid] = tokens;
+    }
+
+    void planeGridRenderAdapter::unassignChangedEvents(planeGrid* planeGrid)
+    {
+        auto tokens = _planeGridEventTokens[planeGrid];
+
+        planeGrid->getColorChanged()->unassign(tokens.colorChangedEventToken);
+        planeGrid->getLineThicknessChanged()->unassign(tokens.lineThicknessChangedEventToken);
+        planeGrid->getOpacityChanged()->unassign(tokens.opacityChangedEventToken);
+        planeGrid->getVisibleChanged()->unassign(tokens.visibleChangedEventToken);
+
+        _planeGridEventTokens.erase(planeGrid);
     }
 
     void planeGridRenderAdapter::add(planeGrid* planeGrid)
@@ -108,7 +135,7 @@ namespace phi
         if (planeGrid->getVisible())
             addPlaneGridToBuffers(planeGrid);
 
-        assignVisibleChangedEvent(planeGrid);
+        assignChangedEvents(planeGrid);
     }
 
     void planeGridRenderAdapter::remove(planeGrid* planeGrid)
@@ -116,12 +143,11 @@ namespace phi
         if (planeGrid->getVisible())
             removePlaneGridFromBuffers(planeGrid);
 
-        unassignVisibleChangedEvent(planeGrid);
+        unassignChangedEvents(planeGrid);
     }
 
     void planeGridRenderAdapter::update(planeGrid* planeGrid)
     {
-        if (planeGrid->getVisible())
-            updateModelMatrix(planeGrid);
+        updateModelMatrix(planeGrid);
     }
 }
