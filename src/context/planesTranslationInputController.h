@@ -14,6 +14,7 @@ namespace phi
         physicsLayerBehaviour* _physicsBehaviour;
         vector<translationPlane*> _translationPlanes;
         translationPlane* _lastChosenTranslationPlane;
+        vec3 _lastCastPosition;
 
     private:
         void addTranslationPlane(translationPlane* translationPlane);
@@ -25,6 +26,7 @@ namespace phi
         void removeDetachedPlanes(vector<sweepCollision> collisions);
         vec3 mouseOffsetToWorld(ivec2 mousePosition);
         translationPlane* findBestPlaneToDrag(vec3 dragDirection);
+        void translateOn(translationPlane* translationPlane, ivec2 mousePosition);
 
     public:
         planesTranslationInputController(camera* camera, layer* planesLayer, physicsLayerBehaviour* physicsBehaviour);

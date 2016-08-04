@@ -76,7 +76,9 @@ namespace phi
             if (existsTranslationPlaneWithNormal(collisionNormal))
                 continue;
 
-            auto planePosition = _draggingCollider->getObb().getPositionAt(-collision.normal);
+            auto planePosition = collision.collider->getObb().getPositionAt(collision.normal);
+            planePosition = plane(planePosition, collision.normal).projectPoint(_draggingCollider->getObb().center);
+
             auto plane = phi::plane(vec3(), collision.normal);
             auto translationPlane = createTranslationPlane(plane, planePosition, collision.collider);
             addTranslationPlane(translationPlane);
@@ -91,6 +93,8 @@ namespace phi
         for (size_t i = 0; i < translationPlanesCount; ++i)
         {
             auto translationPlane = _translationPlanes[i];
+            if (translationPlane == _lastChosenTranslationPlane)
+                continue;
 
             auto translationPlaneNormal = translationPlane->plane.normal;
             auto touchsSearch = std::find_if(touchs.begin(), touchs.end(),
@@ -149,6 +153,27 @@ namespace phi
         return chosenPlane;
     }
 
+    void planesTranslationInputController::translateOn(translationPlane* translationPlane, ivec2 mousePosition)
+    {
+        if (translationPlane != _lastChosenTranslationPlane)
+        {
+            if (_lastChosenTranslationPlane)
+                translationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->plane);
+            else
+                translationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->plane);
+
+            setupTranslationPlane(translationPlane);
+        }
+
+        auto offset = getTranslationOffset(mousePosition, translationPlane);
+
+        translateNode(offset);
+        translatePlaneGrid(translationPlane);
+
+        _lastChosenTranslationPlane = translationPlane;
+        _lastMousePosition = mousePosition;
+    }
+
     bool planesTranslationInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_dragging)
@@ -162,26 +187,12 @@ namespace phi
         auto dragDirection = mouseOffsetToWorld(mousePosition);
         auto chosenTranslationPlane = findBestPlaneToDrag(dragDirection);
 
+        if (!chosenTranslationPlane && _lastChosenTranslationPlane)
+            chosenTranslationPlane = _lastChosenTranslationPlane;
+
         if (chosenTranslationPlane)
         {
-            if (chosenTranslationPlane != _lastChosenTranslationPlane)
-            {
-                if (_lastChosenTranslationPlane)
-                    chosenTranslationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->plane);
-                else
-                    chosenTranslationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->plane);
-
-                setupTranslationPlane(chosenTranslationPlane);
-            }
-
-            auto offset = getTranslationOffset(mousePosition, chosenTranslationPlane);
-
-            translateNode(offset);
-            translatePlaneGrid(chosenTranslationPlane);
-
-            _lastChosenTranslationPlane = chosenTranslationPlane;
-            _lastMousePosition = mousePosition;
-
+            translateOn(chosenTranslationPlane, mousePosition);
             return true;
         }
         else

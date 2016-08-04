@@ -51,18 +51,18 @@ namespace phi
             checkClosest(axes[2]);
             checkClosest(-axes[2]);
 
-            checkClosest(glm::normalize(axes[0] + axes[1]));
-            checkClosest(glm::normalize(axes[0] + axes[2]));
-            checkClosest(glm::normalize(axes[0] + -axes[1]));
-            checkClosest(glm::normalize(axes[0] + -axes[2]));
-            checkClosest(glm::normalize(-axes[0] + axes[1]));
-            checkClosest(glm::normalize(-axes[0] + axes[2]));
-            checkClosest(glm::normalize(-axes[0] + -axes[1]));
-            checkClosest(glm::normalize(-axes[0] + -axes[2]));
-            checkClosest(glm::normalize(axes[2] + axes[1]));
-            checkClosest(glm::normalize(axes[2] + -axes[1]));
-            checkClosest(glm::normalize(-axes[2] + axes[1]));
-            checkClosest(glm::normalize(-axes[2] + -axes[1]));
+            //checkClosest(glm::normalize(axes[0] + axes[1]));
+            //checkClosest(glm::normalize(axes[0] + axes[2]));
+            //checkClosest(glm::normalize(axes[0] + -axes[1]));
+            //checkClosest(glm::normalize(axes[0] + -axes[2]));
+            //checkClosest(glm::normalize(-axes[0] + axes[1]));
+            //checkClosest(glm::normalize(-axes[0] + axes[2]));
+            //checkClosest(glm::normalize(-axes[0] + -axes[1]));
+            //checkClosest(glm::normalize(-axes[0] + -axes[2]));
+            //checkClosest(glm::normalize(axes[2] + axes[1]));
+            //checkClosest(glm::normalize(axes[2] + -axes[1]));
+            //checkClosest(glm::normalize(-axes[2] + axes[1]));
+            //checkClosest(glm::normalize(-axes[2] + -axes[1]));
 
             return closestNormal;
         }
