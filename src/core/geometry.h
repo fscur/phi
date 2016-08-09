@@ -19,6 +19,8 @@ namespace phi
 
     public:
         CORE_API static geometry* createQuad(float size);
+        CORE_API static geometry* createBox(float size);
+
         CORE_API ~geometry();
 
         CORE_API static geometry* create(vector<vertex> vertices, vector<uint> indices);

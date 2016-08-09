@@ -15,11 +15,14 @@ namespace phi
     class boxColliderRenderAdapter
     {
     private:
-        vertexArrayObject* _vao;
+        vertexArrayObject* _linesVao;
+        vertexArrayObject* _boxVao;
         mappedVertexBuffer<boxCollider*, mat4>* _modelMatricesBuffer;
 
     private:
-        void createVao();
+        void createBuffers();
+        void createBoxVao();
+        void createLinesVao();
         void updateModelMatrix(boxCollider* boxCollider);
 
     public:
@@ -30,7 +33,9 @@ namespace phi
         DEBUG_RENDERING_API void remove(boxCollider* boxCollider);
         DEBUG_RENDERING_API void update(boxCollider* boxCollider);
 
-        vertexArrayObject* getVao() const { return _vao; };
+        vertexArrayObject* getLinesVao() const { return _linesVao; };
+        vertexArrayObject* getBoxVao() const { return _boxVao; };
+
         mappedVertexBuffer<boxCollider*, mat4>* getModelMatricesBuffer() const { return _modelMatricesBuffer; }
     };
 }

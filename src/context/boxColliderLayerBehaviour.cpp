@@ -4,7 +4,8 @@
 #include <core\notImplementedException.h>
 #include <io\path.h>
 #include <rendering\framebufferAllocator.h>
-#include <debugRendering\boxColliderRenderPass.h>
+#include <debugRendering\boxColliderLinesRenderPass.h>
+#include <debugRendering\boxColliderBoxRenderPass.h>
 #include <core\mesh.h>
 
 namespace phi
@@ -18,9 +19,10 @@ namespace phi
         _resourcesPath(resourcesPath)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto boxRenderPass = boxColliderRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+        //auto boxColliderLinesRenderPass = boxColliderLinesRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+        auto boxColliderBoxRenderPass = boxColliderBoxRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
 
-        _renderPasses = { boxRenderPass };
+        _renderPasses = { boxColliderBoxRenderPass };
     }
 
     boxColliderLayerBehaviour::~boxColliderLayerBehaviour()

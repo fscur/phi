@@ -9,10 +9,10 @@
 
 namespace phi
 {
-    class boxColliderRenderPass
+    class boxColliderLinesRenderPass
     {
     public:
-        boxColliderRenderPass() = delete;
+        boxColliderLinesRenderPass() = delete;
         DEBUG_RENDERING_API static renderPass* configure(
             const boxColliderRenderAdapter* renderAdapter, 
             const resolution& resolution, 

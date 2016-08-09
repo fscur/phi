@@ -64,4 +64,25 @@ namespace phi
 
         return quadVao;
     }
+
+    vertexArrayObject* vertexArrayObject::createBoxVao(geometry* box, std::function<void(void)> renderFunction)
+    {
+        vector<vertexBufferAttribute> attribs;
+        attribs.push_back(vertexBufferAttribute(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
+        attribs.push_back(vertexBufferAttribute(1, 2, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::texCoord)));
+        attribs.push_back(vertexBufferAttribute(2, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::normal)));
+
+        auto vbo = new vertexBuffer("vbo", attribs);
+        vbo->storage(box->vboSize, box->vboData, bufferStorageUsage::write);
+
+        auto ebo = new indexBuffer("ebo");
+        ebo->storage(box->eboSize, box->eboData, bufferStorageUsage::write);
+
+        auto quadVao = new vertexArrayObject();
+        quadVao->addBuffer(vbo);
+        quadVao->addBuffer(ebo);
+        quadVao->setOnRender(renderFunction);
+
+        return quadVao;
+    }
 }
