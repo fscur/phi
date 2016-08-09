@@ -45,10 +45,10 @@ namespace phi
             safeDelete(transform);
         safeDelete(offsetedTransforms);
 
-        return intersectionResult;
+        return !intersectionResult;
     }
 
-    sweepCollisionResult* collisionNodeTranslator::performCollisionSweep(std::vector<transform*>* transforms, vec3 offset)
+    sweepCollisionResult* collisionNodeTranslator::performCollisionSweep(vector<transform*>* transforms, vec3 offset, uint32_t maximumHits)
     {
         sweepCollisionMultiTest sweepTest;
         sweepTest.colliders = &_colliders;
@@ -56,6 +56,7 @@ namespace phi
         sweepTest.direction = glm::normalize(offset);
         sweepTest.distance = glm::length(offset);
         sweepTest.findOnlyClosestPerTarget = true;
+        sweepTest.maximumHits = maximumHits;
 
         return new sweepCollisionResult(_physicsWorld->sweep(sweepTest));
     }
@@ -140,50 +141,57 @@ namespace phi
         _physicsWorld->disableQueryOn(&_colliders);
     }
 
-    void collisionNodeTranslator::translateNode(vec3 offset)
+    vec3 collisionNodeTranslator::getValidOffset(vec3 offset)
     {
         assert(!isnan(offset.x));
         assert(!isnan(offset.y));
         assert(!isnan(offset.z));
         assert(offset != vec3());
 
-        auto finalOffset = offset;
         if (objectFitsInOffsetedPosition(offset))
+            return offset;
+
+        auto finalOffset = vec3();
+
+        auto sweepResult = performCollisionSweep(&_transforms, offset);
+        if (sweepResult->collisions.size() > 0u)
         {
-            auto sweepResult = performCollisionSweep(&_transforms, offset);
-            if (sweepResult->collisions.size() > 0u)
+            auto farthestCollision = findFarthestValidCollision(sweepResult, offset);
+
+            auto limitedOffset = glm::normalize(offset) * farthestCollision.distance;
+            auto adjustedOffset = getAdjustedOffset(farthestCollision, offset - limitedOffset);
+
+            if (adjustedOffset == vec3())
+                finalOffset = limitedOffset;
+            else
             {
-                auto farthestCollision = findFarthestValidCollision(sweepResult, offset);
+                auto limitedOffsetTransforms = createOffsetTransforms(limitedOffset);
+                auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset, 5u);
 
-                auto limitedOffset = glm::normalize(offset) * farthestCollision.distance;
-                auto adjustedOffset = getAdjustedOffset(farthestCollision, offset - limitedOffset);
-
-                if (adjustedOffset == vec3())
-                    finalOffset = limitedOffset;
-                else
+                if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
                 {
-                    auto limitedOffsetTransforms = createOffsetTransforms(limitedOffset);
-                    auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset);
-
-                    if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
-                    {
-                        auto firstCollision = adjustSweepResult->collisions.begin();
-                        finalOffset = limitedOffset + glm::normalize(adjustedOffset) * firstCollision->distance;
-                    }
-                    else
-                        finalOffset = limitedOffset + adjustedOffset;
-
-                    safeDelete(adjustSweepResult);
-                    for (auto& transform : (*limitedOffsetTransforms))
-                        safeDelete(transform);
-                    safeDelete(limitedOffsetTransforms);
+                    auto firstCollision = adjustSweepResult->collisions.begin();
+                    finalOffset = limitedOffset + glm::normalize(adjustedOffset) * firstCollision->distance;
                 }
-            }
+                else
+                    finalOffset = limitedOffset + adjustedOffset;
 
-            safeDelete(sweepResult);
+                safeDelete(adjustSweepResult);
+                for (auto& transform : (*limitedOffsetTransforms))
+                    safeDelete(transform);
+                safeDelete(limitedOffsetTransforms);
+            }
         }
 
-        _node->getTransform()->translate(finalOffset);
+        safeDelete(sweepResult);
+
+        return finalOffset;
+    }
+
+    void collisionNodeTranslator::translateNode(vec3 offset)
+    {
+        auto validOffset = getValidOffset(offset);
+        _node->getTransform()->translate(validOffset);
     }
 
     void collisionNodeTranslator::endTranslations()
