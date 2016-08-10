@@ -55,19 +55,28 @@ float sinedRange(float x, float min, float max)
 
 void main()
 {
-    vec2 uv = (fragTexCoord - 0.5) * (scale + offset);
-    uv *= 1.0;
+    vec2 uv = fragTexCoord * scale - (scale * 0.5);
     vec2 q = uv;
-    float radius = 0.5;
-    vec2 size = (scale * 0.5);
+    float radius = 0.005;
+    vec2 size = (scale * 0.5)-(radius * 1.5);
+    float a = createInnerEdge(q, size, radius);
+    float b = createInnerEdge(q, size-(radius * 0.5), radius * 0.5);
+    float d = a - b;
     
-    //float d = smoothstep(0.9999, 1.0, 1.0 - quad(q, size * 0.5));
+    vec3 color = vec3(0.1, 0.5, 0.8);
+    
+    fragColor = vec4(color, (d - 0.2) + b * (1.0 - sinedRange(time * 0.5, 0.6, 0.7)));
 
-    float outerEdge = createOuterEdge(q, size - 0.0005);
-    float innerEdge = createInnerEdge(q, size-0.005, 0.0005);
-    vec3 lightPos = vec3(7.0, 4.0, 5.0);
-    float light = max(dot(fragNormal, normalize(lightPos)), 0.5);
-    vec3 baseColor = vec3(0.1, 0.5, 0.9);
+    //if (uv.y < 0.0)
+        //fragColor = vec4(1.0);
 
-    fragColor = vec4(baseColor + 0.2, outerEdge * (1.0 - innerEdge + sinedRange(time, 0.1, 0.2)));
+
+    //float outerEdge = createOuterEdge(q, size - 0.0005);
+    //float innerEdge = createInnerEdge(q, size-0.005, 0.0005);
+    //vec3 lightPos = vec3(7.0, 4.0, 5.0);
+    //float light = max(dot(fragNormal, normalize(lightPos)), 0.5);
+    //vec3 baseColor = vec3(0.1, 0.5, 0.9);
+
+    //fragColor = vec4(baseColor + 0.2, outerEdge * (1.0 - innerEdge + sinedRange(time, 0.1, 0.2)));
+
 }

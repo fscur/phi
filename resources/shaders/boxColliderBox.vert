@@ -33,8 +33,6 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     float pad1;
 } frameUniforms;
 
-
-
 void main()
 {
     vec4 modelPosition =  inModelMatrix * vec4(inPosition, 1.0);
@@ -51,9 +49,9 @@ void main()
     vec3 localFacePosition = inPosition - localFaceCenter;
     vec3 position = rotationMatrix * localFacePosition;
 
-    offset = 0.01;
+    offset = 0.00;
     position *= offset;
-    //position += normal * 0.001;
+    position += normal * 0.000;
     
     mat4 vp = frameUniforms.p * frameUniforms.v;
     gl_Position = vp * vec4(modelPosition.xyz + position, 1.0);
