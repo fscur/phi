@@ -6,16 +6,6 @@ using namespace glm;
 
 namespace phi
 {
-    obb obb::transform(phi::transform* transform)
-    {
-        auto scale = transform->getLocalSize();
-        auto rotation = transform->getOrientation();
-        auto position = transform->getPosition() + this->center;
-        auto halfSizes = this->halfSizes * scale;
-
-        return obb(position, this->axes[0] * rotation, this->axes[1] * rotation, this->axes[2] * rotation, halfSizes);
-    }
-
     bool obb::intersects(const obb& a, const obb& b)
     {
         // Source: http://www.geometrictools.com/Documentation/DynamicCollisionDetection.pdf
@@ -88,5 +78,127 @@ namespace phi
             return false;
 
         return true;
+    }
+
+    obb obb::transform(phi::transform* transform) const
+    {
+        auto scale = transform->getLocalSize();
+        auto rotation = transform->getOrientation();
+        auto position = transform->getPosition() + this->center;
+        auto halfSizes = this->halfSizes * scale;
+
+        return obb(position, this->axes[0] * rotation, this->axes[1] * rotation, this->axes[2] * rotation, halfSizes);
+    }
+
+    vec3 obb::getPositionAt(vec3 direction) const
+    {
+        return center + direction * (
+            glm::abs(glm::dot(axes[0] * halfSizes.x, direction)) +
+            glm::abs(glm::dot(axes[1] * halfSizes.y, direction)) +
+            glm::abs(glm::dot(axes[2] * halfSizes.z, direction)));
+    }
+
+    vec3 obb::findClosestNormalTo(vec3 direction) const
+    {
+        auto highestDot = -1.0f;
+        auto closestNormal = direction;
+
+        auto checkClosest = [&highestDot, &closestNormal, direction](vec3 normal)
+        {
+            auto dot = glm::dot(normal, direction);
+            if (dot > highestDot)
+            {
+                highestDot = dot;
+                closestNormal = normal;
+            }
+        };
+
+        checkClosest(axes[0]);
+        checkClosest(-axes[0]);
+        checkClosest(axes[1]);
+        checkClosest(-axes[1]);
+        checkClosest(axes[2]);
+        checkClosest(-axes[2]);
+
+        //checkClosest(glm::normalize(axes[0] + axes[1]));
+        //checkClosest(glm::normalize(axes[0] + axes[2]));
+        //checkClosest(glm::normalize(axes[0] + -axes[1]));
+        //checkClosest(glm::normalize(axes[0] + -axes[2]));
+        //checkClosest(glm::normalize(-axes[0] + axes[1]));
+        //checkClosest(glm::normalize(-axes[0] + axes[2]));
+        //checkClosest(glm::normalize(-axes[0] + -axes[1]));
+        //checkClosest(glm::normalize(-axes[0] + -axes[2]));
+        //checkClosest(glm::normalize(axes[2] + axes[1]));
+        //checkClosest(glm::normalize(axes[2] + -axes[1]));
+        //checkClosest(glm::normalize(-axes[2] + axes[1]));
+        //checkClosest(glm::normalize(-axes[2] + -axes[1]));
+
+        return closestNormal;
+    }
+
+    vector<vec3> obb::getCorners() const
+    {
+        auto getPoint = [this](vec3 pos) -> vec3
+        {
+            return center +
+                axes[0] * halfSizes.x * pos.x +
+                axes[1] * halfSizes.y * pos.y +
+                axes[2] * halfSizes.z * pos.z;
+        };
+
+        auto corners = vector<vec3>
+        {
+            getPoint(vec3(-1.0f, -1.0f, -1.0f)),
+            getPoint(vec3(-1.0f, -1.0f, 1.0f)),
+            getPoint(vec3(-1.0f, 1.0f, 1.0f)),
+            getPoint(vec3(-1.0f, 1.0f, -1.0f)),
+            getPoint(vec3(1.0f, -1.0f, -1.0f)),
+            getPoint(vec3(1.0f, -1.0f, 1.0f)),
+            getPoint(vec3(1.0f, 1.0f, 1.0f)),
+            getPoint(vec3(1.0f, 1.0f, -1.0f))
+        };
+
+        return corners;
+    }
+
+    vector<plane> obb::getPlanes() const
+    {
+        auto planes = vector<plane>
+        {
+            plane(getPositionAt(axes[0]), axes[0]),
+            plane(getPositionAt(axes[1]), axes[1]),
+            plane(getPositionAt(axes[2]), axes[2]),
+            plane(getPositionAt(-axes[0]), -axes[0]),
+            plane(getPositionAt(-axes[1]), -axes[1]),
+            plane(getPositionAt(-axes[2]), -axes[2])
+        };
+
+        return planes;
+    }
+
+    vector<finitePlane> obb::getFinitePlanes() const
+    {
+        auto corners = getCorners();
+
+        auto lbb = corners[0];
+        auto lbf = corners[1];
+        auto ltf = corners[2];
+        auto ltb = corners[3];
+        auto rbb = corners[4];
+        auto rbf = corners[5];
+        auto rtf = corners[6];
+        auto rtb = corners[7];
+
+        auto finitePlanes = vector<finitePlane>
+        {
+            finitePlane(lbb, lbf, ltb),
+            finitePlane(rbf, rbb, rtf),
+            finitePlane(lbf, rbf, ltf),
+            finitePlane(rbb, lbb, rtb),
+            finitePlane(ltf, rtf, ltb),
+            finitePlane(lbb, rbb, lbf)
+        };
+
+        return finitePlanes;
     }
 }

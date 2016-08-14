@@ -44,7 +44,6 @@ namespace phi
 
     private:
         static physx::PxTransform createPose(const boxCollider* collider, transform* transform);
-        sweepCollisionResult sweepPenetration(sweepCollisionPairTest test);
 
     public:
         PHYSICS_API physicsWorld();
@@ -64,6 +63,7 @@ namespace phi
 
         PHYSICS_API sweepCollisionResult touchs(intersectionCollisionMultiTest test);
 
+        PHYSICS_API sweepCollisionResult sweep(sweepCollisionPairTest test);
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionTest test);
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionMultiTest test);
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionGroupTest test);

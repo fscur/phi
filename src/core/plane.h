@@ -2,6 +2,9 @@
 
 #include <phi.h>
 
+#include "coreApi.h"
+#include "mathUtils.h"
+
 namespace phi
 {
     class plane
@@ -23,11 +26,9 @@ namespace phi
         {
         }
 
-        vec3 projectPoint(const vec3 point) const
-        {
-            auto dist = dot(point, normal) - dot(origin, normal);
-            return point - normal * dist;
-        }
+        CORE_API vec3 projectPoint(const vec3 point) const;
+        CORE_API float distanceFrom(const vec3 point) const;
+        CORE_API bool intersectsLine(vec3 lineOrigin, vec3 lineDirection, float& t) const;
 
         bool operator==(const plane& plane)
         {

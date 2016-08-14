@@ -16,7 +16,6 @@
 #include "collisionNodeTranslator.h"
 #include "inputController.h"
 #include "layer.h"
-#include "nodeTranslator.h"
 #include "pickingId.h"
 #include "translationPlane.h"
 
@@ -27,7 +26,6 @@ namespace phi
     {
     protected:
         camera* _camera;
-        nodeTranslator* _nodeTranslator;
         collisionNodeTranslator* _collisionNodeTranslator;
         layer* _planesLayer;
         bool _dragging;
@@ -37,6 +35,7 @@ namespace phi
         vec3 _initialObjectPosition;
         bool _disableCollision;
         ivec2 _lastMousePosition;
+        vector<sweepCollision>* _lastTranslationTouchs;
 
     private:
         void setNodeToTranslate(node* node);

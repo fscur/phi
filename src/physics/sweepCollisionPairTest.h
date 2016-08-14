@@ -9,18 +9,24 @@ namespace phi
     struct sweepCollisionPairTest
     {
         sweepCollisionPairTest() :
-            colliderSource(nullptr),
-            transformSource(nullptr),
-            offset(vec3()),
-            colliderTarget(nullptr),
-            transformTarget(nullptr)
+            sourceCollider(nullptr),
+            sourceTransform(nullptr),
+            distance(0.0f),
+            direction(vec3()),
+            targetCollider(nullptr),
+            targetTransform(nullptr),
+            inflation(0.0f),
+            checkPenetration(false)
         {
         }
 
-        boxCollider* colliderSource;
-        transform* transformSource;
-        vec3 offset;
-        boxCollider* colliderTarget;
-        transform* transformTarget;
+        boxCollider* sourceCollider;
+        transform* sourceTransform;
+        float distance;
+        vec3 direction;
+        boxCollider* targetCollider;
+        transform* targetTransform;
+        float inflation;
+        bool checkPenetration;
     };
 }

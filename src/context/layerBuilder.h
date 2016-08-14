@@ -10,7 +10,6 @@
 #include "layer.h"
 #include "meshLayerBehaviour.h"
 #include "physicsLayerBehaviour.h"
-#include "nodeTranslator.h"
 
 namespace phi
 {
