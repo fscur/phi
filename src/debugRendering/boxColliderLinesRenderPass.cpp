@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "boxColliderRenderPass.h"
+#include "boxColliderLinesRenderPass.h"
 
 #include <core\time.h>
 #include <core\geometry.h>
@@ -17,17 +17,18 @@
 
 namespace phi
 {
-    renderPass* boxColliderRenderPass::configure(
+    renderPass* boxColliderLinesRenderPass::configure(
         const boxColliderRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
-        auto boxColliderProgram = programBuilder::buildProgram(shadersPath, "boxCollider", "boxCollider");
+        auto boxColliderProgram = programBuilder::buildProgram(shadersPath, "boxColliderLines", "boxColliderLines");
 
-        auto pass = new renderPass(boxColliderProgram, framebuffer::defaultFramebuffer, resolution);
-        pass->addVao(renderAdapter->getVao());
-
+        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        auto pass = new renderPass(boxColliderProgram, defaultFramebuffer, resolution);
+        pass->addVao(renderAdapter->getLinesVao());
+        
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();

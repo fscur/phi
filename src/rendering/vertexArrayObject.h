@@ -26,5 +26,6 @@ namespace phi
     public:
         RENDERING_API static vertexArrayObject* createPostProcessVao();
         RENDERING_API static vertexArrayObject* createQuadVao(geometry* quad, std::function<void(void)> renderFunction);
+        RENDERING_API static vertexArrayObject* createBoxVao(geometry* box, std::function<void(void)> renderFunction);
     };
 }

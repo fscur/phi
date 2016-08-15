@@ -45,7 +45,10 @@ namespace phi
         auto rotation = sender->getOrientation();
         auto center = rotation * _position;
         auto position = center + sender->getPosition();
-        _obb = obb(position, sender->getRight(), sender->getUp(), sender->getDirection(), _halfSizes);
+
+        auto size = _halfSizes * sender->getSize();
+
+        _obb = obb(position, sender->getRight(), sender->getUp(), sender->getDirection(), size);
 
         auto translationMatrix = glm::translate(_obb.center);
         auto rotationMatrix = glm::mat4(
@@ -54,7 +57,7 @@ namespace phi
             vec4(_obb.axes[2], 0.0f),
             vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-        auto scaleMatrix = glm::scale(_halfSizes * 2.0f);
+        auto scaleMatrix = glm::scale(size * 2.0f);
 
         _localModelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
     }
