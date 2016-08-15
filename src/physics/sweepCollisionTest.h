@@ -14,7 +14,8 @@ namespace phi
             distance(0.0f),
             direction(vec3()),
             disregardDivergentNormals(true),
-            maximumHits(32u)
+            maximumHits(32u),
+            inflation(0.0f)
         {
         }
 
@@ -22,5 +23,6 @@ namespace phi
         vec3 direction;
         bool disregardDivergentNormals;
         uint32_t maximumHits;
+        float inflation;
     };
 }

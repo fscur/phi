@@ -11,7 +11,6 @@
 #include "meshLayerBehaviour.h"
 #include "ghostMeshLayerBehaviour.h"
 #include "physicsLayerBehaviour.h"
-#include "nodeTranslator.h"
 
 namespace phi
 {

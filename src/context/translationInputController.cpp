@@ -13,7 +13,6 @@ namespace phi
     translationInputController::translationInputController(camera* camera, layer* layer) :
         inputController(),
         _camera(camera),
-        _nodeTranslator(new nodeTranslator()),
         _collisionNodeTranslator(nullptr),
         _layer(layer),
         _dragging(false),
@@ -21,6 +20,7 @@ namespace phi
         _draggingCollider(nullptr),
         _initialObjectPosition(),
         _disableCollision(false),
+        _lastTranslationTouchs(nullptr)
         _lastMousePosition(vec2()),
         _showingGhost(false)
     {
@@ -28,7 +28,6 @@ namespace phi
 
     translationInputController::~translationInputController()
     {
-        safeDelete(_nodeTranslator);
         safeDelete(_collisionNodeTranslator);
     }
 
@@ -43,8 +42,6 @@ namespace phi
 
     void translationInputController::initializeNodeTranslators()
     {
-        _nodeTranslator->setNode(_draggingRootNode);
-        _nodeTranslator->beginTranslations();
         if (_collisionNodeTranslator)
         {
             _collisionNodeTranslator->setNode(_draggingRootNode);
@@ -54,7 +51,6 @@ namespace phi
 
     void translationInputController::endNodeTranslators()
     {
-        _nodeTranslator->endTranslations();
         if (_collisionNodeTranslator)
             _collisionNodeTranslator->endTranslations();
     }
@@ -110,9 +106,12 @@ namespace phi
     void translationInputController::translateNode(vec3 offset)
     {
         if (_collisionNodeTranslator && !_disableCollision)
+        {
             _collisionNodeTranslator->translateNode(offset);
+            _lastTranslationTouchs = _collisionNodeTranslator->getLastTranslationTouchingCollisions();
+        }
         else
-            _nodeTranslator->translateNode(offset);
+            _draggingRootNode->getTransform()->translate(offset);
     }
 
     void translationInputController::translatePlaneGrid(translationPlane* translationPlane)
@@ -205,6 +204,8 @@ namespace phi
             _lastMousePosition = mousePosition;
             setupTranslationPlane(_defaultTranslationPlane);
 
+            //ShowCursor(false);
+
             return true;
         }
 
@@ -280,6 +281,8 @@ namespace phi
         }
 
         endNodeTranslators();
+
+        //ShowCursor(true);
 
         return true;
     }

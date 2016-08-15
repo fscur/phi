@@ -172,19 +172,8 @@ namespace demon
         //cube0->getTransform()->yaw(PI_OVER_4);
         
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube1->getTransform()->translate(vec3(1.0));
+        cube1->getTransform()->translate(vec3(0.0f, 0.5f, 1.5f));
         //cube1->getTransform()->yaw(PI_OVER_4);
-
-        /*auto func = [=](node* node, mesh* mesh)
-        {
-            auto geometry = mesh->getGeometry();
-            auto material = mesh->getMaterial();
-            auto ghostMesh = new phi::ghostMesh(geometry, material);
-            cube1->addComponent(ghostMesh);
-        };
-
-        cube1->traverseNodesContaining<mesh>(func);*/
-
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         floor0->getTransform()->setLocalSize(vec3(1.0f, 1.0f, 1.0f));
         auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
@@ -206,7 +195,7 @@ namespace demon
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withTranslationController()
+                .withPlanesTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);

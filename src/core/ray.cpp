@@ -107,42 +107,20 @@ namespace phi
 
     bool ray::intersects(obb& obb, vector<rayIntersection>& intersections)
     {
-        auto getPoint = [&obb](vec3 pos) -> vec3
+        auto obbPlanes = obb.getFinitePlanes();
+
+        for (auto& finitePlane : obbPlanes)
         {
-            return obb.center + obb.axes[0] * obb.halfSizes.x * pos.x + obb.axes[1] * obb.halfSizes.y * pos.y + obb.axes[2] * obb.halfSizes.z * pos.z;
-        };
-
-        auto lbb = getPoint(vec3(-1.0f, -1.0f, -1.0f));
-        auto lbf = getPoint(vec3(-1.0f, -1.0f, 1.0f));
-        auto ltf = getPoint(vec3(-1.0f, 1.0f, 1.0f));
-        auto ltb = getPoint(vec3(-1.0f, 1.0f, -1.0f));
-        auto rbb = getPoint(vec3(1.0f, -1.0f, -1.0f));
-        auto rbf = getPoint(vec3(1.0f, -1.0f, 1.0f));
-        auto rtf = getPoint(vec3(1.0f, 1.0f, 1.0f));
-        auto rtb = getPoint(vec3(1.0f, 1.0f, -1.0f));
-
-        auto addIntersection = [&](vec3 normal, float t)
-        {
-            rayIntersection intersection;
-            intersection.normal = normal;
-            intersection.t = t;
-            intersection.position = _origin + _direction * t;
-            intersections.push_back(intersection);
-        };
-
-        float t;
-        if (intersects(finitePlane(lbb, lbf, ltb), t))
-            addIntersection(-obb.axes[0], t);
-        if (intersects(finitePlane(rbf, rbb, rtf), t))
-            addIntersection(obb.axes[0], t);
-        if (intersects(finitePlane(lbf, rbf, ltf), t))
-            addIntersection(obb.axes[2], t);
-        if (intersects(finitePlane(rbb, lbb, rtb), t))
-            addIntersection(-obb.axes[2], t);
-        if (intersects(finitePlane(ltf, rtf, ltb), t))
-            addIntersection(obb.axes[1], t);
-        if (intersects(finitePlane(lbb, rbb, lbf), t))
-            addIntersection(-obb.axes[1], t);
+            float t;
+            if (intersects(finitePlane, t))
+            {
+                rayIntersection intersection;
+                intersection.normal = finitePlane.getNormal();
+                intersection.t = t;
+                intersection.position = _origin + _direction * t;
+                intersections.push_back(intersection);
+            }
+        }
 
         std::sort(intersections.begin(), intersections.end(), [](const rayIntersection& a, const rayIntersection& b) -> bool
         {

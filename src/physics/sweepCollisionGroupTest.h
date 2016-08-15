@@ -15,7 +15,8 @@ namespace phi
             direction(vec3()),
             disregardDivergentNormals(true),
             findOnlyClosestPerTarget(false),
-            maximumHits(32u)
+            maximumHits(32u),
+            inflation(0.0f)
         {
         }
 
@@ -24,5 +25,6 @@ namespace phi
         bool disregardDivergentNormals;
         bool findOnlyClosestPerTarget;
         uint32_t maximumHits;
+        float inflation;
     };
 }
