@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include "multiDrawElementsIndirectCommandBuffer.h"
 
-#include "drawElementsIndirectCmd.h"
+#include "drawElementsIndirectCommand.h"
 
 namespace phi
 {
@@ -38,7 +38,7 @@ namespace phi
         auto indicesOffset = 0;
         auto verticesOffset = 0;
         auto instancesOffset = 0;
-        vector<drawElementsIndirectCmd> drawCmdsBufferData;
+        vector<drawElementsIndirectCommand> drawCmdsBufferData;
 
         for (auto& geometryWathever : _geometries)
         {
@@ -46,7 +46,7 @@ namespace phi
             auto instanceCount = geometryWathever->instanceCount;
             auto indicesCount = geometry->indicesCount;
 
-            auto drawCmd = drawElementsIndirectCmd(
+            auto drawCmd = drawElementsIndirectCommand(
                 indicesCount,
                 instanceCount,
                 indicesOffset,
@@ -61,7 +61,7 @@ namespace phi
         }
 
         auto drawCmdData = drawCmdsBufferData.size() > 0 ? &drawCmdsBufferData[0] : nullptr;
-        _drawCmdBuffer->data(sizeof(drawElementsIndirectCmd) * drawCmdsBufferData.size(), drawCmdData, bufferDataUsage::dynamicDraw);
+        _drawCmdBuffer->data(sizeof(drawElementsIndirectCommand) * drawCmdsBufferData.size(), drawCmdData, bufferDataUsage::dynamicDraw);
     }
 
     void multiDrawElementsIndirectCommandBuffer::bind()

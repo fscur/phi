@@ -30,7 +30,8 @@ float fetchAlpha(float dx, float dy)
 {
     vec2 uv = fragTexCoord + vec2(dx, dy)/resolution;
     vec4 c = texture(textureArrays[pickingRTUnit], vec3(uv.xy, pickingRTPage));
-    return c.a;
+    
+    return c.a * 255.0;
 }
 
 float gradient(float d)

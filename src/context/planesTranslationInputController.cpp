@@ -82,7 +82,7 @@ namespace phi
             auto plane = phi::plane(vec3(), collision.normal);
             auto translationPlane = createTranslationPlane(plane, planePosition, collision.collider, color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
             addTranslationPlane(translationPlane);
-            _planesLayer->add(translationPlane->planeGridNode);
+            _layer->add(translationPlane->planeGridNode);
             translationPlane->showGrid();
         }
     }
@@ -165,7 +165,8 @@ namespace phi
             setupTranslationPlane(translationPlane);
         }
 
-        auto offset = getTranslationOffset(mousePosition, translationPlane);
+        auto position = getTranslationPosition(mousePosition, _defaultTranslationPlane);
+        auto offset = position - _draggingRootNode->getTransform()->getLocalPosition();
 
         translateNode(offset);
         translatePlaneGrid(translationPlane);

@@ -4,23 +4,25 @@
 
 #include <core\node.h>
 #include <core\boxCollider.h>
+#include <core\mesh.h>
 
 #include "translationInputController.h"
 
 namespace phi
 {
-    translationInputController::translationInputController(camera* camera, layer* planesLayer) :
+    translationInputController::translationInputController(camera* camera, layer* layer) :
         inputController(),
         _camera(camera),
         _nodeTranslator(new nodeTranslator()),
         _collisionNodeTranslator(nullptr),
-        _planesLayer(planesLayer),
+        _layer(layer),
         _dragging(false),
         _draggingRootNode(nullptr),
         _draggingCollider(nullptr),
         _initialObjectPosition(),
         _disableCollision(false),
-        _lastMousePosition(vec2())
+        _lastMousePosition(vec2()),
+        _showingGhost(false)
     {
     }
 
@@ -97,14 +99,12 @@ namespace phi
         return translationPlane;
     }
 
-    vec3 translationInputController::getTranslationOffset(ivec2 mousePosition, translationPlane* translationPlane)
+    vec3 translationInputController::getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane)
     {
         auto rayCastOnPlanePosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->plane);
 
         auto offsetOnPlane = rayCastOnPlanePosition - translationPlane->plane.origin;
-        auto finalPosition = _initialObjectPosition + offsetOnPlane;
-
-        return finalPosition - _draggingRootNode->getTransform()->getLocalPosition();
+        return _initialObjectPosition + offsetOnPlane;
     }
 
     void translationInputController::translateNode(vec3 offset)
@@ -134,6 +134,39 @@ namespace phi
         animation->start(fromPlaneTransform, toPlaneTransform, 0.33);
     }
 
+    node* translationInputController::cloneNodeAsGhost(node* node)
+    {
+        auto nodeTransform = node->getTransform();
+        auto position = nodeTransform->getLocalPosition();
+        auto size = nodeTransform->getLocalSize();
+        auto orientation = nodeTransform->getLocalOrientation();
+
+        auto clonedNode = new phi::node(node->getName());
+        auto clonedNodeTransform = clonedNode->getTransform();
+
+        clonedNodeTransform->setLocalPosition(position);
+        clonedNodeTransform->setLocalSize(size);
+        clonedNodeTransform->setLocalOrientation(orientation);
+
+        auto mesh = node->getComponent<phi::mesh>();
+
+        if (mesh)
+        {
+            auto geometry = mesh->getGeometry();
+            auto material = mesh->getMaterial();
+            auto ghostMesh = new phi::ghostMesh(geometry, material);
+            clonedNode->addComponent(ghostMesh);
+        }
+
+        for (auto& child : *node->getChildren())
+        {
+            auto clonedChild = cloneNodeAsGhost(child);
+            clonedNode->addChild(clonedChild);
+        }
+
+        return clonedNode;
+    }
+
     bool translationInputController::onMouseDown(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed)
@@ -159,11 +192,14 @@ namespace phi
             auto obbCastPosition = firstIntersection.position;
 
             setNodeToTranslate(node);
+
+            _draggingGhostNode = cloneNodeAsGhost(_draggingRootNode);
+
             initializeNodeTranslators();
 
             auto plane = phi::plane(obbCastPosition, obbCastNormal);
             _defaultTranslationPlane = createTranslationPlane(plane, _draggingCollider->getObb().getPositionAt(-obbCastNormal), nullptr);
-            _planesLayer->add(_defaultTranslationPlane->planeGridNode);
+            _layer->add(_defaultTranslationPlane->planeGridNode);
             _defaultTranslationPlane->showGrid();
 
             _lastMousePosition = mousePosition;
@@ -181,9 +217,42 @@ namespace phi
             return false;
 
         auto mousePosition = ivec2(e->x, e->y);
-        auto offset = getTranslationOffset(mousePosition, _defaultTranslationPlane);
+        auto position = getTranslationPosition(mousePosition, _defaultTranslationPlane);
+        auto offset = position - _draggingRootNode->getTransform()->getLocalPosition();
 
         translateNode(offset);
+
+        if (!_showingGhost && position != _draggingRootNode->getTransform()->getLocalPosition())
+        {
+
+
+            _layer->add(_draggingGhostNode);
+            _showingGhost = true;
+            _draggingRootNode->traverse([](phi::node* node) {
+                node->setIsTranslating(true);
+            });
+        }
+        else if(_showingGhost && position == _draggingRootNode->getTransform()->getLocalPosition())
+        {
+            _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
+            
+            _draggingRootNode->traverse([](phi::node* node) {
+                node->setIsTranslating(false);
+            });
+
+            _showingGhost = false;
+        }
+
+        if (_showingGhost)
+        {
+            _draggingGhostNode->traverse<phi::ghostMesh>([=](phi::ghostMesh* ghostMesh)
+            {
+                ghostMesh->setOffset(offset);
+            });
+            
+            _draggingGhostNode->getTransform()->setLocalPosition(position);
+        }
+
         translatePlaneGrid(_defaultTranslationPlane);
 
         _lastMousePosition = mousePosition;
@@ -200,6 +269,15 @@ namespace phi
 
         deletePlane(_defaultTranslationPlane);
         _defaultTranslationPlane = nullptr;
+
+        
+
+        if (_showingGhost)
+        {
+            _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
+            _showingGhost = false;
+            safeDelete(_draggingGhostNode);
+        }
 
         endNodeTranslators();
 

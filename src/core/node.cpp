@@ -111,6 +111,11 @@ namespace phi
         selectionChanged.raise(this);
     }
 
+    inline void node::setIsTranslating(bool value)
+    {
+        _isSelected = value;
+    }
+
     inline void node::setParent(node * const value)
     {
         _parent = value;

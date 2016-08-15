@@ -9,6 +9,7 @@
 
 #include "layer.h"
 #include "meshLayerBehaviour.h"
+#include "ghostMeshLayerBehaviour.h"
 #include "physicsLayerBehaviour.h"
 #include "nodeTranslator.h"
 
@@ -23,6 +24,7 @@ namespace phi
         framebufferAllocator* _framebufferAllocator;
         commandsManager* _commandsManager;
         meshLayerBehaviour* _meshBehaviour;
+        ghostMeshLayerBehaviour* _ghostMeshBehaviour;
         physicsLayerBehaviour* _physicsBehaviour;
         
         vector<renderPass*> _meshRenderPasses;
@@ -31,6 +33,7 @@ namespace phi
         vector<renderPass*> _textRenderPasses;
 
         bool _withMeshRenderer;
+        bool _withGhostMeshRenderer;
         bool _withBoxColliderRenderer;
         bool _withPlaneGridRenderer;
         bool _withControlRenderer;
@@ -47,6 +50,7 @@ namespace phi
         layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
 
         void buildMeshRenderer();
+        void buildGhostMeshRenderer();
         void buildBoxColliderRenderer();
         void buildPlaneGridRenderer();
         void buildControlRenderer();
@@ -62,6 +66,7 @@ namespace phi
     public:
         CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
         layerBuilder withMeshRenderer() { _withMeshRenderer = true; return *this; }
+        layerBuilder withGhostMeshRenderer() { _withGhostMeshRenderer = true; return *this; }
         layerBuilder withBoxColliderRenderer() { _withBoxColliderRenderer = true; return *this; }
         layerBuilder withPlaneGridRenderer() { _withPlaneGridRenderer = true; return *this; }
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }

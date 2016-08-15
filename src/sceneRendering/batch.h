@@ -9,7 +9,7 @@
 #include <rendering\mappedVertexBuffer.h>
 #include <rendering\mappedIndexBuffer.h>
 #include <rendering\multiDrawMappedBuffer.h>
-#include <rendering\drawElementsIndirectCmd.h>
+#include <rendering\drawElementsIndirectCommand.h>
 #include <rendering\multiDrawElementsIndirectCommandBuffer.h>
 #include <rendering\vertexArrayObject.h>
 
@@ -57,7 +57,7 @@ namespace phi
         SCENE_RENDERING_API void add(const meshInstance* instance);
         SCENE_RENDERING_API void remove(const meshInstance* instance);
         SCENE_RENDERING_API void update(const meshInstance* instance);
-        SCENE_RENDERING_API void updateSelectionBuffer(const meshInstance* instance, bool isSelected);
+        SCENE_RENDERING_API void updateSelectionBuffer(const meshInstance* instance, int flags);
         SCENE_RENDERING_API void updateTransformBuffer(const meshInstance* instance);
 
         bool isEmpty() { return _geometries.size() == 0; }
