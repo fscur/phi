@@ -43,7 +43,11 @@ namespace phi
         physx::PxDefaultCpuDispatcher* _dispatcher;
 
     private:
+        static physx::PxVec3 toPxVec3(const vec3 vector);
+        static physx::PxTransform createPose(const obb& obb);
         static physx::PxTransform createPose(const boxCollider* collider, transform* transform);
+        static physx::PxBoxGeometry createBoxGeometry(const vec3& halfSizes);
+        static physx::PxBoxGeometry createBoxGeometry(const boxCollider* collider, transform* transform);
 
     public:
         PHYSICS_API physicsWorld();
@@ -60,8 +64,6 @@ namespace phi
         PHYSICS_API bool intersects(intersectionCollisionTest test);
         PHYSICS_API bool intersects(intersectionCollisionMultiTest test);
         PHYSICS_API bool intersects(intersectionCollisionGroupTest test);
-
-        PHYSICS_API sweepCollisionResult touchs(intersectionCollisionMultiTest test);
 
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionPairTest test);
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionTest test);

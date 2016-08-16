@@ -29,6 +29,8 @@ namespace phi
         _localSize(original._localSize),
         _position(original._position),
         _right(original._right),
+        _orientation(original._orientation),
+        _size(original._size),
         _up(original._up),
         _direction(original._direction),
         _changed(original._changed),

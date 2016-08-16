@@ -4,25 +4,23 @@
 
 namespace phi
 {
-    boxCollider::boxCollider(vec3 position, vec3 halfSizes) :
+    boxCollider::boxCollider(vec3 center, vec3 size) :
         component(component::componentType::BOX_COLLIDER),
-        _position(position),
-        _halfSizes(vec3(glm::max(halfSizes.x, DECIMAL_TRUNCATION), glm::max(halfSizes.y, DECIMAL_TRUNCATION), glm::max(halfSizes.z, DECIMAL_TRUNCATION))),
-        _obb(obb(position, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), halfSizes)),
+        _center(center),
+        _size(vec3(glm::max(size.x, DECIMAL_TRUNCATION), glm::max(size.y, DECIMAL_TRUNCATION), glm::max(size.z, DECIMAL_TRUNCATION))),
+        _obb(obb(center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), size * 0.5f)),
         _transformChangedEventToken(eventToken()),
-        _localModelMatrix(mat4(1.0)),
-        _worldModelMatrix(mat4(1.0))
+        _modelMatrix(mat4(1.0))
     {
     }
 
     boxCollider::boxCollider(const boxCollider& original) :
         component(component::componentType::BOX_COLLIDER),
-        _position(original._position),
-        _halfSizes(original._halfSizes),
+        _center(original._center),
+        _size(original._size),
         _obb(original._obb),
         _transformChangedEventToken(eventToken()),
-        _localModelMatrix(original._localModelMatrix),
-        _worldModelMatrix(original._worldModelMatrix)
+        _modelMatrix(original._modelMatrix)
     {
     }
 
@@ -40,26 +38,29 @@ namespace phi
         return _node->getTransform();
     }
 
-    inline void boxCollider::transformChanged(transform* const sender)
+    void boxCollider::updateModelMatrix()
     {
-        auto rotation = sender->getOrientation();
-        auto center = rotation * _position;
-        auto position = center + sender->getPosition();
+        auto translationMatrix = glm::translate(_center);
+        auto scaleMatrix = glm::scale(_size);
 
-        auto size = _halfSizes * sender->getSize();
+        auto transform = getTransform();
+        _modelMatrix = transform->getModelMatrix() * translationMatrix * scaleMatrix;
 
-        _obb = obb(position, sender->getRight(), sender->getUp(), sender->getDirection(), size);
+        auto transformPosition = transform->getPosition();
+        auto transformOrientation = transform->getOrientation();
+        auto transformSize = transform->getSize();
+        auto position = transformPosition + transformOrientation * transformSize * _center;
+        auto axisX = transformOrientation * vec3(1.0f, 0.0f, 0.0f);
+        auto axisY = transformOrientation * vec3(0.0f, 1.0f, 0.0f);
+        auto axisZ = transformOrientation * vec3(0.0f, 0.0f, 1.0f);
+        auto size = transformSize * _size;
 
-        auto translationMatrix = glm::translate(_obb.center);
-        auto rotationMatrix = glm::mat4(
-            vec4(_obb.axes[0], 0.0f),
-            vec4(_obb.axes[1], 0.0f),
-            vec4(_obb.axes[2], 0.0f),
-            vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        _obb = obb(position, axisX, axisY, axisZ, size * 0.5f);
+    }
 
-        auto scaleMatrix = glm::scale(size * 2.0f);
-
-        _localModelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+    inline void boxCollider::nodeTransformChanged(transform* const sender)
+    {
+        updateModelMatrix();
     }
 
     inline void boxCollider::onNodeChanged(node* previousValue)
@@ -69,13 +70,13 @@ namespace phi
 
         if (_node)
         {
-            _transformChangedEventToken = _node->getTransform()->getChangedEvent()->assign(std::bind(&boxCollider::transformChanged, this, std::placeholders::_1));
-            transformChanged(_node->getTransform());
+            _transformChangedEventToken = _node->getTransform()->getChangedEvent()->assign(std::bind(&boxCollider::nodeTransformChanged, this, std::placeholders::_1));
+            nodeTransformChanged(_node->getTransform());
         }
         else
         {
             auto identity = transform();
-            transformChanged(&identity);
+            nodeTransformChanged(&identity);
         }
     }
 

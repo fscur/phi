@@ -11,16 +11,16 @@ namespace phi
         public component
     {
     private:
-        vec3 _halfSizes;
-        vec3 _position;
+        vec3 _center;
+        vec3 _size;
         obb _obb;
         eventToken _transformChangedEventToken;
-        mat4 _localModelMatrix;
-        mat4 _worldModelMatrix;
+        mat4 _modelMatrix;
 
     private:
         transform* getTransform();
-        void transformChanged(transform * const sender);
+        void updateModelMatrix();
+        void nodeTransformChanged(transform * const sender);
 
     protected:
         void onNodeChanged(node* previousValue) override;
@@ -31,12 +31,10 @@ namespace phi
         CORE_API ~boxCollider();
         CORE_API component* clone() const override;
 
-        vec3 getHalfSizes() const { return _halfSizes; }
-        vec3 getPosition() const { return _position; }
+        vec3 getSize() const { return _size; }
+        vec3 getCenter() const { return _center; }
         obb getObb() const { return _obb; }
-        mat4 getWorldModelMatrix() const { return _worldModelMatrix; }
-        mat4 getLocalModelMatrix() const { return _localModelMatrix; }
-
+        mat4 getModelMatrix() const { return _modelMatrix; }
 
         CORE_API static componentType getComponentType() { return componentType::BOX_COLLIDER; }
     };
