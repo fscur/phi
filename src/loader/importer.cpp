@@ -62,7 +62,7 @@ namespace phi
                     objectNode->addComponent(new phi::mesh(geometry, material));
 
                     auto aabb = geometry->aabb;
-                    objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
+                    objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->width, aabb->height, aabb->depth)));
                     objectNode->addComponent(new phi::clickComponent());
 
                     break;

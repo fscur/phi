@@ -167,16 +167,16 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
-        cube0->getTransform()->setLocalSize(vec3(2.0f, 1.0f, 1.0f));
+        //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 0.0f));
+        cube0->getTransform()->setLocalSize(vec3(3.0f, 2.0f, 0.5f));
         //cube0->getTransform()->yaw(PI_OVER_4);
         
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
-        cube1->getTransform()->translate(vec3(0.0f, 0.5f, 1.5f));
+        cube1->getTransform()->translate(vec3(2.0f, 0.5f, 0.0f));
         //cube1->getTransform()->yaw(PI_OVER_4);
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        floor0->getTransform()->setLocalSize(vec3(1.0f, 1.0f, 1.0f));
-        auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        floor0->getTransform()->setLocalSize(vec3(1.0f, 2.0f, 1.0f));
+        //auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         //wall->getTransform()->pitch(PI_OVER_2);
         //wall->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
 
@@ -236,7 +236,7 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         //_sceneLayer->add(planeNode);
-        _sceneLayer->add(_chair0);
+        //_sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(cube0);
         _sceneLayer->add(cube1);
@@ -252,11 +252,11 @@ namespace demon
 
         _activeContext = _designContext;
 
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [=]()
-        {
-            auto nodesToDelete = { cube0 };
-            return new deleteSceneObjectCommand(nodesToDelete);
-        }));
+        //_commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [=]()
+        //{
+        //    auto nodesToDelete = { cube0 };
+        //    return new deleteSceneObjectCommand(nodesToDelete);
+        //}));
 
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [=]()
         {
@@ -264,11 +264,11 @@ namespace demon
             return new deleteSceneObjectCommand(nodesToDelete);
         }));
 
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [=]()
-        {
-            auto nodesToDelete = { floor0 };
-            return new deleteSceneObjectCommand(nodesToDelete);
-        }));
+        //_commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [=]()
+        //{
+        //    auto nodesToDelete = { floor0 };
+        //    return new deleteSceneObjectCommand(nodesToDelete);
+        //}));
     }
 
     void screen::initInput()

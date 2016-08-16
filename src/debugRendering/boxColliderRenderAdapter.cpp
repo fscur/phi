@@ -210,13 +210,13 @@ namespace phi
 
     void boxColliderRenderAdapter::updateModelMatrix(boxCollider* boxCollider)
     {
-        auto modelMatrix = boxCollider->getLocalModelMatrix();
+        auto modelMatrix = boxCollider->getModelMatrix();
         _modelMatricesBuffer->update(boxCollider, modelMatrix);
     }
 
     void boxColliderRenderAdapter::add(boxCollider* boxCollider)
     {
-        auto modelMatrix = boxCollider->getLocalModelMatrix();
+        auto modelMatrix = boxCollider->getModelMatrix();
         _modelMatricesBuffer->add(boxCollider, modelMatrix);
     }
 

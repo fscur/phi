@@ -44,35 +44,76 @@ namespace phi
         _foundation->release();
     }
 
+    PxVec3 physicsWorld::toPxVec3(const vec3 vector)
+    {
+        return PxVec3(vector.x, vector.y, vector.z);
+    }
+
+    PxTransform physicsWorld::createPose(const obb& obb)
+    {
+        auto position = obb.center;
+        auto rotationMatrix = PxMat33(
+            toPxVec3(obb.axes[0]),
+            toPxVec3(obb.axes[1]),
+            toPxVec3(obb.axes[2]));
+
+        return PxTransform(
+            toPxVec3(position),
+            PxQuat(rotationMatrix));
+    }
+
     PxTransform physicsWorld::createPose(const boxCollider* collider, transform* transform)
     {
-        auto rotation = transform->getOrientation();
-        auto center = rotation * collider->getPosition();
-        auto position = center + transform->getPosition();
+        auto transformPosition = transform->getPosition();
+        auto transformOrientation = transform->getOrientation();
+        auto transformSize = transform->getSize();
+        auto position = transformPosition + transformOrientation * transformSize * collider->getCenter();
+        auto axisX = transformOrientation * vec3(1.0f, 0.0f, 0.0f);
+        auto axisY = transformOrientation * vec3(0.0f, 1.0f, 0.0f);
+        auto axisZ = transformOrientation * vec3(0.0f, 0.0f, 1.0f);
 
         return PxTransform(
             PxVec3(position.x, position.y, position.z),
-            PxQuat(rotation.x, rotation.y, rotation.z, rotation.w));
+            PxQuat(
+                PxMat33(
+                    toPxVec3(axisX),
+                    toPxVec3(axisY),
+                    toPxVec3(axisZ)))
+        );
+    }
+
+    PxBoxGeometry physicsWorld::createBoxGeometry(const vec3& halfSizes)
+    {
+        return PxBoxGeometry(toPxVec3(halfSizes));
+    }
+
+    PxBoxGeometry physicsWorld::createBoxGeometry(const boxCollider* collider, transform* transform)
+    {
+        auto halfSizes = collider->getSize() * transform->getSize() * 0.5f;
+        return createBoxGeometry(halfSizes);
     }
 
     void physicsWorld::addCollider(boxCollider* collider)
     {
+        auto obb = collider->getObb();
         auto data = new colliderData();
         data->body = _physics->createRigidStatic(PxTransform(PxVec3()));
 
-        auto halfSizes = collider->getHalfSizes();
-        data->geometry = new PxBoxGeometry(halfSizes.x, halfSizes.y, halfSizes.z);
+        data->geometry = new PxBoxGeometry(createBoxGeometry(obb.halfSizes));
         auto material = _physics->createMaterial(0.0f, 0.0f, 0.0f);
         data->shape = data->body->createShape(*data->geometry, *material);
         data->body->userData = collider;
+        data->body->setGlobalPose(createPose(obb));
 
         data->transformChangedToken = collider->getNode()->getTransform()->getChangedEvent()->assign(
             [this, collider, data](transform* sender) -> void
         {
-            data->body->setGlobalPose(createPose(collider, sender));
+            auto obb = collider->getObb();
+            safeDelete(data->geometry); // I hate this pointer
+            data->geometry = new PxBoxGeometry(createBoxGeometry(obb.halfSizes));
+            data->shape->setGeometry(*data->geometry);
+            data->body->setGlobalPose(createPose(obb));
         });
-
-        data->body->setGlobalPose(createPose(collider, collider->getNode()->getTransform()));
 
         _scene->addActor(*data->body);
         _colliders[collider] = data;
@@ -84,8 +125,8 @@ namespace phi
         collider->getNode()->getTransform()->getChangedEvent()->unassign(data->transformChangedToken);
 
         _scene->removeActor(*data->body);
-        data->body->release();
         safeDelete(data->geometry);
+        data->body->release();
         _colliders.erase(collider);
     }
 
@@ -121,14 +162,14 @@ namespace phi
 
     bool physicsWorld::intersects(intersectionCollisionTest test)
     {
-        auto geometry = _colliders[test.collider]->geometry;
+        auto geometry = createBoxGeometry(test.collider, test.transform);
         auto pose = createPose(test.collider, test.transform);
 
         auto hit = PxOverlapBuffer();
         PxQueryFilterData filterData = PxQueryFilterData(PxQueryFlag::eANY_HIT | PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
         if (_scene->overlap(
-            *geometry,
+            geometry,
             pose,
             hit,
             filterData))
@@ -179,31 +220,17 @@ namespace phi
         return result;
     }
 
-    sweepCollisionResult physicsWorld::touchs(intersectionCollisionMultiTest test)
-    {
-        sweepCollisionMultiTest sweepTest;
-        sweepTest.colliders = test.colliders;
-        sweepTest.transforms = test.transforms;
-        sweepTest.group = test.group;
-        sweepTest.disregardDivergentNormals = false;
-        sweepTest.distance = 0.0f;
-        sweepTest.direction = vec3(1.0f, 0.0f, 0.0f);
-        sweepTest.inflation = DECIMAL_TRUNCATION;
-
-        return sweep(sweepTest);
-    }
-
     sweepCollisionResult physicsWorld::sweep(sweepCollisionPairTest test)
     {
         auto result = sweepCollisionResult();
 
-        auto geometrySource = PxBoxGeometry(*static_cast<PxBoxGeometry*>(_colliders[test.sourceCollider]->geometry));
+        auto geometrySource = createBoxGeometry(test.sourceCollider, test.targetTransform);
         auto poseSource = createPose(test.sourceCollider, test.sourceTransform);
 
-        auto geometryTarget = PxBoxGeometry(*static_cast<PxBoxGeometry*>(_colliders[test.targetCollider]->geometry));
+        auto geometryTarget = createBoxGeometry(test.targetCollider, test.targetTransform);
         auto poseTarget = createPose(test.targetCollider, test.targetTransform);
 
-        auto direction = PxVec3(test.direction.x, test.direction.y, test.direction.z);
+        auto direction = toPxVec3(test.direction);
 
         int flags = PxHitFlag::eDEFAULT;
         if (test.checkPenetration)
@@ -236,7 +263,7 @@ namespace phi
     {
         auto result = sweepCollisionResult();
 
-        auto geometry = _colliders[test.collider]->geometry;
+        auto geometry = createBoxGeometry(test.collider, test.transform);
         auto pose = createPose(test.collider, test.transform);
 
         int flags = PxHitFlag::eDEFAULT;
@@ -248,7 +275,7 @@ namespace phi
         auto hitBuffer = new PxSweepHit[test.maximumHits];
         auto hit = PxSweepBuffer(hitBuffer, test.maximumHits);
         if (_scene->sweep(
-            *geometry,
+            geometry,
             pose,
             PxVec3(test.direction.x, test.direction.y, test.direction.z),
             test.distance,
@@ -395,9 +422,9 @@ namespace phi
         auto rayDirection = test.ray.getDirection();
         auto rayOrigin = test.ray.getOrigin();
 
-        auto origin = PxVec3(rayOrigin.x, rayOrigin.y, rayOrigin.z);
-        auto direction = PxVec3(rayDirection.x, rayDirection.y, rayDirection.z);
-        
+        auto origin = toPxVec3(rayOrigin);
+        auto direction = toPxVec3(rayDirection);
+
         PxRaycastBuffer hit;
 
         bool status = _scene->raycast(origin, direction, test.maxDistance, hit, PxHitFlags(PxHitFlag::eDEFAULT), queryFilter);
