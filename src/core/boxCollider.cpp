@@ -10,7 +10,9 @@ namespace phi
         _size(vec3(glm::max(size.x, DECIMAL_TRUNCATION), glm::max(size.y, DECIMAL_TRUNCATION), glm::max(size.z, DECIMAL_TRUNCATION))),
         _obb(obb(center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), size * 0.5f)),
         _transformChangedEventToken(eventToken()),
-        _modelMatrix(mat4(1.0))
+        _modelMatrix(mat4(1.0)),
+        _isEnabled(true),
+        _isEnabledChanged(eventHandler<boxCollider*>())
     {
     }
 
@@ -20,7 +22,9 @@ namespace phi
         _size(original._size),
         _obb(original._obb),
         _transformChangedEventToken(eventToken()),
-        _modelMatrix(original._modelMatrix)
+        _modelMatrix(original._modelMatrix),
+        _isEnabled(original._isEnabled),
+        _isEnabledChanged(eventHandler<boxCollider*>())
     {
     }
 
@@ -61,6 +65,23 @@ namespace phi
     inline void boxCollider::nodeTransformChanged(transform* const sender)
     {
         updateModelMatrix();
+    }
+
+    void boxCollider::raiseIsEnabledChanged()
+    {
+        _isEnabledChanged.raise(this);
+    }
+
+    void boxCollider::enable()
+    {
+        _isEnabled = true;
+        raiseIsEnabledChanged();
+    }
+
+    void boxCollider::disable()
+    {
+        _isEnabled = false;
+        raiseIsEnabledChanged();
     }
 
     inline void boxCollider::onNodeChanged(node* previousValue)

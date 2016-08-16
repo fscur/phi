@@ -33,7 +33,7 @@ namespace phi
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             glDisable(GL_CULL_FACE);
-            //glDepthMask(GL_TRUE);
+            glDepthMask(GL_FALSE);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_BLEND);
             glEnable(GL_POLYGON_OFFSET_FILL);
@@ -57,7 +57,7 @@ namespace phi
             glPolygonOffset(0.0f, 0.0f);
             glDisable(GL_POLYGON_OFFSET_FILL);
             glDisable(GL_BLEND);
-            //glDepthMask(GL_FALSE);
+            glDepthMask(GL_TRUE);
             glEnable(GL_CULL_FACE);
             glDisable(GL_DEPTH_TEST);
         });

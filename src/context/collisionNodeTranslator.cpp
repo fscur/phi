@@ -202,14 +202,12 @@ namespace phi
         _transforms = vector<transform*>();
         _node->traverse<boxCollider>([this](boxCollider* b)
         {
-            _colliders.push_back(b);
-            _transforms.push_back(b->getNode()->getTransform());
+            if (b->getIsEnabled())
+            {
+                _colliders.push_back(b);
+                _transforms.push_back(b->getNode()->getTransform());
+            }
         });
-    }
-
-    void collisionNodeTranslator::beginTranslations()
-    {
-        _physicsWorld->disableQueryOn(&_colliders);
     }
 
     void collisionNodeTranslator::translateNode(vec3 offset)
@@ -219,10 +217,5 @@ namespace phi
 
         auto validOffset = getUndisruptedOffset(offset);
         _node->getTransform()->translate(validOffset);
-    }
-
-    void collisionNodeTranslator::endTranslations()
-    {
-        _physicsWorld->enableQueryOn(&_colliders);
     }
 }

@@ -74,7 +74,7 @@ namespace phi
         return translationPlane != _translationPlanes.end();
     }
 
-    translationPlane* planesTranslationInputController::createTranslationPlane(plane plane, boxCollider* collider)
+    translationPlane* planesTranslationInputController::createTranslationPlane(plane plane, boxCollider* collider, boxCollider* sourceCollider)
     {
         if (existsTranslationPlaneWithNormal(plane.normal))
             return nullptr;
@@ -83,7 +83,7 @@ namespace phi
         planePosition = phi::plane(planePosition, plane.normal).projectPoint(_draggingCollider->getObb().center);
 
         plane.origin = vec3();
-        auto translationPlane = translationInputController::createTranslationPlane(plane, planePosition, collider, color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
+        auto translationPlane = translationInputController::createTranslationPlane(plane, planePosition, collider, sourceCollider, color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
         _layer->add(translationPlane->planeGridNode);
         translationPlane->showGrid();
 
@@ -94,7 +94,7 @@ namespace phi
     {
         for (auto& collision : touchs)
         {
-            auto translationPlane = createTranslationPlane(plane(vec3(), collision.normal), collision.collider);
+            auto translationPlane = createTranslationPlane(plane(vec3(), collision.normal), collision.collider, collision.sourceCollider);
             if (translationPlane)
                 addTranslationPlane(translationPlane);
         }
@@ -171,12 +171,6 @@ namespace phi
         return chosenPlane;
     }
 
-    bool isPointAbovePlane(vec3 point, plane plane)
-    {
-        auto dist = dot(point, plane.normal) - dot(plane.origin, plane.normal);
-        return dist >= 0.0f;
-    }
-
     bool planesTranslationInputController::isTouchingCollidedObject(vec3 offset, translationPlane* translationPlane, vec3& nearestPosition, plane& touchingPlane)
     {
         auto targetObb = translationPlane->collider->getObb();
@@ -187,46 +181,45 @@ namespace phi
             if (mathUtils::isClose(glm::dot(plane.normal, translationPlane->plane.normal), 1.0f))
                 continue;
 
-            for (auto& collider : (*_collisionNodeTranslator->getColliders()))
+            //auto collider = translationPlane->sourceCollider;
+            auto collider = _draggingCollider;
+            auto colliderObb = collider->getObb();
+
+            float minDistanceToPlane = std::numeric_limits<float>().max();
+            vec3 minPoint;
+            auto isPointAbovePlaneAndUpdateMinDistance = [&minDistanceToPlane, &minPoint, &plane, &offset](vec3 point)
             {
-                auto colliderObb = collider->getObb();
+                auto distanceToPlane = plane.distanceFrom(point + offset);
+                auto isAbovePlane = distanceToPlane >= 0.0f;
 
-                float minDistanceToPlane = std::numeric_limits<float>().max();
-                vec3 minPoint;
-                auto isPointAbovePlaneAndUpdateMinDistance = [&minDistanceToPlane, &minPoint, &plane, &offset](vec3 point)
+                if (distanceToPlane < minDistanceToPlane)
                 {
-                    auto distanceToPlane = plane.distanceFrom(point + offset);
-                    auto isAbovePlane = distanceToPlane >= 0.0f;
-
-                    if (distanceToPlane < minDistanceToPlane)
-                    {
-                        minDistanceToPlane = distanceToPlane;
-                        minPoint = point;
-                    }
-
-                    return isAbovePlane;
-                };
-
-                auto obbCorners = colliderObb.getCorners();
-                auto cornersCount = obbCorners.size();
-
-                auto allAbovePlane = true;
-                for (auto j = 0; j < cornersCount; ++j)
-                {
-                    if (!isPointAbovePlaneAndUpdateMinDistance(obbCorners[j]))
-                    {
-                        allAbovePlane = false;
-                        break;
-                    }
+                    minDistanceToPlane = distanceToPlane;
+                    minPoint = point;
                 }
 
-                if (!allAbovePlane)
-                    continue;
+                return isAbovePlane;
+            };
 
-                nearestPosition = minPoint;
-                touchingPlane = plane;
-                return false;
+            auto obbCorners = colliderObb.getCorners();
+            auto cornersCount = obbCorners.size();
+
+            auto allAbovePlane = true;
+            for (auto j = 0; j < cornersCount; ++j)
+            {
+                if (!isPointAbovePlaneAndUpdateMinDistance(obbCorners[j]))
+                {
+                    allAbovePlane = false;
+                    break;
+                }
             }
+
+            if (!allAbovePlane)
+                continue;
+
+            nearestPosition = minPoint;
+            touchingPlane = plane;
+            return false;
         }
 
         return true;
@@ -250,7 +243,7 @@ namespace phi
 
         _isSwitchingPlanes = true;
 
-        auto createdTranslationPlane = createTranslationPlane(touchingPlane, translationPlane->collider);
+        auto createdTranslationPlane = createTranslationPlane(touchingPlane, translationPlane->collider, translationPlane->sourceCollider);
         if (createdTranslationPlane)
             addTranslationPlane(createdTranslationPlane);
 
