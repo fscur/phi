@@ -133,6 +133,38 @@ namespace phi
         animation->start(fromPlaneTransform, toPlaneTransform, 0.33);
     }
 
+    void translationInputController::translateGhost(vec3 position, vec3 offset)
+    {
+        if (!_showingGhost && position != _draggingRootNode->getTransform()->getLocalPosition())
+        {
+            _layer->add(_draggingGhostNode);
+            _showingGhost = true;
+            _draggingRootNode->traverse([](phi::node* node) {
+                node->setIsTranslating(true);
+            });
+        }
+        else if (_showingGhost && position == _draggingRootNode->getTransform()->getLocalPosition())
+        {
+            _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
+
+            _draggingRootNode->traverse([](phi::node* node) {
+                node->setIsTranslating(false);
+            });
+
+            _showingGhost = false;
+        }
+
+        if (_showingGhost)
+        {
+            _draggingGhostNode->traverse<phi::ghostMesh>([=](phi::ghostMesh* ghostMesh)
+            {
+                ghostMesh->setOffset(offset);
+            });
+
+            _draggingGhostNode->getTransform()->setLocalPosition(position);
+        }
+    }
+
     node* translationInputController::cloneNodeAsGhost(node* node)
     {
         auto nodeTransform = node->getTransform();
@@ -222,37 +254,8 @@ namespace phi
         auto offset = position - _draggingRootNode->getTransform()->getLocalPosition();
 
         translateNode(offset);
-
-        if (!_showingGhost && position != _draggingRootNode->getTransform()->getLocalPosition())
-        {
-            _layer->add(_draggingGhostNode);
-            _showingGhost = true;
-            _draggingRootNode->traverse([](phi::node* node) {
-                node->setIsTranslating(true);
-            });
-        }
-        else if(_showingGhost && position == _draggingRootNode->getTransform()->getLocalPosition())
-        {
-            _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
-            
-            _draggingRootNode->traverse([](phi::node* node) {
-                node->setIsTranslating(false);
-            });
-
-            _showingGhost = false;
-        }
-
-        if (_showingGhost)
-        {
-            _draggingGhostNode->traverse<phi::ghostMesh>([=](phi::ghostMesh* ghostMesh)
-            {
-                ghostMesh->setOffset(offset);
-            });
-            
-            _draggingGhostNode->getTransform()->setLocalPosition(position);
-        }
-
         translatePlaneGrid(_defaultTranslationPlane);
+        translateGhost(position, offset);
 
         _lastMousePosition = mousePosition;
 

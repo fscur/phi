@@ -52,6 +52,7 @@ namespace phi
         vec3 getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane);
         void translateNode(vec3 offset);
         void translatePlaneGrid(translationPlane* translationPlane);
+        void translateGhost(vec3 position, vec3 offset);
 
     public:
         translationInputController(camera* camera, layer* layer);

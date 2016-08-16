@@ -297,6 +297,7 @@ namespace phi
 
         translateNode(offset);
         translatePlaneGrid(translationPlane);
+        translateGhost(position, offset);
 
         _lastChosenTranslationPlane = translationPlane;
         _lastMousePosition = mousePosition;
