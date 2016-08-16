@@ -84,7 +84,7 @@ namespace phi
 
         plane.origin = vec3();
         auto translationPlane = translationInputController::createTranslationPlane(plane, planePosition, collider, color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
-        _planesLayer->add(translationPlane->planeGridNode);
+        _layer->add(translationPlane->planeGridNode);
         translationPlane->showGrid();
 
         return translationPlane;
@@ -291,8 +291,8 @@ namespace phi
             setupTranslationPlane(translationPlane);
         }
 
-        auto offset = getTranslationOffset(mousePosition, translationPlane);
-
+        auto position = getTranslationPosition(mousePosition, translationPlane);
+        auto offset = position - _draggingRootNode->getTransform()->getLocalPosition();
         offset = checkForPossibleSwitchOfPlanes(offset, translationPlane);
 
         translateNode(offset);

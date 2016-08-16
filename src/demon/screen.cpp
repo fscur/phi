@@ -28,6 +28,7 @@
 #include <core\clickComponent.h>
 #include <core\boxCollider.h>
 #include <ui\planeGrid.h>
+#include <core\ghostMesh.h>
 
 using namespace phi;
 
@@ -169,6 +170,7 @@ namespace demon
         //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 0.0f));
         cube0->getTransform()->setLocalSize(vec3(3.0f, 2.0f, 0.5f));
         //cube0->getTransform()->yaw(PI_OVER_4);
+        
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[1]->getClonedObject();
         cube1->getTransform()->translate(vec3(2.0f, 0.5f, 0.0f));
         //cube1->getTransform()->yaw(PI_OVER_4);
@@ -186,7 +188,8 @@ namespace demon
         {
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
-                .withBoxColliderRenderer()
+                .withGhostMeshRenderer()
+                //.withBoxColliderRenderer()
                 .withPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()

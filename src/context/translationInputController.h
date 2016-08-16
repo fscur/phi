@@ -27,31 +27,34 @@ namespace phi
     protected:
         camera* _camera;
         collisionNodeTranslator* _collisionNodeTranslator;
-        layer* _planesLayer;
+        layer* _layer;
         bool _dragging;
         node* _draggingRootNode;
         boxCollider* _draggingCollider;
+        node* _draggingGhostNode;
         translationPlane* _defaultTranslationPlane;
         vec3 _initialObjectPosition;
         bool _disableCollision;
         ivec2 _lastMousePosition;
         vector<sweepCollision>* _lastTranslationTouchs;
+        bool _showingGhost;
 
     private:
         void setNodeToTranslate(node* node);
         void initializeNodeTranslators();
         void endNodeTranslators();
+        node* cloneNodeAsGhost(node* node);
 
     protected:
         void setupTranslationPlane(translationPlane* translationPlane);
         translationPlane* createTranslationPlane(plane plane, vec3 position, boxCollider* collider, color color = color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
         void deletePlane(translationPlane* translationPlane);
-        vec3 getTranslationOffset(ivec2 mousePosition, translationPlane* translationPlane);
+        vec3 getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane);
         void translateNode(vec3 offset);
         void translatePlaneGrid(translationPlane* translationPlane);
 
     public:
-        translationInputController(camera* camera, layer* planesLayer);
+        translationInputController(camera* camera, layer* layer);
         ~translationInputController();
 
         void setCollisionNodeTranslator(collisionNodeTranslator* value) { _collisionNodeTranslator = value; }

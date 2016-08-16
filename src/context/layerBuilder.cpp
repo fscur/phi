@@ -42,6 +42,7 @@ namespace phi
         _physicsBehaviour(nullptr),
         _commandsManager(commandsManager),
         _withMeshRenderer(false),
+        _withGhostMeshRenderer(false),
         _withBoxColliderRenderer(false),
         _withPlaneGridRenderer(false),
         _withControlRenderer(false),
@@ -88,6 +89,23 @@ namespace phi
         // UI:
             // Drag and drop
             // Resto
+    }
+
+    void layerBuilder::buildGhostMeshRenderer()
+    {
+        auto ghostMeshBehaviour = new ghostMeshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+
+        _layer->addOnNodeAdded(std::bind(&ghostMeshLayerBehaviour::onNodeAdded, ghostMeshBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&ghostMeshLayerBehaviour::onNodeRemoved, ghostMeshBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&ghostMeshLayerBehaviour::onNodeTransformChanged, ghostMeshBehaviour, std::placeholders::_1));
+        _layer->addRenderPasses(ghostMeshBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([ghostMeshBehaviour]() mutable
+        {
+            safeDelete(ghostMeshBehaviour);
+        });
+
+        _ghostMeshBehaviour = ghostMeshBehaviour;
     }
 
     void layerBuilder::buildBoxColliderRenderer()
@@ -239,6 +257,9 @@ namespace phi
         if (_withMeshRenderer)
             buildMeshRenderer();
 
+        if (_withGhostMeshRenderer)
+            buildGhostMeshRenderer();
+        
         if (_withBoxColliderRenderer)
             buildBoxColliderRenderer();
 

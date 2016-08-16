@@ -14,6 +14,7 @@ namespace phi
         vector<node*>* _children;
         string _name;
         bool _isSelected;
+        bool _isTranslating;
 
     public:
         eventHandler<node*> childAdded;
@@ -36,6 +37,7 @@ namespace phi
         CORE_API void clearChildren();
 
         CORE_API void setIsSelected(bool isSelected);
+        CORE_API void setIsTranslating(bool value);
         CORE_API void setParent(node* const value);
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);
@@ -47,6 +49,7 @@ namespace phi
         vector<node*>* getChildren() const { return _children; }
         vector<component*>* getComponents() const { return _components; }
         bool getIsSelected() const { return _isSelected; }
+        bool getIsTranslating() const { return _isTranslating; }
 
         CORE_API bool operator ==(const node& other);
         CORE_API bool operator !=(const node& other);

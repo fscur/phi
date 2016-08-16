@@ -4,7 +4,7 @@
 #include <core\node.h>
 #include <core\clickComponent.h>
 
-#include <rendering\drawElementsIndirectCmd.h>
+#include <rendering\drawElementsIndirectCommand.h>
 
 namespace phi
 {
@@ -219,11 +219,12 @@ namespace phi
         _selectionBuffer->update(geometry, instance, selection);
     }
 
-    void batch::updateSelectionBuffer(const meshInstance* instance, bool isSelected)
+    void batch::updateSelectionBuffer(const meshInstance* instance, int flags)
     {
         auto node = instance->mesh->getNode();
         auto clickComponent = node->getComponent<phi::clickComponent>();
-        auto selection = vec4(clickComponent->getSelectionColor(), isSelected);
+
+        auto selection = vec4(clickComponent->getSelectionColor(), static_cast<float>(flags)/255.0);
 
         _selectionBuffer->update(instance->getGeometry(), instance, selection);
     }
@@ -231,5 +232,15 @@ namespace phi
     void batch::updateTransformBuffer(const meshInstance* instance)
     {
         _modelMatricesBuffer->update(instance->getGeometry(), instance, instance->modelMatrix);
+
+        auto node = instance->mesh->getNode();
+
+        int flags = 0;
+        if (node->getIsSelected())
+            flags |= 1;
+        if (node->getIsTranslating())
+            flags |= 2;
+
+        updateSelectionBuffer(instance, flags);
     }
 }

@@ -22,7 +22,8 @@ namespace phi
             CLICK = 8,
             BOX_COLLIDER = 9,
             PLANE_GRID = 10,
-            ANIMATOR = 11
+            ANIMATOR = 11,
+            GHOST_MESH = 12
         };
 
     protected:
