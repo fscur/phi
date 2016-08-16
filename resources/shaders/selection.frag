@@ -46,20 +46,13 @@ float gradient(float d)
 
     float gy = 0.0;
     gy += -1.0 * fetchAlpha(-d,-d);
-    gy += -2.0 * fetchAlpha( 0.0,   -d);
+    gy += -2.0 * fetchAlpha( 0.0, -d);
     gy += -1.0 * fetchAlpha( d,-d);
     gy +=  1.0 * fetchAlpha(-d, d);
-    gy +=  2.0 * fetchAlpha( 0.0,    d);
+    gy +=  2.0 * fetchAlpha( 0.0, d);
     gy +=  1.0 * fetchAlpha( d, d);
 
     return gx*gx + gy*gy;
-}
-
-float glowness()
-{
-    return ((sin(time * 2.5 + 3.14) + 1.0) / 10.0) + 0.1;
-    //return ((sin(time * 3.0) + 1.0) / 10.0) + 0.3;
-    //return (((sin(time * 0.1)))) + 0.3;
 }
 
 void main()
