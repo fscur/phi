@@ -8,8 +8,8 @@ layout (location = 1) uniform float page;
 layout (location = 2) uniform vec2 resolution;
 layout (location = 3) uniform sampler2DArray textureArrays[32];
  
-float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
-float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
+float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);
+float weight[3] = float[](0.2270270270, 0.3162162162, 0.0702702703);
 
 layout (location = 0) out vec4 fragColor;
 
@@ -26,7 +26,7 @@ void main()
 
     for (int i = 1; i < 3; i++) 
     {
-        vec2 displacement = vec2(0.0, offset[i] / resolution.x);
+        vec2 displacement = vec2(0.0, offset[i] / resolution.y);
         color += fetch(uv + displacement) * weight[i];
         color += fetch(uv - displacement) * weight[i];
     }

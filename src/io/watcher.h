@@ -53,8 +53,11 @@ namespace phi
 #endif
         void watchDir();
     public:
-        IO_API watcher(const string& path, phi::blockingQueue<phi::watcherMessage>* queue, phi::watchCallback callback) :
-            _programRunning(true), _path(path), _queue(queue), _callback(callback) {}
+        watcher(const string& path, phi::blockingQueue<phi::watcherMessage>* queue, phi::watchCallback callback) :
+            _programRunning(true), _path(path), _queue(queue), _callback(callback) 
+            {
+            }
+
         IO_API void startWatch();
         IO_API void endWatch();
     };

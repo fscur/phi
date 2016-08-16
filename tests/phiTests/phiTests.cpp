@@ -1,12 +1,15 @@
 #include <precompiled.h>
+#include <phi.h>
+
 #include <gtest\gtest.h>
 #include <fakeit\fakeit.hpp>
-#include <phi.h>
+
+using namespace phi;
 
 class mapContainsFixture : public testing::Test
 {
 public:
-    phi::map<int, phi::string> map;
+    map<int, string> map;
 public:
     void SetUp() 
     {
@@ -22,11 +25,11 @@ public:
     }
 };
 
-class vectorFixture : 
+class vectorFixture :
     public testing::Test
 {
 public:
-    phi::vector<int> vector;
+    vector<int> vector;
 public:
     void SetUp()
     {
@@ -97,4 +100,100 @@ TEST_F(vectorFixture, removeIfContains_vectorNotContainingValue_VectorRemainsUnt
 
     for(auto value : vectorValues)
         ASSERT_TRUE(phi::contains(vector, value));
+}
+
+TEST_F(vectorFixture, getLastElementOf_vectorContainingValue_ReturnsLastElement)
+{
+    //Arrange & Act
+    auto result = phi::getLastElementOf(vector);
+
+    //Assert
+    auto expected = 38;
+    ASSERT_EQ(expected, result);
+}
+
+TEST(phi, getLastElementOf_emptyVector_ThrowsException)
+{
+    //Arrange
+    auto vector = phi::vector<int>();
+
+    //Act and Assert
+    ASSERT_THROW(phi::getLastElementOf(vector), std::exception);
+}
+
+TEST(phi, indexOf_vectorContainingValue_ReturnsValueIndex)
+{
+    //Arrange
+    auto v = vector<int>();
+    v.push_back(0);
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
+
+    //Act
+    auto result = phi::indexOf(v, 2);
+
+    //Assert
+    auto expected = 2u;
+    ASSERT_EQ(expected, result);
+}
+
+TEST(phi, indexOf_vectorNotContainingValue_ThrowsException)
+{
+    //Arrange
+    auto v = vector<int>();
+    v.push_back(0);
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
+
+    //Act & Assert
+    ASSERT_THROW(phi::indexOf(v, 5), std::exception);
+}
+
+TEST(phi, indexOf_vectorPtrContainingValue_ReturnsValueIndex)
+{
+    //Arrange
+    auto v = new vector<int>();
+    v->push_back(0);
+    v->push_back(1);
+    v->push_back(2);
+    v->push_back(3);
+
+    //Act
+    auto result = phi::indexOf(v, 2);
+
+    //Assert
+    auto expected = 2u;
+    ASSERT_EQ(expected, result);
+
+    safeDelete(v);
+}
+
+TEST(phi, indexOf_vectorPtrContainingValuePtr_ReturnsValuePtrIndex)
+{
+    //Arrange
+    auto zero = new int(0);
+    auto one = new int(1);
+    auto two = new int(2);
+    auto three = new int(3);
+
+    auto v = new vector<int*>();
+    v->push_back(zero);
+    v->push_back(one);
+    v->push_back(two);
+    v->push_back(three);
+
+    //Act
+    auto result = phi::indexOf(v, three);
+
+    //Assert
+    auto expected = 3u;
+    ASSERT_EQ(expected, result);
+
+    safeDelete(zero);
+    safeDelete(one);
+    safeDelete(two);
+    safeDelete(three);
+    safeDelete(v);
 }
