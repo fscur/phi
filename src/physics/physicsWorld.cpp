@@ -115,14 +115,29 @@ namespace phi
             data->body->setGlobalPose(createPose(obb));
         });
 
+        data->isEnabledChangedToken = collider->getIsEnabledChanged()->assign(
+            [this](boxCollider* collider) -> void
+        {
+            if (collider->getIsEnabled())
+                enableQueryOn(collider);
+            else
+                disableQueryOn(collider);
+        });
+
         _scene->addActor(*data->body);
         _colliders[collider] = data;
+
+        if (collider->getIsEnabled())
+            enableQueryOn(collider);
+        else
+            disableQueryOn(collider);
     }
 
     void physicsWorld::removeCollider(boxCollider* collider)
     {
         auto data = _colliders[collider];
         collider->getNode()->getTransform()->getChangedEvent()->unassign(data->transformChangedToken);
+        collider->getIsEnabledChanged()->unassign(data->isEnabledChangedToken);
 
         _scene->removeActor(*data->body);
         safeDelete(data->geometry);
@@ -130,22 +145,28 @@ namespace phi
         _colliders.erase(collider);
     }
 
+    void physicsWorld::enableQueryOn(boxCollider* collider)
+    {
+        auto data = _colliders[collider];
+        data->shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+    }
+
     void physicsWorld::enableQueryOn(vector<boxCollider*>* colliders)
     {
         for (auto collider : (*colliders))
-        {
-            auto data = _colliders[collider];
-            data->shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
-        }
+            enableQueryOn(collider);
+    }
+
+    void physicsWorld::disableQueryOn(boxCollider* collider)
+    {
+        auto data = _colliders[collider];
+        data->shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);
     }
 
     void physicsWorld::disableQueryOn(vector<boxCollider*>* colliders)
     {
         for (auto collider : (*colliders))
-        {
-            auto data = _colliders[collider];
-            data->shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);
-        }
+            disableQueryOn(collider);
     }
 
     void physicsWorld::setGroupOn(vector<boxCollider*>* colliders, uint16_t group)

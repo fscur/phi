@@ -16,7 +16,6 @@ namespace phi
     private:
         static node* readNode(
             const rapidjson::Value& node,
-            const string& currentFolder,
             const resourcesRepository<material>* materialsRepo,
             const resourcesRepository<geometry>* geometriesRepo);
 

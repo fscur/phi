@@ -36,8 +36,6 @@ namespace phi
         void setPlane(plane value) { _plane = value; }
         void setNode(node* node);
 
-        void beginTranslations();
         void translateNode(vec3 offset);
-        void endTranslations();
     };
 }

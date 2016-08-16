@@ -36,8 +36,6 @@ namespace phi
         _dragging = true;
         _draggingCollider = node->getComponent<boxCollider>();
         _draggingRootNode = node;
-        while (_draggingRootNode->getParent()->getParent() != nullptr)
-            _draggingRootNode = _draggingRootNode->getParent();
     }
 
     void translationInputController::initializeNodeTranslators()
@@ -45,14 +43,19 @@ namespace phi
         if (_collisionNodeTranslator)
         {
             _collisionNodeTranslator->setNode(_draggingRootNode);
-            _collisionNodeTranslator->beginTranslations();
+
+            for (auto& collider : *_collisionNodeTranslator->getColliders())
+                collider->disable();
         }
     }
 
     void translationInputController::endNodeTranslators()
     {
         if (_collisionNodeTranslator)
-            _collisionNodeTranslator->endTranslations();
+        {
+            for (auto& collider : *_collisionNodeTranslator->getColliders())
+                collider->enable();
+        }
     }
 
     void translationInputController::setupTranslationPlane(translationPlane* translationPlane)
@@ -69,7 +72,7 @@ namespace phi
         safeDelete(translationPlane->planeGridNode);
     }
 
-    translationPlane* translationInputController::createTranslationPlane(plane plane, vec3 position, boxCollider* collider, color color)
+    translationPlane* translationInputController::createTranslationPlane(plane plane, vec3 position, boxCollider* collider, boxCollider* sourceCollider, color color)
     {
         auto planeNode = new node("plane");
         auto planeTransform = planeNode->getTransform();
@@ -89,6 +92,7 @@ namespace phi
 
         auto translationPlane = new phi::translationPlane(plane);
         translationPlane->collider = collider;
+        translationPlane->sourceCollider = sourceCollider;
         translationPlane->planeGridNode = planeNode;
         translationPlane->planeGridAnimation = animation;
 
@@ -210,7 +214,15 @@ namespace phi
             return false;
 
         auto node = clickComponent->getNode();
-        auto collider = node->getComponent<boxCollider>();
+        auto rootNode = node;
+        while (rootNode->getParent()->getParent() != nullptr)
+            rootNode = rootNode->getParent();
+
+        auto collider = rootNode->getComponent<boxCollider>();
+
+        if (!collider)
+            return false;
+
         auto obb = collider->getObb();
         auto mousePosition = ivec2(e->x, e->y);
 
@@ -222,21 +234,21 @@ namespace phi
             auto obbCastNormal = firstIntersection.normal;
             auto obbCastPosition = firstIntersection.position;
 
-            setNodeToTranslate(node);
+            setNodeToTranslate(rootNode);
 
-            _draggingGhostNode = cloneNodeAsGhost(_draggingRootNode);
+            _draggingGhostNode = cloneNodeAsGhost(rootNode);
 
             initializeNodeTranslators();
 
             auto plane = phi::plane(obbCastPosition, obbCastNormal);
-            _defaultTranslationPlane = createTranslationPlane(plane, _draggingCollider->getObb().getPositionAt(-obbCastNormal), nullptr);
+            _defaultTranslationPlane = createTranslationPlane(plane, _draggingCollider->getObb().getPositionAt(-obbCastNormal), nullptr, nullptr);
             _layer->add(_defaultTranslationPlane->planeGridNode);
             _defaultTranslationPlane->showGrid();
 
             _lastMousePosition = mousePosition;
             setupTranslationPlane(_defaultTranslationPlane);
 
-            //ShowCursor(false);
+            ShowCursor(false);
 
             return true;
         }
@@ -272,8 +284,6 @@ namespace phi
         deletePlane(_defaultTranslationPlane);
         _defaultTranslationPlane = nullptr;
 
-        
-
         if (_showingGhost)
         {
             _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
@@ -283,7 +293,7 @@ namespace phi
 
         endNodeTranslators();
 
-        //ShowCursor(true);
+        ShowCursor(true);
 
         return true;
     }

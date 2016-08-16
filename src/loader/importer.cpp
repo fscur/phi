@@ -19,7 +19,6 @@ namespace phi
 
     node* importer::readNode(
         const rapidjson::Value& jsonNode,
-        const string& currentFolder,
         const resourcesRepository<material>* materialsRepo,
         const resourcesRepository<geometry>* geometriesRepo)
     {
@@ -74,7 +73,7 @@ namespace phi
         auto childrenCount = children.Size();
         for (rapidjson::SizeType i = 0; i < childrenCount; i++)
         {
-            auto child = readNode(children[i], currentFolder, materialsRepo, geometriesRepo);
+            auto child = readNode(children[i], materialsRepo, geometriesRepo);
             objectNode->addChild(child);
         }
 
@@ -335,11 +334,24 @@ namespace phi
 
         fclose(file);
 
-        auto currentFolder = path::getDirectoryFullName(fileName);
         auto nodeName = path::getFileNameWithoutExtension(fileName);
-        auto rootNode = readNode(document["Node"], currentFolder, materialsRepo, geometriesRepo);
+        auto rootNode = readNode(document["Node"], materialsRepo, geometriesRepo);
 
         auto guid = convertToGuid(document["Guid"].GetString());
+
+        aabb* rootAabb = nullptr;
+        rootNode->traverse<mesh>([&rootAabb](mesh* mesh)
+        {
+            if (rootAabb)
+                rootAabb = new aabb(aabb::add(*rootAabb, *mesh->getGeometry()->aabb));
+            else
+                rootAabb = mesh->getGeometry()->aabb;
+        });
+
+        auto rootBoxCollider = new phi::boxCollider(rootAabb->center, vec3(rootAabb->width, rootAabb->height, rootAabb->depth));
+        rootBoxCollider->disable();
+        rootNode->addComponent(rootBoxCollider);
+        rootNode->addComponent(new phi::clickComponent());
 
         return new resource<node>(guid, nodeName, rootNode);
 #else

@@ -47,7 +47,7 @@ namespace phi
 
     protected:
         void setupTranslationPlane(translationPlane* translationPlane);
-        translationPlane* createTranslationPlane(plane plane, vec3 position, boxCollider* collider, color color = color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
+        translationPlane* createTranslationPlane(plane plane, vec3 position, boxCollider* collider, boxCollider* sourceCollider, color color = color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
         void deletePlane(translationPlane* translationPlane);
         vec3 getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane);
         void translateNode(vec3 offset);

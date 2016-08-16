@@ -15,6 +15,7 @@ namespace phi
     public:
         plane plane;
         boxCollider* collider;
+        boxCollider* sourceCollider;
         node* planeGridNode;
         transformAnimation* planeGridAnimation;
 

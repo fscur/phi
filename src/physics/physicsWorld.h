@@ -26,6 +26,7 @@ namespace phi
         struct colliderData
         {
             eventToken transformChangedToken;
+            eventToken isEnabledChangedToken;
             physx::PxRigidStatic* body;
             physx::PxGeometry* geometry;
             physx::PxShape* shape;
@@ -49,15 +50,17 @@ namespace phi
         static physx::PxBoxGeometry createBoxGeometry(const vec3& halfSizes);
         static physx::PxBoxGeometry createBoxGeometry(const boxCollider* collider, transform* transform);
 
+        void enableQueryOn(boxCollider* collider);
+        void enableQueryOn(vector<boxCollider*>* colliders);
+        void disableQueryOn(boxCollider* collider);
+        void disableQueryOn(vector<boxCollider*>* colliders);
+
     public:
         PHYSICS_API physicsWorld();
         PHYSICS_API ~physicsWorld();
 
         PHYSICS_API void addCollider(boxCollider* collider);
         PHYSICS_API void removeCollider(boxCollider* collider);
-
-        PHYSICS_API void enableQueryOn(vector<boxCollider*>* colliders);
-        PHYSICS_API void disableQueryOn(vector<boxCollider*>* colliders);
 
         PHYSICS_API void setGroupOn(vector<boxCollider*>* colliders, uint16_t group);
 
