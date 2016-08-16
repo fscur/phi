@@ -25,6 +25,7 @@ add_subdirectory(src/physics)
 add_subdirectory(src/demon)
 
 add_subdirectory(tests/phiTests)
+add_subdirectory(tests/diagnosticTests)
 add_subdirectory(tests/coreTests)
 add_subdirectory(tests/contextTests)
 
@@ -58,6 +59,8 @@ set_target_properties(application PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CU
 set_target_properties(physics PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(demon PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 
+set_target_properties(phiTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
+set_target_properties(diagnosticTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(coreTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(contextTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 

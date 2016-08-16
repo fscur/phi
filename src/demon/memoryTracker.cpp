@@ -1,17 +1,17 @@
 #include <precompiled.h>
-#include <diagnostic\memoryTracker.h>
+#include <diagnostic\memoryTracker\memoryTracker.h>
 
+#if _DEBUG
 static class dumper
 {
 public:
     dumper()
     {
-#if _DEBUG
-        phi::setDumpMemory(true);
-#endif
+        phi::setShouldPrintMemoryAnalysisResult(true);
     }
 
     ~dumper()
     {
     }
 } dump;
+#endif
