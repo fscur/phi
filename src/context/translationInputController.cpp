@@ -5,7 +5,7 @@
 #include <core\node.h>
 #include <core\boxCollider.h>
 #include <core\mesh.h>
-
+#include <core\ghostMesh.h>
 #include "translationInputController.h"
 
 namespace phi
@@ -20,7 +20,7 @@ namespace phi
         _draggingCollider(nullptr),
         _initialObjectPosition(),
         _disableCollision(false),
-        _lastTranslationTouchs(nullptr)
+        _lastTranslationTouchs(nullptr),
         _lastMousePosition(vec2()),
         _showingGhost(false)
     {
@@ -225,8 +225,6 @@ namespace phi
 
         if (!_showingGhost && position != _draggingRootNode->getTransform()->getLocalPosition())
         {
-
-
             _layer->add(_draggingGhostNode);
             _showingGhost = true;
             _draggingRootNode->traverse([](phi::node* node) {

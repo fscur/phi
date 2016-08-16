@@ -125,20 +125,11 @@ void main()
     if (f < 0 || isTranslating)
     {
         color = vec3(1.0);
-        //color += vec3(0.0, 0.0, 1.0);
-        //a = 1.0;
-        //a = 0.8;
-        //color *= 1.0 - intensity;
-        //color = vec3(1.0, 0.0, 0.0);
     }
     else
     {
-        //a = 0.9;
-        //color += vec3(1.0, 0.0, 0.0);
-        //color += vec3(0.2, 0.5, 0.6);
-        color *= 1.0 - intensity;
-        float diffuse = max(dot(normal, -lightDir), 0.8);
-        a *= diffuse;
+        color = vec3(1.0 - intensity, 0.0, 0.0);
+        a *= max(dot(normal, -lightDir), 0.8);
     }
 
 

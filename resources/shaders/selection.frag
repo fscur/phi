@@ -30,8 +30,8 @@ float fetchAlpha(float dx, float dy)
 {
     vec2 uv = fragTexCoord + vec2(dx, dy)/resolution;
     vec4 c = texture(textureArrays[pickingRTUnit], vec3(uv.xy, pickingRTPage));
-    
-    return c.a * 255.0;
+    int selecting = int(c.a * 255.0);
+    return (selecting & 1) == 1 ? 1.0 : 0.0;
 }
 
 float gradient(float d)
@@ -62,21 +62,9 @@ float glowness()
     //return (((sin(time * 0.1)))) + 0.3;
 }
 
-vec4 getBackgroundColor()
-{
-    float factor = fetchAlpha(0.0, 0.0);
-    float glowness = glowness();
-    vec4 glowColor = vec4(1.0, 1.0, 1.0, 0.5);
-    vec4 color = vec4(0.2, 0.2, 0.6, glowness);
-
-    return color * factor;
-}
-
 void main()
 {
-    vec4 backgroundColor = getBackgroundColor();
     vec4 edgeColor = vec4(1.0, 1.0, 1.0, 1.0);
-
     float g = gradient(offset);
-    fragColor = mix(backgroundColor, edgeColor, g);
+    fragColor = edgeColor *  g;
 }
