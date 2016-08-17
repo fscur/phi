@@ -314,30 +314,31 @@ namespace phi
                 auto collider = reinterpret_cast<boxCollider*>(touch.actor->userData);
                 auto normal = vec3(touch.normal.x, touch.normal.y, touch.normal.z);
 
-                // TODO: check if this is going to be necessary
-                // Penetration check for invalid normals
-                //if (touch.distance == 0.0f)
-                //{
-                //    sweepCollisionPairTest pairTest;
-                //    pairTest.colliderSource = test.collider;
-                //    pairTest.transformSource = test.transform;
-                //    pairTest.distance = DECIMAL_TRUNCATION;
-                //    pairTest.direction = test.direction;
-                //    pairTest.colliderTarget = collidedCollider;
-                //    pairTest.transformTarget = collidedCollider->getNode()->getTransform();
-                //    pairTest.inflation = test.inflation;
-                //    pairTest.checkPenetration = true;
-                //    auto penetrationResult = sweep(pairTest);
-                //    if (penetrationResult.collided)
-                //    {
-                //        normal = collidedCollider->getObb().findClosestNormal(penetrationResult.collisions[0].normal);
-                //        auto dot = glm::dot(normal, test.direction);
-                //        if (test.disregardDivergentNormals && (mathUtils::isClose(dot, 0.0f) || dot > 0.0f))
-                //            continue;
-                //    }
-                //    else
-                //        continue;
-                //}
+                // Penetration check for invalid normals:
+                // The depenetration normal that results from this test does not always represents the correct colliding normal
+                // TODO: find better solution
+                if (touch.distance == 0.0f)
+                {
+                    sweepCollisionPairTest pairTest;
+                    pairTest.sourceCollider = test.collider;
+                    pairTest.sourceTransform = test.transform;
+                    pairTest.distance = DECIMAL_TRUNCATION;
+                    pairTest.direction = test.direction;
+                    pairTest.targetCollider = collider;
+                    pairTest.targetTransform = collider->getNode()->getTransform();
+                    pairTest.inflation = test.inflation;
+                    pairTest.checkPenetration = true;
+                    auto penetrationResult = sweep(pairTest);
+                    if (penetrationResult.collided)
+                    {
+                        normal = collider->getObb().findClosestNormalTo(penetrationResult.collisions[0].normal);
+                        auto dot = glm::dot(normal, test.direction);
+                        if (test.disregardDivergentNormals && (mathUtils::isClose(dot, 0.0f) || dot > 0.0f))
+                            continue;
+                    }
+                    else
+                        continue;
+                }
 
                 result.collisions.push_back(sweepCollision(test.collider, collider, touch.distance - DECIMAL_TRUNCATION, normal));
                 result.collided = true;
