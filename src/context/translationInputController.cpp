@@ -80,7 +80,7 @@ namespace phi
         planeTransform->setDirection(plane.normal);
 
         auto animator = new phi::animator();
-        
+
         auto planeGrid = new phi::planeGrid();
         planeGrid->setColor(color);
         planeGrid->setLineThickness(8.5f);
