@@ -94,19 +94,15 @@ namespace phi
     {
         farthestValidCollision = *sweepResult->collisions.begin();
 
+        if (farthestValidCollision.distance < DECIMAL_TRUNCATION)
+            return false;
+
         auto collisionColliders = getSweepCollisionResultColliders(sweepResult);
         auto offsetNormal = glm::normalize(offset);
         auto reverseIterator = sweepResult->collisions.rbegin();
         while (reverseIterator != sweepResult->collisions.rend())
         {
             auto currentCollision = *reverseIterator;
-
-            if (currentCollision.distance < DECIMAL_TRUNCATION)
-            {
-                safeDelete(collisionColliders);
-                return false;
-            }
-
             phi::removeIfContains(*collisionColliders, currentCollision.collider);
             auto offsetedTransforms = createOffsetTransforms(offsetNormal * currentCollision.distance);
 

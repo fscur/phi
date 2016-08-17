@@ -100,10 +100,10 @@ namespace phi
         auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->getPlane());
         planePosition = phi::plane(planePosition, plane.normal).projectPoint(castPosition);
 
-        auto translationPlane = 
+        auto translationPlane =
             translationInputController::createTranslationPlane(
-                plane, 
-                planePosition, 
+                plane,
+                planePosition,
                 colidee,
                 collider,
                 color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
@@ -299,18 +299,20 @@ namespace phi
 
     bool planesTranslationInputController::onMouseDown(mouseEventArgs * e)
     {
-        translationInputController::onMouseDown(e);
+        auto baseResult = translationInputController::onMouseDown(e);
 
         if (!_dragging)
             return false;
 
+        _isTouchingCollidedObject = true;
+        _isSwitchingPlanes = false;
         _lastChosenTranslationPlane = _defaultTranslationPlane;
+
+        if (isDraggingObjectIntersectingAnyObject())
+            return baseResult;
 
         auto touchs = findValidTouchCollisions();
         addPlanesIfNeeded(touchs);
-
-        _isTouchingCollidedObject = true;
-        _isSwitchingPlanes = false;
 
         return true;
     }
@@ -319,6 +321,9 @@ namespace phi
     {
         if (!_dragging)
             return false;
+
+        if (isDraggingObjectIntersectingAnyObject())
+            return translationInputController::onMouseMove(e);
 
         auto touchs = findValidTouchCollisions();
         addPlanesIfNeeded(touchs);
