@@ -22,9 +22,9 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 struct planeGridRenderData
 {
     vec4 color;
-    float startTime;
     float lineThickness;
     float opacity;
+    float pad0;
     float pad1;
 };
 
@@ -73,5 +73,4 @@ void main()
     worldFragTexCoord = ((inTexCoord) * planeSize + projected);
     fragTexCoord = (inTexCoord) * planeSize;
     instanceId = gl_InstanceID;
-    globalTime = frameUniforms.time;
 }

@@ -11,24 +11,24 @@ namespace phi
     DIAGNOSTIC_API void setShouldPrintMemoryAnalysisResult(bool);
 }
 
-void* operator new(size_t mem)
-{
-    return phi::allocate(mem);
-}
-
-void* operator new[](size_t mem)
-{
-    return phi::allocate(mem);
-}
-
-void operator delete(void* ptr) noexcept
-{
-    phi::deallocate(ptr);
-}
-
-void operator delete[](void* ptr) noexcept
-{
-    phi::deallocate(ptr);
-}
+//void* operator new(size_t mem)
+//{
+//    return phi::allocate(mem);
+//}
+//
+//void* operator new[](size_t mem)
+//{
+//    return phi::allocate(mem);
+//}
+//
+//void operator delete(void* ptr) noexcept
+//{
+//    phi::deallocate(ptr);
+//}
+//
+//void operator delete[](void* ptr) noexcept
+//{
+//    phi::deallocate(ptr);
+//}
 
 #endif

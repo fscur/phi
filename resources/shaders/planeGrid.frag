@@ -4,9 +4,9 @@
 struct planeGridRenderData
 {
     vec4 color;
-    float startTime;
     float lineThickness;
     float opacity;
+    float pad0;
     float pad1;
 };
 
@@ -36,7 +36,6 @@ in vec2 worldFragTexCoord;
 in vec2 fragTexCoord;
 
 flat in uint instanceId;
-flat in float globalTime;
 flat in float planeSize;
 flat in float planeDist;
 in float planeDist2;
@@ -65,19 +64,6 @@ int getGridIndex(float dist)
         return 1;
     
     return 0;
-}
-
-vec3 ripple(vec2 uv, float time, float speed)
-{
-    float dist = length(fragTexCoord);
-    float x = speed - dist;
-    
-    float func = (sin(x * PI) / x) * INV_PI;
-
-    if (abs(func) < 0.05)
-        func = 0.0;
-
-    return vec3(uv + normalize(fragTexCoord) * func, func);
 }
 
 float expNorm(float x)
@@ -199,30 +185,22 @@ float createGrid(vec2 uv, float thicknessInPixels)
     //return innerGrid * innerFactor;
 }
 
-float fadeBorder(float rippleSpeed, float time)
+float createBorder()
 {
-    float borderSpeed = rippleSpeed + time * planeSize;
     float d = length(fragTexCoord);
     float maxBorderDist = (planeSize * 0.5);
-    float borderDist = min(borderSpeed, maxBorderDist);
-    return 1.0 - smoothstep(0.0, borderDist, d);
+    return 1.0 - smoothstep(0.0, maxBorderDist, d);
 }
 
 void main()
 {
     planeGridRenderData data = renderData.items[instanceId];
-    float time = globalTime - data.startTime;
 
-    float rippleRadius = time * max(MIN_RIPPLE_SPEED, planeSize * 0.4);
-    vec3 rippleFunc = ripple(worldFragTexCoord, time, rippleRadius);
-    vec2 uv = rippleFunc.xy;
-
+    vec2 uv = worldFragTexCoord;
     float grid = createGrid(uv, data.lineThickness);
-    
     grid += data.opacity;
-    grid += grid * rippleFunc.z * 0.3;
 
-    float fadeFactor = fadeBorder(rippleRadius, time);
+    float border = createBorder();
 
-    fragColor = vec4(data.color.rgb, grid * fadeFactor);
+    fragColor = vec4(data.color.rgb, grid * border);
 }
