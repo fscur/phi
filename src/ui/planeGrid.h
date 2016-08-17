@@ -13,7 +13,7 @@ namespace phi
         color _color;
         float _lineThickness;
         float _opacity;
-        bool _visible;
+        bool _isVisible;
 
         eventHandler<planeGrid*> _colorChanged;
         eventHandler<planeGrid*> _lineThicknessChanged;
@@ -28,13 +28,14 @@ namespace phi
 
     public:
         UI_API planeGrid();
-        UI_API planeGrid(const planeGrid& planeGrid);
+        UI_API planeGrid(const planeGrid& original);
         UI_API ~planeGrid();
 
         color getColor() const { return _color; }
         float getLineThickness() const { return _lineThickness; }
         float getOpacity() const { return _opacity; }
-        bool getVisible() const { return _visible; }
+        bool isVisible() const { return _isVisible; }
+
         eventHandler<planeGrid*>* getColorChanged() { return &_colorChanged; }
         eventHandler<planeGrid*>* getLineThicknessChanged() { return &_lineThicknessChanged; }
         eventHandler<planeGrid*>* getOpacityChanged() { return &_opacityChanged; }

@@ -78,7 +78,7 @@ namespace phi
 
     void planeGridRenderAdapter::planeGridVisibleChanged(planeGrid* planeGrid)
     {
-        if (planeGrid->getVisible())
+        if (planeGrid->isVisible())
             addPlaneGridToBuffers(planeGrid);
         else
             removePlaneGridFromBuffers(planeGrid);
@@ -86,7 +86,7 @@ namespace phi
 
     void planeGridRenderAdapter::updateModelMatrix(planeGrid* planeGrid)
     {
-        if (!planeGrid->getVisible())
+        if (!planeGrid->isVisible())
             return;
 
         auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
@@ -95,7 +95,7 @@ namespace phi
 
     void planeGridRenderAdapter::updateRenderData(planeGrid* planeGrid)
     {
-        if (!planeGrid->getVisible())
+        if (!planeGrid->isVisible())
             return;
 
         auto planeGridRenderData = planeGridRenderData::from(planeGrid);
@@ -132,7 +132,7 @@ namespace phi
 
     void planeGridRenderAdapter::add(planeGrid* planeGrid)
     {
-        if (planeGrid->getVisible())
+        if (planeGrid->isVisible())
             addPlaneGridToBuffers(planeGrid);
 
         assignChangedEvents(planeGrid);
@@ -140,7 +140,7 @@ namespace phi
 
     void planeGridRenderAdapter::remove(planeGrid* planeGrid)
     {
-        if (planeGrid->getVisible())
+        if (planeGrid->isVisible())
             removePlaneGridFromBuffers(planeGrid);
 
         unassignChangedEvents(planeGrid);

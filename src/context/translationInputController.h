@@ -38,6 +38,7 @@ namespace phi
         ivec2 _lastMousePosition;
         vector<sweepCollision>* _lastTranslationTouchs;
         bool _showingGhost;
+        vector<translationPlane*> _toRemovePlanes;
 
     private:
         void setNodeToTranslate(node* node);
@@ -46,6 +47,7 @@ namespace phi
         node* cloneNodeAsGhost(node* node);
 
     protected:
+        void removePlane(translationPlane* translationPlane);
         void setupTranslationPlane(translationPlane* translationPlane);
         translationPlane* createTranslationPlane(plane plane, vec3 position, boxCollider* collider, boxCollider* sourceCollider, color color = color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
         void deletePlane(translationPlane* translationPlane);
@@ -65,5 +67,6 @@ namespace phi
         bool onMouseUp(mouseEventArgs* e) override;
         bool onKeyDown(keyboardEventArgs* e) override;
         bool onKeyUp(keyboardEventArgs* e) override;
+        bool update() override;
     };
 }

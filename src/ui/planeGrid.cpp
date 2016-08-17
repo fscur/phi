@@ -5,6 +5,10 @@ namespace phi
 {
     planeGrid::planeGrid() :
         component(component::PLANE_GRID),
+        _color(color::white),
+        _lineThickness(10.0f),
+        _opacity(0.0f),
+        _isVisible(false),
         _colorChanged(eventHandler<planeGrid*>()),
         _lineThicknessChanged(eventHandler<planeGrid*>()),
         _opacityChanged(eventHandler<planeGrid*>()),
@@ -17,7 +21,11 @@ namespace phi
         _color(original._color),
         _lineThickness(original._lineThickness),
         _opacity(original._opacity),
-        _visible(true)
+        _isVisible(original._isVisible),
+        _colorChanged(eventHandler<planeGrid*>()),
+        _lineThicknessChanged(eventHandler<planeGrid*>()),
+        _opacityChanged(eventHandler<planeGrid*>()),
+        _visibleChanged(eventHandler<planeGrid*>())
     {
     }
 
@@ -54,19 +62,19 @@ namespace phi
 
     void planeGrid::show()
     {
-        if (_visible)
+        if (_isVisible)
             return;
 
-        _visible = true;
+        _isVisible = true;
         _visibleChanged.raise(this);
     }
 
     void planeGrid::hide()
     {
-        if (!_visible)
+        if (!_isVisible)
             return;
 
-        _visible = false;
+        _isVisible = false;
         _visibleChanged.raise(this);
     }
 

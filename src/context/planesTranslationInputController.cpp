@@ -76,23 +76,30 @@ namespace phi
         auto translationPlane = std::find_if(_translationPlanes.begin(), _translationPlanes.end(),
             [normal](phi::translationPlane* tp)
         {
-            return mathUtils::isClose(glm::dot(normal, tp->plane.normal), 1.0f);
+            return mathUtils::isClose(glm::dot(normal, tp->getPlane().normal), 1.0f);
         });
 
         return translationPlane != _translationPlanes.end();
     }
 
-    translationPlane* planesTranslationInputController::createTranslationPlane(plane plane, boxCollider* collider, boxCollider* sourceCollider)
+    translationPlane* planesTranslationInputController::createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider)
     {
         if (existsTranslationPlaneWithNormal(plane.normal))
             return nullptr;
 
-        auto planePosition = collider->getObb().getPositionAt(plane.normal);
+        auto planePosition = colidee->getObb().getPositionAt(plane.normal);
         planePosition = phi::plane(planePosition, plane.normal).projectPoint(_draggingCollider->getObb().center);
 
         plane.origin = vec3();
-        auto translationPlane = translationInputController::createTranslationPlane(plane, planePosition, collider, sourceCollider, color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
-        _layer->add(translationPlane->planeGridNode);
+        auto translationPlane = 
+            translationInputController::createTranslationPlane(
+                plane, 
+                planePosition, 
+                colidee,
+                collider,
+                color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
+
+        _layer->add(translationPlane->getPlaneGridNode());
         translationPlane->showGrid();
 
         return translationPlane;
@@ -117,7 +124,7 @@ namespace phi
             if (translationPlane == _lastChosenTranslationPlane)
                 continue;
 
-            auto translationPlaneNormal = translationPlane->plane.normal;
+            auto translationPlaneNormal = translationPlane->getPlane().normal;
             auto touchsSearch = std::find_if(touchs.begin(), touchs.end(),
                 [translationPlaneNormal](sweepCollision& c)
             {
@@ -130,7 +137,7 @@ namespace phi
 
         for (auto translationPlane : translationPlanesToRemove)
         {
-            deletePlane(translationPlane);
+            removePlane(translationPlane);
             removeTranslationPlane(translationPlane);
         }
     }
@@ -149,7 +156,7 @@ namespace phi
 
         for (auto& translationPlane : _translationPlanes)
         {
-            auto plane = translationPlane->plane;
+            auto plane = translationPlane->getPlane();
             auto normalOnDragDirection = glm::abs(glm::dot(plane.normal, dragDirection));
             if (normalOnDragDirection < minNormalOnDragDirection)
             {
@@ -163,12 +170,12 @@ namespace phi
 
     bool planesTranslationInputController::isTouchingCollidedObject(vec3 offset, translationPlane* translationPlane, vec3& nearestPosition, plane& touchingPlane)
     {
-        auto targetObb = translationPlane->collider->getObb();
+        auto targetObb = translationPlane->getCollidee()->getObb();
         auto planes = targetObb.getPlanes();
 
         for (auto& plane : planes)
         {
-            if (mathUtils::isClose(glm::dot(plane.normal, translationPlane->plane.normal), 1.0f))
+            if (mathUtils::isClose(glm::dot(plane.normal, translationPlane->getPlane().normal), 1.0f))
                 continue;
 
             //auto collider = translationPlane->sourceCollider;
@@ -217,7 +224,7 @@ namespace phi
 
     vec3 planesTranslationInputController::checkForPossibleSwitchOfPlanes(vec3 offset, translationPlane* translationPlane)
     {
-        if (!translationPlane->collider)
+        if (!translationPlane->getCollidee())
             return offset;
 
         vec3 nearestPosition;
@@ -233,7 +240,7 @@ namespace phi
 
         _isSwitchingPlanes = true;
 
-        auto createdTranslationPlane = createTranslationPlane(touchingPlane, translationPlane->collider, translationPlane->sourceCollider);
+        auto createdTranslationPlane = createTranslationPlane(touchingPlane, translationPlane->getCollidee(), translationPlane->getCollider());
         if (createdTranslationPlane)
             addTranslationPlane(createdTranslationPlane);
 
@@ -266,10 +273,14 @@ namespace phi
 
         if (translationPlane != _lastChosenTranslationPlane)
         {
-            if (_lastChosenTranslationPlane)
-                translationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->plane);
-            else
-                translationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->plane);
+            auto plane = _lastChosenTranslationPlane ?
+                _lastChosenTranslationPlane->getPlane() :
+                _defaultTranslationPlane->getPlane();
+
+            auto origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, plane);
+            auto normal = translationPlane->getPlane().normal;
+
+            translationPlane->setPlane(phi::plane(origin, normal));
 
             setupTranslationPlane(translationPlane);
         }
@@ -311,6 +322,7 @@ namespace phi
 
         auto touchs = findValidTouchCollisions();
         addPlanesIfNeeded(touchs);
+
         if (!_isSwitchingPlanes)
             removeDetachedPlanes(touchs);
 
@@ -327,7 +339,7 @@ namespace phi
         {
             if (_lastChosenTranslationPlane)
             {
-                _defaultTranslationPlane->plane.origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->plane);
+                _defaultTranslationPlane->getPlane().origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getPlane());
                 setupTranslationPlane(_defaultTranslationPlane);
                 _lastChosenTranslationPlane = nullptr;
             }
@@ -342,10 +354,16 @@ namespace phi
             return false;
 
         for (auto& translationPlane : _translationPlanes)
-            deletePlane(translationPlane);
+            removePlane(translationPlane);
 
         _translationPlanes.clear();
 
         return translationInputController::onMouseUp(e);
+    }
+
+    bool planesTranslationInputController::update()
+    {
+        translationInputController::update();
+        return true;
     }
 }

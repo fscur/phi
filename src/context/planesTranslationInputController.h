@@ -23,7 +23,7 @@ namespace phi
         bool canTranslateAt(vec3 normal);
         vector<sweepCollision> findValidTouchCollisions();
         bool existsTranslationPlaneWithNormal(vec3 normal);
-        translationPlane* createTranslationPlane(plane plane, boxCollider* collider, boxCollider* sourceCollider);
+        translationPlane* createTranslationPlane(plane plane, boxCollider* collidee, boxCollider* collider);
         void addPlanesIfNeeded(vector<sweepCollision> collisions);
         void removeDetachedPlanes(vector<sweepCollision> collisions);
         vec3 mouseOffsetToWorld(ivec2 mousePosition);
@@ -38,5 +38,6 @@ namespace phi
         virtual bool onMouseDown(mouseEventArgs* e) override;
         virtual bool onMouseMove(mouseEventArgs* e) override;
         virtual bool onMouseUp(mouseEventArgs* e) override;
+        virtual bool update() override;
     };
 }

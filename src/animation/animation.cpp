@@ -9,7 +9,8 @@ namespace phi
         _isAnimating(false),
         _duration(0.0),
         _elapsed(0.0),
-        _easingFunction(easingFunction)
+        _easingFunction(easingFunction),
+        _animationEnded(eventHandler<animation*>())
     {
     }
 
@@ -38,7 +39,10 @@ namespace phi
         update(_easingFunction(percent));
 
         if (_elapsed > _duration)
+        {
+            _animationEnded.raise(this);
             stop();
+        }
     }
 
     void animation::start(double duration)

@@ -63,16 +63,22 @@ namespace phi
         _initialObjectPosition = _draggingRootNode->getTransform()->getLocalPosition();
 
         if (_collisionNodeTranslator)
-            _collisionNodeTranslator->setPlane(translationPlane->plane);
+            _collisionNodeTranslator->setPlane(translationPlane->getPlane());
     }
 
     void translationInputController::deletePlane(translationPlane* translationPlane)
     {
-        translationPlane->planeGridNode->getParent()->removeChild(translationPlane->planeGridNode);
-        safeDelete(translationPlane->planeGridNode);
+        auto planeGridNode = translationPlane->getPlaneGridNode();
+        planeGridNode->getParent()->removeChild(planeGridNode);
+        safeDelete(planeGridNode);
     }
 
-    translationPlane* translationInputController::createTranslationPlane(plane plane, vec3 position, boxCollider* collider, boxCollider* sourceCollider, color color)
+    translationPlane* translationInputController::createTranslationPlane(
+        plane plane, 
+        vec3 position, 
+        boxCollider* collidee, 
+        boxCollider* collider, 
+        color color)
     {
         auto planeNode = new node("plane");
         auto planeTransform = planeNode->getTransform();
@@ -88,8 +94,8 @@ namespace phi
         planeNode->addComponent(planeGrid);
         planeNode->addComponent(animator);
 
-        auto transformAnimation = new phi::transformAnimation(planeTransform, easingFunctions::easeOutCubic);
-        animator->addAnimation(transformAnimation);
+        auto draggingAnimation = new phi::transformAnimation(planeTransform, easingFunctions::easeOutCubic);
+        animator->addAnimation(draggingAnimation);
 
         auto fadeUpdadeFunction = [=](float value)
         {
@@ -99,21 +105,25 @@ namespace phi
         auto fadeInAnimation = new phi::floatAnimation(fadeUpdadeFunction, easingFunctions::linear);
         animator->addAnimation(fadeInAnimation);
 
+        auto fadeOutAnimation = new phi::floatAnimation(fadeUpdadeFunction, easingFunctions::linear);
+        animator->addAnimation(fadeOutAnimation);
+
         auto translationPlane = new phi::translationPlane(plane);
-        translationPlane->collider = collider;
-        translationPlane->sourceCollider = sourceCollider;
-        translationPlane->planeGridNode = planeNode;
-        translationPlane->transformAnimation = transformAnimation;
-        translationPlane->fadeInAnimation = fadeInAnimation;
+        translationPlane->setCollidee(collidee);
+        translationPlane->setCollider(collider);
+        translationPlane->setPlaneGridNode(planeNode);
+        translationPlane->setDraggingAnimation(draggingAnimation);
+        translationPlane->setFadeInAnimation(fadeInAnimation);
+        translationPlane->setFadeOutAnimation(fadeOutAnimation);
 
         return translationPlane;
     }
 
     vec3 translationInputController::getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane)
     {
-        auto rayCastOnPlanePosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->plane);
+        auto rayCastOnPlanePosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->getPlane());
 
-        auto offsetOnPlane = rayCastOnPlanePosition - translationPlane->plane.origin;
+        auto offsetOnPlane = rayCastOnPlanePosition - translationPlane->getPlane().origin;
         return _initialObjectPosition + offsetOnPlane;
     }
 
@@ -130,7 +140,7 @@ namespace phi
 
     void translationInputController::translatePlaneGrid(translationPlane* translationPlane)
     {
-        auto planeNode = translationPlane->planeGridNode;
+        auto planeNode = translationPlane->getPlaneGridNode();
 
         auto planeTransform = planeNode->getTransform();
         auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
@@ -143,8 +153,8 @@ namespace phi
         auto toPosition = plane.projectPoint(_draggingCollider->getObb().center);
         toPlaneTransform->setLocalPosition(toPosition);
 
-        auto transformAnimation = translationPlane->transformAnimation;
-        transformAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
+        auto draggingAnimation = translationPlane->getDraggingAnimation();
+        draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
     }
 
     void translationInputController::translateGhost(vec3 position, vec3 offset)
@@ -252,10 +262,9 @@ namespace phi
 
             auto plane = phi::plane(obbCastPosition, obbCastNormal);
             _defaultTranslationPlane = createTranslationPlane(plane, _draggingCollider->getObb().getPositionAt(-obbCastNormal), nullptr, nullptr);
-            _layer->add(_defaultTranslationPlane->planeGridNode);
-            _defaultTranslationPlane->showGrid();
+            _layer->add(_defaultTranslationPlane->getPlaneGridNode());
 
-            
+            _defaultTranslationPlane->showGrid();
 
             _lastMousePosition = mousePosition;
             setupTranslationPlane(_defaultTranslationPlane);
@@ -286,6 +295,18 @@ namespace phi
         return true;
     }
 
+    void translationInputController::removePlane(translationPlane* translationPlane)
+    {
+        auto fadeOutAnimationEndedEventHandler = translationPlane->getFadeOutAnimation()->getAnimationEnded();
+        auto deletePlaneFunction = [=](animation* animation)
+        {
+            _toRemovePlanes.push_back(translationPlane);
+        };
+
+        fadeOutAnimationEndedEventHandler->assign(deletePlaneFunction);
+        translationPlane->hideGrid();
+    }
+
     bool translationInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed || !_dragging)
@@ -293,8 +314,7 @@ namespace phi
 
         _dragging = false;
 
-        deletePlane(_defaultTranslationPlane);
-        _defaultTranslationPlane = nullptr;
+        removePlane(_defaultTranslationPlane);
 
         if (_showingGhost)
         {
@@ -330,5 +350,18 @@ namespace phi
         }
 
         return false;
+    }
+
+    bool translationInputController::update()
+    {
+        for (auto& plane : _toRemovePlanes)
+        {
+            deletePlane(plane);
+            plane = nullptr;
+        }
+
+        _toRemovePlanes.clear();
+
+        return true;
     }
 }

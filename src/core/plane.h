@@ -26,6 +26,12 @@ namespace phi
         {
         }
 
+        plane(const plane& original) :
+            origin(original.origin),
+            normal(original.normal)
+        {
+        }
+
         CORE_API vec3 projectPoint(const vec3 point) const;
         CORE_API float distanceFrom(const vec3 point) const;
         CORE_API bool intersectsLine(vec3 lineOrigin, vec3 lineDirection, float& t) const;
