@@ -39,6 +39,15 @@ namespace phi
         return discardDot > 0.2f && isAgainstCamera;
     }
 
+    bool planesTranslationInputController::isDraggingObjectIntersectingAnyObject()
+    {
+        auto intersectionTest = intersectionCollisionMultiTest();
+        intersectionTest.colliders = _collisionNodeTranslator->getColliders();
+        intersectionTest.transforms = _collisionNodeTranslator->getTransforms();
+
+        return _physicsBehaviour->getPhysicsWorld()->intersects(intersectionTest);
+    }
+
     vector<sweepCollision> planesTranslationInputController::findValidTouchCollisions()
     {
         vector<sweepCollision> foundTouchs;
@@ -138,7 +147,7 @@ namespace phi
 
         for (auto translationPlane : translationPlanesToRemove)
         {
-            removePlane(translationPlane);
+            enqueuePlaneForDeletion(translationPlane);
             removeTranslationPlane(translationPlane);
         }
     }
@@ -345,7 +354,7 @@ namespace phi
             return false;
 
         for (auto& translationPlane : _translationPlanes)
-            removePlane(translationPlane);
+            enqueuePlaneForDeletion(translationPlane);
 
         _translationPlanes.clear();
 

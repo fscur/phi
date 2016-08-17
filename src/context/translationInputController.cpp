@@ -73,6 +73,18 @@ namespace phi
         safeDelete(planeGridNode);
     }
 
+    void translationInputController::enqueuePlaneForDeletion(translationPlane* translationPlane)
+    {
+        auto deletePlaneFunction = [=](animation* animation)
+        {
+            _toRemovePlanes.push_back(translationPlane);
+        };
+
+        auto fadeOutAnimationEndedEventHandler = translationPlane->getFadeOutAnimation()->getAnimationEnded();
+        fadeOutAnimationEndedEventHandler->assign(deletePlaneFunction);
+        translationPlane->hideGrid();
+    }
+
     translationPlane* translationInputController::createTranslationPlane(
         plane plane, 
         vec3 position, 
@@ -299,18 +311,6 @@ namespace phi
         return true;
     }
 
-    void translationInputController::removePlane(translationPlane* translationPlane)
-    {
-        auto fadeOutAnimationEndedEventHandler = translationPlane->getFadeOutAnimation()->getAnimationEnded();
-        auto deletePlaneFunction = [=](animation* animation)
-        {
-            _toRemovePlanes.push_back(translationPlane);
-        };
-
-        fadeOutAnimationEndedEventHandler->assign(deletePlaneFunction);
-        translationPlane->hideGrid();
-    }
-
     bool translationInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed || !_dragging)
@@ -318,7 +318,7 @@ namespace phi
 
         _dragging = false;
 
-        removePlane(_defaultTranslationPlane);
+        enqueuePlaneForDeletion(_defaultTranslationPlane);
 
         if (_showingGhost)
         {

@@ -3,7 +3,6 @@
 #include <phi.h>
 
 #include "translationInputController.h"
-#include "physicsLayerBehaviour.h"
 
 namespace phi
 {
@@ -16,8 +15,10 @@ namespace phi
         translationPlane* _lastChosenTranslationPlane;
         bool _isTouchingCollidedObject;
         bool _isSwitchingPlanes;
+        bool _canChangePlanes;
 
     private:
+        bool isDraggingObjectIntersectingAnyObject();
         void addTranslationPlane(translationPlane* translationPlane);
         void removeTranslationPlane(translationPlane* translationPlane);
         bool canTranslateAt(vec3 normal);
