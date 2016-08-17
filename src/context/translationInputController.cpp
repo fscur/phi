@@ -86,7 +86,7 @@ namespace phi
         planeTransform->setDirection(plane.normal);
 
         auto animator = new phi::animator();
-        
+
         auto planeGrid = new phi::planeGrid();
         planeGrid->setColor(color);
         planeGrid->setLineThickness(8.5f);
@@ -138,19 +138,20 @@ namespace phi
             _draggingRootNode->getTransform()->translate(offset);
     }
 
-    void translationInputController::translatePlaneGrid(translationPlane* translationPlane)
+    void translationInputController::translatePlaneGrid(translationPlane* translationPlane, ivec2 mousePosition)
     {
         auto planeNode = translationPlane->getPlaneGridNode();
 
         auto planeTransform = planeNode->getTransform();
         auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
+        auto castPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->plane);
 
         auto fromPlaneTransform = new transform();
         auto fromPosition = planeTransform->getLocalPosition();
         fromPlaneTransform->setLocalPosition(fromPosition);
 
         auto toPlaneTransform = new transform();
-        auto toPosition = plane.projectPoint(_draggingCollider->getObb().center);
+        auto toPosition = plane.projectPoint(castPosition);
         toPlaneTransform->setLocalPosition(toPosition);
 
         auto draggingAnimation = translationPlane->getDraggingAnimation();
@@ -261,7 +262,10 @@ namespace phi
             initializeNodeTranslators();
 
             auto plane = phi::plane(obbCastPosition, obbCastNormal);
-            _defaultTranslationPlane = createTranslationPlane(plane, _draggingCollider->getObb().getPositionAt(-obbCastNormal), nullptr, nullptr);
+            auto gridPlane = phi::plane(_draggingCollider->getObb().getPositionAt(-obbCastNormal), obbCastNormal);
+            auto gridPosition = gridPlane.projectPoint(obbCastPosition);
+
+            _defaultTranslationPlane = createTranslationPlane(plane, gridPosition, nullptr, nullptr);
             _layer->add(_defaultTranslationPlane->getPlaneGridNode());
 
             _defaultTranslationPlane->showGrid();
@@ -287,7 +291,7 @@ namespace phi
         auto offset = position - _draggingRootNode->getTransform()->getLocalPosition();
 
         translateNode(offset);
-        translatePlaneGrid(_defaultTranslationPlane);
+        translatePlaneGrid(_defaultTranslationPlane, mousePosition);
         translateGhost(position, offset);
 
         _lastMousePosition = mousePosition;

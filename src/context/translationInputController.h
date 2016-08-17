@@ -53,7 +53,7 @@ namespace phi
         void deletePlane(translationPlane* translationPlane);
         vec3 getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane);
         void translateNode(vec3 offset);
-        void translatePlaneGrid(translationPlane* translationPlane);
+        void translatePlaneGrid(translationPlane* translationPlane, ivec2 mousePosition);
         void translateGhost(vec3 position, vec3 offset);
 
     public:
