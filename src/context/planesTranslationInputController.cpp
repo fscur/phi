@@ -88,10 +88,9 @@ namespace phi
             return nullptr;
 
         auto planePosition = colidee->getObb().getPositionAt(plane.normal);
-        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->plane);
+        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->getPlane());
         planePosition = phi::plane(planePosition, plane.normal).projectPoint(castPosition);
 
-        plane.origin = vec3();
         auto translationPlane = 
             translationInputController::createTranslationPlane(
                 plane, 
@@ -110,7 +109,7 @@ namespace phi
     {
         for (auto& collision : touchs)
         {
-            auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->plane);
+            auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getPlane());
             auto translationPlane = createTranslationPlane(plane(castPosition, collision.normal), collision.collider, collision.sourceCollider);
             if (translationPlane)
                 addTranslationPlane(translationPlane);
@@ -241,7 +240,7 @@ namespace phi
 
         _isSwitchingPlanes = true;
 
-        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, translationPlane->plane);
+        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, translationPlane->getPlane());
         auto createdTranslationPlane = createTranslationPlane(plane(castPosition, touchingPlane.normal), translationPlane->getCollidee(), translationPlane->getCollider());
         if (createdTranslationPlane)
             addTranslationPlane(createdTranslationPlane);

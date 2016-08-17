@@ -144,7 +144,7 @@ namespace phi
 
         auto planeTransform = planeNode->getTransform();
         auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
-        auto castPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->plane);
+        auto castPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->getPlane());
 
         auto fromPlaneTransform = new transform();
         auto fromPosition = planeTransform->getLocalPosition();
