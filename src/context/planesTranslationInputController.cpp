@@ -39,28 +39,36 @@ namespace phi
         return discardDot > 0.2f && isAgainstCamera;
     }
 
-    vector<sweepCollision> planesTranslationInputController::findTouchCollisions()
+    vector<sweepCollision> planesTranslationInputController::findValidTouchCollisions()
     {
-        vector<sweepCollision> touchs;
-
-        //intersectionCollisionMultiTest touchTest;
-        //touchTest.colliders = _collisionNodeTranslator->getColliders();
-        //touchTest.transforms = _collisionNodeTranslator->getTransforms();
-        //auto touchTestResult = _physicsBehaviour->getPhysicsWorld()->touchs(touchTest);
-
-        //if (!touchTestResult.collided)
-        //    return touchs;
-
-        if (!_lastTranslationTouchs)
-            return touchs;
-
-        for (auto& collision : (*_lastTranslationTouchs))
+        vector<sweepCollision> foundTouchs;
+        if (_lastTranslationTouchs)
+            foundTouchs = *_lastTranslationTouchs;
+        else
         {
-            if (canTranslateAt(collision.normal))
-                touchs.push_back(collision);
+            auto sweepTest = sweepCollisionMultiTest();
+            sweepTest.colliders = _collisionNodeTranslator->getColliders();
+            sweepTest.transforms = _collisionNodeTranslator->getTransforms();
+            sweepTest.direction = vec3(1.0f, 0.0f, 0.0f);
+            sweepTest.distance = 0.0f;
+            sweepTest.inflation = DECIMAL_TRUNCATION;
+            sweepTest.disregardDivergentNormals = false;
+
+            auto sweepResult = _physicsBehaviour->getPhysicsWorld()->sweep(sweepTest);
+            if (!sweepResult.collided)
+                return vector<sweepCollision>();
+
+            foundTouchs = sweepResult.collisions;
         }
 
-        return touchs;
+        vector<sweepCollision> validTouchs;
+        for (auto& collision : foundTouchs)
+        {
+            if (canTranslateAt(collision.normal))
+                validTouchs.push_back(collision);
+        }
+
+        return validTouchs;
     }
 
     bool planesTranslationInputController::existsTranslationPlaneWithNormal(vec3 normal)
@@ -125,24 +133,6 @@ namespace phi
             deletePlane(translationPlane);
             removeTranslationPlane(translationPlane);
         }
-    }
-
-    bool planesTranslationInputController::onMouseDown(mouseEventArgs * e)
-    {
-        translationInputController::onMouseDown(e);
-
-        if (!_dragging)
-            return false;
-
-        _lastChosenTranslationPlane = nullptr;
-
-        auto touchs = findTouchCollisions();
-        addPlanesIfNeeded(touchs);
-
-        _isTouchingCollidedObject = true;
-        _isSwitchingPlanes = false;
-
-        return true;
     }
 
     vec3 planesTranslationInputController::mouseOffsetToWorld(ivec2 mousePosition)
@@ -296,12 +286,30 @@ namespace phi
         _lastMousePosition = mousePosition;
     }
 
+    bool planesTranslationInputController::onMouseDown(mouseEventArgs * e)
+    {
+        translationInputController::onMouseDown(e);
+
+        if (!_dragging)
+            return false;
+
+        _lastChosenTranslationPlane = nullptr;
+
+        auto touchs = findValidTouchCollisions();
+        addPlanesIfNeeded(touchs);
+
+        _isTouchingCollidedObject = true;
+        _isSwitchingPlanes = false;
+
+        return true;
+    }
+
     bool planesTranslationInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_dragging)
             return false;
 
-        auto touchs = findTouchCollisions();
+        auto touchs = findValidTouchCollisions();
         addPlanesIfNeeded(touchs);
         if (!_isSwitchingPlanes)
             removeDetachedPlanes(touchs);
