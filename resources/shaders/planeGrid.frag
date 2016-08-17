@@ -198,9 +198,7 @@ void main()
 
     vec2 uv = worldFragTexCoord;
     float grid = createGrid(uv, data.lineThickness);
-    grid += data.opacity;
-
+    grid += 0.2;
     float border = createBorder();
-
-    fragColor = vec4(data.color.rgb, grid * border);
+    fragColor = vec4(data.color.rgb, grid * border * data.opacity);
 }

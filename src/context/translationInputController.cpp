@@ -80,21 +80,31 @@ namespace phi
         planeTransform->setDirection(plane.normal);
 
         auto animator = new phi::animator();
-        auto animation = new transformAnimation(planeTransform, easingFunctions::easeOutCubic);
-        animator->addAnimation(animation);
-
+        
         auto planeGrid = new phi::planeGrid();
         planeGrid->setColor(color);
-        planeGrid->setLineThickness(7.0f);
-        planeGrid->setOpacity(0.4f);
+        planeGrid->setLineThickness(8.5f);
+
         planeNode->addComponent(planeGrid);
         planeNode->addComponent(animator);
+
+        auto transformAnimation = new phi::transformAnimation(planeTransform, easingFunctions::easeOutCubic);
+        animator->addAnimation(transformAnimation);
+
+        auto fadeUpdadeFunction = [=](float value)
+        {
+            planeGrid->setOpacity(value);
+        };
+
+        auto fadeInAnimation = new phi::floatAnimation(fadeUpdadeFunction, easingFunctions::linear);
+        animator->addAnimation(fadeInAnimation);
 
         auto translationPlane = new phi::translationPlane(plane);
         translationPlane->collider = collider;
         translationPlane->sourceCollider = sourceCollider;
         translationPlane->planeGridNode = planeNode;
-        translationPlane->planeGridAnimation = animation;
+        translationPlane->transformAnimation = transformAnimation;
+        translationPlane->fadeInAnimation = fadeInAnimation;
 
         return translationPlane;
     }
@@ -121,7 +131,6 @@ namespace phi
     void translationInputController::translatePlaneGrid(translationPlane* translationPlane)
     {
         auto planeNode = translationPlane->planeGridNode;
-        auto animation = translationPlane->planeGridAnimation;
 
         auto planeTransform = planeNode->getTransform();
         auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
@@ -134,7 +143,8 @@ namespace phi
         auto toPosition = plane.projectPoint(_draggingCollider->getObb().center);
         toPlaneTransform->setLocalPosition(toPosition);
 
-        animation->start(fromPlaneTransform, toPlaneTransform, 0.33);
+        auto transformAnimation = translationPlane->transformAnimation;
+        transformAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
     }
 
     void translationInputController::translateGhost(vec3 position, vec3 offset)
@@ -245,10 +255,12 @@ namespace phi
             _layer->add(_defaultTranslationPlane->planeGridNode);
             _defaultTranslationPlane->showGrid();
 
+            
+
             _lastMousePosition = mousePosition;
             setupTranslationPlane(_defaultTranslationPlane);
 
-            ShowCursor(false);
+            //ShowCursor(false);
 
             return true;
         }
@@ -293,7 +305,7 @@ namespace phi
 
         endNodeTranslators();
 
-        ShowCursor(true);
+        //ShowCursor(true);
 
         return true;
     }

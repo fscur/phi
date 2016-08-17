@@ -17,20 +17,23 @@ namespace phi
         boxCollider* collider;
         boxCollider* sourceCollider;
         node* planeGridNode;
-        transformAnimation* planeGridAnimation;
+        transformAnimation* transformAnimation;
+        floatAnimation* fadeInAnimation;
 
     public:
         translationPlane(phi::plane plane) :
             plane(plane),
             collider(nullptr),
             planeGridNode(nullptr),
-            planeGridAnimation(nullptr)
+            transformAnimation(nullptr),
+            fadeInAnimation(nullptr)
         {
         }
 
         void showGrid()
         {
             planeGridNode->getComponent<planeGrid>()->show();
+            fadeInAnimation->start(0.0f, 1.0f, 0.2);
         }
 
         void hideGrid()

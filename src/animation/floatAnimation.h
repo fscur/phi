@@ -10,13 +10,13 @@ namespace phi
         public animation
     {
     private:
-        float* _value;
         float _from;
         float _to;
+        std::function<void(float)> _updateFunction;
 
     public:
         ANIMATION_API floatAnimation(
-            float* value,
+            std::function<void(float)> updateFunction,
             std::function<double(double)> easingFunction = easingFunctions::linear);
         ANIMATION_API floatAnimation(const floatAnimation& original);
         ANIMATION_API ~floatAnimation();

@@ -3,8 +3,11 @@
 
 namespace phi
 {
-    floatAnimation::floatAnimation(float* value, std::function<double(double)> easingFunction) :
-        animation(easingFunction)
+    floatAnimation::floatAnimation(
+        std::function<void(float)> updateFunction,
+        std::function<double(double)> easingFunction) :
+        animation(easingFunction),
+        _updateFunction(updateFunction)
     {
     }
 
@@ -27,7 +30,7 @@ namespace phi
 
     void floatAnimation::update(double t)
     {
-        *_value = static_cast<float>(_from + (_to - _from) * t);
+        _updateFunction(static_cast<float>(_from + (_to - _from) * t));
     }
 
     animation* floatAnimation::clone()
