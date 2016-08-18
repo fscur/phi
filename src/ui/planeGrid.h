@@ -3,7 +3,7 @@
 #include "uiApi.h"
 #include <core\component.h>
 #include <core\color.h>
-#include <core\plane.h>
+#include <core\clippingPlane.h>
 
 namespace phi
 {
@@ -15,7 +15,7 @@ namespace phi
         float _lineThickness;
         float _opacity;
         bool _isVisible;
-        vector<plane> _clippingPlanes;
+        vector<clippingPlane> _clippingPlanes;
 
         eventHandler<planeGrid*> _colorChanged;
         eventHandler<planeGrid*> _lineThicknessChanged;
@@ -38,7 +38,7 @@ namespace phi
         float getLineThickness() const { return _lineThickness; }
         float getOpacity() const { return _opacity; }
         bool isVisible() const { return _isVisible; }
-        vector<plane> getClippingPlanes() const { return _clippingPlanes; }
+        vector<clippingPlane> getClippingPlanes() const { return _clippingPlanes; }
 
         eventHandler<planeGrid*>* getColorChanged() { return &_colorChanged; }
         eventHandler<planeGrid*>* getLineThicknessChanged() { return &_lineThicknessChanged; }
@@ -50,8 +50,8 @@ namespace phi
         UI_API void setLineThickness(const float value);
         UI_API void setOpacity(const float value);
 
-        UI_API void addClippingPlane(plane plane);
-        UI_API void removeClippingPlane(plane plane);
+        UI_API void addClippingPlane(clippingPlane clippingPlane);
+        UI_API void removeClippingPlane(clippingPlane clippingPlane);
         UI_API void hide();
         UI_API void show();
 
