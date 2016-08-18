@@ -4,8 +4,9 @@
 
 namespace phi
 {
-    translationPlane::translationPlane(phi::plane plane) :
-        _plane(plane),
+    translationPlane::translationPlane(phi::plane mousePlane) :
+        _mousePlane(mousePlane),
+        _gridPlane(plane()),
         _collidee(nullptr),
         _planeGridNode(nullptr),
         _draggingAnimation(nullptr),
@@ -51,7 +52,9 @@ namespace phi
 
         if (!planeGrid->isVisible())
             return;
-
+        
+        //planeGrid->hide();
+        //planeGrid->setOpacity(0.0);
         _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 0.4);
     }
 }

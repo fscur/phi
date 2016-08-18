@@ -14,7 +14,8 @@ namespace phi
     class translationPlane
     {
     private:
-        plane _plane;
+        plane _gridPlane;
+        plane _mousePlane;
         node* _planeGridNode;
         boxCollider* _collidee;
         boxCollider* _collider;
@@ -25,7 +26,8 @@ namespace phi
     public:
         CONTEXT_API translationPlane(phi::plane plane);
         
-        plane getPlane() const { return _plane; }
+        plane getGridPlane() const { return _gridPlane; }
+        plane getMousePlane() const { return _mousePlane; }
         node* getPlaneGridNode() const { return _planeGridNode; }
         boxCollider* getCollidee() const { return _collidee; }
         boxCollider* getCollider() const { return _collider; }
@@ -33,7 +35,8 @@ namespace phi
         floatAnimation* getFadeInAnimation() const { return _fadeInAnimation; }
         floatAnimation* getFadeOutAnimation() const { return _fadeOutAnimation; }
 
-        void setPlane(plane value) { _plane = value; }
+        void setMousePlane(plane value) { _mousePlane = value; }
+        void setGridPlane(plane value) { _gridPlane = value; }
         void setPlaneGridNode(node* value) { _planeGridNode = value; }
         void setCollidee(boxCollider* value) { _collidee = value; }
         void setCollider(boxCollider* value) { _collider = value; }

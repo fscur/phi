@@ -6,6 +6,8 @@
 #include <core\boxCollider.h>
 #include <core\mesh.h>
 #include <core\ghostMesh.h>
+#include <core\plane.h>
+
 #include "translationInputController.h"
 
 namespace phi
@@ -63,7 +65,7 @@ namespace phi
         _initialObjectPosition = _draggingRootNode->getTransform()->getLocalPosition();
 
         if (_collisionNodeTranslator)
-            _collisionNodeTranslator->setPlane(translationPlane->getPlane());
+            _collisionNodeTranslator->setPlane(translationPlane->getMousePlane());
     }
 
     void translationInputController::deletePlane(translationPlane* translationPlane)
@@ -86,7 +88,7 @@ namespace phi
     }
 
     translationPlane* translationInputController::createTranslationPlane(
-        plane plane, 
+        plane mousePlane, 
         vec3 position, 
         boxCollider* collidee, 
         boxCollider* collider, 
@@ -95,7 +97,7 @@ namespace phi
         auto planeNode = new node("plane");
         auto planeTransform = planeNode->getTransform();
         planeTransform->setLocalPosition(position);
-        planeTransform->setDirection(plane.normal);
+        planeTransform->setDirection(mousePlane.normal);
 
         auto animator = new phi::animator();
 
@@ -120,7 +122,10 @@ namespace phi
         auto fadeOutAnimation = new phi::floatAnimation(fadeUpdadeFunction, easingFunctions::linear);
         animator->addAnimation(fadeOutAnimation);
 
-        auto translationPlane = new phi::translationPlane(plane);
+        auto gridPlane = plane(position, mousePlane.normal);
+
+        auto translationPlane = new phi::translationPlane(mousePlane);
+        translationPlane->setGridPlane(gridPlane);
         translationPlane->setCollidee(collidee);
         translationPlane->setCollider(collider);
         translationPlane->setPlaneGridNode(planeNode);
@@ -133,9 +138,9 @@ namespace phi
 
     vec3 translationInputController::getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane)
     {
-        auto rayCastOnPlanePosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->getPlane());
+        auto rayCastOnPlanePosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->getMousePlane());
 
-        auto offsetOnPlane = rayCastOnPlanePosition - translationPlane->getPlane().origin;
+        auto offsetOnPlane = rayCastOnPlanePosition - translationPlane->getMousePlane().origin;
         return _initialObjectPosition + offsetOnPlane;
     }
 
@@ -156,7 +161,7 @@ namespace phi
 
         auto planeTransform = planeNode->getTransform();
         auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
-        auto castPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->getPlane());
+        auto castPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, translationPlane->getMousePlane());
 
         auto fromPlaneTransform = new transform();
         auto fromPosition = planeTransform->getLocalPosition();
@@ -277,7 +282,7 @@ namespace phi
             auto gridPlane = phi::plane(_draggingCollider->getObb().getPositionAt(-obbCastNormal), obbCastNormal);
             auto gridPosition = gridPlane.projectPoint(obbCastPosition);
 
-            _defaultTranslationPlane = createTranslationPlane(plane, gridPosition, nullptr, nullptr);
+            _defaultTranslationPlane = createTranslationPlane(plane, gridPosition, nullptr, nullptr, color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
             _layer->add(_defaultTranslationPlane->getPlaneGridNode());
 
             _defaultTranslationPlane->showGrid();
