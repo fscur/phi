@@ -13,7 +13,7 @@ namespace phi
         vec4 clipPlane2;
         float lineThickness;
         float opacity;
-        float isCollidee;
+        float pad0;
         float pad1;
 
         static vector<vec4> getClippingPlanes(const planeGrid* planeGrid)

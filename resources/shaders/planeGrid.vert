@@ -38,12 +38,12 @@ layout (std140, binding = 1) buffer PlaneGridRenderDataBuffer
 
 out vec2 worldFragTexCoord;
 out vec2 fragTexCoord;
-out float planeDist2;
-
 flat out float planeSize;
 flat out float planeDist;
+out float planeDist2;
 flat out uint instanceId;
-
+flat out float globalTime;
+flat out vec4 clipPlaneNormal;
 
 vec2 projectPoint(in vec3 point, in vec3 xAxis, in vec3 yAxis)
 {
@@ -57,8 +57,6 @@ void main()
 {
     mat4 modelMatrix = inModelMatrix;
     
-    planeGridRenderData data = renderData.items[gl_InstanceID];
-
     vec3 xAxis = vec3(modelMatrix[0][0], modelMatrix[0][1], modelMatrix[0][2]);
     vec3 yAxis = vec3(modelMatrix[1][0], modelMatrix[1][1], modelMatrix[1][2]);
 
@@ -77,8 +75,9 @@ void main()
     worldFragTexCoord = ((inTexCoord) * planeSize + projected);
     fragTexCoord = (inTexCoord) * planeSize;
     instanceId = gl_InstanceID;
-    
-    gl_ClipDistance[0] = dot(data.clipPlane0, pos);
-    gl_ClipDistance[1] = dot(data.clipPlane1, pos);;
-    gl_ClipDistance[2] = dot(data.clipPlane2, pos);;
+
+    planeGridRenderData data = renderData.items[gl_InstanceID];
+    gl_ClipDistance[0] = dot(-data.clipPlane0, pos);
+    gl_ClipDistance[1] = dot(-data.clipPlane1, pos);;
+    gl_ClipDistance[2] = dot(-data.clipPlane2, pos);;
 }

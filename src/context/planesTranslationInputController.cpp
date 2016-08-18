@@ -91,7 +91,7 @@ namespace phi
         return translationPlane != _translationPlanes.end();
     }
 
-    translationPlane* planesTranslationInputController::createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider, float clippingSideSign)
+    translationPlane* planesTranslationInputController::createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider)
     {
         if (existsTranslationPlaneWithNormal(plane.normal))
             return nullptr;
@@ -100,7 +100,7 @@ namespace phi
         auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->getMousePlane());
         planePosition = phi::plane(planePosition, plane.normal).projectPoint(castPosition);
 
-        auto createdTranslationPlane =
+        auto translationPlane =
             translationInputController::createTranslationPlane(
                 plane,
                 planePosition,
@@ -108,24 +108,19 @@ namespace phi
                 collider,
                 color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
 
-        auto createdTranslationPlaneGrid = createdTranslationPlane->getPlaneGridComponent();
-        auto createdGridPlane = createdTranslationPlane->getGridPlane();
-        createdGridPlane.normal *= clippingSideSign;
+        auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
 
-        for (auto& translationPlane : _translationPlanes)
+        for (auto& intersectingPlane : _translationPlanes)
         {
-            auto gridPlane = translationPlane->getGridPlane();
-            gridPlane.normal *= clippingSideSign;
-            createdTranslationPlaneGrid->addClippingPlane(gridPlane);
-
-            auto planeGridComponent = translationPlane->getPlaneGridComponent();
-            planeGridComponent->addClippingPlane(createdGridPlane);
+            planeGrid->addClippingPlane(intersectingPlane->getGridPlane());
+            auto intersectingPlaneGrid = intersectingPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
+            intersectingPlaneGrid->addClippingPlane(translationPlane->getGridPlane());
         }
 
-        _layer->add(createdTranslationPlane->getPlaneGridNode());
-        createdTranslationPlane->showGrid();
+        _layer->add(translationPlane->getPlaneGridNode());
+        translationPlane->showGrid();
 
-        return createdTranslationPlane;
+        return translationPlane;
     }
 
     void planesTranslationInputController::addPlanesIfNeeded(vector<sweepCollision> touchs)
@@ -133,8 +128,7 @@ namespace phi
         for (auto& collision : touchs)
         {
             auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
-            auto translationPlane = createTranslationPlane(plane(castPosition, collision.normal), collision.collider, collision.sourceCollider, 1.0f);
-
+            auto translationPlane = createTranslationPlane(plane(castPosition, collision.normal), collision.collider, collision.sourceCollider);
             if (translationPlane)
                 addTranslationPlane(translationPlane);
         }
@@ -275,7 +269,7 @@ namespace phi
         _isSwitchingPlanes = true;
 
         auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, translationPlane->getMousePlane());
-        auto createdTranslationPlane = createTranslationPlane(plane(castPosition, touchingPlane.normal), translationPlane->getCollidee(), translationPlane->getCollider(), -1.0f);
+        auto createdTranslationPlane = createTranslationPlane(plane(castPosition, touchingPlane.normal), translationPlane->getCollidee(), translationPlane->getCollider());
         if (createdTranslationPlane)
             addTranslationPlane(createdTranslationPlane);
 
