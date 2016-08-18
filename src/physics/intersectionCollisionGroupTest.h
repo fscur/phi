@@ -11,14 +11,14 @@ namespace phi
         intersectionCollisionGroupTest() :
             colliders(),
             transforms(),
-            againstColliders(),
+            collidees(),
             group(0u)
         {
         }
 
         vector<boxCollider*>* colliders;
         vector<transform*>* transforms;
-        vector<boxCollider*>* againstColliders;
+        vector<boxCollider*>* collidees;
         uint16_t group;
     };
 }

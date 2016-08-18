@@ -88,10 +88,10 @@ namespace phi
     }
 
     translationPlane* translationInputController::createTranslationPlane(
-        plane mousePlane, 
-        vec3 position, 
-        boxCollider* collidee, 
-        boxCollider* collider, 
+        plane mousePlane,
+        vec3 position,
+        boxCollider* collidee,
+        boxCollider* collider,
         color color)
     {
         auto planeNode = new node("plane");
@@ -257,45 +257,41 @@ namespace phi
             rootNode = rootNode->getParent();
 
         auto collider = rootNode->getComponent<boxCollider>();
-
-        if (!collider)
-            return false;
+        assert(collider != nullptr);
 
         auto obb = collider->getObb();
         auto mousePosition = ivec2(e->x, e->y);
 
         vector<rayIntersection> rayIntersections;
         auto ray = _camera->screenPointToRay(mousePosition.x, mousePosition.y);
-        if (ray.intersects(obb, rayIntersections))
-        {
-            auto firstIntersection = rayIntersections[0];
-            auto obbCastNormal = firstIntersection.normal;
-            auto obbCastPosition = firstIntersection.position;
+        auto intersected = ray.intersects(obb, rayIntersections);
+        assert(intersected);
 
-            setNodeToTranslate(rootNode);
+        auto firstIntersection = rayIntersections[0];
+        auto obbCastNormal = firstIntersection.normal;
+        auto obbCastPosition = firstIntersection.position;
 
-            _draggingGhostNode = cloneNodeAsGhost(rootNode);
+        setNodeToTranslate(rootNode);
 
-            initializeNodeTranslators();
+        _draggingGhostNode = cloneNodeAsGhost(rootNode);
 
-            auto plane = phi::plane(obbCastPosition, obbCastNormal);
-            auto gridPlane = phi::plane(_draggingCollider->getObb().getPositionAt(-obbCastNormal), obbCastNormal);
-            auto gridPosition = gridPlane.projectPoint(obbCastPosition);
+        initializeNodeTranslators();
 
-            _defaultTranslationPlane = createTranslationPlane(plane, gridPosition, nullptr, nullptr, color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
-            _layer->add(_defaultTranslationPlane->getPlaneGridNode());
+        auto plane = phi::plane(obbCastPosition, obbCastNormal);
+        auto gridPlane = phi::plane(_draggingCollider->getObb().getPositionAt(-obbCastNormal), obbCastNormal);
+        auto gridPosition = gridPlane.projectPoint(obbCastPosition);
 
-            _defaultTranslationPlane->showGrid();
+        _defaultTranslationPlane = createTranslationPlane(plane, gridPosition, nullptr, nullptr, color::fromRGBA(0.5f, 0.6f, 0.7f, 1.0f));
+        _layer->add(_defaultTranslationPlane->getPlaneGridNode());
 
-            _lastMousePosition = mousePosition;
-            setupTranslationPlane(_defaultTranslationPlane);
+        _defaultTranslationPlane->showGrid();
 
-            //ShowCursor(false);
+        _lastMousePosition = mousePosition;
+        setupTranslationPlane(_defaultTranslationPlane);
 
-            return true;
-        }
+        //ShowCursor(false);
 
-        return false;
+        return true;
     }
 
     bool translationInputController::onMouseMove(mouseEventArgs* e)

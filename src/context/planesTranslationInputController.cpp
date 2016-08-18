@@ -91,7 +91,7 @@ namespace phi
         return translationPlane != _translationPlanes.end();
     }
 
-    translationPlane* planesTranslationInputController::createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider)
+    translationPlane* planesTranslationInputController::createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider, float clippingSideSign)
     {
         if (existsTranslationPlaneWithNormal(plane.normal))
             return nullptr;
@@ -100,7 +100,7 @@ namespace phi
         auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->getMousePlane());
         planePosition = phi::plane(planePosition, plane.normal).projectPoint(castPosition);
 
-        auto translationPlane =
+        auto createdTranslationPlane =
             translationInputController::createTranslationPlane(
                 plane,
                 planePosition,
@@ -108,19 +108,24 @@ namespace phi
                 collider,
                 color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
 
-        auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
+        auto createdTranslationPlaneGrid = createdTranslationPlane->getPlaneGridComponent();
+        auto createdGridPlane = createdTranslationPlane->getGridPlane();
+        createdGridPlane.normal *= clippingSideSign;
 
-        for (auto& intersectingPlane : _translationPlanes)
+        for (auto& translationPlane : _translationPlanes)
         {
-            planeGrid->addClippingPlane(intersectingPlane->getGridPlane());
-            auto intersectingPlaneGrid = intersectingPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
-            intersectingPlaneGrid->addClippingPlane(translationPlane->getGridPlane());
+            auto gridPlane = translationPlane->getGridPlane();
+            gridPlane.normal *= clippingSideSign;
+            createdTranslationPlaneGrid->addClippingPlane(gridPlane);
+
+            auto planeGridComponent = translationPlane->getPlaneGridComponent();
+            planeGridComponent->addClippingPlane(createdGridPlane);
         }
 
-        _layer->add(translationPlane->getPlaneGridNode());
-        translationPlane->showGrid();
+        _layer->add(createdTranslationPlane->getPlaneGridNode());
+        createdTranslationPlane->showGrid();
 
-        return translationPlane;
+        return createdTranslationPlane;
     }
 
     void planesTranslationInputController::addPlanesIfNeeded(vector<sweepCollision> touchs)
@@ -128,7 +133,8 @@ namespace phi
         for (auto& collision : touchs)
         {
             auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
-            auto translationPlane = createTranslationPlane(plane(castPosition, collision.normal), collision.collider, collision.sourceCollider);
+            auto translationPlane = createTranslationPlane(plane(castPosition, collision.normal), collision.collidee, collision.collider, 1.0f);
+
             if (translationPlane)
                 addTranslationPlane(translationPlane);
         }
@@ -202,13 +208,14 @@ namespace phi
         auto targetObb = translationPlane->getCollidee()->getObb();
         auto planes = targetObb.getPlanes();
 
+        auto draggingColliderObb = _draggingCollider->getObb();
+        auto obbCorners = draggingColliderObb.getCorners();
+        auto cornersCount = obbCorners.size();
+
         for (auto& plane : planes)
         {
             if (mathUtils::isClose(glm::dot(plane.normal, translationPlane->getMousePlane().normal), 1.0f))
                 continue;
-
-            auto collider = _draggingCollider;
-            auto colliderObb = collider->getObb();
 
             float minDistanceToPlane = std::numeric_limits<float>().max();
             vec3 minPoint;
@@ -225,9 +232,6 @@ namespace phi
 
                 return isAbovePlane;
             };
-
-            auto obbCorners = colliderObb.getCorners();
-            auto cornersCount = obbCorners.size();
 
             auto allAbovePlane = true;
             for (auto j = 0; j < cornersCount; ++j)
@@ -252,6 +256,9 @@ namespace phi
 
     vec3 planesTranslationInputController::checkForPossibleSwitchOfPlanes(vec3 offset, translationPlane* translationPlane)
     {
+        if (_disableCollision)
+            return offset;
+
         if (!translationPlane->getCollidee())
             return offset;
 
@@ -269,7 +276,7 @@ namespace phi
         _isSwitchingPlanes = true;
 
         auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, translationPlane->getMousePlane());
-        auto createdTranslationPlane = createTranslationPlane(plane(castPosition, touchingPlane.normal), translationPlane->getCollidee(), translationPlane->getCollider());
+        auto createdTranslationPlane = createTranslationPlane(plane(castPosition, touchingPlane.normal), translationPlane->getCollidee(), translationPlane->getCollider(), -1.0f);
         if (createdTranslationPlane)
             addTranslationPlane(createdTranslationPlane);
 
@@ -312,6 +319,28 @@ namespace phi
         _lastMousePosition = mousePosition;
     }
 
+    void planesTranslationInputController::changeToDefaultTranslationPlane()
+    {
+        for (auto& translationPlane : _translationPlanes)
+            enqueuePlaneForDeletion(translationPlane);
+
+        _translationPlanes.clear();
+        _defaultTranslationPlane->showGrid();
+
+        if (_lastChosenTranslationPlane != _defaultTranslationPlane)
+        {
+            auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
+            auto defaultPlane = _defaultTranslationPlane->getMousePlane();
+            auto gridPlane = phi::plane(_draggingCollider->getObb().getPositionAt(-defaultPlane.normal), defaultPlane.normal);
+            auto gridPosition = gridPlane.projectPoint(castPosition);
+            _defaultTranslationPlane->getPlaneGridNode()->getTransform()->setLocalPosition(gridPosition);
+
+            _defaultTranslationPlane->setMousePlane(plane(castPosition, defaultPlane.normal));
+            setupTranslationPlane(_defaultTranslationPlane);
+            _lastChosenTranslationPlane = _defaultTranslationPlane;
+        }
+    }
+
     bool planesTranslationInputController::onMouseDown(mouseEventArgs * e)
     {
         auto baseResult = translationInputController::onMouseDown(e);
@@ -337,8 +366,11 @@ namespace phi
         if (!_dragging)
             return false;
 
-        if (isDraggingObjectIntersectingAnyObject())
+        if (!_disableCollision && isDraggingObjectIntersectingAnyObject())
+        {
+            changeToDefaultTranslationPlane();
             return translationInputController::onMouseMove(e);
+        }
 
         auto mousePosition = ivec2(e->x, e->y);
         auto dragDirection = mouseOffsetToWorld(mousePosition);
@@ -347,23 +379,13 @@ namespace phi
         if (chosenTranslationPlane)
             translateOn(chosenTranslationPlane, mousePosition);
         else
-        {
-            if (_lastChosenTranslationPlane != _defaultTranslationPlane)
-            {
-                auto defaultPlane = _defaultTranslationPlane->getMousePlane();
-                auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
-                _defaultTranslationPlane->setMousePlane(plane(castPosition, defaultPlane.normal));
-                setupTranslationPlane(_defaultTranslationPlane);
-                _lastChosenTranslationPlane = _defaultTranslationPlane;
-            }
-        }
+            changeToDefaultTranslationPlane();
 
         auto touchs = findValidTouchCollisions();
-
         if (!_isSwitchingPlanes)
             removeDetachedPlanes(touchs);
-
-        addPlanesIfNeeded(touchs);
+        if (!_disableCollision)
+            addPlanesIfNeeded(touchs);
 
         if (chosenTranslationPlane)
             return true;

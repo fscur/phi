@@ -53,8 +53,8 @@ namespace phi
         translationPlane* createTranslationPlane(
             plane plane, 
             vec3 position, 
+            boxCollider* collidee, 
             boxCollider* collider, 
-            boxCollider* sourceCollider, 
             color color);
 
         void enqueuePlaneForDeletion(translationPlane* translationPlane);
