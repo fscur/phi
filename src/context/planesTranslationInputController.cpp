@@ -286,7 +286,7 @@ namespace phi
         return true;
     }
 
-    vec3 planesTranslationInputController::checkForPossibleSwitchOfPlanes(vec3 offset, translationPlane* translationPlane)
+    vec3 planesTranslationInputController::checkForPossibleSwitchOfPlanes(vec3 offset, translationPlane* translationPlane, ivec2 mousePosition)
     {
         if (_disableCollision)
             return offset;
@@ -306,6 +306,7 @@ namespace phi
             return offset;
 
         _isSwitchingPlanes = true;
+        _switchPlanesMousePosition = mousePosition;
 
         auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, translationPlane->getMousePlane());
         auto createdTranslationPlane = 
@@ -326,7 +327,6 @@ namespace phi
         assert(intersected);
 
         auto stopOffset = lineDirection * t + touchingPlane.normal * DECIMAL_TRUNCATION;
-
         return stopOffset;
     }
 
@@ -334,8 +334,8 @@ namespace phi
     {
         if (_isSwitchingPlanes)
         {
-            auto difference = vec2(mousePosition) - vec2(_lastMousePosition);
-            if (length(difference) < 50.5f)
+            auto difference = vec2(mousePosition) - vec2(_switchPlanesMousePosition);
+            if (length(difference) < 50.0f)
                 return;
 
             _isSwitchingPlanes = false;
@@ -347,14 +347,13 @@ namespace phi
         auto position = getTranslationPosition(mousePosition, translationPlane);
         auto currentPosition = _draggingRootNode->getTransform()->getLocalPosition();
         auto offset = position - currentPosition;
-        offset = checkForPossibleSwitchOfPlanes(offset, translationPlane);
+        offset = checkForPossibleSwitchOfPlanes(offset, translationPlane, mousePosition);
 
         translateNode(offset);
         translatePlaneGrid(translationPlane, mousePosition);
         translateGhost(currentPosition + offset, offset);
 
         _lastChosenTranslationPlane = translationPlane;
-        _lastMousePosition = mousePosition;
     }
 
     void planesTranslationInputController::changeToDefaultTranslationPlane()
@@ -399,7 +398,7 @@ namespace phi
         return true;
     }
 
-    bool planesTranslationInputController::onMouseMove(mouseEventArgs* e)
+    bool planesTranslationInputController::executeMouseMove(ivec2 mousePosition)
     {
         if (!_dragging)
             return false;
@@ -407,10 +406,9 @@ namespace phi
         if (!_disableCollision && isDraggingObjectIntersectingAnyObject())
         {
             changeToDefaultTranslationPlane();
-            return translationInputController::onMouseMove(e);
+            return false;
         }
 
-        auto mousePosition = ivec2(e->x, e->y);
         auto dragDirection = mouseOffsetToWorld(mousePosition);
         auto chosenTranslationPlane = findBestPlaneToDrag(dragDirection);
 
@@ -428,7 +426,18 @@ namespace phi
         if (chosenTranslationPlane)
             return true;
         else
-            return translationInputController::onMouseMove(e);
+            return false;
+    }
+
+    bool planesTranslationInputController::onMouseMove(mouseEventArgs* e)
+    {
+        auto mousePosition = ivec2(e->x, e->y);
+        auto result = executeMouseMove(mousePosition);
+        if (!result)
+            translationInputController::onMouseMove(e);
+
+        _lastMousePosition = mousePosition;
+        return true;
     }
 
     bool planesTranslationInputController::onMouseUp(mouseEventArgs* e)

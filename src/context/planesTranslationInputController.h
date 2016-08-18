@@ -16,6 +16,7 @@ namespace phi
         translationPlane* _lastChosenTranslationPlane;
         bool _isTouchingCollidedObject;
         bool _isSwitchingPlanes;
+        ivec2 _switchPlanesMousePosition;
         bool _canChangePlanes;
 
     private:
@@ -32,9 +33,10 @@ namespace phi
         vec3 mouseOffsetToWorld(ivec2 mousePosition);
         translationPlane* findBestPlaneToDrag(vec3 dragDirection);
         bool isTouchingCollidedObject(vec3 offset, translationPlane* translationPlane, vec3& nearestPosition, plane& touchingPlane);
-        vec3 checkForPossibleSwitchOfPlanes(vec3 offset, translationPlane* translationPlane);
+        vec3 checkForPossibleSwitchOfPlanes(vec3 offset, translationPlane* translationPlane, ivec2 mousePosition);
         void translateOn(translationPlane* translationPlane, ivec2 mousePosition);
         void changeToDefaultTranslationPlane();
+        bool executeMouseMove(ivec2 mousePosition);
 
     public:
         planesTranslationInputController(camera* camera, layer* planesLayer, physicsLayerBehaviour* physicsBehaviour);

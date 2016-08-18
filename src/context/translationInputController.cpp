@@ -180,23 +180,25 @@ namespace phi
 
     void translationInputController::translateGhost(vec3 position, vec3 offset)
     {
-        if (!_showingGhost && position != _draggingRootNode->getTransform()->getLocalPosition())
+        auto isGhostOnTheSamePositionAsObject = position == _draggingRootNode->getTransform()->getLocalPosition();
+
+        if (!_showingGhost && !isGhostOnTheSamePositionAsObject)
         {
-            _layer->add(_draggingGhostNode);
             _showingGhost = true;
+            _layer->add(_draggingGhostNode);
+            
             _draggingRootNode->traverse([](phi::node* node) {
                 node->setIsTranslating(true);
             });
         }
-        else if (_showingGhost && position == _draggingRootNode->getTransform()->getLocalPosition())
+        else if (_showingGhost && isGhostOnTheSamePositionAsObject)
         {
+            _showingGhost = false;
             _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
 
             _draggingRootNode->traverse([](phi::node* node) {
                 node->setIsTranslating(false);
             });
-
-            _showingGhost = false;
         }
 
         if (_showingGhost)
