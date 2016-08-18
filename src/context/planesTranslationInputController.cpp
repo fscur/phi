@@ -161,11 +161,21 @@ namespace phi
 
     translationPlane* planesTranslationInputController::findBestPlaneToDrag(vec3 dragDirection)
     {
+        auto collidedOnLastTranslation = _lastTranslationTouchs && _lastTranslationTouchs->size() > 0.0f;
+        auto hasMoreThanOneChoiceOfPlanes = _translationPlanes.size() > 1;
+
         auto minNormalOnDragDirection = 1.0f;
         translationPlane* chosenPlane = nullptr;
 
         for (auto& translationPlane : _translationPlanes)
         {
+            bool isLastTranslationPlane = translationPlane == _lastChosenTranslationPlane;
+
+            if (isLastTranslationPlane &&
+                hasMoreThanOneChoiceOfPlanes &&
+                collidedOnLastTranslation)
+                continue;
+
             auto plane = translationPlane->getPlane();
             auto normalOnDragDirection = glm::abs(glm::dot(plane.normal, dragDirection));
             if (normalOnDragDirection < minNormalOnDragDirection)
@@ -268,14 +278,10 @@ namespace phi
 
     void planesTranslationInputController::translateOn(translationPlane* translationPlane, ivec2 mousePosition)
     {
-        // TODO:
-        // Only stops when at low mouse speed
-        // Change color and opacity of planes based on dot with camera
-
         if (_isSwitchingPlanes)
         {
             auto difference = vec2(mousePosition) - vec2(_lastMousePosition);
-            if (length(difference) < 25.0f)
+            if (length(difference) < 50.5f)
                 return;
 
             _isSwitchingPlanes = false;
@@ -325,32 +331,35 @@ namespace phi
         if (isDraggingObjectIntersectingAnyObject())
             return translationInputController::onMouseMove(e);
 
-        auto touchs = findValidTouchCollisions();
-        addPlanesIfNeeded(touchs);
-
-        if (!_isSwitchingPlanes)
-            removeDetachedPlanes(touchs);
-
         auto mousePosition = ivec2(e->x, e->y);
         auto dragDirection = mouseOffsetToWorld(mousePosition);
         auto chosenTranslationPlane = findBestPlaneToDrag(dragDirection);
 
         if (chosenTranslationPlane)
-        {
             translateOn(chosenTranslationPlane, mousePosition);
-            return true;
-        }
         else
         {
             if (_lastChosenTranslationPlane != _defaultTranslationPlane)
             {
-                _defaultTranslationPlane->getPlane().origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getPlane());
+                auto defaultPlane = _defaultTranslationPlane->getPlane();
+                auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getPlane());
+                _defaultTranslationPlane->setPlane(plane(castPosition, defaultPlane.normal));
                 setupTranslationPlane(_defaultTranslationPlane);
                 _lastChosenTranslationPlane = _defaultTranslationPlane;
             }
-
-            return translationInputController::onMouseMove(e);
         }
+
+        auto touchs = findValidTouchCollisions();
+
+        if (!_isSwitchingPlanes)
+            removeDetachedPlanes(touchs);
+
+        addPlanesIfNeeded(touchs);
+
+        if (chosenTranslationPlane)
+            return true;
+        else
+            return translationInputController::onMouseMove(e);
     }
 
     bool planesTranslationInputController::onMouseUp(mouseEventArgs* e)
