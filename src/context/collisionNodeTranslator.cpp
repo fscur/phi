@@ -80,36 +80,36 @@ namespace phi
         return new sweepCollisionResult(_physicsWorld->sweep(sweepTest));
     }
 
-    vector<boxCollider*>* collisionNodeTranslator::getSweepCollisionResultColliders(sweepCollisionResult* sweepResult)
+    vector<boxCollider*>* collisionNodeTranslator::getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult)
     {
-        auto colliders = new vector<boxCollider*>();
+        auto collidees = new vector<boxCollider*>();
 
         for (auto collision : sweepResult->collisions)
-            colliders->push_back(collision.collider);
+            collidees->push_back(collision.collidee);
 
-        return colliders;
+        return collidees;
     }
 
     bool collisionNodeTranslator::findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision)
     {
         farthestValidCollision = *sweepResult->collisions.begin();
 
-        if (farthestValidCollision.distance < DECIMAL_TRUNCATION)
+        if (farthestValidCollision.isIntersecting)
             return false;
 
-        auto collisionColliders = getSweepCollisionResultColliders(sweepResult);
+        auto collisionColliders = getSweepCollisionResultCollidees(sweepResult);
         auto offsetNormal = glm::normalize(offset);
         auto reverseIterator = sweepResult->collisions.rbegin();
         while (reverseIterator != sweepResult->collisions.rend())
         {
             auto currentCollision = *reverseIterator;
-            phi::removeIfContains(*collisionColliders, currentCollision.collider);
+            phi::removeIfContains(*collisionColliders, currentCollision.collidee);
             auto offsetedTransforms = createOffsetTransforms(offsetNormal * currentCollision.distance);
 
             intersectionCollisionGroupTest intersectionTest;
             intersectionTest.colliders = &_colliders;
             intersectionTest.transforms = offsetedTransforms;
-            intersectionTest.againstColliders = collisionColliders;
+            intersectionTest.collidees = collisionColliders;
             if (!_physicsWorld->intersects(intersectionTest))
             {
                 farthestValidCollision = currentCollision;

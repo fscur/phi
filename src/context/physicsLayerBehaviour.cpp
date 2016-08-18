@@ -18,17 +18,17 @@ namespace phi
 
     void physicsLayerBehaviour::onNodeAdded(node* node)
     {
-        auto collider = node->getComponent<boxCollider>();
+        auto boxCollider = node->getComponent<phi::boxCollider>();
 
-        if (collider)
-            _physicsWorld->addCollider(collider);
+        if (boxCollider)
+            _physicsWorld->addCollider(boxCollider);
     }
 
     void physicsLayerBehaviour::onNodeRemoved(node* node)
     {
-        auto collider = node->getComponent<boxCollider>();
+        auto boxCollider = node->getComponent<phi::boxCollider>();
 
-        if (collider)
-            _physicsWorld->removeCollider(collider);
+        if (boxCollider)
+            _physicsWorld->removeCollider(boxCollider);
     }
 }

@@ -29,7 +29,6 @@ namespace phi
         void removeDetachedPlanes(vector<sweepCollision> collisions);
         vec3 mouseOffsetToWorld(ivec2 mousePosition);
         translationPlane* findBestPlaneToDrag(vec3 dragDirection);
-        bool collidedOnLastTranslation();
         bool isTouchingCollidedObject(vec3 offset, translationPlane* translationPlane, vec3& nearestPosition, plane& touchingPlane);
         vec3 checkForPossibleSwitchOfPlanes(vec3 offset, translationPlane* translationPlane);
         void translateOn(translationPlane* translationPlane, ivec2 mousePosition);

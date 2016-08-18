@@ -128,7 +128,7 @@ namespace phi
         for (auto& collision : touchs)
         {
             auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
-            auto translationPlane = createTranslationPlane(plane(castPosition, collision.normal), collision.collider, collision.sourceCollider);
+            auto translationPlane = createTranslationPlane(plane(castPosition, collision.normal), collision.collidee, collision.collider);
             if (translationPlane)
                 addTranslationPlane(translationPlane);
         }
@@ -202,13 +202,14 @@ namespace phi
         auto targetObb = translationPlane->getCollidee()->getObb();
         auto planes = targetObb.getPlanes();
 
+        auto draggingColliderObb = _draggingCollider->getObb();
+        auto obbCorners = draggingColliderObb.getCorners();
+        auto cornersCount = obbCorners.size();
+
         for (auto& plane : planes)
         {
             if (mathUtils::isClose(glm::dot(plane.normal, translationPlane->getMousePlane().normal), 1.0f))
                 continue;
-
-            auto collider = _draggingCollider;
-            auto colliderObb = collider->getObb();
 
             float minDistanceToPlane = std::numeric_limits<float>().max();
             vec3 minPoint;
@@ -225,9 +226,6 @@ namespace phi
 
                 return isAbovePlane;
             };
-
-            auto obbCorners = colliderObb.getCorners();
-            auto cornersCount = obbCorners.size();
 
             auto allAbovePlane = true;
             for (auto j = 0; j < cornersCount; ++j)
