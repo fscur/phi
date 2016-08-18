@@ -85,7 +85,7 @@ namespace phi
         auto translationPlane = std::find_if(_translationPlanes.begin(), _translationPlanes.end(),
             [normal](phi::translationPlane* tp)
         {
-            return mathUtils::isClose(glm::dot(normal, tp->getPlane().normal), 1.0f);
+            return mathUtils::isClose(glm::dot(normal, tp->getMousePlane().normal), 1.0f);
         });
 
         return translationPlane != _translationPlanes.end();
@@ -97,7 +97,7 @@ namespace phi
             return nullptr;
 
         auto planePosition = colidee->getObb().getPositionAt(plane.normal);
-        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->getPlane());
+        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _defaultTranslationPlane->getMousePlane());
         planePosition = phi::plane(planePosition, plane.normal).projectPoint(castPosition);
 
         auto translationPlane =
@@ -107,6 +107,15 @@ namespace phi
                 colidee,
                 collider,
                 color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
+
+        auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
+
+        for (auto& intersectingPlane : _translationPlanes)
+        {
+            planeGrid->addClippingPlane(intersectingPlane->getGridPlane());
+            auto intersectingPlaneGrid = intersectingPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
+            intersectingPlaneGrid->addClippingPlane(translationPlane->getGridPlane());
+        }
 
         _layer->add(translationPlane->getPlaneGridNode());
         translationPlane->showGrid();
@@ -118,7 +127,7 @@ namespace phi
     {
         for (auto& collision : touchs)
         {
-            auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getPlane());
+            auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
             auto translationPlane = createTranslationPlane(plane(castPosition, collision.normal), collision.collider, collision.sourceCollider);
             if (translationPlane)
                 addTranslationPlane(translationPlane);
@@ -134,7 +143,7 @@ namespace phi
             if (translationPlane == _lastChosenTranslationPlane)
                 continue;
 
-            auto translationPlaneNormal = translationPlane->getPlane().normal;
+            auto translationPlaneNormal = translationPlane->getMousePlane().normal;
             auto touchsSearch = std::find_if(touchs.begin(), touchs.end(),
                 [translationPlaneNormal](sweepCollision& c)
             {
@@ -166,7 +175,7 @@ namespace phi
 
         for (auto& translationPlane : _translationPlanes)
         {
-            auto plane = translationPlane->getPlane();
+            auto plane = translationPlane->getMousePlane();
             auto normalOnDragDirection = glm::abs(glm::dot(plane.normal, dragDirection));
             if (normalOnDragDirection < minNormalOnDragDirection)
             {
@@ -185,7 +194,7 @@ namespace phi
 
         for (auto& plane : planes)
         {
-            if (mathUtils::isClose(glm::dot(plane.normal, translationPlane->getPlane().normal), 1.0f))
+            if (mathUtils::isClose(glm::dot(plane.normal, translationPlane->getMousePlane().normal), 1.0f))
                 continue;
 
             auto collider = _draggingCollider;
@@ -249,7 +258,7 @@ namespace phi
 
         _isSwitchingPlanes = true;
 
-        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, translationPlane->getPlane());
+        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, translationPlane->getMousePlane());
         auto createdTranslationPlane = createTranslationPlane(plane(castPosition, touchingPlane.normal), translationPlane->getCollidee(), translationPlane->getCollider());
         if (createdTranslationPlane)
             addTranslationPlane(createdTranslationPlane);
@@ -344,7 +353,7 @@ namespace phi
         {
             if (_lastChosenTranslationPlane != _defaultTranslationPlane)
             {
-                _defaultTranslationPlane->getPlane().origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getPlane());
+                _defaultTranslationPlane->getMousePlane().origin = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
                 setupTranslationPlane(_defaultTranslationPlane);
                 _lastChosenTranslationPlane = _defaultTranslationPlane;
             }
@@ -368,6 +377,15 @@ namespace phi
 
     bool planesTranslationInputController::update()
     {
+        for (auto& planeToRemove : _toRemovePlanes)
+        {
+            for (auto& translationPlane : _translationPlanes)
+            {
+                auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
+                planeGrid->removeClippingPlane(planeToRemove->getGridPlane());
+            }
+        }
+
         translationInputController::update();
         return true;
     }

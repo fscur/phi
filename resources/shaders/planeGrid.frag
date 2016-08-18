@@ -4,6 +4,9 @@
 struct planeGridRenderData
 {
     vec4 color;
+    vec4 clipPlane0;
+    vec4 clipPlane1;
+    vec4 clipPlane2;
     float lineThickness;
     float opacity;
     float pad0;
@@ -34,11 +37,11 @@ layout (location = 0) uniform sampler2DArray textureArrays[32];
 
 in vec2 worldFragTexCoord;
 in vec2 fragTexCoord;
+in float planeDist2;
 
 flat in uint instanceId;
 flat in float planeSize;
 flat in float planeDist;
-in float planeDist2;
 
 layout (location = 0) out vec4 fragColor;
 
@@ -48,9 +51,6 @@ const float MIN_RIPPLE_SPEED = 10.0;
 
 const float[] planeDistances = { 0.0, 1.0, 5.0, 100.0, 500.0, 5000.0};
 const float[] gridSizes      = { 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0 };
-
-//const float[] planeDistances = { 0.0, 10.0, 20.0, 50.0, 500.0, 5000.0};
-//const float[] gridSizes      = { 0.1, 1.0, 2.0, 10.0, 100.0, 1000.0 };
 
 int getGridIndex(float dist)
 {
@@ -181,8 +181,6 @@ float createGrid(vec2 uv, float thicknessInPixels)
     float outerGrid = createGrid(uv, thickness, outerGridSize);
 
     return innerGrid * clamp(innerFactor - 0.25, 0.0, 1.0) + outerGrid * clamp(outerFactor + 0.25, 0.0, 1.0);
-    
-    //return innerGrid * innerFactor;
 }
 
 float createBorder()
@@ -198,7 +196,7 @@ void main()
 
     vec2 uv = worldFragTexCoord;
     float grid = createGrid(uv, data.lineThickness);
-    grid += 0.2;
+    grid += 0.3;
     float border = createBorder();
     fragColor = vec4(data.color.rgb, grid * border * data.opacity);
 }

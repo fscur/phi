@@ -22,6 +22,9 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 struct planeGridRenderData
 {
     vec4 color;
+    vec4 clipPlane0;
+    vec4 clipPlane1;
+    vec4 clipPlane2;
     float lineThickness;
     float opacity;
     float pad0;
@@ -40,6 +43,7 @@ flat out float planeDist;
 out float planeDist2;
 flat out uint instanceId;
 flat out float globalTime;
+flat out vec4 clipPlaneNormal;
 
 vec2 projectPoint(in vec3 point, in vec3 xAxis, in vec3 yAxis)
 {
@@ -52,7 +56,6 @@ vec2 projectPoint(in vec3 point, in vec3 xAxis, in vec3 yAxis)
 void main()
 {
     mat4 modelMatrix = inModelMatrix;
-    planeGridRenderData data = renderData.items[instanceId];
     
     vec3 xAxis = vec3(modelMatrix[0][0], modelMatrix[0][1], modelMatrix[0][2]);
     vec3 yAxis = vec3(modelMatrix[1][0], modelMatrix[1][1], modelMatrix[1][2]);
@@ -66,11 +69,15 @@ void main()
 
     vec4 inPos = vec4(inPosition, 1.0);
     inPos.xy *= planeSize;
-
     vec4 pos =  modelMatrix * inPos;
-
+    
     gl_Position = frameUniforms.p * frameUniforms.v * pos;
     worldFragTexCoord = ((inTexCoord) * planeSize + projected);
     fragTexCoord = (inTexCoord) * planeSize;
     instanceId = gl_InstanceID;
+
+    planeGridRenderData data = renderData.items[gl_InstanceID];
+    gl_ClipDistance[0] = dot(-data.clipPlane0, pos);
+    gl_ClipDistance[1] = dot(-data.clipPlane1, pos);;
+    gl_ClipDistance[2] = dot(-data.clipPlane2, pos);;
 }

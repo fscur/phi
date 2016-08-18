@@ -24,4 +24,9 @@ namespace phi
         t = glm::dot(normal, (origin - lineOrigin)) / lineDirectionOnNormal;
         return true;
     }
+
+    vec4 plane::toVec4() const
+    {
+        return vec4(normal, -dot(origin, normal));
+    }
 }

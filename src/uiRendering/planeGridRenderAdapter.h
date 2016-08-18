@@ -20,6 +20,7 @@ namespace phi
             eventToken lineThicknessChangedEventToken;
             eventToken opacityChangedEventToken;
             eventToken visibleChangedEventToken;
+            eventToken clippingPlanesChangedEventToken;
         };
 
     private:
@@ -50,6 +51,6 @@ namespace phi
 
         vertexArrayObject* getVao() const { return _vao; };
         mappedVertexBuffer<planeGrid*, mat4>* getModelMatricesBuffer() const { return _modelMatricesBuffer; }
-        mappedBuffer<planeGrid*, planeGridRenderData>* getPlaneGridRenderDataBuffer() const { return _planeGridRenderDataBuffer; }
+        mappedBuffer<planeGrid*, planeGridRenderData>* getMousePlaneGridRenderDataBuffer() const { return _planeGridRenderDataBuffer; }
     };
 }

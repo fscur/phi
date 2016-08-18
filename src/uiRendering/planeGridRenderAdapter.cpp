@@ -32,7 +32,8 @@ namespace phi
 
         auto renderFunction = [&]
         {
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_modelMatricesBuffer->getInstanceCount()));
+            auto instanceCount = _modelMatricesBuffer->getInstanceCount();
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(instanceCount));
         };
 
         auto quad = createPlaneQuad();
@@ -99,6 +100,7 @@ namespace phi
             return;
 
         auto planeGridRenderData = planeGridRenderData::from(planeGrid);
+
         _planeGridRenderDataBuffer->update(planeGrid, planeGridRenderData);
     }
 
@@ -108,12 +110,14 @@ namespace phi
         auto lineThicknessChangedToken = planeGrid->getLineThicknessChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
         auto opacityChangedToken = planeGrid->getOpacityChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
         auto visibleChangedToken = planeGrid->getVisibleChanged()->assign(std::bind(&planeGridRenderAdapter::planeGridVisibleChanged, this, std::placeholders::_1));
+        auto clippingPlanesChangedToken = planeGrid->getClippingPlanesChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
 
         auto tokens = planeGridEventTokens();
         tokens.colorChangedEventToken = colorChangedToken;
         tokens.lineThicknessChangedEventToken = lineThicknessChangedToken;
         tokens.opacityChangedEventToken = opacityChangedToken;
         tokens.visibleChangedEventToken = visibleChangedToken;
+        tokens.clippingPlanesChangedEventToken = clippingPlanesChangedToken;
 
         _planeGridEventTokens[planeGrid] = tokens;
     }
@@ -126,6 +130,7 @@ namespace phi
         planeGrid->getLineThicknessChanged()->unassign(tokens.lineThicknessChangedEventToken);
         planeGrid->getOpacityChanged()->unassign(tokens.opacityChangedEventToken);
         planeGrid->getVisibleChanged()->unassign(tokens.visibleChangedEventToken);
+        planeGrid->getClippingPlanesChanged()->unassign(tokens.clippingPlanesChangedEventToken);
 
         _planeGridEventTokens.erase(planeGrid);
     }
@@ -149,5 +154,6 @@ namespace phi
     void planeGridRenderAdapter::update(planeGrid* planeGrid)
     {
         updateModelMatrix(planeGrid);
+        updateRenderData(planeGrid);
     }
 }

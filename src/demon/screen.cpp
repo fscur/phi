@@ -159,8 +159,9 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 0.0f));
-        //cube0->getTransform()->setLocalSize(vec3(3.0f, 2.0f, 0.5f));
+        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
+        cube1->getTransform()->setLocalPosition(vec3(2.0f, 0.0f, 0.0f));
         //cube0->getTransform()->yaw(PI_OVER_4);
         
         auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
@@ -234,15 +235,14 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        //_sceneLayer->add(planeNode);
         _sceneLayer->add(cube0);
-        _sceneLayer->add(_chair0);
+        _sceneLayer->add(cube1);
+        //_sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(back_wall);
-        //_sceneLayer->add(wall);
-        _sceneLayer->add(table);
-        _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable);
+        //_sceneLayer->add(table);
+        //_sceneLayer->add(tableChair);
+        //_sceneLayer->add(coffeTable);
 
         //TODO: prevent components that are not dealt with it from being added to layer
 

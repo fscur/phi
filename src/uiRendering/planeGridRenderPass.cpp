@@ -27,7 +27,7 @@ namespace phi
         auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto planeGridProgram = programBuilder::buildProgram(shadersPath, "planeGrid", "planeGrid");
-        planeGridProgram->addBuffer(renderAdapter->getPlaneGridRenderDataBuffer());
+        planeGridProgram->addBuffer(renderAdapter->getMousePlaneGridRenderDataBuffer());
 
         auto pass = new renderPass(planeGridProgram, defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
@@ -41,6 +41,9 @@ namespace phi
             glEnable(GL_BLEND);
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(-1.0f, 0.0f);
+            glEnable(GL_CLIP_DISTANCE0);
+            glEnable(GL_CLIP_DISTANCE1);
+            glEnable(GL_CLIP_DISTANCE2);
 
             program->bind();
 
@@ -59,6 +62,11 @@ namespace phi
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             program->unbind();
+
+            glDisable(GL_CLIP_DISTANCE2);
+            glDisable(GL_CLIP_DISTANCE1);
+            glDisable(GL_CLIP_DISTANCE0);
+
             glPolygonOffset(0.0f, 0.0f);
             glDisable(GL_POLYGON_OFFSET_FILL);
             glDisable(GL_BLEND);
