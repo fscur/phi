@@ -45,6 +45,8 @@ namespace phi
 
         CONTEXT_API void setFadeOutAnimation(floatAnimation* value);
 
+        planeGrid* getPlaneGridComponent() { return _planeGridNode->getComponent<planeGrid>(); }
+
         CONTEXT_API void showGrid();
         CONTEXT_API void hideGrid();
     };
