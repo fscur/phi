@@ -325,14 +325,16 @@ namespace phi
                     sweepCollisionPairTest pairTest;
                     pairTest.collider = test.collider;
                     pairTest.colliderTransform = test.transform;
-                    pairTest.distance = DECIMAL_TRUNCATION;
+                    pairTest.distance = test.distance;
                     pairTest.direction = test.direction;
                     pairTest.collidee = collidee;
                     pairTest.collideeTransform = collidee->getNode()->getTransform();
                     pairTest.inflation = test.inflation;
                     pairTest.checkPenetration = true;
                     auto penetrationResult = sweep(pairTest);
-                    assert(penetrationResult.collided);
+
+                    if (!penetrationResult.collided)
+                        continue;
 
                     normal = collidee->getObb().findClosestNormalTo(penetrationResult.collisions[0].normal);
                     if (test.disregardDivergentNormals)

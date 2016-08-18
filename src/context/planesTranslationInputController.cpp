@@ -256,6 +256,9 @@ namespace phi
 
     vec3 planesTranslationInputController::checkForPossibleSwitchOfPlanes(vec3 offset, translationPlane* translationPlane)
     {
+        if (_disableCollision)
+            return offset;
+
         if (!translationPlane->getCollidee())
             return offset;
 
@@ -316,6 +319,28 @@ namespace phi
         _lastMousePosition = mousePosition;
     }
 
+    void planesTranslationInputController::changeToDefaultTranslationPlane()
+    {
+        for (auto& translationPlane : _translationPlanes)
+            enqueuePlaneForDeletion(translationPlane);
+
+        _translationPlanes.clear();
+        _defaultTranslationPlane->showGrid();
+
+        if (_lastChosenTranslationPlane != _defaultTranslationPlane)
+        {
+            auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
+            auto defaultPlane = _defaultTranslationPlane->getMousePlane();
+            auto gridPlane = phi::plane(_draggingCollider->getObb().getPositionAt(-defaultPlane.normal), defaultPlane.normal);
+            auto gridPosition = gridPlane.projectPoint(castPosition);
+            _defaultTranslationPlane->getPlaneGridNode()->getTransform()->setLocalPosition(gridPosition);
+
+            _defaultTranslationPlane->setMousePlane(plane(castPosition, defaultPlane.normal));
+            setupTranslationPlane(_defaultTranslationPlane);
+            _lastChosenTranslationPlane = _defaultTranslationPlane;
+        }
+    }
+
     bool planesTranslationInputController::onMouseDown(mouseEventArgs * e)
     {
         auto baseResult = translationInputController::onMouseDown(e);
@@ -341,8 +366,11 @@ namespace phi
         if (!_dragging)
             return false;
 
-        if (isDraggingObjectIntersectingAnyObject())
+        if (!_disableCollision && isDraggingObjectIntersectingAnyObject())
+        {
+            changeToDefaultTranslationPlane();
             return translationInputController::onMouseMove(e);
+        }
 
         auto mousePosition = ivec2(e->x, e->y);
         auto dragDirection = mouseOffsetToWorld(mousePosition);
@@ -351,23 +379,13 @@ namespace phi
         if (chosenTranslationPlane)
             translateOn(chosenTranslationPlane, mousePosition);
         else
-        {
-            if (_lastChosenTranslationPlane != _defaultTranslationPlane)
-            {
-                auto defaultPlane = _defaultTranslationPlane->getMousePlane();
-                auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
-                _defaultTranslationPlane->setMousePlane(plane(castPosition, defaultPlane.normal));
-                setupTranslationPlane(_defaultTranslationPlane);
-                _lastChosenTranslationPlane = _defaultTranslationPlane;
-            }
-        }
+            changeToDefaultTranslationPlane();
 
         auto touchs = findValidTouchCollisions();
-
         if (!_isSwitchingPlanes)
             removeDetachedPlanes(touchs);
-
-        addPlanesIfNeeded(touchs);
+        if (!_disableCollision)
+            addPlanesIfNeeded(touchs);
 
         if (chosenTranslationPlane)
             return true;
