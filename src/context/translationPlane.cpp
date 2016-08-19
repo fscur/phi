@@ -52,7 +52,6 @@ namespace phi
 
         if (!planeGrid->isVisible())
             return;
-        
 
         _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 0.8f);
     }

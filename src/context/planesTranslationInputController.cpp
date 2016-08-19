@@ -34,9 +34,10 @@ namespace phi
 
         auto toPlaneDir = glm::normalize(planePosition - cameraPosition);
 
-        auto discardDot = glm::abs(glm::dot(normal, toPlaneDir));
-        auto isAgainstCamera = glm::dot(cameraDirection, normal) < 0.0f;
-        return discardDot > 0.2f && isAgainstCamera;
+        auto howMuchOfTheSurfaceTheCameraIsSeeing = glm::dot(normal, toPlaneDir);
+        auto isCameraSeeingSurface = howMuchOfTheSurfaceTheCameraIsSeeing < -0.2f;
+        
+        return isCameraSeeingSurface;
     }
 
     bool planesTranslationInputController::isDraggingObjectIntersectingAnyObject()
@@ -139,11 +140,11 @@ namespace phi
         for (auto& collision : touchs)
         {
             auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _lastChosenTranslationPlane->getMousePlane());
-            auto translationPlane = 
+            auto translationPlane =
                 createTranslationPlane(
-                    plane(castPosition, collision.normal), 
-                    collision.collidee, 
-                    collision.collider, 
+                    plane(castPosition, collision.normal),
+                    collision.collidee,
+                    collision.collider,
                     clippingDistance::positive);
 
             if (translationPlane)

@@ -313,7 +313,6 @@ namespace phi
         translateNode(offset);
         translatePlaneGrid(_defaultTranslationPlane, mousePosition);
 
-        phi::debug(_lastTranslationTouchs->size());
         if (_lastTranslationTouchs->size() > 0)
             showGhost();
         else
