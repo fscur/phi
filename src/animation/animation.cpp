@@ -9,8 +9,7 @@ namespace phi
         _isAnimating(false),
         _duration(0.0),
         _elapsed(0.0),
-        _easingFunction(easingFunction),
-        _animationEnded(eventHandler<animation*>())
+        _easingFunction(easingFunction)
     {
     }
 
@@ -40,16 +39,24 @@ namespace phi
 
         if (_elapsed > _duration)
         {
-            _animationEnded.raise(this);
+            if (_animationEndedCallback)
+                _animationEndedCallback();
+
             stop();
         }
     }
 
-    void animation::start(double duration)
+    void animation::start(double duration, std::function<void(void)> animationEndedCallback)
     {
         _duration = duration;
         _elapsed = 0.0;
         _isAnimating = true;
+        _animationEndedCallback = animationEndedCallback;
+    }
+
+    void animation::start(double duration)
+    {
+        start(duration, {});
     }
 
     void animation::stop()

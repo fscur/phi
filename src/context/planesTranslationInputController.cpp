@@ -151,62 +151,27 @@ namespace phi
         }
     }
 
+    void planesTranslationInputController::removeClippingPlanes(translationPlane* planeToRemove)
+    {
+        for (auto& translationPlane : _translationPlanes)
+        {
+            auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
+            auto clippingPlane = planeToRemove->getClippingPlane();
+
+            planeGrid->removeClippingPlane(clippingPlane);
+        }
+
+        enqueuePlaneForRemoval(planeToRemove);
+    }
+
     void planesTranslationInputController::enqueuePlaneForRemoval(translationPlane* planeToRemove)
     {
-        auto fadeOutAnimationEnded = [=](animation* animation)
+        auto fadeOutAnimationEnded = [=]
         {
             _planesToRemove.push_back(planeToRemove);
         };
 
-        auto animations = new vector<floatAnimation*>();
-
-        for (auto& translationPlane : _translationPlanes)
-        {
-            if (planeToRemove == translationPlane)
-            {
-                startPlaneRemoval(planeToRemove, fadeOutAnimationEnded);
-                safeDelete(animations);
-                return;
-            }
-
-            auto planeGrid = translationPlane->getPlaneGridComponent();
-            auto clippingPlane = planeToRemove->getClippingPlane();
-
-            auto fadeUpdadeFunction = [=](float value)
-            {
-                planeGrid->setClippingPlaneOpacity(clippingPlane, value);
-            };
-
-            auto fadeAnimation = translationPlane->getClippingPlanesFadeOutAnimation();
-            fadeAnimation->setUpdateFunction(fadeUpdadeFunction);
-
-            fadeAnimation->getAnimationEnded()->assign([=](animation* animation)
-            {
-                planeGrid->setClippingPlaneOpacity(clippingPlane, 0.0f);
-                planeGrid->removeClippingPlane(clippingPlane);
-
-                if (animations->size() == 0)
-                {
-                    startPlaneRemoval(planeToRemove, fadeOutAnimationEnded);
-                }
-                else
-                {
-                    auto it = std::find(animations->begin(), animations->end(), static_cast<floatAnimation*>(animation));
-
-                    if (it != animations->end())
-                        animations->erase(it);
-                }
-            });
-
-            animations->push_back(fadeAnimation);
-        }
-
-        for (auto& animation : *animations)
-            animation->start(0.0f, 1.0f, 0.3);
-
-        //startPlaneRemoval(planeToRemove, fadeOutAnimationEnded);
-
-        safeDelete(animations);
+        planeToRemove->fadeGridOpacityOut(fadeOutAnimationEnded);
     }
 
     void planesTranslationInputController::removeDetachedPlanes(vector<sweepCollision> touchs)
@@ -232,7 +197,8 @@ namespace phi
         for (auto planeToRemove : translationPlanesToRemove)
         {
             removeTranslationPlane(planeToRemove);
-            enqueuePlaneForRemoval(planeToRemove);
+            removeClippingPlanes(planeToRemove);
+            //enqueuePlaneForRemoval(planeToRemove);
         }
     }
 
@@ -495,32 +461,6 @@ namespace phi
 
     bool planesTranslationInputController::update()
     {
-        //for (auto& planeToRemove : _planesToRemove)
-        //{
-        //    for (auto& translationPlane : _translationPlanes)
-        //    {
-        //        auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
-        //        auto clippingPlane = planeToRemove->getClippingPlane();
-
-        //        planeGrid->removeClippingPlane(clippingPlane);
-
-        //        /*auto fadeUpdadeFunction = [=](float value)
-        //        {
-        //            planeGrid->setClippingPlaneOpacity(clippingPlane, value);
-        //        };
-
-        //        auto fadeAnimation = translationPlane->getClippingPlanesFadeOutAnimation();
-        //        fadeAnimation->setUpdateFunction(fadeUpdadeFunction);
-        //        fadeAnimation->getAnimationEnded()->assign([=](animation* animation)
-        //        {
-        //            planeGrid->setClippingPlaneOpacity(clippingPlane, 0.0f);
-        //            planeGrid->removeClippingPlane(clippingPlane);
-        //        });
-
-        //        fadeAnimation->start(0.0f, 1.0f, 2.5);*/
-        //    }
-        //}
-
         for (auto& plane : _planesToRemove)
         {
             deletePlane(plane);

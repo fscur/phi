@@ -18,14 +18,6 @@ namespace phi
     void translationPlane::setFadeOutAnimation(floatAnimation* value)
     {
         _fadeOutAnimation = value;
-
-        auto fadeOutAnimationEndedFunction = [&](phi::animation* animation)
-        {
-            auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
-            planeGrid->hide();
-        };
-
-        _fadeOutAnimation->getAnimationEnded()->assign(fadeOutAnimationEndedFunction);
     }
 
     void translationPlane::showGrid()
@@ -52,8 +44,36 @@ namespace phi
 
         if (!planeGrid->isVisible())
             return;
-        
 
-        _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 0.8f);
+        planeGrid->hide();
+
+        /*auto hidePlaneGridFunc = [&] 
+        {
+            auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
+            planeGrid->hide();
+        };
+
+        _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 0.8f, hidePlaneGridFunc);*/
+    }
+
+    void translationPlane::fadeGridOpacityIn(std::function<void(void)> fadeInEndedFunction)
+    {
+        assert(_planeGridNode != nullptr);
+        assert(_fadeOutAnimation != nullptr);
+
+        auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
+
+        _fadeOutAnimation->start(planeGrid->getOpacity(), 1.0f, 0.8f, fadeInEndedFunction);
+    
+    }
+
+    void translationPlane::fadeGridOpacityOut(std::function<void(void)> fadeOutEndedFunction)
+    {
+        assert(_planeGridNode != nullptr);
+        assert(_fadeOutAnimation != nullptr);
+
+        auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
+
+        _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 0.8f, fadeOutEndedFunction);
     }
 }

@@ -24,7 +24,7 @@ namespace phi
         transformAnimation* _draggingAnimation;
         floatAnimation* _fadeInAnimation;
         floatAnimation* _fadeOutAnimation;
-        floatAnimation* _clippingPlanesFadeOutAnimation;
+        floatAnimation* _clippingPlanesFadeAnimation;
 
     public:
         CONTEXT_API translationPlane(phi::plane plane);
@@ -38,7 +38,7 @@ namespace phi
         transformAnimation* getDraggingAnimation() const { return _draggingAnimation; }
         floatAnimation* getFadeInAnimation() const { return _fadeInAnimation; }
         floatAnimation* getFadeOutAnimation() const { return _fadeOutAnimation; }
-        floatAnimation* getClippingPlanesFadeOutAnimation() const { return _clippingPlanesFadeOutAnimation; }
+        floatAnimation* getClippingPlanesFadeAnimation() const { return _clippingPlanesFadeAnimation; }
 
         void setGridPlane(plane value) { _gridPlane = value; }
         void setMousePlane(plane value) { _mousePlane = value; }
@@ -48,7 +48,7 @@ namespace phi
         void setCollider(boxCollider* value) { _collider = value; }
         void setDraggingAnimation(transformAnimation* value) { _draggingAnimation = value; }
         void setFadeInAnimation(floatAnimation* value) { _fadeInAnimation = value; }
-        void setClippingPlanesFadeOutAnimation(floatAnimation* value) { _clippingPlanesFadeOutAnimation = value; }
+        void setClippingPlanesFadeAnimation(floatAnimation* value) { _clippingPlanesFadeAnimation = value; }
 
         CONTEXT_API void setFadeOutAnimation(floatAnimation* value);
 
@@ -56,5 +56,8 @@ namespace phi
 
         CONTEXT_API void showGrid();
         CONTEXT_API void hideGrid();
+
+        CONTEXT_API void fadeGridOpacityIn(std::function<void(void)> fadeInEndedFunction);
+        CONTEXT_API void fadeGridOpacityOut(std::function<void(void)> fadeOutEndedFunction);
     };
 }

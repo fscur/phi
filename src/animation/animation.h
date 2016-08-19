@@ -14,12 +14,13 @@ namespace phi
         double _duration;
         double _elapsed;
         std::function<double(double)> _easingFunction;
-        eventHandler<animation*> _animationEnded;
+        std::function<void(void)> _animationEndedCallback;
 
     protected:
         virtual void update(double t) = 0;
         virtual ~animation();
         
+        void start(double duration, std::function<void(void)> animationEndedCallback);
         void start(double duration);
 
     public:
@@ -30,8 +31,6 @@ namespace phi
         ANIMATION_API void stop();
 
         ANIMATION_API virtual animation* clone() = 0;
-
-        eventHandler<animation*>* getAnimationEnded() { return &_animationEnded; }
         bool getIsAnimating() const { return _isAnimating; }
     };
 }
