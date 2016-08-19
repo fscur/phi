@@ -7,10 +7,16 @@ struct planeGridRenderData
     vec4 clipPlane0;
     vec4 clipPlane1;
     vec4 clipPlane2;
+
     float lineThickness;
     float opacity;
     float pad0;
     float pad1;
+
+    float clipPlane0Opacity;
+    float clipPlane1Opacity;
+    float clipPlane2Opacity;
+    float pad2;
 };
 
 layout (std140, binding = 1) buffer PlaneGridRenderDataBuffer
@@ -35,7 +41,8 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 
 layout (location = 0) uniform sampler2DArray textureArrays[32];
 
-in vec2 worldFragTexCoord;
+in vec4 fragWorldPosition;
+in vec2 fragWorldTexCoord;
 in vec2 fragTexCoord;
 in float planeDist2;
 
@@ -194,9 +201,17 @@ void main()
 {
     planeGridRenderData data = renderData.items[instanceId];
 
-    vec2 uv = worldFragTexCoord;
+    vec2 uv = fragWorldTexCoord;
     float grid = createGrid(uv, data.lineThickness);
-    grid += 0.3;
+
     float border = createBorder();
-    fragColor = vec4(data.color.rgb, grid * border * data.opacity);
+
+    grid += 0.3;
+
+    if (dot(data.clipPlane0, fragWorldPosition) < 0.0)
+        fragColor = vec4(data.color.rgb, grid * border * data.opacity * data.clipPlane0Opacity);
+    else
+        fragColor = vec4(data.color.rgb, grid * border * data.opacity);
+
+    //fragColor = vec4(1.0, 1.0, 1.0, data.clipPlane0Opacity);
 }

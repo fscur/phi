@@ -15,7 +15,8 @@ namespace phi
         float _lineThickness;
         float _opacity;
         bool _isVisible;
-        vector<clippingPlane> _clippingPlanes;
+        vector<clippingPlane*> _clippingPlanes;
+        unordered_map<clippingPlane*, float> _clippingPlanesOpacities;
 
         eventHandler<planeGrid*> _colorChanged;
         eventHandler<planeGrid*> _lineThicknessChanged;
@@ -38,7 +39,8 @@ namespace phi
         float getLineThickness() const { return _lineThickness; }
         float getOpacity() const { return _opacity; }
         bool isVisible() const { return _isVisible; }
-        vector<clippingPlane> getClippingPlanes() const { return _clippingPlanes; }
+        vector<clippingPlane*> getClippingPlanes() const { return _clippingPlanes; }
+        unordered_map<clippingPlane*, float> getClippingPlanesOpacities() const { return _clippingPlanesOpacities; }
 
         eventHandler<planeGrid*>* getColorChanged() { return &_colorChanged; }
         eventHandler<planeGrid*>* getLineThicknessChanged() { return &_lineThicknessChanged; }
@@ -50,8 +52,9 @@ namespace phi
         UI_API void setLineThickness(const float value);
         UI_API void setOpacity(const float value);
 
-        UI_API void addClippingPlane(clippingPlane clippingPlane);
-        UI_API void removeClippingPlane(clippingPlane clippingPlane);
+        UI_API void addClippingPlane(clippingPlane* clippingPlane);
+        UI_API void removeClippingPlane(clippingPlane* clippingPlane);
+        UI_API void setClippingPlaneOpacity(clippingPlane* clippingPlane, float opacity);
         UI_API void hide();
         UI_API void show();
 

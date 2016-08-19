@@ -24,7 +24,8 @@ namespace phi
         _disableCollision(false),
         _lastTranslationTouchs(nullptr),
         _lastMousePosition(vec2()),
-        _showingGhost(false)
+        _showingGhost(false),
+        _shouldDeleteDefaultTranslationPlane(false)
     {
     }
 
@@ -75,18 +76,6 @@ namespace phi
         safeDelete(planeGridNode);
     }
 
-    void translationInputController::enqueuePlaneForDeletion(translationPlane* translationPlane)
-    {
-        auto deletePlaneFunction = [=](animation* animation)
-        {
-            _toRemovePlanes.push_back(translationPlane);
-        };
-
-        auto fadeOutAnimationEndedEventHandler = translationPlane->getFadeOutAnimation()->getAnimationEnded();
-        fadeOutAnimationEndedEventHandler->assign(deletePlaneFunction);
-        translationPlane->hideGrid();
-    }
-
     translationPlane* translationInputController::createTranslationPlane(
         plane mousePlane,
         vec3 position,
@@ -116,11 +105,16 @@ namespace phi
             planeGrid->setOpacity(value);
         };
 
-        auto fadeInAnimation = new phi::floatAnimation(fadeUpdadeFunction, easingFunctions::linear);
+        auto fadeInAnimation = new phi::floatAnimation();
+        fadeInAnimation->setUpdateFunction(fadeUpdadeFunction);
         animator->addAnimation(fadeInAnimation);
 
-        auto fadeOutAnimation = new phi::floatAnimation(fadeUpdadeFunction, easingFunctions::linear);
+        auto fadeOutAnimation = new phi::floatAnimation();
+        fadeOutAnimation->setUpdateFunction(fadeUpdadeFunction);
         animator->addAnimation(fadeOutAnimation);
+
+        auto clippingPlanesFadeOutAnimation = new phi::floatAnimation();
+        animator->addAnimation(clippingPlanesFadeOutAnimation);
 
         auto gridPlane = plane(position, mousePlane.normal);
 
@@ -132,6 +126,7 @@ namespace phi
         translationPlane->setDraggingAnimation(draggingAnimation);
         translationPlane->setFadeInAnimation(fadeInAnimation);
         translationPlane->setFadeOutAnimation(fadeOutAnimation);
+        translationPlane->setClippingPlanesFadeOutAnimation(clippingPlanesFadeOutAnimation);
 
         return translationPlane;
     }
@@ -322,6 +317,13 @@ namespace phi
         return true;
     }
 
+    void translationInputController::startPlaneRemoval(translationPlane* planeToRemove, std::function<void(animation*)> fadeOutAnimationEnded)
+    {
+        auto fadeOutAnimationEndedEventHandler = planeToRemove->getFadeOutAnimation()->getAnimationEnded();
+        fadeOutAnimationEndedEventHandler->assign(fadeOutAnimationEnded);
+        planeToRemove->hideGrid();
+    }
+
     bool translationInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed || !_dragging)
@@ -329,7 +331,12 @@ namespace phi
 
         _dragging = false;
 
-        enqueuePlaneForDeletion(_defaultTranslationPlane);
+        auto fadeOutAnimationEnded = [=](animation* animation)
+        {
+            _shouldDeleteDefaultTranslationPlane = true;
+        };
+
+        startPlaneRemoval(_defaultTranslationPlane, fadeOutAnimationEnded);
 
         if (_showingGhost)
         {
@@ -369,14 +376,13 @@ namespace phi
 
     bool translationInputController::update()
     {
-        for (auto& plane : _toRemovePlanes)
+        if (_shouldDeleteDefaultTranslationPlane)
         {
-            deletePlane(plane);
-            plane = nullptr;
+            deletePlane(_defaultTranslationPlane);
+            _defaultTranslationPlane = nullptr;
+            _shouldDeleteDefaultTranslationPlane = false;
         }
 
-        _toRemovePlanes.clear();
-
-        return true;
+        return false;
     }
 }

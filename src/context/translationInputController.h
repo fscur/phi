@@ -40,7 +40,7 @@ namespace phi
         ivec2 _lastMousePosition;
         vector<sweepCollision>* _lastTranslationTouchs;
         bool _showingGhost;
-        vector<translationPlane*> _toRemovePlanes;
+        bool _shouldDeleteDefaultTranslationPlane;
 
     private:
         void setNodeToTranslate(node* node);
@@ -57,12 +57,12 @@ namespace phi
             boxCollider* collider, 
             color color);
 
-        void enqueuePlaneForDeletion(translationPlane* translationPlane);
         void deletePlane(translationPlane* translationPlane);
         vec3 getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane);
         void translateNode(vec3 offset);
         void translatePlaneGrid(translationPlane* translationPlane, ivec2 mousePosition);
         void translateGhost(vec3 position, vec3 offset);
+        void startPlaneRemoval(translationPlane* planeToRemove, std::function<void(animation*)> fadeOutAnimationEnded);
 
     public:
         translationInputController(camera* camera, layer* layer);

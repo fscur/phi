@@ -93,16 +93,14 @@ namespace phi
 
     void planesTranslationInputController::createClippingPlanes(translationPlane* clippingTranslationPlane, clippingDistance::clippingDistance clippingDistance)
     {
-        if (_translationPlanes.size() == 0)
-            return;
-
         auto createdTranslationPlaneGrid = clippingTranslationPlane->getPlaneGridComponent();
-        auto clippingPlane = phi::clippingPlane(clippingTranslationPlane->getGridPlane(), clippingDistance);
+        auto clippingPlane = new phi::clippingPlane(clippingTranslationPlane->getGridPlane(), clippingDistance);
         clippingTranslationPlane->setClippingPlane(clippingPlane);
 
         for (auto& clippedTranslationPlane : _translationPlanes)
         {
-            auto clippedPlane = phi::clippingPlane(clippedTranslationPlane->getGridPlane(), clippingDistance);
+            auto clippedPlane = clippedTranslationPlane->getClippingPlane();
+            clippedPlane->distance = clippingDistance;
             createdTranslationPlaneGrid->addClippingPlane(clippedPlane);
 
             auto planeGridComponent = clippedTranslationPlane->getPlaneGridComponent();
@@ -127,27 +125,8 @@ namespace phi
                 collider,
                 color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));
 
+        //if (_translationPlanes.size() > 0)
         createClippingPlanes(createdTranslationPlane, clippingDistance);
-
-        //auto createdTranslationPlaneGrid = createdTranslationPlane->getPlaneGridComponent();
-        //auto createdGridPlane = createdTranslationPlane->getGridPlane();
-        ////createdGridPlane.normal *= clippingSideSign;
-
-        //auto createdClippingPlane = clippingPlane(createdGridPlane, clippingDistance);
-
-        //for (auto& translationPlane : _translationPlanes)
-        //{
-        //    auto gridPlane = translationPlane->getGridPlane();
-        //    //gridPlane.normal *= clippingSideSign;
-
-        //    auto clippedPlane = clippingPlane(createdGridPlane, clippingDistance);
-        //    createdTranslationPlaneGrid->addClippingPlane(clippedPlane);
-
-        //    auto planeGridComponent = translationPlane->getPlaneGridComponent();
-        //    planeGridComponent->addClippingPlane(createdClippingPlane);
-        //}
-
-
 
         _layer->add(createdTranslationPlane->getPlaneGridNode());
         createdTranslationPlane->showGrid();
@@ -172,6 +151,64 @@ namespace phi
         }
     }
 
+    void planesTranslationInputController::enqueuePlaneForRemoval(translationPlane* planeToRemove)
+    {
+        auto fadeOutAnimationEnded = [=](animation* animation)
+        {
+            _planesToRemove.push_back(planeToRemove);
+        };
+
+        auto animations = new vector<floatAnimation*>();
+
+        for (auto& translationPlane : _translationPlanes)
+        {
+            if (planeToRemove == translationPlane)
+            {
+                startPlaneRemoval(planeToRemove, fadeOutAnimationEnded);
+                safeDelete(animations);
+                return;
+            }
+
+            auto planeGrid = translationPlane->getPlaneGridComponent();
+            auto clippingPlane = planeToRemove->getClippingPlane();
+
+            auto fadeUpdadeFunction = [=](float value)
+            {
+                planeGrid->setClippingPlaneOpacity(clippingPlane, value);
+            };
+
+            auto fadeAnimation = translationPlane->getClippingPlanesFadeOutAnimation();
+            fadeAnimation->setUpdateFunction(fadeUpdadeFunction);
+
+            fadeAnimation->getAnimationEnded()->assign([=](animation* animation)
+            {
+                planeGrid->setClippingPlaneOpacity(clippingPlane, 0.0f);
+                planeGrid->removeClippingPlane(clippingPlane);
+
+                if (animations->size() == 0)
+                {
+                    startPlaneRemoval(planeToRemove, fadeOutAnimationEnded);
+                }
+                else
+                {
+                    auto it = std::find(animations->begin(), animations->end(), static_cast<floatAnimation*>(animation));
+
+                    if (it != animations->end())
+                        animations->erase(it);
+                }
+            });
+
+            animations->push_back(fadeAnimation);
+        }
+
+        for (auto& animation : *animations)
+            animation->start(0.0f, 1.0f, 0.3);
+
+        //startPlaneRemoval(planeToRemove, fadeOutAnimationEnded);
+
+        safeDelete(animations);
+    }
+
     void planesTranslationInputController::removeDetachedPlanes(vector<sweepCollision> touchs)
     {
         vector<translationPlane*> translationPlanesToRemove;
@@ -192,10 +229,10 @@ namespace phi
                 translationPlanesToRemove.push_back(translationPlane);
         }
 
-        for (auto translationPlane : translationPlanesToRemove)
+        for (auto planeToRemove : translationPlanesToRemove)
         {
-            enqueuePlaneForDeletion(translationPlane);
-            removeTranslationPlane(translationPlane);
+            removeTranslationPlane(planeToRemove);
+            enqueuePlaneForRemoval(planeToRemove);
         }
     }
 
@@ -359,9 +396,10 @@ namespace phi
     void planesTranslationInputController::changeToDefaultTranslationPlane()
     {
         for (auto& translationPlane : _translationPlanes)
-            enqueuePlaneForDeletion(translationPlane);
+            enqueuePlaneForRemoval(translationPlane);
 
         _translationPlanes.clear();
+
         _defaultTranslationPlane->showGrid();
 
         if (_lastChosenTranslationPlane != _defaultTranslationPlane)
@@ -418,8 +456,10 @@ namespace phi
             changeToDefaultTranslationPlane();
 
         auto touchs = findValidTouchCollisions();
+        
         if (!_isSwitchingPlanes)
             removeDetachedPlanes(touchs);
+
         if (!_disableCollision)
             addPlanesIfNeeded(touchs);
 
@@ -446,7 +486,7 @@ namespace phi
             return false;
 
         for (auto& translationPlane : _translationPlanes)
-            enqueuePlaneForDeletion(translationPlane);
+            enqueuePlaneForRemoval(translationPlane);
 
         _translationPlanes.clear();
 
@@ -455,16 +495,40 @@ namespace phi
 
     bool planesTranslationInputController::update()
     {
-        for (auto& planeToRemove : _toRemovePlanes)
+        //for (auto& planeToRemove : _planesToRemove)
+        //{
+        //    for (auto& translationPlane : _translationPlanes)
+        //    {
+        //        auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
+        //        auto clippingPlane = planeToRemove->getClippingPlane();
+
+        //        planeGrid->removeClippingPlane(clippingPlane);
+
+        //        /*auto fadeUpdadeFunction = [=](float value)
+        //        {
+        //            planeGrid->setClippingPlaneOpacity(clippingPlane, value);
+        //        };
+
+        //        auto fadeAnimation = translationPlane->getClippingPlanesFadeOutAnimation();
+        //        fadeAnimation->setUpdateFunction(fadeUpdadeFunction);
+        //        fadeAnimation->getAnimationEnded()->assign([=](animation* animation)
+        //        {
+        //            planeGrid->setClippingPlaneOpacity(clippingPlane, 0.0f);
+        //            planeGrid->removeClippingPlane(clippingPlane);
+        //        });
+
+        //        fadeAnimation->start(0.0f, 1.0f, 2.5);*/
+        //    }
+        //}
+
+        for (auto& plane : _planesToRemove)
         {
-            for (auto& translationPlane : _translationPlanes)
-            {
-                auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
-                planeGrid->removeClippingPlane(planeToRemove->getClippingPlane());
-            }
+            deletePlane(plane);
+            plane = nullptr;
         }
 
-        translationInputController::update();
+        _planesToRemove.clear();
+
         return true;
     }
 }
