@@ -17,7 +17,7 @@ namespace phi
         bool _isTouchingCollidedObject;
         bool _isSwitchingPlanes;
         ivec2 _switchPlanesMousePosition;
-        bool _canChangePlanes;
+        vector<translationPlane*> _planesToRemove;
 
     private:
         bool isDraggingObjectIntersectingAnyObject();
@@ -37,6 +37,7 @@ namespace phi
         void translateOn(translationPlane* translationPlane, ivec2 mousePosition);
         void changeToDefaultTranslationPlane();
         bool executeMouseMove(ivec2 mousePosition);
+        void enqueuePlaneForRemoval(translationPlane* planeToRemove);
 
     public:
         planesTranslationInputController(camera* camera, layer* planesLayer, physicsLayerBehaviour* physicsBehaviour);

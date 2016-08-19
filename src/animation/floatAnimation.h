@@ -15,11 +15,17 @@ namespace phi
         std::function<void(float)> _updateFunction;
 
     public:
+        ANIMATION_API floatAnimation();
+        /*ANIMATION_API floatAnimation(std::function<double(double)> easingFunction);
+
         ANIMATION_API floatAnimation(
             std::function<void(float)> updateFunction,
-            std::function<double(double)> easingFunction = easingFunctions::linear);
+            std::function<double(double)> easingFunction = easingFunctions::linear);*/
+
         ANIMATION_API floatAnimation(const floatAnimation& original);
         ANIMATION_API ~floatAnimation();
+
+        ANIMATION_API void setUpdateFunction(std::function<void(float)> value) { _updateFunction = value; }
 
         ANIMATION_API void start(float from, float to, double duration);
         ANIMATION_API void update(double t) override;

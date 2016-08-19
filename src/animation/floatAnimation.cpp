@@ -3,13 +3,24 @@
 
 namespace phi
 {
-    floatAnimation::floatAnimation(
+    floatAnimation::floatAnimation() :
+        animation(easingFunctions::linear)
+    {
+    }
+
+    /*floatAnimation::floatAnimation(
+        std::function<double(double)> easingFunction) :
+        animation(easingFunction)
+    {
+    }
+*/
+    /*floatAnimation::floatAnimation(
         std::function<void(float)> updateFunction,
         std::function<double(double)> easingFunction) :
         animation(easingFunction),
         _updateFunction(updateFunction)
     {
-    }
+    }*/
 
     floatAnimation::floatAnimation(const floatAnimation & original) :
         animation(original)

@@ -25,10 +25,16 @@ struct planeGridRenderData
     vec4 clipPlane0;
     vec4 clipPlane1;
     vec4 clipPlane2;
+
     float lineThickness;
     float opacity;
     float pad0;
     float pad1;
+
+    float clipPlane0Opacity;
+    float clipPlane1Opacity;
+    float clipPlane2Opacity;
+    float pad2;
 };
 
 layout (std140, binding = 1) buffer PlaneGridRenderDataBuffer
@@ -36,7 +42,8 @@ layout (std140, binding = 1) buffer PlaneGridRenderDataBuffer
     planeGridRenderData items[];
 } renderData;
 
-out vec2 worldFragTexCoord;
+out vec4 fragWorldPosition;
+out vec2 fragWorldTexCoord;
 out vec2 fragTexCoord;
 flat out float planeSize;
 flat out float planeDist;
@@ -72,12 +79,16 @@ void main()
     vec4 pos =  modelMatrix * inPos;
     
     gl_Position = frameUniforms.p * frameUniforms.v * pos;
-    worldFragTexCoord = ((inTexCoord) * planeSize + projected);
+    
+    fragWorldTexCoord = ((inTexCoord) * planeSize + projected);
+    fragWorldPosition = pos;
+
     fragTexCoord = (inTexCoord) * planeSize;
     instanceId = gl_InstanceID;
 
     planeGridRenderData data = renderData.items[gl_InstanceID];
-    gl_ClipDistance[0] = dot(data.clipPlane0, pos);
-    gl_ClipDistance[1] = dot(data.clipPlane1, pos);;
-    gl_ClipDistance[2] = dot(data.clipPlane2, pos);;
+
+    //gl_ClipDistance[0] = dot(data.clipPlane0, pos);
+    //gl_ClipDistance[1] = dot(data.clipPlane1, pos);
+    //gl_ClipDistance[2] = dot(data.clipPlane2, pos);
 }

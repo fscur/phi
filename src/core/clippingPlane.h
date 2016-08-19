@@ -21,7 +21,7 @@ namespace phi
         clippingDistance::clippingDistance distance;
 
         clippingPlane() :
-            plane(phi::plane()),
+            plane(phi::plane(vec3(0.0f), vec3(0.0f))),
             distance(clippingDistance::positive)
         {}
 
