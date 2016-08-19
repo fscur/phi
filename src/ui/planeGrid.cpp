@@ -9,7 +9,7 @@ namespace phi
         _lineThickness(10.0f),
         _opacity(0.0f),
         _isVisible(false), 
-        _clippingPlanes(vector<plane>()),
+        _clippingPlanes(vector<clippingPlane>()),
         _colorChanged(eventHandler<planeGrid*>()),
         _lineThicknessChanged(eventHandler<planeGrid*>()),
         _opacityChanged(eventHandler<planeGrid*>()),
@@ -62,13 +62,13 @@ namespace phi
         _opacityChanged.raise(this);
     }
 
-    void planeGrid::addClippingPlane(plane plane)
+    void planeGrid::addClippingPlane(clippingPlane plane)
     {
         _clippingPlanes.push_back(plane);
         _clippingPlanesChanged.raise(this);
     }
 
-    void planeGrid::removeClippingPlane(plane plane)
+    void planeGrid::removeClippingPlane(clippingPlane plane)
     {
         phi::removeIfContains(_clippingPlanes, plane);
         _clippingPlanesChanged.raise(this);

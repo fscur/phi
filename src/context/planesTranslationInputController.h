@@ -3,6 +3,7 @@
 #include <phi.h>
 
 #include "translationInputController.h"
+#include <core\clippingPlane.h>
 
 namespace phi
 {
@@ -25,7 +26,8 @@ namespace phi
         bool canTranslateAt(vec3 normal);
         vector<sweepCollision> findValidTouchCollisions();
         bool existsTranslationPlaneWithNormal(vec3 normal);
-        translationPlane* createTranslationPlane(plane plane, boxCollider* collidee, boxCollider* collider, float clippingSideSign);
+        void createClippingPlanes(translationPlane* clippingTranslationPlane, clippingDistance::clippingDistance clippingDistance);
+        translationPlane* createTranslationPlane(plane plane, boxCollider* collidee, boxCollider* collider, clippingDistance::clippingDistance clippingDistance);
         void addPlanesIfNeeded(vector<sweepCollision> collisions);
         void removeDetachedPlanes(vector<sweepCollision> collisions);
         vec3 mouseOffsetToWorld(ivec2 mousePosition);

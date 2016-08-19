@@ -146,9 +146,12 @@ namespace phi
 
     void translationInputController::translateNode(vec3 offset)
     {
+        assert(offset != vec3());
+
         if (_collisionNodeTranslator && !_disableCollision)
         {
             _collisionNodeTranslator->translateNode(offset);
+
             _lastTranslationTouchs = _collisionNodeTranslator->getLastTranslationTouchingCollisions();
         }
         else
@@ -304,6 +307,11 @@ namespace phi
         auto mousePosition = ivec2(e->x, e->y);
         auto position = getTranslationPosition(mousePosition, _defaultTranslationPlane);
         auto offset = position - _draggingRootNode->getTransform()->getLocalPosition();
+
+        if (offset == vec3())
+        {
+            return false; //ARRUMAR BUG LAST MOUSE POS
+        }
 
         translateNode(offset);
         translatePlaneGrid(_defaultTranslationPlane, mousePosition);
