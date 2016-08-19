@@ -132,7 +132,7 @@ namespace phi
         translationPlane->setDraggingAnimation(draggingAnimation);
         translationPlane->setFadeInAnimation(fadeInAnimation);
         translationPlane->setFadeOutAnimation(fadeOutAnimation);
-        translationPlane->setClippingPlanesFadeOutAnimation(clippingPlanesFadeOutAnimation);
+        translationPlane->setClippingPlanesFadeAnimation(clippingPlanesFadeOutAnimation);
 
         return translationPlane;
     }
@@ -325,13 +325,6 @@ namespace phi
         return true;
     }
 
-    void translationInputController::startPlaneRemoval(translationPlane* planeToRemove, std::function<void(animation*)> fadeOutAnimationEnded)
-    {
-        auto fadeOutAnimationEndedEventHandler = planeToRemove->getFadeOutAnimation()->getAnimationEnded();
-        fadeOutAnimationEndedEventHandler->assign(fadeOutAnimationEnded);
-        planeToRemove->hideGrid();
-    }
-
     bool translationInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed || !_dragging)
@@ -339,12 +332,13 @@ namespace phi
 
         _dragging = false;
 
-        auto fadeOutAnimationEnded = [=](animation* animation)
+        auto fadeOutAnimationEnded = [=]
         {
             _shouldDeleteDefaultTranslationPlane = true;
+            _defaultTranslationPlane->hideGrid();
         };
 
-        startPlaneRemoval(_defaultTranslationPlane, fadeOutAnimationEnded);
+        _defaultTranslationPlane->fadeGridOpacityOut(fadeOutAnimationEnded);
 
         if (_showingGhost)
         {

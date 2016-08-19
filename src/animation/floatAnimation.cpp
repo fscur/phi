@@ -27,10 +27,16 @@ namespace phi
     {
     }
 
+    void floatAnimation::start(float from, float to, double duration, std::function<void(void)> animationEndedCallback)
+    {
+        animation::start(duration, animationEndedCallback);
+        _from = from;
+        _to = to;
+    }
+
     void floatAnimation::start(float from, float to, double duration)
     {
         animation::start(duration);
-
         _from = from;
         _to = to;
     }

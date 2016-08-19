@@ -64,7 +64,6 @@ namespace phi
         void translateNode(vec3 offset);
         void translatePlaneGrid(translationPlane* translationPlane, ivec2 mousePosition);
         void translateGhost(vec3 position, vec3 offset);
-        void startPlaneRemoval(translationPlane* planeToRemove, std::function<void(animation*)> fadeOutAnimationEnded);
 
     public:
         translationInputController(camera* camera, layer* layer);

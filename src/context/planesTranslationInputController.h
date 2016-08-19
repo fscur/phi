@@ -38,6 +38,7 @@ namespace phi
         void changeToDefaultTranslationPlane();
         bool executeMouseMove(ivec2 mousePosition);
         void enqueuePlaneForRemoval(translationPlane* planeToRemove);
+        void removeClippingPlanes(translationPlane* planeToRemove);
 
     public:
         planesTranslationInputController(camera* camera, layer* planesLayer, physicsLayerBehaviour* physicsBehaviour);

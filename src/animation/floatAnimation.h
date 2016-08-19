@@ -27,7 +27,9 @@ namespace phi
 
         ANIMATION_API void setUpdateFunction(std::function<void(float)> value) { _updateFunction = value; }
 
+        ANIMATION_API void start(float from, float to, double duration, std::function<void(void)> animationEndedCallback);
         ANIMATION_API void start(float from, float to, double duration);
+
         ANIMATION_API void update(double t) override;
         ANIMATION_API animation* clone() override;
     };

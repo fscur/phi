@@ -88,7 +88,7 @@ void main()
 
     planeGridRenderData data = renderData.items[gl_InstanceID];
 
-    //gl_ClipDistance[0] = dot(data.clipPlane0, pos);
-    //gl_ClipDistance[1] = dot(data.clipPlane1, pos);
-    //gl_ClipDistance[2] = dot(data.clipPlane2, pos);
+    gl_ClipDistance[0] = dot(data.clipPlane0, pos);
+    gl_ClipDistance[1] = dot(data.clipPlane1, pos);
+    gl_ClipDistance[2] = dot(data.clipPlane2, pos);
 }
