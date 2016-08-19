@@ -24,7 +24,8 @@ namespace phi
         void addTranslationPlane(translationPlane* translationPlane);
         void removeTranslationPlane(translationPlane* translationPlane);
         bool canTranslateAt(vec3 normal);
-        vector<sweepCollision> findValidTouchCollisions();
+        vector<sweepCollision> findTouchingCollisions();
+        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
         bool existsTranslationPlaneWithNormal(vec3 normal);
         void createClippingPlanes(translationPlane* clippingTranslationPlane, clippingDistance::clippingDistance clippingDistance);
         translationPlane* createTranslationPlane(plane plane, boxCollider* collidee, boxCollider* collider, clippingDistance::clippingDistance clippingDistance);

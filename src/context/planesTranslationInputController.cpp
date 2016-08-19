@@ -49,30 +49,27 @@ namespace phi
         return _physicsBehaviour->getPhysicsWorld()->intersects(intersectionTest);
     }
 
-    vector<sweepCollision> planesTranslationInputController::findValidTouchCollisions()
+    vector<sweepCollision> planesTranslationInputController::findTouchingCollisions()
     {
-        vector<sweepCollision> foundTouchs;
-        if (_lastTranslationTouchs)
-            foundTouchs = *_lastTranslationTouchs;
-        else
-        {
-            auto sweepTest = sweepCollisionMultiTest();
-            sweepTest.colliders = _collisionNodeTranslator->getColliders();
-            sweepTest.transforms = _collisionNodeTranslator->getTransforms();
-            sweepTest.direction = vec3(1.0f, 0.0f, 0.0f);
-            sweepTest.distance = 0.0f;
-            sweepTest.inflation = DECIMAL_TRUNCATION;
-            sweepTest.disregardDivergentNormals = false;
+        auto sweepTest = sweepCollisionMultiTest();
+        sweepTest.colliders = _collisionNodeTranslator->getColliders();
+        sweepTest.transforms = _collisionNodeTranslator->getTransforms();
+        sweepTest.direction = vec3(1.0f, 0.0f, 0.0f);
+        sweepTest.distance = 0.0f;
+        sweepTest.inflation = DECIMAL_TRUNCATION;
+        sweepTest.disregardDivergentNormals = false;
 
-            auto sweepResult = _physicsBehaviour->getPhysicsWorld()->sweep(sweepTest);
-            if (!sweepResult.collided)
-                return vector<sweepCollision>();
+        auto sweepResult = _physicsBehaviour->getPhysicsWorld()->sweep(sweepTest);
+        if (!sweepResult.collided)
+            return vector<sweepCollision>();
 
-            foundTouchs = sweepResult.collisions;
-        }
+        return sweepResult.collisions;
+    }
 
+    vector<sweepCollision> planesTranslationInputController::getValidTouchCollisions(vector<sweepCollision>& touchs)
+    {
         vector<sweepCollision> validTouchs;
-        for (auto& collision : foundTouchs)
+        for (auto& collision : touchs)
         {
             if (canTranslateAt(collision.normal))
                 validTouchs.push_back(collision);
@@ -405,7 +402,7 @@ namespace phi
         if (isDraggingObjectIntersectingAnyObject())
             return baseResult;
 
-        auto touchs = findValidTouchCollisions();
+        auto touchs = getValidTouchCollisions(findTouchingCollisions());
         addPlanesIfNeeded(touchs);
 
         return true;
@@ -430,7 +427,7 @@ namespace phi
         else
             changeToDefaultTranslationPlane();
 
-        auto touchs = findValidTouchCollisions();
+        auto touchs = getValidTouchCollisions(*_lastTranslationTouchs);
         
         if (!_isSwitchingPlanes)
             removeDetachedPlanes(touchs);
