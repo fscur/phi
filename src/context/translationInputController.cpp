@@ -33,6 +33,12 @@ namespace phi
         safeDelete(_collisionNodeTranslator);
     }
 
+    void translationInputController::setCollisionNodeTranslator(collisionNodeTranslator* value)
+    {
+        _collisionNodeTranslator = value;
+        _lastTranslationTouchs = _collisionNodeTranslator->getLastTranslationTouchingCollisions();
+    }
+
     void translationInputController::setNodeToTranslate(node* node)
     {
         _dragging = true;
@@ -144,16 +150,38 @@ namespace phi
         return _initialObjectPosition + offsetOnPlane;
     }
 
+    void translationInputController::showGhost()
+    {
+        if (_showingGhost)
+            return;
+
+        _showingGhost = true;
+        _layer->add(_draggingGhostNode);
+
+        _draggingRootNode->traverse([](phi::node* node) {
+            node->setIsTranslating(true);
+        });
+    }
+
+    void translationInputController::hideGhost()
+    {
+        if (!_showingGhost)
+            return;
+
+        _showingGhost = false;
+        _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
+
+        _draggingRootNode->traverse([](phi::node* node) {
+            node->setIsTranslating(false);
+        });
+    }
+
     void translationInputController::translateNode(vec3 offset)
     {
         assert(offset != vec3());
 
         if (_collisionNodeTranslator && !_disableCollision)
-        {
             _collisionNodeTranslator->translateNode(offset);
-
-            _lastTranslationTouchs = _collisionNodeTranslator->getLastTranslationTouchingCollisions();
-        }
         else
             _draggingRootNode->getTransform()->translate(offset);
     }
@@ -180,27 +208,6 @@ namespace phi
 
     void translationInputController::translateGhost(vec3 position, vec3 offset)
     {
-        auto isGhostOnTheSamePositionAsObject = position == _draggingRootNode->getTransform()->getLocalPosition();
-
-        if (!_showingGhost && !isGhostOnTheSamePositionAsObject)
-        {
-            _showingGhost = true;
-            _layer->add(_draggingGhostNode);
-            
-            _draggingRootNode->traverse([](phi::node* node) {
-                node->setIsTranslating(true);
-            });
-        }
-        else if (_showingGhost && isGhostOnTheSamePositionAsObject)
-        {
-            _showingGhost = false;
-            _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
-
-            _draggingRootNode->traverse([](phi::node* node) {
-                node->setIsTranslating(false);
-            });
-        }
-
         if (_showingGhost)
         {
             _draggingGhostNode->traverse<phi::ghostMesh>([=](phi::ghostMesh* ghostMesh)
@@ -308,13 +315,15 @@ namespace phi
         auto position = getTranslationPosition(mousePosition, _defaultTranslationPlane);
         auto offset = position - _draggingRootNode->getTransform()->getLocalPosition();
 
-        if (offset == vec3())
-        {
-            return false; //ARRUMAR BUG LAST MOUSE POS
-        }
-
         translateNode(offset);
         translatePlaneGrid(_defaultTranslationPlane, mousePosition);
+
+        phi::debug(_lastTranslationTouchs->size());
+        if (_lastTranslationTouchs->size() > 0)
+            showGhost();
+        else
+            hideGhost();
+
         translateGhost(position, offset);
 
         _lastMousePosition = mousePosition;

@@ -60,6 +60,8 @@ namespace phi
         void enqueuePlaneForDeletion(translationPlane* translationPlane);
         void deletePlane(translationPlane* translationPlane);
         vec3 getTranslationPosition(ivec2 mousePosition, translationPlane* translationPlane);
+        void showGhost();
+        void hideGhost();
         void translateNode(vec3 offset);
         void translatePlaneGrid(translationPlane* translationPlane, ivec2 mousePosition);
         void translateGhost(vec3 position, vec3 offset);
@@ -68,7 +70,7 @@ namespace phi
         translationInputController(camera* camera, layer* layer);
         ~translationInputController();
 
-        void setCollisionNodeTranslator(collisionNodeTranslator* value) { _collisionNodeTranslator = value; }
+        void setCollisionNodeTranslator(collisionNodeTranslator* value);
 
         bool onMouseDown(mouseEventArgs* e) override;
         bool onMouseMove(mouseEventArgs* e) override;

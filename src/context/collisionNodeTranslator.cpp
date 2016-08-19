@@ -10,23 +10,25 @@ namespace phi
         _node(nullptr),
         _colliders(vector<boxCollider*>()),
         _transforms(vector<transform*>()),
-        _lastTranslationTouchingCollisions(nullptr)
+        _lastTranslationTouchingCollisions(new vector<sweepCollision>())
     {
     }
 
-    vector<sweepCollision>* collisionNodeTranslator::getTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision)
+    collisionNodeTranslator::~collisionNodeTranslator()
     {
-        auto touchingCollisions = new vector<sweepCollision>();
+        safeDelete(_lastTranslationTouchingCollisions);
+    }
 
+    void collisionNodeTranslator::addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision)
+    {
         for (auto& collision : sweepResult->collisions)
         {
-            if (mathUtils::isClose(collision.distance, compareCollision.distance))
-                touchingCollisions->push_back(collision);
+            auto isSameDistance = mathUtils::isClose(collision.distance, compareCollision.distance);
+            if (isSameDistance)
+                _lastTranslationTouchingCollisions->push_back(collision);
             else if (collision.distance > compareCollision.distance)
                 break;
         }
-
-        return touchingCollisions;
     }
 
     vector<transform*>* collisionNodeTranslator::createOffsetTransforms(vec3 offset)
@@ -163,7 +165,10 @@ namespace phi
             sweepCollision farthestCollision;
             auto foundFarthestCollision = findFarthestValidCollision(sweepResult, offset, farthestCollision);
             if (!foundFarthestCollision)
+            {
                 finalOffset = vec3();
+                addTouchingCollisions(sweepResult, sweepResult->collisions[0]);
+            }
             else
             {
                 auto limitedOffset = glm::normalize(offset) * farthestCollision.distance;
@@ -172,7 +177,7 @@ namespace phi
                 if (adjustedOffset == vec3())
                 {
                     finalOffset = limitedOffset;
-                    _lastTranslationTouchingCollisions = getTouchingCollisions(sweepResult, farthestCollision);
+                    addTouchingCollisions(sweepResult, farthestCollision);
                 }
                 else
                 {
@@ -183,12 +188,12 @@ namespace phi
                     {
                         auto firstCollision = adjustSweepResult->collisions.begin();
                         finalOffset = limitedOffset + glm::normalize(adjustedOffset) * firstCollision->distance;
-                        _lastTranslationTouchingCollisions = getTouchingCollisions(adjustSweepResult, *firstCollision);
+                        addTouchingCollisions(adjustSweepResult, *firstCollision);
                     }
                     else
                     {
                         finalOffset = limitedOffset + adjustedOffset;
-                        _lastTranslationTouchingCollisions = getTouchingCollisions(sweepResult, farthestCollision);
+                        addTouchingCollisions(sweepResult, farthestCollision);
                     }
 
                     safeDelete(adjustSweepResult);
@@ -220,8 +225,7 @@ namespace phi
 
     void collisionNodeTranslator::translateNode(vec3 offset)
     {
-        if (_lastTranslationTouchingCollisions)
-            safeDelete(_lastTranslationTouchingCollisions);
+        _lastTranslationTouchingCollisions->clear();
 
         auto validOffset = getUndisruptedOffset(offset);
         _node->getTransform()->translate(validOffset);
