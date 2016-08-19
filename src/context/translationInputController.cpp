@@ -328,6 +328,10 @@ namespace phi
             _draggingGhostNode->getParent()->removeChild(_draggingGhostNode);
             _showingGhost = false;
             safeDelete(_draggingGhostNode);
+
+            _draggingRootNode->traverse([](phi::node* node) {
+                node->setIsTranslating(false);
+            });
         }
 
         endNodeTranslators();

@@ -113,7 +113,7 @@ namespace phi
 
     inline void node::setIsTranslating(bool value)
     {
-        _isSelected = value;
+        _isTranslating = value;
     }
 
     inline void node::setParent(node * const value)
