@@ -34,6 +34,7 @@ namespace phi
 
         CORE_API vec3 projectPoint(const vec3 point) const;
         CORE_API float distanceFrom(const vec3 point) const;
+        CORE_API bool isParallel(const plane other) const;
         CORE_API bool intersectsLine(vec3 lineOrigin, vec3 lineDirection, float& t) const;
         CORE_API vec4 toVec4() const;
 
