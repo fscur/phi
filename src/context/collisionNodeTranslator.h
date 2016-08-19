@@ -17,7 +17,7 @@ namespace phi
         vector<sweepCollision>* _lastTranslationTouchingCollisions;
 
     private:
-        vector<sweepCollision>* getTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
+        void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
         vector<transform*>* createOffsetTransforms(vec3 offset);
         bool objectFitsInOffsetedPosition(vec3 offset);
         sweepCollisionResult* performCollisionSweep(vector<transform*>* transforms, vec3 offset, uint32_t maximumHits = 32u);
@@ -28,6 +28,7 @@ namespace phi
 
     public:
         collisionNodeTranslator(physicsWorld* physicsWorld);
+        ~collisionNodeTranslator();
 
         vector<boxCollider*>* getColliders() { return &_colliders; }
         vector<transform*>* getTransforms() { return &_transforms; }

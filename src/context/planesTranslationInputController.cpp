@@ -348,12 +348,20 @@ namespace phi
             setupTranslationPlane(translationPlane);
 
         auto position = getTranslationPosition(mousePosition, translationPlane);
+
         auto currentPosition = _draggingRootNode->getTransform()->getLocalPosition();
         auto offset = position - currentPosition;
+
         offset = checkForPossibleSwitchOfPlanes(offset, translationPlane, mousePosition);
 
         translateNode(offset);
         translatePlaneGrid(translationPlane, mousePosition);
+
+        if (_lastTranslationTouchs->size() > 0)
+            showGhost();
+        else
+            hideGhost();
+
         translateGhost(currentPosition + offset, offset);
 
         _lastChosenTranslationPlane = translationPlane;
