@@ -18,25 +18,21 @@ namespace phi
     struct clippingPlane
     {
         phi::plane plane;
-        clippingDistance::clippingDistance distance;
 
         clippingPlane() :
-            plane(phi::plane(vec3(0.0f), vec3(0.0f))),
-            distance(clippingDistance::positive)
+            plane(phi::plane(vec3(0.0f), vec3(0.0f)))
         {}
 
-        clippingPlane(phi::plane plane, clippingDistance::clippingDistance distance) :
-            plane(plane),
-            distance(distance)
+        clippingPlane(phi::plane plane) : //, clippingDistance::clippingDistance distance) :
+            plane(plane)
         {}
 
         clippingPlane(const clippingPlane& original) :
-            plane(original.plane),
-            distance(original.distance)
+            plane(original.plane)
         {
         }
 
-        vec4 toVec4() const 
+        vec4 toVec4(clippingDistance::clippingDistance distance) const
         { 
             float sign = distance == clippingDistance::positive ? 1.0f : -1.0f;
             vec3 normal = sign * plane.normal;
@@ -46,8 +42,7 @@ namespace phi
         bool operator==(const clippingPlane& value)
         {
             return
-                plane == value.plane &&
-                distance == value.distance;
+                plane == value.plane;
         }
 
         bool operator!=(const clippingPlane& value)

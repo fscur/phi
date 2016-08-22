@@ -62,18 +62,15 @@ namespace phi
         assert(_fadeOutAnimation != nullptr);
 
         auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
-
         _fadeOutAnimation->start(planeGrid->getOpacity(), 1.0f, 0.8f, fadeInEndedFunction);
-    
     }
 
     void translationPlane::fadeGridOpacityOut(std::function<void(void)> fadeOutEndedFunction)
     {
         assert(_planeGridNode != nullptr);
         assert(_fadeOutAnimation != nullptr);
-
+        
         auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
-
         _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 0.8f, fadeOutEndedFunction);
     }
 }
