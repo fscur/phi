@@ -333,8 +333,9 @@ namespace phi
                     pairTest.checkPenetration = true;
                     auto penetrationResult = sweep(pairTest);
 
-                    if (!penetrationResult.collided)
-                        continue;
+                    assert(penetrationResult.collided);
+                    //if (!penetrationResult.collided)
+                    //    continue;
 
                     normal = collidee->getObb().findClosestNormalTo(penetrationResult.collisions[0].normal);
                     if (test.disregardDivergentNormals)

@@ -28,6 +28,7 @@ add_subdirectory(tests/phiTests)
 add_subdirectory(tests/diagnosticTests)
 add_subdirectory(tests/coreTests)
 add_subdirectory(tests/contextTests)
+add_subdirectory(tests/physicsTests)
 
 set (dlls_dir ${CMAKE_CURRENT_SOURCE_DIR}/libs/${SOLUTION_PLATFORM})
 set (library_dir ${CMAKE_CURRENT_SOURCE_DIR}/library)
@@ -63,6 +64,7 @@ set_target_properties(phiTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRE
 set_target_properties(diagnosticTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(coreTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 set_target_properties(contextTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
+set_target_properties(physicsTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${BIN_FOLDER})
 
 if (MSVC)
     foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
