@@ -5,6 +5,7 @@
 #include <rendering\frameBuffer.h>
 
 #include "panInputController.h"
+#include <application\window.h>
 
 namespace phi
 {
@@ -56,6 +57,8 @@ namespace phi
         _panning = true;
         _lastMousePosX = e->x;
         _lastMousePosY = e->y;
+
+        window::hideCursor();
 
         return true;
     }
@@ -126,6 +129,8 @@ namespace phi
         _cameraPos = _camera->getTransform()->getPosition();
         _delta = _targetCameraPos - _cameraPos;
         _delta += _delta * (1.0f - glm::min(1.0f, glm::max(0.0f, deltaTime / 100.0f)));
+
+        window::showCursor();
 
         return true;
     }

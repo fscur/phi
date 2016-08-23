@@ -92,17 +92,18 @@ namespace phi
     void planesTranslationInputController::createClippingPlanes(translationPlane* clippingTranslationPlane, clippingDistance::clippingDistance clippingDistance)
     {
         auto createdTranslationPlaneGrid = clippingTranslationPlane->getPlaneGridComponent();
-        auto clippingPlane = new phi::clippingPlane(clippingTranslationPlane->getGridPlane(), clippingDistance);
+        auto clippingPlane = new phi::clippingPlane(clippingTranslationPlane->getGridPlane());
         clippingTranslationPlane->setClippingPlane(clippingPlane);
 
         for (auto& clippedTranslationPlane : _translationPlanes)
         {
             auto clippedPlane = clippedTranslationPlane->getClippingPlane();
-            clippedPlane->distance = clippingDistance;
             createdTranslationPlaneGrid->addClippingPlane(clippedPlane);
+            createdTranslationPlaneGrid->setClippingPlaneDistance(clippedPlane, clippingDistance);
 
             auto planeGridComponent = clippedTranslationPlane->getPlaneGridComponent();
             planeGridComponent->addClippingPlane(clippingPlane);
+            planeGridComponent->setClippingPlaneDistance(clippingPlane, clippingDistance);
         }
     }
 
@@ -474,6 +475,15 @@ namespace phi
         }
 
         _planesToRemove.clear();
+        
+        /*for (auto& translationPlane : _translationPlanes)
+        {
+            auto planeGrid = translationPlane->getPlaneGridComponent();
+
+            planeGrid->setColor()
+        }*/
+
+        //phi::debug(std::to_string(_translationPlanes.size()));
 
         return true;
     }

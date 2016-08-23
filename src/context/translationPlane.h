@@ -25,6 +25,7 @@ namespace phi
         floatAnimation* _fadeInAnimation;
         floatAnimation* _fadeOutAnimation;
         floatAnimation* _clippingPlanesFadeAnimation;
+        bool _isHiding;
 
     public:
         CONTEXT_API translationPlane(phi::plane plane);

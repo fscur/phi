@@ -43,11 +43,14 @@ layout (std140, binding = 1) buffer PlaneGridRenderDataBuffer
 } renderData;
 
 out vec4 fragWorldPosition;
+out vec3 fragViewPosition;
+out float planeDist2;
 out vec2 fragWorldTexCoord;
 out vec2 fragTexCoord;
+
+flat out vec3 fragViewNormal;
 flat out float planeSize;
 flat out float planeDist;
-out float planeDist2;
 flat out uint instanceId;
 flat out float globalTime;
 flat out vec4 clipPlaneNormal;
@@ -79,7 +82,9 @@ void main()
     vec4 pos =  modelMatrix * inPos;
     
     gl_Position = frameUniforms.p * frameUniforms.v * pos;
-    
+    fragViewPosition = -(frameUniforms.v * pos).xyz;
+    fragViewNormal = normalize((frameUniforms.v * modelMatrix * vec4(0.0, 0.0, 1.0, 0.0)).xyz);
+
     fragWorldTexCoord = ((inTexCoord) * planeSize + projected);
     fragWorldPosition = pos;
 

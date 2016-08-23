@@ -18,6 +18,7 @@ namespace phi
     DWORD _windowExStyle = 0;
     DWORD _windowStyle = WS_OVERLAPPEDWINDOW;
     LPARAM _lastMouseMove;
+    POINT _lastMouseMovePt;
     resolution _currentResolution;
 
     nanoseconds _lastMouseWheelElapsed;
@@ -33,6 +34,8 @@ namespace phi
     bool _isBeingMinimized = false;
     bool _wasMaximized = false;
     bool _wasMinimized = false;
+    bool _isMouseFrozen = false;
+    bool _isCursorVisible = true;
 
     int convertToKey(WPARAM wParam)
     {
@@ -411,9 +414,14 @@ namespace phi
 
     LRESULT onMouseMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        if (_isMouseFrozen)
+            return DefWindowProcW(hWnd, message, wParam, lParam);
+
         if (lParam != _lastMouseMove)
             input::notifyMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
         _lastMouseMove = lParam;
+
         return 0;
     }
 
@@ -675,6 +683,16 @@ namespace phi
 
     void window::update()
     {
+        if (_isMouseFrozen)
+        {
+            POINT p;
+            GetCursorPos(&p);
+
+            input::notifyMouseMove(p.x - _lastMouseMovePt.x, p.y - _lastMouseMovePt.y);
+
+            SetCursorPos(_lastMouseMovePt.x, _lastMouseMovePt.y);
+        }
+
         if (_isMouseWheeling)
         {
             auto now = high_resolution_clock::now().time_since_epoch();
@@ -706,5 +724,32 @@ namespace phi
         releaseGLContext();
         ReleaseDC(_windowHandle, _deviceContext);
         DestroyWindow(_windowHandle);
+    }
+
+    void window::freezeMouse()
+    {
+        _isMouseFrozen = true;
+        GetCursorPos(&_lastMouseMovePt);
+        //ShowCursor(false);
+    }
+
+    void window::unfreezeMouse()
+    {
+        _isMouseFrozen = false;
+        //ShowCursor(true);
+    }
+
+    void window::showCursor()
+    {
+        ShowCursor(true);
+
+        _isCursorVisible = true;
+    }
+
+    void window::hideCursor()
+    {
+        ShowCursor(false);
+
+        _isCursorVisible = false;
     }
 }

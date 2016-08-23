@@ -83,6 +83,12 @@ namespace phi
         _clippingPlanesChanged.raise(this);
     }
 
+    void planeGrid::setClippingPlaneDistance(clippingPlane* clippingPlane, clippingDistance::clippingDistance distance)
+    {
+        _clippingPlanesDistances[clippingPlane] = distance;
+        _clippingPlanesChanged.raise(this);
+    }
+
     void planeGrid::show()
     {
         if (_isVisible)

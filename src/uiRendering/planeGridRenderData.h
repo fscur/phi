@@ -34,6 +34,7 @@ namespace phi
 
             auto clippingPlanes = planeGrid->getClippingPlanes();
             auto clippingPlanesOpacities = planeGrid->getClippingPlanesOpacities();
+            auto clippingPlanesDistances = planeGrid->getClippingPlanesDistances();
 
             auto count = clippingPlanes.size();
 
@@ -43,7 +44,7 @@ namespace phi
                     break;
 
                 auto clippingPlane = clippingPlanes[i];
-                planes[i] = clippingPlane->toVec4();
+                planes[i] = clippingPlane->toVec4(clippingPlanesDistances[clippingPlane]);
                 opacities[i] = clippingPlanesOpacities[clippingPlane];
             }
             
