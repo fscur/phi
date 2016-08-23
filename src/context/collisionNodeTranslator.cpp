@@ -31,7 +31,7 @@ namespace phi
         }
     }
 
-    vector<transform*>* collisionNodeTranslator::createOffsetTransforms(vec3 offset)
+    vector<transform*>* collisionNodeTranslator::createOffsetedTransforms(vec3 offset)
     {
         auto transformsCount = _transforms.size();
         auto offsetedTransforms = new vector<transform*>(transformsCount);
@@ -54,7 +54,7 @@ namespace phi
 
     bool collisionNodeTranslator::objectFitsInOffsetedPosition(vec3 offset)
     {
-        auto offsetedTransforms = createOffsetTransforms(offset);
+        auto offsetedTransforms = createOffsetedTransforms(offset);
         intersectionCollisionMultiTest intersectionTest;
         intersectionTest.colliders = &_colliders;
         intersectionTest.transforms = offsetedTransforms;
@@ -106,7 +106,7 @@ namespace phi
         {
             auto currentCollision = *reverseIterator;
             phi::removeIfContains(*collisionColliders, currentCollision.collidee);
-            auto offsetedTransforms = createOffsetTransforms(offsetNormal * currentCollision.distance);
+            auto offsetedTransforms = createOffsetedTransforms(offsetNormal * currentCollision.distance);
 
             intersectionCollisionGroupTest intersectionTest;
             intersectionTest.colliders = &_colliders;
@@ -181,7 +181,7 @@ namespace phi
                 }
                 else
                 {
-                    auto limitedOffsetTransforms = createOffsetTransforms(limitedOffset);
+                    auto limitedOffsetTransforms = createOffsetedTransforms(limitedOffset);
                     auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset, 5u);
 
                     if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
