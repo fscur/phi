@@ -5,6 +5,7 @@
 #include <rendering\framebuffer.h>
 
 #include "rotationInputController.h"
+#include <application\window.h>
 
 namespace phi
 {
@@ -61,9 +62,9 @@ namespace phi
 
         _lastMouseMoveTime = 0.0;
         _rotating = true;
-        _lastMousePosX = e->x;
-        _lastMousePosY = e->y;
 
+        window::hideCursor();
+        window::freezeMouse();
         return true;
     }
 
@@ -76,8 +77,11 @@ namespace phi
         auto w = resolution.width;
         auto h = resolution.height;
 
-        auto dx = e->x - _lastMousePosX;
-        auto dy = e->y - _lastMousePosY;
+        auto dx = e->x;
+        auto dy = e->y;
+
+        if (dx == 0 && dy == 0)
+            return true;
 
         auto x = (dx / w) * 3.0f * phi::PI;
         auto y = (dy / h) * 3.0f * phi::PI;
@@ -92,8 +96,6 @@ namespace phi
         _doingInertia = true;
         _inertiaLastPercent = 0.0f;
 
-        _lastMousePosX = e->x;
-        _lastMousePosY = e->y;
 
         return true;
     }
@@ -102,6 +104,9 @@ namespace phi
     {
         if (!e->rightButtonPressed)
             return false;
+
+        window::unfreezeMouse();
+        window::showCursor();
 
         _rotating = false;
 

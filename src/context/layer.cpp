@@ -164,19 +164,22 @@ namespace phi
     void layer::onMouseDown(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
-            controller->onMouseDown(e);
+            if (controller->onMouseDown(e))
+                break;
     }
 
     void layer::onMouseMove(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
-            controller->onMouseMove(e);
+            if (controller->onMouseMove(e))
+                break;
     }
 
     void layer::onMouseUp(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
-            controller->onMouseUp(e);
+            if (controller->onMouseUp(e))
+                break;
     }
 
     void layer::onBeginMouseWheel(mouseEventArgs* e)

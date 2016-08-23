@@ -46,5 +46,11 @@ namespace phi
 
         APPLICATION_API virtual void onTick();
         APPLICATION_API virtual void onResize(resolution resolution);
+
+    public:
+        APPLICATION_API static void freezeMouse();
+        APPLICATION_API static void unfreezeMouse();
+        APPLICATION_API static void showCursor();
+        APPLICATION_API static void hideCursor();
     };
 }

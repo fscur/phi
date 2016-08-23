@@ -41,6 +41,9 @@ namespace phi
             auto node = clickComponent->getNode();
             auto selectedMesh = node->getComponent<mesh>();
 
+            if (contains(selectedObjects, node))
+                return false;
+
             if (selectedMesh)
             {
                 _commandsManager->executeCommand(

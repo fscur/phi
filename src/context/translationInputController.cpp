@@ -7,7 +7,7 @@
 #include <core\mesh.h>
 #include <core\ghostMesh.h>
 #include <core\plane.h>
-
+#include <application\window.h>
 #include "translationInputController.h"
 
 namespace phi
@@ -296,7 +296,7 @@ namespace phi
         _lastMousePosition = mousePosition;
         setupTranslationPlane(_defaultTranslationPlane);
 
-        //ShowCursor(false);
+        window::hideCursor();
 
         return true;
     }
@@ -353,7 +353,7 @@ namespace phi
 
         endNodeTranslators();
 
-        //ShowCursor(true);
+        window::showCursor();
 
         return true;
     }

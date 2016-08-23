@@ -476,7 +476,14 @@ namespace phi
 
         _planesToRemove.clear();
         
-        phi::debug(std::to_string(_translationPlanes.size()));
+        /*for (auto& translationPlane : _translationPlanes)
+        {
+            auto planeGrid = translationPlane->getPlaneGridComponent();
+
+            planeGrid->setColor()
+        }*/
+
+        //phi::debug(std::to_string(_translationPlanes.size()));
 
         return true;
     }
