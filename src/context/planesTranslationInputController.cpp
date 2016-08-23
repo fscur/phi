@@ -337,7 +337,7 @@ namespace phi
         if (_isSwitchingPlanes)
         {
             auto difference = vec2(mousePosition) - vec2(_switchPlanesMousePosition);
-            if (length(difference) < 50.0f)
+            if (length(difference) < 5.0f)
                 return;
 
             _isSwitchingPlanes = false;
@@ -450,6 +450,17 @@ namespace phi
             translationInputController::onMouseMove(e);
 
         _lastMousePosition = mousePosition;
+
+        /*if (_translationPlanes.size() >= 1)
+        {
+            auto cameraDir = _camera->getTransform()->getDirection();
+            auto planeNormal = _translationPlanes[0]->getGridPlane().normal;
+            auto d = glm::dot(glm::normalize(-cameraDir), glm::normalize(planeNormal));
+            debug("plane [" + std::to_string(planeNormal.x) + ";" + std::to_string(planeNormal.y) + ";" + std::to_string(planeNormal.z) + "]");
+            debug("camera [" + std::to_string(cameraDir.x) + ";" + std::to_string(cameraDir.y) + ";" + std::to_string(cameraDir.z) + "]");
+            debug("dot camera x plane: " + std::to_string(d));
+        }*/
+
         return true;
     }
 
@@ -473,17 +484,21 @@ namespace phi
             deletePlane(plane);
             plane = nullptr;
         }
-
         _planesToRemove.clear();
-        
-        /*for (auto& translationPlane : _translationPlanes)
+
+        vector<translationPlane*> translationPlanesToRemove;
+
+        for (auto& translationPlane : _translationPlanes)
         {
-            auto planeGrid = translationPlane->getPlaneGridComponent();
+            if (!canTranslateAt(translationPlane->getMousePlane().normal))
+                translationPlanesToRemove.push_back(translationPlane);
+        }
 
-            planeGrid->setColor()
-        }*/
-
-        //phi::debug(std::to_string(_translationPlanes.size()));
+        for (auto& planeToRemove : translationPlanesToRemove)
+        {
+            removeTranslationPlane(planeToRemove);
+            removeClippingPlanes(planeToRemove);
+        }
 
         return true;
     }
