@@ -11,6 +11,7 @@ namespace phi
     private:
         static void raiseMouseMoveEvent(mouseEventArgs* e);
         static void raiseMouseDownEvent(mouseEventArgs* e);
+        static void raiseMouseDoubleClickEvent(mouseEventArgs* e);
         static void raiseMouseUpEvent(mouseEventArgs* e);
         static void raiseBeginMouseWheelEvent(mouseEventArgs* e);
         static void raiseMouseWheelEvent(mouseEventArgs* e);
@@ -27,6 +28,10 @@ namespace phi
         static void notifyRightMouseUp(int x, int y);
         static void notifyMiddleMouseUp(int x, int y);
 
+        static void notifyLeftMouseDoubleClick(int x, int y);
+        static void notifyRightMouseDoubleClick(int x, int y);
+        static void notifyMiddleMouseDoubleClick(int x, int y);
+
         static void notifyMouseMove(int x, int y);
 
         static void notifyBeginMouseWheel(int delta, int x, int y);
@@ -40,6 +45,7 @@ namespace phi
 
         static mouseEventHandler* mouseMove;
         static mouseEventHandler* mouseDown;
+        static mouseEventHandler* mouseDoubleClick;
         static mouseEventHandler* mouseUp;
         static mouseEventHandler* beginMouseWheel;
         static mouseEventHandler* mouseWheel;

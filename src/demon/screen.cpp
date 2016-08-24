@@ -241,9 +241,9 @@ namespace demon
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(back_wall);
-        //_sceneLayer->add(table);
-        //_sceneLayer->add(tableChair);
-        //_sceneLayer->add(coffeTable);
+        _sceneLayer->add(table);
+        _sceneLayer->add(tableChair);
+        _sceneLayer->add(coffeTable);
 
         //TODO: prevent components that are not dealt with it from being added to layer
 
@@ -276,6 +276,7 @@ namespace demon
     void screen::initInput()
     {
         input::mouseDown->assign(std::bind(&screen::onMouseDown, this, std::placeholders::_1));
+        input::mouseDoubleClick->assign(std::bind(&screen::onMouseDoubleClick, this, std::placeholders::_1));
         input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
         input::mouseUp->assign(std::bind(&screen::onMouseUp, this, std::placeholders::_1));
         input::beginMouseWheel->assign(std::bind(&screen::onBeginMouseWheel, this, std::placeholders::_1));
@@ -304,6 +305,12 @@ namespace demon
     {
         _activeContext->onMouseDown(e);
     }
+    
+    void screen::onMouseDoubleClick(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseDoubleClick(e);
+    }
+
 
     void screen::onMouseMove(phi::mouseEventArgs* e)
     {

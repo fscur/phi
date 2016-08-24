@@ -18,6 +18,7 @@ namespace phi
 
     private:
         virtual bool onMouseDown(mouseEventArgs* e) override;
+        virtual bool onMouseDoubleClick(mouseEventArgs* e) override;
 
     public:
         CONTEXT_API selectionInputController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager);

@@ -55,6 +55,12 @@ namespace phi
             layer->onMouseDown(e);
     }
 
+    void context::onMouseDoubleClick(mouseEventArgs* e)
+    {
+        for (auto& layer : _layers)
+            layer->onMouseDoubleClick(e);
+    }
+
     void context::onMouseMove(mouseEventArgs* e)
     {
         for (auto& layer : _layers)

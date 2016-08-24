@@ -55,4 +55,9 @@ namespace phi
 
         return true;
     }
+
+    bool selectionInputController::onMouseDoubleClick(phi::mouseEventArgs* e)
+    {
+        return false;
+    }
 }
