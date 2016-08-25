@@ -11,7 +11,7 @@
 
 namespace phi
 {
-    class zoomInputController :
+    class cameraZoomInputController :
         public inputController
     {
 
@@ -38,8 +38,8 @@ namespace phi
         void startBounceAnimation(float distance);
 
     public:
-        zoomInputController(camera* camera);
-        ~zoomInputController();
+        cameraZoomInputController(camera* camera);
+        ~cameraZoomInputController();
 
         void cancelZoom();
         virtual bool onMouseWheel(mouseEventArgs* e) override;

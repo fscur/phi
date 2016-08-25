@@ -20,8 +20,6 @@ namespace phi
         meshRenderAdapter* _adapter;
         vector<renderPass*> _renderPasses;
 
-        vector<node*> _selectedObjects;
-
         resolution _resolution;
         string _resourcesPath;
 
@@ -35,6 +33,5 @@ namespace phi
         CONTEXT_API void onNodeSelectionChanged(node* node);
 
         vector<renderPass*> getRenderPasses() { return _renderPasses; }
-        vector<node*> getSelectedObjects() { return _selectedObjects; }
     };
 }

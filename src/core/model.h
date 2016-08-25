@@ -23,5 +23,7 @@ namespace phi
             auto m = static_cast<const model*>(this);
             return new model(*m);
         }
+
+        static componentType getComponentType() { return componentType::MODEL; }
     };
 }

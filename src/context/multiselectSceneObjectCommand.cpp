@@ -32,7 +32,7 @@ namespace phi
 
         _nodeToSelect->traverse([](node* node)
         {
-            node->setIsSelected(true);
+            node->select();
         });
     }
 
@@ -40,7 +40,7 @@ namespace phi
     {
         _nodeToSelect->traverse([](node* node)
         {
-            node->setIsSelected(false);
+            node->deselect();
         });
     }
 }

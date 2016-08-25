@@ -7,15 +7,15 @@
 
 namespace phi
 {
-    class unselectSceneObjectCommand :
+    class unselectNodeCommand :
         public command
     {
     private:
         vector<node*> _nodesToUnselect;
         vector<node*> _unselectedNodes;
     public:
-        CONTEXT_API unselectSceneObjectCommand(const vector<node*>& nodesToUnselect);
-        CONTEXT_API ~unselectSceneObjectCommand();
+        CONTEXT_API unselectNodeCommand(const vector<node*>& nodesToUnselect);
+        CONTEXT_API ~unselectNodeCommand();
 
         CONTEXT_API virtual void execute();
         CONTEXT_API virtual void executeUndo();

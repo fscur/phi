@@ -4,11 +4,11 @@
 
 #include <rendering\framebuffer.h>
 #include <rendering\defaultFramebuffer.h>
-#include "zoomInputController.h"
+#include "cameraZoomInputController.h"
 
 namespace phi
 {
-    zoomInputController::zoomInputController(camera* camera) :
+    cameraZoomInputController::cameraZoomInputController(camera* camera) :
         inputController::inputController(),
         _camera(camera),
         _direction(phi::vec3()),
@@ -23,23 +23,23 @@ namespace phi
     {
     }
 
-    zoomInputController::~zoomInputController()
+    cameraZoomInputController::~cameraZoomInputController()
     {
         cancelBounceAnimation();
     }
 
-    void zoomInputController::cancelBounceAnimation()
+    void cameraZoomInputController::cancelBounceAnimation()
     {
         _bounceAnimation->stop();
     }
     
-    void zoomInputController::cancelZoom()
+    void cameraZoomInputController::cancelZoom()
     {
         cancelBounceAnimation();
         _speed = 0.0f;
     }
 
-    void zoomInputController::startBounceAnimation(float speedPercent)
+    void cameraZoomInputController::startBounceAnimation(float speedPercent)
     {
         cancelBounceAnimation();
 
@@ -49,7 +49,7 @@ namespace phi
         _bounceAnimation->start(cameraPosition, cameraPosition + (_direction * bounceDistance), 0.4);
     }
 
-    bool zoomInputController::onMouseWheel(mouseEventArgs* e)
+    bool cameraZoomInputController::onMouseWheel(mouseEventArgs* e)
     {
         if (e->wheelDelta > 0.0f && _bounceAnimation->getIsAnimating())
             return false;
@@ -90,7 +90,7 @@ namespace phi
         return true;
     }
 
-    bool zoomInputController::update()
+    bool cameraZoomInputController::update()
     {
         auto deltaMilliseconds = phi::time::deltaSeconds * 1000.0;
         _speedAccumulationTime = glm::max(_speedAccumulationTime - deltaMilliseconds, 0.0);

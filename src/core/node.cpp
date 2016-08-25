@@ -105,9 +105,21 @@ namespace phi
         transformChanged.raise(this);
     }
 
-    inline void node::setIsSelected(bool isSelected) 
+    inline void node::select() 
     {
-        _isSelected = isSelected;
+        if (_isSelected)
+            return;
+
+        _isSelected = true;
+        selectionChanged.raise(this);
+    }
+
+    inline void node::deselect()
+    {
+        if (!_isSelected)
+            return;
+
+        _isSelected = false;
         selectionChanged.raise(this);
     }
 

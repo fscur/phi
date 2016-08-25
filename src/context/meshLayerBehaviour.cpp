@@ -56,20 +56,10 @@ namespace phi
 
     void meshLayerBehaviour::onNodeSelectionChanged(node* node)
     {
-        auto isSelected = node->getIsSelected();
-        auto mesh = node->getComponent<phi::mesh>();
-        if (mesh)
+        auto isSelected = node->isSelected();
+        node->traverse<mesh>([&] (mesh* mesh)
         {
             _adapter->updateSelection(mesh, isSelected);
-        }
-
-        if (isSelected)
-        {
-            _selectedObjects.push_back(node);
-        }
-        else
-        {
-            phi::removeIfContains(_selectedObjects, node);
-        }
+        });
     }
 }

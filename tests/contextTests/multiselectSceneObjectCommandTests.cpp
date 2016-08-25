@@ -13,15 +13,15 @@ TEST(multiselectSceneObjectCommand, execute_twoNodesAndOneAlreadySelected_select
     auto son1 = new node("son1");
     auto son2 = new node("son2");
 
-    son1->setIsSelected(true);
+    son1->select();
 
     //Act
     auto multiselectCmd = multiselectSceneObjectCommand(son2);
     multiselectCmd.execute();
 
     //Assert
-    ASSERT_TRUE(son1->getIsSelected());
-    ASSERT_TRUE(son2->getIsSelected());
+    ASSERT_TRUE(son1->isSelected());
+    ASSERT_TRUE(son2->isSelected());
 
     safeDelete(root);
 }

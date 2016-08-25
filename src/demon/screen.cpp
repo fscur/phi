@@ -159,9 +159,13 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
+        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
+        auto group = new node();
+        group->addChild(cube0);
+        group->addChild(cube1);
+
         //cube0->getTransform()->yaw(PI_OVER_4);
 
         auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
@@ -196,7 +200,7 @@ namespace demon
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withPlanesTranslationController()
+                .withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -236,11 +240,12 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        _sceneLayer->add(cube0);
-        _sceneLayer->add(cube1);
+        //_sceneLayer->add(cube0);
+        //_sceneLayer->add(cube1);
+        _sceneLayer->add(group);
         _sceneLayer->add(_chair0);
-        _sceneLayer->add(floor0);
-        _sceneLayer->add(back_wall);
+        //_sceneLayer->add(floor0);
+        //_sceneLayer->add(back_wall);
         //_sceneLayer->add(table);
         //_sceneLayer->add(tableChair);
         //_sceneLayer->add(coffeTable);

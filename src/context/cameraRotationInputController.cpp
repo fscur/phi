@@ -4,12 +4,12 @@
 
 #include <rendering\framebuffer.h>
 
-#include "rotationInputController.h"
+#include "cameraRotationInputController.h"
 #include <application\window.h>
 
 namespace phi
 {
-    rotationInputController::rotationInputController(camera* camera) :
+    cameraRotationInputController::cameraRotationInputController(camera* camera) :
         inputController::inputController(),
         _camera(camera),
         _rotating(false),
@@ -24,13 +24,13 @@ namespace phi
     {
     }
 
-    void rotationInputController::cancelRotation()
+    void cameraRotationInputController::cancelRotation()
     {
         _delta = phi::vec2();
         _doingInertia = false;
     }
 
-    bool rotationInputController::onMouseDown(mouseEventArgs* e)
+    bool cameraRotationInputController::onMouseDown(mouseEventArgs* e)
     {
         if (!e->rightButtonPressed)
             return false;
@@ -68,7 +68,7 @@ namespace phi
         return true;
     }
 
-    bool rotationInputController::onMouseMove(mouseEventArgs* e)
+    bool cameraRotationInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_rotating)
             return false;
@@ -100,7 +100,7 @@ namespace phi
         return true;
     }
 
-    bool rotationInputController::onMouseUp(mouseEventArgs* e)
+    bool cameraRotationInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->rightButtonPressed)
             return false;
@@ -121,7 +121,7 @@ namespace phi
         return true;
     }
 
-    bool rotationInputController::update()
+    bool cameraRotationInputController::update()
     {
         if (!_doingInertia)
             return false;

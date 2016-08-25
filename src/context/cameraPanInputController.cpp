@@ -4,12 +4,12 @@
 
 #include <rendering\frameBuffer.h>
 
-#include "panInputController.h"
+#include "cameraPanInputController.h"
 #include <application\window.h>
 
 namespace phi
 {
-    panInputController::panInputController(camera* camera) :
+    cameraPanInputController::cameraPanInputController(camera* camera) :
         inputController::inputController(),
         _camera(camera),
         _panning(false),
@@ -27,13 +27,13 @@ namespace phi
     {
     }
 
-    void panInputController::cancelPan()
+    void cameraPanInputController::cancelPan()
     {
         _delta = phi::vec3();
         _doingInertia = false;
     }
 
-    bool panInputController::onMouseDown(mouseEventArgs* e)
+    bool cameraPanInputController::onMouseDown(mouseEventArgs* e)
     {
         if (!e->middleButtonPressed)
             return false;
@@ -63,7 +63,7 @@ namespace phi
         return true;
     }
 
-    bool panInputController::onMouseMove(mouseEventArgs* e)
+    bool cameraPanInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_panning)
             return false;
@@ -118,7 +118,7 @@ namespace phi
         return true;
     }
 
-    bool panInputController::onMouseUp(mouseEventArgs* e)
+    bool cameraPanInputController::onMouseUp(mouseEventArgs* e)
     {
         if (!e->middleButtonPressed)
             return false;
@@ -135,7 +135,7 @@ namespace phi
         return true;
     }
 
-    bool panInputController::update()
+    bool cameraPanInputController::update()
     {
         if (!_doingInertia)
             return false;

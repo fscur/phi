@@ -8,28 +8,31 @@
 
 namespace phi
 {
-    class rotationInputController :
+    class cameraPanInputController :
         public inputController
     {
     private:
         camera* _camera;
-        bool _rotating;
+        bool _panning;
         bool _doingInertia;
-        vec2 _delta;
-        vec3 _targetPos;
+        float _eyeZ;
+        vec3 _cameraPos;
+        vec3 _cameraRight;
+        vec3 _cameraUp;
+        vec3 _delta;
+        vec3 _targetCameraPos;
         double _lastMouseMoveTime;
         double _inertiaTime;
-        float _inertiaLastPercent;
         int32_t _lastMousePosX;
         int32_t _lastMousePosY;
 
     public:
-        rotationInputController(camera* camera);
+        cameraPanInputController(camera* camera);
 
-        void cancelRotation();
+        void cancelPan();
         bool onMouseDown(mouseEventArgs* e) override;
         bool onMouseMove(mouseEventArgs* e) override;
         bool onMouseUp(mouseEventArgs* e) override;
-        bool update() override;
+        bool update();
     };
 }

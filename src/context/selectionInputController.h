@@ -2,9 +2,9 @@
 #include <phi.h>
 #include "contextApi.h"
 
+#include <core\node.h>
 #include <application\commandsManager.h>
 
-#include "meshLayerBehaviour.h"
 #include "inputController.h"
 
 namespace phi
@@ -13,14 +13,26 @@ namespace phi
         public inputController
     {
     private:
-        meshLayerBehaviour* _meshLayerBehaviour;
         commandsManager* _commandsManager;
+        vector<node*> _selectedNodes;
 
     private:
-        virtual bool onMouseDown(mouseEventArgs* e) override;
+        bool isSelectedOrHasSelectedChildren(const node * const node);
+        bool isParentSelected(const node* const node);
+        bool isSonOfRoot(const node* const node);
+        bool hasSelectedDescendant(const node* const node);
+        bool hasModelComponentInItselfOrInDescendants(const node * const node);
+        node* getSonOfFirstSelected(node* const node);
+        node* findTargetNode(node* const node);
 
     public:
-        CONTEXT_API selectionInputController(meshLayerBehaviour* meshLayerBehaviour, commandsManager* commandsManager);
+        CONTEXT_API selectionInputController(commandsManager* commandsManager);
         virtual ~selectionInputController() {}
+
+        CONTEXT_API bool select(node* node);
+        CONTEXT_API bool deselectAll();
+
+        CONTEXT_API virtual bool onMouseUp(mouseEventArgs* e) override;
+        const vector<node*>* getSelectedNodes() const { return &_selectedNodes; }
     };
 }

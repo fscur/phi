@@ -111,6 +111,7 @@
       <Item Name="Components">_components,na</Item>
       <Item Name="Transform">_transform,na</Item>
       <Item Name="Parent Node" Condition="_parent != nullptr">_parent,na</Item>
+      <Item Name="Is Selected">_isSelected,na</Item>
     </Expand>
   </Type>
 

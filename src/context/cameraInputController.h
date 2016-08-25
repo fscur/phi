@@ -5,9 +5,9 @@
 
 #include "contextApi.h"
 #include "inputController.h"
-#include "zoomInputController.h"
-#include "rotationInputController.h"
-#include "panInputController.h"
+#include "cameraZoomInputController.h"
+#include "cameraRotationInputController.h"
+#include "cameraPanInputController.h"
 
 namespace phi
 {
@@ -15,9 +15,9 @@ namespace phi
         public inputController
     {
     private:
-        zoomInputController _zoomController;
-        rotationInputController _rotationController;
-        panInputController _panController;
+        cameraZoomInputController _zoomController;
+        cameraRotationInputController _rotationController;
+        cameraPanInputController _panController;
 
     private:
         virtual bool onKeyDown(keyboardEventArgs* e) override;

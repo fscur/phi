@@ -36,7 +36,8 @@ namespace phi
         CORE_API void removeChild(node* child);
         CORE_API void clearChildren();
 
-        CORE_API void setIsSelected(bool isSelected);
+        CORE_API void select();
+        CORE_API void deselect();
         CORE_API void setIsTranslating(bool value);
         CORE_API void setParent(node* const value);
         CORE_API void setPosition(vec3 value);
@@ -48,7 +49,7 @@ namespace phi
         node* getParent() const { return _parent; }
         vector<node*>* getChildren() const { return _children; }
         vector<component*>* getComponents() const { return _components; }
-        bool getIsSelected() const { return _isSelected; }
+        bool isSelected() const { return _isSelected; }
         bool getIsTranslating() const { return _isTranslating; }
 
         CORE_API bool operator ==(const node& other);

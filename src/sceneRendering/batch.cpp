@@ -112,7 +112,7 @@ namespace phi
 
         auto node = instance->mesh->getNode();
         auto clickComponent = node->getComponent<phi::clickComponent>();
-        auto selection = vec4(clickComponent->getSelectionColor(), node->getIsSelected());
+        auto selection = vec4(clickComponent->getSelectionColor(), node->isSelected());
 
         _modelMatricesBuffer->addInstance(geometry, instance, instance->modelMatrix);
         _materialsIdsBuffer->addInstance(geometry, instance, instance->materialId);
@@ -210,7 +210,7 @@ namespace phi
     {
         auto node = instance->mesh->getNode();
         auto clickComponent = node->getComponent<phi::clickComponent>();
-        auto selection = vec4(clickComponent->getSelectionColor(), node->getIsSelected());
+        auto selection = vec4(clickComponent->getSelectionColor(), node->isSelected());
 
         auto geometry = instance->getGeometry();
 
@@ -236,7 +236,7 @@ namespace phi
         auto node = instance->mesh->getNode();
 
         int flags = 0;
-        if (node->getIsSelected())
+        if (node->isSelected())
             flags |= 1;
         if (node->getIsTranslating())
             flags |= 2;
