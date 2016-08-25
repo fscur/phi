@@ -130,11 +130,22 @@ namespace phi
         return false;
     }
 
-    bool selectionInputController::onMouseUp(mouseEventArgs* e)
+    bool selectionInputController::onMouseDown(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed)
             return false;
 
+        _mouseDownPosition = ivec2(e->x, e->y);
+        return false;
+    }
+
+    bool selectionInputController::onMouseUp(mouseEventArgs* e)
+    {
+        auto mousePosition = ivec2(e->x, e->y);
+        if (!e->leftButtonPressed || _mouseDownPosition != mousePosition)
+            return false;
+
+        debug("tô fazeno seleção");
         auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
 
         auto clickComponent = pickingId::get(idOnMousePosition);
@@ -145,14 +156,24 @@ namespace phi
 
             auto selectedMesh = clickedNode->getComponent<mesh>();
             if (selectedMesh)
-                return select(clickedNode);
+             select(clickedNode);
         }
+        else
+            deselectAll();
 
-        return deselectAll();
+        return false;
     }
 
     bool selectionInputController::onMouseDoubleClick(phi::mouseEventArgs* e)
     {
+        return false;
+    }
+
+    bool selectionInputController::onKeyUp(keyboardEventArgs * e)
+    {
+        if (e->key == PHIK_ESCAPE)
+            return deselectAll();
+
         return false;
     }
 }

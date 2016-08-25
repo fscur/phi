@@ -172,11 +172,11 @@ namespace phi
         auto rayEye = ip * rayClip;
         rayEye = vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
 
-        auto rayWorld = vec3(iv * rayEye);
-        rayWorld = glm::normalize(rayWorld);
+        auto direction = vec3(iv * rayEye);
+        direction = glm::normalize(direction);
 
         auto origin = _transform->getLocalPosition();
-        return ray(origin, rayWorld);
+        return ray(origin, direction);
     }
 
     float camera::zBufferToDepth(float zBufferValue)

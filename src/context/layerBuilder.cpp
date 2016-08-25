@@ -232,7 +232,7 @@ namespace phi
         if (!_withSelectionController)
             throw invalidLayerConfigurationException("Translation Controller could not be added. It requires Selection Controller.");
 
-        auto translationController = new translationInputController(_selectionInputController->getSelectedNodes());
+        auto translationController = new translationInputController(_selectionInputController->getSelectedNodes(), _layer);
         _layer->addMouseController(translationController);
     }
 

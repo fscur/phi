@@ -210,13 +210,15 @@ namespace phi
     void layer::onKeyDown(keyboardEventArgs* e)
     {
         for (auto& controller : _controllers)
-            controller->onKeyDown(e);
+            if (controller->onKeyDown(e))
+                break;
     }
 
     void layer::onKeyUp(keyboardEventArgs* e)
     {
         for (auto& controller : _controllers)
-            controller->onKeyUp(e);
+            if (controller->onKeyUp(e))
+                break;
     }
 
     void layer::resize(const resolution& resolution)

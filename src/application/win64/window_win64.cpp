@@ -20,6 +20,9 @@ namespace phi
     LPARAM _lastMouseMove;
     POINT _lastMouseMovePt;
     resolution _currentResolution;
+    bool _isLastLeftMouseDownDoubleClick = false;
+    bool _isLastMiddleMouseDownDoubleClick = false;
+    bool _isLastRightMouseDownDoubleClick = false;
 
     nanoseconds _lastMouseWheelElapsed;
     nanoseconds _firstMouseWheelElapsed;
@@ -379,13 +382,20 @@ namespace phi
 
     LRESULT onLButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyLeftMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        _isLastLeftMouseDownDoubleClick = true;
+        input::notifyLeftMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         SetCapture(_windowHandle);
         return 0;
     }
     
     LRESULT onLButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        if (_isLastLeftMouseDownDoubleClick)
+        {
+            input::notifyLeftMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            _isLastLeftMouseDownDoubleClick = false;
+        }
+
         input::notifyLeftMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         ReleaseCapture();
         return 0;
@@ -400,13 +410,20 @@ namespace phi
 
     LRESULT onRButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyRightMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        _isLastRightMouseDownDoubleClick = true;
+        input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         SetCapture(_windowHandle);
         return 0;
     }
 
     LRESULT onRButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        if (_isLastRightMouseDownDoubleClick)
+        {
+            input::notifyRightMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            _isLastRightMouseDownDoubleClick = false;
+        }
+
         input::notifyRightMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         ReleaseCapture();
         return 0;
@@ -421,13 +438,20 @@ namespace phi
 
     LRESULT onMButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyMiddleMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        _isLastMiddleMouseDownDoubleClick = true;
+        input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         SetCapture(_windowHandle);
         return 0;
     }
 
     LRESULT onMButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        if (_isLastMiddleMouseDownDoubleClick)
+        {
+            input::notifyMiddleMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            _isLastMiddleMouseDownDoubleClick = false;
+        }
+
         input::notifyMiddleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         ReleaseCapture();
         return 0;

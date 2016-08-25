@@ -28,7 +28,7 @@ namespace phi
         bool _isHiding;
 
     public:
-        CONTEXT_API translationPlane(phi::plane plane);
+        CONTEXT_API translationPlane(vec3 origin, vec3 normal);
         
         plane getGridPlane() const { return _gridPlane; }
         plane getMousePlane() const { return _mousePlane; }

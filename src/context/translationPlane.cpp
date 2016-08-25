@@ -4,8 +4,8 @@
 
 namespace phi
 {
-    translationPlane::translationPlane(phi::plane mousePlane) :
-        _mousePlane(mousePlane),
+    translationPlane::translationPlane(vec3 origin, vec3 normal) :
+        _mousePlane(plane()),
         _gridPlane(plane()),
         _collidee(nullptr),
         _planeGridNode(nullptr),

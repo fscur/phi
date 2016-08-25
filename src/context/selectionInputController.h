@@ -15,6 +15,7 @@ namespace phi
     private:
         commandsManager* _commandsManager;
         vector<node*> _selectedNodes;
+        ivec2 _mouseDownPosition;
 
     private:
         bool isSelectedOrHasSelectedChildren(const node * const node);
@@ -32,8 +33,10 @@ namespace phi
         CONTEXT_API bool select(node* node);
         CONTEXT_API bool deselectAll();
 
+        CONTEXT_API virtual bool onMouseDown(mouseEventArgs* e) override;
         CONTEXT_API virtual bool onMouseUp(mouseEventArgs* e) override;
         CONTEXT_API virtual bool onMouseDoubleClick(mouseEventArgs* e) override;
+        CONTEXT_API virtual bool onKeyUp(keyboardEventArgs* e) override;
 
         const vector<node*>* getSelectedNodes() const { return &_selectedNodes; }
     };
