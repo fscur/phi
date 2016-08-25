@@ -24,8 +24,6 @@ namespace phi
         bool hasModelComponentInItselfOrInDescendants(const node * const node);
         node* getSonOfFirstSelected(node* const node);
         node* findTargetNode(node* const node);
-        virtual bool onMouseDown(mouseEventArgs* e) override;
-        virtual bool onMouseDoubleClick(mouseEventArgs* e) override;
 
     public:
         CONTEXT_API selectionInputController(commandsManager* commandsManager);
@@ -35,6 +33,8 @@ namespace phi
         CONTEXT_API bool deselectAll();
 
         CONTEXT_API virtual bool onMouseUp(mouseEventArgs* e) override;
+        CONTEXT_API virtual bool onMouseDoubleClick(mouseEventArgs* e) override;
+
         const vector<node*>* getSelectedNodes() const { return &_selectedNodes; }
     };
 }
