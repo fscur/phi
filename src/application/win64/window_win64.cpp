@@ -377,16 +377,30 @@ namespace phi
         return 0;
     }
 
+    LRESULT onLButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyLeftMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        SetCapture(_windowHandle);
+        return 0;
+    }
+    
     LRESULT onLButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         input::notifyLeftMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         ReleaseCapture();
         return 0;
     }
-
+    
     LRESULT onRButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        SetCapture(_windowHandle);
+        return 0;
+    }
+
+    LRESULT onRButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyRightMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         SetCapture(_windowHandle);
         return 0;
     }
@@ -401,6 +415,13 @@ namespace phi
     LRESULT onMButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        SetCapture(_windowHandle);
+        return 0;
+    }
+
+    LRESULT onMButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        input::notifyMiddleMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         SetCapture(_windowHandle);
         return 0;
     }
@@ -475,16 +496,25 @@ namespace phi
             return onMouseWheel(hWnd, message, wParam, lParam);
         case WM_LBUTTONDOWN:
             return onLButtonDown(hWnd, message, wParam, lParam);
+        case WM_LBUTTONDBLCLK:
+            return onLButtonDblClk(hWnd, message, wParam, lParam);
         case WM_LBUTTONUP:
             return onLButtonUp(hWnd, message, wParam, lParam);
+
         case WM_RBUTTONDOWN:
             return onRButtonDown(hWnd, message, wParam, lParam);
+        case WM_RBUTTONDBLCLK:
+            return onRButtonDblClk(hWnd, message, wParam, lParam);
         case WM_RBUTTONUP:
             return onRButtonUp(hWnd, message, wParam, lParam);
+
         case WM_MBUTTONDOWN:
             return onMButtonDown(hWnd, message, wParam, lParam);
+        case WM_MBUTTONDBLCLK:
+            return onMButtonDblClk(hWnd, message, wParam, lParam);
         case WM_MBUTTONUP:
             return onMButtonUp(hWnd, message, wParam, lParam);
+
         case WM_MOUSEMOVE:
             return onMouseMove(hWnd, message, wParam, lParam);
         case WM_CAPTURECHANGED:
@@ -508,7 +538,7 @@ namespace phi
         WNDCLASSEXW wndClass;
         auto cTitle = title.c_str();
         wndClass.cbSize = sizeof(WNDCLASSEXW);
-        wndClass.style = CS_HREDRAW | CS_VREDRAW;
+        wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
         wndClass.lpfnWndProc = (WNDPROC)windowProcedure;
         wndClass.cbClsExtra = 0;
         wndClass.cbWndExtra = 0;

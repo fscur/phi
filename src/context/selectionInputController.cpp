@@ -150,4 +150,9 @@ namespace phi
 
         return deselectAll();
     }
+
+    bool selectionInputController::onMouseDoubleClick(phi::mouseEventArgs* e)
+    {
+        return false;
+    }
 }

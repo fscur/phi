@@ -13,6 +13,7 @@ namespace phi
 
     public:
         virtual bool onMouseDown(mouseEventArgs* e) { return false; }
+        virtual bool onMouseDoubleClick(mouseEventArgs* e) { return false; }
         virtual bool onMouseMove(mouseEventArgs* e) { return false; }
         virtual bool onMouseUp(mouseEventArgs* e) { return false; }
         virtual bool onBeginMouseWheel(mouseEventArgs* e) { return false; }

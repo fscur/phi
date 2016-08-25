@@ -4,6 +4,7 @@
 namespace phi
 {
     mouseEventHandler* input::mouseDown = new mouseEventHandler();
+    mouseEventHandler* input::mouseDoubleClick = new mouseEventHandler();
     mouseEventHandler* input::mouseUp = new mouseEventHandler();
     mouseEventHandler* input::mouseMove = new mouseEventHandler();
     mouseEventHandler* input::beginMouseWheel = new mouseEventHandler();
@@ -20,6 +21,11 @@ namespace phi
     void input::raiseMouseDownEvent(mouseEventArgs* e)
     {
         mouseDown->raise(e);
+    }
+
+    void input::raiseMouseDoubleClickEvent(mouseEventArgs* e)
+    {
+        mouseDoubleClick->raise(e);
     }
 
     void input::raiseMouseUpEvent(mouseEventArgs* e)
@@ -41,6 +47,7 @@ namespace phi
     {
         endMouseWheel->raise(e);
     }
+    
     void input::raiseKeyDownEvent(keyboardEventArgs* e)
     {
         keyDown->raise(e);
@@ -76,6 +83,33 @@ namespace phi
         mouseArgs.y = y;
         mouseArgs.middleButtonPressed = true;
         raiseMouseDownEvent(&mouseArgs);
+    }
+
+    void input::notifyLeftMouseDoubleClick(int x, int y)
+    {
+        auto mouseArgs = mouseEventArgs();
+        mouseArgs.x = x;
+        mouseArgs.y = y;
+        mouseArgs.leftButtonPressed = true;
+        raiseMouseDoubleClickEvent(&mouseArgs);
+    }
+
+    void input::notifyRightMouseDoubleClick(int x, int y)
+    {
+        auto mouseArgs = mouseEventArgs();
+        mouseArgs.x = x;
+        mouseArgs.y = y;
+        mouseArgs.rightButtonPressed = true;
+        raiseMouseDoubleClickEvent(&mouseArgs);
+    }
+
+    void input::notifyMiddleMouseDoubleClick(int x, int y)
+    {
+        auto mouseArgs = mouseEventArgs();
+        mouseArgs.x = x;
+        mouseArgs.y = y;
+        mouseArgs.middleButtonPressed = true;
+        raiseMouseDoubleClickEvent(&mouseArgs);
     }
 
     void input::notifyMouseMove(int x, int y)
