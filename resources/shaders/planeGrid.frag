@@ -4,10 +4,19 @@
 struct planeGridRenderData
 {
     vec4 color;
+    vec4 clipPlane0;
+    vec4 clipPlane1;
+    vec4 clipPlane2;
+
     float lineThickness;
     float opacity;
     float pad0;
     float pad1;
+
+    float clipPlane0Opacity;
+    float clipPlane1Opacity;
+    float clipPlane2Opacity;
+    float pad2;
 };
 
 layout (std140, binding = 1) buffer PlaneGridRenderDataBuffer
@@ -32,13 +41,16 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 
 layout (location = 0) uniform sampler2DArray textureArrays[32];
 
-in vec2 worldFragTexCoord;
+in vec4 fragWorldPosition;
+in vec3 fragViewPosition;
+in vec2 fragWorldTexCoord;
 in vec2 fragTexCoord;
+in float planeDist2;
 
+flat in vec3 fragViewNormal;
 flat in uint instanceId;
 flat in float planeSize;
 flat in float planeDist;
-in float planeDist2;
 
 layout (location = 0) out vec4 fragColor;
 
@@ -48,9 +60,6 @@ const float MIN_RIPPLE_SPEED = 10.0;
 
 const float[] planeDistances = { 0.0, 1.0, 5.0, 100.0, 500.0, 5000.0};
 const float[] gridSizes      = { 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0 };
-
-//const float[] planeDistances = { 0.0, 10.0, 20.0, 50.0, 500.0, 5000.0};
-//const float[] gridSizes      = { 0.1, 1.0, 2.0, 10.0, 100.0, 1000.0 };
 
 int getGridIndex(float dist)
 {
@@ -181,8 +190,6 @@ float createGrid(vec2 uv, float thicknessInPixels)
     float outerGrid = createGrid(uv, thickness, outerGridSize);
 
     return innerGrid * clamp(innerFactor - 0.25, 0.0, 1.0) + outerGrid * clamp(outerFactor + 0.25, 0.0, 1.0);
-    
-    //return innerGrid * innerFactor;
 }
 
 float createBorder()
@@ -196,11 +203,22 @@ void main()
 {
     planeGridRenderData data = renderData.items[instanceId];
 
-    vec2 uv = worldFragTexCoord;
+    vec2 uv = fragWorldTexCoord;
     float grid = createGrid(uv, data.lineThickness);
-    grid += data.opacity;
 
     float border = createBorder();
 
-    fragColor = vec4(data.color.rgb, grid * border);
+    grid += 0.3;
+
+    vec3 color = data.color.rgb;
+    float opacity = grid * border * data.opacity;
+
+    if (dot(data.clipPlane0, fragWorldPosition) < 0.0)
+        opacity *= data.clipPlane0Opacity;
+
+    float factor = smoothstep(0.0, 0.8, abs(dot(normalize(fragViewPosition), fragViewNormal)));
+    
+    vec3 finalColor = mix(color, vec3(1.0, 0.0, 0.0), 1.0 - factor);
+
+    fragColor = vec4(finalColor, opacity);
 }

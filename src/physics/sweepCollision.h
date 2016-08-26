@@ -9,33 +9,28 @@ namespace phi
     struct sweepCollision
     {
         sweepCollision() :
-            sourceCollider(nullptr),
             collider(nullptr),
+            collidee(nullptr),
             distance(0.0f),
-            normal(vec3())
+            normal(vec3()),
+            isIntersecting(false)
         {
         }
 
-        sweepCollision(boxCollider* sourceCollider, boxCollider* collider, float distance, vec3 normal) :
-            sourceCollider(sourceCollider),
-            collider(collider),
-            distance(distance),
-            normal(normal)
-        {
-        }
-
-        boxCollider* sourceCollider;
         boxCollider* collider;
+        boxCollider* collidee;
         float distance;
         vec3 normal;
+        bool isIntersecting;
 
         bool operator ==(const sweepCollision& b)
         {
             return
-                this->sourceCollider == b.sourceCollider &&
                 this->collider == b.collider &&
+                this->collidee == b.collidee &&
                 this->distance == b.distance &&
-                this->normal == b.normal;
+                this->normal == b.normal &&
+                this->isIntersecting == b.isIntersecting;
         }
 
         bool operator !=(const sweepCollision& b)

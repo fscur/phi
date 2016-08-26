@@ -1,9 +1,13 @@
 #include <precompiled.h>
+
 #include "..\window.h"
-#include <core\input.h>
+#include "..\mouseButtonEventDispatcher.h"
+
+#include <input\input.h>
 #include <core\exception.h>
-#include <diagnostic\stopwatch.h>
 #include <core\invalidInitializationException.h>
+
+#include <diagnostic\stopwatch.h>
 #include <ShellScalingApi.h>
 
 namespace phi
@@ -18,10 +22,12 @@ namespace phi
     DWORD _windowExStyle = 0;
     DWORD _windowStyle = WS_OVERLAPPEDWINDOW;
     LPARAM _lastMouseMove;
+    POINT _lastMouseMovePt;
     resolution _currentResolution;
 
     nanoseconds _lastMouseWheelElapsed;
     nanoseconds _firstMouseWheelElapsed;
+
     int _mouseWheelDelta;
     bool _isMouseWheeling = false;
 
@@ -33,6 +39,12 @@ namespace phi
     bool _isBeingMinimized = false;
     bool _wasMaximized = false;
     bool _wasMinimized = false;
+    bool _isMouseFrozen = false;
+    bool _isCursorVisible = true;
+
+    mouseButtonEventDispatcher* _leftMouseButton;
+    mouseButtonEventDispatcher* _rightMouseButton;
+    mouseButtonEventDispatcher* _middleMouseButton;
 
     int convertToKey(WPARAM wParam)
     {
@@ -345,7 +357,6 @@ namespace phi
         point.y = GET_Y_LPARAM(lParam);
         ScreenToClient(_windowHandle, &point);
         auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
-
         auto now = high_resolution_clock::now().time_since_epoch();
 
         if (!_isMouseWheeling)
@@ -369,51 +380,68 @@ namespace phi
 
     LRESULT onLButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyLeftMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
+        _leftMouseButton->notifyButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onLButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyLeftMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        ReleaseCapture();
-        return 0;
+        _leftMouseButton->notifyButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
+    LRESULT onLButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        _leftMouseButton->notifyButtonDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
+    }
+    
     LRESULT onRButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
+        _rightMouseButton->notifyButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onRButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyRightMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        ReleaseCapture();
-        return 0;
+        _rightMouseButton->notifyButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
+    }
+
+    LRESULT onRButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        _rightMouseButton->notifyButtonDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onMButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
+        _middleMouseButton->notifyButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onMButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyMiddleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        ReleaseCapture();
-        return 0;
+        _middleMouseButton->notifyButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
+    }
+
+    LRESULT onMButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        _middleMouseButton->notifyButtonDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onMouseMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        if (_isMouseFrozen)
+            return DefWindowProcW(hWnd, message, wParam, lParam);
+
         if (lParam != _lastMouseMove)
             input::notifyMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
         _lastMouseMove = lParam;
+
         return 0;
     }
 
@@ -467,14 +495,20 @@ namespace phi
             return onMouseWheel(hWnd, message, wParam, lParam);
         case WM_LBUTTONDOWN:
             return onLButtonDown(hWnd, message, wParam, lParam);
+        case WM_LBUTTONDBLCLK:
+            return onLButtonDblClk(hWnd, message, wParam, lParam);
         case WM_LBUTTONUP:
             return onLButtonUp(hWnd, message, wParam, lParam);
         case WM_RBUTTONDOWN:
             return onRButtonDown(hWnd, message, wParam, lParam);
+        case WM_RBUTTONDBLCLK:
+            return onRButtonDblClk(hWnd, message, wParam, lParam);
         case WM_RBUTTONUP:
             return onRButtonUp(hWnd, message, wParam, lParam);
         case WM_MBUTTONDOWN:
             return onMButtonDown(hWnd, message, wParam, lParam);
+        case WM_MBUTTONDBLCLK:
+            return onMButtonDblClk(hWnd, message, wParam, lParam);
         case WM_MBUTTONUP:
             return onMButtonUp(hWnd, message, wParam, lParam);
         case WM_MOUSEMOVE:
@@ -500,7 +534,7 @@ namespace phi
         WNDCLASSEXW wndClass;
         auto cTitle = title.c_str();
         wndClass.cbSize = sizeof(WNDCLASSEXW);
-        wndClass.style = CS_HREDRAW | CS_VREDRAW;
+        wndClass.style = CS_HREDRAW | CS_VREDRAW |  CS_DBLCLKS ;
         wndClass.lpfnWndProc = (WNDPROC)windowProcedure;
         wndClass.cbClsExtra = 0;
         wndClass.cbWndExtra = 0;
@@ -621,7 +655,52 @@ namespace phi
         wglDeleteContext(_renderingContext);
     }
 
-    void window::init()
+    void initMouseButtonDispatchers()
+    {
+        _leftMouseButton = new mouseButtonEventDispatcher(_windowHandle);
+        _leftMouseButton->setButtonClickFunction([](int x, int y) { input::notifyLeftMouseClick(x, y); });
+        _leftMouseButton->setButtonDoubleClickFunction([](int x, int y) { input::notifyLeftMouseDoubleClick(x, y); });
+        _leftMouseButton->setButtonDownFunction([](int x, int y) 
+        { 
+            SetCapture(_windowHandle);
+            input::notifyLeftMouseDown(x, y);
+        });
+        _leftMouseButton->setButtonUpFunction([](int x, int y)
+        {
+            input::notifyLeftMouseUp(x, y);
+            ReleaseCapture();
+        });
+
+        _rightMouseButton = new mouseButtonEventDispatcher(_windowHandle);
+        _rightMouseButton->setButtonClickFunction([](int x, int y) { input::notifyRightMouseClick(x, y); });
+        _rightMouseButton->setButtonDoubleClickFunction([](int x, int y) { input::notifyRightMouseDoubleClick(x, y); });
+        _rightMouseButton->setButtonDownFunction([](int x, int y)
+        {
+            SetCapture(_windowHandle);
+            input::notifyRightMouseDown(x, y);
+        });
+        _rightMouseButton->setButtonUpFunction([](int x, int y)
+        {
+            input::notifyRightMouseUp(x, y);
+            ReleaseCapture();
+        });
+
+        _middleMouseButton = new mouseButtonEventDispatcher(_windowHandle);
+        _middleMouseButton->setButtonClickFunction([](int x, int y) { input::notifyMiddleMouseClick(x, y); });
+        _middleMouseButton->setButtonDoubleClickFunction([](int x, int y) { input::notifyMiddleMouseDoubleClick(x, y); });
+        _middleMouseButton->setButtonDownFunction([](int x, int y)
+        {
+            SetCapture(_windowHandle);
+            input::notifyMiddleMouseDown(x, y);
+        });
+        _middleMouseButton->setButtonUpFunction([](int x, int y)
+        {
+            input::notifyMiddleMouseUp(x, y);
+            ReleaseCapture();
+        });
+    }
+
+    void window::initWindow()
     {
         adjustWindowToScreenBounds();
         createWindow(_title, _resolution);
@@ -632,13 +711,6 @@ namespace phi
         SetFocus(_windowHandle);
 
         _resolution.dpi = getDpi(_windowHandle);
-
-        onInit();
-
-        _resizeToken = window::resize.assign([&](phi::resolution resolution)
-        {
-            onResize(resolution);
-        });
     }
 
     void window::adjustWindowToScreenBounds()
@@ -654,6 +726,19 @@ namespace phi
         auto width = std::min(_resolution.width, screenWidth);
         auto height = std::min(_resolution.height, screenHeight - verticalBorderSize);
         _resolution = resolution(width, height);
+    }
+
+    void window::init()
+    {
+        initWindow();
+        initMouseButtonDispatchers();
+
+        onInit();
+
+        _resizeToken = window::resize.assign([&](phi::resolution resolution)
+        {
+            onResize(resolution);
+        });
     }
 
     void window::input()
@@ -675,6 +760,16 @@ namespace phi
 
     void window::update()
     {
+        if (_isMouseFrozen)
+        {
+            POINT p;
+            GetCursorPos(&p);
+
+            input::notifyMouseMove(p.x - _lastMouseMovePt.x, p.y - _lastMouseMovePt.y);
+
+            SetCursorPos(_lastMouseMovePt.x, _lastMouseMovePt.y);
+        }
+
         if (_isMouseWheeling)
         {
             auto now = high_resolution_clock::now().time_since_epoch();
@@ -706,5 +801,32 @@ namespace phi
         releaseGLContext();
         ReleaseDC(_windowHandle, _deviceContext);
         DestroyWindow(_windowHandle);
+    }
+
+    void window::freezeMouse()
+    {
+        _isMouseFrozen = true;
+        GetCursorPos(&_lastMouseMovePt);
+        //ShowCursor(false);
+    }
+
+    void window::unfreezeMouse()
+    {
+        _isMouseFrozen = false;
+        //ShowCursor(true);
+    }
+
+    void window::showCursor()
+    {
+        ShowCursor(true);
+
+        _isCursorVisible = true;
+    }
+
+    void window::hideCursor()
+    {
+        ShowCursor(false);
+
+        _isCursorVisible = false;
     }
 }

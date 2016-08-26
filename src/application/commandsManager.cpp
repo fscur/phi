@@ -1,6 +1,6 @@
 #include <precompiled.h>
 
-#include <core\input.h>
+#include <input\input.h>
 
 #include "commandsManager.h"
 

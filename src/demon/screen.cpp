@@ -20,14 +20,14 @@
 #include <application\undoCommand.h>
 #include <application\redoCommand.h>
 
-#include <context\layerBuilder.h>
-#include <context\deleteSceneObjectCommand.h>
+#include <layers\layerBuilder.h>
+#include <layers\nodeCreation\deleteNodeCommand.h>
 #include <context\invalidLayerConfigurationException.h>
 
-#include <core\input.h>
+#include <input\input.h>
 #include <core\clickComponent.h>
 #include <core\boxCollider.h>
-#include <ui\planeGrid.h>
+#include <core\planeGrid.h>
 #include <core\ghostMesh.h>
 
 using namespace phi;
@@ -159,11 +159,17 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 0.0f));
-        //cube0->getTransform()->setLocalSize(vec3(3.0f, 2.0f, 0.5f));
+        cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
+        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
+        //auto group = new node();
+        //group->addChild(cube0);
+        //group->addChild(cube1);
+
         //cube0->getTransform()->yaw(PI_OVER_4);
-        
+
         auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
+        back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
         //cube1->getTransform()->translate(vec3(2.0f, 0.5f, 0.0f));
         //cube1->getTransform()->yaw(PI_OVER_4);
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
@@ -194,7 +200,7 @@ namespace demon
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withPlanesTranslationController()
+                .withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -234,12 +240,13 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        //_sceneLayer->add(planeNode);
+        //_sceneLayer->add(cube0);
+        //_sceneLayer->add(cube1);
         _sceneLayer->add(cube0);
+        _sceneLayer->add(cube1);
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(back_wall);
-        //_sceneLayer->add(wall);
         _sceneLayer->add(table);
         _sceneLayer->add(tableChair);
         _sceneLayer->add(coffeTable);
@@ -262,7 +269,7 @@ namespace demon
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [=]()
         {
             auto nodesToDelete = { _chair0 };
-            return new deleteSceneObjectCommand(nodesToDelete);
+            return new deleteNodeCommand(nodesToDelete);
         }));
 
         //_commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [=]()
@@ -275,8 +282,10 @@ namespace demon
     void screen::initInput()
     {
         input::mouseDown->assign(std::bind(&screen::onMouseDown, this, std::placeholders::_1));
-        input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
         input::mouseUp->assign(std::bind(&screen::onMouseUp, this, std::placeholders::_1));
+        input::mouseClick->assign(std::bind(&screen::onMouseClick, this, std::placeholders::_1));
+        input::mouseDoubleClick->assign(std::bind(&screen::onMouseDoubleClick, this, std::placeholders::_1));
+        input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
         input::beginMouseWheel->assign(std::bind(&screen::onBeginMouseWheel, this, std::placeholders::_1));
         input::mouseWheel->assign(std::bind(&screen::onMouseWheel, this, std::placeholders::_1));
         input::endMouseWheel->assign(std::bind(&screen::onEndMouseWheel, this, std::placeholders::_1));
@@ -303,15 +312,25 @@ namespace demon
     {
         _activeContext->onMouseDown(e);
     }
+    
+    void screen::onMouseUp(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseUp(e);
+    }
+
+    void screen::onMouseClick(phi::mouseEventArgs * e)
+    {
+        _activeContext->onMouseClick(e);
+    }
+    
+    void screen::onMouseDoubleClick(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseDoubleClick(e);
+    }
 
     void screen::onMouseMove(phi::mouseEventArgs* e)
     {
         _activeContext->onMouseMove(e);
-    }
-
-    void screen::onMouseUp(phi::mouseEventArgs* e)
-    {
-        _activeContext->onMouseUp(e);
     }
 
     void screen::onBeginMouseWheel(phi::mouseEventArgs* e)

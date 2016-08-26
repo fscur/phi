@@ -157,7 +157,6 @@ namespace phi
             vertexBufferAttribute(8, 4, GL_FLOAT, sizeof(mat4), (const void *)(sizeof(GLfloat) * 1 * 4), 0), // I'm not dumb (I think), I just trust the compiler
             vertexBufferAttribute(9, 4, GL_FLOAT, sizeof(mat4), (const void *)(sizeof(GLfloat) * 2 * 4), 0), // I'm not dumb (I think), I just trust the compiler
             vertexBufferAttribute(10, 4, GL_FLOAT, sizeof(mat4), (const void *)(sizeof(GLfloat) * 3 * 4), 0)  // I'm not dumb (I think), I just trust the compiler
-
         });
 
         rotationMatricesBuffer->data(sizeof(mat4) * 24, rotationMatrices, bufferDataUsage::staticDraw);
@@ -172,33 +171,6 @@ namespace phi
 
         auto renderFunction = [=]
         {
-            float A = 0.0;
-            float B = PI * 0.5;
-            float C = 0.0;
-            float cA = cos(A);
-            float sA = sin(A);
-            float cB = cos(B);
-            float sB = sin(B);
-            float cC = cos(C);
-            float sC = sin(C);
-
-            mat3 rx = mat3(
-                vec3(1.0, 0.0, 0.0),
-                vec3(0.0, cA, -sA),
-                vec3(0.0, sA, cA));
-
-            mat3 ry = mat3(
-                vec3(cB, 0.0, sB),
-                vec3(0.0, 1.0, 0.0),
-                vec3(-sB, 0.0, cB));
-
-            mat3 rz = mat3(
-                vec3(cC, -sC, 0.0),
-                vec3(sC, cC, 0.0),
-                vec3(0.0, 0.0, 1.0));
-
-            mat3 r = rx * ry * rz;
-
             glDrawElementsInstanced(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_modelMatricesBuffer->getInstanceCount()));
         };
 
