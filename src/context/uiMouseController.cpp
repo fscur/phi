@@ -29,22 +29,22 @@ namespace phi
             if (control)
             {
                 auto model = child->getTransform()->getModelMatrix();
-                auto aabb = new phi::aabb(glm::vec3(0.0f), glm::vec3(1.0f));
+                auto aabb = phi::aabb(glm::vec3(0.0f), glm::vec3(1.0f));
 
-                auto transformedMin = mathUtils::multiply(model, aabb->min);
-                auto transformedMax = mathUtils::multiply(model, aabb->max);
+                auto transformedMin = mathUtils::multiply(model, aabb.min);
+                auto transformedMax = mathUtils::multiply(model, aabb.max);
 
                 auto transformedAabb = phi::aabb(transformedMin, transformedMax);
 
                 auto transformedRay = ray * glm::inverse(model);
-                bool hasClicked2 = transformedRay.intersects(*aabb);
+                bool hasClicked2 = transformedRay.intersects(aabb);
 
                 bool hasClicked = ray.intersects(transformedAabb);
 
                 if (hasClicked)
                 {
                     _clickedControl = control;
-                    _clickedControlColor = control->getBackgroundColor();
+                    _clickedControlColor = control->getColor();
 
                     control->setColor(color::yellow);
                     return true;
@@ -62,7 +62,8 @@ namespace phi
             _clickedControl->setColor(_clickedControlColor);
 
             auto click = _clickedControl->getNode()->getComponent<clickComponent>();
-            click->onClick();
+            if(click)
+                click->onClick();
 
             return true;
         }

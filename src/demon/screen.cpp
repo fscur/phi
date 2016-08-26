@@ -259,6 +259,7 @@ namespace demon
                 .withGlassyControlRenderer()
                 .withTextRenderer()
                 .withUIController()
+                .withCameraController()
                 .build();
         }
         catch (phi::invalidLayerConfigurationException& ex)
