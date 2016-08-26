@@ -63,6 +63,7 @@ namespace phi
                     auto aabb = geometry->aabb;
                     objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->width, aabb->height, aabb->depth)));
                     objectNode->addComponent(new phi::clickComponent());
+                    objectNode->setLocalObb(new obb(aabb->center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
 
                     break;
                 }
@@ -348,6 +349,7 @@ namespace phi
                 rootAabb = mesh->getGeometry()->aabb;
         });
 
+        // TODO: do not add this collider after the nodes have obb information
         auto rootBoxCollider = new phi::boxCollider(rootAabb->center, vec3(rootAabb->width, rootAabb->height, rootAabb->depth));
         rootBoxCollider->disable();
         rootNode->addComponent(rootBoxCollider);

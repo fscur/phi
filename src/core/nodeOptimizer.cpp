@@ -3,80 +3,93 @@
 
 namespace phi
 {
-	void nodeOptimizer::removeEmptyNodes(node* node)
-	{
-		auto children = node->getChildren();
-		
-		vector<phi::node*> toRemove;
+    void nodeOptimizer::removeEmptyNodes(node* node)
+    {
+        auto children = node->getChildren();
 
-		for (auto child : *children)
-		{
-			if (isNodeEmpty(child))
-				toRemove.push_back(child);
+        vector<phi::node*> toRemove;
 
-			removeEmptyNodes(child);
-		}
+        for (auto child : *children)
+        {
+            if (isNodeEmpty(child))
+                toRemove.push_back(child);
 
-		for (auto nodeToRemove : toRemove)
-			phi::removeIfContains(*children, nodeToRemove);
+            removeEmptyNodes(child);
+        }
 
-		deleteNodes(toRemove);
-	}
+        for (auto nodeToRemove : toRemove)
+            node->removeChild(nodeToRemove);
 
-	node* nodeOptimizer::removeUselessNodes(node* node)
-	{
-		vector<phi::node*> toRemove;
+        deleteNodes(toRemove);
+    }
 
-		auto current = node;
-		auto currentTransform = current->getTransform();
+    node* nodeOptimizer::removeUselessNodes(node* node)
+    {
+        vector<phi::node*> toRemove;
 
-		while (isNodeUseless(current))
-		{
-			toRemove.push_back(current);
-			current = current->getChildren()->at(0);
-			current->getTransform()->multiply(*currentTransform);
-			currentTransform = current->getTransform();
-		}
+        auto current = node;
+        auto currentTransform = current->getTransform();
+        auto nodeParent = node->getParent();
 
-		auto nodeParent = node->getParent();
+        while (isNodeUseless(current))
+        {
+            if (nodeParent)
+                nodeParent->removeChild(current);
 
-		if (current != node)
-		{
-			deleteNodes(toRemove);
-			current->setParent(nodeParent);
-		}
+            toRemove.push_back(current);
+            current = current->getChildren()->at(0);
+            current->getTransform()->multiply(*currentTransform);
+            currentTransform = current->getTransform();
 
-		auto children = current->getChildren();
-		auto childrenCount = children->size();
+            if (nodeParent)
+                nodeParent->addChild(current);
+        }
 
-		for (size_t i = 0u; i < childrenCount; ++i)
-			(*children)[i] = nodeOptimizer::optimize((*children)[i]);
+        if (current != node)
+        {
+            deleteNodes(toRemove);
+            current->setParent(nodeParent);
+        }
 
-		return current;
-	}
+        auto children = current->getChildren();
+        auto childrenCount = children->size();
 
-	void nodeOptimizer::deleteNodes(vector<node*>& nodes)
-	{
-		for (auto node : nodes)
-			node->clearChildren();
+        for (size_t i = 0u; i < childrenCount; ++i)
+        {
+            auto child = children->at(i);
+            auto optimizedChild = nodeOptimizer::optimize(child);
+            if (child != optimizedChild)
+            {
+                childrenCount--;
+                i--;
+            }
+        }
 
-		for (auto node : nodes)
-			safeDelete(node);
-	}
+        return current;
+    }
 
-	bool nodeOptimizer::isNodeEmpty(phi::node* node)
-	{
-		return node->getComponents()->size() == 0 && node->getChildren()->size() == 0;
-	}
+    void nodeOptimizer::deleteNodes(vector<node*>& nodes)
+    {
+        for (auto node : nodes)
+            node->clearChildren();
 
-	bool nodeOptimizer::isNodeUseless(phi::node* node)
-	{
-		return node->getComponents()->size() == 0 && node->getChildren()->size() == 1;
-	}
+        for (auto node : nodes)
+            safeDelete(node);
+    }
 
-	node* nodeOptimizer::optimize(node* node)
-	{
-		removeEmptyNodes(node);
-		return removeUselessNodes(node);
-	}
+    bool nodeOptimizer::isNodeEmpty(phi::node* node)
+    {
+        return node->getComponents()->size() == 0 && node->getChildren()->size() == 0;
+    }
+
+    bool nodeOptimizer::isNodeUseless(phi::node* node)
+    {
+        return node->getComponents()->size() == 0 && node->getChildren()->size() == 1;
+    }
+
+    node* nodeOptimizer::optimize(node* node)
+    {
+        removeEmptyNodes(node);
+        return removeUselessNodes(node);
+    }
 }

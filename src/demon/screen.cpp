@@ -159,7 +159,7 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
+        cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
         //auto group = new node();

@@ -17,10 +17,20 @@ namespace phi
         vec3 halfSizes;
 
     public:
+        obb() :
+            obb(
+                vec3(),
+                vec3(1.0f, 0.0f, 0.0f),
+                vec3(0.0f, 1.0f, 0.0f),
+                vec3(0.0f, 0.0f, 1.0f),
+                vec3())
+        {
+        }
+
         obb(vec3 center, vec3 axisX, vec3 axisY, vec3 axisZ, vec3 halfSizes) :
             center(center),
             axes{ axisX, axisY, axisZ },
-            halfSizes{ halfSizes.x, halfSizes.y, halfSizes.z }
+            halfSizes(halfSizes)
         {
         }
 
@@ -34,5 +44,6 @@ namespace phi
         CORE_API vector<vec3> getCorners() const;
         CORE_API vector<plane> getPlanes() const;
         CORE_API vector<finitePlane> getFinitePlanes() const;
+        CORE_API void getLimits(vec3& min, vec3& max) const;
     };
 }
