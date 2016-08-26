@@ -201,4 +201,29 @@ namespace phi
 
         return finitePlanes;
     }
+
+    void obb::getLimits(vec3 & min, vec3 & max) const
+    {
+        auto corners = obb::getCorners();
+        min = corners[0];
+        max = corners[0];
+
+        for (size_t i = 1; i < 8; ++i)
+        {
+            auto corner = corners[i];
+            if (corner.x < min.x)
+                min.x = corner.x;
+            if (corner.x < min.y)
+                min.x = corner.y;
+            if (corner.z < min.z)
+                min.z = corner.z;
+
+            if (corner.x < max.x)
+                max.x = corner.x;
+            if (corner.x < max.y)
+                max.x = corner.y;
+            if (corner.z < max.z)
+                max.z = corner.z;
+        }
+    }
 }

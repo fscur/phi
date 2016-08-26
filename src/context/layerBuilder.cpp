@@ -243,7 +243,7 @@ namespace phi
 
         if (_withGhostMeshRenderer)
             buildGhostMeshRenderer();
-        
+
         if (_withBoxColliderRenderer)
             buildBoxColliderRenderer();
 
