@@ -8,6 +8,7 @@
 #include <input\inputController.h>
 #include <context\layer.h>
 #include "translationPlane.h"
+#include "translationService.h"
 
 namespace phi
 {
@@ -15,21 +16,10 @@ namespace phi
         public inputController
     {
     private:
-        const vector<node*>* _targetNodes;
-        layer* _layer;
-        camera* _camera;
-        vector<translationPlane*> _translationPlanes;
-        bool _isTranslating;
-        vector<translationPlane*> _planesToRemove;
+        translationService* _translationService;
 
     private:
-        vec3 getClosestAxisNormal(vec3 direction);
-        translationPlane* createTranslationPlane(vec3 origin, vec3 normal);
         bool canStartTranslation(mouseEventArgs* e);
-        void startTranslation(ivec2 mousePosition);
-        void endTranslation();
-        void cancelTranslation();
-        void enqueuePlaneForRemoval(translationPlane* planeToRemove);
 
     public:
         translationInputController(const vector<node*>* targetNodes, layer* layer);
