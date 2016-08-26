@@ -760,10 +760,6 @@ namespace phi
 
     void window::update()
     {
-        _leftMouseButton->update();
-        _rightMouseButton->update();
-        _middleMouseButton->update();
-
         if (_isMouseFrozen)
         {
             POINT p;

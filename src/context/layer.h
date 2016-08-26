@@ -51,7 +51,8 @@ namespace phi
         vector<std::function<void(node*)>> _onNodeSelectionChanged;
         vector<std::function<void(void)>> _onDelete;
         vector<inputController*> _controllers;
-
+        inputController* _currentController;
+        std::stack<inputController*> _controllersStack;
         buffer* _frameUniformsBuffer;
 
     private:
@@ -91,7 +92,7 @@ namespace phi
         void addOnNodeTransformChanged(std::function<void(node*)> onNodeTransformChanged) { _onNodeTransformChanged.push_back(onNodeTransformChanged); }
         void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged) { _onNodeSelectionChanged.push_back(onNodeSelectionChanged); }
 
-        void addMouseController(inputController* controller) { _controllers.push_back(controller); }
+        void addMouseController(inputController* controller);
         void addRenderPass(renderPass* renderPass) { _renderPasses.push_back(renderPass); }
         void addRenderPasses(vector<renderPass*> renderPasses) { _renderPasses.insert(_renderPasses.end(), renderPasses.begin(), renderPasses.end()); }
         void addOnDelete(std::function<void(void)> onDelete) { _onDelete.push_back(onDelete); }

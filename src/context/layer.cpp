@@ -9,7 +9,8 @@ namespace phi
 {
     layer::layer(camera* camera) :
         _camera(camera),
-        _root(new node("root"))
+        _root(new node("root")),
+        _currentController(nullptr)
     {
         createFrameUniforms();
         trackNode(_root);
@@ -163,29 +164,41 @@ namespace phi
 
     void layer::onMouseDown(mouseEventArgs* e)
     {
+        if (_currentController && _currentController->onMouseDown(e))
+            return;
+
         for (auto& controller : _controllers)
-            if (controller->onMouseDown(e))
+            if (controller != _currentController && controller->onMouseDown(e))
                 break;
     }
 
     void layer::onMouseUp(mouseEventArgs* e)
     {
+        if (_currentController && _currentController->onMouseUp(e))
+            return;
+
         for (auto& controller : _controllers)
-            if (controller->onMouseUp(e))
+            if (controller != _currentController && controller->onMouseUp(e))
                 break;
     }
 
     void layer::onMouseClick(mouseEventArgs* e)
     {
+        if (_currentController && _currentController->onMouseClick(e))
+            return;
+
         for (auto& controller : _controllers)
-            if (controller->onMouseClick(e))
+            if (controller != _currentController && controller->onMouseClick(e))
                 break;
     }
 
     void layer::onMouseDoubleClick(mouseEventArgs* e)
     {
+        if (_currentController && _currentController->onMouseDoubleClick(e))
+            return;
+
         for (auto& controller : _controllers)
-            if (controller->onMouseDoubleClick(e))
+            if (controller != _currentController && controller->onMouseDoubleClick(e))
                 break;
     }
 
@@ -216,6 +229,9 @@ namespace phi
 
     void layer::onKeyDown(keyboardEventArgs* e)
     {
+        if (_currentController && _currentController->onKeyDown(e))
+            return;
+
         for (auto& controller : _controllers)
             if (controller->onKeyDown(e))
                 break;
@@ -223,9 +239,46 @@ namespace phi
 
     void layer::onKeyUp(keyboardEventArgs* e)
     {
+        if (e->key == PHIK_ESCAPE && _currentController)
+        {
+            _currentController->cancel();
+        }
+
         for (auto& controller : _controllers)
             if (controller->onKeyUp(e))
                 break;
+    }
+
+    void layer::addMouseController(inputController * controller)
+    {
+        controller->getRequestControlEvent()->assign([&](inputController* controller) 
+        {
+            if (_controllersStack.size() > 0 && _controllersStack.top() == controller)
+                return;
+
+            std::cout << controller;
+            debug(" control granted");
+
+            _controllersStack.push(controller);
+            _currentController = controller;
+        });
+
+        controller->getResignControlEvent()->assign([&](inputController* controller)
+        {
+            std::cout << controller;
+            debug(" control lost");
+
+            _controllersStack.pop();
+
+            if (_controllersStack.size() > 0)
+            {
+                _currentController = _controllersStack.top();
+            }
+            else
+                _currentController = nullptr;
+        });
+
+         _controllers.push_back(controller);
     }
 
     void layer::resize(const resolution& resolution)

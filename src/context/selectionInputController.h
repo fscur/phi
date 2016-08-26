@@ -35,6 +35,7 @@ namespace phi
         CONTEXT_API virtual bool onMouseClick(mouseEventArgs* e) override;
         CONTEXT_API virtual bool onMouseDoubleClick(mouseEventArgs* e) override;
         CONTEXT_API virtual bool onKeyUp(keyboardEventArgs* e) override;
+        CONTEXT_API virtual void cancel() override;
 
         const vector<node*>* getSelectedNodes() const { return &_selectedNodes; }
     };

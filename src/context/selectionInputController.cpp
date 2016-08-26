@@ -15,6 +15,7 @@
 namespace phi
 {
     selectionInputController::selectionInputController(commandsManager* commandsManager) :
+        inputController(),
         _commandsManager(commandsManager)
     {
     }
@@ -145,10 +146,13 @@ namespace phi
 
             auto selectedMesh = clickedNode->getComponent<mesh>();
             if (selectedMesh)
+            {
                 select(clickedNode);
+                _requestControlEvent->raise(this);
+            }
         }
-        else
-            deselectAll();
+        else if (_selectedNodes.size() > 0)
+            cancel();
 
         return false;
     }
@@ -160,9 +164,18 @@ namespace phi
 
     bool selectionInputController::onKeyUp(keyboardEventArgs * e)
     {
-        if (e->key == PHIK_ESCAPE)
-            return deselectAll();
+        /*if (e->key == PHIK_ESCAPE)
+        {
+            cancel();
+            return true;
+        }*/
 
         return false;
+    }
+
+    void selectionInputController::cancel()
+    {
+        deselectAll();
+        _resignControlEvent->raise(this);
     }
 }

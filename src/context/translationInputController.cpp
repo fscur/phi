@@ -189,6 +189,8 @@ namespace phi
 
         startTranslation(ivec2(e->x, e->y));
 
+        _requestControlEvent->raise(this);
+
         return false;
     }
 
@@ -203,19 +205,21 @@ namespace phi
             return false;
 
         endTranslation();
+        
+        _resignControlEvent->raise(this);
 
         return true;
     }
 
     bool translationInputController::onKeyUp(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_ESCAPE)
+        /*if (e->key == PHIK_ESCAPE)
         {
             cancelTranslation();
             endTranslation();
             return true;
         }
-
+        */
         return false;
     }
 
@@ -249,5 +253,12 @@ namespace phi
         //    removeTranslationPlane(planeToRemove);
         //    removeClippingPlanes(planeToRemove);
         //}
+    }
+
+    void translationInputController::cancel()
+    {
+        cancelTranslation();
+        endTranslation();
+        _resignControlEvent->raise(this);
     }
 }

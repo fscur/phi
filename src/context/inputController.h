@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-
+#include <core\eventHandler.h>
 #include <core\mouseEventArgs.h>
 #include <core\keyboardEventArgs.h>
 
@@ -9,7 +9,9 @@ namespace phi
     class inputController
     {
     protected:
-        inputController() {}
+        inputController();
+        eventHandler<inputController*>* _requestControlEvent;
+        eventHandler<inputController*>* _resignControlEvent;
 
     public:
         virtual bool onMouseDown(mouseEventArgs* e) { return false; }
@@ -23,6 +25,10 @@ namespace phi
         virtual bool onKeyDown(keyboardEventArgs* e) { return false; }
         virtual bool onKeyUp(keyboardEventArgs* e) { return false; }
         virtual bool update() { return false; }
+        virtual void cancel() { }
         virtual ~inputController() {}
+
+        eventHandler<inputController*>* getRequestControlEvent() const { return _requestControlEvent; }
+        eventHandler<inputController*>* getResignControlEvent() const { return _resignControlEvent; }
     };
 }
