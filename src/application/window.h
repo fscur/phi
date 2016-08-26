@@ -3,8 +3,8 @@
 #include "applicationApi.h"
 #include <core\eventHandler.h>
 #include <core\resolution.h>
-#include <core\mouseEventArgs.h>
-#include <core\keyboardEventArgs.h>
+#include <input\mouseEventArgs.h>
+#include <input\keyboardEventArgs.h>
 
 namespace phi
 {

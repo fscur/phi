@@ -1,6 +1,6 @@
 ﻿#include <precompiled.h>
 
-#include <core\input.h>
+#include <input\input.h>
 #include <core\invalidInitializationException.h>
 #include <core\eventHandler.h>
 

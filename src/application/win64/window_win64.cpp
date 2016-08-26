@@ -3,7 +3,7 @@
 #include "..\window.h"
 #include "..\mouseButtonEventDispatcher.h"
 
-#include <core\input.h>
+#include <input\input.h>
 #include <core\exception.h>
 #include <core\invalidInitializationException.h>
 

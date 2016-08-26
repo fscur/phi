@@ -2,7 +2,7 @@
 #include <gtest\gtest.h>
 
 #include <core\node.h>
-#include <context\deleteSceneObjectCommand.h>
+#include <layers\nodeCreation\deleteSceneObjectCommand.h>
 
 using namespace phi;
 

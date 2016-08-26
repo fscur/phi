@@ -18,6 +18,8 @@ target_link_libraries(demon application)
 target_link_libraries(demon context)
 target_link_libraries(demon ui)
 target_link_libraries(demon animation)
+target_link_libraries(demon loader)
+target_link_libraries(demon layers)
 
 find_package(FREETYPE REQUIRED)
 link_directories(${FREETYPE_LIBRARIES})
