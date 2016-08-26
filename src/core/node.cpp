@@ -9,7 +9,8 @@ namespace phi
         _components(vector<component*>()),
         _children(vector<node*>()),
         _name(name),
-        _obb(obb()),
+        _localObb(nullptr),
+        _obb(nullptr),
         _isSelected(false),
         _isTranslating(false)
     {
@@ -22,10 +23,16 @@ namespace phi
         _components(vector<component*>()),
         _children(vector<node*>()),
         _name(original._name),
-        _obb(original._obb),
+        _localObb(nullptr),
+        _obb(nullptr),
         _isSelected(original._isSelected),
         _isTranslating(original._isTranslating)
     {
+        if (original._localObb)
+            _localObb = new obb(*original._localObb);
+        if (original._obb)
+            _obb = new obb(*original._obb);
+
         for (auto child : original._children)
         {
             auto clonedChild = child->clone();
@@ -54,6 +61,7 @@ namespace phi
             safeDelete(component);
 
         safeDelete(_transform);
+        safeDelete(_obb);
     }
 
     inline node* node::clone() const
@@ -73,7 +81,10 @@ namespace phi
         child->setParent(this);
 
         auto transformChangedToken = child->transformChanged.assign(std::bind(&node::onChildTransformChanged, this, std::placeholders::_1));
-        _childrenTransformChangedTokens[child] = transformChangedToken;
+        _childrenEventTokens[child].transformChangedToken = transformChangedToken;
+
+        auto localObbChangedToken = child->localObbChanged.assign(std::bind(&node::onLocalObbChanged, this, std::placeholders::_1));
+        _childrenEventTokens[child].localObbChangedToken = localObbChangedToken;
 
         childAdded.raise(child);
         updateObb();
@@ -86,8 +97,9 @@ namespace phi
         {
             _children.erase(iterator);
             child->setParent(nullptr);
-            child->transformChanged.unassign(_childrenTransformChangedTokens[child]);
-            _childrenTransformChangedTokens.erase(child);
+            child->transformChanged.unassign(_childrenEventTokens[child].transformChangedToken);
+            child->localObbChanged.unassign(_childrenEventTokens[child].localObbChangedToken);
+            _childrenEventTokens.erase(child);
             childRemoved.raise(child);
         }
 
@@ -112,34 +124,49 @@ namespace phi
     {
         if (_children.size() == 0)
         {
-            _obb = obb();
+            if (_obb)
+                safeDelete(_obb);
+
+            if (_localObb)
+                _obb = new obb(*_localObb);
+
             return;
         }
 
-        auto firstChildObb = _children[0]->getObb();
         vec3 min;
         vec3 max;
-        firstChildObb.getLimits(min, max);
+        if (_localObb)
+            _localObb->getLimits(min, max);
+        else
+        {
+            auto minFloat = std::numeric_limits<float>().min();
+            auto maxFloat = std::numeric_limits<float>().max();
+            min = vec3(maxFloat, maxFloat, maxFloat);
+            max = vec3(minFloat, minFloat, minFloat);
+        }
 
         for (auto& child : _children)
         {
             auto childObb = child->getObb();
+            if (!childObb)
+                continue;
+
             vec3 childMin;
             vec3 childMax;
-            childObb.getLimits(childMin, childMax);
+            childObb->getLimits(childMin, childMax);
 
             if (childMin.x < min.x)
                 min.x = childMin.x;
-            if (childMin.x < min.y)
-                min.x = childMin.y;
+            if (childMin.y < min.y)
+                min.y = childMin.y;
             if (childMin.z < min.z)
                 min.z = childMin.z;
 
-            if (childMax.x < max.x)
+            if (childMax.x > max.x)
                 max.x = childMax.x;
-            if (childMax.x < max.y)
-                max.x = childMax.y;
-            if (childMax.z < max.z)
+            if (childMax.y > max.y)
+                max.y = childMax.y;
+            if (childMax.z > max.z)
                 max.z = childMax.z;
         }
 
@@ -147,15 +174,39 @@ namespace phi
         auto width = max.x - min.x;
         auto height = max.y - min.y;
         auto depth = max.z - min.z;
-        _obb = obb(center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(width, height, depth));
+
+        obb obb;
+        obb.center = center;
+        obb.axes[0] = vec3(1.0f, 0.0f, 0.0f);
+        obb.axes[1] = vec3(0.0f, 1.0f, 0.0f);
+        obb.axes[2] = vec3(0.0f, 0.0f, 1.0f);
+        obb.halfSizes = vec3(width, height, depth);
+        obb = obb.transform(getTransform());
+
+        if (!_obb)
+            _obb = new phi::obb(obb);
+        else
+        {
+            _obb->center = obb.center;
+            _obb->axes[0] = obb.axes[0];
+            _obb->axes[1] = obb.axes[1];
+            _obb->axes[2] = obb.axes[2];
+            _obb->halfSizes = obb.halfSizes;
+        }
     }
 
     inline void node::raiseTransformChanged(transform* transform)
     {
+        updateObb();
         transformChanged.raise(this);
     }
 
     void node::onChildTransformChanged(node* child)
+    {
+        updateObb();
+    }
+
+    void node::onLocalObbChanged(node* child)
     {
         updateObb();
     }
@@ -201,6 +252,16 @@ namespace phi
     inline void node::setSize(vec3 value)
     {
         _transform->setLocalSize(value);
+    }
+
+    inline void node::setLocalObb(obb* value)
+    {
+        if (_localObb)
+            safeDelete(_localObb);
+
+        _localObb = value;
+        updateObb();
+        localObbChanged.raise(this);
     }
 
     bool node::operator==(const node& other)

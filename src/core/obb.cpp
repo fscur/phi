@@ -82,12 +82,16 @@ namespace phi
 
     obb obb::transform(phi::transform* transform) const
     {
-        auto scale = transform->getLocalSize();
-        auto rotation = transform->getOrientation();
-        auto position = transform->getPosition() + this->center;
-        auto halfSizes = this->halfSizes * scale;
+        auto transformPosition = transform->getPosition();
+        auto transformOrientation = transform->getOrientation();
+        auto transformSize = transform->getSize();
+        auto position = transformPosition + transformOrientation * transformSize * center;
+        auto axisX = transformOrientation * axes[0];
+        auto axisY = transformOrientation * axes[1];
+        auto axisZ = transformOrientation * axes[2];
+        auto size = transformSize * halfSizes;
 
-        return obb(position, this->axes[0] * rotation, this->axes[1] * rotation, this->axes[2] * rotation, halfSizes);
+        return obb(position, axisX, axisY, axisZ, size);
     }
 
     vec3 obb::getPositionAt(vec3 direction) const
@@ -213,16 +217,16 @@ namespace phi
             auto corner = corners[i];
             if (corner.x < min.x)
                 min.x = corner.x;
-            if (corner.x < min.y)
-                min.x = corner.y;
+            if (corner.y < min.y)
+                min.y = corner.y;
             if (corner.z < min.z)
                 min.z = corner.z;
 
-            if (corner.x < max.x)
+            if (corner.x > max.x)
                 max.x = corner.x;
-            if (corner.x < max.y)
-                max.x = corner.y;
-            if (corner.z < max.z)
+            if (corner.y > max.y)
+                max.y = corner.y;
+            if (corner.z > max.z)
                 max.z = corner.z;
         }
     }
