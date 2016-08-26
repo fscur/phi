@@ -33,7 +33,10 @@ namespace phi
         auto control = node->getComponent<phi::control>();
 
         if (control)
+        {
+            control->colorChanged.assign(std::bind(&glassyControlLayerBehaviour::onControlColorChanged, this, std::placeholders::_1));
             _adapter->add(control);
+        }
     }
 
     void glassyControlLayerBehaviour::onNodeRemoved(node* node)
@@ -55,5 +58,10 @@ namespace phi
     void glassyControlLayerBehaviour::onNodeSelectionChanged(node* node)
     {
         throw notImplementedException();
+    }
+
+    void glassyControlLayerBehaviour::onControlColorChanged(control* control)
+    {
+        _adapter->update(control);
     }
 }

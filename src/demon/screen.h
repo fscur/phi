@@ -60,6 +60,7 @@ namespace demon
         void initWatcher();
         void initFramebuffers();
         void initLibraries();
+        void openFileDialog();
         void initContexts();
         void initInput();
 

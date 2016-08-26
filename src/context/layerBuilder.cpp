@@ -30,6 +30,7 @@
 #include "selectionInputController.h"
 #include "translationInputController.h"
 #include "planesTranslationInputController.h"
+#include "uiMouseController.h"
 
 namespace phi
 {
@@ -252,6 +253,13 @@ namespace phi
         _layer->addMouseController(planesTranslationController);
     }
 
+    void layerBuilder::buildUIController()
+    {
+        auto uiMouseController = new phi::uiMouseController(_layer);
+
+        _layer->addMouseController(uiMouseController);
+    }
+
     layer* layerBuilder::build()
     {
         if (_withMeshRenderer)
@@ -292,6 +300,9 @@ namespace phi
 
         if (_withPlanesTranslationController)
             buildPlanesTranslationController();
+
+        if (_withUIController)
+            buildUIController();
 
         return _layer;
     }

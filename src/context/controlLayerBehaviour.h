@@ -23,6 +23,9 @@ namespace phi
         resolution _resolution;
         string _resourcesPath;
 
+    private:
+        void onControlColorChanged(control * control);
+
     public:
         CONTEXT_API controlLayerBehaviour(
             const resolution& resolution, 

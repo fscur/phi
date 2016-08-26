@@ -46,6 +46,7 @@ namespace phi
         //TODO: this event should be unassigned.
         control->getOnSizeChanged()->assign([=](vec3 size)
         {
+            assert(size.x != 0 && size.y != 0 && size.z != 0);
             _button->setSize(size);
         });
         

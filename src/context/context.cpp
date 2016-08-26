@@ -24,7 +24,7 @@ namespace phi
         _pickingFramebuffer = framebufferAllocator->getFramebuffer("pickingFramebuffer");
         _pickingRenderTarget = _pickingFramebuffer->getRenderTarget("pickingRenderTarget");
 
-        initialize(); //TODO:is this the right place?
+        initialize(); //TODO:is this the right place? | EDIT: is this the right solution ? 
     }
 
     context::~context()

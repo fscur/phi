@@ -117,6 +117,39 @@ namespace demon
         _projectLibrary = new library(application::path);
     }
 
+    void screen::openFileDialog()
+    {
+        OPENFILENAME ofn;
+        char fileNameBuffer[260];
+        HANDLE fileHandle;
+
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        ofn.lpstrFile = fileNameBuffer;
+
+        // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+        // use the contents of szFile to initialize itself.
+        ofn.lpstrFile[0] = '\0';
+        ofn.nMaxFile = sizeof(fileNameBuffer);
+        ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+        ofn.nFilterIndex = 1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir = NULL;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+        // Display the Open dialog box. 
+
+        if (GetOpenFileName(&ofn) == TRUE)
+            fileHandle = CreateFile(ofn.lpstrFile,
+                GENERIC_READ,
+                0,
+                (LPSECURITY_ATTRIBUTES)NULL,
+                OPEN_EXISTING,
+                FILE_ATTRIBUTE_NORMAL,
+                (HANDLE)NULL);
+    }
+
     void screen::initContexts()
     {
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
@@ -150,34 +183,46 @@ namespace demon
             .withFont(font)
             .withControlColor(.5, .5, .2f, 1.f)
             .withAction([=](node* node)
-            {
-                _commandsManager->executeCommand(new changeContextCommand());
-            })
+        {
+            _commandsManager->executeCommand(new changeContextCommand());
+        })
             .build();
 
-        _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
+        auto loadProjectButton = buttonBuilder::newButton()
+            .withPosition(vec3(50.f, -20.f, 0.f))
+            .withText(L"Load project")
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .withControlColor(.7f, .1f, .2f, 1.f)
+            .withAction([=](node* node)
+        {
+            openFileDialog();
+        })
+            .build();
+
+        //_chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        //_chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 0.0f));
         //cube0->getTransform()->setLocalSize(vec3(3.0f, 2.0f, 0.5f));
         //cube0->getTransform()->yaw(PI_OVER_4);
-        
-        auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
+
+        //auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
         //cube1->getTransform()->translate(vec3(2.0f, 0.5f, 0.0f));
         //cube1->getTransform()->yaw(PI_OVER_4);
-        auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
+        //auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
         //floor0->getTransform()->setLocalSize(vec3(1.0f, 2.0f, 1.0f));
         //auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         //wall->getTransform()->pitch(PI_OVER_2);
         //wall->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
 
-        auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
-        coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
-        auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
-        tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
-        auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
-        table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
+        //auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
+        //coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
+        //auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
+        //tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
+        //auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
+        //table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
@@ -213,6 +258,7 @@ namespace demon
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withGlassyControlRenderer()
                 .withTextRenderer()
+                .withUIController()
                 .build();
         }
         catch (phi::invalidLayerConfigurationException& ex)
@@ -236,13 +282,13 @@ namespace demon
 
         //_sceneLayer->add(planeNode);
         _sceneLayer->add(cube0);
-        _sceneLayer->add(_chair0);
-        _sceneLayer->add(floor0);
-        _sceneLayer->add(back_wall);
-        //_sceneLayer->add(wall);
-        _sceneLayer->add(table);
-        _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable);
+        //_sceneLayer->add(_chair0);
+        //_sceneLayer->add(floor0);
+        //_sceneLayer->add(back_wall);
+        ////_sceneLayer->add(wall);
+        //_sceneLayer->add(table);
+        //_sceneLayer->add(tableChair);
+        //_sceneLayer->add(coffeTable);
 
         //TODO: prevent components that are not dealt with it from being added to layer
 
@@ -250,6 +296,7 @@ namespace demon
         _nandinhoLayer->add(_labelNandinho);
         _nandinhoLayer->add(_labelFps);
         _nandinhoLayer->add(changeContextButton);
+        _nandinhoLayer->add(loadProjectButton);
 
         _activeContext = _designContext;
 

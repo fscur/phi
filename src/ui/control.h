@@ -19,6 +19,9 @@ namespace phi
         bool _isGlassy;
 
     public:
+        eventHandler<control*> colorChanged;
+
+    public:
         static componentType getComponentType() { return componentType::CONTROL; }
 
     public:
@@ -34,8 +37,8 @@ namespace phi
         bool getIsGlassy() const { return _isGlassy; }
 
         void setImage(image* value) { _image = value; }
-        void setColor(color value) { _color = value; }
-        void setSize(vec3 value);
+        UI_API void setColor(color value);
+        UI_API void setSize(vec3 value);
         void setIsGlassy(bool value) { _isGlassy = value; }
 
         eventHandler<vec3>* getOnSizeChanged() const { return _onSizeChanged; }
