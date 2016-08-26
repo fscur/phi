@@ -21,7 +21,6 @@
 #include "boxColliderLayerBehaviour.h"
 #include "planeGridLayerBehaviour.h"
 #include "controlLayerBehaviour.h"
-#include "glassyControlLayerBehaviour.h"
 #include "textLayerBehaviour.h"
 #include "physicsLayerBehaviour.h"
 #include "animatorLayerBehaviour.h"
@@ -141,31 +140,41 @@ namespace phi
 
     void layerBuilder::buildGlassyControlRenderer()
     {
-        auto glassyBehaviour = new glassyControlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto adapter = new controlRenderAdapter();
+        auto renderPasses = glassyControlRenderer::configure(
+            adapter,
+            _resolution,
+            _resourcesPath,
+            _framebufferAllocator);
 
-        _layer->addOnNodeAdded(std::bind(&glassyControlLayerBehaviour::onNodeAdded, glassyBehaviour, std::placeholders::_1));
-        _layer->addOnNodeRemoved(std::bind(&glassyControlLayerBehaviour::onNodeRemoved, glassyBehaviour, std::placeholders::_1));
-        _layer->addOnNodeTransformChanged(std::bind(&glassyControlLayerBehaviour::onNodeTransformChanged, glassyBehaviour, std::placeholders::_1));
-        _layer->addOnNodeSelectionChanged(std::bind(&glassyControlLayerBehaviour::onNodeSelectionChanged, glassyBehaviour, std::placeholders::_1));
-
-        _layer->addRenderPasses(glassyBehaviour->getRenderPasses());
-
-        _layer->addOnDelete([glassyBehaviour]() mutable
-        {
-            safeDelete(glassyBehaviour);
-        });
-    }
-
-    void layerBuilder::buildControlRenderer()
-    {
-        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
 
         _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeTransformChanged(std::bind(&controlLayerBehaviour::onNodeTransformChanged, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeSelectionChanged(std::bind(&controlLayerBehaviour::onNodeSelectionChanged, controlBehaviour, std::placeholders::_1));
 
-        _layer->addRenderPasses(controlBehaviour->getRenderPasses());
+        _layer->addRenderPasses(renderPasses);
+
+        _layer->addOnDelete([controlBehaviour]() mutable
+        {
+            safeDelete(controlBehaviour);
+        });
+    }
+
+    void layerBuilder::buildControlRenderer()
+    {
+        auto adapter = new controlRenderAdapter();
+        auto renderPasses = controlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
+
+        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
+
+        _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&controlLayerBehaviour::onNodeTransformChanged, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeSelectionChanged(std::bind(&controlLayerBehaviour::onNodeSelectionChanged, controlBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(renderPasses);
 
         _layer->addOnDelete([controlBehaviour]() mutable
         {
@@ -267,7 +276,7 @@ namespace phi
 
         if (_withGhostMeshRenderer)
             buildGhostMeshRenderer();
-        
+
         if (_withBoxColliderRenderer)
             buildBoxColliderRenderer();
 

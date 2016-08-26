@@ -36,9 +36,6 @@ namespace phi
 
                 auto transformedAabb = phi::aabb(transformedMin, transformedMax);
 
-                auto transformedRay = ray * glm::inverse(model);
-                bool hasClicked2 = transformedRay.intersects(aabb);
-
                 bool hasClicked = ray.intersects(transformedAabb);
 
                 if (hasClicked)

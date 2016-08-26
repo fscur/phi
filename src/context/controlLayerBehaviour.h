@@ -30,7 +30,9 @@ namespace phi
         CONTEXT_API controlLayerBehaviour(
             const resolution& resolution, 
             const string& resourcesPath,
-            framebufferAllocator* framebufferAllocator);
+            framebufferAllocator* framebufferAllocator,
+            controlRenderAdapter* adapter,
+            vector<renderPass*> renderPasses);
 
         CONTEXT_API ~controlLayerBehaviour();
 
@@ -38,7 +40,5 @@ namespace phi
         CONTEXT_API void onNodeRemoved(node* node);
         CONTEXT_API void onNodeTransformChanged(node* node);
         CONTEXT_API void onNodeSelectionChanged(node* node);
-
-        vector<renderPass*> getRenderPasses() { return _renderPasses; }
     };
 }
