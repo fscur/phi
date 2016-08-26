@@ -25,7 +25,9 @@ namespace phi
         bool closed;
 
     private:
+        void initWindow();
         void adjustWindowToScreenBounds();
+
     public:
         APPLICATION_API window(wstring title, resolution resolution);
         APPLICATION_API virtual ~window();

@@ -24,17 +24,9 @@ namespace phi
     LPARAM _lastMouseMove;
     POINT _lastMouseMovePt;
     resolution _currentResolution;
-    bool _isLastLeftMouseDownDoubleClick = false;
-    bool _isLastMiddleMouseDownDoubleClick = false;
-    bool _isLastRightMouseDownDoubleClick = false;
 
     nanoseconds _lastMouseWheelElapsed;
     nanoseconds _firstMouseWheelElapsed;
-
-    nanoseconds _elapsedSinceLastMouseDown;
-    nanoseconds _clickEventDuration = static_cast<nanoseconds>(1000000 * 200);
-
-    nanoseconds _now;
 
     int _mouseWheelDelta;
     bool _isMouseWheeling = false;
@@ -49,8 +41,6 @@ namespace phi
     bool _wasMinimized = false;
     bool _isMouseFrozen = false;
     bool _isCursorVisible = true;
-    bool _isWaitingClick = false;
-    bool _shouldNotifyMouseUp = false;
 
     mouseButtonEventDispatcher* _leftMouseButton;
     mouseButtonEventDispatcher* _rightMouseButton;
@@ -367,12 +357,13 @@ namespace phi
         point.y = GET_Y_LPARAM(lParam);
         ScreenToClient(_windowHandle, &point);
         auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
+        auto now = high_resolution_clock::now().time_since_epoch();
 
         if (!_isMouseWheeling)
         {
             _isMouseWheeling = true;
             _mouseWheelDelta = delta;
-            _firstMouseWheelElapsed = _now;
+            _firstMouseWheelElapsed = now;
             input::notifyBeginMouseWheel(delta, point.x, point.y);
             input::notifyMouseWheel(delta, point.x, point.y);
         }
@@ -382,7 +373,7 @@ namespace phi
             input::notifyMouseWheel(delta, point.x, point.y);
         }
 
-        _lastMouseWheelElapsed = _now;
+        _lastMouseWheelElapsed = now;
 
         return 0;
     }
@@ -709,7 +700,7 @@ namespace phi
         });
     }
 
-    void window::init()
+    void window::initWindow()
     {
         adjustWindowToScreenBounds();
         createWindow(_title, _resolution);
@@ -720,17 +711,6 @@ namespace phi
         SetFocus(_windowHandle);
 
         _resolution.dpi = getDpi(_windowHandle);
-
-        onInit();
-
-        _resizeToken = window::resize.assign([&](phi::resolution resolution)
-        {
-            onResize(resolution);
-        });
-
-        _now = high_resolution_clock::now().time_since_epoch();
-
-        initMouseButtonDispatchers();
     }
 
     void window::adjustWindowToScreenBounds()
@@ -748,10 +728,21 @@ namespace phi
         _resolution = resolution(width, height);
     }
 
+    void window::init()
+    {
+        initWindow();
+        initMouseButtonDispatchers();
+
+        onInit();
+
+        _resizeToken = window::resize.assign([&](phi::resolution resolution)
+        {
+            onResize(resolution);
+        });
+    }
+
     void window::input()
     {
-        _now = high_resolution_clock::now().time_since_epoch();
-
         MSG msg;
 
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
