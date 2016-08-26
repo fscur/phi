@@ -40,5 +40,6 @@ namespace phi
         bool onMouseUp(mouseEventArgs* e) override;
         bool onKeyUp(keyboardEventArgs* e) override;
         bool update() override;
+        void cancel() override;
     };
 }
