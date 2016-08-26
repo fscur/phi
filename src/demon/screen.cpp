@@ -282,9 +282,10 @@ namespace demon
     void screen::initInput()
     {
         input::mouseDown->assign(std::bind(&screen::onMouseDown, this, std::placeholders::_1));
+        input::mouseUp->assign(std::bind(&screen::onMouseUp, this, std::placeholders::_1));
+        input::mouseClick->assign(std::bind(&screen::onMouseClick, this, std::placeholders::_1));
         input::mouseDoubleClick->assign(std::bind(&screen::onMouseDoubleClick, this, std::placeholders::_1));
         input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
-        input::mouseUp->assign(std::bind(&screen::onMouseUp, this, std::placeholders::_1));
         input::beginMouseWheel->assign(std::bind(&screen::onBeginMouseWheel, this, std::placeholders::_1));
         input::mouseWheel->assign(std::bind(&screen::onMouseWheel, this, std::placeholders::_1));
         input::endMouseWheel->assign(std::bind(&screen::onEndMouseWheel, this, std::placeholders::_1));
@@ -312,6 +313,16 @@ namespace demon
         _activeContext->onMouseDown(e);
     }
     
+    void screen::onMouseUp(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseUp(e);
+    }
+
+    void screen::onMouseClick(phi::mouseEventArgs * e)
+    {
+        _activeContext->onMouseClick(e);
+    }
+    
     void screen::onMouseDoubleClick(phi::mouseEventArgs* e)
     {
         _activeContext->onMouseDoubleClick(e);
@@ -320,11 +331,6 @@ namespace demon
     void screen::onMouseMove(phi::mouseEventArgs* e)
     {
         _activeContext->onMouseMove(e);
-    }
-
-    void screen::onMouseUp(phi::mouseEventArgs* e)
-    {
-        _activeContext->onMouseUp(e);
     }
 
     void screen::onBeginMouseWheel(phi::mouseEventArgs* e)

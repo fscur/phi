@@ -168,6 +168,20 @@ namespace phi
                 break;
     }
 
+    void layer::onMouseUp(mouseEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            if (controller->onMouseUp(e))
+                break;
+    }
+
+    void layer::onMouseClick(mouseEventArgs* e)
+    {
+        for (auto& controller : _controllers)
+            if (controller->onMouseClick(e))
+                break;
+    }
+
     void layer::onMouseDoubleClick(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
@@ -179,13 +193,6 @@ namespace phi
     {
         for (auto& controller : _controllers)
             if (controller->onMouseMove(e))
-                break;
-    }
-
-    void layer::onMouseUp(mouseEventArgs* e)
-    {
-        for (auto& controller : _controllers)
-            if (controller->onMouseUp(e))
                 break;
     }
 

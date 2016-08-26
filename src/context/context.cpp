@@ -73,6 +73,12 @@ namespace phi
             layer->onMouseUp(e);
     }
 
+    void context::onMouseClick(mouseEventArgs * e)
+    {
+        for (auto& layer : _layers)
+            layer->onMouseClick(e);
+    }
+
     void context::onBeginMouseWheel(mouseEventArgs* e)
     {
         for (auto& layer : _layers)

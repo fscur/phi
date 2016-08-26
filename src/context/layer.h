@@ -75,9 +75,10 @@ namespace phi
         CONTEXT_API void render();
 
         CONTEXT_API void onMouseDown(mouseEventArgs* e);
+        CONTEXT_API void onMouseUp(mouseEventArgs* e);
+        CONTEXT_API void onMouseClick(mouseEventArgs* e);
         CONTEXT_API void onMouseDoubleClick(mouseEventArgs* e);
         CONTEXT_API void onMouseMove(mouseEventArgs* e);
-        CONTEXT_API void onMouseUp(mouseEventArgs* e);
         CONTEXT_API void onBeginMouseWheel(mouseEventArgs* e);
         CONTEXT_API void onMouseWheel(mouseEventArgs* e);
         CONTEXT_API void onEndMouseWheel(mouseEventArgs* e);

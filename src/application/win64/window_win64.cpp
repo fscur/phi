@@ -1,9 +1,13 @@
 #include <precompiled.h>
+
 #include "..\window.h"
+#include "..\mouseButtonEventDispatcher.h"
+
 #include <core\input.h>
 #include <core\exception.h>
-#include <diagnostic\stopwatch.h>
 #include <core\invalidInitializationException.h>
+
+#include <diagnostic\stopwatch.h>
 #include <ShellScalingApi.h>
 
 namespace phi
@@ -26,6 +30,12 @@ namespace phi
 
     nanoseconds _lastMouseWheelElapsed;
     nanoseconds _firstMouseWheelElapsed;
+
+    nanoseconds _elapsedSinceLastMouseDown;
+    nanoseconds _clickEventDuration = static_cast<nanoseconds>(1000000 * 200);
+
+    nanoseconds _now;
+
     int _mouseWheelDelta;
     bool _isMouseWheeling = false;
 
@@ -39,6 +49,12 @@ namespace phi
     bool _wasMinimized = false;
     bool _isMouseFrozen = false;
     bool _isCursorVisible = true;
+    bool _isWaitingClick = false;
+    bool _shouldNotifyMouseUp = false;
+
+    mouseButtonEventDispatcher* _leftMouseButton;
+    mouseButtonEventDispatcher* _rightMouseButton;
+    mouseButtonEventDispatcher* _middleMouseButton;
 
     int convertToKey(WPARAM wParam)
     {
@@ -352,13 +368,11 @@ namespace phi
         ScreenToClient(_windowHandle, &point);
         auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
 
-        auto now = high_resolution_clock::now().time_since_epoch();
-
         if (!_isMouseWheeling)
         {
             _isMouseWheeling = true;
             _mouseWheelDelta = delta;
-            _firstMouseWheelElapsed = now;
+            _firstMouseWheelElapsed = _now;
             input::notifyBeginMouseWheel(delta, point.x, point.y);
             input::notifyMouseWheel(delta, point.x, point.y);
         }
@@ -368,93 +382,63 @@ namespace phi
             input::notifyMouseWheel(delta, point.x, point.y);
         }
 
-        _lastMouseWheelElapsed = now;
+        _lastMouseWheelElapsed = _now;
 
         return 0;
     }
 
     LRESULT onLButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyLeftMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
+        _leftMouseButton->notifyButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
+    }
+
+    LRESULT onLButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        _leftMouseButton->notifyButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onLButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        _isLastLeftMouseDownDoubleClick = true;
-        input::notifyLeftMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
-    }
-    
-    LRESULT onLButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-    {
-        if (_isLastLeftMouseDownDoubleClick)
-        {
-            input::notifyLeftMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            _isLastLeftMouseDownDoubleClick = false;
-        }
-
-        input::notifyLeftMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        ReleaseCapture();
-        return 0;
+        _leftMouseButton->notifyButtonDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
     
     LRESULT onRButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
-    }
-
-    LRESULT onRButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-    {
-        _isLastRightMouseDownDoubleClick = true;
-        input::notifyRightMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
+        _rightMouseButton->notifyButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onRButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        if (_isLastRightMouseDownDoubleClick)
-        {
-            input::notifyRightMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            _isLastRightMouseDownDoubleClick = false;
-        }
+        _rightMouseButton->notifyButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
+    }
 
-        input::notifyRightMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        ReleaseCapture();
-        return 0;
+    LRESULT onRButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        _rightMouseButton->notifyButtonDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onMButtonDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
-    }
-
-    LRESULT onMButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-    {
-        _isLastMiddleMouseDownDoubleClick = true;
-        input::notifyMiddleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        SetCapture(_windowHandle);
-        return 0;
+        _middleMouseButton->notifyButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onMButtonUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        if (_isLastMiddleMouseDownDoubleClick)
-        {
-            input::notifyMiddleMouseDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            _isLastMiddleMouseDownDoubleClick = false;
-        }
+        _middleMouseButton->notifyButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
+    }
 
-        input::notifyMiddleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        ReleaseCapture();
-        return 0;
+    LRESULT onMButtonDblClk(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        _middleMouseButton->notifyButtonDoubleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
 
     LRESULT onMouseMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -524,21 +508,18 @@ namespace phi
             return onLButtonDblClk(hWnd, message, wParam, lParam);
         case WM_LBUTTONUP:
             return onLButtonUp(hWnd, message, wParam, lParam);
-
         case WM_RBUTTONDOWN:
             return onRButtonDown(hWnd, message, wParam, lParam);
         case WM_RBUTTONDBLCLK:
             return onRButtonDblClk(hWnd, message, wParam, lParam);
         case WM_RBUTTONUP:
             return onRButtonUp(hWnd, message, wParam, lParam);
-
         case WM_MBUTTONDOWN:
             return onMButtonDown(hWnd, message, wParam, lParam);
         case WM_MBUTTONDBLCLK:
             return onMButtonDblClk(hWnd, message, wParam, lParam);
         case WM_MBUTTONUP:
             return onMButtonUp(hWnd, message, wParam, lParam);
-
         case WM_MOUSEMOVE:
             return onMouseMove(hWnd, message, wParam, lParam);
         case WM_CAPTURECHANGED:
@@ -562,7 +543,7 @@ namespace phi
         WNDCLASSEXW wndClass;
         auto cTitle = title.c_str();
         wndClass.cbSize = sizeof(WNDCLASSEXW);
-        wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+        wndClass.style = CS_HREDRAW | CS_VREDRAW |  CS_DBLCLKS ;
         wndClass.lpfnWndProc = (WNDPROC)windowProcedure;
         wndClass.cbClsExtra = 0;
         wndClass.cbWndExtra = 0;
@@ -683,6 +664,51 @@ namespace phi
         wglDeleteContext(_renderingContext);
     }
 
+    void initMouseButtonDispatchers()
+    {
+        _leftMouseButton = new mouseButtonEventDispatcher(_windowHandle);
+        _leftMouseButton->setButtonClickFunction([](int x, int y) { input::notifyLeftMouseClick(x, y); });
+        _leftMouseButton->setButtonDoubleClickFunction([](int x, int y) { input::notifyLeftMouseDoubleClick(x, y); });
+        _leftMouseButton->setButtonDownFunction([](int x, int y) 
+        { 
+            SetCapture(_windowHandle);
+            input::notifyLeftMouseDown(x, y);
+        });
+        _leftMouseButton->setButtonUpFunction([](int x, int y)
+        {
+            input::notifyLeftMouseUp(x, y);
+            ReleaseCapture();
+        });
+
+        _rightMouseButton = new mouseButtonEventDispatcher(_windowHandle);
+        _rightMouseButton->setButtonClickFunction([](int x, int y) { input::notifyRightMouseClick(x, y); });
+        _rightMouseButton->setButtonDoubleClickFunction([](int x, int y) { input::notifyRightMouseDoubleClick(x, y); });
+        _rightMouseButton->setButtonDownFunction([](int x, int y)
+        {
+            SetCapture(_windowHandle);
+            input::notifyRightMouseDown(x, y);
+        });
+        _rightMouseButton->setButtonUpFunction([](int x, int y)
+        {
+            input::notifyRightMouseUp(x, y);
+            ReleaseCapture();
+        });
+
+        _middleMouseButton = new mouseButtonEventDispatcher(_windowHandle);
+        _middleMouseButton->setButtonClickFunction([](int x, int y) { input::notifyMiddleMouseClick(x, y); });
+        _middleMouseButton->setButtonDoubleClickFunction([](int x, int y) { input::notifyMiddleMouseDoubleClick(x, y); });
+        _middleMouseButton->setButtonDownFunction([](int x, int y)
+        {
+            SetCapture(_windowHandle);
+            input::notifyMiddleMouseDown(x, y);
+        });
+        _middleMouseButton->setButtonUpFunction([](int x, int y)
+        {
+            input::notifyMiddleMouseUp(x, y);
+            ReleaseCapture();
+        });
+    }
+
     void window::init()
     {
         adjustWindowToScreenBounds();
@@ -701,6 +727,10 @@ namespace phi
         {
             onResize(resolution);
         });
+
+        _now = high_resolution_clock::now().time_since_epoch();
+
+        initMouseButtonDispatchers();
     }
 
     void window::adjustWindowToScreenBounds()
@@ -720,6 +750,8 @@ namespace phi
 
     void window::input()
     {
+        _now = high_resolution_clock::now().time_since_epoch();
+
         MSG msg;
 
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
@@ -737,6 +769,10 @@ namespace phi
 
     void window::update()
     {
+        _leftMouseButton->update();
+        _rightMouseButton->update();
+        _middleMouseButton->update();
+
         if (_isMouseFrozen)
         {
             POINT p;
