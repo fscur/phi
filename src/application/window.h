@@ -3,8 +3,8 @@
 #include "applicationApi.h"
 #include <core\eventHandler.h>
 #include <core\resolution.h>
-#include <core\mouseEventArgs.h>
-#include <core\keyboardEventArgs.h>
+#include <input\mouseEventArgs.h>
+#include <input\keyboardEventArgs.h>
 
 namespace phi
 {
@@ -25,7 +25,9 @@ namespace phi
         bool closed;
 
     private:
+        void initWindow();
         void adjustWindowToScreenBounds();
+
     public:
         APPLICATION_API window(wstring title, resolution resolution);
         APPLICATION_API virtual ~window();
@@ -46,5 +48,11 @@ namespace phi
 
         APPLICATION_API virtual void onTick();
         APPLICATION_API virtual void onResize(resolution resolution);
+
+    public:
+        APPLICATION_API static void freezeMouse();
+        APPLICATION_API static void unfreezeMouse();
+        APPLICATION_API static void showCursor();
+        APPLICATION_API static void hideCursor();
     };
 }

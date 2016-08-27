@@ -38,14 +38,25 @@ namespace phi
         update(_easingFunction(percent));
 
         if (_elapsed > _duration)
+        {
+            if (_animationEndedCallback)
+                _animationEndedCallback();
+
             stop();
+        }
     }
 
-    void animation::start(double duration)
+    void animation::start(double duration, std::function<void(void)> animationEndedCallback)
     {
         _duration = duration;
         _elapsed = 0.0;
         _isAnimating = true;
+        _animationEndedCallback = animationEndedCallback;
+    }
+
+    void animation::start(double duration)
+    {
+        start(duration, {});
     }
 
     void animation::stop()

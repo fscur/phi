@@ -20,14 +20,14 @@
 #include <application\undoCommand.h>
 #include <application\redoCommand.h>
 
-#include <context\layerBuilder.h>
-#include <context\deleteSceneObjectCommand.h>
+#include <layers\layerBuilder.h>
+#include <layers\nodeCreation\deleteNodeCommand.h>
 #include <context\invalidLayerConfigurationException.h>
 
-#include <core\input.h>
+#include <input\input.h>
 #include <core\clickComponent.h>
 #include <core\boxCollider.h>
-#include <ui\planeGrid.h>
+#include <core\planeGrid.h>
 #include <core\ghostMesh.h>
 
 using namespace phi;
@@ -117,39 +117,6 @@ namespace demon
         _projectLibrary = new library(application::path);
     }
 
-    void screen::openFileDialog()
-    {
-        OPENFILENAME ofn;
-        char fileNameBuffer[260];
-        HANDLE fileHandle;
-
-        ZeroMemory(&ofn, sizeof(ofn));
-        ofn.lStructSize = sizeof(ofn);
-        ofn.lpstrFile = fileNameBuffer;
-
-        // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-        // use the contents of szFile to initialize itself.
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile = sizeof(fileNameBuffer);
-        ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-        ofn.nFilterIndex = 1;
-        ofn.lpstrFileTitle = NULL;
-        ofn.nMaxFileTitle = 0;
-        ofn.lpstrInitialDir = NULL;
-        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-        // Display the Open dialog box. 
-
-        if (GetOpenFileName(&ofn) == TRUE)
-            fileHandle = CreateFile(ofn.lpstrFile,
-                GENERIC_READ,
-                0,
-                (LPSECURITY_ATTRIBUTES)NULL,
-                OPEN_EXISTING,
-                FILE_ATTRIBUTE_NORMAL,
-                (HANDLE)NULL);
-    }
-
     void screen::initContexts()
     {
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
@@ -196,33 +163,56 @@ namespace demon
             .withControlColor(.7f, .1f, .2f, 1.f)
             .withAction([=](node* node)
         {
-            openFileDialog();
+            OPENFILENAME ofn;
+            char fileNameBuffer[260];
+            HANDLE fileHandle;
+
+            ZeroMemory(&ofn, sizeof(ofn));
+            ofn.lStructSize = sizeof(ofn);
+            ofn.lpstrFile = fileNameBuffer;
+
+            // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+            // use the contents of szFile to initialize itself.
+            ofn.lpstrFile[0] = '\0';
+            ofn.nMaxFile = sizeof(fileNameBuffer);
+            ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+            ofn.nFilterIndex = 1;
+            ofn.lpstrFileTitle = NULL;
+            ofn.nMaxFileTitle = 0;
+            ofn.lpstrInitialDir = NULL;
+            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+            // Display the Open dialog box. 
+
+            if (GetOpenFileName(&ofn) == TRUE)
+                fileHandle = CreateFile(ofn.lpstrFile,
+                    GENERIC_READ,
+                    0,
+                    (LPSECURITY_ATTRIBUTES)NULL,
+                    OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL,
+                    (HANDLE)NULL);
         })
             .build();
 
-        //_chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        //_chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
+        _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 0.0f));
-        //cube0->getTransform()->setLocalSize(vec3(3.0f, 2.0f, 0.5f));
-        //cube0->getTransform()->yaw(PI_OVER_4);
+        cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
+        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
 
-        //auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
-        //cube1->getTransform()->translate(vec3(2.0f, 0.5f, 0.0f));
-        //cube1->getTransform()->yaw(PI_OVER_4);
-        //auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
-        //floor0->getTransform()->setLocalSize(vec3(1.0f, 2.0f, 1.0f));
-        //auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        //wall->getTransform()->pitch(PI_OVER_2);
-        //wall->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
+        auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
+        back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
+        auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
 
-        //auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
-        //coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
-        //auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
-        //tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
-        //auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
-        //table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
+        auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
+        coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
+        auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
+        tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
+        auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
+        table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
@@ -239,7 +229,7 @@ namespace demon
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withPlanesTranslationController()
+                .withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -258,8 +248,7 @@ namespace demon
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withGlassyControlRenderer()
                 .withTextRenderer()
-                .withUIController()
-                .withCameraController()
+                .withUIMouseController()
                 .build();
         }
         catch (phi::invalidLayerConfigurationException& ex)
@@ -281,15 +270,14 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        //_sceneLayer->add(planeNode);
         _sceneLayer->add(cube0);
-        //_sceneLayer->add(_chair0);
-        //_sceneLayer->add(floor0);
-        //_sceneLayer->add(back_wall);
-        ////_sceneLayer->add(wall);
-        //_sceneLayer->add(table);
-        //_sceneLayer->add(tableChair);
-        //_sceneLayer->add(coffeTable);
+        _sceneLayer->add(cube1);
+        _sceneLayer->add(_chair0);
+        _sceneLayer->add(floor0);
+        _sceneLayer->add(back_wall);
+        _sceneLayer->add(table);
+        _sceneLayer->add(tableChair);
+        _sceneLayer->add(coffeTable);
 
         //TODO: prevent components that are not dealt with it from being added to layer
 
@@ -301,30 +289,20 @@ namespace demon
 
         _activeContext = _designContext;
 
-        //_commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_DELETE }, [=]()
-        //{
-        //    auto nodesToDelete = { cube0 };
-        //    return new deleteSceneObjectCommand(nodesToDelete);
-        //}));
-
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [=]()
         {
             auto nodesToDelete = { _chair0 };
-            return new deleteSceneObjectCommand(nodesToDelete);
+            return new deleteNodeCommand(nodesToDelete);
         }));
-
-        //_commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [=]()
-        //{
-        //    auto nodesToDelete = { floor0 };
-        //    return new deleteSceneObjectCommand(nodesToDelete);
-        //}));
     }
 
     void screen::initInput()
     {
         input::mouseDown->assign(std::bind(&screen::onMouseDown, this, std::placeholders::_1));
-        input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
         input::mouseUp->assign(std::bind(&screen::onMouseUp, this, std::placeholders::_1));
+        input::mouseClick->assign(std::bind(&screen::onMouseClick, this, std::placeholders::_1));
+        input::mouseDoubleClick->assign(std::bind(&screen::onMouseDoubleClick, this, std::placeholders::_1));
+        input::mouseMove->assign(std::bind(&screen::onMouseMove, this, std::placeholders::_1));
         input::beginMouseWheel->assign(std::bind(&screen::onBeginMouseWheel, this, std::placeholders::_1));
         input::mouseWheel->assign(std::bind(&screen::onMouseWheel, this, std::placeholders::_1));
         input::endMouseWheel->assign(std::bind(&screen::onEndMouseWheel, this, std::placeholders::_1));
@@ -334,16 +312,6 @@ namespace demon
         _commandsManager = new commandsManager();
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
-
-        //_commandsManager->addShortcut(shortcut({ PHIK_DELETE }, [&]()
-        //{
-        //    return new multiCommand(vector<command*>
-        //    {
-        //        new unselectSceneObjectCommand(_scene->getSelectedObjects()),
-        //        new deleteSceneObjectCommand(_scene->getSelectedObjects())
-        //    });
-        //}));
-
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
     }
 
@@ -352,14 +320,24 @@ namespace demon
         _activeContext->onMouseDown(e);
     }
 
-    void screen::onMouseMove(phi::mouseEventArgs* e)
-    {
-        _activeContext->onMouseMove(e);
-    }
-
     void screen::onMouseUp(phi::mouseEventArgs* e)
     {
         _activeContext->onMouseUp(e);
+    }
+
+    void screen::onMouseClick(phi::mouseEventArgs * e)
+    {
+        _activeContext->onMouseClick(e);
+    }
+
+    void screen::onMouseDoubleClick(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseDoubleClick(e);
+    }
+
+    void screen::onMouseMove(phi::mouseEventArgs* e)
+    {
+        _activeContext->onMouseMove(e);
     }
 
     void screen::onBeginMouseWheel(phi::mouseEventArgs* e)
@@ -393,15 +371,12 @@ namespace demon
     {
         t += 0.01f;
         vec3 pos = vec3(glm::cos(t) * 3.2f, glm::sin(t) * 3.2f, 0.0f);
-        //_planeNode1->getTransform()->roll(0.01f);
-        //_planeNode1->getTransform()->setLocalPosition(pos);
 
         if (_design)
             _activeContext = _designContext;
         else
             _activeContext = _constructionContext;
 
-        //phi::floatAnimator::update();
         _activeContext->update();
     }
 

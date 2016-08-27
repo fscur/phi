@@ -15,6 +15,11 @@ namespace phi
         return dot(point, normal) - dot(origin, normal);
     }
 
+    bool plane::isParallel(const plane other) const
+    {
+        return glm::abs(glm::dot(normal, other.normal)) > (1.0f - DECIMAL_TRUNCATION);
+    }
+
     bool plane::intersectsLine(vec3 lineOrigin, vec3 lineDirection, float& t) const
     {
         auto lineDirectionOnNormal = glm::dot(normal, lineDirection);
@@ -23,5 +28,10 @@ namespace phi
 
         t = glm::dot(normal, (origin - lineOrigin)) / lineDirectionOnNormal;
         return true;
+    }
+
+    vec4 plane::toVec4() const
+    {
+        return vec4(normal, -dot(origin, normal));
     }
 }

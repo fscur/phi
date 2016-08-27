@@ -2,8 +2,6 @@
 #include <phi.h>
 #include "contextApi.h"
 
-#include <core\keyboardEventArgs.h>
-#include <core\mouseEventArgs.h>
 #include <core\node.h>
 
 #include <rendering\renderPass.h>
@@ -11,7 +9,9 @@
 #include <rendering\buffer.h>
 #include <rendering\frameUniformBlock.h>
 
-#include "inputController.h"
+#include <input\mouseEventArgs.h>
+#include <input\keyboardEventArgs.h>
+#include <input\inputController.h>
 
 namespace phi
 {
@@ -51,7 +51,8 @@ namespace phi
         vector<std::function<void(node*)>> _onNodeSelectionChanged;
         vector<std::function<void(void)>> _onDelete;
         vector<inputController*> _controllers;
-
+        inputController* _currentController;
+        std::stack<inputController*> _controllersStack;
         buffer* _frameUniformsBuffer;
 
     private:
@@ -75,8 +76,10 @@ namespace phi
         CONTEXT_API void render();
 
         CONTEXT_API void onMouseDown(mouseEventArgs* e);
-        CONTEXT_API void onMouseMove(mouseEventArgs* e);
         CONTEXT_API void onMouseUp(mouseEventArgs* e);
+        CONTEXT_API void onMouseClick(mouseEventArgs* e);
+        CONTEXT_API void onMouseDoubleClick(mouseEventArgs* e);
+        CONTEXT_API void onMouseMove(mouseEventArgs* e);
         CONTEXT_API void onBeginMouseWheel(mouseEventArgs* e);
         CONTEXT_API void onMouseWheel(mouseEventArgs* e);
         CONTEXT_API void onEndMouseWheel(mouseEventArgs* e);
@@ -89,7 +92,7 @@ namespace phi
         void addOnNodeTransformChanged(std::function<void(node*)> onNodeTransformChanged) { _onNodeTransformChanged.push_back(onNodeTransformChanged); }
         void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged) { _onNodeSelectionChanged.push_back(onNodeSelectionChanged); }
 
-        void addMouseController(inputController* controller) { _controllers.push_back(controller); }
+        CONTEXT_API void addMouseController(inputController* controller);
         void addRenderPass(renderPass* renderPass) { _renderPasses.push_back(renderPass); }
         void addRenderPasses(vector<renderPass*> renderPasses) { _renderPasses.insert(_renderPasses.end(), renderPasses.begin(), renderPasses.end()); }
         void addOnDelete(std::function<void(void)> onDelete) { _onDelete.push_back(onDelete); }
