@@ -63,6 +63,7 @@ namespace phi
     {
         auto minDot = std::numeric_limits<float>().max();
         auto planeOrigin = vec3();
+
         for (auto& targetNode : *_targetNodes)
         {
             auto collider = targetNode->getComponent<boxCollider>();
@@ -82,13 +83,16 @@ namespace phi
         return plane(planeOrigin, axis);
     }
 
-    translationPlane* translationService::createAxisAlignedTranslationPlane(ivec2 position)
+    translationPlane* translationService::createAxisAlignedTranslationPlane(ivec2 mousePosition)
     {
-        auto viewDirection = -_camera->screenPointToRay(position.x, position.y).getDirection();
-        auto planeNormal = getClosestAxisTo(viewDirection);
-        auto plane = createPlaneFromAxis(planeNormal);
-        //auto origin = _camera->screenPointToWorld(position.x, position.y);
-        return createTranslationPlane(plane.origin, plane.normal);
+        auto viewDirection = -_camera->screenPointToRay(mousePosition.x, mousePosition.y).getDirection();
+        auto worldAxis = getClosestAxisTo(viewDirection);
+        auto plane = createPlaneFromAxis(worldAxis);
+
+        auto worldPosition = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
+        auto origin = plane.projectPoint(worldPosition);
+
+        return createTranslationPlane(origin, plane.normal);
     }
 
     translationPlane* translationService::createTranslationPlane(vec3 origin, vec3 normal)
@@ -206,6 +210,11 @@ namespace phi
 
     //end classe nova????
 
+    bool translationService::canTranslateAt(float planeVisibility, float planeExtinctionFactor)
+    {
+        return planeVisibility > planeExtinctionFactor;
+    }
+
     float translationService::getPlaneVisibility(plane plane)
     {
         auto cameraTransform = _camera->getTransform();
@@ -214,17 +223,20 @@ namespace phi
         return glm::dot(plane.normal, toPlaneDir);
     }
 
-    bool translationService::canTranslateAt(float planeVisibility, float planeExtinctionFactor)
+    void translationService::translateTargetNodes(vec3 endPosition)
     {
-        return planeVisibility > planeExtinctionFactor;
-    }
+        auto offset = endPosition - _offsetPlane.origin;
+        assert(offset != vec3());
 
-    vec3 translationService::getTranslationOffset(ivec2 mousePosition)
+        _nodeTranslator->translate(offset);
+        _offsetPlane.origin += offset;
+    }
+    
+    void translationService::translatePlaneGrid(vec3 endPosition)
     {
-        auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
-        return endPosition - _offsetPlane.origin;
+        auto planeGridPosition = _currentTranslationPlane->getPlane().projectPoint(endPosition);
+        _currentTranslationPlane->animatePlaneGridPosition(planeGridPosition);
     }
-
 
     void translationService::startTranslation(ivec2 mousePosition)
     {
@@ -249,12 +261,10 @@ namespace phi
         if (!_isTranslating)
             return;
 
-        auto offset = getTranslationOffset(mousePosition);
-        assert(offset != vec3());
-
-        _nodeTranslator->translate(offset);
-        _currentTranslationPlane->translate(offset);
-
+        auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
+        translateTargetNodes(endPosition);
+        translatePlaneGrid(endPosition);
+        
         /*if (_lastTranslationTouchs->size() > 0)
         {
             translateGhost(position, offset);
@@ -262,8 +272,7 @@ namespace phi
         }
         else
             hideGhost();*/
-
-        _offsetPlane.origin += offset;
+        
         _lastMousePosition = mousePosition;
     }
 

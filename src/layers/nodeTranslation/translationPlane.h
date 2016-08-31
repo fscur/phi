@@ -64,6 +64,6 @@ namespace phi
         LAYERS_API void fadeGridOpacityOut(std::function<void(void)> fadeOutEndedFunction);
         
         LAYERS_API void updatePlaneGridVisibility(float visibility);
-        LAYERS_API void translate(vec3 offset);
+        LAYERS_API void animatePlaneGridPosition(vec3 position);
     };
 }

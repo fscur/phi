@@ -218,5 +218,11 @@ void main()
 
     vec3 finalColor = mix(vec3(1.0, 0.0, 0.0), color, data.visibility);
 
+    //plane origin
+    //float d = length(fragTexCoord);
+    //float maxBorderDist = (planeSize * 0.5);
+    //float a = 1.0 - smoothstep(0.1, 0.11, d);
+    //fragColor = vec4(finalColor, opacity + a);
+
     fragColor = vec4(finalColor, opacity);
 }

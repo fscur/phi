@@ -1,6 +1,7 @@
 #include <precompiled.h>
 #include "translationPlane.h"
 #include <cassert>
+#include <core/string.h>
 
 namespace phi
 {
@@ -87,18 +88,17 @@ namespace phi
         _planeGridComponent->setVisibilityFactor(planeGridVisibility);
     }
 
-    void translationPlane::translate(vec3 offset)
+    void translationPlane::animatePlaneGridPosition(vec3 position)
     {
         auto planeTransform = _planeGridNode->getTransform();
-        auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
 
         auto fromPlaneTransform = new transform();
         auto fromPosition = planeTransform->getLocalPosition();
+
         fromPlaneTransform->setLocalPosition(fromPosition);
 
         auto toPlaneTransform = new transform();
-        auto toPosition = fromPosition + offset;
-        toPlaneTransform->setLocalPosition(toPosition);
+        toPlaneTransform->setLocalPosition(position);
 
         _draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
     }

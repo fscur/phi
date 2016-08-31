@@ -48,7 +48,8 @@ namespace phi
         bool canTranslateAt(float planeVisibility, float planeExtinctionFactor);
         float getPlaneVisibility(plane plane);
 
-        vec3 getTranslationOffset(ivec2 mousePosition);
+        void translateTargetNodes(vec3 endPosition);
+        void translatePlaneGrid(vec3 endPosition);
 
     public:
         translationService(
