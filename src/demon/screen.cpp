@@ -20,14 +20,14 @@
 #include <application\undoCommand.h>
 #include <application\redoCommand.h>
 
-#include <context\layerBuilder.h>
-#include <context\deleteSceneObjectCommand.h>
+#include <layers\layerBuilder.h>
+#include <layers\nodeCreation\deleteNodeCommand.h>
 #include <context\invalidLayerConfigurationException.h>
 
-#include <core\input.h>
+#include <input\input.h>
 #include <core\clickComponent.h>
 #include <core\boxCollider.h>
-#include <ui\planeGrid.h>
+#include <core\planeGrid.h>
 #include <core\ghostMesh.h>
 
 using namespace phi;
@@ -194,7 +194,7 @@ namespace demon
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                .withObbRenderer()
+                //.withObbRenderer()
                 .withPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()
@@ -278,7 +278,7 @@ namespace demon
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [=]()
         {
             auto nodesToDelete = { _chair0 };
-            return new deleteSceneObjectCommand(nodesToDelete);
+            return new deleteNodeCommand(nodesToDelete);
         }));
 
         //_commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_4 }, [=]()

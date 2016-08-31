@@ -3,8 +3,8 @@
 #include "applicationApi.h"
 
 #include <core\command.h>
-#include <core\mouseEventArgs.h>
-#include <core\keyboardEventArgs.h>
+#include <input\mouseEventArgs.h>
+#include <input\keyboardEventArgs.h>
 #include "shortcut.h"
 
 namespace phi

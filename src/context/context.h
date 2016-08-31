@@ -3,8 +3,8 @@
 #include "contextApi.h"
 
 #include <core\resolution.h>
-#include <core\keyboardEventArgs.h>
-#include <core\mouseEventArgs.h>
+#include <input\keyboardEventArgs.h>
+#include <input\mouseEventArgs.h>
 
 #include <rendering\framebufferAllocator.h>
 
