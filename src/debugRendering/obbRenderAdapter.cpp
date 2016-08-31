@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "boxColliderRenderAdapter.h"
+#include "obbRenderAdapter.h"
 
 #include <core\notImplementedException.h>
 #include <core\geometry.h>
@@ -8,20 +8,20 @@
 
 namespace phi
 {
-    boxColliderRenderAdapter::boxColliderRenderAdapter()
+    obbRenderAdapter::obbRenderAdapter()
     {
         createBuffers();
     }
 
-    boxColliderRenderAdapter::~boxColliderRenderAdapter()
+    obbRenderAdapter::~obbRenderAdapter()
     {
         safeDelete(_linesVao);
         safeDelete(_boxVao);
     }
 
-    void boxColliderRenderAdapter::createBuffers()
+    void obbRenderAdapter::createBuffers()
     {
-        _modelMatricesBuffer = new mappedVertexBuffer<boxCollider*, mat4>("modelMatrices",
+        _modelMatricesBuffer = new mappedVertexBuffer<node*, mat4>("modelMatrices",
         {
             vertexBufferAttribute(3, 4, GL_FLOAT, sizeof(mat4), (const void *)(sizeof(GLfloat) * 0 * 4), 1), // I'm not dumb (I think), I just trust the compiler
             vertexBufferAttribute(4, 4, GL_FLOAT, sizeof(mat4), (const void *)(sizeof(GLfloat) * 1 * 4), 1), // I'm not dumb (I think), I just trust the compiler
@@ -33,7 +33,7 @@ namespace phi
         createBoxVao();
     }
 
-    void boxColliderRenderAdapter::createLinesVao()
+    void obbRenderAdapter::createLinesVao()
     {
         vec3 vertices[8] =
         {
@@ -86,7 +86,7 @@ namespace phi
         _linesVao->setOnRender(renderFunction);
     }
 
-    void boxColliderRenderAdapter::createBoxVao()
+    void obbRenderAdapter::createBoxVao()
     {
         auto box = geometry::createBox(1.0f);
         auto indicesCount = box->indicesCount;
@@ -180,25 +180,25 @@ namespace phi
         safeDelete(box);
     }
 
-    void boxColliderRenderAdapter::updateModelMatrix(boxCollider* boxCollider)
+    void obbRenderAdapter::updateModelMatrix(node* node)
     {
-        auto modelMatrix = boxCollider->getModelMatrix();
-        _modelMatricesBuffer->update(boxCollider, modelMatrix);
+        auto modelMatrix = node->getObb()->toModelMatrix();
+        _modelMatricesBuffer->update(node, modelMatrix);
     }
 
-    void boxColliderRenderAdapter::add(boxCollider* boxCollider)
+    void obbRenderAdapter::add(node* node)
     {
-        auto modelMatrix = boxCollider->getModelMatrix();
-        _modelMatricesBuffer->add(boxCollider, modelMatrix);
+        auto modelMatrix = node->getObb()->toModelMatrix();
+        _modelMatricesBuffer->add(node, modelMatrix);
     }
 
-    void boxColliderRenderAdapter::remove(boxCollider* boxCollider)
+    void obbRenderAdapter::remove(node* node)
     {
-        _modelMatricesBuffer->remove(boxCollider);
+        _modelMatricesBuffer->remove(node);
     }
 
-    void boxColliderRenderAdapter::update(boxCollider* boxCollider)
+    void obbRenderAdapter::update(node* node)
     {
-        updateModelMatrix(boxCollider);
+        updateModelMatrix(node);
     }
 }

@@ -38,12 +38,15 @@ namespace phi
 
         CORE_API static bool intersects(const obb& a, const obb& b);
 
+        CORE_API obb transformLocal(phi::transform* transform) const;
         CORE_API obb transform(phi::transform* transform) const;
+        CORE_API mat4 toModelMatrix() const;
         CORE_API vec3 findClosestNormalTo(vec3 direction) const;
         CORE_API vec3 getPositionAt(vec3 direction) const;
         CORE_API vector<vec3> getCorners() const;
         CORE_API vector<plane> getPlanes() const;
         CORE_API vector<finitePlane> getFinitePlanes() const;
         CORE_API void getLimits(vec3& min, vec3& max) const;
+        CORE_API void set(obb obb);
     };
 }

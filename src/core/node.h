@@ -12,7 +12,7 @@ namespace phi
         struct nodeEventTokens
         {
             eventToken transformChangedToken;
-            eventToken localObbChangedToken;
+            eventToken obbChangedToken;
         };
 
     private:
@@ -23,6 +23,7 @@ namespace phi
         string _name;
         obb* _localObb;
         obb* _obb;
+        obb* _worldLocalObb;
         bool _isSelected;
         bool _isTranslating;
         unordered_map<node*, nodeEventTokens> _childrenEventTokens;
@@ -32,13 +33,14 @@ namespace phi
         eventHandler<node*> childRemoved;
         eventHandler<node*> transformChanged;
         eventHandler<node*> selectionChanged;
-        eventHandler<node*> localObbChanged;
+        eventHandler<node*> obbChanged;
 
     private:
         void updateObb();
         void raiseTransformChanged(transform* transform);
         void onChildTransformChanged(node* child);
-        void onLocalObbChanged(node * child);
+        void onChildObbChanged(node * child);
+        bool calculateChildrenObbIfExists(obb& obb);
 
     public:
         CORE_API node(string name = string(""));
@@ -52,6 +54,7 @@ namespace phi
         const vector<component*>* getComponents() const { return &_components; }
         const obb* const getLocalObb() const { return _localObb; }
         const obb* const getObb() const { return _obb; }
+        const obb* const getWorldLocalObb() const { return _worldLocalObb; }
         bool isSelected() const { return _isSelected; }
         bool getIsTranslating() const { return _isTranslating; }
 

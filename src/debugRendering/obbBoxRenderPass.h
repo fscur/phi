@@ -5,16 +5,16 @@
 #include <rendering\renderPass.h>
 #include <rendering\framebufferAllocator.h>
 
-#include "boxColliderRenderAdapter.h"
+#include "obbRenderAdapter.h"
 
 namespace phi
 {
-    class boxColliderBoxRenderPass
+    class obbBoxRenderPass
     {
     public:
-        boxColliderBoxRenderPass() = delete;
+        obbBoxRenderPass() = delete;
         DEBUG_RENDERING_API static renderPass* configure(
-            const boxColliderRenderAdapter* renderAdapter,
+            const obbRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);

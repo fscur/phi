@@ -20,7 +20,7 @@ namespace phi
         _commandsManager(commandsManager),
         _withMeshRenderer(false),
         _withGhostMeshRenderer(false),
-        _withBoxColliderRenderer(false),
+        _withObbRenderer(false),
         _withPlaneGridRenderer(false),
         _withControlRenderer(false),
         _withGlassyControlRenderer(false),
@@ -84,18 +84,19 @@ namespace phi
         _ghostMeshBehaviour = ghostMeshBehaviour;
     }
 
-    void layerBuilder::buildBoxColliderRenderer()
+    void layerBuilder::buildObbRenderer()
     {
-        auto boxColliderBehaviour = new boxColliderLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
-        _layer->addOnNodeAdded(std::bind(&boxColliderLayerBehaviour::onNodeAdded, boxColliderBehaviour, std::placeholders::_1));
-        _layer->addOnNodeRemoved(std::bind(&boxColliderLayerBehaviour::onNodeRemoved, boxColliderBehaviour, std::placeholders::_1));
-        _layer->addOnNodeTransformChanged(std::bind(&boxColliderLayerBehaviour::onNodeTransformChanged, boxColliderBehaviour, std::placeholders::_1));
+        auto obbBehaviour = new obbLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&obbLayerBehaviour::onNodeAdded, obbBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&obbLayerBehaviour::onNodeRemoved, obbBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&obbLayerBehaviour::onNodeTransformChanged, obbBehaviour, std::placeholders::_1));
+        _layer->addOnNodeObbChanged(std::bind(&obbLayerBehaviour::onNodeObbChanged, obbBehaviour, std::placeholders::_1));
 
-        _layer->addRenderPasses(boxColliderBehaviour->getRenderPasses());
+        _layer->addRenderPasses(obbBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([boxColliderBehaviour]() mutable
+        _layer->addOnDelete([obbBehaviour]() mutable
         {
-            safeDelete(boxColliderBehaviour);
+            safeDelete(obbBehaviour);
         });
     }
 
@@ -227,8 +228,8 @@ namespace phi
         if (_withGhostMeshRenderer)
             buildGhostMeshRenderer();
 
-        if (_withBoxColliderRenderer)
-            buildBoxColliderRenderer();
+        if (_withObbRenderer)
+            buildObbRenderer();
 
         if (_withPlaneGridRenderer)
             buildPlaneGridRenderer();

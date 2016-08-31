@@ -55,12 +55,14 @@ namespace phi
         auto childRemovedToken = node->childRemoved.assign(std::bind(&layer::nodeRemoved, this, std::placeholders::_1));
         auto transformChangedToken = node->transformChanged.assign(std::bind(&layer::nodeTransformChanged, this, std::placeholders::_1));
         auto selectionChangedToken = node->selectionChanged.assign(std::bind(&layer::nodeSelectionChanged, this, std::placeholders::_1));
+        auto obbChangedToken = node->obbChanged.assign(std::bind(&layer::nodeObbChanged, this, std::placeholders::_1));
 
         _nodeTokens[node] = new nodeEventTokens(
             childAddedToken,
             childRemovedToken,
             transformChangedToken,
-            selectionChangedToken);
+            selectionChangedToken,
+            obbChangedToken);
     }
 
     void layer::untrackNode(node* node)
@@ -69,6 +71,7 @@ namespace phi
         node->childRemoved.unassign(_nodeTokens[node]->childRemoved);
         node->transformChanged.unassign(_nodeTokens[node]->transformChanged);
         node->selectionChanged.unassign(_nodeTokens[node]->selectionChanged);
+        node->obbChanged.unassign(_nodeTokens[node]->obbChanged);
 
         safeDelete(_nodeTokens[node]);
     }
@@ -130,6 +133,13 @@ namespace phi
         for (auto onNodeSelectionChangedFunction : _onNodeSelectionChanged)
             if (onNodeSelectionChangedFunction)
                 onNodeSelectionChangedFunction(changedNode);
+    }
+
+    void layer::nodeObbChanged(node* changedNode)
+    {
+        for (auto onNodeObbChangedFunction : _onNodeObbChanged)
+            if (onNodeObbChangedFunction)
+                onNodeObbChangedFunction(changedNode);
     }
 
     void layer::add(node* node)
