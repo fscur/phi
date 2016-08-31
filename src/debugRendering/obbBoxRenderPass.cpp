@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "boxColliderLinesRenderPass.h"
+#include "obbBoxRenderPass.h"
 
 #include <core\time.h>
 #include <core\geometry.h>
@@ -17,27 +17,30 @@
 
 namespace phi
 {
-    renderPass* boxColliderLinesRenderPass::configure(
-        const boxColliderRenderAdapter* renderAdapter,
+    renderPass* obbBoxRenderPass::configure(
+        const obbRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
-        auto boxColliderProgram = programBuilder::buildProgram(shadersPath, "boxColliderLines", "boxColliderLines");
-
         auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+
+        auto boxColliderProgram = programBuilder::buildProgram(shadersPath, "obbBox", "obbBox");
+
         auto pass = new renderPass(boxColliderProgram, defaultFramebuffer, resolution);
-        pass->addVao(renderAdapter->getLinesVao());
-        
+        pass->addVao(renderAdapter->getBoxVao());
+
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
-            framebuffer->bindForDrawing();
-            //glClearColor(0.0, 0.0, 0.0, 1.0);
-            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            program->bind();
-
+            glDisable(GL_CULL_FACE);
+            glDepthMask(GL_FALSE);
             glEnable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
             glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(-1.0f, 0.0f);
+            framebuffer->bindForDrawing();
+
+            program->bind();
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
@@ -48,10 +51,15 @@ namespace phi
 
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            framebuffer->unbind(GL_FRAMEBUFFER);
             program->unbind();
 
-            glDisable(GL_DEPTH_TEST);
+            glPolygonOffset(0.0f, 0.0f);
             glDisable(GL_POLYGON_OFFSET_FILL);
+            glDisable(GL_BLEND);
+            glDepthMask(GL_TRUE);
+            glEnable(GL_CULL_FACE);
+            glDisable(GL_DEPTH_TEST);
         });
 
         return pass;

@@ -11,6 +11,7 @@ namespace phi
         _name(name),
         _localObb(nullptr),
         _obb(nullptr),
+        _worldLocalObb(nullptr),
         _isSelected(false),
         _isTranslating(false)
     {
@@ -32,6 +33,8 @@ namespace phi
             _localObb = new obb(*original._localObb);
         if (original._obb)
             _obb = new obb(*original._obb);
+        if (original._worldLocalObb)
+            _worldLocalObb = new obb(*original._worldLocalObb);
 
         for (auto child : original._children)
         {
@@ -83,8 +86,8 @@ namespace phi
         auto transformChangedToken = child->transformChanged.assign(std::bind(&node::onChildTransformChanged, this, std::placeholders::_1));
         _childrenEventTokens[child].transformChangedToken = transformChangedToken;
 
-        auto localObbChangedToken = child->localObbChanged.assign(std::bind(&node::onLocalObbChanged, this, std::placeholders::_1));
-        _childrenEventTokens[child].localObbChangedToken = localObbChangedToken;
+        auto obbChangedToken = child->obbChanged.assign(std::bind(&node::onChildObbChanged, this, std::placeholders::_1));
+        _childrenEventTokens[child].obbChangedToken = obbChangedToken;
 
         childAdded.raise(child);
         updateObb();
@@ -98,7 +101,7 @@ namespace phi
             _children.erase(iterator);
             child->setParent(nullptr);
             child->transformChanged.unassign(_childrenEventTokens[child].transformChangedToken);
-            child->localObbChanged.unassign(_childrenEventTokens[child].localObbChangedToken);
+            child->obbChanged.unassign(_childrenEventTokens[child].obbChangedToken);
             _childrenEventTokens.erase(child);
             childRemoved.raise(child);
         }
@@ -120,34 +123,24 @@ namespace phi
             child->traverse(func);
     }
 
-    void node::updateObb()
+    bool node::calculateChildrenObbIfExists(obb& obb)
     {
-        if (_children.size() == 0)
-        {
-            if (_obb)
-                safeDelete(_obb);
-
-            if (_localObb)
-                _obb = new obb(*_localObb);
-
-            return;
-        }
-
         vec3 min;
         vec3 max;
         if (_localObb)
             _localObb->getLimits(min, max);
         else
         {
-            auto minFloat = std::numeric_limits<float>().min();
+            auto minFloat = std::numeric_limits<float>().lowest();
             auto maxFloat = std::numeric_limits<float>().max();
             min = vec3(maxFloat, maxFloat, maxFloat);
             max = vec3(minFloat, minFloat, minFloat);
         }
 
+        bool foundChildrenWithObb = false;
         for (auto& child : _children)
         {
-            auto childObb = child->getObb();
+            auto childObb = child->getWorldLocalObb();
             if (!childObb)
                 continue;
 
@@ -168,31 +161,53 @@ namespace phi
                 max.y = childMax.y;
             if (childMax.z > max.z)
                 max.z = childMax.z;
+
+            foundChildrenWithObb = true;
         }
+
+        if (!foundChildrenWithObb && !_localObb)
+            return false;
 
         auto center = (min + max) * 0.5f;
         auto width = max.x - min.x;
         auto height = max.y - min.y;
         auto depth = max.z - min.z;
 
-        obb obb;
         obb.center = center;
         obb.axes[0] = vec3(1.0f, 0.0f, 0.0f);
         obb.axes[1] = vec3(0.0f, 1.0f, 0.0f);
         obb.axes[2] = vec3(0.0f, 0.0f, 1.0f);
-        obb.halfSizes = vec3(width, height, depth);
-        obb = obb.transform(getTransform());
+        obb.halfSizes = vec3(width, height, depth) * 0.5f;
 
-        if (!_obb)
-            _obb = new phi::obb(obb);
+        return true;
+    }
+
+    void node::updateObb()
+    {
+        obb obb;
+        if (calculateChildrenObbIfExists(obb))
+        {
+            auto transformedObb = obb.transform(getTransform());
+            if (!_obb)
+                _obb = new phi::obb(transformedObb);
+            else
+                _obb->set(transformedObb);
+
+            auto transformedLocalObb = obb.transformLocal(getTransform());
+            if (!_worldLocalObb)
+                _worldLocalObb = new phi::obb(transformedLocalObb);
+            else
+                _worldLocalObb->set(transformedLocalObb);
+        }
         else
         {
-            _obb->center = obb.center;
-            _obb->axes[0] = obb.axes[0];
-            _obb->axes[1] = obb.axes[1];
-            _obb->axes[2] = obb.axes[2];
-            _obb->halfSizes = obb.halfSizes;
+            if (_obb)
+                safeDelete(_obb);
+            if (_worldLocalObb)
+                safeDelete(_worldLocalObb);
         }
+
+        obbChanged.raise(this);
     }
 
     inline void node::raiseTransformChanged(transform* transform)
@@ -206,7 +221,7 @@ namespace phi
         updateObb();
     }
 
-    void node::onLocalObbChanged(node* child)
+    void node::onChildObbChanged(node* child)
     {
         updateObb();
     }
@@ -261,7 +276,6 @@ namespace phi
 
         _localObb = value;
         updateObb();
-        localObbChanged.raise(this);
     }
 
     bool node::operator==(const node& other)

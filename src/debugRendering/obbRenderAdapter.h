@@ -2,7 +2,7 @@
 #include <phi.h>
 #include "debugRenderingApi.h"
 
-#include <core\boxCollider.h>
+#include <core\node.h>
 
 #include <rendering\vertexBuffer.h>
 #include <rendering\indexBuffer.h>
@@ -12,30 +12,30 @@
 
 namespace phi
 {
-    class boxColliderRenderAdapter
+    class obbRenderAdapter
     {
     private:
         vertexArrayObject* _linesVao;
         vertexArrayObject* _boxVao;
-        mappedVertexBuffer<boxCollider*, mat4>* _modelMatricesBuffer;
+        mappedVertexBuffer<node*, mat4>* _modelMatricesBuffer;
 
     private:
         void createBuffers();
         void createBoxVao();
         void createLinesVao();
-        void updateModelMatrix(boxCollider* boxCollider);
+        void updateModelMatrix(node* node);
 
     public:
-        DEBUG_RENDERING_API boxColliderRenderAdapter();
-        DEBUG_RENDERING_API ~boxColliderRenderAdapter();
+        DEBUG_RENDERING_API obbRenderAdapter();
+        DEBUG_RENDERING_API ~obbRenderAdapter();
         
-        DEBUG_RENDERING_API void add(boxCollider* boxCollider);
-        DEBUG_RENDERING_API void remove(boxCollider* boxCollider);
-        DEBUG_RENDERING_API void update(boxCollider* boxCollider);
+        DEBUG_RENDERING_API void add(node* node);
+        DEBUG_RENDERING_API void remove(node* node);
+        DEBUG_RENDERING_API void update(node* node);
 
         vertexArrayObject* getLinesVao() const { return _linesVao; };
         vertexArrayObject* getBoxVao() const { return _boxVao; };
 
-        mappedVertexBuffer<boxCollider*, mat4>* getModelMatricesBuffer() const { return _modelMatricesBuffer; }
+        mappedVertexBuffer<node*, mat4>* getModelMatricesBuffer() const { return _modelMatricesBuffer; }
     };
 }

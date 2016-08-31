@@ -80,18 +80,45 @@ namespace phi
         return true;
     }
 
-    obb obb::transform(phi::transform* transform) const
+    obb obb::transformLocal(phi::transform* transform) const
     {
-        auto transformPosition = transform->getPosition();
-        auto transformOrientation = transform->getOrientation();
-        auto transformSize = transform->getSize();
-        auto position = transformPosition + transformOrientation * transformSize * center;
+        auto transformPosition = transform->getLocalPosition();
+        auto transformOrientation = transform->getLocalOrientation();
+        auto transformSize = transform->getLocalSize();
+        auto position = transformPosition + transformOrientation * (transformSize * center);
         auto axisX = transformOrientation * axes[0];
         auto axisY = transformOrientation * axes[1];
         auto axisZ = transformOrientation * axes[2];
         auto size = transformSize * halfSizes;
 
         return obb(position, axisX, axisY, axisZ, size);
+    }
+
+    obb obb::transform(phi::transform* transform) const
+    {
+        auto transformPosition = transform->getPosition();
+        auto transformOrientation = transform->getOrientation();
+        auto transformSize = transform->getSize();
+        auto position = transformPosition + transformOrientation * (transformSize * center);
+        auto axisX = transformOrientation * axes[0];
+        auto axisY = transformOrientation * axes[1];
+        auto axisZ = transformOrientation * axes[2];
+        auto size = transformSize * halfSizes;
+
+        return obb(position, axisX, axisY, axisZ, size);
+    }
+
+    mat4 obb::toModelMatrix() const
+    {
+        auto translationMatrix = glm::translate(center);
+        auto rotationMatrix = mat4(
+            vec4(axes[0], 0.0f),
+            vec4(axes[1], 0.0f),
+            vec4(axes[2], 0.0f),
+            vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        auto scaleMatrix = glm::scale(halfSizes * 2.0f);
+
+        return translationMatrix * rotationMatrix * scaleMatrix;
     }
 
     vec3 obb::getPositionAt(vec3 direction) const
@@ -229,5 +256,14 @@ namespace phi
             if (corner.z > max.z)
                 max.z = corner.z;
         }
+    }
+
+    void obb::set(obb obb)
+    {
+        center = obb.center;
+        axes[0] = obb.axes[0];
+        axes[1] = obb.axes[1];
+        axes[2] = obb.axes[2];
+        halfSizes = obb.halfSizes;
     }
 }

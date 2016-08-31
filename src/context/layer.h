@@ -24,11 +24,13 @@ namespace phi
                 eventToken childAdded,
                 eventToken childRemoved,
                 eventToken transformChanged,
-                eventToken selectionChanged) :
+                eventToken selectionChanged,
+                eventToken obbChanged) :
                 childAdded(childAdded),
                 childRemoved(childRemoved),
                 transformChanged(transformChanged),
-                selectionChanged(selectionChanged)
+                selectionChanged(selectionChanged),
+                obbChanged(obbChanged)
             {
             }
 
@@ -36,6 +38,7 @@ namespace phi
             eventToken childRemoved;
             eventToken transformChanged;
             eventToken selectionChanged;
+            eventToken obbChanged;
         };
 
     private:
@@ -49,6 +52,7 @@ namespace phi
         vector<std::function<void(node*)>> _onNodeRemoved;
         vector<std::function<void(node*)>> _onNodeTransformChanged;
         vector<std::function<void(node*)>> _onNodeSelectionChanged;
+        vector<std::function<void(node*)>> _onNodeObbChanged;
         vector<std::function<void(void)>> _onDelete;
         vector<inputController*> _controllers;
         inputController* _currentController;
@@ -64,6 +68,7 @@ namespace phi
         void nodeRemoved(node* node);
         void nodeTransformChanged(node* changedNode);
         void nodeSelectionChanged(node * changedNode);
+        void nodeObbChanged(node * changedNode);
 
     public:
         CONTEXT_API layer(camera* camera);
@@ -91,6 +96,7 @@ namespace phi
         void addOnNodeRemoved(std::function<void(node*)> onNodeRemoved) { _onNodeRemoved.push_back(onNodeRemoved); }
         void addOnNodeTransformChanged(std::function<void(node*)> onNodeTransformChanged) { _onNodeTransformChanged.push_back(onNodeTransformChanged); }
         void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged) { _onNodeSelectionChanged.push_back(onNodeSelectionChanged); }
+        void addOnNodeObbChanged(std::function<void(node*)> onNodeObbChanged) { _onNodeObbChanged.push_back(onNodeObbChanged); }
 
         void addMouseController(inputController* controller);
         void addRenderPass(renderPass* renderPass) { _renderPasses.push_back(renderPass); }

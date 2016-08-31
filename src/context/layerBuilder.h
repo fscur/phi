@@ -35,7 +35,7 @@ namespace phi
 
         bool _withMeshRenderer;
         bool _withGhostMeshRenderer;
-        bool _withBoxColliderRenderer;
+        bool _withObbRenderer;
         bool _withPlaneGridRenderer;
         bool _withControlRenderer;
         bool _withGlassyControlRenderer;
@@ -51,7 +51,7 @@ namespace phi
 
         void buildMeshRenderer();
         void buildGhostMeshRenderer();
-        void buildBoxColliderRenderer();
+        void buildObbRenderer();
         void buildPlaneGridRenderer();
         void buildControlRenderer();
         void buildGlassyControlRenderer();
@@ -66,7 +66,7 @@ namespace phi
         CONTEXT_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
         layerBuilder withMeshRenderer() { _withMeshRenderer = true; return *this; }
         layerBuilder withGhostMeshRenderer() { _withGhostMeshRenderer = true; return *this; }
-        layerBuilder withBoxColliderRenderer() { _withBoxColliderRenderer = true; return *this; }
+        layerBuilder withObbRenderer() { _withObbRenderer = true; return *this; }
         layerBuilder withPlaneGridRenderer() { _withPlaneGridRenderer = true; return *this; }
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
         layerBuilder withGlassyControlRenderer() { _withGlassyControlRenderer = true; return *this; }
