@@ -237,13 +237,18 @@ namespace phi
         _nodes.clear();
     }
 
-    void collisionNodeTranslator::translate(vec3 offset)
+    vec3 collisionNodeTranslator::translate(vec3 offset)
     {
         _lastTranslationTouchingCollisions->clear();
 
         auto validOffset = getUndisruptedOffset(offset);
-        
+        assert(!isnan(validOffset.x));
+        assert(!isnan(validOffset.y));
+        assert(!isnan(validOffset.z));
+
         for (auto& node : _nodes)
             node->getTransform()->translate(validOffset);
+
+        return validOffset;
     }
 }

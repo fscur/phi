@@ -226,9 +226,8 @@ namespace phi
     void translationService::translateTargetNodes(vec3 endPosition)
     {
         auto offset = endPosition - _offsetPlane.origin;
-        assert(offset != vec3());
 
-        _nodeTranslator->translate(offset);
+        offset = _nodeTranslator->translate(offset);
         _offsetPlane.origin += offset;
     }
     
@@ -254,7 +253,7 @@ namespace phi
         auto normal = _currentTranslationPlane->getPlane().normal;
         auto origin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
         _offsetPlane = plane(origin, normal);
-
+        _nodeTranslator->setPlane(_offsetPlane);
         //for (auto& targetNode : *_targetNodes)
         //    _ghostNodes.push_back(cloneNodeAsGhost(targetNode));
     }
@@ -313,6 +312,7 @@ namespace phi
             addTranslationPlane(translationPlane);
 
             _offsetPlane = plane(_offsetPlane.origin, _currentTranslationPlane->getPlane().normal);
+            _nodeTranslator->setPlane(_offsetPlane);
         }
     }
 
