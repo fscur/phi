@@ -29,9 +29,11 @@ namespace phi
         ivec2 _lastMousePosition;
         plane _offsetPlane;
 
-        /*translationPlane* _lastChosenTranslationPlane;
         bool _showingGhost;
-        vector<node*> _ghostNodes;
+        unordered_map<node*, node*> _ghostNodes;
+
+        /*translationPlane* _lastChosenTranslationPlane;
+        
         vector<sweepCollision>* _lastTranslationTouchs;*/
 
     private:
@@ -52,6 +54,11 @@ namespace phi
 
         void translateTargetNodes(vec3 endPosition);
         void translatePlaneGrid(vec3 endPosition);
+
+        void showGhost();
+        void hideGhost();
+        void translateGhost(vec3 position, vec3 offset);
+        node* cloneNodeAsGhost(node * node);
 
     public:
         translationService(
@@ -78,9 +85,6 @@ namespace phi
         void addPlanesIfNeeded(vector<sweepCollision> touchs);*/
         /*bool existsTranslationPlaneWithNormal(vec3 normal);
         bool isDraggingObjectIntersectingAnyObject();*/
-        /*void showGhost();
-        void hideGhost();
-        void translateGhost(vec3 position, vec3 offset);
-        node* cloneNodeAsGhost(node * node);*/
+        
     };
 }

@@ -22,7 +22,9 @@ namespace phi
         _translationPlanes(vector<translationPlane*>()),
         _isTranslating(false),
         _planesToRemove(vector<translationPlane*>()),
-        _nodeTranslator(new collisionNodeTranslator(physicsWorld))
+        _nodeTranslator(new collisionNodeTranslator(physicsWorld)),
+        _ghostNodes(unordered_map<node*, node*>()),
+        _showingGhost(false)
     {
     }
 
@@ -237,6 +239,100 @@ namespace phi
         _currentTranslationPlane->animatePlaneGridPosition(planeGridPosition);
     }
 
+    //classe nova???
+
+    void translationService::showGhost()
+    {
+        if (_showingGhost)
+            return;
+
+        _showingGhost = true;
+
+        for (auto& pair : _ghostNodes)
+            _layer->add(pair.second);
+
+        for (auto& targetNode : *_targetNodes)
+        {
+            targetNode->traverse([](phi::node* node) {
+                node->setIsTranslating(true);
+            });
+        }
+    }
+
+    void translationService::hideGhost()
+    {
+        if (!_showingGhost)
+            return;
+
+        _showingGhost = false;
+
+        for (auto& pair : _ghostNodes)
+        {
+            auto ghostNode = pair.second;
+            ghostNode->getParent()->removeChild(ghostNode);
+        }
+
+        for (auto& targetNode : *_targetNodes)
+        {
+            targetNode->traverse([](phi::node* node) {
+                node->setIsTranslating(false);
+            });
+        }
+    }
+
+    void translationService::translateGhost(vec3 position, vec3 offset)
+    {
+        for (auto& pair : _ghostNodes)
+        {
+            auto ghostNode = pair.second;
+
+            ghostNode->traverse<phi::ghostMesh>([=](phi::ghostMesh* ghostMesh)
+            {
+                ghostMesh->setOffset(offset);
+            });
+
+            auto p = pair.first->getTransform()->getLocalPosition();
+            ghostNode->getTransform()->setLocalPosition(p + offset);
+        }
+    }
+
+    node* translationService::cloneNodeAsGhost(node* node)
+    {
+        auto nodeTransform = node->getTransform();
+        auto position = nodeTransform->getLocalPosition();
+        auto size = nodeTransform->getLocalSize();
+        auto orientation = nodeTransform->getLocalOrientation();
+
+        auto clonedNode = new phi::node(node->getName());
+        auto clonedNodeTransform = clonedNode->getTransform();
+
+        clonedNodeTransform->setLocalPosition(position);
+        clonedNodeTransform->setLocalSize(size);
+        clonedNodeTransform->setLocalOrientation(orientation);
+
+        auto mesh = node->getComponent<phi::mesh>();
+
+        if (mesh)
+        {
+            auto geometry = mesh->getGeometry();
+            auto material = mesh->getMaterial();
+            auto ghostMesh = new phi::ghostMesh(geometry, material);
+            clonedNode->addComponent(ghostMesh);
+        }
+
+        for (auto& child : *node->getChildren())
+        {
+            auto clonedChild = cloneNodeAsGhost(child);
+            clonedNode->addChild(clonedChild);
+        }
+
+        return clonedNode;
+    }
+
+    //end classe nova????
+
+    // public
+
     void translationService::startTranslation(ivec2 mousePosition)
     {
         for (auto& node : *_targetNodes)
@@ -254,8 +350,9 @@ namespace phi
         auto origin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
         _offsetPlane = plane(origin, normal);
         _nodeTranslator->setPlane(_offsetPlane);
-        //for (auto& targetNode : *_targetNodes)
-        //    _ghostNodes.push_back(cloneNodeAsGhost(targetNode));
+
+        for (auto& targetNode : *_targetNodes)
+            _ghostNodes[targetNode] = cloneNodeAsGhost(targetNode);
     }
 
     void translationService::translate(ivec2 mousePosition)
@@ -264,17 +361,18 @@ namespace phi
             return;
 
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
+        
+        if (_showingGhost)
+            translateGhost(endPosition, endPosition - _offsetPlane.origin);
+
         translateTargetNodes(endPosition);
         translatePlaneGrid(endPosition);
         
-        /*if (_lastTranslationTouchs->size() > 0)
-        {
-            translateGhost(position, offset);
+        if (_nodeTranslator->getLastTranslationTouchingCollisions()->size() > 0)
             showGhost();
-        }
-        else
-            hideGhost();*/
-        
+        else if (_showingGhost)
+            hideGhost();
+
         _lastMousePosition = mousePosition;
     }
 
@@ -286,6 +384,11 @@ namespace phi
             enqueuePlaneForRemoval(translationPlane);
 
         _translationPlanes.clear();
+
+        if (_showingGhost)
+            hideGhost();
+
+        _ghostNodes.clear();
 
         _nodeTranslator->clear();
     }
@@ -432,90 +535,7 @@ namespace phi
         }
     }
 
-    void translationService::showGhost()
-    {
-        if (_showingGhost)
-            return;
-
-        _showingGhost = true;
-
-        for (auto& ghostNode : _ghostNodes)
-            _layer->add(ghostNode);
-
-        for (auto& targetNode : *_targetNodes)
-        {
-            targetNode->traverse([](phi::node* node) {
-                node->setIsTranslating(true);
-            });
-        }
-    }
-
-    void translationService::hideGhost()
-    {
-        if (!_showingGhost)
-            return;
-
-        _showingGhost = false;
-
-        for (auto& ghostNode : _ghostNodes)
-            ghostNode->getParent()->removeChild(ghostNode);
-
-        for (auto& targetNode : *_targetNodes)
-        {
-            targetNode->traverse([](phi::node* node) {
-                node->setIsTranslating(false);
-            });
-        }
-    }
-
-    void translationService::translateGhost(vec3 position, vec3 offset)
-    {
-        if (_showingGhost)
-        {
-            for (auto& ghostNode : _ghostNodes)
-            {
-                ghostNode->traverse<phi::ghostMesh>([=](phi::ghostMesh* ghostMesh)
-                {
-                    ghostMesh->setOffset(offset);
-                });
-
-                ghostNode->getTransform()->setLocalPosition(position);
-            }
-        }
-    }
-
-    node* translationService::cloneNodeAsGhost(node* node)
-    {
-        auto nodeTransform = node->getTransform();
-        auto position = nodeTransform->getLocalPosition();
-        auto size = nodeTransform->getLocalSize();
-        auto orientation = nodeTransform->getLocalOrientation();
-
-        auto clonedNode = new phi::node(node->getName());
-        auto clonedNodeTransform = clonedNode->getTransform();
-
-        clonedNodeTransform->setLocalPosition(position);
-        clonedNodeTransform->setLocalSize(size);
-        clonedNodeTransform->setLocalOrientation(orientation);
-
-        auto mesh = node->getComponent<phi::mesh>();
-
-        if (mesh)
-        {
-            auto geometry = mesh->getGeometry();
-            auto material = mesh->getMaterial();
-            auto ghostMesh = new phi::ghostMesh(geometry, material);
-            clonedNode->addComponent(ghostMesh);
-        }
-
-        for (auto& child : *node->getChildren())
-        {
-            auto clonedChild = cloneNodeAsGhost(child);
-            clonedNode->addChild(clonedChild);
-        }
-
-        return clonedNode;
-    }
+    
 
     bool translationService::existsTranslationPlaneWithNormal(vec3 normal)
     {

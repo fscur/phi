@@ -157,33 +157,33 @@ namespace demon
 
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        //cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
+        cube0->getTransform()->setLocalPosition(vec3(-1.5f, 0.5f + DECIMAL_TRUNCATION, 0.0f));
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        cube1->getTransform()->setLocalPosition(vec3(1.5f, 0.0f, 0.0f));
+        cube1->getTransform()->setLocalPosition(vec3(1.5f, 0.5f + DECIMAL_TRUNCATION, 0.0f));
         ////auto group = new node();
         ////group->addChild(cube0);
         ////group->addChild(cube1);
 
         ////cube0->getTransform()->yaw(PI_OVER_4);
 
-        //_chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        //_chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
-        //auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
-        //back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
-        ////cube1->getTransform()->translate(vec3(2.0f, 0.5f, 0.0f));
-        ////cube1->getTransform()->yaw(PI_OVER_4);
-        //auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
-        ////floor0->getTransform()->setLocalSize(vec3(1.0f, 2.0f, 1.0f));
-        ////auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        ////wall->getTransform()->pitch(PI_OVER_2);
-        ////wall->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
+        _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
+        auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
+        back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
+        //cube1->getTransform()->translate(vec3(2.0f, 0.5f, 0.0f));
+        //cube1->getTransform()->yaw(PI_OVER_4);
+        auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
+        //floor0->getTransform()->setLocalSize(vec3(1.0f, 2.0f, 1.0f));
+        //auto wall = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        //wall->getTransform()->pitch(PI_OVER_2);
+        //wall->getTransform()->setLocalPosition(vec3(0.0f, 2.5f, -2.5f));
 
-        //auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
-        //coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
-        //auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
-        //tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
-        //auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
-        //table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
+        auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
+        coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
+        auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
+        tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
+        auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
+        table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 10.5f));
@@ -244,14 +244,14 @@ namespace demon
         _sceneLayer->add(cube0);
         _sceneLayer->add(cube1);
         
-        /*
+        
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(back_wall);
         _sceneLayer->add(table);
         _sceneLayer->add(tableChair);
         _sceneLayer->add(coffeTable);
-        s*/
+        
 
         //TODO: prevent components that are not dealt with it from being added to layer
 
