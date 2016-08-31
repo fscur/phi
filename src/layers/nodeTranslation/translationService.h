@@ -6,6 +6,7 @@
 #include <context/layer.h>
 #include <core/boxCollider.h>
 #include <physics/physicsWorld.h>
+#include "ghostNodeTranslator.h"
 
 namespace phi
 {
@@ -17,6 +18,7 @@ namespace phi
         camera* _camera;
         physicsWorld* _physicsWorld;
         collisionNodeTranslator* _nodeTranslator;
+        ghostNodeTranslator* _ghostTranslator;
 
         vector<translationPlane*> _translationPlanes;
         vector<translationPlane*> _planesToRemove;
@@ -28,13 +30,6 @@ namespace phi
         translationPlane* _currentTranslationPlane;
         ivec2 _lastMousePosition;
         plane _offsetPlane;
-
-        bool _showingGhost;
-        unordered_map<node*, node*> _ghostNodes;
-
-        /*translationPlane* _lastChosenTranslationPlane;
-        
-        vector<sweepCollision>* _lastTranslationTouchs;*/
 
     private:
         vec3 getClosestAxisTo(vec3 direction);
@@ -54,11 +49,6 @@ namespace phi
 
         void translateTargetNodes(vec3 endPosition);
         void translatePlaneGrid(vec3 endPosition);
-
-        void showGhost();
-        void hideGhost();
-        void translateGhost(vec3 position, vec3 offset);
-        node* cloneNodeAsGhost(node * node);
 
     public:
         translationService(
