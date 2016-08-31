@@ -1,17 +1,28 @@
 #include <precompiled.h>
 #include "translationService.h"
-#include <core\boxCollider.h>
-#include <animation\animator.h>
+#include <core/boxCollider.h>
+#include <animation/animator.h>
+#include <core/plane.h>
+#include <physics/sweepCollision.h>
+#include <physics/intersectionCollisionMultiTest.h>
+#include <physics/sweepCollisionMultiTest.h>
+#include <core/ghostMesh.h>
+#include <core/mesh.h>
+#include <core/string.h>
 
 namespace phi
 {
-    translationService::translationService(const vector<node*>* targetNodes, layer* layer) :
+    translationService::translationService(
+        const vector<node*>* targetNodes, 
+        layer* layer,
+        physicsWorld* physicsWorld) :
         _targetNodes(targetNodes),
         _layer(layer),
         _camera(layer->getCamera()),
         _translationPlanes(vector<translationPlane*>()),
         _isTranslating(false),
-        _planesToRemove(vector<translationPlane*>())
+        _planesToRemove(vector<translationPlane*>()),
+        _nodeTranslator(new collisionNodeTranslator(physicsWorld))
     {
     }
 
@@ -19,19 +30,73 @@ namespace phi
     {
     }
 
+    vec3 translationService::getClosestAxisNormal(vec3 direction)
+    {
+        vec3 axisNormals[] =
+        {
+            vec3(1.0f, 0.0f, 0.0f),
+            vec3(0.0f, 1.0f, 0.0f),
+            vec3(0.0f, 0.0f, 1.0f),
+            vec3(-1.0f, 0.0f, 0.0f),
+            vec3(0.0f, -1.0f, 0.0f),
+            vec3(0.0f, 0.0f, -1.0f)
+        };
+
+        auto maxDot = -20.0f;
+        auto maxNormal = vec3();
+        for (uint_fast8_t i = 0; i < 6; ++i)
+        {
+            auto dot = glm::dot(direction, axisNormals[i]);
+            if (dot > maxDot)
+            {
+                maxDot = dot;
+                maxNormal = axisNormals[i];
+            }
+        }
+
+        assert(maxNormal != vec3());
+
+        return glm::normalize(maxNormal);
+    }
+
+    plane translationService::createPlane(vec3 direction)
+    {
+        auto planeNormal = getClosestAxisNormal(direction);
+
+        auto minDot = std::numeric_limits<float>().max();
+        auto planeOrigin = vec3();
+        for (auto& targetNode : *_targetNodes)
+        {
+            auto collider = targetNode->getComponent<boxCollider>();
+            assert(collider != nullptr);
+
+            auto obb = collider->getObb();
+            auto obbPosition = obb.getPositionAt(-planeNormal);
+
+            auto dot = glm::dot(obbPosition, planeNormal);
+            if (dot < minDot)
+            {
+                minDot = dot;
+                planeOrigin = obbPosition;
+            }
+        }
+
+        return plane(planeOrigin, planeNormal);
+    }
+
     translationPlane* translationService::createTranslationPlane(vec3 origin, vec3 normal)
     {
         auto planeGridNode = new node("plane");
         auto planeTransform = planeGridNode->getTransform();
+
         planeTransform->setLocalPosition(origin);
         planeTransform->setDirection(normal);
 
         auto animator = new phi::animator();
 
         auto planeGrid = new phi::planeGrid();
-        planeGrid->setColor(color::blue);
+        planeGrid->setColor(color::green);
         planeGrid->setLineThickness(8.5f);
-
         planeGridNode->addComponent(planeGrid);
         planeGridNode->addComponent(animator);
 
@@ -65,79 +130,96 @@ namespace phi
         translationPlane->setFadeInAnimation(fadeInAnimation);
         translationPlane->setFadeOutAnimation(fadeOutAnimation);
         translationPlane->setClippingPlanesFadeAnimation(clippingPlanesFadeOutAnimation);
+        translationPlane->setExtinctionFactor(mathUtils::isClose(glm::dot(vec3(0.0f, 1.0f, 0.0f), normal), 1.0f) ? 0.3f : 0.5f);
 
         return translationPlane;
     }
 
-    vec3 translationService::getClosestAxisNormal(vec3 direction)
+    translationPlane* translationService::createTranslationPlane(
+        plane plane,
+        boxCollider* colidee,
+        boxCollider* collider,
+        clippingDistance::clippingDistance clippingDistance)
     {
-        vec3 axisNormals[] =
-        {
-            vec3(1.0f, 0.0f, 0.0f),
-            vec3(0.0f, 1.0f, 0.0f),
-            vec3(0.0f, 0.0f, 1.0f)
-        };
+        if (existsTranslationPlaneWithNormal(plane.normal))
+            return nullptr;
 
-        auto maxDot = -2.0f;
-        auto maxNormal = vec3();
-        for (uint_fast8_t i = 0; i < 3; ++i)
-        {
-            auto dot = glm::dot(direction, axisNormals[i]);
-            if (dot > maxDot)
-            {
-                maxDot = dot;
-                maxNormal = axisNormals[i];
-            }
-        }
+        auto planePosition = colidee->getObb().getPositionAt(plane.normal);
+        auto castPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _currentTranslationPlane->getMousePlane());
+        planePosition = phi::plane(planePosition, plane.normal).projectPoint(castPosition);
 
-        assert(maxNormal != vec3());
+        auto createdTranslationPlane = createTranslationPlane(planePosition, vec3(0.0, 1.0, 0.0));
 
-        return maxNormal;
+        /*auto createdTranslationPlane =
+        translationInputController::createTranslationPlane(
+        plane,
+        planePosition,
+        colidee,
+        collider,
+        color(30.0f / 255.0f, 140.0f / 255.0f, 210.0f / 255.0f, 1.0f));*/
+
+        //if (_translationPlanes.size() > 0)
+        createClippingPlanes(createdTranslationPlane, clippingDistance);
+
+        _layer->add(createdTranslationPlane->getPlaneGridNode());
+        createdTranslationPlane->showGrid();
+
+        return createdTranslationPlane;
     }
 
-    void translationService::startTranslation(ivec2 mousePosition)
+    void translationService::createClippingPlanes(
+        translationPlane* clippingTranslationPlane,
+        clippingDistance::clippingDistance clippingDistance)
     {
-        auto viewDirection = -_camera->screenPointToRay(mousePosition.x, mousePosition.y).getDirection();
-        auto planeNormal = getClosestAxisNormal(viewDirection);
+        auto createdTranslationPlaneGrid = clippingTranslationPlane->getPlaneGridComponent();
+        auto clippingPlane = new phi::clippingPlane(clippingTranslationPlane->getGridPlane());
+        clippingTranslationPlane->setClippingPlane(clippingPlane);
 
-        auto minDot = std::numeric_limits<float>().max();
-        auto planeOrigin = vec3();
-        for (auto& targetNode : *_targetNodes)
+        for (auto& clippedTranslationPlane : _translationPlanes)
         {
-            auto collider = targetNode->getComponent<boxCollider>();
-            assert(collider != nullptr);
+            auto clippedPlane = clippedTranslationPlane->getClippingPlane();
+            createdTranslationPlaneGrid->addClippingPlane(clippedPlane);
+            createdTranslationPlaneGrid->setClippingPlaneDistance(clippedPlane, clippingDistance);
 
-            auto obb = collider->getObb();
-            auto obbPosition = obb.getPositionAt(-planeNormal);
-
-            auto dot = glm::dot(obbPosition, planeNormal);
-            if (dot < minDot)
-            {
-                minDot = dot;
-                planeOrigin = obbPosition;
-            }
+            auto planeGridComponent = clippedTranslationPlane->getPlaneGridComponent();
+            planeGridComponent->addClippingPlane(clippingPlane);
+            planeGridComponent->setClippingPlaneDistance(clippingPlane, clippingDistance);
         }
-
-        auto translationPlane = createTranslationPlane(planeOrigin, planeNormal);
-        _layer->add(translationPlane->getPlaneGridNode());
-        _translationPlanes.push_back(translationPlane);
-        translationPlane->showGrid();
-
-        _isTranslating = true;
     }
 
-    void translationService::endTranslation()
+    void translationService::removeClippingPlanes(translationPlane* planeToRemove)
     {
-        _isTranslating = false;
-
         for (auto& translationPlane : _translationPlanes)
-            enqueuePlaneForRemoval(translationPlane);
+        {
+            auto planeGrid = translationPlane->getPlaneGridNode()->getComponent<phi::planeGrid>();
+            auto clippingPlane = planeToRemove->getClippingPlane();
 
-        _translationPlanes.clear();
+            planeGrid->removeClippingPlane(clippingPlane);
+        }
+
+        enqueuePlaneForRemoval(planeToRemove);
     }
 
-    void translationService::cancelTranslation()
+    void translationService::addPlanesIfNeeded(vector<sweepCollision> touchs)
     {
+        for (auto& collision : touchs)
+        {
+            auto castPosition = 
+                _camera->castRayToPlane(
+                    _lastMousePosition.x,
+                    _lastMousePosition.y, 
+                    _lastChosenTranslationPlane->getMousePlane());
+
+            auto translationPlane =
+                createTranslationPlane(
+                    plane(castPosition, collision.normal),
+                    collision.collidee,
+                    collision.collider,
+                    clippingDistance::positive);
+
+            if (translationPlane)
+                _translationPlanes.push_back(translationPlane);
+        }
     }
 
     void translationService::enqueuePlaneForRemoval(translationPlane* planeToRemove)
@@ -150,34 +232,320 @@ namespace phi
         planeToRemove->fadeGridOpacityOut(fadeOutAnimationEnded);
     }
 
-    void translationService::update()
+    void translationService::removeInvalidPlanes()
     {
-        if (!_isTranslating)
-            return;
+        vector<translationPlane*> translationPlanesToRemove;
 
+        for (auto& translationPlane : _translationPlanes)
+        {
+            auto planeVisibility = getPlaneVisibility(translationPlane->getGridPlane());
+            auto planeExtinctionFactor = translationPlane->getExtinctionfactor();
+
+            if (!canTranslateAt(planeVisibility, planeExtinctionFactor))
+                translationPlanesToRemove.push_back(translationPlane);
+        }
+
+        for (auto& planeToRemove : translationPlanesToRemove)
+        {
+            removeIfContains(_translationPlanes, planeToRemove);
+            removeClippingPlanes(planeToRemove);
+        }
+    }
+
+    void translationService::deleteRemovedPlanes()
+    {
         for (auto& translationPlane : _planesToRemove)
         {
+            translationPlane->hideGrid();
             auto planeGridNode = translationPlane->getPlaneGridNode();
             planeGridNode->getParent()->removeChild(planeGridNode);
             safeDelete(translationPlane);
         }
 
         _planesToRemove.clear();
+    }
 
-        // Remove not valid anymore translation planes:
-        // TODO: create valid plane if removed all
-        //vector<translationPlane*> translationPlanesToRemove;
+    void translationService::updateTranslationPlanesVisibility()
+    {
+        for (auto& translationPlane : _translationPlanes)
+        {
+            auto min = translationPlane->getExtinctionfactor();
+            auto t = getPlaneVisibility(translationPlane->getGridPlane());
+            auto planeVisibility = (t - min) / (1.0f - min);
+            translationPlane->getPlaneGridComponent()->setVisibilityFactor(planeVisibility);
+        }
+    }
 
-        //for (auto& translationPlane : _translationPlanes)
-        //{
-        //    if (!canTranslateAt(translationPlane->getMousePlane().normal))
-        //        translationPlanesToRemove.push_back(translationPlane);
-        //}
+    vector<sweepCollision> translationService::findTouchingCollisions()
+    {
+        auto sweepTest = sweepCollisionMultiTest();
+        sweepTest.colliders = _nodeTranslator->getColliders();
+        sweepTest.transforms = _nodeTranslator->getTransforms();
+        sweepTest.direction = vec3(1.0f, 0.0f, 0.0f);
+        sweepTest.distance = 0.0f;
+        sweepTest.inflation = DECIMAL_TRUNCATION;
+        sweepTest.disregardDivergentNormals = false;
 
-        //for (auto& planeToRemove : translationPlanesToRemove)
-        //{
-        //    removeTranslationPlane(planeToRemove);
-        //    removeClippingPlanes(planeToRemove);
-        //}
+        auto sweepResult = _physicsWorld->sweep(sweepTest);
+        if (!sweepResult.collided)
+            return vector<sweepCollision>();
+
+        return sweepResult.collisions;
+    }
+
+    vector<sweepCollision> translationService::getValidTouchCollisions(vector<sweepCollision>& touchs)
+    {
+        vector<sweepCollision> validTouchs;
+        /*for (auto& collision : touchs)
+        {
+            if (canTranslateAt(collision.normal))
+                validTouchs.push_back(collision);
+        }*/
+
+        return validTouchs;
+    }
+
+    bool translationService::existsTranslationPlaneWithNormal(vec3 normal)
+    {
+        auto translationPlane = std::find_if(_translationPlanes.begin(), _translationPlanes.end(),
+            [normal](phi::translationPlane* tp)
+        {
+            return mathUtils::isClose(glm::dot(normal, tp->getMousePlane().normal), 1.0f);
+        });
+
+        return translationPlane != _translationPlanes.end();
+    }
+
+    bool translationService::isDraggingObjectIntersectingAnyObject()
+    {
+        auto intersectionTest = intersectionCollisionMultiTest();
+        intersectionTest.colliders = _nodeTranslator->getColliders();
+        intersectionTest.transforms = _nodeTranslator->getTransforms();
+
+        return _physicsWorld->intersects(intersectionTest);
+    }
+
+    float translationService::getPlaneVisibility(plane plane)
+    {
+        auto cameraTransform = _camera->getTransform();
+        auto cameraPosition = cameraTransform->getPosition();
+
+        auto toPlaneDir = -glm::normalize(plane.origin - cameraPosition);
+
+        return glm::dot(plane.normal, toPlaneDir);
+    }
+
+    bool translationService::canTranslateAt(float planeVisibility, float planeExtinctionFactor)
+    {
+        return planeVisibility > planeExtinctionFactor;
+    }
+
+    void translationService::showGhost()
+    {
+        if (_showingGhost)
+            return;
+
+        _showingGhost = true;
+
+        for (auto& ghostNode : _ghostNodes)
+            _layer->add(ghostNode);
+        
+        for (auto& targetNode : *_targetNodes)
+        {
+            targetNode->traverse([](phi::node* node) {
+                node->setIsTranslating(true);
+            });
+        }
+    }
+
+    void translationService::hideGhost()
+    {
+        if (!_showingGhost)
+            return;
+
+        _showingGhost = false;
+
+        for (auto& ghostNode : _ghostNodes)
+            ghostNode->getParent()->removeChild(ghostNode);
+        
+        for (auto& targetNode : *_targetNodes)
+        {
+            targetNode->traverse([](phi::node* node) {
+                node->setIsTranslating(false);
+            });
+        }
+    }
+
+    void translationService::translateGhost(vec3 position, vec3 offset)
+    {
+        if (_showingGhost)
+        {
+            for (auto& ghostNode : _ghostNodes)
+            {
+                ghostNode->traverse<phi::ghostMesh>([=](phi::ghostMesh* ghostMesh)
+                {
+                    ghostMesh->setOffset(offset);
+                });
+
+                ghostNode->getTransform()->setLocalPosition(position);
+            }
+        }
+    }
+
+    node* translationService::cloneNodeAsGhost(node* node)
+    {
+        auto nodeTransform = node->getTransform();
+        auto position = nodeTransform->getLocalPosition();
+        auto size = nodeTransform->getLocalSize();
+        auto orientation = nodeTransform->getLocalOrientation();
+
+        auto clonedNode = new phi::node(node->getName());
+        auto clonedNodeTransform = clonedNode->getTransform();
+
+        clonedNodeTransform->setLocalPosition(position);
+        clonedNodeTransform->setLocalSize(size);
+        clonedNodeTransform->setLocalOrientation(orientation);
+
+        auto mesh = node->getComponent<phi::mesh>();
+
+        if (mesh)
+        {
+            auto geometry = mesh->getGeometry();
+            auto material = mesh->getMaterial();
+            auto ghostMesh = new phi::ghostMesh(geometry, material);
+            clonedNode->addComponent(ghostMesh);
+        }
+
+        for (auto& child : *node->getChildren())
+        {
+            auto clonedChild = cloneNodeAsGhost(child);
+            clonedNode->addChild(clonedChild);
+        }
+
+        return clonedNode;
+    }
+
+    void translationService::createAxisAlignedTranslationPlane(ivec2 position)
+    {
+        auto viewDirection = -_camera->screenPointToRay(position.x, position.y).getDirection();
+        auto plane = createPlane(viewDirection);
+        //auto origin = _camera->screenPointToWorld(position.x, position.y);
+        auto translationPlane = createTranslationPlane(plane.origin, plane.normal);
+        _layer->add(translationPlane->getPlaneGridNode());
+        _translationPlanes.push_back(translationPlane);
+        _currentTranslationPlane = translationPlane;
+        translationPlane->showGrid();
+    }
+
+    void translationService::initializeNodeTranslator()
+    {
+        assert(_nodeTranslator);
+
+        for (auto& node : *_targetNodes)
+            _nodeTranslator->addNode(node);
+    }
+
+    void translationService::endNodeTranslator()
+    {
+        _nodeTranslator->clear();
+    }
+
+    void translationService::startTranslation(ivec2 mousePosition)
+    {
+        initializeNodeTranslator();
+
+        _isTranslating = true;
+        _lastMousePosition = mousePosition;
+
+        createAxisAlignedTranslationPlane(mousePosition);
+
+        auto normal = _currentTranslationPlane->getGridPlane().normal;
+        auto origin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
+        _offsetPlane = plane(origin, normal);
+
+        //for (auto& targetNode : *_targetNodes)
+        //    _ghostNodes.push_back(cloneNodeAsGhost(targetNode));
+    }
+
+    vec3 translationService::getTranslationOffset(ivec2 mousePosition)
+    {
+        auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
+        return endPosition - _offsetPlane.origin;
+    }
+
+    void translationService::translatePlaneGrid(translationPlane* translationPlane, vec3 offset)
+    {
+        auto planeNode = translationPlane->getPlaneGridNode();
+
+        auto planeTransform = planeNode->getTransform();
+        auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
+        
+        auto fromPlaneTransform = new transform();
+        auto fromPosition = planeTransform->getLocalPosition();
+        fromPlaneTransform->setLocalPosition(fromPosition);
+
+        auto toPlaneTransform = new transform();
+        auto toPosition = fromPosition + offset;
+        toPlaneTransform->setLocalPosition(toPosition);
+
+        auto draggingAnimation = translationPlane->getDraggingAnimation();
+        draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
+    }
+
+    void translationService::translate(ivec2 mousePosition)
+    {
+        if (!_isTranslating)
+            return;
+
+        auto offset = getTranslationOffset(mousePosition);
+        assert(offset != vec3());
+
+        _nodeTranslator->translate(offset);
+        //translatePlaneGrid(_currentTranslationPlane, offset);
+
+        /*if (_lastTranslationTouchs->size() > 0)
+        {
+            translateGhost(position, offset);
+            showGhost();
+        }
+        else
+            hideGhost();*/
+        
+
+        _offsetPlane.origin += offset;
+        _lastMousePosition = mousePosition;
+    }
+
+    void translationService::endTranslation()
+    {
+        _isTranslating = false;
+
+        for (auto& translationPlane : _translationPlanes)
+            enqueuePlaneForRemoval(translationPlane);
+
+        _translationPlanes.clear();
+
+        endNodeTranslator();
+    }
+
+    void translationService::cancelTranslation()
+    {
+    }
+
+    void translationService::update()
+    {
+        deleteRemovedPlanes();
+
+        if (!_isTranslating)
+            return;
+
+        updateTranslationPlanesVisibility();
+        removeInvalidPlanes();
+
+        if (_translationPlanes.size() == 0)
+        {
+            createAxisAlignedTranslationPlane(_lastMousePosition);
+            _offsetPlane = plane(_offsetPlane.origin, _currentTranslationPlane->getGridPlane().normal);
+        }
     }
 }

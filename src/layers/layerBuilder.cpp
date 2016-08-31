@@ -211,7 +211,11 @@ namespace phi
         if (!_withSelectionController)
             throw invalidLayerConfigurationException("Translation Controller could not be added. It requires Selection Controller.");
 
-        auto translationController = new translationInputController(_selectionInputController->getSelectedNodes(), _layer);
+        auto translationController = new translationInputController(
+            _selectionInputController->getSelectedNodes(), 
+            _layer,
+            _physicsBehaviour->getPhysicsWorld());
+
         _layer->addMouseController(translationController);
     }
 

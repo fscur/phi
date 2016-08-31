@@ -25,6 +25,7 @@ namespace phi
         floatAnimation* _fadeInAnimation;
         floatAnimation* _fadeOutAnimation;
         floatAnimation* _clippingPlanesFadeAnimation;
+        float _extinctionFactor;
         bool _isHiding;
 
     public:
@@ -40,6 +41,7 @@ namespace phi
         floatAnimation* getFadeInAnimation() const { return _fadeInAnimation; }
         floatAnimation* getFadeOutAnimation() const { return _fadeOutAnimation; }
         floatAnimation* getClippingPlanesFadeAnimation() const { return _clippingPlanesFadeAnimation; }
+        float getExtinctionfactor() const { return _extinctionFactor; }
 
         void setGridPlane(plane value) { _gridPlane = value; }
         void setMousePlane(plane value) { _mousePlane = value; }
@@ -50,6 +52,7 @@ namespace phi
         void setDraggingAnimation(transformAnimation* value) { _draggingAnimation = value; }
         void setFadeInAnimation(floatAnimation* value) { _fadeInAnimation = value; }
         void setClippingPlanesFadeAnimation(floatAnimation* value) { _clippingPlanesFadeAnimation = value; }
+        void setExtinctionFactor(float value) { _extinctionFactor = value; }
 
         LAYERS_API void setFadeOutAnimation(floatAnimation* value);
 

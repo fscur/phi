@@ -9,9 +9,12 @@
 
 namespace phi
 {
-    translationInputController::translationInputController(const vector<node*>* targetNodes, layer* layer) :
+    translationInputController::translationInputController(
+        const vector<node*>* targetNodes, 
+        layer* layer, 
+        physicsWorld* physicsWorld) :
         inputController(),
-        _translationService(new translationService(targetNodes, layer))
+        _translationService(new translationService(targetNodes, layer, physicsWorld))
     {
     }
 
@@ -60,7 +63,8 @@ namespace phi
 
     bool translationInputController::onMouseMove(mouseEventArgs* e)
     {
-        return false;
+        _translationService->translate(ivec2(e->x, e->y));
+        return true;
     }
 
     bool translationInputController::onMouseUp(mouseEventArgs* e)

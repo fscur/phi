@@ -14,6 +14,7 @@ namespace phi
         color _color;
         float _lineThickness;
         float _opacity;
+        float _visibilityFactor;
         bool _isVisible;
         vector<clippingPlane*> _clippingPlanes;
         unordered_map<clippingPlane*, float> _clippingPlanesOpacities;
@@ -39,10 +40,11 @@ namespace phi
         color getColor() const { return _color; }
         float getLineThickness() const { return _lineThickness; }
         float getOpacity() const { return _opacity; }
+        float getVisibilityFactor() const { return _visibilityFactor; }
         bool isVisible() const { return _isVisible; }
         vector<clippingPlane*> getClippingPlanes() const { return _clippingPlanes; }
         unordered_map<clippingPlane*, float> getClippingPlanesOpacities() const { return _clippingPlanesOpacities; }
-        unordered_map < clippingPlane*, clippingDistance::clippingDistance> getClippingPlanesDistances() const { return _clippingPlanesDistances; }
+        unordered_map<clippingPlane*, clippingDistance::clippingDistance> getClippingPlanesDistances() const { return _clippingPlanesDistances; }
 
         eventHandler<planeGrid*>* getColorChanged() { return &_colorChanged; }
         eventHandler<planeGrid*>* getLineThicknessChanged() { return &_lineThicknessChanged; }
@@ -52,7 +54,8 @@ namespace phi
 
         CORE_API void setColor(const color& value);
         CORE_API void setLineThickness(const float value);
-        CORE_API void setOpacity(const float value);
+        CORE_API void setOpacity(const float value); 
+        CORE_API void setVisibilityFactor(const float value);
 
         CORE_API void addClippingPlane(clippingPlane* clippingPlane);
         CORE_API void removeClippingPlane(clippingPlane* clippingPlane);

@@ -63,7 +63,7 @@ namespace phi
         _lastMouseMoveTime = 0.0;
         _rotating = true;
 
-        window::hideCursor();
+        //window::hideCursor();
         window::freezeMouse();
         return true;
     }
@@ -106,7 +106,7 @@ namespace phi
             return false;
 
         window::unfreezeMouse();
-        window::showCursor();
+        //window::showCursor();
 
         _rotating = false;
 

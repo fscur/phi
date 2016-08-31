@@ -11,7 +11,7 @@ namespace phi
     private:
         physicsWorld* _physicsWorld;
         plane _plane;
-        node* _node;
+        vector<node*> _nodes;
         vector<boxCollider*> _colliders;
         vector<transform*> _transforms;
         vector<sweepCollision>* _lastTranslationTouchingCollisions;
@@ -33,11 +33,12 @@ namespace phi
 
         vector<boxCollider*>* getColliders() { return &_colliders; }
         vector<transform*>* getTransforms() { return &_transforms; }
+
         vector<sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
 
         void setPlane(plane value) { _plane = value; }
-        void setNode(node* node);
-
-        void translateNode(vec3 offset);
+        void addNode(node* node);
+        void clear();
+        void translate(vec3 offset);
     };
 }

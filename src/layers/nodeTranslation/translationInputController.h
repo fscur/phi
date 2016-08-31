@@ -22,7 +22,7 @@ namespace phi
         bool canStartTranslation(mouseEventArgs* e);
 
     public:
-        translationInputController(const vector<node*>* targetNodes, layer* layer);
+        translationInputController(const vector<node*>* targetNodes, layer* layer, physicsWorld* physicsWorld);
         ~translationInputController();
 
         bool onMouseDown(mouseEventArgs* e) override;

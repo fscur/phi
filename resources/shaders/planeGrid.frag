@@ -10,7 +10,7 @@ struct planeGridRenderData
 
     float lineThickness;
     float opacity;
-    float pad0;
+    float visibility;
     float pad1;
 
     float clipPlane0Opacity;
@@ -216,9 +216,7 @@ void main()
     if (dot(data.clipPlane0, fragWorldPosition) < 0.0)
         opacity *= data.clipPlane0Opacity;
 
-    float factor = smoothstep(0.0, 0.8, abs(dot(normalize(fragViewPosition), fragViewNormal)));
-    
-    vec3 finalColor = mix(color, vec3(1.0, 0.0, 0.0), 1.0 - factor);
+    vec3 finalColor = mix(vec3(1.0, 0.0, 0.0), color, data.visibility);
 
     fragColor = vec4(finalColor, opacity);
 }

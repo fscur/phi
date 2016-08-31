@@ -79,6 +79,7 @@ void main()
 
     vec4 inPos = vec4(inPosition, 1.0);
     inPos.xy *= planeSize;
+    //inPos.xy *= 5.0;
     vec4 pos =  modelMatrix * inPos;
     
     gl_Position = frameUniforms.p * frameUniforms.v * pos;

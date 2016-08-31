@@ -1,5 +1,5 @@
 #include <precompiled.h>
-
+#include <core/string.h>
 #include "collisionNodeTranslator.h"
 
 namespace phi
@@ -7,7 +7,6 @@ namespace phi
     collisionNodeTranslator::collisionNodeTranslator(physicsWorld* physicsWorld) :
         _physicsWorld(physicsWorld),
         _plane(vec3(), vec3()),
-        _node(nullptr),
         _colliders(vector<boxCollider*>()),
         _transforms(vector<transform*>()),
         _lastTranslationTouchingCollisions(new vector<sweepCollision>())
@@ -208,26 +207,37 @@ namespace phi
         return finalOffset;
     }
 
-    void collisionNodeTranslator::setNode(node* node)
+    void collisionNodeTranslator::addNode(node* node)
     {
-        _node = node;
-        _colliders = vector<boxCollider*>();
-        _transforms = vector<transform*>();
-        _node->traverse<boxCollider>([this](boxCollider* b)
+        _nodes.push_back(node);
+        node->traverse<boxCollider>([&](boxCollider* b)
         {
             if (b->getIsEnabled())
             {
+                b->disable();
                 _colliders.push_back(b);
                 _transforms.push_back(b->getNode()->getTransform());
             }
         });
     }
 
-    void collisionNodeTranslator::translateNode(vec3 offset)
+    void collisionNodeTranslator::clear()
+    {
+        for (auto& collider : _colliders)
+            collider->enable();
+
+        _colliders.clear();
+        _transforms.clear();
+        _nodes.clear();
+    }
+
+    void collisionNodeTranslator::translate(vec3 offset)
     {
         _lastTranslationTouchingCollisions->clear();
 
         auto validOffset = getUndisruptedOffset(offset);
-        _node->getTransform()->translate(validOffset);
+        
+        for (auto& node : _nodes)
+            node->getTransform()->translate(validOffset);
     }
 }

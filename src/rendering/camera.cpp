@@ -1,6 +1,7 @@
 #include <precompiled.h>
 #include "camera.h"
 #include <core\transform.h>
+#include "frameBuffer.h"
 
 namespace phi
 {
@@ -33,7 +34,7 @@ namespace phi
     {
         auto position = _transform->getPosition();
         auto target = position + _transform->getDirection();
-
+        
         _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
     }
 
@@ -159,13 +160,41 @@ namespace phi
         return vec3(x, y, depth);
     }
 
+    vec3 camera::screenPointToWorld(ivec2 mousePosition)
+    {
+        return screenPointToWorld(mousePosition.x, mousePosition.y);
+    }
+
+    vec3 camera::screenPointToWorld(int screenX, int screenY)
+    {
+        auto vp = _projectionMatrix * _viewMatrix;
+        auto ivp = glm::inverse(vp);
+        
+        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(screenX, static_cast<int>(_resolution.height) - screenY);
+
+        float x = (2.0f * static_cast<float>(screenX)) / _resolution.width - 1.0f;
+        float y = 1.0f - (2.0f * screenY) / _resolution.height;
+        float z = 2.0f * zBufferValue - 1.0f;
+        float w = 1.0f;
+
+        auto pos = ivp * vec4(x, y, z, w);
+
+        pos.w = 1.0f / pos.w;
+
+        pos.x *= pos.w;
+        pos.y *= pos.w;
+        pos.z *= pos.w;
+
+        return vec3(pos.x, pos.y, pos.z);
+    }
+
     ray camera::screenPointToRay(int mouseX, int mouseY)
     {
         float x = (2.0f * static_cast<float>(mouseX)) / _resolution.width - 1.0f;
         float y = 1.0f - (2.0f * mouseY) / _resolution.height;
 
-        auto ip = inverse(_projectionMatrix);
-        auto iv = inverse(_viewMatrix);
+        auto ip = glm::inverse(_projectionMatrix);
+        auto iv = glm::inverse(_viewMatrix);
 
         auto rayClip = vec4(x, y, -1.0f, 1.0f);
 

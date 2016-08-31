@@ -63,6 +63,15 @@ namespace phi
         _opacityChanged.raise(this);
     }
 
+    CORE_API void planeGrid::setVisibilityFactor(const float value)
+    {
+        if (_visibilityFactor == value)
+            return;
+
+        _visibilityFactor = value;
+        _opacityChanged.raise(this);
+    }
+
     void planeGrid::addClippingPlane(clippingPlane* plane)
     {
         _clippingPlanes.push_back(plane);
