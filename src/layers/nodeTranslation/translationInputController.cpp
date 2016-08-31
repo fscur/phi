@@ -83,7 +83,7 @@ namespace phi
     {
         _translationService->update();
 
-        return true;
+        return false;
     }
 
     void translationInputController::cancel()

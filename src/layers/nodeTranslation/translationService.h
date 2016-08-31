@@ -21,6 +21,8 @@ namespace phi
         vector<translationPlane*> _translationPlanes;
         vector<translationPlane*> _planesToRemove;
         
+        unordered_map<node*, vec3> _originalPositions;
+
         bool _isTranslating;
 
         translationPlane* _currentTranslationPlane;
