@@ -15,10 +15,10 @@ namespace phi
     class translationPlane
     {
     private:
-        plane _gridPlane;
-        plane _mousePlane;
+        plane _plane;
         clippingPlane* _clippingPlane;
         node* _planeGridNode;
+        planeGrid* _planeGridComponent;
         boxCollider* _collidee;
         boxCollider* _collider;
         transformAnimation* _draggingAnimation;
@@ -31,8 +31,7 @@ namespace phi
     public:
         LAYERS_API translationPlane(vec3 origin, vec3 normal);
         
-        plane getGridPlane() const { return _gridPlane; }
-        plane getMousePlane() const { return _mousePlane; }
+        plane getPlane() const { return _plane; }
         clippingPlane* getClippingPlane() const { return _clippingPlane; }
         node* getPlaneGridNode() const { return _planeGridNode; }
         boxCollider* getCollidee() const { return _collidee; }
@@ -43,10 +42,10 @@ namespace phi
         floatAnimation* getClippingPlanesFadeAnimation() const { return _clippingPlanesFadeAnimation; }
         float getExtinctionfactor() const { return _extinctionFactor; }
 
-        void setGridPlane(plane value) { _gridPlane = value; }
-        void setMousePlane(plane value) { _mousePlane = value; }
+        void setPlane(plane value) { _plane = value; }
         void setClippingPlane(clippingPlane* value) { _clippingPlane = value; }
-        void setPlaneGridNode(node* value) { _planeGridNode = value; }
+        void setPlaneGridNode(node* value);
+
         void setCollidee(boxCollider* value) { _collidee = value; }
         void setCollider(boxCollider* value) { _collider = value; }
         void setDraggingAnimation(transformAnimation* value) { _draggingAnimation = value; }
@@ -63,5 +62,8 @@ namespace phi
 
         LAYERS_API void fadeGridOpacityIn(std::function<void(void)> fadeInEndedFunction);
         LAYERS_API void fadeGridOpacityOut(std::function<void(void)> fadeOutEndedFunction);
+        
+        LAYERS_API void updatePlaneGridVisibility(float visibility);
+        LAYERS_API void translate(vec3 offset);
     };
 }

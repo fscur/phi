@@ -15,57 +15,40 @@ namespace phi
         const vector<node*>* _targetNodes;
         layer* _layer;
         camera* _camera;
+        physicsWorld* _physicsWorld;
         collisionNodeTranslator* _nodeTranslator;
+
         vector<translationPlane*> _translationPlanes;
         vector<translationPlane*> _planesToRemove;
         
         bool _isTranslating;
-        bool _showingGhost;
-        vector<node*> _ghostNodes;
 
-        physicsWorld* _physicsWorld;
         translationPlane* _currentTranslationPlane;
-        translationPlane* _lastChosenTranslationPlane;
         ivec2 _lastMousePosition;
-
         plane _offsetPlane;
 
-        vector<sweepCollision>* _lastTranslationTouchs;
+        /*translationPlane* _lastChosenTranslationPlane;
+        bool _showingGhost;
+        vector<node*> _ghostNodes;
+        vector<sweepCollision>* _lastTranslationTouchs;*/
 
     private:
+        vec3 getClosestAxisTo(vec3 direction);
+        plane createPlaneFromAxis(vec3 axis);
+        translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
 
-        vec3 getClosestAxisNormal(vec3 direction);
-        plane createPlane(vec3 direction);
-        void createAxisAlignedTranslationPlane(ivec2 position);
         translationPlane* createTranslationPlane(vec3 origin, vec3 normal);
-        translationPlane* createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider, clippingDistance::clippingDistance clippingDistance);
 
-        void initializeNodeTranslator();
-        void endNodeTranslator();
-        void createClippingPlanes(translationPlane* clippingTranslationPlane, clippingDistance::clippingDistance clippingDistance);
-        void removeClippingPlanes(translationPlane* planeToRemove);
-        void addPlanesIfNeeded(vector<sweepCollision> touchs);
+        void addTranslationPlane(translationPlane * translationPlane);
         void enqueuePlaneForRemoval(translationPlane* planeToRemove);
         void removeInvalidPlanes();
         void deleteRemovedPlanes();
         void updateTranslationPlanesVisibility();
 
-        vector<sweepCollision> findTouchingCollisions();
-        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
-
-        bool existsTranslationPlaneWithNormal(vec3 normal);
         bool canTranslateAt(float planeVisibility, float planeExtinctionFactor);
-        bool isDraggingObjectIntersectingAnyObject();
-
         float getPlaneVisibility(plane plane);
 
-        void showGhost();
-        void hideGhost();
-        void translateGhost(vec3 position, vec3 offset);
-        node* cloneNodeAsGhost(node * node);
-
         vec3 getTranslationOffset(ivec2 mousePosition);
-        void translatePlaneGrid(translationPlane* translationPlane, vec3 offset);
 
     public:
         translationService(
@@ -83,5 +66,18 @@ namespace phi
         void endTranslation();
         void cancelTranslation();
         void update();
+
+        //vector<sweepCollision> findTouchingCollisions();
+        //vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
+        //translationPlane* createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider, clippingDistance::clippingDistance clippingDistance);
+        /*void createClippingPlanes(translationPlane* clippingTranslationPlane, clippingDistance::clippingDistance clippingDistance);
+        void removeClippingPlanes(translationPlane* planeToRemove);
+        void addPlanesIfNeeded(vector<sweepCollision> touchs);*/
+        /*bool existsTranslationPlaneWithNormal(vec3 normal);
+        bool isDraggingObjectIntersectingAnyObject();*/
+        /*void showGhost();
+        void hideGhost();
+        void translateGhost(vec3 position, vec3 offset);
+        node* cloneNodeAsGhost(node * node);*/
     };
 }

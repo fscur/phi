@@ -5,14 +5,20 @@
 namespace phi
 {
     translationPlane::translationPlane(vec3 origin, vec3 normal) :
-        _mousePlane(plane()),
-        _gridPlane(plane()),
+        _plane(plane()),
         _collidee(nullptr),
         _planeGridNode(nullptr),
         _draggingAnimation(nullptr),
         _fadeInAnimation(nullptr),
         _fadeOutAnimation(nullptr)
     {
+    }
+
+    void translationPlane::setPlaneGridNode(node * value)
+    {
+        _planeGridNode = value;
+        _planeGridComponent = _planeGridNode->getComponent<planeGrid>();
+        assert(_planeGridComponent);
     }
 
     void translationPlane::setFadeOutAnimation(floatAnimation* value)
@@ -72,5 +78,28 @@ namespace phi
         
         auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
         _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 0.8f, fadeOutEndedFunction);
+    }
+
+    void translationPlane::updatePlaneGridVisibility(float visibility)
+    {
+        auto min = _extinctionFactor;
+        auto planeGridVisibility = (visibility - min) / (1.0f - min);
+        _planeGridComponent->setVisibilityFactor(planeGridVisibility);
+    }
+
+    void translationPlane::translate(vec3 offset)
+    {
+        auto planeTransform = _planeGridNode->getTransform();
+        auto plane = phi::plane(planeTransform->getPosition(), planeTransform->getDirection());
+
+        auto fromPlaneTransform = new transform();
+        auto fromPosition = planeTransform->getLocalPosition();
+        fromPlaneTransform->setLocalPosition(fromPosition);
+
+        auto toPlaneTransform = new transform();
+        auto toPosition = fromPosition + offset;
+        toPlaneTransform->setLocalPosition(toPosition);
+
+        _draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
     }
 }

@@ -25,6 +25,7 @@ namespace phi
         vec3 getAdjustedOffset(sweepCollision collision, vec3 offset);
         vec3 collisionNodeTranslator::getUndisruptedOffset(vec3 offset);
 
+
     public:
         collisionNodeTranslator(physicsWorld* physicsWorld);
         ~collisionNodeTranslator();
@@ -38,6 +39,7 @@ namespace phi
 
         void setPlane(plane value) { _plane = value; }
         void addNode(node* node);
+        void addRange(const vector<node*>& nodes);
         void clear();
         void translate(vec3 offset);
     };

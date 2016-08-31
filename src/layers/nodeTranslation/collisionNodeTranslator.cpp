@@ -207,6 +207,12 @@ namespace phi
         return finalOffset;
     }
 
+    void collisionNodeTranslator::addRange(const vector<node*>& nodes)
+    {
+        for (auto& node : nodes)
+            addNode(node);
+    }
+
     void collisionNodeTranslator::addNode(node* node)
     {
         _nodes.push_back(node);
