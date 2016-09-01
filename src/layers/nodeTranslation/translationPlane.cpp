@@ -78,7 +78,7 @@ namespace phi
         assert(_fadeOutAnimation != nullptr);
         
         auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
-        _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 0.8f, fadeOutEndedFunction);
+        _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 1.8f, fadeOutEndedFunction);
     }
 
     void translationPlane::updatePlaneGridVisibility(float visibility)

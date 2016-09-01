@@ -228,6 +228,10 @@ namespace phi
     void translationService::translateTargetNodes(vec3 endPosition)
     {
         auto offset = endPosition - _offsetPlane.origin;
+        
+        if (offset == vec3())
+            return;
+
         _ghostTranslator->translate(offset);
 
         offset = _nodeTranslator->translate(offset);
@@ -288,6 +292,7 @@ namespace phi
 
         _ghostTranslator->clear();
         _nodeTranslator->clear();
+        _nodeTranslator->enableCollisions();
     }
 
     void translationService::cancelTranslation()
@@ -315,6 +320,24 @@ namespace phi
             _nodeTranslator->setPlane(_offsetPlane);
         }
     }
+
+    void translationService::disableCollisions()
+    {
+        _nodeTranslator->disableCollisions();
+    }
+
+    void translationService::enableCollisions()
+    {
+        _nodeTranslator->enableCollisions();
+    }
+
+    /*void translationService::disablePlaneChanges()
+    {
+    }
+
+    void translationService::enablePlaneChanges()
+    {
+    }*/
 
     /*
 

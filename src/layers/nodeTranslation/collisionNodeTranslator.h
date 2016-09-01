@@ -15,6 +15,7 @@ namespace phi
         vector<boxCollider*> _colliders;
         vector<transform*> _transforms;
         vector<sweepCollision>* _lastTranslationTouchingCollisions;
+        bool _resolveCollisions;
 
     private:
         void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
@@ -23,7 +24,7 @@ namespace phi
         vector<boxCollider*>* getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult);
         bool findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision);
         vec3 getAdjustedOffset(sweepCollision collision, vec3 offset);
-        vec3 collisionNodeTranslator::getUndisruptedOffset(vec3 offset);
+        vec3 collisionNodeTranslator::resolveCollisions(vec3 offset);
 
     public:
         collisionNodeTranslator(physicsWorld* physicsWorld);
@@ -41,5 +42,8 @@ namespace phi
         void addRange(const vector<node*>& nodes);
         void clear();
         vec3 translate(vec3 offset);
+
+        void disableCollisions();
+        void enableCollisions();
     };
 }

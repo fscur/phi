@@ -9,7 +9,8 @@ namespace phi
         _plane(vec3(), vec3()),
         _colliders(vector<boxCollider*>()),
         _transforms(vector<transform*>()),
-        _lastTranslationTouchingCollisions(new vector<sweepCollision>())
+        _lastTranslationTouchingCollisions(new vector<sweepCollision>()),
+        _resolveCollisions(true)
     {
     }
 
@@ -146,7 +147,7 @@ namespace phi
         return adjustedNormal * adjustedMagnitude;
     }
 
-    vec3 collisionNodeTranslator::getUndisruptedOffset(vec3 offset)
+    vec3 collisionNodeTranslator::resolveCollisions(vec3 offset)
     {
         assert(!isnan(offset.x));
         assert(!isnan(offset.y));
@@ -241,14 +242,26 @@ namespace phi
     {
         _lastTranslationTouchingCollisions->clear();
 
-        auto validOffset = getUndisruptedOffset(offset);
-        assert(!isnan(validOffset.x));
-        assert(!isnan(validOffset.y));
-        assert(!isnan(validOffset.z));
+        if (_resolveCollisions)
+            offset = resolveCollisions(offset);
+
+        assert(!isnan(offset.x));
+        assert(!isnan(offset.y));
+        assert(!isnan(offset.z));
 
         for (auto& node : _nodes)
-            node->getTransform()->translate(validOffset);
+            node->getTransform()->translate(offset);
 
-        return validOffset;
+        return offset;
+    }
+
+    void collisionNodeTranslator::disableCollisions()
+    {
+        _resolveCollisions = false;
+    }
+
+    void collisionNodeTranslator::enableCollisions()
+    {
+        _resolveCollisions = true;
     }
 }

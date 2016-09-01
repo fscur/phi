@@ -79,6 +79,30 @@ namespace phi
         return true;
     }
 
+    bool translationInputController::onKeyDown(keyboardEventArgs* e)
+    {
+        if (e->key == PHIK_CTRL && _translationService->isTranslating())
+        {
+            _translationService->disableCollisions();
+            //_translationService->disablePlaneChanges();
+            return true;
+        }
+
+        return false;
+    }
+
+    bool translationInputController::onKeyUp(keyboardEventArgs* e)
+    {
+        if (e->key == PHIK_CTRL && _translationService->isTranslating())
+        {
+            _translationService->enableCollisions();
+            //_translationService->enablePlaneChanges();
+            return true;
+        }
+
+        return false;
+    }
+
     bool translationInputController::update()
     {
         _translationService->update();

@@ -67,6 +67,12 @@ namespace phi
         void cancelTranslation();
         void update();
 
+        void disableCollisions();
+        void enableCollisions();
+
+        //void disablePlaneChanges();
+        //void enablePlaneChanges();
+
         //vector<sweepCollision> findTouchingCollisions();
         //vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
         //translationPlane* createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider, clippingDistance::clippingDistance clippingDistance);
