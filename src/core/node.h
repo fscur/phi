@@ -56,9 +56,9 @@ namespace phi
         const obb* const getObb() const { return _obb; }
         const obb* const getWorldLocalObb() const { return _worldLocalObb; }
         bool isSelected() const { return _isSelected; }
-        bool getIsTranslating() const { return _isTranslating; }
+        bool isTranslating() const { return _isTranslating; }
 
-        CORE_API void setIsTranslating(bool value);
+        CORE_API void isTranslating(bool value);
         CORE_API void setParent(node* const value);
         CORE_API void setPosition(vec3 value);
         CORE_API void setSize(vec3 value);

@@ -2,7 +2,7 @@
 #include "translationPlane.h"
 #include <cassert>
 #include <core/string.h>
-
+#include <animation/easingFunctions.h>
 namespace phi
 {
     translationPlane::translationPlane(vec3 origin, vec3 normal) :
@@ -84,7 +84,9 @@ namespace phi
     void translationPlane::updatePlaneGridVisibility(float visibility)
     {
         auto min = _extinctionFactor;
-        auto planeGridVisibility = (visibility - min) / (1.0f - min);
+        auto v = (visibility - min) / (1.0f - min);
+        auto planeGridVisibility = static_cast<float>(glm::pow(1.0f - v, 4.0));
+        
         _planeGridComponent->setVisibilityFactor(planeGridVisibility);
     }
 

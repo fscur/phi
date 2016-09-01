@@ -266,18 +266,12 @@ namespace phi
             if (_controllersStack.size() > 0 && _controllersStack.top() == controller)
                 return;
 
-            std::cout << controller;
-            debug(" control granted");
-
             _controllersStack.push(controller);
             _currentController = controller;
         });
 
         controller->getResignControlEvent()->assign([&](inputController* controller)
         {
-            std::cout << controller;
-            debug(" control lost");
-
             _controllersStack.pop();
 
             if (_controllersStack.size() > 0)

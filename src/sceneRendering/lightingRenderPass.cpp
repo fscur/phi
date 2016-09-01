@@ -20,13 +20,15 @@ namespace phi
         const texture* rt0Texture,
         const texture* rt1Texture,
         const texture* rt2Texture,
-        const texture* rtDepthTexture)
+        const texture* rtDepthTexture,
+        const texture* rtPickingTexture)
     {
         auto rtAddresses = phi::gBufferRTAddresses();
         auto rt0Address = texturesManager::getTextureAddress(rt0Texture);
         auto rt1Address = texturesManager::getTextureAddress(rt1Texture);
         auto rt2Address = texturesManager::getTextureAddress(rt2Texture);
         auto rtDepthAddress = texturesManager::getTextureAddress(rtDepthTexture);
+        auto rtPickingAddress = texturesManager::getTextureAddress(rtPickingTexture);
 
         rtAddresses.rt0Unit = rt0Address.unit;
         rtAddresses.rt0Page = rt0Address.page;
@@ -36,6 +38,8 @@ namespace phi
         rtAddresses.rt2Page = rt2Address.page;
         rtAddresses.depthUnit = rtDepthAddress.unit;
         rtAddresses.depthPage = rtDepthAddress.page;
+        rtAddresses.pickingUnit = rtPickingAddress.unit;
+        rtAddresses.pickingPage = rtPickingAddress.page;
 
         rtsBuffer->data(
             sizeof(gBufferRTAddresses),
@@ -52,7 +56,8 @@ namespace phi
         auto rt0 = framebufferAllocator->getRenderTarget("gBuffer_rt0");
         auto rt1 = framebufferAllocator->getRenderTarget("gBuffer_rt1");
         auto rt2 = framebufferAllocator->getRenderTarget("gBuffer_rt2");
-        auto rtDepth = framebufferAllocator->getRenderTarget("depthRenderTarget");;
+        auto rtDepth = framebufferAllocator->getRenderTarget("depthRenderTarget");
+        auto rtPicking = framebufferAllocator->getRenderTarget("pickingRenderTarget");
 
         auto quadVao = vertexArrayObject::createPostProcessVao();
 
@@ -79,7 +84,8 @@ namespace phi
                 rt0->texture,
                 rt1->texture,
                 rt2->texture,
-                rtDepth->texture);
+                rtDepth->texture,
+                rtPicking->texture);
         });
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
@@ -115,7 +121,8 @@ namespace phi
                 rt0->texture,
                 rt1->texture,
                 rt2->texture,
-                rtDepth->texture);
+                rtDepth->texture,
+                rtPicking->texture);
         });
 
         pass->setOnDelete([rtsBuffer, quadVao]() mutable

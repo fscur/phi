@@ -244,7 +244,7 @@ namespace phi
         selectionChanged.raise(this);
     }
 
-    inline void node::setIsTranslating(bool value)
+    inline void node::isTranslating(bool value)
     {
         _isTranslating = value;
     }

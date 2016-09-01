@@ -66,6 +66,13 @@ float fetchDepth()
     return texture(textureArrays[rtAddresses.depthUnit], vec3(fragTexCoord, rtAddresses.depthPage)).r;
 }
 
+int fetchPicking(vec2 uv)
+{
+    float alpha = texture(textureArrays[rtAddresses.pickingUnit], vec3(uv, rtAddresses.pickingPage)).a;
+    alpha *= 255.0;
+    return int(alpha);
+}
+
 vec3 decodePosition(vec2 texCoord, float depth)
 {
     vec4 clipSpaceLocation;
@@ -123,7 +130,14 @@ void main()
     vec4 diffuseComponent = lightColor * diffuseColor * diffuse;
     vec4 specularComponent = lightColor * diffuseColor * spec;
 
+    int picking = fetchPicking(fragTexCoord);
+    bool isTranslating = (picking & 2) == 2;
+
     fragColor = ambientComponent + diffuseComponent + specularComponent;
+    
+    //if (isTranslating)
+    //    fragColor = vec4(0.0, 0.0, 1.0, 1.0);
+
     //fragColor = diffuseComponent + ambientComponent;
     //fragColor = vec4(fragTexCoord, 0.0, 1.0);
     //fragColor = c0;

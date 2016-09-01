@@ -216,7 +216,7 @@ void main()
     if (dot(data.clipPlane0, fragWorldPosition) < 0.0)
         opacity *= data.clipPlane0Opacity;
 
-    vec3 finalColor = mix(vec3(1.0, 0.0, 0.0), color, data.visibility);
+    vec3 finalColor = mix(color, vec3(0.7, 0.1, 0.0), data.visibility);
 
     //plane origin
     //float d = length(fragTexCoord);

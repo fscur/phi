@@ -30,7 +30,7 @@ namespace phi
         for (auto& pair : _ghostNodes)
         {
             pair.first->traverse([](phi::node* node) {
-                node->setIsTranslating(true);
+                node->isTranslating(true);
             });
         }
     }
@@ -51,7 +51,7 @@ namespace phi
         for (auto& pair : _ghostNodes)
         {
             pair.first->traverse([](phi::node* node) {
-                node->setIsTranslating(false);
+                node->isTranslating(false);
             });
         }
     }

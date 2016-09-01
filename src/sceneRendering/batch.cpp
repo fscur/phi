@@ -238,7 +238,7 @@ namespace phi
         int flags = 0;
         if (node->isSelected())
             flags |= 1;
-        if (node->getIsTranslating())
+        if (node->isTranslating())
             flags |= 2;
 
         updateSelectionBuffer(instance, flags);

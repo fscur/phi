@@ -16,7 +16,8 @@ namespace phi
             const texture* rt0Texture,
             const texture* rt1Texture,
             const texture* rt2Texture,
-            const texture* rtDepthTexture);
+            const texture* rtDepthTexture,
+            const texture* rtPickingTexture);
         
     public:
         lightingRenderPass() = delete;

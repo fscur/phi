@@ -95,44 +95,30 @@ void main()
     vec3 b = cross(n, t);
 
     mat3 tbn = mat3(t, b, n);
-    //vec4 normalTexel = fetchNormal(material);
     vec4 normalTexel = vec4(0.5f, 0.5f, 1.0f, 1.0f);
     vec3 normal = normalize(tbn * (normalTexel * 2.0 - 1.0).xyz);
 
-    //vec3 lightDir = mat3(frameUniforms.v) * normalize(-vec3(0.6, 0.4, 0.2));
+    //vec3 lightDir = mat3(frameUniforms.v) * normalize(-vec3(0.0, 0.0, 1.0));
     vec3 lightDir = -vec3(0.0, 0.0, 1.0);
     vec2 uv = gl_FragCoord.xy/frameUniforms.resolution;
     
     vec3 bufferColor = fetchRt0(uv).xyz;
     float bufferDepth = fetchDepth(uv);
-    int picking = fetchPicking(uv);
     float myDepth = gl_FragCoord.z;
 
     float f = myDepth - bufferDepth;
+
+    int picking = fetchPicking(uv);
     bool isTranslating = (picking & 2) == 2;
 
-    //vec3 color = vec3(0.5, 0.7, 0.8);
-    vec3 color = vec3(1.0, 0.0, 0.0);
-    
-    float a = 0.7;
-    float intensity = clamp(step(0.5, grayScale(bufferColor)), 0.4, 0.5);
+    vec3 color = vec3(1.0);
+    float a = 0.4;
 
-    //if (isTranslating)
-    //{
-    //    color += vec3(1.0, 0.0, 0.0);
-    //}
-
-    if (f < 0 || isTranslating)
+    if (!(myDepth < bufferDepth || isTranslating))
     {
-        color = vec3(1.0);
+        color = vec3(0.5, 0.0, 0.0);
+        a = 0.8 * max(dot(normal, -lightDir), 0.8);
     }
-    else
-    {
-        color = vec3(1.0 - intensity, 0.0, 0.0);
-        a *= max(dot(normal, -lightDir), 0.8);
-    }
-
 
     fragColor = vec4(vec3(color), a);
-    //fragColor = vec4(vec3(intensity), 1.0);
 }

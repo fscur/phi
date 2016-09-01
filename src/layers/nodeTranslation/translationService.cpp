@@ -107,7 +107,8 @@ namespace phi
         auto animator = new phi::animator();
 
         auto planeGrid = new phi::planeGrid();
-        planeGrid->setColor(color::green);
+        //planeGrid->setColor(color::fromRGBA(0.7f, 0.8f, 0.9f, 1.0f));
+        planeGrid->setColor(color::fromRGBA(0.0f, 0.8f, 0.2f, 1.0f));
         planeGrid->setLineThickness(8.5f);
         planeGridNode->addComponent(planeGrid);
         planeGridNode->addComponent(animator);
@@ -142,7 +143,7 @@ namespace phi
         translationPlane->setFadeInAnimation(fadeInAnimation);
         translationPlane->setFadeOutAnimation(fadeOutAnimation);
         translationPlane->setClippingPlanesFadeAnimation(clippingPlanesFadeOutAnimation);
-        translationPlane->setExtinctionFactor(mathUtils::isClose(glm::dot(vec3(0.0f, 1.0f, 0.0f), normal), 1.0f) ? 0.3f : 0.5f);
+        translationPlane->setExtinctionFactor(mathUtils::isClose(glm::dot(vec3(0.0f, 1.0f, 0.0f), normal), 1.0f) ? 0.2f : 0.7f);
 
         return translationPlane;
     }
