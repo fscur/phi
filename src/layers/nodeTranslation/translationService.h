@@ -29,7 +29,7 @@ namespace phi
 
         bool _isTranslating;
         bool _canChangePlanes;
-
+        plane _lastVisiblePlane;
         vec3 _offsetPlaneOrigin;
         plane* _currentOffsetPlane;
         translationPlane* _currentTranslationPlane;
@@ -55,6 +55,8 @@ namespace phi
         bool isPlaneVisible(plane plane, float planeExtinctionFactor);
         float getExtinctionFactor(vec3 normal);
         float getPlaneVisibility(plane plane);
+
+        void addPlaneIfNeeded();
 
         void addValidPlanesFromTouchCollisions();
         void changePlanes(translationPlane * translationPlane, plane* offsetPlane);

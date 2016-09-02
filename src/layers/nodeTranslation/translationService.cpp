@@ -260,6 +260,24 @@ namespace phi
         return glm::dot(plane.normal, toPlaneDir);
     }
 
+    void translationService::addPlaneIfNeeded()
+    {
+        if (_translationPlanes.size() == 0)
+        {
+            translationPlane* translationPlane = nullptr;
+
+            if (isPlaneVisible(_lastVisiblePlane, getExtinctionFactor(_lastVisiblePlane.normal)))
+                translationPlane = createTranslationPlane(_lastVisiblePlane);
+            else
+                translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
+
+            addTranslationPlane(translationPlane);
+            auto offsetPlane = new plane(_offsetPlaneOrigin, translationPlane->getPlane().normal);
+            _offsetPlanes[translationPlane] = offsetPlane;
+            changePlanes(translationPlane, offsetPlane);
+        }
+    }
+
     void translationService::addValidPlanesFromTouchCollisions()
     {
         vector<plane> validPlanesFromTouchs;
@@ -297,6 +315,7 @@ namespace phi
         _currentOffsetPlane = offsetPlane;
         _currentTranslationPlane = translationPlane;
         _nodeTranslator->setPlane(_currentOffsetPlane);
+        _lastVisiblePlane = _currentTranslationPlane->getPlane();
     }
 
     void translationService::changePlanesIfNeeded(vec3& endPosition)
@@ -439,15 +458,7 @@ namespace phi
 
         updateTranslationPlanesVisibility();
         removeInvalidPlanes();
-
-        if (_translationPlanes.size() == 0)
-        {
-            auto translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
-            addTranslationPlane(translationPlane);
-            auto offsetPlane = new plane(_offsetPlaneOrigin, translationPlane->getPlane().normal);
-            _offsetPlanes[translationPlane] = offsetPlane;
-            changePlanes(translationPlane, offsetPlane);
-        }
+        addPlaneIfNeeded();
     }
 
     void translationService::disableCollisions()
