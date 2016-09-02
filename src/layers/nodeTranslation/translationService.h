@@ -28,6 +28,7 @@ namespace phi
         unordered_map<node*, vec3> _originalPositions;
 
         bool _isTranslating;
+        bool _canChangePlanes;
 
         vec3 _offsetPlaneOrigin;
         plane* _currentOffsetPlane;
@@ -43,7 +44,6 @@ namespace phi
         translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
 
         translationPlane* createTranslationPlane(plane plane);
-
         void addTranslationPlane(translationPlane * translationPlane);
         void enqueuePlaneForRemoval(translationPlane* planeToRemove);
         void removePlanesIf(std::function<bool(translationPlane*)> predicate);
@@ -52,15 +52,14 @@ namespace phi
         void updateTranslationPlanesVisibility();
 
         bool isPlaneValidForAddition(plane plane);
-
         bool isPlaneVisible(plane plane, float planeExtinctionFactor);
         float getExtinctionFactor(vec3 normal);
         float getPlaneVisibility(plane plane);
 
         void addValidPlanesFromTouchCollisions();
-        void translateTargetNodes(vec3 endPosition);
         void changePlanes(translationPlane * translationPlane, plane* offsetPlane);
         void changePlanesIfNeeded(vec3& endPosition);
+        void translateTargetNodes(vec3 endPosition);
         void translatePlaneGrid(vec3 endPosition);
 
     public:
@@ -83,8 +82,8 @@ namespace phi
         void disableCollisions();
         void enableCollisions();
 
-        //void disablePlaneChanges();
-        //void enablePlaneChanges();
+        void disablePlaneChanges();
+        void enablePlaneChanges();
 
         //vector<sweepCollision> findTouchingCollisions();
         //vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);

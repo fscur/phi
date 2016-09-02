@@ -21,6 +21,7 @@ namespace phi
         _camera(layer->getCamera()),
         _translationPlanes(vector<translationPlane*>()),
         _isTranslating(false),
+        _canChangePlanes(false),
         _planesToRemove(vector<translationPlane*>()),
         _nodeTranslator(new collisionNodeTranslator(physicsWorld)),
         _ghostTranslator(new ghostNodeTranslator(layer))
@@ -145,8 +146,6 @@ namespace phi
         return translationPlane;
     }
 
-    //classe nova????
-
     void translationService::addTranslationPlane(translationPlane* translationPlane)
     {
         _layer->add(translationPlane->getPlaneGridNode());
@@ -242,6 +241,25 @@ namespace phi
         return true;
     }
 
+    bool translationService::isPlaneVisible(plane plane, float planeExtinctionFactor)
+    {
+        auto planeVisibility = getPlaneVisibility(plane);
+        return planeVisibility > planeExtinctionFactor;
+    }
+
+    float translationService::getExtinctionFactor(vec3 normal)
+    {
+        return mathUtils::isParallel(vec3(0.0, 1.0, 0.0), normal) ? 0.2f : 0.5f;
+    }
+
+    float translationService::getPlaneVisibility(plane plane)
+    {
+        auto cameraTransform = _camera->getTransform();
+        auto cameraPosition = cameraTransform->getPosition();
+        auto toPlaneDir = -glm::normalize(plane.origin - cameraPosition);
+        return glm::dot(plane.normal, toPlaneDir);
+    }
+
     void translationService::addValidPlanesFromTouchCollisions()
     {
         vector<plane> validPlanesFromTouchs;
@@ -274,66 +292,11 @@ namespace phi
         }
     }
 
-    //end classe nova????
-    bool translationService::isPlaneVisible(plane plane, float planeExtinctionFactor)
-    {
-        auto planeVisibility = getPlaneVisibility(plane);
-        return planeVisibility > planeExtinctionFactor;
-    }
-
-    float translationService::getExtinctionFactor(vec3 normal)
-    {
-        return mathUtils::isParallel(vec3(0.0, 1.0, 0.0), normal) ? 0.2f : 0.5f;
-    }
-
-    float translationService::getPlaneVisibility(plane plane)
-    {
-        auto cameraTransform = _camera->getTransform();
-        auto cameraPosition = cameraTransform->getPosition();
-        auto toPlaneDir = -glm::normalize(plane.origin - cameraPosition);
-        return glm::dot(plane.normal, toPlaneDir);
-    }
-
-    void translationService::translateTargetNodes(vec3 endPosition)
-    {
-        auto offset = endPosition - _offsetPlaneOrigin;
-
-        if (offset == vec3())
-            return;
-
-        _ghostTranslator->translate(offset);
-
-        offset = _nodeTranslator->translate(offset);
-
-        _offsetPlaneOrigin += offset;
-        _currentOffsetPlane->origin = _offsetPlaneOrigin;
-
-        /*for (auto& pair : _offsetPlanes)
-        {
-            if (pair.first == _currentTranslationPlane)
-                continue;
-
-            pair.second.origin += pair.second.projectPoint(_offsetPlane.origin);
-        }*/
-    }
-
     void translationService::changePlanes(translationPlane* translationPlane, plane* offsetPlane)
     {
         _currentOffsetPlane = offsetPlane;
         _currentTranslationPlane = translationPlane;
         _nodeTranslator->setPlane(_currentOffsetPlane);
-    }
-
-    void translationService::translatePlaneGrid(vec3 endPosition)
-    {
-        //auto planeGridPosition = _currentTranslationPlane->getPlane().projectPoint(endPosition);
-        //_currentTranslationPlane->animatePlaneGridPosition(planeGridPosition);
-
-        for (auto& translationPlane : _translationPlanes)
-        {
-            auto planeGridPosition = translationPlane->getPlane().projectPoint(endPosition);
-            translationPlane->animatePlaneGridPosition(planeGridPosition);
-        }
     }
 
     void translationService::changePlanesIfNeeded(vec3& endPosition)
@@ -380,6 +343,33 @@ namespace phi
         }
     }
 
+    void translationService::translateTargetNodes(vec3 endPosition)
+    {
+        auto offset = endPosition - _offsetPlaneOrigin;
+
+        if (offset == vec3())
+            return;
+
+        _ghostTranslator->translate(offset);
+
+        offset = _nodeTranslator->translate(offset);
+
+        _offsetPlaneOrigin += offset;
+        _currentOffsetPlane->origin = _offsetPlaneOrigin;
+    }
+
+    void translationService::translatePlaneGrid(vec3 endPosition)
+    {
+        //auto planeGridPosition = _currentTranslationPlane->getPlane().projectPoint(endPosition);
+        //_currentTranslationPlane->animatePlaneGridPosition(planeGridPosition);
+
+        for (auto& translationPlane : _translationPlanes)
+        {
+            auto planeGridPosition = translationPlane->getPlane().projectPoint(endPosition);
+            translationPlane->animatePlaneGridPosition(planeGridPosition);
+        }
+    }
+
     void translationService::startTranslation(ivec2 mousePosition)
     {
         for (auto& node : *_targetNodes)
@@ -402,9 +392,13 @@ namespace phi
 
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, *_currentOffsetPlane);
 
-        changePlanesIfNeeded(endPosition);
+        if (_canChangePlanes)
+        {
+            addValidPlanesFromTouchCollisions();
+            changePlanesIfNeeded(endPosition);
+        }
+
         translateTargetNodes(endPosition);
-        addValidPlanesFromTouchCollisions();
         translatePlaneGrid(endPosition);
 
         if (_nodeTranslator->getLastTranslationTouchingCollisions()->size() > 0)
@@ -466,13 +460,15 @@ namespace phi
         _nodeTranslator->enableCollisions();
     }
 
-    /*void translationService::disablePlaneChanges()
+    void translationService::disablePlaneChanges()
     {
+        _canChangePlanes = true;
     }
 
     void translationService::enablePlaneChanges()
     {
-    }*/
+        _canChangePlanes = false;
+    }
 
     /*
 
