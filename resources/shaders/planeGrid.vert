@@ -28,7 +28,7 @@ struct planeGridRenderData
 
     float lineThickness;
     float opacity;
-    float pad0;
+    float visibility;
     float pad1;
 
     float clipPlane0Opacity;
