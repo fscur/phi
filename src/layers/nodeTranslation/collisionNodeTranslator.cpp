@@ -6,7 +6,7 @@ namespace phi
 {
     collisionNodeTranslator::collisionNodeTranslator(physicsWorld* physicsWorld) :
         _physicsWorld(physicsWorld),
-        _plane(vec3(), vec3()),
+        _plane(nullptr),
         _colliders(vector<boxCollider*>()),
         _transforms(vector<transform*>()),
         _lastTranslationTouchingCollisions(new vector<sweepCollision>()),
@@ -139,8 +139,8 @@ namespace phi
 
         auto normalOffsetCross = glm::normalize(glm::cross(collision.normal, offsetNormal));
         auto adjustedNormal = glm::normalize(glm::cross(collision.normal, normalOffsetCross));
-        auto amountOnPlaneNormal = glm::dot(adjustedNormal, _plane.normal);
-        adjustedNormal -= amountOnPlaneNormal * _plane.normal;
+        auto amountOnPlaneNormal = glm::dot(adjustedNormal, _plane->normal);
+        adjustedNormal -= amountOnPlaneNormal * _plane->normal;
 
         auto adjustedMagnitude = glm::dot(offset, adjustedNormal);
 

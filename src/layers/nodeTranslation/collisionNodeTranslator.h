@@ -10,7 +10,7 @@ namespace phi
     {
     private:
         physicsWorld* _physicsWorld;
-        plane _plane;
+        plane* _plane;
         vector<node*> _nodes;
         vector<boxCollider*> _colliders;
         vector<transform*> _transforms;
@@ -37,7 +37,7 @@ namespace phi
 
         vector<sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
 
-        void setPlane(plane value) { _plane = value; }
+        void setPlane(plane* value) { _plane = value; }
         void addNode(node* node);
         void addRange(const vector<node*>& nodes);
         void clear();

@@ -243,14 +243,14 @@ namespace demon
         
         _sceneLayer->add(cube0);
         _sceneLayer->add(cube1);
-        
-        
-        _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
+        
+        
+        /*_sceneLayer->add(_chair0);
         _sceneLayer->add(back_wall);
         _sceneLayer->add(table);
         _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable);
+        _sceneLayer->add(coffeTable);*/
         
 
         //TODO: prevent components that are not dealt with it from being added to layer

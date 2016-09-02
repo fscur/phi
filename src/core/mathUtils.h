@@ -33,5 +33,10 @@ namespace phi
             float exp = pow(10.0f, (float)decimals);
             return round(value * exp) / exp;
         }
+
+        static float isParallel(vec3 a, vec3 b)
+        {
+            return mathUtils::isClose(glm::dot(a, b), 1.0f);
+        }
     };
 }

@@ -2,11 +2,11 @@
 #include "translationPlane.h"
 #include <cassert>
 #include <core/string.h>
-#include <animation/easingFunctions.h>
+
 namespace phi
 {
-    translationPlane::translationPlane(vec3 origin, vec3 normal) :
-        _plane(plane()),
+    translationPlane::translationPlane(plane plane) :
+        _plane(plane),
         _collidee(nullptr),
         _planeGridNode(nullptr),
         _draggingAnimation(nullptr),
@@ -15,11 +15,11 @@ namespace phi
     {
     }
 
-    void translationPlane::setPlaneGridNode(node * value)
+    void translationPlane::setPlaneGridNode(node* value)
     {
         _planeGridNode = value;
-        _planeGridComponent = _planeGridNode->getComponent<planeGrid>();
-        assert(_planeGridComponent);
+        _planeGrid = _planeGridNode->getComponent<planeGrid>();
+        assert(_planeGrid);
     }
 
     void translationPlane::setFadeOutAnimation(floatAnimation* value)
@@ -39,7 +39,7 @@ namespace phi
 
         planeGrid->show();
 
-        _fadeInAnimation->start(planeGrid->getOpacity(), 1.0f, 0.4);
+        fadeGridOpacityIn({});
     }
 
     void translationPlane::hideGrid()
@@ -68,8 +68,7 @@ namespace phi
         assert(_planeGridNode != nullptr);
         assert(_fadeOutAnimation != nullptr);
 
-        auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
-        _fadeOutAnimation->start(planeGrid->getOpacity(), 1.0f, 0.8f, fadeInEndedFunction);
+        _fadeInAnimation->start(_planeGrid->getOpacity(), 1.0f, FADE_IN_ANIMATION_TIME_IN_SECONDS, fadeInEndedFunction);
     }
 
     void translationPlane::fadeGridOpacityOut(std::function<void(void)> fadeOutEndedFunction)
@@ -77,17 +76,16 @@ namespace phi
         assert(_planeGridNode != nullptr);
         assert(_fadeOutAnimation != nullptr);
         
-        auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
-        _fadeOutAnimation->start(planeGrid->getOpacity(), 0.0f, 1.8f, fadeOutEndedFunction);
+        _fadeOutAnimation->start(_planeGrid->getOpacity(), 0.0f, FADE_OUT_ANIMATION_TIME_IN_SECONDS, fadeOutEndedFunction);
     }
 
     void translationPlane::updatePlaneGridVisibility(float visibility)
     {
         auto min = _extinctionFactor;
         auto v = (visibility - min) / (1.0f - min);
-        auto planeGridVisibility = static_cast<float>(glm::pow(1.0f - v, 4.0));
+        auto planeGridVisibility = static_cast<float>(glm::pow(1.0f - v, PLANE_VISIBILITY_EXTINCTION_FACTOR));
         
-        _planeGridComponent->setVisibilityFactor(planeGridVisibility);
+        _planeGrid->setVisibilityFactor(planeGridVisibility);
     }
 
     void translationPlane::animatePlaneGridPosition(vec3 position)

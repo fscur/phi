@@ -13,7 +13,7 @@
 namespace phi
 {
     translationService::translationService(
-        const vector<node*>* targetNodes, 
+        const vector<node*>* targetNodes,
         layer* layer,
         physicsWorld* physicsWorld) :
         _targetNodes(targetNodes),
@@ -88,21 +88,21 @@ namespace phi
     {
         auto viewDirection = -_camera->screenPointToRay(mousePosition.x, mousePosition.y).getDirection();
         auto worldAxis = getClosestAxisTo(viewDirection);
-        auto plane = createPlaneFromAxis(worldAxis);
+        auto axisPlane = createPlaneFromAxis(worldAxis);
 
         auto worldPosition = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
-        auto origin = plane.projectPoint(worldPosition);
+        auto origin = axisPlane.projectPoint(worldPosition);
 
-        return createTranslationPlane(origin, plane.normal);
+        return createTranslationPlane(plane(origin, axisPlane.normal));
     }
 
-    translationPlane* translationService::createTranslationPlane(vec3 origin, vec3 normal)
+    translationPlane* translationService::createTranslationPlane(plane plane)
     {
         auto planeGridNode = new node("plane");
         auto planeTransform = planeGridNode->getTransform();
 
-        planeTransform->setLocalPosition(origin);
-        planeTransform->setDirection(normal);
+        planeTransform->setLocalPosition(plane.origin);
+        planeTransform->setDirection(plane.normal);
 
         auto animator = new phi::animator();
 
@@ -132,10 +132,7 @@ namespace phi
         auto clippingPlanesFadeOutAnimation = new phi::floatAnimation();
         animator->addAnimation(clippingPlanesFadeOutAnimation);
 
-        auto gridPlane = plane(origin, normal);
-
-        auto translationPlane = new phi::translationPlane(origin, normal);
-        translationPlane->setPlane(gridPlane);
+        auto translationPlane = new phi::translationPlane(plane);
         translationPlane->setCollidee(nullptr);
         translationPlane->setCollider(nullptr);
         translationPlane->setPlaneGridNode(planeGridNode);
@@ -143,7 +140,7 @@ namespace phi
         translationPlane->setFadeInAnimation(fadeInAnimation);
         translationPlane->setFadeOutAnimation(fadeOutAnimation);
         translationPlane->setClippingPlanesFadeAnimation(clippingPlanesFadeOutAnimation);
-        translationPlane->setExtinctionFactor(mathUtils::isClose(glm::dot(vec3(0.0f, 1.0f, 0.0f), normal), 1.0f) ? 0.2f : 0.7f);
+        translationPlane->setExtinctionFactor(getExtinctionFactor(plane.normal));
 
         return translationPlane;
     }
@@ -154,7 +151,6 @@ namespace phi
     {
         _layer->add(translationPlane->getPlaneGridNode());
         _translationPlanes.push_back(translationPlane);
-        _currentTranslationPlane = translationPlane;
         translationPlane->showGrid();
     }
 
@@ -168,24 +164,48 @@ namespace phi
         planeToRemove->fadeGridOpacityOut(fadeOutAnimationEnded);
     }
 
+    void translationService::removePlanesIf(std::function<bool(translationPlane*)> predicate)
+    {
+        auto removeFunction = [&](translationPlane* translationPlane)
+        {
+            bool shouldRemove = predicate(translationPlane);
+
+            if (shouldRemove)
+            {
+                _offsetPlanes.erase(translationPlane);
+                safeDelete(_offsetPlanes[translationPlane]);
+                enqueuePlaneForRemoval(translationPlane);
+            }
+
+            return shouldRemove;
+        };
+
+        _translationPlanes.erase(std::remove_if(_translationPlanes.begin(), _translationPlanes.end(), removeFunction), _translationPlanes.end());
+    }
+
     void translationService::removeInvalidPlanes()
     {
-        vector<translationPlane*> translationPlanesToRemove;
+        removePlanesIf(
+            [&](translationPlane* translationPlane) 
+        { 
+            return !isPlaneVisible(translationPlane->getPlane(), translationPlane->getExtinctionfactor()); 
+        });
+
+        /*vector<translationPlane*> planesToRemove;
 
         for (auto& translationPlane : _translationPlanes)
         {
-            auto planeVisibility = getPlaneVisibility(translationPlane->getPlane());
-            auto planeExtinctionFactor = translationPlane->getExtinctionfactor();
-
-            if (!canTranslateAt(planeVisibility, planeExtinctionFactor))
-                translationPlanesToRemove.push_back(translationPlane);
+            if (!isPlaneVisible(translationPlane->getPlane(), translationPlane->getExtinctionfactor()))
+                planesToRemove.push_back(translationPlane);
         }
 
-        for (auto& planeToRemove : translationPlanesToRemove)
+        for (auto& planeToRemove : planesToRemove)
         {
             removeIfContains(_translationPlanes, planeToRemove);
+            _offsetPlanes.erase(planeToRemove);
+            safeDelete(_offsetPlanes[planeToRemove]);
             enqueuePlaneForRemoval(planeToRemove);
-        }
+        }*/
     }
 
     void translationService::deleteRemovedPlanes()
@@ -210,11 +230,60 @@ namespace phi
         }
     }
 
-    //end classe nova????
-
-    bool translationService::canTranslateAt(float planeVisibility, float planeExtinctionFactor)
+    bool translationService::isPlaneValidForAddition(plane plane)
     {
+        if (!isPlaneVisible(plane, getExtinctionFactor(plane.normal)))
+            return false;
+
+        for (auto& translationPlane : _translationPlanes)
+            if (plane.isParallel(translationPlane->getPlane()))
+                return false;
+
+        return true;
+    }
+
+    void translationService::addValidPlanesFromTouchCollisions()
+    {
+        vector<plane> validPlanesFromTouchs;
+
+        for (auto& touch : *_lastTouchingCollisions)
+        {
+            auto touchPlaneNormal = getClosestAxisTo(touch.normal);
+            auto touchPlaneOrigin = touch.collider->getObb().getPositionAt(-touchPlaneNormal);
+            auto touchPlane = plane(touchPlaneOrigin, touchPlaneNormal);
+
+            touchPlane.origin = touchPlane.projectPoint(_currentOffsetPlane->origin);
+
+            bool isTouchPlaneParallelToAnyOtherTouchPlane = false;
+            for (auto& validPlane : validPlanesFromTouchs)
+            {
+                if (touchPlane.isParallel(validPlane))
+                {
+                    isTouchPlaneParallelToAnyOtherTouchPlane = true;
+                    break;
+                }
+            }
+
+            if (!isTouchPlaneParallelToAnyOtherTouchPlane && isPlaneValidForAddition(touchPlane))
+            {
+                validPlanesFromTouchs.push_back(touchPlane);
+                auto translationPlane = createTranslationPlane(touchPlane);
+                _offsetPlanes[translationPlane] = new plane(_offsetPlaneOrigin, touchPlane.normal);
+                addTranslationPlane(translationPlane);
+            }
+        }
+    }
+
+    //end classe nova????
+    bool translationService::isPlaneVisible(plane plane, float planeExtinctionFactor)
+    {
+        auto planeVisibility = getPlaneVisibility(plane);
         return planeVisibility > planeExtinctionFactor;
+    }
+
+    float translationService::getExtinctionFactor(vec3 normal)
+    {
+        return mathUtils::isParallel(vec3(0.0, 1.0, 0.0), normal) ? 0.2f : 0.5f;
     }
 
     float translationService::getPlaneVisibility(plane plane)
@@ -227,21 +296,88 @@ namespace phi
 
     void translationService::translateTargetNodes(vec3 endPosition)
     {
-        auto offset = endPosition - _offsetPlane.origin;
-        
+        auto offset = endPosition - _offsetPlaneOrigin;
+
         if (offset == vec3())
             return;
 
         _ghostTranslator->translate(offset);
 
         offset = _nodeTranslator->translate(offset);
-        _offsetPlane.origin += offset;
+
+        _offsetPlaneOrigin += offset;
+        _currentOffsetPlane->origin = _offsetPlaneOrigin;
+
+        /*for (auto& pair : _offsetPlanes)
+        {
+            if (pair.first == _currentTranslationPlane)
+                continue;
+
+            pair.second.origin += pair.second.projectPoint(_offsetPlane.origin);
+        }*/
     }
-    
+
+    void translationService::changePlanes(translationPlane* translationPlane, plane* offsetPlane)
+    {
+        _currentOffsetPlane = offsetPlane;
+        _currentTranslationPlane = translationPlane;
+        _nodeTranslator->setPlane(_currentOffsetPlane);
+    }
+
     void translationService::translatePlaneGrid(vec3 endPosition)
     {
-        auto planeGridPosition = _currentTranslationPlane->getPlane().projectPoint(endPosition);
-        _currentTranslationPlane->animatePlaneGridPosition(planeGridPosition);
+        //auto planeGridPosition = _currentTranslationPlane->getPlane().projectPoint(endPosition);
+        //_currentTranslationPlane->animatePlaneGridPosition(planeGridPosition);
+
+        for (auto& translationPlane : _translationPlanes)
+        {
+            auto planeGridPosition = translationPlane->getPlane().projectPoint(endPosition);
+            translationPlane->animatePlaneGridPosition(planeGridPosition);
+        }
+    }
+
+    void translationService::changePlanesIfNeeded(vec3& endPosition)
+    {
+        bool changedPlane = false;
+
+        for (auto& translationPlane : _translationPlanes)
+        {
+            if (_currentTranslationPlane == translationPlane)
+                continue;
+
+            auto offsetPlane = _offsetPlanes[translationPlane];
+            endPosition = offsetPlane->projectPoint(endPosition);
+
+            changePlanes(translationPlane, offsetPlane);
+            changedPlane = true;
+            break;
+        }
+
+        if (changedPlane)
+        {
+            removePlanesIf(
+                [&](translationPlane* translationPlane)
+                {
+                    return translationPlane != _currentTranslationPlane;
+                });
+
+            /*vector<translationPlane*> planesToRemove;
+
+            for (auto& translationPlane : _translationPlanes)
+            {
+            if (translationPlane == _currentTranslationPlane)
+            continue;
+
+            planesToRemove.push_back(translationPlane);
+            }
+
+            for (auto& planeToRemove : planesToRemove)
+            {
+            removeIfContains(_translationPlanes, planeToRemove);
+            _offsetPlanes.erase(planeToRemove);
+            enqueuePlaneForRemoval(planeToRemove);
+            }*/
+        }
     }
 
     void translationService::startTranslation(ivec2 mousePosition)
@@ -250,18 +386,13 @@ namespace phi
             _originalPositions[node] = node->getTransform()->getLocalPosition();
 
         _nodeTranslator->addRange(*_targetNodes);
+        _lastTouchingCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
+
         _ghostTranslator->addRange(*_targetNodes);
 
         _isTranslating = true;
         _lastMousePosition = mousePosition;
-
-        auto translationPlane = createAxisAlignedTranslationPlane(mousePosition);
-        addTranslationPlane(translationPlane);
-
-        auto normal = _currentTranslationPlane->getPlane().normal;
-        auto origin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
-        _offsetPlane = plane(origin, normal);
-        _nodeTranslator->setPlane(_offsetPlane);
+        _offsetPlaneOrigin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
     }
 
     void translationService::translate(ivec2 mousePosition)
@@ -269,10 +400,13 @@ namespace phi
         if (!_isTranslating)
             return;
 
-        auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
+        auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, *_currentOffsetPlane);
+
+        changePlanesIfNeeded(endPosition);
         translateTargetNodes(endPosition);
+        addValidPlanesFromTouchCollisions();
         translatePlaneGrid(endPosition);
-        
+
         if (_nodeTranslator->getLastTranslationTouchingCollisions()->size() > 0)
             _ghostTranslator->enable();
         else
@@ -289,6 +423,7 @@ namespace phi
             enqueuePlaneForRemoval(translationPlane);
 
         _translationPlanes.clear();
+        _offsetPlanes.clear();
 
         _ghostTranslator->clear();
         _nodeTranslator->clear();
@@ -315,9 +450,9 @@ namespace phi
         {
             auto translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
             addTranslationPlane(translationPlane);
-
-            _offsetPlane = plane(_offsetPlane.origin, _currentTranslationPlane->getPlane().normal);
-            _nodeTranslator->setPlane(_offsetPlane);
+            auto offsetPlane = new plane(_offsetPlaneOrigin, translationPlane->getPlane().normal);
+            _offsetPlanes[translationPlane] = offsetPlane;
+            changePlanes(translationPlane, offsetPlane);
         }
     }
 
@@ -455,7 +590,7 @@ namespace phi
         }
     }
 
-    
+
 
     bool translationService::existsTranslationPlaneWithNormal(vec3 normal)
     {
