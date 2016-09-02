@@ -84,7 +84,7 @@ namespace phi
         if (e->key == PHIK_CTRL && _translationService->isTranslating())
         {
             _translationService->disableCollisions();
-            //_translationService->disablePlaneChanges();
+            _translationService->disablePlaneChanges();
             return true;
         }
 
@@ -96,7 +96,7 @@ namespace phi
         if (e->key == PHIK_CTRL && _translationService->isTranslating())
         {
             _translationService->enableCollisions();
-            //_translationService->enablePlaneChanges();
+            _translationService->enablePlaneChanges();
             return true;
         }
 

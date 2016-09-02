@@ -21,7 +21,7 @@ namespace phi
         _camera(layer->getCamera()),
         _translationPlanes(vector<translationPlane*>()),
         _isTranslating(false),
-        _canChangePlanes(false),
+        _canChangePlanes(true),
         _planesToRemove(vector<translationPlane*>()),
         _nodeTranslator(new collisionNodeTranslator(physicsWorld)),
         _ghostTranslator(new ghostNodeTranslator(layer))
@@ -462,12 +462,12 @@ namespace phi
 
     void translationService::disablePlaneChanges()
     {
-        _canChangePlanes = true;
+        _canChangePlanes = false;
     }
 
     void translationService::enablePlaneChanges()
     {
-        _canChangePlanes = false;
+        _canChangePlanes = true;
     }
 
     /*
