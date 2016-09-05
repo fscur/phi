@@ -194,11 +194,12 @@ namespace phi
 
     void layer::onMouseClick(mouseEventArgs* e)
     {
-        if (_currentController && _currentController->onMouseClick(e))
+        auto lastCurrentController = _currentController;
+        if (lastCurrentController && lastCurrentController->onMouseClick(e))
             return;
 
         for (auto& controller : _controllers)
-            if (controller != _currentController && controller->onMouseClick(e))
+            if (controller != lastCurrentController && controller->onMouseClick(e))
                 break;
     }
 
@@ -275,9 +276,7 @@ namespace phi
             _controllersStack.pop();
 
             if (_controllersStack.size() > 0)
-            {
                 _currentController = _controllersStack.top();
-            }
             else
                 _currentController = nullptr;
         });

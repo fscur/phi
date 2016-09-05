@@ -3,12 +3,38 @@
 
 #include <core\node.h>
 #include <core\model.h>
+#include <context\layer.h>
 #include <layers\nodeSelection\selectionInputController.h>
 
 using namespace phi;
 
 namespace selectionInputControllerTests
 {
+    class selectionInputControllerFixture :
+        public testing::Test
+    {
+    public:
+        selectionLayerBehaviour* _selectionBehaviour = nullptr;
+        selectionInputController* _selectionController = nullptr;
+    public:
+        void SetUp()
+        {
+            _selectionBehaviour = new selectionLayerBehaviour();
+            _selectionController = new selectionInputController(new commandsManager(), _selectionBehaviour);
+        }
+
+        void AssignNodeSelectionChangedToBehaviour(node* node)
+        {
+            node->selectionChanged.assign(std::bind(&selectionLayerBehaviour::onNodeSelectionChanged, _selectionBehaviour, std::placeholders::_1));
+        }
+
+        void TearDown()
+        {
+            safeDelete(_selectionBehaviour);
+            safeDelete(_selectionController);
+        }
+    };
+
     node* newModelNode(string name)
     {
         auto newNode = new node(name);
@@ -16,7 +42,7 @@ namespace selectionInputControllerTests
         return newNode;
     }
 
-    TEST(selectionInputController, select_unselectedNode_selectTheNode)
+    TEST_F(selectionInputControllerFixture, select_unselectedNode_selectTheNode)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -24,12 +50,12 @@ namespace selectionInputControllerTests
         auto eventRaised = false;
         sceneRoot->addChild(node);
 
-        auto selectionController = selectionInputController(new commandsManager());
+        AssignNodeSelectionChangedToBehaviour(node);
 
         node->selectionChanged.assign([&](phi::node* node) { eventRaised = true; });
 
         //Act
-        selectionController.select(node);
+        _selectionController->select(node);
 
         //Assert
         ASSERT_TRUE(node->isSelected());
@@ -38,22 +64,23 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, deselectAll_selectedNode_deselectsNode)
+    TEST_F(selectionInputControllerFixture, deselectAll_selectedNode_deselectsNode)
     {
         //Arrange
         auto sceneRoot = new node("root");
         auto node = newModelNode("node");
         sceneRoot->addChild(node);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(node);
+        AssignNodeSelectionChangedToBehaviour(node);
+
+        _selectionController->select(node);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
         node->selectionChanged.assign([&](phi::node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.deselectAll();
+        _selectionController->deselectAll();
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -62,7 +89,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, select_nodeToSelectHasChild_selectsTheParent)
+    TEST_F(selectionInputControllerFixture, select_nodeToSelectHasChild_selectsTheParent)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -72,7 +99,8 @@ namespace selectionInputControllerTests
         parent->addChild(child);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -80,7 +108,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(parent);
+        _selectionController->select(parent);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -90,7 +118,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, deselectAll_nodeToSelectHasChild_leavesParentAndChildUnselected)
+    TEST_F(selectionInputControllerFixture, deselectAll_nodeToSelectHasChild_leavesParentAndChildUnselected)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -100,8 +128,10 @@ namespace selectionInputControllerTests
         parent->addChild(child);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
+        AssignNodeSelectionChangedToBehaviour(parent);
+
+        _selectionController->select(parent);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -109,7 +139,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.deselectAll();
+        _selectionController->deselectAll();
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -119,7 +149,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, select_nodeToSelectHasParent_selectsTheParent)
+    TEST_F(selectionInputControllerFixture, select_nodeToSelectHasParent_selectsTheParent)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -129,7 +159,8 @@ namespace selectionInputControllerTests
         parent->addChild(child);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -137,7 +168,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(child);
+        _selectionController->select(child);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -147,7 +178,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, deselectAll_nodeToSelectHasParent_leavesParentAndChildUnselected)
+    TEST_F(selectionInputControllerFixture, deselectAll_nodeToSelectHasParent_leavesParentAndChildUnselected)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -157,8 +188,10 @@ namespace selectionInputControllerTests
         parent->addChild(child);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(child);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
+
+        _selectionController->select(child);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -166,7 +199,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.deselectAll();
+        _selectionController->deselectAll();
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -176,20 +209,20 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, select_nodeToSelectHasSelectedParent_selectsChildAndUnselectParent)
+    TEST_F(selectionInputControllerFixture, select_nodeToSelectHasSelectedParent_selectsChildAndUnselectParent)
     {
         //Arrange
         auto sceneRoot = new node("root");
-        auto parent = new node("parent");
-        parent->addComponent(new model());
-        auto child = new node("child");
-        child->addComponent(new model());
+        auto parent = newModelNode("parent");
+        auto child = newModelNode("child");
 
         parent->addChild(child);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(parent);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
+
+        _selectionController->select(parent);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
@@ -197,7 +230,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(child);
+        _selectionController->select(child);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -207,7 +240,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, deselectAll_nodeToSelectHasSelectedParent_leavesParentAndChildUnselected)
+    TEST_F(selectionInputControllerFixture, deselectAll_nodeToSelectHasSelectedParent_leavesParentAndChildUnselected)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -217,9 +250,11 @@ namespace selectionInputControllerTests
         parent->addChild(child);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(parent);
-        selectionController.select(child);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
+
+        _selectionController->select(parent);
+        _selectionController->select(child);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -227,7 +262,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.deselectAll();
+        _selectionController->deselectAll();
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -237,7 +272,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, select_nodeToSelectHasUnselectedGrandparent_selectsGrandparent)
+    TEST_F(selectionInputControllerFixture, select_nodeToSelectHasUnselectedGrandparent_selectsGrandparent)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -249,7 +284,9 @@ namespace selectionInputControllerTests
         grandparent->addChild(parent);
         sceneRoot->addChild(grandparent);
 
-        auto selectionController = selectionInputController(new commandsManager());
+        AssignNodeSelectionChangedToBehaviour(grandparent);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -258,7 +295,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(child);
+        _selectionController->select(child);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -269,7 +306,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, deselectAll_selectedGrandparent_leavesAllUnselected)
+    TEST_F(selectionInputControllerFixture, deselectAll_selectedGrandparent_leavesAllUnselected)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -281,8 +318,11 @@ namespace selectionInputControllerTests
         grandparent->addChild(parent);
         sceneRoot->addChild(grandparent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(child);
+        AssignNodeSelectionChangedToBehaviour(grandparent);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
+
+        _selectionController->select(child);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -291,7 +331,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.deselectAll();
+        _selectionController->deselectAll();
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -302,7 +342,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, select_nodeToSelectHasSelectedGrandparent_selectsParentAndUnselectGrandparent)
+    TEST_F(selectionInputControllerFixture, select_nodeToSelectHasSelectedGrandparent_selectsParentAndUnselectGrandparent)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -314,8 +354,11 @@ namespace selectionInputControllerTests
         grandparent->addChild(parent);
         sceneRoot->addChild(grandparent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(grandparent);
+        AssignNodeSelectionChangedToBehaviour(grandparent);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
+
+        _selectionController->select(grandparent);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
@@ -324,7 +367,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(child);
+        _selectionController->select(child);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -335,7 +378,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, select_nodeToSelectHasUnselectedGrandparentAndSelectedParent_selectsChildAndUnselectsParent)
+    TEST_F(selectionInputControllerFixture, select_nodeToSelectHasUnselectedGrandparentAndSelectedParent_selectsChildAndUnselectsParent)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -347,9 +390,12 @@ namespace selectionInputControllerTests
         grandparent->addChild(parent);
         sceneRoot->addChild(grandparent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(grandparent);
-        selectionController.select(parent);
+        AssignNodeSelectionChangedToBehaviour(grandparent);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
+
+        _selectionController->select(grandparent);
+        _selectionController->select(parent);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
@@ -358,7 +404,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(child);
+        _selectionController->select(child);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -369,7 +415,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, execute_nodeToSelectHasSelectedBrother_selectesNode)
+    TEST_F(selectionInputControllerFixture, execute_nodeToSelectHasSelectedBrother_selectesNode)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -381,9 +427,12 @@ namespace selectionInputControllerTests
         parent->addChild(child2);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(parent);
-        selectionController.select(child1);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child1);
+        AssignNodeSelectionChangedToBehaviour(child2);
+
+        _selectionController->select(parent);
+        _selectionController->select(child1);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
@@ -392,7 +441,7 @@ namespace selectionInputControllerTests
         child2->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(child2);
+        _selectionController->select(child2);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -403,7 +452,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, executeUndo_nodeToSelectHasSelectedBrother_leavesTreeUntouched)
+    TEST_F(selectionInputControllerFixture, executeUndo_nodeToSelectHasSelectedBrother_leavesTreeUntouched)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -415,10 +464,13 @@ namespace selectionInputControllerTests
         parent->addChild(child2);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(parent);
-        selectionController.select(child1);
-        selectionController.select(child2);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child1);
+        AssignNodeSelectionChangedToBehaviour(child2);
+
+        _selectionController->select(parent);
+        _selectionController->select(child1);
+        _selectionController->select(child2);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -427,7 +479,7 @@ namespace selectionInputControllerTests
         child2->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.deselectAll();
+        _selectionController->deselectAll();
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -438,7 +490,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, select_groupOfNodeToSelectHasBrotherGroupContainingOneSelectedNode_selectsBrotherGroup)
+    TEST_F(selectionInputControllerFixture, select_groupOfNodeToSelectHasBrotherGroupContainingOneSelectedNode_selectsBrotherGroup)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -460,10 +512,17 @@ namespace selectionInputControllerTests
         parent->addChild(group2);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(parent);
-        selectionController.select(group1);
-        selectionController.select(child2);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(group1);
+        AssignNodeSelectionChangedToBehaviour(group2);
+        AssignNodeSelectionChangedToBehaviour(child1);
+        AssignNodeSelectionChangedToBehaviour(child2);
+        AssignNodeSelectionChangedToBehaviour(child3);
+        AssignNodeSelectionChangedToBehaviour(child4);
+
+        _selectionController->select(parent);
+        _selectionController->select(group1);
+        _selectionController->select(child2);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
@@ -476,7 +535,7 @@ namespace selectionInputControllerTests
         child4->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(child3);
+        _selectionController->select(child3);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -491,7 +550,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, deselectAll_selectedGroup_deselectsAll)
+    TEST_F(selectionInputControllerFixture, deselectAll_selectedGroup_deselectsAll)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -513,11 +572,18 @@ namespace selectionInputControllerTests
         parent->addChild(group2);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(parent);
-        selectionController.select(group1);
-        selectionController.select(child2);
-        selectionController.select(child3);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(group1);
+        AssignNodeSelectionChangedToBehaviour(child1);
+        AssignNodeSelectionChangedToBehaviour(child2);
+        AssignNodeSelectionChangedToBehaviour(group2);
+        AssignNodeSelectionChangedToBehaviour(child3);
+        AssignNodeSelectionChangedToBehaviour(child4);
+
+        _selectionController->select(parent);
+        _selectionController->select(group1);
+        _selectionController->select(child2);
+        _selectionController->select(child3);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
@@ -530,7 +596,7 @@ namespace selectionInputControllerTests
         child4->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.deselectAll();
+        _selectionController->deselectAll();
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);
@@ -545,7 +611,7 @@ namespace selectionInputControllerTests
         safeDelete(sceneRoot);
     }
 
-    TEST(selectionInputController, execute_nodeToSelectHasSelectedParentButDoesNotHaveModelComponent_leavesTreeUntouched)
+    TEST_F(selectionInputControllerFixture, execute_nodeToSelectHasSelectedParentButDoesNotHaveModelComponent_leavesTreeUntouched)
     {
         //Arrange
         auto sceneRoot = new node("root");
@@ -555,8 +621,10 @@ namespace selectionInputControllerTests
         parent->addChild(child);
         sceneRoot->addChild(parent);
 
-        auto selectionController = selectionInputController(new commandsManager());
-        selectionController.select(parent);
+        AssignNodeSelectionChangedToBehaviour(parent);
+        AssignNodeSelectionChangedToBehaviour(child);
+
+        _selectionController->select(parent);
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
@@ -564,7 +632,7 @@ namespace selectionInputControllerTests
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 
         //Act
-        selectionController.select(child);
+        _selectionController->select(child);
 
         //Assert
         ASSERT_EQ(expectedEventRaisedCount, eventRaisedCount);

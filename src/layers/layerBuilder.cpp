@@ -1,12 +1,13 @@
 #include <precompiled.h>
+
+#include <core/resolution.h>
+
+#include <io/path.h>
+
+#include <ui/control.h>
+#include <ui/text.h>
+
 #include "layerBuilder.h"
-
-#include <core\resolution.h>
-
-#include <ui\control.h>
-#include <ui\text.h>
-
-#include <io\path.h>
 
 namespace phi
 {
@@ -203,8 +204,16 @@ namespace phi
 
     void layerBuilder::buildSelectionController()
     {
-        _selectionInputController = new selectionInputController(_commandsManager);
-        _layer->addMouseController(_selectionInputController);
+        auto selectionBehaviour = new selectionLayerBehaviour();
+
+        _layer->addOnNodeSelectionChanged(std::bind(&selectionLayerBehaviour::onNodeSelectionChanged, selectionBehaviour, std::placeholders::_1));
+        _layer->addOnDelete([selectionBehaviour]() mutable
+        {
+            safeDelete(selectionBehaviour);
+        });
+
+        _selectionBehaviour= selectionBehaviour;
+        _layer->addMouseController(new selectionInputController(_commandsManager, selectionBehaviour));
     }
 
     void layerBuilder::buildTranslationController()
@@ -213,7 +222,7 @@ namespace phi
             throw invalidLayerConfigurationException("Translation Controller could not be added. It requires Selection Controller.");
 
         auto translationController = new translationInputController(
-            _selectionInputController->getSelectedNodes(), 
+            _selectionBehaviour->getSelectedNodes(), 
             _layer,
             _physicsBehaviour->getPhysicsWorld());
 

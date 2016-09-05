@@ -47,10 +47,21 @@ namespace phi
     void meshLayerBehaviour::onNodeTransformChanged(node* node)
     {
         auto mesh = node->getComponent<phi::mesh>();
+        auto isSelected = false;
+        auto currentNode = node;
+        while (currentNode != nullptr && !isSelected)
+        {
+            if (currentNode->isSelected())
+                isSelected = true;
+
+            currentNode = currentNode->getParent();
+        }
+
         if (mesh)
         {
             auto modelMatrix = node->getTransform()->getModelMatrix();
             _adapter->updateTransform(mesh, modelMatrix);
+            _adapter->updateSelection(mesh, isSelected);
         }
     }
 

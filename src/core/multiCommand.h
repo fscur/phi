@@ -12,6 +12,12 @@ namespace phi
     private:
         vector<command*> _commands;
     public:
+
+        multiCommand(vector<command*>& commands) :
+            _commands(commands)
+        {
+        }
+
         multiCommand(vector<command*>&& commands) :
             _commands(commands)
         { 

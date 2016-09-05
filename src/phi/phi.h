@@ -81,12 +81,17 @@ namespace phi
     }
 
     template<typename T, typename Allocator>
-    void removeIfContains(vector<T, Allocator>& vector, T& value)
+    bool removeIfContains(vector<T, Allocator>& vector, T& value)
     {
         auto it = std::find(vector.begin(), vector.end(), value);
 
         if (it != vector.end())
+        {
             vector.erase(it);
+            return true;
+        }
+
+        return false;
     }
 
     template<typename T, typename Allocator>

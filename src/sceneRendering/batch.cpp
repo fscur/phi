@@ -109,13 +109,20 @@ namespace phi
     {
         auto geometry = instance->getGeometry();
         _instances[geometry].push_back(instance);
-
         auto node = instance->mesh->getNode();
+
+        int flags = 0;
+        if (node->isSelected())
+            flags |= 1;
+        if (node->isTranslating())
+            flags |= 2;
+
         auto clickComponent = node->getComponent<phi::clickComponent>();
-        auto selection = vec4(clickComponent->getSelectionColor(), node->isSelected());
+        auto selection = vec4(clickComponent->getSelectionColor(), static_cast<float>(flags) / 255.0);
 
         _modelMatricesBuffer->addInstance(geometry, instance, instance->modelMatrix);
         _materialsIdsBuffer->addInstance(geometry, instance, instance->materialId);
+
         _selectionBuffer->addInstance(geometry, instance, selection);
     }
 
@@ -219,10 +226,16 @@ namespace phi
         _selectionBuffer->update(geometry, instance, selection);
     }
 
-    void batch::updateSelectionBuffer(const meshInstance* instance, int flags)
+    void batch::updateSelectionBuffer(const meshInstance* instance, bool isSelected)
     {
         auto node = instance->mesh->getNode();
         auto clickComponent = node->getComponent<phi::clickComponent>();
+
+        int flags = 0;
+        if (isSelected)
+            flags |= 1;
+        if (node->isTranslating())
+            flags |= 2;
 
         auto selection = vec4(clickComponent->getSelectionColor(), static_cast<float>(flags)/255.0);
 
@@ -232,15 +245,5 @@ namespace phi
     void batch::updateTransformBuffer(const meshInstance* instance)
     {
         _modelMatricesBuffer->update(instance->getGeometry(), instance, instance->modelMatrix);
-
-        auto node = instance->mesh->getNode();
-
-        int flags = 0;
-        if (node->isSelected())
-            flags |= 1;
-        if (node->isTranslating())
-            flags |= 2;
-
-        updateSelectionBuffer(instance, flags);
     }
 }

@@ -28,6 +28,7 @@ namespace phi
         bool onMouseDown(mouseEventArgs* e) override;
         bool onMouseMove(mouseEventArgs* e) override;
         bool onMouseUp(mouseEventArgs* e) override;
+        bool onMouseClick(mouseEventArgs* e) override;
         bool onKeyDown(keyboardEventArgs* e) override;
         bool onKeyUp(keyboardEventArgs* e) override;
 

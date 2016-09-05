@@ -1,34 +1,36 @@
 #pragma once
 #include <phi.h>
+
+#include <animation/animatorLayerBehaviour.h>
+#include <application/commandsManager.h>
+
+#include <context/invalidLayerConfigurationException.h>
+#include <context/layer.h>
+
+#include <physics/physicsLayerBehaviour.h>
+
+#include <rendering/camera.h>
+#include <rendering/framebufferAllocator.h>
+#include <rendering/program.h>
+
+#include <debugRendering/obbLayerBehaviour.h>
+#include <sceneRendering/ghostMeshLayerBehaviour.h>
+#include <sceneRendering/meshLayerBehaviour.h>
+#include <sceneRendering/meshRenderer.h>
+#include <sceneRendering/planeGridLayerBehaviour.h>
+
+#include <uiRendering/controlLayerBehaviour.h>
+#include <uiRendering/controlRenderer.h>
+#include <uiRendering/glassyControlLayerBehaviour.h>
+#include <uiRendering/glassyControlRenderer.h>
+#include <uiRendering/textLayerBehaviour.h>
+#include <uiRendering/textRenderer.h>
+
 #include "layersApi.h"
-
-#include <animation\animatorLayerBehaviour.h>
-#include <application\commandsManager.h>
-
-#include <context\invalidLayerConfigurationException.h>
-#include <context\layer.h>
-#include <physics\physicsLayerBehaviour.h>
-
-#include <rendering\camera.h>
-#include <rendering\framebufferAllocator.h>
-#include <rendering\program.h>
-
-#include <debugRendering\obbLayerBehaviour.h>
-#include <sceneRendering\ghostMeshLayerBehaviour.h>
-#include <sceneRendering\meshLayerBehaviour.h>
-#include <sceneRendering\meshRenderer.h>
-#include <sceneRendering\planeGridLayerBehaviour.h>
-
-#include <uiRendering\controlLayerBehaviour.h>
-#include <uiRendering\controlRenderer.h>
-#include <uiRendering\glassyControlLayerBehaviour.h>
-#include <uiRendering\glassyControlRenderer.h>
-#include <uiRendering\textLayerBehaviour.h>
-#include <uiRendering\textRenderer.h>
-
-#include "nodeSelection\selectionInputController.h"
-#include "cameraControl\cameraInputController.h"
-#include "nodeTranslation\translationInputController.h"
+#include "nodeSelection/selectionInputController.h"
+#include "nodeSelection/selectionLayerBehaviour.h"
+#include "cameraControl/cameraInputController.h"
+#include "nodeTranslation/translationInputController.h"
 
 namespace phi
 {
@@ -43,7 +45,7 @@ namespace phi
         meshLayerBehaviour* _meshBehaviour;
         ghostMeshLayerBehaviour* _ghostMeshBehaviour;
         physicsLayerBehaviour* _physicsBehaviour;
-        selectionInputController* _selectionInputController;
+        selectionLayerBehaviour* _selectionBehaviour;
 
         vector<renderPass*> _meshRenderPasses;
         vector<renderPass*> _controlRenderPasses;

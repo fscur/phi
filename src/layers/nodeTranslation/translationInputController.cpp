@@ -79,6 +79,16 @@ namespace phi
         return true;
     }
 
+    bool translationInputController::onMouseClick(mouseEventArgs* e)
+    {
+        if (_translationService->isTranslating())
+            return true;
+
+        // TODO: Não sei se isso é gambis. Discutir!!
+
+        return false;
+    }
+
     bool translationInputController::onKeyDown(keyboardEventArgs* e)
     {
         if (e->key == PHIK_CTRL && _translationService->isTranslating())
