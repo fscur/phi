@@ -318,6 +318,8 @@ namespace phi
 
         if (changedPlane)
         {
+            _ghostTranslator->disable();
+
             removePlanesIf(
                 [&](translationPlane* translationPlane)
                 {
@@ -350,12 +352,18 @@ namespace phi
         if (offset == vec3())
             return;
 
-        _ghostTranslator->translate(offset);
+        auto resolvedOffset = _nodeTranslator->translate(offset);
 
-        offset = _nodeTranslator->translate(offset);
-
-        _offsetPlaneOrigin += offset;
+        _offsetPlaneOrigin += resolvedOffset;
         _currentOffsetPlane->origin = _offsetPlaneOrigin;
+
+        if (_nodeTranslator->getLastTranslationTouchingCollisions()->size() > 0)
+        {
+            _ghostTranslator->enable();
+            _ghostTranslator->translate(offset);
+        }
+        else
+            _ghostTranslator->disable();
     }
 
     void translationService::translatePlaneGrid(vec3 endPosition)
@@ -392,19 +400,14 @@ namespace phi
 
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, *_currentOffsetPlane);
 
+        translateTargetNodes(endPosition);
+        translatePlaneGrid(endPosition);
+
         if (_canChangePlanes)
         {
             addValidPlanesFromTouchCollisions();
             changePlanesIfNeeded(endPosition);
         }
-
-        translateTargetNodes(endPosition);
-        translatePlaneGrid(endPosition);
-
-        if (_nodeTranslator->getLastTranslationTouchingCollisions()->size() > 0)
-            _ghostTranslator->enable();
-        else
-            _ghostTranslator->disable();
 
         _lastMousePosition = mousePosition;
     }
