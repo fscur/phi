@@ -1,20 +1,27 @@
 #include <precompiled.h>
 
-#include "translationInputController.h"
+#include <core\multiCommand.h>
 
 #include <animation\animator.h>
+
 #include <rendering\pickingFramebuffer.h>
 
 #include <context\pickingId.h>
 
+#include "translationInputController.h"
+#include "translateNodeCommand.h"
+
 namespace phi
 {
     translationInputController::translationInputController(
-        const vector<node*>* targetNodes, 
-        layer* layer, 
+        commandsManager* commandsManager,
+        const vector<node*>* targetNodes,
+        layer* layer,
         physicsWorld* physicsWorld) :
+        _commandsManager(commandsManager),
         inputController(),
-        _translationService(new translationService(targetNodes, layer, physicsWorld))
+        _translationService(new translationService(targetNodes, layer, physicsWorld)),
+        _targetNodes(targetNodes)
     {
     }
 
@@ -49,10 +56,28 @@ namespace phi
         return false;
     }
 
+    void translationInputController::pushTranslateCommands()
+    {
+        auto commands = vector<command*>();
+
+        for (auto& node : *_targetNodes)
+        {
+            auto targetPosition = node->getTransform()->getLocalPosition();
+            auto translateCommand = new translateNodeCommand(node, _originalPositions[node], targetPosition);
+            commands.push_back(translateCommand);
+        }
+
+        auto multiCommand = new phi::multiCommand(commands);
+        _commandsManager->pushCommand(multiCommand);
+    }
+
     bool translationInputController::onMouseDown(mouseEventArgs* e)
     {
         if (!canStartTranslation(e))
             return false;
+
+        for (auto& node : *_targetNodes)
+            _originalPositions[node] = node->getTransform()->getLocalPosition();
 
         _translationService->startTranslation(ivec2(e->x, e->y));
 
@@ -73,7 +98,9 @@ namespace phi
             return false;
 
         _translationService->endTranslation();
-        
+
+        pushTranslateCommands();
+
         _resignControlEvent->raise(this);
 
         return true;
@@ -122,8 +149,11 @@ namespace phi
 
     void translationInputController::cancel()
     {
-        _translationService->cancelTranslation();
         _translationService->endTranslation();
+
+        for (auto& node : *_targetNodes)
+            node->getTransform()->setLocalPosition(_originalPositions[node]);
+
         _resignControlEvent->raise(this);
     }
 }

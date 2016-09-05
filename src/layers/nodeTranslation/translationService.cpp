@@ -389,9 +389,6 @@ namespace phi
 
     void translationService::startTranslation(ivec2 mousePosition)
     {
-        for (auto& node : *_targetNodes)
-            _originalPositions[node] = node->getTransform()->getLocalPosition();
-
         _nodeTranslator->addRange(*_targetNodes);
         _lastTouchingCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
 
@@ -436,12 +433,6 @@ namespace phi
         _ghostTranslator->clear();
         _nodeTranslator->clear();
         _nodeTranslator->enableCollisions();
-    }
-
-    void translationService::cancelTranslation()
-    {
-        for (auto& node : *_targetNodes)
-            node->getTransform()->setLocalPosition(_originalPositions[node]);
     }
 
     void translationService::update()

@@ -1,11 +1,16 @@
 #pragma once
 #include <phi.h>
-#include "translationPlane.h"
-#include "collisionNodeTranslator.h"
 
 #include <context/layer.h>
+
 #include <core/boxCollider.h>
+
 #include <physics/physicsWorld.h>
+
+#include <application/commandsManager.h>
+
+#include "translationPlane.h"
+#include "collisionNodeTranslator.h"
 #include "ghostNodeTranslator.h"
 
 namespace phi
@@ -24,8 +29,6 @@ namespace phi
         vector<translationPlane*> _planesToRemove;
         
         unordered_map<translationPlane*, plane*> _offsetPlanes;
-
-        unordered_map<node*, vec3> _originalPositions;
 
         bool _isTranslating;
         bool _canChangePlanes;

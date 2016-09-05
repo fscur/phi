@@ -222,6 +222,7 @@ namespace phi
             throw invalidLayerConfigurationException("Translation Controller could not be added. It requires Selection Controller.");
 
         auto translationController = new translationInputController(
+            _commandsManager,
             _selectionBehaviour->getSelectedNodes(), 
             _layer,
             _physicsBehaviour->getPhysicsWorld());
