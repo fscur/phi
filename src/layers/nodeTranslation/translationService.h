@@ -44,6 +44,7 @@ namespace phi
         translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
 
         translationPlane* createTranslationPlane(plane plane);
+        void addAxisAlignedTranslationPlane();
         void addTranslationPlane(translationPlane * translationPlane);
         void enqueuePlaneForRemoval(translationPlane* planeToRemove);
         void removePlanesIf(std::function<bool(translationPlane*)> predicate);

@@ -146,6 +146,15 @@ namespace phi
         return translationPlane;
     }
 
+    void translationService::addAxisAlignedTranslationPlane()
+    {
+        auto translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
+        addTranslationPlane(translationPlane);
+        auto offsetPlane = new plane(_offsetPlaneOrigin, translationPlane->getPlane().normal);
+        _offsetPlanes[translationPlane] = offsetPlane;
+        changePlanes(translationPlane, offsetPlane);
+    }
+
     void translationService::addTranslationPlane(translationPlane* translationPlane)
     {
         _layer->add(translationPlane->getPlaneGridNode());
@@ -391,6 +400,8 @@ namespace phi
         _isTranslating = true;
         _lastMousePosition = mousePosition;
         _offsetPlaneOrigin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
+
+        addAxisAlignedTranslationPlane();
     }
 
     void translationService::translate(ivec2 mousePosition)
@@ -444,13 +455,7 @@ namespace phi
         removeInvalidPlanes();
 
         if (_translationPlanes.size() == 0)
-        {
-            auto translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
-            addTranslationPlane(translationPlane);
-            auto offsetPlane = new plane(_offsetPlaneOrigin, translationPlane->getPlane().normal);
-            _offsetPlanes[translationPlane] = offsetPlane;
-            changePlanes(translationPlane, offsetPlane);
-        }
+            addAxisAlignedTranslationPlane();
     }
 
     void translationService::disableCollisions()
