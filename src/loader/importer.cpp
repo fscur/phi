@@ -1,13 +1,16 @@
 #include <precompiled.h>
 #include "importer.h"
 
+#include <animation\animator.h>
+
 #include <core\color.h>
 #include <core\base64.h>
 #include <core\random.h>
-#include <core\clickComponent.h>
 #include <core\boxCollider.h>
 
 #include <io\path.h>
+
+#include <common\mouseInteractionComponent.h>
 
 #include "importResourceException.h"
 
@@ -62,7 +65,8 @@ namespace phi
 
                     auto aabb = geometry->aabb;
                     objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->width, aabb->height, aabb->depth)));
-                    objectNode->addComponent(new phi::clickComponent());
+                    objectNode->addComponent(new phi::mouseInteractionComponent());
+                    objectNode->addComponent(new phi::animator());
                     objectNode->setLocalObb(new obb(aabb->center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
 
                     break;
@@ -353,7 +357,7 @@ namespace phi
         auto rootBoxCollider = new phi::boxCollider(rootAabb->center, vec3(rootAabb->width, rootAabb->height, rootAabb->depth));
         rootBoxCollider->disable();
         rootNode->addComponent(rootBoxCollider);
-        rootNode->addComponent(new phi::clickComponent());
+        rootNode->addComponent(new phi::mouseInteractionComponent());
 
         return new resource<node>(guid, nodeName, rootNode);
 #else

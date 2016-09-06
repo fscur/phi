@@ -119,12 +119,6 @@ void initializeDiagnostics(const char* executableFileName)
 
 int main(int argc, char* args[])
 {
-    //auto j = new int(1);
-
-    //auto i = new int(2);
-    //safeDelete(i);
-    //safeDelete(i);
-
     char executableFileName[FILENAME_MAX];
     strcpy_s(executableFileName, args[0]);
 

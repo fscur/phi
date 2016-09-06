@@ -5,6 +5,8 @@
 #include <core\node.h>
 #include <application\commandsManager.h>
 
+#include <context\layer.h>
+
 #include <input\inputController.h>
 
 namespace phi
@@ -16,6 +18,8 @@ namespace phi
         commandsManager* _commandsManager;
         vector<node*> _selectedNodes;
 
+        layer* _layer;
+
     private:
         bool isSelectedOrHasSelectedChildren(const node * const node);
         bool isParentSelected(const node* const node);
@@ -26,7 +30,7 @@ namespace phi
         node* findTargetNode(node* const node);
 
     public:
-        LAYERS_API selectionInputController(commandsManager* commandsManager);
+        LAYERS_API selectionInputController(commandsManager* commandsManager, layer* layer = nullptr);
         virtual ~selectionInputController() {}
 
         LAYERS_API bool select(node* node);
@@ -34,6 +38,7 @@ namespace phi
 
         LAYERS_API virtual bool onMouseClick(mouseEventArgs* e) override;
         LAYERS_API virtual bool onMouseDoubleClick(mouseEventArgs* e) override;
+        LAYERS_API virtual bool onMouseMove(mouseEventArgs* e) override;
         LAYERS_API virtual void cancel() override;
 
         const vector<node*>* getSelectedNodes() const { return &_selectedNodes; }

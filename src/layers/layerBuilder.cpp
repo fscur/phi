@@ -207,7 +207,7 @@ namespace phi
 
     void layerBuilder::buildSelectionController()
     {
-        _selectionInputController = new selectionInputController(_commandsManager);
+        _selectionInputController = new selectionInputController(_commandsManager, _layer);
         _layer->addMouseController(_selectionInputController);
     }
 

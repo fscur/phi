@@ -2,7 +2,7 @@
 #include "batch.h"
 
 #include <core\node.h>
-#include <core\clickComponent.h>
+#include <common\mouseInteractionComponent.h>
 
 #include <rendering\drawElementsIndirectCommand.h>
 
@@ -111,7 +111,7 @@ namespace phi
         _instances[geometry].push_back(instance);
 
         auto node = instance->mesh->getNode();
-        auto clickComponent = node->getComponent<phi::clickComponent>();
+        auto clickComponent = node->getComponent<phi::mouseInteractionComponent>();
         auto selection = vec4(clickComponent->getSelectionColor(), node->isSelected());
 
         _modelMatricesBuffer->addInstance(geometry, instance, instance->modelMatrix);
@@ -209,7 +209,7 @@ namespace phi
     void batch::update(const meshInstance* instance)
     {
         auto node = instance->mesh->getNode();
-        auto clickComponent = node->getComponent<phi::clickComponent>();
+        auto clickComponent = node->getComponent<phi::mouseInteractionComponent>();
         auto selection = vec4(clickComponent->getSelectionColor(), node->isSelected());
 
         auto geometry = instance->getGeometry();
@@ -222,7 +222,7 @@ namespace phi
     void batch::updateSelectionBuffer(const meshInstance* instance, int flags)
     {
         auto node = instance->mesh->getNode();
-        auto clickComponent = node->getComponent<phi::clickComponent>();
+        auto clickComponent = node->getComponent<phi::mouseInteractionComponent>();
 
         auto selection = vec4(clickComponent->getSelectionColor(), static_cast<float>(flags)/255.0);
 

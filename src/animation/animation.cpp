@@ -6,7 +6,7 @@
 namespace phi
 {
     animation::animation(std::function<double(double)> easingFunction) :
-        _isAnimating(false),
+        _isRunning(false),
         _duration(0.0),
         _elapsed(0.0),
         _easingFunction(easingFunction)
@@ -14,7 +14,7 @@ namespace phi
     }
 
     animation::animation(const animation& original) :
-        _isAnimating(original._isAnimating),
+        _isRunning(original._isRunning),
         _duration(original._duration),
         _elapsed(original._elapsed),
         _easingFunction(original._easingFunction)
@@ -28,7 +28,7 @@ namespace phi
 
     void animation::animate()
     {
-        if (!_isAnimating)
+        if (!_isRunning)
             return;
 
         _elapsed += time::deltaSeconds;
@@ -50,7 +50,7 @@ namespace phi
     {
         _duration = duration;
         _elapsed = 0.0;
-        _isAnimating = true;
+        _isRunning = true;
         _animationEndedCallback = animationEndedCallback;
     }
 
@@ -61,6 +61,6 @@ namespace phi
 
     void animation::stop()
     {
-        _isAnimating = false;
+        _isRunning = false;
     }
 }

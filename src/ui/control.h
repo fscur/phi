@@ -1,10 +1,10 @@
 #pragma once
 #include <phi.h>
 #include "uiApi.h"
-#include <core\component.h>
-#include <core\color.h>
-#include <core\image.h>
-#include <core\eventHandler.h>
+#include <core/component.h>
+#include <core/color.h>
+#include <core/image.h>
+#include <core/eventHandler.h>
 
 namespace phi
 {

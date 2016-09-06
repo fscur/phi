@@ -16,8 +16,6 @@ namespace phi
     {
     private:
         layer* _layer;
-
-        color _clickedControlColor;
         control* _clickedControl;
 
     public:
@@ -26,5 +24,6 @@ namespace phi
 
         virtual bool onMouseDown(mouseEventArgs* e) override;
         virtual bool onMouseUp(mouseEventArgs* e) override;
+        virtual bool onMouseMove(mouseEventArgs* e) override;
     };
 }

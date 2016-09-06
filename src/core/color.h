@@ -36,7 +36,7 @@ namespace phi
         }
 
     public:
-        static color fromHSL(float hue, float saturation, float luminosity)
+        static color fromHSL(float huehuebrbr, float saturation, float luminosity)
         {
             float r;
             float g;
@@ -50,14 +50,13 @@ namespace phi
             {
                 float v1;
                 float v2;
-                //float h = (hue * 240.0f)/ 360.0f;
 
                 v2 = (luminosity < 0.5f) ? (luminosity * (1.0f + saturation)) : ((luminosity + saturation) - (luminosity * saturation));
                 v1 = 2.0f * luminosity - v2;
 
-                r = hueToRGB(v1, v2, hue + (1.0f / 3.0f));
-                g = hueToRGB(v1, v2, hue);
-                b = hueToRGB(v1, v2, hue - (1.0f / 3.0f));
+                r = hueToRGB(v1, v2, huehuebrbr + (1.0f / 3.0f));
+                g = hueToRGB(v1, v2, huehuebrbr);
+                b = hueToRGB(v1, v2, huehuebrbr - (1.0f / 3.0f));
             }
 
             return color(r, g, b, 1.0f);
@@ -86,6 +85,33 @@ namespace phi
         static color fromRGBA(float r, float g, float b, float a)
         {
             return color(r, g, b, a);
+        }
+
+        color color::operator+(const color& other)
+        {
+            return color(
+                r + other.r,
+                g + other.g,
+                b + other.b,
+                a + other.a);
+        }
+
+        color color::operator-(const color& other)
+        {
+            return color(
+                r - other.r,
+                g - other.g,
+                b - other.b,
+                a - other.a);
+        }
+
+        color color::operator*(float factor)
+        {
+            return color(
+                r * factor,
+                g * factor,
+                b * factor,
+                a * factor);
         }
 
         friend bool operator==(const color& a, const color& b)

@@ -1,34 +1,33 @@
 ﻿#include <precompiled.h>
 #include "screen.h"
 #include "changeContextCommand.h"
-#include <diagnostic\stopwatch.h>
-#include <core\multiCommand.h>
-#include <loader\importer.h>
-#include <rendering\defaultFramebuffer.h>
-#include <rendering\pickingFramebuffer.h>
+#include <diagnostic/stopwatch.h>
+#include <core/multiCommand.h>
+#include <loader/importer.h>
+#include <rendering/defaultFramebuffer.h>
+#include <rendering/pickingFramebuffer.h>
 
 #ifdef _DEBUG
-#include <rendering\liveShaderReloader.h>
+#include <rendering/liveShaderReloader.h>
 #endif
 
-#include <ui\labelBuilder.h>
-#include <ui\buttonBuilder.h>
-#include <ui\control.h>
-#include <ui\text.h>
+#include <ui/labelBuilder.h>
+#include <ui/buttonBuilder.h>
+#include <ui/control.h>
+#include <ui/text.h>
 
-#include <application\application.h>
-#include <application\undoCommand.h>
-#include <application\redoCommand.h>
+#include <application/application.h>
+#include <application/undoCommand.h>
+#include <application/redoCommand.h>
 
-#include <layers\layerBuilder.h>
-#include <layers\nodeCreation\deleteNodeCommand.h>
-#include <context\invalidLayerConfigurationException.h>
+#include <layers/layerBuilder.h>
+#include <layers/nodeCreation\deleteNodeCommand.h>
+#include <context/invalidLayerConfigurationException.h>
 
-#include <input\input.h>
-#include <core\clickComponent.h>
-#include <core\boxCollider.h>
-#include <core\planeGrid.h>
-#include <core\ghostMesh.h>
+#include <input/input.h>
+#include <core/boxCollider.h>
+#include <core/planeGrid.h>
+#include <core/ghostMesh.h>
 
 using namespace phi;
 
@@ -122,29 +121,22 @@ namespace demon
         auto font = fontsManager::load("Roboto-Thin.ttf", 10);
         auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
-        _labelNandinho = labelBuilder::newLabel(L"ab")
-            .withPosition(vec3(-100.f, 50.f, 0.f))
-            .withControlColor(1.0f, 0.0f, 0.0f, 1.0f)
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(font)
-            .build();
-
-        _labelFps = labelBuilder::newLabel(L"abc")
-            .withPosition(vec3(-200.f, 100.f, 0.f))
+        _labelFps = labelBuilder::newLabel(L"Fps: 0")
+            .withPosition(vec3(-280.f, 100.f, 0.f))
             .withControlColor(1.0f, 0.0f, 1.0f, 1.f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(fontFps)
             .build();
 
-        _constructionLabel = labelBuilder::newLabel(L"abcd")
-            .withPosition(vec3(200.f, 50.f, 0.f))
-            .withControlColor(0.0f, 1.0f, 0.5, 1.f)
+        _labelNandinho = labelBuilder::newLabel(L"nanddiinho")
+            .withPosition(vec3(-280.f, 80.f, 0.f))
+            .withControlColor(1.0f, 0.0f, 0.0f, 1.0f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
             .build();
 
         auto changeContextButton = buttonBuilder::newButton()
-            .withPosition(vec3(-200.f, -20.f, 0.f))
+            .withPosition(vec3(-280.f, 60.f, 0.f))
             .withText(L"Change context")
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
@@ -156,7 +148,7 @@ namespace demon
             .build();
 
         auto loadProjectButton = buttonBuilder::newButton()
-            .withPosition(vec3(50.f, -20.f, 0.f))
+            .withPosition(vec3(-280.f, 40.f, 0.f))
             .withText(L"Load project")
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(font)
@@ -193,6 +185,13 @@ namespace demon
                     FILE_ATTRIBUTE_NORMAL,
                     (HANDLE)NULL);
         })
+            .build();
+
+        _constructionLabel = labelBuilder::newLabel(L"construction")
+            .withPosition(vec3(-280.f, 100.f, 0.f))
+            .withControlColor(0.0f, 1.0f, 0.5, 1.f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
             .build();
 
         _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
@@ -246,12 +245,13 @@ namespace demon
             _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-                .withGlassyControlRenderer()
+                .withControlRenderer()
                 .withTextRenderer()
+                .withCameraController()
                 .withUIMouseController()
                 .build();
         }
-        catch (phi::invalidLayerConfigurationException& ex)
+        catch (const phi::invalidLayerConfigurationException& ex)
         {
             phi::application::logError(ex.what());
         }
@@ -365,13 +365,8 @@ namespace demon
         _activeContext->onKeyUp(e);
     }
 
-    float t = 0;
-
     void screen::onUpdate()
     {
-        t += 0.01f;
-        vec3 pos = vec3(glm::cos(t) * 3.2f, glm::sin(t) * 3.2f, 0.0f);
-
         if (_design)
             _activeContext = _designContext;
         else
@@ -385,25 +380,11 @@ namespace demon
         _activeContext->render();
     }
 
-    bool a = false;
-
     void screen::onTick()
     {
         auto label = _labelFps->getComponent<phi::text>();
         auto str = "fps: " + std::to_string(application::framesPerSecond);
         label->setText(wstring(str.begin(), str.end()));
-
-        if (a)
-        {
-            _constructionLabel->getComponent<phi::text>()->setText(L"edftg");
-            _nandinhoLayer->add(_labelFps);
-        }
-        else
-        {
-            _labelFps->getParent()->removeChild(_labelFps);
-        }
-
-        a = !a;
 
 #ifdef _DEBUG
         while (!_messageQueue->empty())

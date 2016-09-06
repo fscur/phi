@@ -16,6 +16,7 @@ file(GLOB natvis_files *.natvis)
 
 add_library(context SHARED ${source_files} ${header_files} ${natvis_files})
 
+target_link_libraries(context common)
 target_link_libraries(context rendering)
 target_link_libraries(context application)
 target_link_libraries(context ui)

@@ -1,8 +1,8 @@
 #include <precompiled.h>
 #include "uiMouseController.h"
 
-#include <ui\control.h>
-#include <core\clickComponent.h>
+#include <ui/control.h>
+#include <common/mouseInteractionComponent.h>
 
 namespace phi
 {
@@ -41,9 +41,10 @@ namespace phi
                 if (hasClicked)
                 {
                     _clickedControl = control;
-                    _clickedControlColor = control->getColor();
+                    auto mouseInteraction = _clickedControl->getNode()->getComponent<mouseInteractionComponent>();
+                    if (mouseInteraction)
+                        mouseInteraction->onMouseDown();
 
-                    control->setColor(color::yellow);
                     return true;
                 }
             }
@@ -56,13 +57,50 @@ namespace phi
     {
         if (_clickedControl)
         {
-            _clickedControl->setColor(_clickedControlColor);
-
-            auto click = _clickedControl->getNode()->getComponent<clickComponent>();
-            if(click)
-                click->onClick();
+            auto mouseInteraction = _clickedControl->getNode()->getComponent<mouseInteractionComponent>();
+            if(mouseInteraction)
+                mouseInteraction->onMouseUp();
 
             return true;
+        }
+
+        return false;
+    }
+
+    bool uiMouseController::onMouseMove(mouseEventArgs * e)
+    {
+        auto camera = _layer->getCamera();
+        auto ray = camera->screenPointToRay(e->x, e->y);
+
+        auto rootChildren = _layer->getRoot()->getChildren();
+        for (auto& child : *rootChildren)
+        {
+            auto control = child->getComponent<phi::control>();
+            auto mouseInteraction = child->getComponent<mouseInteractionComponent>();
+            if (control && mouseInteraction)
+            {
+                auto model = child->getTransform()->getModelMatrix();
+                auto aabb = phi::aabb(glm::vec3(0.0f), glm::vec3(1.0f));
+
+                auto transformedMin = mathUtils::multiply(model, aabb.min);
+                auto transformedMax = mathUtils::multiply(model, aabb.max);
+
+                auto transformedAabb = phi::aabb(transformedMin, transformedMax);
+
+                bool isMouseOver = ray.intersects(transformedAabb);
+                bool wasMouseOver = mouseInteraction->isMouseOver();
+
+                if (isMouseOver && !wasMouseOver)
+                {
+                    mouseInteraction->onMouseEnter();
+                    return true;
+                }
+                else if (!isMouseOver && wasMouseOver)
+                {
+                    mouseInteraction->onMouseLeave();
+                    return true;
+                }
+            }
         }
 
         return false;
