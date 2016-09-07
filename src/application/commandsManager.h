@@ -29,6 +29,7 @@ namespace phi
         APPLICATION_API void addShortcut(shortcut shortcut);
         APPLICATION_API void undo();
         APPLICATION_API void redo();
-        APPLICATION_API void executeCommand(command* cmd);
+        APPLICATION_API void executeCommand(command* command);
+        APPLICATION_API void pushCommand(command* command);
     };
 }

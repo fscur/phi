@@ -1,11 +1,14 @@
 #pragma once
 #include <phi.h>
-#include "..\layersApi.h"
 
-#include <core\node.h>
-#include <application\commandsManager.h>
+#include <core/node.h>
 
-#include <input\inputController.h>
+#include <input/inputController.h>
+
+#include <application/commandsManager.h>
+
+#include "../layersApi.h"
+#include "selectionLayerBehaviour.h"
 
 namespace phi
 {
@@ -14,7 +17,9 @@ namespace phi
     {
     private:
         commandsManager* _commandsManager;
-        vector<node*> _selectedNodes;
+        selectionLayerBehaviour* _selectionBehaviour;
+        bool _isAdditiveSelection;
+        eventToken _selectionBehaviourSelectedNodesChangedEventToken;
 
     private:
         bool isSelectedOrHasSelectedChildren(const node * const node);
@@ -24,18 +29,19 @@ namespace phi
         bool hasModelComponentInItselfOrInDescendants(const node * const node);
         node* getSonOfFirstSelected(node* const node);
         node* findTargetNode(node* const node);
+        void onSelectionBehaviourSelectedNodesChanged(selectionLayerBehaviour * selectionBehaviour);
 
     public:
-        LAYERS_API selectionInputController(commandsManager* commandsManager);
+        LAYERS_API selectionInputController(commandsManager* commandsManager, selectionLayerBehaviour* selectionBehaviour);
         virtual ~selectionInputController() {}
 
-        LAYERS_API bool select(node* node);
-        LAYERS_API bool deselectAll();
-
+        LAYERS_API virtual bool onKeyDown(keyboardEventArgs* e) override;
+        LAYERS_API virtual bool onKeyUp(keyboardEventArgs* e) override;
         LAYERS_API virtual bool onMouseClick(mouseEventArgs* e) override;
         LAYERS_API virtual bool onMouseDoubleClick(mouseEventArgs* e) override;
         LAYERS_API virtual void cancel() override;
 
-        const vector<node*>* getSelectedNodes() const { return &_selectedNodes; }
+        LAYERS_API void select(node* node);
+        LAYERS_API void deselectAll();
     };
 }

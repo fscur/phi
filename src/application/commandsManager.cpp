@@ -65,19 +65,21 @@ namespace phi
         cmd->execute();
     }
 
-    void commandsManager::executeCommand(command* cmd)
+    void commandsManager::executeCommand(command* command)
     {
-        if (cmd->getIsUndoable())
+        command->execute();
+        pushCommand(command);
+    }
+
+    void commandsManager::pushCommand(command* command)
+    {
+        if (command->getIsUndoable())
         {
-            cmd->execute();
-            _undo.push(cmd);
+            _undo.push(command);
             clearRedo();
         }
         else
-        {
-            cmd->execute();
-            safeDelete(cmd);
-        }
+            safeDelete(command);
     }
 
     void commandsManager::onKeyDown(phi::keyboardEventArgs* e)

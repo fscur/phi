@@ -35,10 +35,10 @@ TEST(multiCommand, execute_twoCommands_executeTheTwoCommands)
 
     auto secondCommand = &mock2.get();
 
-    auto command = multiCommand(vector<phi::command*>
+    auto command = multiCommand(
     {
         firstCommand,
-            secondCommand
+        secondCommand
     });
 
     //Act

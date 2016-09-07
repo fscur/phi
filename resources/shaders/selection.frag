@@ -15,7 +15,7 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
     float time; 
     float pad0;
     float pad1;
-} frameUniforms;
+} frameUniforms; 
 
 layout (location = 0) uniform vec2 resolution;
 layout (location = 1) uniform float offset;

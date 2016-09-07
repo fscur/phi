@@ -1,23 +1,30 @@
 #include <precompiled.h>
+
+#include <core/mesh.h>
+#include <core/model.h>
+#include <core/multiCommand.h>
+
+#include <input/input.h>
+
+#include <rendering/pickingFramebuffer.h>
+
+#include <context/pickingId.h>
+
 #include "selectionInputController.h"
-
-#include <input\input.h>
-#include <core\mesh.h>
-#include <core\model.h>
-#include <core\multiCommand.h>
-
-#include <rendering\pickingFramebuffer.h>
-
-#include <context\pickingId.h>
 #include "selectNodeCommand.h"
 #include "unselectNodeCommand.h"
 
 namespace phi
 {
-    selectionInputController::selectionInputController(commandsManager* commandsManager) :
+    selectionInputController::selectionInputController(commandsManager* commandsManager, selectionLayerBehaviour* selectionBehaviour) :
         inputController(),
-        _commandsManager(commandsManager)
+        _commandsManager(commandsManager),
+        _selectionBehaviour(selectionBehaviour),
+        _isAdditiveSelection(false)
     {
+        _selectionBehaviourSelectedNodesChangedEventToken =
+            _selectionBehaviour->selectedNodesChanged.assign(
+                std::bind(&selectionInputController::onSelectionBehaviourSelectedNodesChanged, this, std::placeholders::_1));
     }
 
     bool selectionInputController::isSelectedOrHasSelectedChildren(const node* const node)
@@ -104,31 +111,30 @@ namespace phi
         return node;
     }
 
-    bool selectionInputController::select(node* node)
+    void selectionInputController::onSelectionBehaviourSelectedNodesChanged(selectionLayerBehaviour* selectionBehaviour)
     {
-        auto targetNode = findTargetNode(node);
+        if (_selectionBehaviour->getSelectedNodes()->size() > 0)
+            _requestControlEvent->raise(this);
+        else
+            _resignControlEvent->raise(this);
+    }
 
-        // TODO: testar undo
-        deselectAll();
-        _commandsManager->executeCommand(
-            new selectNodeCommand(targetNode));
-        _selectedNodes.push_back(targetNode);
+    bool selectionInputController::onKeyDown(keyboardEventArgs* e)
+    {
+        if (e->key != PHIK_CTRL)
+            return false;
 
+        _isAdditiveSelection = true;
         return true;
     }
 
-    bool selectionInputController::deselectAll()
+    bool selectionInputController::onKeyUp(keyboardEventArgs* e)
     {
-        auto hasSelectedObjects = _selectedNodes.size() > 0u;
-        if (hasSelectedObjects)
-        {
-            _commandsManager->executeCommand(
-                new unselectNodeCommand(_selectedNodes));
-            _selectedNodes.clear();
-            return true;
-        }
+        if (e->key != PHIK_CTRL)
+            return false;
 
-        return false;
+        _isAdditiveSelection = false;
+        return true;
     }
 
     bool selectionInputController::onMouseClick(mouseEventArgs * e)
@@ -139,22 +145,20 @@ namespace phi
         auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
 
         auto clickComponent = pickingId::get(idOnMousePosition);
-        if (clickComponent)
+        if (!clickComponent)
         {
-            auto clickedNode = clickComponent->getNode();
-            clickComponent->onClick();
+            if (_selectionBehaviour->getSelectedNodes()->size() > 0)
+                _commandsManager->executeCommand(new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
 
-            auto selectedMesh = clickedNode->getComponent<mesh>();
-            if (selectedMesh)
-            {
-                select(clickedNode);
-                _requestControlEvent->raise(this);
-            }
+            return false;
         }
-        else if (_selectedNodes.size() > 0)
-            cancel();
 
-        return false;
+        clickComponent->onClick();
+
+        auto clickedNode = clickComponent->getNode();
+        select(clickedNode);
+
+        return true;
     }
 
     bool selectionInputController::onMouseDoubleClick(phi::mouseEventArgs* e)
@@ -165,6 +169,31 @@ namespace phi
     void selectionInputController::cancel()
     {
         deselectAll();
-        _resignControlEvent->raise(this);
+    }
+
+    void selectionInputController::select(node* node)
+    {
+        auto targetNode = findTargetNode(node);
+
+        auto selectCommand = new selectNodeCommand(targetNode);
+
+        if (_isAdditiveSelection)
+        {
+            _commandsManager->executeCommand(selectCommand);
+            return;
+        }
+
+        auto commands = new multiCommand(
+        {
+            new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()),
+            new selectNodeCommand(targetNode)
+        });
+
+        _commandsManager->executeCommand(commands);
+    }
+
+    void selectionInputController::deselectAll()
+    {
+        _commandsManager->executeCommand(new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
     }
 }

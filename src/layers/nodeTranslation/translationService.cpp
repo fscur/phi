@@ -146,6 +146,15 @@ namespace phi
         return translationPlane;
     }
 
+    void translationService::addAxisAlignedTranslationPlane()
+    {
+        auto translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
+        addTranslationPlane(translationPlane);
+        auto offsetPlane = new plane(_offsetPlaneOrigin, translationPlane->getPlane().normal);
+        _offsetPlanes[translationPlane] = offsetPlane;
+        changePlanes(translationPlane, offsetPlane);
+    }
+
     void translationService::addTranslationPlane(translationPlane* translationPlane)
     {
         _layer->add(translationPlane->getPlaneGridNode());
@@ -337,6 +346,8 @@ namespace phi
 
         if (changedPlane)
         {
+            _ghostTranslator->disable();
+
             removePlanesIf(
                 [&](translationPlane* translationPlane)
                 {
@@ -369,12 +380,18 @@ namespace phi
         if (offset == vec3())
             return;
 
-        _ghostTranslator->translate(offset);
+        auto resolvedOffset = _nodeTranslator->translate(offset);
 
-        offset = _nodeTranslator->translate(offset);
-
-        _offsetPlaneOrigin += offset;
+        _offsetPlaneOrigin += resolvedOffset;
         _currentOffsetPlane->origin = _offsetPlaneOrigin;
+
+        if (_nodeTranslator->getLastTranslationTouchingCollisions()->size() > 0)
+        {
+            _ghostTranslator->enable();
+            _ghostTranslator->translate(offset);
+        }
+        else
+            _ghostTranslator->disable();
     }
 
     void translationService::translatePlaneGrid(vec3 endPosition)
@@ -391,9 +408,6 @@ namespace phi
 
     void translationService::startTranslation(ivec2 mousePosition)
     {
-        for (auto& node : *_targetNodes)
-            _originalPositions[node] = node->getTransform()->getLocalPosition();
-
         _nodeTranslator->addRange(*_targetNodes);
         _lastTouchingCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
 
@@ -402,6 +416,8 @@ namespace phi
         _isTranslating = true;
         _lastMousePosition = mousePosition;
         _offsetPlaneOrigin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
+
+        addAxisAlignedTranslationPlane();
     }
 
     void translationService::translate(ivec2 mousePosition)
@@ -411,19 +427,14 @@ namespace phi
 
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, *_currentOffsetPlane);
 
+        translateTargetNodes(endPosition);
+        translatePlaneGrid(endPosition);
+
         if (_canChangePlanes)
         {
             addValidPlanesFromTouchCollisions();
             changePlanesIfNeeded(endPosition);
         }
-
-        translateTargetNodes(endPosition);
-        translatePlaneGrid(endPosition);
-
-        if (_nodeTranslator->getLastTranslationTouchingCollisions()->size() > 0)
-            _ghostTranslator->enable();
-        else
-            _ghostTranslator->disable();
 
         _lastMousePosition = mousePosition;
     }
@@ -443,12 +454,6 @@ namespace phi
         _nodeTranslator->enableCollisions();
     }
 
-    void translationService::cancelTranslation()
-    {
-        for (auto& node : *_targetNodes)
-            node->getTransform()->setLocalPosition(_originalPositions[node]);
-    }
-
     void translationService::update()
     {
         deleteRemovedPlanes();
@@ -458,7 +463,13 @@ namespace phi
 
         updateTranslationPlanesVisibility();
         removeInvalidPlanes();
+<<<<<<< HEAD
         addPlaneIfNeeded();
+=======
+
+        if (_translationPlanes.size() == 0)
+            addAxisAlignedTranslationPlane();
+>>>>>>> object_translation
     }
 
     void translationService::disableCollisions()

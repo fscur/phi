@@ -246,8 +246,8 @@ namespace demon
         _sceneLayer->add(floor0);
         
         
-        /*_sceneLayer->add(_chair0);
-        _sceneLayer->add(back_wall);
+        _sceneLayer->add(_chair0);
+        /*_sceneLayer->add(back_wall);
         _sceneLayer->add(table);
         _sceneLayer->add(tableChair);
         _sceneLayer->add(coffeTable);*/
