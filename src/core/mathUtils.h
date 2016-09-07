@@ -38,5 +38,22 @@ namespace phi
         {
             return mathUtils::isClose(glm::dot(a, b), 1.0f);
         }
+
+        static vec3 getCentroid(vector<vec3> points)
+        {
+            auto x = 0.0f;
+            auto y = 0.0f;
+            auto z = 0.0f;
+
+            for (auto& point : points)
+            {
+                x += point.x;
+                y += point.y;
+                z += point.z;
+            }
+
+            auto pointsCount = points.size();
+            return vec3(x / pointsCount, y / pointsCount, z / pointsCount);
+        }
     };
 }
