@@ -463,13 +463,9 @@ namespace phi
 
         updateTranslationPlanesVisibility();
         removeInvalidPlanes();
-<<<<<<< HEAD
-        addPlaneIfNeeded();
-=======
 
         if (_translationPlanes.size() == 0)
             addAxisAlignedTranslationPlane();
->>>>>>> object_translation
     }
 
     void translationService::disableCollisions()
