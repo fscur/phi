@@ -417,7 +417,7 @@ namespace phi
         _lastMousePosition = mousePosition;
         _offsetPlaneOrigin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
 
-        addAxisAlignedTranslationPlane();
+        addPlaneIfNeeded();
     }
 
     void translationService::translate(ivec2 mousePosition)
@@ -465,7 +465,7 @@ namespace phi
         removeInvalidPlanes();
 
         if (_translationPlanes.size() == 0)
-            addAxisAlignedTranslationPlane();
+            addPlaneIfNeeded();
     }
 
     void translationService::disableCollisions()
