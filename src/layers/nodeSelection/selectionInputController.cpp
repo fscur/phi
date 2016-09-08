@@ -134,7 +134,7 @@ namespace phi
             return false;
 
         _isAdditiveSelection = false;
-        return true;
+        return false;
     }
 
     bool selectionInputController::onMouseClick(mouseEventArgs * e)

@@ -10,6 +10,7 @@
 
 #include "translationInputController.h"
 #include "translateNodeCommand.h"
+#include <application/window.h>
 
 namespace phi
 {
@@ -21,7 +22,8 @@ namespace phi
         _commandsManager(commandsManager),
         inputController(),
         _translationService(new translationService(targetNodes, layer, physicsWorld)),
-        _targetNodes(targetNodes)
+        _targetNodes(targetNodes),
+        _isMouseHidden(false)
     {
     }
 
@@ -46,12 +48,8 @@ namespace phi
         auto node = clickComponent->getNode();
         auto rootNode = node;
 
-        while (rootNode->getParent()->getParent() != nullptr)
-        {
-            rootNode = rootNode->getParent();
-            if (rootNode->isSelected())
-                return true;
-        }
+        if (rootNode->isSelected())
+            return true;
 
         return false;
     }
@@ -83,6 +81,9 @@ namespace phi
 
         _requestControlEvent->raise(this);
 
+        _isMouseHidden = true;
+        window::hideCursor();
+
         return false;
     }
 
@@ -102,6 +103,9 @@ namespace phi
         pushTranslateCommands();
 
         _resignControlEvent->raise(this);
+
+        _isMouseHidden = false;
+        window::showCursor();
 
         return true;
     }
@@ -144,6 +148,16 @@ namespace phi
     {
         _translationService->update();
 
+        if (!_translationService->isTranslating() && _isMouseHidden)
+        {
+            _isMouseHidden = false;
+            window::showCursor();
+        }
+        else if (_translationService->isTranslating() && !_isMouseHidden)
+        {
+            _isMouseHidden = true;
+            window::hideCursor();
+        }
         return false;
     }
 

@@ -57,7 +57,7 @@ void main()
 {
     vec2 uv = fragTexCoord * scale - (scale * 0.5);
     vec2 q = uv;
-    float radius = 0.005;
+    float radius = 0.002;
     vec2 size = (scale * 0.5)-(radius * 1.5);
     float a = createInnerEdge(q, size, radius);
     float b = createInnerEdge(q, size-(radius * 0.5), radius * 0.5);
@@ -65,7 +65,7 @@ void main()
     
     vec3 color = vec3(0.1, 0.5, 0.8);
     
-    fragColor = vec4(color, (d - 0.2) + b * (1.0 - sinedRange(time * 0.5, 0.6, 0.7)));
+    fragColor = vec4(color, (d - 0.2) + b * 0.3);//(1.0 - sinedRange(time * 0.5, 0.6, 0.7)));
 
     //if (uv.y < 0.0)
         //fragColor = vec4(1.0);

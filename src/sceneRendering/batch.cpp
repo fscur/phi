@@ -117,7 +117,11 @@ namespace phi
         if (node->isTranslating())
             flags |= 2;
 
-        auto clickComponent = node->getComponent<phi::clickComponent>();
+        auto rootNode = node;
+        while (rootNode->getParent()->getParent()) rootNode = rootNode->getParent();
+
+        auto clickComponent = rootNode->getComponent<phi::clickComponent>();
+
         auto selection = vec4(clickComponent->getSelectionColor(), static_cast<float>(flags) / 255.0);
 
         _modelMatricesBuffer->addInstance(geometry, instance, instance->modelMatrix);
@@ -216,7 +220,9 @@ namespace phi
     void batch::update(const meshInstance* instance)
     {
         auto node = instance->mesh->getNode();
-        auto clickComponent = node->getComponent<phi::clickComponent>();
+        auto rootNode = node;
+        while (rootNode->getParent()->getParent()) rootNode = rootNode->getParent();
+        auto clickComponent = rootNode->getComponent<phi::clickComponent>();
         auto selection = vec4(clickComponent->getSelectionColor(), node->isSelected());
 
         auto geometry = instance->getGeometry();
@@ -229,7 +235,9 @@ namespace phi
     void batch::updateSelectionBuffer(const meshInstance* instance, bool isSelected)
     {
         auto node = instance->mesh->getNode();
-        auto clickComponent = node->getComponent<phi::clickComponent>();
+        auto rootNode = node;
+        while (rootNode->getParent()->getParent()) rootNode = rootNode->getParent();
+        auto clickComponent = rootNode->getComponent<phi::clickComponent>();
 
         int flags = 0;
         if (isSelected)

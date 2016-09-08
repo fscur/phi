@@ -20,6 +20,7 @@ namespace phi
         translationService* _translationService;
         const vector<node*>* _targetNodes;
         unordered_map<node*, vec3> _originalPositions;
+        bool _isMouseHidden;
 
     private:
         bool canStartTranslation(mouseEventArgs* e);
