@@ -158,7 +158,7 @@ namespace demon
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         cube0->getTransform()->setLocalPosition(vec3(-1.5f, 0.5f + DECIMAL_TRUNCATION, 0.0f));
-        //cube0->getTransform()->yaw(PI_OVER_4 + 0.2f);
+        cube0->getTransform()->yaw(PI_OVER_4 + 0.2f);
         //cube0->getTransform()->pitch(PI_OVER_4);
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         cube1->getTransform()->setLocalPosition(vec3(1.5f, 0.5f + DECIMAL_TRUNCATION, 0.0f));
@@ -169,7 +169,7 @@ namespace demon
 
         _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         _chair0->getTransform()->setLocalPosition(vec3(0.f, 0.0f, -2.0f));
-        //_chair0->getTransform()->yaw(PI_OVER_4);
+        _chair0->getTransform()->yaw(PI_OVER_4);
         auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
         back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
         //cube1->getTransform()->translate(vec3(2.0f, 0.5f, 0.0f));
@@ -197,6 +197,7 @@ namespace demon
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
                 .withObbRenderer()
+                .withBoxColliderRenderer()
                 .withPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()

@@ -6,8 +6,13 @@ in vec3 fragNormal;
 in flat float time;
 in flat vec2 scale;
 in flat float offset;
+
+layout (location = 0) uniform vec4 color;
+
 out vec4 fragColor;
 const float PI = 3.1415926535897932384626433832795;
+
+
 
 float quad(vec2 position, vec2 size)
 {
@@ -63,9 +68,7 @@ void main()
     float b = createInnerEdge(q, size-(radius * 0.5), radius * 0.5);
     float d = a - b;
     
-    vec3 color = vec3(0.1, 0.5, 0.8);
-    
-    fragColor = vec4(color, (d - 0.2) + b * 0.3);//(1.0 - sinedRange(time * 0.5, 0.6, 0.7)));
+    fragColor = vec4(color.rgb, (d - 0.2) + b * 0.3);//(1.0 - sinedRange(time * 0.5, 0.6, 0.7)));
 
     //if (uv.y < 0.0)
         //fragColor = vec4(1.0);

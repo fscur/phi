@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "obbBoxRenderPass.h"
+#include "boxColliderRenderPass.h"
 
 #include <core\time.h>
 #include <core\geometry.h>
@@ -17,8 +17,8 @@
 
 namespace phi
 {
-    renderPass* obbBoxRenderPass::configure(
-        const obbRenderAdapter* renderAdapter,
+    renderPass* boxColliderRenderPass::configure(
+        const boxColliderRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
@@ -28,7 +28,7 @@ namespace phi
         auto boxColliderProgram = programBuilder::buildProgram(shadersPath, "obbBox", "obbBox");
 
         auto pass = new renderPass(boxColliderProgram, defaultFramebuffer, resolution);
-        pass->addVao(renderAdapter->getBoxVao());
+        pass->addVao(renderAdapter->getVao());
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
@@ -39,9 +39,9 @@ namespace phi
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(-1.0f, 0.0f);
             framebuffer->bindForDrawing();
-
+            
             program->bind();
-            program->setUniform(0, vec4(0.0, 0.0, 1.0, 1.0));
+            program->setUniform(0, vec4(1.0, 0.0, 0.0, 1.0));
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)

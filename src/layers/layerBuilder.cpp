@@ -22,6 +22,7 @@ namespace phi
         _withMeshRenderer(false),
         _withGhostMeshRenderer(false),
         _withObbRenderer(false),
+        _withBoxColliderRenderer(false),
         _withPlaneGridRenderer(false),
         _withControlRenderer(false),
         _withGlassyControlRenderer(false),
@@ -98,6 +99,21 @@ namespace phi
         _layer->addOnDelete([obbBehaviour]() mutable
         {
             safeDelete(obbBehaviour);
+        });
+    }
+
+    void layerBuilder::buildBoxColliderRenderer()
+    {
+        auto boxColliderBehaviour = new boxColliderLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&boxColliderLayerBehaviour::onNodeAdded, boxColliderBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&boxColliderLayerBehaviour::onNodeRemoved, boxColliderBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&boxColliderLayerBehaviour::onNodeTransformChanged, boxColliderBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(boxColliderBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([boxColliderBehaviour]() mutable
+        {
+            safeDelete(boxColliderBehaviour);
         });
     }
 
@@ -240,6 +256,9 @@ namespace phi
 
         if (_withObbRenderer)
             buildObbRenderer();
+
+        if (_withBoxColliderRenderer)
+            buildBoxColliderRenderer();
 
         if (_withPlaneGridRenderer)
             buildPlaneGridRenderer();
