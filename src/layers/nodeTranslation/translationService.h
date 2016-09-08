@@ -32,7 +32,7 @@ namespace phi
 
         bool _isTranslating;
         bool _canChangePlanes;
-        plane _lastVisiblePlane;
+        plane* _lastVisiblePlane;
         vec3 _offsetPlaneOrigin;
         plane* _currentOffsetPlane;
         translationPlane* _currentTranslationPlane;
@@ -40,6 +40,8 @@ namespace phi
         ivec2 _lastMousePosition;
 
         vector<sweepCollision>* _lastTouchingCollisions;
+
+        vector<sweepCollision> _currentCollisions;
 
     private:
         vec3 getClosestAxisTo(vec3 direction);
@@ -64,7 +66,8 @@ namespace phi
 
         void addValidPlanesFromTouchCollisions();
         void changePlanes(translationPlane * translationPlane, plane* offsetPlane);
-        void changePlanesIfNeeded(vec3& endPosition);
+        void changePlanesIfNeeded();
+        void changeToAttachedPlane(ivec2 mousePosition);
         void translateTargetNodes(vec3 endPosition);
         void translatePlaneGrid(vec3 endPosition);
 
@@ -82,6 +85,9 @@ namespace phi
         void startTranslation(ivec2 mousePosition);
         void translate(ivec2 mousePosition);
         void endTranslation();
+        vector<sweepCollision> findTouchingCollisions(vec3 direction, float distance);
+        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
+        void checkCollisions();
         void cancelTranslation();
         void update();
 

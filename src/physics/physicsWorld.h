@@ -9,6 +9,7 @@
 #include "intersectionCollisionTest.h"
 #include "intersectionCollisionMultiTest.h"
 #include "intersectionCollisionGroupTest.h"
+#include "intersectionCollisionPairTest.h"
 #include "sweepCollisionTest.h"
 #include "sweepCollisionMultiTest.h"
 #include "sweepCollisionGroupTest.h"
@@ -67,6 +68,7 @@ namespace phi
         PHYSICS_API bool intersects(intersectionCollisionTest test);
         PHYSICS_API bool intersects(intersectionCollisionMultiTest test);
         PHYSICS_API bool intersects(intersectionCollisionGroupTest test);
+        PHYSICS_API bool intersects(intersectionCollisionPairTest test);
 
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionPairTest test);
         PHYSICS_API sweepCollisionResult sweep(sweepCollisionTest test);

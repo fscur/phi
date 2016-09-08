@@ -241,6 +241,29 @@ namespace phi
         return result;
     }
 
+    bool physicsWorld::intersects(intersectionCollisionPairTest test)
+    {
+        auto result = sweepCollisionResult();
+
+        auto colliderGeometry = createBoxGeometry(test.collider, test.colliderTransform);
+        auto colliderPose = createPose(test.collider, test.colliderTransform);
+
+        auto collideeGeometry = createBoxGeometry(test.collidee, test.collideeTransform);
+        auto collideePose = createPose(test.collidee, test.collideeTransform);
+
+        int flags = PxHitFlag::eDEFAULT;
+
+        PxSweepHit hit;
+        return PxGeometryQuery::sweep(
+            PxVec3(1.0, 0.0, 0.0),
+            0.0f,
+            colliderGeometry, colliderPose,
+            collideeGeometry, collideePose,
+            hit,
+            static_cast<PxHitFlags>(flags),
+            test.inflation);
+    }
+
     sweepCollisionResult physicsWorld::sweep(sweepCollisionPairTest test)
     {
         auto result = sweepCollisionResult();
