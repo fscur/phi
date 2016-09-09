@@ -32,31 +32,24 @@ namespace phi
             safeDelete(renderPass);
     }
 
-    bool boxColliderLayerBehaviour::shouldShowObbOf(node* node)
-    {
-        auto hasObb = node->getObb() != nullptr;
-        if (!hasObb)
-            return false;
-
-        auto hasParent = node->getParent() != nullptr;
-        return hasParent;
-    }
-
     void boxColliderLayerBehaviour::onNodeAdded(node* node)
     {
         auto boxCollider = node->getComponent<phi::boxCollider>();
-        _adapter->add(boxCollider);
+        if (boxCollider)
+            _adapter->add(boxCollider);
     }
 
     void boxColliderLayerBehaviour::onNodeRemoved(node* node)
     {
         auto boxCollider = node->getComponent<phi::boxCollider>();
-        _adapter->remove(boxCollider);
+        if (boxCollider)
+            _adapter->remove(boxCollider);
     }
 
     void boxColliderLayerBehaviour::onNodeTransformChanged(node* node)
     {
         auto boxCollider = node->getComponent<phi::boxCollider>();
-        _adapter->update(boxCollider);
+        if (boxCollider)
+            _adapter->update(boxCollider);
     }
 }

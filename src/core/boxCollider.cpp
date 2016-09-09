@@ -59,7 +59,10 @@ namespace phi
         auto axisZ = transformOrientation * vec3(0.0f, 0.0f, 1.0f);
         auto size = transformSize * _size;
 
-        _obb = obb(position, axisX, axisY, axisZ, size * 0.5f);
+        auto localObb = obb(_center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), _size * 0.5f);
+        _obb = localObb.transform(transform);
+
+        //_obb = obb(position, axisX, axisY, axisZ, size * 0.5f);
     }
 
     inline void boxCollider::nodeTransformChanged(transform* const sender)

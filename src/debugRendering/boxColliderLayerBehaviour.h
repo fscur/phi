@@ -24,9 +24,6 @@ namespace phi
         resolution _resolution;
         string _resourcesPath;
 
-    private:
-        bool shouldShowObbOf(node* node);
-
     public:
         DEBUG_RENDERING_API boxColliderLayerBehaviour(const resolution& resolution, const string& resourcesPath, framebufferAllocator* framebufferAllocator);
         DEBUG_RENDERING_API ~boxColliderLayerBehaviour();
@@ -34,7 +31,6 @@ namespace phi
         DEBUG_RENDERING_API void onNodeAdded(node* node);
         DEBUG_RENDERING_API void onNodeRemoved(node* node);
         DEBUG_RENDERING_API void onNodeTransformChanged(node* node);
-        DEBUG_RENDERING_API void onNodeObbChanged(node* node);
 
         vector<renderPass*> getRenderPasses() { return _renderPasses; }
     };
