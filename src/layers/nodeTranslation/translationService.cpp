@@ -275,7 +275,7 @@ namespace phi
 
     float translationService::getExtinctionFactor(vec3 normal)
     {
-        return mathUtils::isParallel(vec3(0.0, 1.0, 0.0), normal) ? 0.2f : 0.5f;
+        return mathUtils::isParallel(vec3(0.0, 1.0, 0.0), normal) ? 0.3f : 0.4f;
     }
 
     float translationService::getPlaneVisibility(plane plane)
@@ -292,10 +292,10 @@ namespace phi
         {
             translationPlane* translationPlane = nullptr;
 
-            if (_lastVisiblePlane && isPlaneVisible(*_lastVisiblePlane, getExtinctionFactor(_lastVisiblePlane->normal)))
-                translationPlane = createTranslationPlane(*_lastVisiblePlane);
-            else
-                translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
+            //if (_lastVisiblePlane && isPlaneVisible(*_lastVisiblePlane, getExtinctionFactor(_lastVisiblePlane->normal)))
+            //    translationPlane = createTranslationPlane(*_lastVisiblePlane);
+            //else
+            translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
 
             addTranslationPlane(translationPlane);
             auto offsetPlane = new plane(_offsetPlaneOrigin, translationPlane->getPlane().normal);
@@ -390,7 +390,7 @@ namespace phi
         _lastVisiblePlane = new plane(_currentTranslationPlane->getPlane());
     }
 
-    void translationService::changePlanesIfNeeded()
+    bool translationService::changePlanesIfNeeded()
     {
         bool changedPlane = false;
 
@@ -416,27 +416,11 @@ namespace phi
                     return translationPlane != _currentTranslationPlane;
                 });
         }
+
+        return changedPlane;
     }
 
-    plane translationService::getClosestPlaneToPosition(vector<plane>& planes, vec3 position)
-    {
-        float minDistance = std::numeric_limits<float>().max();
-        plane closestPlane;
-
-        for (auto& plane : planes)
-        {
-            auto distanceToPlane = glm::abs(glm::dot(plane.toVec4(), vec4(position, 1.0f)));
-            if (distanceToPlane < minDistance)
-            {
-                closestPlane = plane;
-                minDistance = distanceToPlane;
-            }
-        }
-
-        return closestPlane;
-    }
-
-    void translationService::changeToAttachedPlane(ivec2 mousePosition)
+    bool translationService::changeToAttachedPlane(ivec2 mousePosition)
     {
         bool changedPlane = false;
         bool isLeavingPlane = false;
@@ -447,7 +431,11 @@ namespace phi
 
         for (auto& touch : _currentCollisions)
         {
-            auto colliderObb = touch.collider->getObb();
+
+            auto node = touch.collider->getNode();
+            while (node->getParent()->getParent() != nullptr) node = node->getParent();
+            auto colliderObb = node->getObb();
+
             auto collideePlanes = touch.collidee->getObb().getPlanes();
 
             for (auto& collideePlane : collideePlanes)
@@ -455,12 +443,12 @@ namespace phi
                 if (collideePlane.isParallel(*_currentOffsetPlane))
                     continue;
 
-                auto distanceFromPlane = glm::dot(collideePlane.toVec4(), vec4(colliderObb.center, 1.0f));
+                auto distanceFromPlane = glm::dot(collideePlane.toVec4(), vec4(colliderObb->center, 1.0f));
                 if (distanceFromPlane > maxDistance)
                 {
                     maxDistance = distanceFromPlane;
                     leavingPlane = collideePlane;
-                    vec4 leavingPos = vec4(colliderObb.getPositionAt(-leavingPlane.normal), 1.0);
+                    vec4 leavingPos = vec4(colliderObb->getPositionAt(-leavingPlane.normal), 1.0);
                     leavingDistance = glm::dot(leavingPlane.toVec4(), leavingPos);
 
                     if (leavingDistance > DECIMAL_TRUNCATION)
@@ -486,9 +474,10 @@ namespace phi
         {
             auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, *_currentOffsetPlane);
             auto halfLastPlaneOffset = glm::length(endPosition - _offsetPlaneOrigin) * 0.5f;
-            auto offsetPlaneOrigin = _offsetPlaneOrigin - leavingPlane.normal * (leavingDistance);
+            auto offsetPlaneOrigin = _offsetPlaneOrigin - leavingPlane.normal * (leavingDistance + halfLastPlaneOffset);
+            _nodeTranslator->translate(-leavingPlane.normal * (leavingDistance - DECIMAL_TRUNCATION));
             //auto offsetPlaneOrigin = _offsetPlaneOrigin - leavingPlane.normal * 0.02f;
-            auto offsetPlane = new plane(offsetPlaneOrigin, leavingPlane.normal);
+            auto offsetPlane = new plane(_offsetPlaneOrigin, leavingPlane.normal);
             auto translationPlane = createTranslationPlane(leavingPlane);
             _offsetPlanes[translationPlane] = offsetPlane;
             addTranslationPlane(translationPlane);
@@ -505,6 +494,26 @@ namespace phi
                 return translationPlane != _currentTranslationPlane;
             });
         }
+
+        return changedPlane;
+    }
+
+    plane translationService::getClosestPlaneToPosition(vector<plane>& planes, vec3 position)
+    {
+        float minDistance = std::numeric_limits<float>().max();
+        plane closestPlane;
+
+        for (auto& plane : planes)
+        {
+            auto distanceToPlane = glm::abs(glm::dot(plane.toVec4(), vec4(position, 1.0f)));
+            if (distanceToPlane < minDistance)
+            {
+                closestPlane = plane;
+                minDistance = distanceToPlane;
+            }
+        }
+
+        return closestPlane;
     }
 
     void translationService::translateTargetNodes(vec3 endPosition)
@@ -637,9 +646,11 @@ namespace phi
 
         if (_canChangePlanes)
         {
-            addValidPlanesFromTouchCollisions();
-            changeToAttachedPlane(mousePosition);
-            changePlanesIfNeeded();
+            if (!changeToAttachedPlane(mousePosition))
+            {
+                addValidPlanesFromTouchCollisions();
+                changePlanesIfNeeded();
+            }
         }
 
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, *_currentOffsetPlane);
@@ -647,7 +658,7 @@ namespace phi
         translateTargetNodes(endPosition);
         translatePlaneGrid(endPosition);
 
-        auto touchCollisions = findTouchingCollisions(-_currentOffsetPlane->normal, 0.0f);
+        auto touchCollisions = findTouchingCollisions(-_currentOffsetPlane->normal, DECIMAL_TRUNCATION);
 
         if (touchCollisions.size() > 0)
             _currentCollisions = getValidTouchCollisions(touchCollisions);

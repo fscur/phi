@@ -68,9 +68,9 @@ namespace phi
 
         void addValidPlanesFromTouchCollisions();
         void changePlanes(translationPlane * translationPlane, plane* offsetPlane);
-        void changePlanesIfNeeded();
+        bool changePlanesIfNeeded();
         plane getClosestPlaneToPosition(vector<plane>& planes, vec3 position);
-        void changeToAttachedPlane(ivec2 mousePosition);
+        bool changeToAttachedPlane(ivec2 mousePosition);
         void translateTargetNodes(vec3 endPosition);
         void translatePlaneGrid(vec3 endPosition);
 
