@@ -62,7 +62,7 @@ namespace phi
 
     buttonBuilder buttonBuilder::withAction(std::function<void(node*)> action)
     {
-        //_button->getComponent<mouseInteractionComponent>()->addOnMouseUp(action);
+        _button->getComponent<mouseInteractionComponent>()->addOnMouseUp(action);
         return *this;
     }
 

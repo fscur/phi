@@ -22,8 +22,8 @@ namespace phi
         _onMouseDown(original._onMouseDown),
         _onMouseUp(original._onMouseUp),
         _pickId(0),
-        _mouseClickAnimatable(original._mouseClickAnimatable),
-        _mouseHoverAnimatable(original._mouseHoverAnimatable),
+        _mouseClickAnimatable(original._mouseClickAnimatable->clone()),
+        _mouseHoverAnimatable(original._mouseHoverAnimatable->clone()),
         _isMouseOver(original._isMouseOver)
     {
     }

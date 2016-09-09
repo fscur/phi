@@ -247,7 +247,6 @@ namespace demon
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withControlRenderer()
                 .withTextRenderer()
-                .withCameraController()
                 .withUIMouseController()
                 .build();
         }
@@ -288,12 +287,6 @@ namespace demon
         _nandinhoLayer->add(loadProjectButton);
 
         _activeContext = _designContext;
-
-        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_0 }, [=]()
-        {
-            auto nodesToDelete = { _chair0 };
-            return new deleteNodeCommand(nodesToDelete);
-        }));
     }
 
     void screen::initInput()
@@ -383,7 +376,7 @@ namespace demon
     void screen::onTick()
     {
         auto label = _labelFps->getComponent<phi::text>();
-        auto str = "fps: " + std::to_string(application::framesPerSecond);
+        auto str = "Fps: " + std::to_string(application::framesPerSecond);
         label->setText(wstring(str.begin(), str.end()));
 
 #ifdef _DEBUG

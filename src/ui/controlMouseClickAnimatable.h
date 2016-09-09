@@ -35,6 +35,7 @@ namespace phi
 
         virtual void onMouseDown() override;
         virtual void onMouseUp() override;
+        virtual iMouseClickAnimatable* clone() override;
 
     private:
         vec3 getControlNormal();

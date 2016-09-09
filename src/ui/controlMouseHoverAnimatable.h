@@ -31,6 +31,7 @@ namespace phi
 
         virtual void onMouseEnter() override;
         virtual void onMouseLeave() override;
+        virtual iMouseHoverAnimatable* clone() override;
 
         void setHoverColor(color color) { _hoverColor = color; }
 

@@ -1,12 +1,12 @@
 #include <precompiled.h>
 #include "layerBuilder.h"
 
-#include <core\resolution.h>
+#include <core/resolution.h>
 
-#include <ui\control.h>
-#include <ui\text.h>
+#include <ui/control.h>
+#include <ui/text.h>
 
-#include <io\path.h>
+#include <io/path.h>
 
 namespace phi
 {
@@ -28,7 +28,8 @@ namespace phi
         _withPhysics(false),
         _withCameraController(false),
         _withSelectionController(false),
-        _withTranslationController(false)
+        _withTranslationController(false),
+        _withUIMouseController(false)
     {
     }
 

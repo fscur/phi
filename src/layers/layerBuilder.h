@@ -2,34 +2,34 @@
 #include <phi.h>
 #include "layersApi.h"
 
-#include <animation\animatorLayerBehaviour.h>
-#include <application\commandsManager.h>
+#include <animation/animatorLayerBehaviour.h>
+#include <application/commandsManager.h>
 
-#include <context\invalidLayerConfigurationException.h>
-#include <context\layer.h>
-#include <context\uiMouseController.h>
-#include <physics\physicsLayerBehaviour.h>
+#include <context/invalidLayerConfigurationException.h>
+#include <context/layer.h>
+#include <physics/physicsLayerBehaviour.h>
 
-#include <rendering\camera.h>
-#include <rendering\framebufferAllocator.h>
-#include <rendering\program.h>
+#include <rendering/camera.h>
+#include <rendering/framebufferAllocator.h>
+#include <rendering/program.h>
 
-#include <debugRendering\boxColliderLayerBehaviour.h>
-#include <sceneRendering\ghostMeshLayerBehaviour.h>
-#include <sceneRendering\meshLayerBehaviour.h>
-#include <sceneRendering\meshRenderer.h>
-#include <sceneRendering\planeGridLayerBehaviour.h>
+#include <debugRendering/boxColliderLayerBehaviour.h>
+#include <sceneRendering/ghostMeshLayerBehaviour.h>
+#include <sceneRendering/meshLayerBehaviour.h>
+#include <sceneRendering/meshRenderer.h>
+#include <sceneRendering/planeGridLayerBehaviour.h>
 
-#include <uiRendering\controlLayerBehaviour.h>
-#include <uiRendering\controlRenderer.h>
-#include <uiRendering\glassyControlLayerBehaviour.h>
-#include <uiRendering\glassyControlRenderer.h>
-#include <uiRendering\textLayerBehaviour.h>
-#include <uiRendering\textRenderer.h>
+#include <uiRendering/controlLayerBehaviour.h>
+#include <uiRendering/controlRenderer.h>
+#include <uiRendering/glassyControlLayerBehaviour.h>
+#include <uiRendering/glassyControlRenderer.h>
+#include <uiRendering/textLayerBehaviour.h>
+#include <uiRendering/textRenderer.h>
 
-#include "nodeSelection\selectionInputController.h"
-#include "cameraControl\cameraInputController.h"
-#include "nodeTranslation\translationInputController.h"
+#include "nodeSelection/selectionInputController.h"
+#include "cameraControl/cameraInputController.h"
+#include "nodeTranslation/translationInputController.h"
+#include "ui/uiMouseController.h"
 
 namespace phi
 {

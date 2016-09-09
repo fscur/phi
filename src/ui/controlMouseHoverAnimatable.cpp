@@ -63,4 +63,9 @@ namespace phi
 
         _mouseLeaveAnimation.start(_control->getColor(), _mouseEnterBegining, 0.3f);
     }
+
+    iMouseHoverAnimatable* controlMouseHoverAnimatable::clone()
+    {
+        return new controlMouseHoverAnimatable(*this);
+    }
 }

@@ -1,13 +1,12 @@
 #pragma once
 #include <phi.h>
-#include "contextApi.h"
 
-#include <core\color.h>
-#include <ui\control.h>
+#include <core/color.h>
+#include <ui/control.h>
 
-#include <input\inputController.h>
+#include <input/inputController.h>
 
-#include "layer.h"
+#include <context/layer.h>
 
 namespace phi
 {
@@ -19,11 +18,14 @@ namespace phi
         control* _clickedControl;
 
     public:
-        CONTEXT_API uiMouseController(layer* layer);
-        CONTEXT_API ~uiMouseController();
+        uiMouseController(layer* layer);
+        ~uiMouseController();
 
         virtual bool onMouseDown(mouseEventArgs* e) override;
         virtual bool onMouseUp(mouseEventArgs* e) override;
         virtual bool onMouseMove(mouseEventArgs* e) override;
+
+    private:
+        control * getControlUnderMouse(int x, int y);
     };
 }

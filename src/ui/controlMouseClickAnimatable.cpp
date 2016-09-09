@@ -63,6 +63,11 @@ namespace phi
         _mouseUpAnimation->start(currentPosition, _lastMouseDownBegining, MOUSE_UP_DURATION);
     }
 
+    iMouseClickAnimatable* controlMouseClickAnimatable::clone()
+    {
+        return new controlMouseClickAnimatable(*this);
+    }
+
     void controlMouseClickAnimatable::startPartialMouseDownAnimation()
     {
         auto currentPostion = _control->getNode()->getTransform()->getLocalPosition();
