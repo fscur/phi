@@ -295,7 +295,7 @@ namespace phi
             collision.collidee = test.collidee;
             collision.distance = hit.distance;
             collision.normal = vec3(hit.normal.x, hit.normal.y, hit.normal.z);
-
+            collision.position = vec3(hit.position.x, hit.position.y, hit.position.z);
             result.collided = true;
             result.collisions.push_back(collision);
         }
@@ -306,7 +306,6 @@ namespace phi
     sweepCollisionResult physicsWorld::sweep(sweepCollisionTest test)
     {
         auto result = sweepCollisionResult();
-
         auto geometry = createBoxGeometry(test.collider, test.transform);
         auto pose = createPose(test.collider, test.transform);
 
@@ -316,8 +315,10 @@ namespace phi
 
         auto filterData = PxQueryFilterData(PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
+
         auto hitBuffer = new PxSweepHit[test.maximumHits];
         auto hit = PxSweepBuffer(hitBuffer, test.maximumHits);
+
         if (_scene->sweep(
             geometry,
             pose,
@@ -375,7 +376,7 @@ namespace phi
                 collision.distance = glm::max(touch.distance - DECIMAL_TRUNCATION, 0.0f);
                 collision.normal = normal;
                 collision.isIntersecting = isIntersecting;
-
+                collision.position = vec3(touch.position.x, touch.position.y, touch.position.z);
                 result.collisions.push_back(collision);
                 result.collided = true;
             }

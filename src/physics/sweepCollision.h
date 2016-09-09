@@ -11,6 +11,7 @@ namespace phi
         sweepCollision() :
             collider(nullptr),
             collidee(nullptr),
+            position(vec3()),
             distance(0.0f),
             normal(vec3()),
             isIntersecting(false)
@@ -19,6 +20,7 @@ namespace phi
 
         boxCollider* collider;
         boxCollider* collidee;
+        vec3 position;
         float distance;
         vec3 normal;
         bool isIntersecting;
@@ -28,6 +30,7 @@ namespace phi
             return
                 this->collider == b.collider &&
                 this->collidee == b.collidee &&
+                this->position == b.position &&
                 this->distance == b.distance &&
                 this->normal == b.normal &&
                 this->isIntersecting == b.isIntersecting;

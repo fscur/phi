@@ -64,9 +64,12 @@ namespace phi
 
         void addPlaneIfNeeded();
 
+        bool isNormalValidForCollision(const sweepCollision & touch, const vec3 & normal);
+
         void addValidPlanesFromTouchCollisions();
         void changePlanes(translationPlane * translationPlane, plane* offsetPlane);
         void changePlanesIfNeeded();
+        plane getClosestPlaneToPosition(vector<plane>& planes, vec3 position);
         void changeToAttachedPlane(ivec2 mousePosition);
         void translateTargetNodes(vec3 endPosition);
         void translatePlaneGrid(vec3 endPosition);
@@ -78,6 +81,8 @@ namespace phi
             physicsWorld* physicsWorld);
 
         ~translationService();
+
+        plane getClosestPlaneToDirection(vector<plane>& planes, vec3 direction);
 
         bool isTranslating() const { return _isTranslating; }
         size_t getTargetNodesCount() const { return _targetNodes->size(); }
