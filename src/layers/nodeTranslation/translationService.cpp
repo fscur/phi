@@ -88,11 +88,8 @@ namespace phi
 
         for (auto& targetNode : *_targetNodes)
         {
-            auto collider = targetNode->getComponent<boxCollider>();
-            assert(collider != nullptr);
-
-            auto obb = collider->getObb();
-            auto obbPosition = obb.getPositionAt(-axis);
+            auto obb = targetNode->getObb();
+            auto obbPosition = obb->getPositionAt(-axis);
 
             auto dot = glm::dot(obbPosition, axis);
             if (dot < minDot)

@@ -100,6 +100,7 @@ namespace phi
         auto transformOrientation = transform->getOrientation();
         auto transformSize = transform->getSize();
         auto position = transformPosition + transformOrientation * (transformSize * center);
+        auto a = transformOrientation * vec3(0.0f, 0.0f, 1.0f);
         auto axisX = transformOrientation * axes[0];
         auto axisY = transformOrientation * axes[1];
         auto axisZ = transformOrientation * axes[2];

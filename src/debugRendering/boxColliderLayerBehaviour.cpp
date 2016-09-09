@@ -32,16 +32,6 @@ namespace phi
             safeDelete(renderPass);
     }
 
-    bool boxColliderLayerBehaviour::shouldShowObbOf(node* node)
-    {
-        auto hasObb = node->getObb() != nullptr;
-        if (!hasObb)
-            return false;
-
-        auto hasParent = node->getParent() != nullptr;
-        return hasParent;
-    }
-
     void boxColliderLayerBehaviour::onNodeAdded(node* node)
     {
         auto boxCollider = node->getComponent<phi::boxCollider>();
