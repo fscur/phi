@@ -67,7 +67,7 @@ namespace phi
         auto transformPosition = transform->getPosition();
         auto transformOrientation = transform->getOrientation();
         auto transformSize = transform->getSize();
-        auto position = transformPosition + transformOrientation * transformSize * collider->getCenter();
+        auto position = transformPosition + transformOrientation * (transformSize * collider->getCenter());
         auto axisX = transformOrientation * vec3(1.0f, 0.0f, 0.0f);
         auto axisY = transformOrientation * vec3(0.0f, 1.0f, 0.0f);
         auto axisZ = transformOrientation * vec3(0.0f, 0.0f, 1.0f);
@@ -353,13 +353,13 @@ namespace phi
                     pairTest.direction = test.direction;
                     pairTest.collidee = collidee;
                     pairTest.collideeTransform = collidee->getNode()->getTransform();
-                    pairTest.inflation = test.inflation;
+                    pairTest.inflation = 0.0f;
                     pairTest.checkPenetration = true;
                     auto penetrationResult = sweep(pairTest);
 
-                    assert(penetrationResult.collided);
-                    //if (!penetrationResult.collided)
-                    //    continue;
+                    //assert(penetrationResult.collided);
+                    if (!penetrationResult.collided)
+                        continue;
 
                     normal = collidee->getObb().findClosestNormalTo(penetrationResult.collisions[0].normal);
                     if (test.disregardDivergentNormals)

@@ -62,13 +62,6 @@ namespace phi
 
                     auto aabb = geometry->aabb;
 
-                    if (aabb->width == 1.0f &&
-                        aabb->height == 1.0f &&
-                        aabb->depth == 1.0f)
-                    {
-                        aabb = new phi::aabb(aabb->min, aabb->max + vec3(0.0f, 0.0f, 1.0f));
-                    }
-
                     objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->width, aabb->height, aabb->depth)));
                     //objectNode->addComponent(new phi::clickComponent());
                     objectNode->setLocalObb(new obb(aabb->center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));

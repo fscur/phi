@@ -50,19 +50,8 @@ namespace phi
         auto transform = getTransform();
         _modelMatrix = transform->getModelMatrix() * translationMatrix * scaleMatrix;
 
-        auto transformPosition = transform->getPosition();
-        auto transformOrientation = transform->getOrientation();
-        auto transformSize = transform->getSize();
-        auto position = transformPosition + transformOrientation * transformSize * _center;
-        auto axisX = transformOrientation * vec3(1.0f, 0.0f, 0.0f);
-        auto axisY = transformOrientation * vec3(0.0f, 1.0f, 0.0f);
-        auto axisZ = transformOrientation * vec3(0.0f, 0.0f, 1.0f);
-        auto size = transformSize * _size;
-
         auto localObb = obb(_center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), _size * 0.5f);
         _obb = localObb.transform(transform);
-
-        //_obb = obb(position, axisX, axisY, axisZ, size * 0.5f);
     }
 
     inline void boxCollider::nodeTransformChanged(transform* const sender)

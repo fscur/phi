@@ -678,7 +678,7 @@ namespace phi
             return;
         
         updateTranslationPlanesVisibility();
-//        removeInvalidPlanes();
+        removeInvalidPlanes();
         addPlaneIfNeeded();
     }
 
