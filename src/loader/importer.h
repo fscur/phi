@@ -36,5 +36,9 @@ namespace phi
             const string& fileName,
             const resourcesRepository<material>* materialsRepo,
             const resourcesRepository<geometry>* geometriesRepo);
+
+		static std::vector<resource<node>*> loadNodes(
+			const string& fileName,
+			const resourcesRepository<node>* nodes);
     };
 }
