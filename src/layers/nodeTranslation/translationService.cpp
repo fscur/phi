@@ -453,7 +453,6 @@ namespace phi
 
                     if (leavingDistance > DECIMAL_TRUNCATION)
                     {
-                        //debug("leaving distance: " + std::to_string(leavingDistance));
                         auto extinctionFactor = getExtinctionFactor(collideePlane.normal);
                         if (!isPlaneVisible(collideePlane, extinctionFactor))
                         {
@@ -576,7 +575,7 @@ namespace phi
     vector<sweepCollision> translationService::findTouchingCollisions(vec3 direction, float distance)
     {
         auto sweepTest = sweepCollisionMultiTest();
-        sweepTest.colliders = _nodeTranslator->getColliders();
+        sweepTest.colliders = &_targetNodesColliders;
         sweepTest.transforms = _nodeTranslator->getTransforms();
         sweepTest.direction = direction;
         sweepTest.distance = distance;
@@ -626,6 +625,11 @@ namespace phi
     void translationService::startTranslation(ivec2 mousePosition)
     {
         _nodeTranslator->addRange(*_targetNodes);
+
+        _targetNodesColliders.clear();
+        for (auto& node : *_targetNodes)
+            _targetNodesColliders.push_back(node->getComponent<boxCollider>());
+
         _lastTouchingCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
         _ghostTranslator->addRange(*_targetNodes);
 
@@ -658,8 +662,7 @@ namespace phi
         translateTargetNodes(endPosition);
         translatePlaneGrid(endPosition);
 
-        auto touchCollisions = findTouchingCollisions(-_currentOffsetPlane->normal, DECIMAL_TRUNCATION);
-
+        auto touchCollisions = findTouchingCollisions(-_currentOffsetPlane->normal, 2.5f * DECIMAL_TRUNCATION);
         if (touchCollisions.size() > 0)
             _currentCollisions = getValidTouchCollisions(touchCollisions);
 

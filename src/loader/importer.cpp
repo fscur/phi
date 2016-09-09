@@ -349,7 +349,10 @@ namespace phi
             else
                 rootAabb = mesh->getGeometry()->aabb;
         });
+        auto boxCollider = new phi::boxCollider(rootAabb->center, rootAabb->getSize());
+        boxCollider->disable();
 
+        rootNode->addComponent(boxCollider);
         rootNode->addComponent(new phi::clickComponent());
 
         return new resource<node>(guid, nodeName, rootNode);

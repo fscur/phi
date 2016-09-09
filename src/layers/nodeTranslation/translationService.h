@@ -40,8 +40,9 @@ namespace phi
         ivec2 _lastMousePosition;
 
         vector<sweepCollision>* _lastTouchingCollisions;
-
         vector<sweepCollision> _currentCollisions;
+
+        vector<boxCollider*> _targetNodesColliders;
 
     private:
         vec3 getClosestAxisTo(vec3 direction);

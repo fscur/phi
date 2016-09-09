@@ -27,5 +27,7 @@ namespace phi
         CORE_API static aabb add(const aabb& a, const aabb& b);
 
         CORE_API bool contains(const vec3 position) const;
+
+        vec3 getSize() const { return vec3(width, height, depth); }
     };
 }
