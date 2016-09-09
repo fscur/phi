@@ -283,7 +283,15 @@ namespace phi
         auto cameraTransform = _camera->getTransform();
         auto cameraPosition = cameraTransform->getPosition();
         auto toPlaneDir = -glm::normalize(plane.origin - cameraPosition);
-        return glm::dot(plane.normal, toPlaneDir);
+        auto axis = getClosestAxisTo(plane.normal);
+
+        float priority = glm::abs(glm::dot(toPlaneDir, vec3(0.0f, 1.0f, 0.0f)));
+        
+        if (mathUtils::isParallel(axis, vec3(0.0, 1.0, 0.0)))
+            priority = 0.0f;
+
+        auto visibility = glm::dot(plane.normal, toPlaneDir) * (1.0f - priority);
+        return visibility;
     }
 
     void translationService::addPlaneIfNeeded()
@@ -431,7 +439,6 @@ namespace phi
 
         for (auto& touch : _currentCollisions)
         {
-
             auto node = touch.collider->getNode();
             while (node->getParent()->getParent() != nullptr) node = node->getParent();
             auto colliderObb = node->getObb();
