@@ -359,7 +359,10 @@ namespace phi
         rootNode->addComponent(rootBoxCollider);
         rootNode->addComponent(new phi::mouseInteractionComponent());
 
-        return new resource<node>(guid, nodeName, rootNode);
+        auto r = new resource<node>(guid, nodeName, rootNode);
+        rootNode->resource = r;
+
+        return r;
 #else
         throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
 #endif

@@ -13,7 +13,7 @@ namespace phi
         return (isalnum(c) || (c == '+') || (c == '/'));
     }
 
-    string base64::encode(byte const* buf, uint bufLen)
+    string base64::encode(byte const* buf, size_t bufLen)
     {
         string ret;
         int i = 0;

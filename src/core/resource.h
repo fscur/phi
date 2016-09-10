@@ -26,6 +26,6 @@ namespace phi
         guid getGuid() const { return _guid; }
         string getName() const { return _name; }
         T* getOriginalObject() const { return _object; }
-		T* getClonedObject() const { return _object->clone(); }
+        T* getClonedObject() const { return _object->clone(); }
     };
 }

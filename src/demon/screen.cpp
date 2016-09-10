@@ -1,9 +1,17 @@
 ﻿#include <precompiled.h>
-#include "screen.h"
-#include "changeContextCommand.h"
+
 #include <diagnostic/stopwatch.h>
+
 #include <core/multiCommand.h>
+#include <core/boxCollider.h>
+#include <core/planeGrid.h>
+#include <core/ghostMesh.h>
+
+#include <input/input.h>
+
 #include <loader/importer.h>
+#include <loader/exporter.h>
+
 #include <rendering/defaultFramebuffer.h>
 #include <rendering/pickingFramebuffer.h>
 
@@ -22,12 +30,11 @@
 
 #include <layers/layerBuilder.h>
 #include <layers/nodeCreation\deleteNodeCommand.h>
+
 #include <context/invalidLayerConfigurationException.h>
 
-#include <input/input.h>
-#include <core/boxCollider.h>
-#include <core/planeGrid.h>
-#include <core/ghostMesh.h>
+#include "screen.h"
+#include "changeContextCommand.h"
 
 using namespace phi;
 
@@ -199,6 +206,7 @@ namespace demon
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
+
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
 
@@ -255,6 +263,35 @@ namespace demon
             phi::application::logError(ex.what());
         }
 
+        auto saveProjectButton = buttonBuilder::newButton()
+            .withPosition(vec3(-280.f, 20.f, 0.f))
+            .withText(L"Save project")
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .withControlColor(.3f, .9f, .2f, 1.f)
+            .withAction([=](node* node)
+        {
+            OPENFILENAME ofn;
+
+            char szFileName[MAX_PATH] = "";
+
+            ZeroMemory(&ofn, sizeof(ofn));
+
+            ofn.lStructSize = sizeof(ofn);
+            ofn.hwndOwner = NULL;
+            ofn.lpstrFilter = (LPCSTR)"Phi Files (*.phi)\0";
+            ofn.lpstrFile = (LPSTR)szFileName;
+            ofn.nMaxFile = MAX_PATH;
+            ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+            ofn.lpstrDefExt = (LPCSTR)"phi";
+
+            GetSaveFileName(&ofn);
+            auto path = ofn.lpstrFile;
+
+            exporter::exportScene(_sceneLayer->getRoot(), path);
+        })
+            .build();
+
         _framebufferAllocator->allocate(_resolution);
 
         _designContext = new context(
@@ -285,6 +322,7 @@ namespace demon
         _nandinhoLayer->add(_labelFps);
         _nandinhoLayer->add(changeContextButton);
         _nandinhoLayer->add(loadProjectButton);
+        _nandinhoLayer->add(saveProjectButton);
 
         _activeContext = _designContext;
     }

@@ -1,6 +1,8 @@
 #include <precompiled.h>
 #include "exporter.h"
 
+using namespace rapidjson;
+
 namespace phi
 {
     void exporter::exportMesh(std::vector<geometry*>* geometry, char* fileName)
@@ -28,5 +30,51 @@ namespace phi
         safeDeleteArray(mat);
 
         stream.close();
+    }
+
+    void exporter::exportScene(node* root, string path)
+    {
+        Document document(kObjectType);
+        Value scene(kObjectType);
+        Value nodes(kArrayType);
+
+        Document::AllocatorType& allocator = document.GetAllocator();
+
+        for (auto& node : *root->getChildren())
+        {
+            auto resource = node->resource;
+            if (!resource)
+                continue;
+
+            auto guidString = resource->getGuid().toStringBase64();
+            auto size = static_cast<SizeType>(guidString.length());
+
+            auto value = Value(guidString.c_str(), size, allocator);
+            nodes.PushBack(value, allocator);
+        }
+
+        scene.AddMember("nodes", nodes, allocator);
+        document.AddMember("scene", scene, allocator);
+
+        writeDocument(document, path);
+    }
+
+    void exporter::writeDocument(const Document& document, string& path)
+    {
+        FILE* fp;
+        auto error = fopen_s(&fp, path.c_str(), "wb"); // non-Windows use "w"
+        if (error != 0)
+        {
+            debug("failed");
+            __debugbreak();
+        }
+
+        char writeBuffer[65536];
+        FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
+
+        Writer<FileWriteStream> writer(os);
+        document.Accept(writer);
+
+        fclose(fp);
     }
 }
