@@ -22,16 +22,9 @@ namespace phi
 
         ~translationService();
 
-        plane getClosestPlaneToDirection(vector<plane>& planes, vec3 direction);
-
-        bool isTranslating() const { return _isTranslating; }
-        size_t getTargetNodesCount() const { return _targetNodes->size(); }
-
         void startTranslation(ivec2 mousePosition);
         void translate(ivec2 mousePosition);
         void endTranslation();
-        vector<sweepCollision> findTouchingCollisions(vec3 direction, float distance);
-        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
 
         void update();
 
@@ -41,13 +34,14 @@ namespace phi
         void disablePlaneChanges();
         void enablePlaneChanges();
 
+        bool isTranslating() const { return _isTranslating; }
+
     private:
         vec3 getClosestAxisTo(vec3 direction);
         plane createPlaneFromAxis(vec3 axis);
         translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
 
         translationPlane* createTranslationPlane(plane plane);
-        void addAxisAlignedTranslationPlane();
         void addTranslationPlane(translationPlane * translationPlane);
         void enqueuePlaneForRemoval(translationPlane* planeToRemove);
         void removePlanesIf(std::function<bool(translationPlane*)> predicate);
@@ -63,11 +57,13 @@ namespace phi
         void addPlaneIfNeeded();
 
         bool isNormalValidForCollision(const sweepCollision & touch, const vec3 & normal);
+        
+        vector<sweepCollision> findTouchingCollisions(vec3 direction, float distance);
+        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
 
         void addValidPlanesFromTouchCollisions();
         void changePlanes(translationPlane * translationPlane, plane* offsetPlane);
         bool changePlanesIfNeeded();
-        plane getClosestPlaneToPosition(vector<plane>& planes, vec3 position);
         bool changeToAttachedPlane(ivec2 mousePosition);
         void translateTargetNodes(vec3 endPosition);
         void translatePlaneGrid(vec3 endPosition);

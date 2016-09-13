@@ -36,7 +36,7 @@ namespace phi
         if (!e->leftButtonPressed)
             return false;
 
-        if (_translationService->getTargetNodesCount() == 0)
+        if (_targetNodes->size() == 0)
             return false;
 
         auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
