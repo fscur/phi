@@ -1,15 +1,16 @@
 #include <precompiled.h>
-#include "translationService.h"
 #include <core/boxCollider.h>
-#include <animation/animator.h>
-#include <core/plane.h>
-#include <physics/sweepCollision.h>
-#include <physics/intersectionCollisionMultiTest.h>
-#include <physics/intersectionCollisionPairTest.h>
-#include <physics/sweepCollisionMultiTest.h>
 #include <core/ghostMesh.h>
 #include <core/mesh.h>
+#include <core/plane.h>
 #include <core/string.h>
+#include <animation/animator.h>
+#include <physics/intersectionCollisionMultiTest.h>
+#include <physics/intersectionCollisionPairTest.h>
+#include <physics/sweepCollision.h>
+#include <physics/sweepCollisionMultiTest.h>
+
+#include "translationService.h"
 
 namespace phi
 {
@@ -210,27 +211,10 @@ namespace phi
 
     void translationService::removeInvalidPlanes()
     {
-        removePlanesIf(
-            [&](translationPlane* translationPlane) 
+        removePlanesIf([&](translationPlane* translationPlane) 
         { 
-            return !isPlaneVisible(translationPlane->getPlane(), translationPlane->getExtinctionfactor()); 
+                return !isPlaneVisible(translationPlane->getPlane()); 
         });
-
-        /*vector<translationPlane*> planesToRemove;
-
-        for (auto& translationPlane : _translationPlanes)
-        {
-            if (!isPlaneVisible(translationPlane->getPlane(), translationPlane->getExtinctionfactor()))
-                planesToRemove.push_back(translationPlane);
-        }
-
-        for (auto& planeToRemove : planesToRemove)
-        {
-            removeIfContains(_translationPlanes, planeToRemove);
-            _offsetPlanes.erase(planeToRemove);
-            safeDelete(_offsetPlanes[planeToRemove]);
-            enqueuePlaneForRemoval(planeToRemove);
-        }*/
     }
 
     void translationService::deleteRemovedPlanes()
@@ -257,7 +241,7 @@ namespace phi
 
     bool translationService::isPlaneValidForAddition(plane plane)
     {
-        if (!isPlaneVisible(plane, getExtinctionFactor(plane.normal)))
+        if (!isPlaneVisible(plane))
             return false;
 
         for (auto& translationPlane : _translationPlanes)
@@ -267,15 +251,10 @@ namespace phi
         return true;
     }
 
-    bool translationService::isPlaneVisible(plane plane, float planeExtinctionFactor)
+    bool translationService::isPlaneVisible(plane plane)
     {
         auto planeVisibility = getPlaneVisibility(plane);
-        return planeVisibility > planeExtinctionFactor;
-    }
-
-    float translationService::getExtinctionFactor(vec3 normal)
-    {
-        return mathUtils::isParallel(vec3(0.0, 1.0, 0.0), normal) ? 0.3f : 0.4f;
+        return planeVisibility > getExtinctionFactor(plane.normal);
     }
 
     float translationService::getPlaneVisibility(plane plane)
@@ -290,8 +269,13 @@ namespace phi
         if (mathUtils::isParallel(axis, vec3(0.0, 1.0, 0.0)))
             priority = 0.0f;
 
-        auto visibility = glm::dot(plane.normal, toPlaneDir) * (1.0f - priority);
+        auto visibility = glm::dot(plane.normal, toPlaneDir) * (1.0f - glm::pow(priority, 2.0f));
         return visibility;
+    }
+
+    float translationService::getExtinctionFactor(vec3 normal)
+    {
+        return mathUtils::isParallel(vec3(0.0, 1.0, 0.0), normal) ? 0.3f : 0.4f;
     }
 
     void translationService::addPlaneIfNeeded()
@@ -300,9 +284,6 @@ namespace phi
         {
             translationPlane* translationPlane = nullptr;
 
-            //if (_lastVisiblePlane && isPlaneVisible(*_lastVisiblePlane, getExtinctionFactor(_lastVisiblePlane->normal)))
-            //    translationPlane = createTranslationPlane(*_lastVisiblePlane);
-            //else
             translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
 
             addTranslationPlane(translationPlane);
@@ -437,6 +418,8 @@ namespace phi
         float leavingDistance = -1.0f;
         plane leavingPlane;
 
+        _clippingPlanes.clear();
+
         for (auto& touch : _currentCollisions)
         {
             auto node = touch.collider->getNode();
@@ -450,6 +433,8 @@ namespace phi
                 if (collideePlane.isParallel(*_currentOffsetPlane))
                     continue;
 
+                bool planeIsVisible = isPlaneVisible(collideePlane);
+
                 auto distanceFromPlane = glm::dot(collideePlane.toVec4(), vec4(colliderObb->center, 1.0f));
                 if (distanceFromPlane > maxDistance)
                 {
@@ -460,8 +445,7 @@ namespace phi
 
                     if (leavingDistance > DECIMAL_TRUNCATION)
                     {
-                        auto extinctionFactor = getExtinctionFactor(collideePlane.normal);
-                        if (!isPlaneVisible(collideePlane, extinctionFactor))
+                        if (!planeIsVisible)
                         {
                             deleteCollisions = true;
                             break;
@@ -469,6 +453,11 @@ namespace phi
                         
                         isLeavingPlane = true;
                     }
+                   /* else if (planeIsVisible)
+                    {
+                        auto clippingPlane = new phi::clippingPlane(collideePlane);
+                        _clippingPlanes.push_back(clippingPlane);
+                    }*/
                 }
             }
         }
@@ -491,6 +480,22 @@ namespace phi
             changePlanes(translationPlane, offsetPlane);
             changedPlane = true;
         }
+        /*else
+        {
+            for (auto& clippingPlane : _clippingPlanes)
+            {
+                auto translationPlane = createTranslationPlane(clippingPlane->plane);
+                auto planeGrid = translationPlane->getPlaneGrid();
+                auto currentClippingPlane = new phi::clippingPlane(_currentTranslationPlane->getPlane());
+                
+                planeGrid->addClippingPlane(currentClippingPlane);
+                planeGrid->setClippingPlaneDistance(currentClippingPlane, clippingDistance::negative);
+
+                _clippingTranslationPlanes.push_back(translationPlane);
+                _layer->add(translationPlane->getPlaneGridNode());
+                translationPlane->showGrid();
+            }
+        }*/
 
         if (changedPlane)
         {
@@ -607,9 +612,8 @@ namespace phi
         for (auto& touch : touchs)
         {
             auto touchPlane = plane(_offsetPlaneOrigin, touch.normal);
-            auto extinctionFactor = getExtinctionFactor(touchPlane.normal);
-
             bool isTouchPlaneParallelToAnyOtherTouchPlane = false;
+
             for (auto& validPlane : validPlanes)
             {
                 if (touchPlane.isParallel(validPlane))
@@ -619,7 +623,7 @@ namespace phi
                 }
             }
 
-            if (!isTouchPlaneParallelToAnyOtherTouchPlane && isPlaneVisible(touchPlane, extinctionFactor))
+            if (!isTouchPlaneParallelToAnyOtherTouchPlane && isPlaneVisible(touchPlane))
             {
                 validPlanes.push_back(touchPlane);
                 validTouchs.push_back(touch);
@@ -634,6 +638,7 @@ namespace phi
         _nodeTranslator->addRange(*_targetNodes);
 
         _targetNodesColliders.clear();
+
         for (auto& node : *_targetNodes)
             _targetNodesColliders.push_back(node->getComponent<boxCollider>());
 
@@ -683,6 +688,10 @@ namespace phi
         for (auto& translationPlane : _translationPlanes)
             enqueuePlaneForRemoval(translationPlane);
 
+        for (auto& translationPlane : _clippingTranslationPlanes)
+            enqueuePlaneForRemoval(translationPlane);
+
+        _clippingTranslationPlanes.clear();
         _translationPlanes.clear();
         _offsetPlanes.clear();
 

@@ -1,48 +1,45 @@
 #pragma once
 #include <phi.h>
 
+#include <core/boxCollider.h>
+#include <physics/physicsWorld.h>
+#include <application/commandsManager.h>
 #include <context/layer.h>
 
-#include <core/boxCollider.h>
-
-#include <physics/physicsWorld.h>
-
-#include <application/commandsManager.h>
-
-#include "translationPlane.h"
 #include "collisionNodeTranslator.h"
+#include "translationPlane.h"
 #include "ghostNodeTranslator.h"
 
 namespace phi
 {
     class translationService
     {
-    private:
-        const vector<node*>* _targetNodes;
-        layer* _layer;
-        camera* _camera;
-        physicsWorld* _physicsWorld;
-        collisionNodeTranslator* _nodeTranslator;
-        ghostNodeTranslator* _ghostTranslator;
+    public:
+        translationService(
+            const vector<node*>* targetNodes,
+            layer* layer,
+            physicsWorld* physicsWorld);
 
-        vector<translationPlane*> _translationPlanes;
-        vector<translationPlane*> _planesToRemove;
-        
-        unordered_map<translationPlane*, plane*> _offsetPlanes;
+        ~translationService();
 
-        bool _isTranslating;
-        bool _canChangePlanes;
-        plane* _lastVisiblePlane;
-        vec3 _offsetPlaneOrigin;
-        plane* _currentOffsetPlane;
-        translationPlane* _currentTranslationPlane;
+        plane getClosestPlaneToDirection(vector<plane>& planes, vec3 direction);
 
-        ivec2 _lastMousePosition;
+        bool isTranslating() const { return _isTranslating; }
+        size_t getTargetNodesCount() const { return _targetNodes->size(); }
 
-        vector<sweepCollision>* _lastTouchingCollisions;
-        vector<sweepCollision> _currentCollisions;
+        void startTranslation(ivec2 mousePosition);
+        void translate(ivec2 mousePosition);
+        void endTranslation();
+        vector<sweepCollision> findTouchingCollisions(vec3 direction, float distance);
+        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
 
-        vector<boxCollider*> _targetNodesColliders;
+        void update();
+
+        void disableCollisions();
+        void enableCollisions();
+
+        void disablePlaneChanges();
+        void enablePlaneChanges();
 
     private:
         vec3 getClosestAxisTo(vec3 direction);
@@ -59,7 +56,7 @@ namespace phi
         void updateTranslationPlanesVisibility();
 
         bool isPlaneValidForAddition(plane plane);
-        bool isPlaneVisible(plane plane, float planeExtinctionFactor);
+        bool isPlaneVisible(plane plane);
         float getExtinctionFactor(vec3 normal);
         float getPlaneVisibility(plane plane);
 
@@ -75,42 +72,33 @@ namespace phi
         void translateTargetNodes(vec3 endPosition);
         void translatePlaneGrid(vec3 endPosition);
 
-    public:
-        translationService(
-            const vector<node*>* targetNodes, 
-            layer* layer, 
-            physicsWorld* physicsWorld);
+    private:
+        const vector<node*>* _targetNodes;
+        layer* _layer;
+        camera* _camera;
+        physicsWorld* _physicsWorld;
+        collisionNodeTranslator* _nodeTranslator;
+        ghostNodeTranslator* _ghostTranslator;
 
-        ~translationService();
+        vector<translationPlane*> _translationPlanes;
+        vector<translationPlane*> _planesToRemove;
 
-        plane getClosestPlaneToDirection(vector<plane>& planes, vec3 direction);
+        unordered_map<translationPlane*, plane*> _offsetPlanes;
 
-        bool isTranslating() const { return _isTranslating; }
-        size_t getTargetNodesCount() const { return _targetNodes->size(); }
+        bool _isTranslating;
+        bool _canChangePlanes;
+        plane* _lastVisiblePlane;
+        vec3 _offsetPlaneOrigin;
+        plane* _currentOffsetPlane;
+        translationPlane* _currentTranslationPlane;
 
-        void startTranslation(ivec2 mousePosition);
-        void translate(ivec2 mousePosition);
-        void endTranslation();
-        vector<sweepCollision> findTouchingCollisions(vec3 direction, float distance);
-        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
-        void checkCollisions();
-        void cancelTranslation();
-        void update();
+        ivec2 _lastMousePosition;
 
-        void disableCollisions();
-        void enableCollisions();
+        vector<sweepCollision>* _lastTouchingCollisions;
+        vector<sweepCollision> _currentCollisions;
 
-        void disablePlaneChanges();
-        void enablePlaneChanges();
-
-        //vector<sweepCollision> findTouchingCollisions();
-        //vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
-        //translationPlane* createTranslationPlane(plane plane, boxCollider* colidee, boxCollider* collider, clippingDistance::clippingDistance clippingDistance);
-        /*void createClippingPlanes(translationPlane* clippingTranslationPlane, clippingDistance::clippingDistance clippingDistance);
-        void removeClippingPlanes(translationPlane* planeToRemove);
-        void addPlanesIfNeeded(vector<sweepCollision> touchs);*/
-        /*bool existsTranslationPlaneWithNormal(vec3 normal);
-        bool isDraggingObjectIntersectingAnyObject();*/
-        
+        vector<boxCollider*> _targetNodesColliders;
+        vector<clippingPlane*> _clippingPlanes;
+        vector<translationPlane*> _clippingTranslationPlanes;
     };
 }
