@@ -160,10 +160,72 @@ namespace phi
         );
     }
 
-    vec3 mathUtils::multiply(const mat4& m, const vec3& v)
+    inline vec3 mathUtils::multiply(const mat4 & m, const vec3 & v)
     {
         auto a = vec4(v, 1.0f);
         auto b = m * a;
         return vec3(b.x, b.y, b.z);
+    }
+
+    inline bool mathUtils::isClose(float a, float b, float error)
+    {
+        return abs(a - b) < error;
+    }
+    inline float mathUtils::truncateDecimals(float value)
+    {
+        return round(value * DECIMAL_TRUNCATION_INV) / DECIMAL_TRUNCATION_INV;
+    }
+    inline float mathUtils::truncateDecimals(float value, int decimals)
+    {
+        float exp = pow(10.0f, (float)decimals);
+        return round(value * exp) / exp;
+    }
+    inline float mathUtils::isParallel(vec3 a, vec3 b)
+    {
+        return mathUtils::isClose(glm::dot(a, b), 1.0f);
+    }
+    inline vec3 mathUtils::getCentroid(vector<vec3> points)
+    {
+        auto x = 0.0f;
+        auto y = 0.0f;
+        auto z = 0.0f;
+
+        for (auto& point : points)
+        {
+            x += point.x;
+            y += point.y;
+            z += point.z;
+        }
+
+        auto pointsCount = points.size();
+        return vec3(x / pointsCount, y / pointsCount, z / pointsCount);
+    }
+    inline vec3 mathUtils::getClosestAxisTo(const vec3 & direction)
+    {
+        vec3 axisNormals[] =
+        {
+            vec3(1.0f, 0.0f, 0.0f),
+            vec3(0.0f, 1.0f, 0.0f),
+            vec3(0.0f, 0.0f, 1.0f),
+            vec3(-1.0f, 0.0f, 0.0f),
+            vec3(0.0f, -1.0f, 0.0f),
+            vec3(0.0f, 0.0f, -1.0f)
+        };
+
+        auto maxDot = -20.0f;
+        auto maxNormal = vec3();
+        for (uint_fast8_t i = 0; i < 6; ++i)
+        {
+            auto dot = glm::dot(direction, axisNormals[i]);
+            if (dot > maxDot)
+            {
+                maxDot = dot;
+                maxNormal = axisNormals[i];
+            }
+        }
+
+        assert(maxNormal != vec3());
+
+        return glm::normalize(maxNormal);
     }
 }
