@@ -121,6 +121,7 @@ namespace demon
         _userLibrary->load();
 
         _projectLibrary = new library(application::path);
+        //importer::loadPhiFile("C:\\scene.phi", _userLibrary->getObjectsRepository());
     }
 
     void screen::initContexts()
@@ -151,46 +152,6 @@ namespace demon
             .withAction([=](node* node)
         {
             _commandsManager->executeCommand(new changeContextCommand());
-        })
-            .build();
-
-        auto loadProjectButton = buttonBuilder::newButton()
-            .withPosition(vec3(-280.f, 40.f, 0.f))
-            .withText(L"Load project")
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(font)
-            .withControlColor(.7f, .1f, .2f, 1.f)
-            .withAction([=](node* node)
-        {
-            OPENFILENAME ofn;
-            char fileNameBuffer[260];
-            HANDLE fileHandle;
-
-            ZeroMemory(&ofn, sizeof(ofn));
-            ofn.lStructSize = sizeof(ofn);
-            ofn.lpstrFile = fileNameBuffer;
-
-            // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-            // use the contents of szFile to initialize itself.
-            ofn.lpstrFile[0] = '\0';
-            ofn.nMaxFile = sizeof(fileNameBuffer);
-            ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-            ofn.nFilterIndex = 1;
-            ofn.lpstrFileTitle = NULL;
-            ofn.nMaxFileTitle = 0;
-            ofn.lpstrInitialDir = NULL;
-            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-            // Display the Open dialog box. 
-
-            if (GetOpenFileName(&ofn) == TRUE)
-                fileHandle = CreateFile(ofn.lpstrFile,
-                    GENERIC_READ,
-                    0,
-                    (LPSECURITY_ATTRIBUTES)NULL,
-                    OPEN_EXISTING,
-                    FILE_ATTRIBUTE_NORMAL,
-                    (HANDLE)NULL);
         })
             .build();
 
@@ -289,6 +250,54 @@ namespace demon
             auto path = ofn.lpstrFile;
 
             exporter::exportScene(_sceneLayer->getRoot(), path);
+        })
+            .build();
+
+        auto loadProjectButton = buttonBuilder::newButton()
+            .withPosition(vec3(-280.f, 40.f, 0.f))
+            .withText(L"Load project")
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(font)
+            .withControlColor(.7f, .1f, .2f, 1.f)
+            .withAction([=](node* node)
+        {
+            OPENFILENAME ofn;
+            char fileNameBuffer[260];
+            //HANDLE fileHandle;
+
+            ZeroMemory(&ofn, sizeof(ofn));
+            ofn.lStructSize = sizeof(ofn);
+            ofn.lpstrFile = fileNameBuffer;
+
+            // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+            // use the contents of szFile to initialize itself.
+            ofn.lpstrFile[0] = '\0';
+            ofn.nMaxFile = sizeof(fileNameBuffer);
+            ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+            ofn.nFilterIndex = 1;
+            ofn.lpstrFileTitle = NULL;
+            ofn.nMaxFileTitle = 0;
+            ofn.lpstrInitialDir = NULL;
+            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+            // Display the Open dialog box. 
+
+            if (GetOpenFileName(&ofn) == TRUE)
+            {
+                //fileHandle = CreateFile(ofn.lpstrFile,
+                //    GENERIC_READ,
+                //    0,
+                //    (LPSECURITY_ATTRIBUTES)NULL,
+                //    OPEN_EXISTING,
+                //    FILE_ATTRIBUTE_NORMAL,
+                //    (HANDLE)NULL);
+
+                auto nodes = importer::loadPhiFile(ofn.lpstrFile, _userLibrary->getObjectsRepository());
+                for (auto& node : nodes)
+                {
+                    _sceneLayer->add(node->getClonedObject());
+                }
+            }
         })
             .build();
 

@@ -8,7 +8,8 @@
 #include <core\random.h>
 #include <core\boxCollider.h>
 
-#include <io\path.h>
+#include <io/path.h>
+#include <io/fileReader.h>
 
 #include <common\mouseInteractionComponent.h>
 
@@ -43,34 +44,34 @@ namespace phi
 
             switch (type)
             {
-                case 0:
-                {
-                    objectNode->addComponent(new phi::model());
-                    break;
-                }
-                case 1:
-                {
-                    auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
-                    auto geometry = geometriesRepo->getResource(geometryGuid)->getOriginalObject();
+            case 0:
+            {
+                objectNode->addComponent(new phi::model());
+                break;
+            }
+            case 1:
+            {
+                auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
+                auto geometry = geometriesRepo->getResource(geometryGuid)->getOriginalObject();
 
-                    material* material = material::defaultMaterial;
+                material* material = material::defaultMaterial;
 
-                    auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
-                    auto materialResource = materialsRepo->getResource(materialGuid);
+                auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
+                auto materialResource = materialsRepo->getResource(materialGuid);
 
-                    if (materialResource != nullptr)
-                        material = materialResource->getOriginalObject();
+                if (materialResource != nullptr)
+                    material = materialResource->getOriginalObject();
 
-                    objectNode->addComponent(new phi::mesh(geometry, material));
+                objectNode->addComponent(new phi::mesh(geometry, material));
 
-                    auto aabb = geometry->aabb;
-                    objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->width, aabb->height, aabb->depth)));
-                    objectNode->addComponent(new phi::mouseInteractionComponent());
-                    objectNode->addComponent(new phi::animator());
-                    objectNode->setLocalObb(new obb(aabb->center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
+                auto aabb = geometry->aabb;
+                objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->width, aabb->height, aabb->depth)));
+                objectNode->addComponent(new phi::mouseInteractionComponent());
+                objectNode->addComponent(new phi::animator());
+                objectNode->setLocalObb(new obb(aabb->center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
 
-                    break;
-                }
+                break;
+            }
             }
         }
 
@@ -366,5 +367,48 @@ namespace phi
 #else
         throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
 #endif
+    }
+
+    vector<resource<node>*> importer::loadPhiFile(
+        const string& fileName,
+        const resourcesRepository<node>* nodeRepository)
+    {
+        const string fileContents = fileReader::readFile(fileName);
+        Document* phiJsonDoc = getJsonDocumentFromPhiFile(fileContents);
+        return loadNodes(phiJsonDoc, nodeRepository);
+    }
+
+    Document* importer::getJsonDocumentFromPhiFile(const string& phiFileContents)
+    {
+        Document* doc = new Document();
+        doc->Parse(phiFileContents.c_str());
+        return doc;
+    }
+
+    std::vector<resource<node>*> importer::loadNodes(
+        const Document* phiJsonDoc,
+        const resourcesRepository<node>* nodeRepository)
+    {
+        std::vector<resource<node>*> loadedNodes;
+        if (phiJsonDoc->IsObject() && phiJsonDoc->HasMember("scene"))
+        {
+            auto& scene = (*phiJsonDoc)["scene"];
+            if (scene.IsObject() && scene.HasMember("nodes"))
+            {
+                auto& nodes = scene["nodes"];
+                for (rapidjson::SizeType i = 0; i < nodes.Size(); i++)
+                {
+                    auto nodeGuidStr = nodes[i].GetString();
+                    if (!nodeGuidStr || strlen(nodeGuidStr) == 0)
+                        break;
+
+                    auto nodeGuid = convertToGuid(nodeGuidStr);
+                    auto selectedNode = nodeRepository->getResource(nodeGuid);
+                    if (selectedNode)
+                        loadedNodes.push_back(selectedNode);
+                }
+            }
+        }
+        return loadedNodes;
     }
 }
