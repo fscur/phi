@@ -29,6 +29,7 @@ namespace phi
 
     translationInputController::~translationInputController()
     {
+        safeDelete(_translationService);
     }
 
     bool translationInputController::canStartTranslation(mouseEventArgs* e)

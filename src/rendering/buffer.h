@@ -1,4 +1,5 @@
 #pragma once
+
 #include <phi.h>
 #include "renderingApi.h"
 
@@ -54,11 +55,6 @@ namespace phi
 
     class buffer
     {
-    protected:
-        const string _name;
-        GLuint _id;
-        const bufferTarget::bufferTarget _target;
-
     public:
         buffer(const string& name, const bufferTarget::bufferTarget target) :
             _name(name),
@@ -106,5 +102,10 @@ namespace phi
 
         bufferTarget::bufferTarget getTarget() const { return _target; }
         string getName() const { return _name; }
+
+    protected:
+        const string _name;
+        GLuint _id;
+        const bufferTarget::bufferTarget _target;
     };
 }

@@ -1,55 +1,23 @@
 #include <precompiled.h>
+
+#include <core/geometry.h>
+#include <core/notImplementedException.h>
+
+#include <rendering/framebufferLayoutBuilder.h>
+#include <rendering/gBufferRTAddresses.h>
+#include <rendering/programBuilder.h>
+#include <rendering/textureAddress.h>
+#include <rendering/texturesManager.h>
+#include <rendering/textureUnits.h>
+#include <rendering/vertexArrayObject.h>
+
 #include "lightingRenderPass.h"
-
-#include <core\notImplementedException.h>
-#include <core\geometry.h>
-
-#include <rendering\textureUnits.h>
-#include <rendering\texturesManager.h>
-#include <rendering\gBufferRTAddresses.h>
-#include <rendering\textureAddress.h>
-#include <rendering\vertexArrayObject.h>
-
-#include <rendering\programBuilder.h>
-#include <rendering\framebufferLayoutBuilder.h>
 
 namespace phi
 {
-    void lightingRenderPass::updateGBufferRTsBuffer(
-        buffer* rtsBuffer,
-        const texture* rt0Texture,
-        const texture* rt1Texture,
-        const texture* rt2Texture,
-        const texture* rtDepthTexture,
-        const texture* rtPickingTexture)
-    {
-        auto rtAddresses = phi::gBufferRTAddresses();
-        auto rt0Address = texturesManager::getTextureAddress(rt0Texture);
-        auto rt1Address = texturesManager::getTextureAddress(rt1Texture);
-        auto rt2Address = texturesManager::getTextureAddress(rt2Texture);
-        auto rtDepthAddress = texturesManager::getTextureAddress(rtDepthTexture);
-        auto rtPickingAddress = texturesManager::getTextureAddress(rtPickingTexture);
-
-        rtAddresses.rt0Unit = rt0Address.unit;
-        rtAddresses.rt0Page = rt0Address.page;
-        rtAddresses.rt1Unit = rt1Address.unit;
-        rtAddresses.rt1Page = rt1Address.page;
-        rtAddresses.rt2Unit = rt2Address.unit;
-        rtAddresses.rt2Page = rt2Address.page;
-        rtAddresses.depthUnit = rtDepthAddress.unit;
-        rtAddresses.depthPage = rtDepthAddress.page;
-        rtAddresses.pickingUnit = rtPickingAddress.unit;
-        rtAddresses.pickingPage = rtPickingAddress.page;
-
-        rtsBuffer->data(
-            sizeof(gBufferRTAddresses),
-            &rtAddresses,
-            bufferDataUsage::dynamicDraw);
-    }
-
     renderPass* lightingRenderPass::configure(
-        renderPass* gBufferRenderPass, 
-        const resolution& resolution, 
+        renderPass* gBufferRenderPass,
+        const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
@@ -64,9 +32,9 @@ namespace phi
         auto rtsBuffer = new buffer("gBufferRTAddresses", bufferTarget::uniform);
 
         /*rtsBuffer->data(
-            sizeof(gBufferRTAddresses),
-            nullptr,
-            bufferDataUsage::dynamicDraw);*/
+        sizeof(gBufferRTAddresses),
+        nullptr,
+        bufferDataUsage::dynamicDraw);*/
 
         auto program = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
         program->addBuffer(rtsBuffer);
@@ -132,5 +100,37 @@ namespace phi
         });
 
         return pass;
+    }
+
+    void lightingRenderPass::updateGBufferRTsBuffer(
+        buffer* rtsBuffer,
+        const texture* rt0Texture,
+        const texture* rt1Texture,
+        const texture* rt2Texture,
+        const texture* rtDepthTexture,
+        const texture* rtPickingTexture)
+    {
+        auto rtAddresses = phi::gBufferRTAddresses();
+        auto rt0Address = texturesManager::getTextureAddress(rt0Texture);
+        auto rt1Address = texturesManager::getTextureAddress(rt1Texture);
+        auto rt2Address = texturesManager::getTextureAddress(rt2Texture);
+        auto rtDepthAddress = texturesManager::getTextureAddress(rtDepthTexture);
+        auto rtPickingAddress = texturesManager::getTextureAddress(rtPickingTexture);
+
+        rtAddresses.rt0Unit = rt0Address.unit;
+        rtAddresses.rt0Page = rt0Address.page;
+        rtAddresses.rt1Unit = rt1Address.unit;
+        rtAddresses.rt1Page = rt1Address.page;
+        rtAddresses.rt2Unit = rt2Address.unit;
+        rtAddresses.rt2Page = rt2Address.page;
+        rtAddresses.depthUnit = rtDepthAddress.unit;
+        rtAddresses.depthPage = rtDepthAddress.page;
+        rtAddresses.pickingUnit = rtPickingAddress.unit;
+        rtAddresses.pickingPage = rtPickingAddress.page;
+
+        rtsBuffer->data(
+            sizeof(gBufferRTAddresses),
+            &rtAddresses,
+            bufferDataUsage::dynamicDraw);
     }
 }

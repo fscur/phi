@@ -32,6 +32,8 @@ namespace phi
 
     translationService::~translationService()
     {
+        safeDelete(_nodeTranslator);
+        safeDelete(_ghostTranslator);
     }
 
     void translationService::startTranslation(ivec2 mousePosition)
