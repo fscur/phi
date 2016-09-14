@@ -115,7 +115,7 @@ namespace demon
         _userLibrary->load();
 
         _projectLibrary = new library(application::path);
-		importer::loadNodes("", _userLibrary->getObjectsRepository());
+		importer::importPhiFile("C:\\scene.phi", _userLibrary->getObjectsRepository());
     }
 
     void screen::initContexts()

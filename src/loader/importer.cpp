@@ -1,13 +1,14 @@
 #include <precompiled.h>
 #include "importer.h"
 
-#include <core\color.h>
-#include <core\base64.h>
-#include <core\random.h>
-#include <core\clickComponent.h>
-#include <core\boxCollider.h>
+#include <core/color.h>
+#include <core/base64.h>
+#include <core/random.h>
+#include <core/clickComponent.h>
+#include <core/boxCollider.h>
 
-#include <io\path.h>
+#include <io/path.h>
+#include <io/fileReader.h>
 
 #include "importResourceException.h"
 
@@ -361,28 +362,46 @@ namespace phi
 #endif
 	}
 
-	std::vector<resource<node>*> importer::loadNodes(
+	void importer::loadPhiFile(
 		const string& fileName,
 		const resourcesRepository<node>* nodeRepository)
 	{
-		//TODO use load file function of io - returns str with file content
-		const char* jsonResult = "{\"scene\": {\"nodes\": [\"IUYV6Y6K5U+c9b8TWW/K/A==\"]}}";
-		
+		const string fileContents = fileReader::readFile(fileName);
+		Document* phiJsonDoc = getJsonDocumentFromPhiFile(fileContents);
+		auto sceneNodes = loadNodes(phiJsonDoc, nodeRepository);
+	}
+
+	Document* importer::getJsonDocumentFromPhiFile(const string& phiFileContents)
+	{
+		Document* doc = new Document();
+		doc->Parse(phiFileContents.c_str());
+		return doc;
+	}
+
+	std::vector<resource<node>*> importer::loadNodes(
+		const Document* phiJsonDoc,
+		const resourcesRepository<node>* nodeRepository)
+	{
 		std::vector<resource<node>*> loadedNodes;
-		Document doc;
-		doc.Parse(jsonResult);
-
-		Value& scene = doc["scene"];
-		Value& nodes = scene["nodes"];
-
-		for (rapidjson::SizeType i = 0; i < nodes.Size(); i++)
+		if (phiJsonDoc->IsObject() && phiJsonDoc->HasMember("scene"))
 		{
-			auto nodeGuid = convertToGuid(nodes[i].GetString());
-			auto selectedNode = nodeRepository->getResource(nodeGuid);
-			if (selectedNode)
-				loadedNodes.push_back(selectedNode);
-		}
+			auto& scene = (*phiJsonDoc)["scene"];
+			if (scene.IsObject() && scene.HasMember("nodes"))
+			{
+				auto& nodes = scene["nodes"];
+				for (rapidjson::SizeType i = 0; i < nodes.Size(); i++)
+				{
+					auto nodeGuidStr = nodes[i].GetString();
+					if (!nodeGuidStr || strlen(nodeGuidStr) == 0)
+						break;
 
+					auto nodeGuid = convertToGuid(nodeGuidStr);
+					auto selectedNode = nodeRepository->getResource(nodeGuid);
+					if (selectedNode)
+						loadedNodes.push_back(selectedNode);
+				}
+			}
+		}
 		return loadedNodes;
 	}
 }
