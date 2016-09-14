@@ -38,40 +38,38 @@ namespace phi
         
     private:
         void resetTargetNodesColliders();
-        plane createPlaneFromAxis(vec3 axis);
-        translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
 
-        translationPlane* createTranslationPlane(plane plane);
+        void createPlanes();
+        plane createPlaneFromAxis(const vec3& axis);
+        translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
+        translationPlane* createTranslationPlane(const plane& plane);
         void showTranslationPlane();
+
         void enqueuePlaneForDeletion(translationPlane* planeToRemove);
-        
         void deletePlane(translationPlane* translationPlane);
         void deletePlaneIfNotVisible();
+        
         void updatePlaneVisibility();
 
-        bool canChangeTo(plane plane);
-        bool isPlaneVisible(plane plane);
-        float getExtinctionFactor(vec3 normal);
-        float getPlaneVisibility(plane plane);
-
-        void createPlaneIfNeeded();
-
+        bool canChangeTo(const plane& plane);
+        bool isPlaneVisible(const plane& plane);
+        float getExtinctionFactor(const vec3& normal);
+        float getPlaneVisibility(const plane& plane);
         bool isNormalValidForCollision(const sweepCollision & touch, const vec3 & normal);
         
-        vector<sweepCollision> findTouchingCollisions(vec3 direction, float distance);
-        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
-
-        bool tryChangingPlanes(ivec2 mousePosition);
+        bool tryChangingPlanes();
         bool tryChangeToPlanesFromCollisions();
-        bool tryChangeToAttachedPlane(ivec2 mousePosition);
-
-        void changePlanes(translationPlane * translationPlane, plane offsetPlane);
+        bool tryChangeToAttachedPlane();
+        void changePlanes(translationPlane * translationPlane, const plane& offsetPlane);
         
-        void translateTargetNodes(vec3 endPosition);
-        void translatePlaneGrid(vec3 endPosition);
+        void translateTargetNodes(const vec3& targetPosition);
+        void translatePlaneGrid(const vec3& targetPosition);
 
+        void resetCurrentCollisions();
         void checkCollisionsBeforeTranslation();
         void checkCollisionsAferTranslation();
+        vector<sweepCollision> findTouchingCollisions(const vec3& direction, float distance);
+        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
 
     private:
         const vector<node*>* _targetNodes;
@@ -90,7 +88,7 @@ namespace phi
         vector<translationPlane*> _planesToDelete;
         ivec2 _lastMousePosition;
 
-        vector<sweepCollision>* _lastTouchingCollisions;
+        vector<sweepCollision>* _lastCollisions;
         vector<sweepCollision> _currentCollisions;
 
         vector<boxCollider*> _targetNodesColliders;
