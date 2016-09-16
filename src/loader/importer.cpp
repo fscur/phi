@@ -369,7 +369,7 @@ namespace phi
 #endif
     }
 
-    vector<resource<node>*> importer::loadPhiFile(
+    vector<node*> importer::loadPhiFile(
         const string& fileName,
         const resourcesRepository<node>* nodeRepository)
     {
@@ -385,12 +385,34 @@ namespace phi
         return doc;
     }
 
-    std::vector<resource<node>*> importer::loadNodes(
+    std::vector<node*> importer::loadNodes(
         const Document* phiJsonDoc,
         const resourcesRepository<node>* nodeRepository)
     {
-        std::vector<resource<node>*> loadedNodes;
-        if (phiJsonDoc->IsObject() && phiJsonDoc->HasMember("scene"))
+        std::vector<node*> loadedNodes;
+        if (phiJsonDoc->IsObject() && phiJsonDoc->HasMember("scene") && phiJsonDoc->HasMember("nodes"))
+        {
+            auto& nodes = (*phiJsonDoc)["nodes"];
+            if (nodes.IsObject())
+            {
+                for (rapidjson::Value::ConstMemberIterator nodeIt = nodes.MemberBegin(); nodeIt != nodes.MemberEnd(); ++nodeIt)
+                {
+                    auto nodeGuidStr = nodeIt->value.FindMember("guid")->value.GetString();
+                    auto nodeGuid = convertToGuid(nodeGuidStr);
+                    //auto translation = nodeIt->value.FindMember("translation")->value;
+
+                    for (auto i = 0; i < nodeIt->value.FindMember("translation")->value.Size(); ++i)
+                    {
+                    }
+
+                    auto selectedNode = nodeRepository->getResource(nodeGuid)->getClonedObject();
+                    if (selectedNode)
+                        loadedNodes.push_back(selectedNode);
+                }
+            }
+        }
+
+        /*if (phiJsonDoc->IsObject() && phiJsonDoc->HasMember("scene"))
         {
             auto& scene = (*phiJsonDoc)["scene"];
             if (scene.IsObject() && scene.HasMember("nodes"))
@@ -398,17 +420,17 @@ namespace phi
                 auto& nodes = scene["nodes"];
                 for (rapidjson::SizeType i = 0; i < nodes.Size(); i++)
                 {
-                    auto nodeGuidStr = nodes[i].GetString();
-                    if (!nodeGuidStr || strlen(nodeGuidStr) == 0)
+                    auto nodeNameStr = nodes[i].GetString();
+                    if (!nodeNameStr || strlen(nodeNameStr) == 0)
                         break;
 
-                    auto nodeGuid = convertToGuid(nodeGuidStr);
+                    auto nodeGuid = convertToGuid(nodeNameStr);
                     auto selectedNode = nodeRepository->getResource(nodeGuid);
                     if (selectedNode)
                         loadedNodes.push_back(selectedNode);
                 }
             }
-        }
+        }*/
         return loadedNodes;
     }
 }

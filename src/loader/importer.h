@@ -39,14 +39,14 @@ namespace phi
 
         /*------------------- load .phi file ----------------------------*/
 
-        static vector<resource<node>*> loadPhiFile(
+        static vector<node*> loadPhiFile(
             const string& fileName,
             const resourcesRepository<node>* nodeRepository);
 
         static rapidjson::Document* getJsonDocumentFromPhiFile(
             const string& phiFileContents);
 
-        static std::vector<resource<node>*> loadNodes(
+        static std::vector<node*> loadNodes(
             const rapidjson::Document* phiJsonDoc,
             const resourcesRepository<node>* nodeRepository);
         /*------------------------------------------------------------------*/

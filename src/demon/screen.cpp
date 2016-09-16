@@ -121,7 +121,6 @@ namespace demon
         _userLibrary->load();
 
         _projectLibrary = new library(application::path);
-        //importer::loadPhiFile("C:\\scene.phi", _userLibrary->getObjectsRepository());
     }
 
     void screen::initContexts()
@@ -191,7 +190,6 @@ namespace demon
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                //.withBoxColliderRenderer()
                 .withPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()
@@ -263,14 +261,11 @@ namespace demon
         {
             OPENFILENAME ofn;
             char fileNameBuffer[260];
-            //HANDLE fileHandle;
 
             ZeroMemory(&ofn, sizeof(ofn));
             ofn.lStructSize = sizeof(ofn);
             ofn.lpstrFile = fileNameBuffer;
 
-            // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-            // use the contents of szFile to initialize itself.
             ofn.lpstrFile[0] = '\0';
             ofn.nMaxFile = sizeof(fileNameBuffer);
             ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
@@ -280,18 +275,10 @@ namespace demon
             ofn.lpstrInitialDir = NULL;
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-            // Display the Open dialog box. 
+            // Display the Open dialog box.
 
             if (GetOpenFileName(&ofn) == TRUE)
             {
-                //fileHandle = CreateFile(ofn.lpstrFile,
-                //    GENERIC_READ,
-                //    0,
-                //    (LPSECURITY_ATTRIBUTES)NULL,
-                //    OPEN_EXISTING,
-                //    FILE_ATTRIBUTE_NORMAL,
-                //    (HANDLE)NULL);
-
                 auto nodes = importer::loadPhiFile(ofn.lpstrFile, _userLibrary->getObjectsRepository());
                 for (auto& node : nodes)
                 {

@@ -35,10 +35,15 @@ namespace phi
     void exporter::exportScene(node* root, string path)
     {
         Document document(kObjectType);
+
+        Value nodes(kObjectType);
+
         Value scene(kObjectType);
-        Value nodes(kArrayType);
+        Value sceneNodes(kArrayType);
 
         Document::AllocatorType& allocator = document.GetAllocator();
+
+        auto namelessNodesCount = 0u;
 
         for (auto& node : *root->getChildren())
         {
@@ -46,14 +51,52 @@ namespace phi
             if (!resource)
                 continue;
 
+            auto transform = node->getTransform();
+            auto translation = transform->getLocalPosition();
+            auto rotation = transform->getLocalOrientation();
+            auto scale = transform->getLocalSize();
+
             auto guidString = resource->getGuid().toStringBase64();
             auto size = static_cast<SizeType>(guidString.length());
 
-            auto value = Value(guidString.c_str(), size, allocator);
-            nodes.PushBack(value, allocator);
+            auto nodeName = node->getName().empty() ? "node_" + std::to_string(namelessNodesCount++) : node->getName();
+            auto nameLength = static_cast<SizeType>(nodeName.length());
+
+            auto guidValue = Value(guidString.c_str(), size, allocator);
+
+            Value translationValue(kArrayType);
+            translationValue.PushBack(translation.x, allocator);
+            translationValue.PushBack(translation.y, allocator);
+            translationValue.PushBack(translation.z, allocator);
+
+            Value rotationValue(kArrayType);
+            rotationValue.PushBack(rotation.x, allocator);
+            rotationValue.PushBack(rotation.y, allocator);
+            rotationValue.PushBack(rotation.z, allocator);
+            rotationValue.PushBack(rotation.w, allocator);
+
+            Value scaleValue(kArrayType);
+            scaleValue.PushBack(scale.x, allocator);
+            scaleValue.PushBack(scale.y, allocator);
+            scaleValue.PushBack(scale.z, allocator);
+
+            auto nodeKey = Value(nodeName.c_str(), nameLength, allocator);
+            auto nodeValue = Value(kObjectType);
+
+            nodeValue.AddMember("guid", guidValue, allocator);
+            nodeValue.AddMember("translation", translationValue, allocator);
+            nodeValue.AddMember("rotation", rotationValue, allocator);
+            nodeValue.AddMember("scale", scaleValue, allocator);
+
+            nodes.AddMember(nodeKey, nodeValue, allocator);
+
+            auto sceneKey = Value(nodeName.c_str(), nameLength, allocator);
+            sceneNodes.PushBack(sceneKey, allocator);
         }
 
-        scene.AddMember("nodes", nodes, allocator);
+        scene.AddMember("nodes", sceneNodes, allocator);
+
+        document.AddMember("nodes", nodes, allocator);
         document.AddMember("scene", scene, allocator);
 
         writeDocument(document, path);
