@@ -15,6 +15,15 @@ namespace phi
     {
     }
 
+    translationPlane::~translationPlane()
+    {
+        safeDelete(_planeGridNode);
+        safeDelete(_draggingAnimation);
+        safeDelete(_fadeInAnimation);
+        safeDelete(_fadeOutAnimation);
+        safeDelete(_clippingPlanesFadeAnimation);
+    }
+
     void translationPlane::setPlaneGridNode(node* value)
     {
         _planeGridNode = value;
@@ -100,6 +109,12 @@ namespace phi
         auto toPlaneTransform = new transform();
         toPlaneTransform->setLocalPosition(position);
 
-        _draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
+        auto animationEndedFunction = [fromPlaneTransform, toPlaneTransform]() mutable
+        {
+            safeDelete(fromPlaneTransform);
+            safeDelete(toPlaneTransform);
+        };
+
+        _draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33, animationEndedFunction);
     }
 }

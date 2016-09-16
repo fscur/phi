@@ -156,7 +156,7 @@ namespace demon
             .build();
 
 
-        //auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
         //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.8f + DECIMAL_TRUNCATION, 0.0f));
         ////cube0->getTransform()->yaw(PI_OVER_2);
         ////cube0->getTransform()->pitch(PI_OVER_4);
@@ -197,15 +197,15 @@ namespace demon
         {
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
-                .withGhostMeshRenderer()
+                //.withGhostMeshRenderer()
                 //.withObbRenderer()
                 //.withBoxColliderRenderer()
-                .withPlaneGridRenderer()
+                //.withPlaneGridRenderer()
                 .withPhysics()
-                .withAnimation()
-                .withCameraController()
-                .withSelectionController()
-                .withTranslationController()
+                //.withAnimation()
+                //.withCameraController()
+                //.withSelectionController()
+                //.withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -245,7 +245,7 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        //_sceneLayer->add(cube0);
+        _sceneLayer->add(cube0);
         //_sceneLayer->add(cube1);
         //_sceneLayer->add(floor0);
         //_sceneLayer->add(_chair0);

@@ -24,5 +24,6 @@ namespace phi
         void translate(vec3 offset);
         void addRange(const vector<node*>& nodes);
         void clear();
+        void deleteGhostNodes();
     };
 }

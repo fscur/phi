@@ -27,6 +27,13 @@ namespace phi
         _to = to;
     }
 
+    void transformAnimation::start(transform* from, transform* to, double duration, std::function<void(void)> animationEndedCallback)
+    {
+        animation::start(duration, animationEndedCallback);
+        _from = from;
+        _to = to;
+    }
+
     void transformAnimation::update(double t)
     {
         auto fromPosition = _from->getLocalPosition();

@@ -24,6 +24,7 @@ namespace phi
         ANIMATION_API transformAnimation(const transformAnimation& original);
         ANIMATION_API ~transformAnimation();
         ANIMATION_API void start(transform* from, transform* to, double duration);
+        ANIMATION_API void start(transform* from, transform* to, double duration, std::function<void(void)> animationEndedCallback);
         ANIMATION_API void update(double t) override;
         ANIMATION_API animation* clone() override;
     };

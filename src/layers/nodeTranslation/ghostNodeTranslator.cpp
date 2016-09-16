@@ -1,8 +1,9 @@
-
 #include <precompiled.h>
-#include "ghostNodeTranslator.h"
+
 #include <core/ghostMesh.h>
 #include <core/mesh.h>
+
+#include "ghostNodeTranslator.h"
 
 namespace phi
 {
@@ -15,6 +16,7 @@ namespace phi
 
     ghostNodeTranslator::~ghostNodeTranslator()
     {
+        deleteGhostNodes();
     }
 
     void ghostNodeTranslator::enable()
@@ -118,6 +120,14 @@ namespace phi
     {
         if (_showingGhosts)
             disable();
+
+        deleteGhostNodes();
+    }
+
+    void ghostNodeTranslator::deleteGhostNodes()
+    {
+        for (auto& pair : _ghostNodes)
+            safeDelete(pair.second);
 
         _ghostNodes.clear();
     }

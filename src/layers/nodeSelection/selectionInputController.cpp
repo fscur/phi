@@ -186,7 +186,7 @@ namespace phi
         auto commands = new multiCommand(
         {
             new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()),
-            new selectNodeCommand(targetNode)
+            selectCommand
         });
 
         _commandsManager->executeCommand(commands);
