@@ -120,4 +120,33 @@ namespace phi
 
         fclose(fp);
     }
+
+    Document exporter::getCameraTransformDocument(transform* transform)
+    {
+        Document document(kObjectType);
+        auto& allocator = document.GetAllocator();
+        auto& translation = rapidjsonHelper::getVec3JsonValue(transform->getPosition(), allocator);
+        auto& scale = rapidjsonHelper::getVec3JsonValue(transform->getSize(), allocator);
+        auto& orientation = rapidjsonHelper::getQuatJsonValue(transform->getOrientation(), allocator);
+
+        document.AddMember("translation", translation, allocator);
+        document.AddMember("scale", scale, allocator);
+        document.AddMember("orientation", orientation, allocator);
+        
+        return document;
+    }
+
+    Document exporter::exportCamera(camera* camera)
+    {
+        Document doc(kObjectType);
+        auto& allocator = doc.GetAllocator();
+        auto& transform = getCameraTransformDocument(camera->getTransform());
+
+        doc.AddMember("transform", transform, allocator);
+        doc.AddMember("near", camera->getNear(), allocator);
+        doc.AddMember("far", camera->getFar(), allocator);
+        doc.AddMember("fov", camera->getFov(), allocator);
+
+        return doc;
+    }
 }
