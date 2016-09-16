@@ -2,10 +2,11 @@
 #include <phi.h>
 #include "loaderApi.h"
 
-#include <core\resourcesRepository.h>
-#include <core\node.h>
-#include <core\model.h>
-#include <core\mesh.h>
+#include <core/resourcesRepository.h>
+#include <core/node.h>
+#include <core/model.h>
+#include <core/mesh.h>
+#include <rendering/camera.h>
 
 #include "assimpImporter.h"
 
@@ -49,6 +50,8 @@ namespace phi
         static std::vector<node*> loadNodes(
             const rapidjson::Document* phiJsonDoc,
             const resourcesRepository<node>* nodeRepository);
+
+        static camera* loadCamera(const rapidjson::Document* phiJsonDocument);
         /*------------------------------------------------------------------*/
     };
 }

@@ -7,6 +7,7 @@
 #include <core/base64.h>
 #include <core/random.h>
 #include <core/boxCollider.h>
+#include <core/transform.h>
 
 #include <io/path.h>
 #include <io/fileReader.h>
@@ -376,6 +377,7 @@ namespace phi
     {
         const string fileContents = fileReader::readFile(fileName);
         Document* phiJsonDoc = getJsonDocumentFromPhiFile(fileContents);
+        auto camera = loadCamera(phiJsonDoc);
         return loadNodes(phiJsonDoc, nodeRepository);
     }
 
@@ -417,5 +419,30 @@ namespace phi
         }
 
         return loadedNodes;
+    }
+
+    camera* importer::loadCamera(const Document* phiJsonDocument)
+    {
+        auto& cameraJsonValue = (*phiJsonDocument)["camera"];
+        auto near = cameraJsonValue["near"].GetDouble();
+        auto far = cameraJsonValue["far"].GetDouble();
+        auto fov = cameraJsonValue["fov"].GetDouble();
+
+        auto& transformJsonValue = cameraJsonValue["transform"];
+        auto translation = rapidjsonHelper::iteratorToVec3(transformJsonValue.FindMember("translation"));
+        auto scale = rapidjsonHelper::iteratorToVec3(transformJsonValue.FindMember("scale"));
+        auto orientation = rapidjsonHelper::iteratorToQuat(transformJsonValue.FindMember("orientation"));
+
+        auto transform = new phi::transform();
+        transform->setLocalSize(scale);
+        transform->setLocalOrientation(orientation);
+        transform->setLocalPosition(translation);
+
+        return new camera(
+            resolution(1920, 1080),
+            transform,
+            (float)near, 
+            (float)far, 
+            (float)fov);
     }
 }
