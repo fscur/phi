@@ -282,7 +282,7 @@ namespace demon
                 auto nodes = importer::loadPhiFile(ofn.lpstrFile, _userLibrary->getObjectsRepository());
                 for (auto& node : nodes)
                 {
-                    _sceneLayer->add(node->getClonedObject());
+                    _sceneLayer->add(node);
                 }
             }
         })
@@ -301,7 +301,7 @@ namespace demon
             _framebufferAllocator,
             _commandsManager,
             { _sceneLayer, _constructionLayer });
-
+/*
         _sceneLayer->add(cube0);
         _sceneLayer->add(cube1);
         _sceneLayer->add(_chair0);
@@ -309,7 +309,7 @@ namespace demon
         _sceneLayer->add(back_wall);
         _sceneLayer->add(table);
         _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable);
+        _sceneLayer->add(coffeTable)*/;
 
         //TODO: prevent components that are not dealt with it from being added to layer
 

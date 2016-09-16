@@ -3,10 +3,12 @@
 
 namespace phi
 {
-    rapidjson::Value rapidjsonHelper::getVec3JsonValue(vec3 vec, rapidjson::Document::AllocatorType& allocator)
+    using namespace rapidjson;
+
+    Value rapidjsonHelper::getVec3JsonValue(vec3 vec, Document::AllocatorType& allocator)
     {
-        rapidjson::Value val(rapidjson::kArrayType);
-        
+        Value val(kArrayType);
+
         val.PushBack(vec.x, allocator);
         val.PushBack(vec.y, allocator);
         val.PushBack(vec.z, allocator);
@@ -14,9 +16,9 @@ namespace phi
         return val;
     }
 
-    rapidjson::Value rapidjsonHelper::getQuatJsonValue(quat quat, rapidjson::Document::AllocatorType& allocator)
+    Value rapidjsonHelper::getQuatJsonValue(quat quat, Document::AllocatorType& allocator)
     {
-        rapidjson::Value val(rapidjson::kArrayType);
+        Value val(kArrayType);
 
         val.PushBack(quat.x, allocator);
         val.PushBack(quat.y, allocator);
@@ -26,14 +28,40 @@ namespace phi
         return val;
     }
 
-    string rapidjsonHelper::getDocumentString(const rapidjson::Document& doc)
+    string rapidjsonHelper::getDocumentString(const Document& doc)
     {
-        rapidjson::StringBuffer buffer;
+        StringBuffer buffer;
         buffer.Clear();
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        
+
         doc.Accept(writer);
 
         return buffer.GetString();
+    }
+
+    vec3 rapidjsonHelper::iteratorToVec3(GenericMemberIterator<true, UTF8<>, MemoryPoolAllocator<>> memberIterator)
+    {
+        return vec3(
+            static_cast<float>(memberIterator->value[0].GetDouble()),
+            static_cast<float>(memberIterator->value[1].GetDouble()),
+            static_cast<float>(memberIterator->value[2].GetDouble()));
+    }
+
+    vec4 rapidjsonHelper::iteratorToVec4(GenericMemberIterator<true, UTF8<>, MemoryPoolAllocator<>> memberIterator)
+    {
+        return vec4(
+            static_cast<float>(memberIterator->value[0].GetDouble()),
+            static_cast<float>(memberIterator->value[1].GetDouble()),
+            static_cast<float>(memberIterator->value[2].GetDouble()),
+            static_cast<float>(memberIterator->value[3].GetDouble()));
+    }
+
+    quat rapidjsonHelper::iteratorToQuat(rapidjson::GenericMemberIterator<true, rapidjson::UTF8<>, rapidjson::MemoryPoolAllocator<>> memberIterator)
+    {
+        return quat(
+            static_cast<float>(memberIterator->value[3].GetDouble()),
+            static_cast<float>(memberIterator->value[0].GetDouble()),
+            static_cast<float>(memberIterator->value[1].GetDouble()),
+            static_cast<float>(memberIterator->value[2].GetDouble()));
     }
 }

@@ -1,17 +1,18 @@
 #include <precompiled.h>
 #include "importer.h"
 
-#include <animation\animator.h>
+#include <animation/animator.h>
 
-#include <core\color.h>
-#include <core\base64.h>
-#include <core\random.h>
-#include <core\boxCollider.h>
+#include <core/color.h>
+#include <core/base64.h>
+#include <core/random.h>
+#include <core/boxCollider.h>
 
 #include <io/path.h>
 #include <io/fileReader.h>
+#include <io/rapidjsonHelper.h>
 
-#include <common\mouseInteractionComponent.h>
+#include <common/mouseInteractionComponent.h>
 
 #include "importResourceException.h"
 
@@ -399,38 +400,22 @@ namespace phi
                 {
                     auto nodeGuidStr = nodeIt->value.FindMember("guid")->value.GetString();
                     auto nodeGuid = convertToGuid(nodeGuidStr);
-                    //auto translation = nodeIt->value.FindMember("translation")->value;
-
-                    for (auto i = 0; i < nodeIt->value.FindMember("translation")->value.Size(); ++i)
-                    {
-                    }
+                    auto translation = rapidjsonHelper::iteratorToVec3(nodeIt->value.FindMember("translation"));
+                    auto scale = rapidjsonHelper::iteratorToVec3(nodeIt->value.FindMember("scale"));
+                    auto rotation = rapidjsonHelper::iteratorToQuat(nodeIt->value.FindMember("rotation"));
 
                     auto selectedNode = nodeRepository->getResource(nodeGuid)->getClonedObject();
                     if (selectedNode)
+                    {
+                        selectedNode->getTransform()->setLocalPosition(translation);
+                        selectedNode->getTransform()->setLocalOrientation(rotation);
+                        selectedNode->getTransform()->setLocalSize(scale);
                         loadedNodes.push_back(selectedNode);
+                    }
                 }
             }
         }
 
-        /*if (phiJsonDoc->IsObject() && phiJsonDoc->HasMember("scene"))
-        {
-            auto& scene = (*phiJsonDoc)["scene"];
-            if (scene.IsObject() && scene.HasMember("nodes"))
-            {
-                auto& nodes = scene["nodes"];
-                for (rapidjson::SizeType i = 0; i < nodes.Size(); i++)
-                {
-                    auto nodeNameStr = nodes[i].GetString();
-                    if (!nodeNameStr || strlen(nodeNameStr) == 0)
-                        break;
-
-                    auto nodeGuid = convertToGuid(nodeNameStr);
-                    auto selectedNode = nodeRepository->getResource(nodeGuid);
-                    if (selectedNode)
-                        loadedNodes.push_back(selectedNode);
-                }
-            }
-        }*/
         return loadedNodes;
     }
 }
