@@ -82,9 +82,9 @@ namespace phi
     {
         Document document(kObjectType);
         auto& allocator = document.GetAllocator();
-        auto& translation = getVec3JsonValue(transform->getPosition(), allocator);
-        auto& scale = getVec3JsonValue(transform->getSize(), allocator);
-        auto& orientation = getQuatJsonValue(transform->getOrientation(), allocator);
+        auto& translation = rapidjsonHelper::getVec3JsonValue(transform->getPosition(), allocator);
+        auto& scale = rapidjsonHelper::getVec3JsonValue(transform->getSize(), allocator);
+        auto& orientation = rapidjsonHelper::getQuatJsonValue(transform->getOrientation(), allocator);
 
         document.AddMember("translation", translation, allocator);
         document.AddMember("scale", scale, allocator);
@@ -93,28 +93,7 @@ namespace phi
         return document;
     }
 
-    rapidjson::Value exporter::getVec3JsonValue(vec3 vec, rapidjson::Document::AllocatorType& allocator)
-    {
-        Value val(kArrayType);
-        val.PushBack(vec.x, allocator);
-        val.PushBack(vec.y, allocator);
-        val.PushBack(vec.z, allocator);
-
-        return val;
-    }
-
-    rapidjson::Value exporter::getQuatJsonValue(quat quat, rapidjson::Document::AllocatorType& allocator)
-    {
-        Value val(kArrayType);
-        val.PushBack(quat.x, allocator);
-        val.PushBack(quat.y, allocator);
-        val.PushBack(quat.z, allocator);
-        val.PushBack(quat.w, allocator);
-
-        return val;
-    }
-
-    rapidjson::Document exporter::exportCamera(camera* camera)
+    Document exporter::exportCamera(camera* camera)
     {
         Document doc(kObjectType);
         auto& allocator = doc.GetAllocator();

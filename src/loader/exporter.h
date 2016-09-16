@@ -5,6 +5,7 @@
 #include <core/geometry.h>
 #include <core/node.h>
 #include <rendering/camera.h>
+#include <io/rapidjsonHelper.h>
 
 namespace phi
 {
@@ -17,11 +18,5 @@ namespace phi
     private:
         static void writeDocument(const rapidjson::Document & document, string & path);
         static rapidjson::Document getCameraTransformDocument(transform* transform);
-        static rapidjson::Value getVec3JsonValue(
-            vec3 vec, 
-            rapidjson::Document::AllocatorType& allocator);
-        static rapidjson::Value getQuatJsonValue(
-            quat quat, 
-            rapidjson::Document::AllocatorType& allocator);
     };
 }
