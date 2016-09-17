@@ -120,18 +120,18 @@ namespace phi
 
         switch (bpp)
         {
-        case 24:
-            if (redMask == 255)
-                format = imageDataFormat::rgb;
-            else
-                format = imageDataFormat::bgr;
-            break;
-        case 32:
-            if (redMask == 255)
-                format = imageDataFormat::rgba;
-            else
-                format = imageDataFormat::bgra;
-            break;
+            case 24:
+                if (redMask == 255)
+                    format = imageDataFormat::rgb;
+                else
+                    format = imageDataFormat::bgr;
+                break;
+            case 32:
+                if (redMask == 255)
+                    format = imageDataFormat::rgba;
+                else
+                    format = imageDataFormat::bgra;
+                break;
         }
 
         auto bytesPerPixel = bpp / 8;
@@ -341,18 +341,21 @@ namespace phi
 
         auto guid = convertToGuid(document["Guid"].GetString());
 
-        aabb* rootAabb = nullptr;
-        rootNode->traverse<mesh>([&rootAabb](mesh* mesh)
+        bool foundAabb = false;
+        aabb rootAabb;
+        rootNode->traverse<mesh>([&rootAabb, &foundAabb](mesh* mesh)
         {
-            if (rootAabb)
-                rootAabb = new aabb(aabb::add(*rootAabb, *mesh->getGeometry()->aabb));
-            else
-                rootAabb = mesh->getGeometry()->aabb;
+            rootAabb = aabb::add(rootAabb, *mesh->getGeometry()->aabb);
+            foundAabb = true;
         });
-        auto boxCollider = new phi::boxCollider(rootAabb->center, rootAabb->getSize());
-        boxCollider->disable();
 
-        rootNode->addComponent(boxCollider);
+        if (foundAabb)
+        {
+            auto boxCollider = new phi::boxCollider(rootAabb.center, rootAabb.getSize());
+            boxCollider->disable();
+            rootNode->addComponent(boxCollider);
+        }
+
         rootNode->addComponent(new phi::clickComponent());
 
         return new resource<node>(guid, nodeName, rootNode);

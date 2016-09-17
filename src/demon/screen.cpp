@@ -156,7 +156,7 @@ namespace demon
             .build();
 
 
-        auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[0]->getClonedObject();
+        auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.8f + DECIMAL_TRUNCATION, 0.0f));
         ////cube0->getTransform()->yaw(PI_OVER_2);
         ////cube0->getTransform()->pitch(PI_OVER_4);
@@ -169,7 +169,7 @@ namespace demon
         //////group->addChild(cube1);
 
 
-        //_chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+        _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
         //_chair0->getTransform()->setLocalPosition(vec3(2.0f, 0.0f, 0.0f));
         //_chair0->getTransform()->yaw(PI_OVER_4 + 0.5f);
         //auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
@@ -197,15 +197,15 @@ namespace demon
         {
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
-                //.withGhostMeshRenderer()
-                //.withObbRenderer()
+                .withGhostMeshRenderer()
+                .withObbRenderer()
                 //.withBoxColliderRenderer()
-                //.withPlaneGridRenderer()
+                .withPlaneGridRenderer()
                 .withPhysics()
-                //.withAnimation()
-                //.withCameraController()
-                //.withSelectionController()
-                //.withTranslationController()
+                .withAnimation()
+                .withCameraController()
+                .withSelectionController()
+                .withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -248,7 +248,7 @@ namespace demon
         _sceneLayer->add(cube0);
         //_sceneLayer->add(cube1);
         //_sceneLayer->add(floor0);
-        //_sceneLayer->add(_chair0);
+        _sceneLayer->add(_chair0);
         //_sceneLayer->add(back_wall);
         //_sceneLayer->add(table);
         //_sceneLayer->add(tableChair);
@@ -389,21 +389,21 @@ namespace demon
 
     void screen::onTick()
     {
-        auto label = _labelFps->getComponent<phi::text>();
-        auto str = "fps: " + std::to_string(application::framesPerSecond);
-        label->setText(wstring(str.begin(), str.end()));
+        //auto label = _labelFps->getComponent<phi::text>();
+        //auto str = "fps: " + std::to_string(application::framesPerSecond);
+        //label->setText(wstring(str.begin(), str.end()));
 
-        if (a)
-        {
-            _constructionLabel->getComponent<phi::text>()->setText(L"edftg");
-            _nandinhoLayer->add(_labelFps);
-        }
-        else
-        {
-            _labelFps->getParent()->removeChild(_labelFps);
-        }
+        //if (a)
+        //{
+        //    _constructionLabel->getComponent<phi::text>()->setText(L"edftg");
+        //    _nandinhoLayer->add(_labelFps);
+        //}
+        //else
+        //{
+        //    _labelFps->getParent()->removeChild(_labelFps);
+        //}
 
-        a = !a;
+        //a = !a;
 
 #ifdef _DEBUG
         while (!_messageQueue->empty())

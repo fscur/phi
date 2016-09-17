@@ -38,6 +38,7 @@ namespace phi
             safeDelete(pair.second);
         }
 
+        _dispatcher->release();
         _scene->release();
         _physics->release();
         _profileZoneManager->release();

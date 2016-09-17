@@ -28,7 +28,7 @@ namespace phi
         auto boxColliderProgram = programBuilder::buildProgram(shadersPath, "obbBox", "obbBox");
 
         auto pass = new renderPass(boxColliderProgram, defaultFramebuffer, resolution);
-        pass->addVao(renderAdapter->getBoxVao());
+        pass->addVao(renderAdapter->getVao());
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {

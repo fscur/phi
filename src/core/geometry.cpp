@@ -211,14 +211,14 @@ namespace phi
 
     geometry* geometry::createBox(float size)
     {
-        auto _octree = new octree(phi::aabb(glm::vec3(-0.7, -0.7, -0.7), glm::vec3(0.7, 0.7, 0.7)), 5, 50);
+        auto octree = phi::octree(phi::aabb(glm::vec3(-0.7, -0.7, -0.7), glm::vec3(0.7, 0.7, 0.7)), 5, 50);
         auto vertices = std::vector<vertex>();
         auto indices = std::vector<uint>();
         auto addVertex = [&](vertex& vertex)
         {
             uint index = -1;
 
-            if (_octree->insert(vertex, index))
+            if (octree.insert(vertex, index))
                 vertices.push_back(vertex);
 
             indices.push_back(index);
