@@ -1,10 +1,10 @@
 #pragma once
 #include <phi.h>
 
-#include <core\resolution.h>
+#include <core/resolution.h>
 
-#include <rendering\renderPass.h>
-#include <rendering\framebufferAllocator.h>
+#include <rendering/renderPass.h>
+#include <rendering/framebufferAllocator.h>
 
 #include "meshRenderAdapter.h"
 

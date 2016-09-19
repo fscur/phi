@@ -1,15 +1,27 @@
 #pragma once
 
 #include <phi.h>
-#include <rendering\camera.h>
-#include <input\inputController.h>
-#include <animation\positionAnimation.h>
+
+#include <rendering/camera.h>
+#include <input/inputController.h>
+#include <animation/positionAnimation.h>
 
 namespace phi
 {
     class cameraZoomInputController :
         public inputController
     {
+    public:
+        cameraZoomInputController(camera* camera);
+        ~cameraZoomInputController();
+
+        void cancelZoom();
+        virtual bool onMouseWheel(mouseEventArgs* e) override;
+        virtual bool update() override;
+
+    private:
+        void cancelBounceAnimation();
+        void startBounceAnimation(float distance);
 
     private:
         float const ZOOM_FACTOR = 1.0f;
@@ -28,17 +40,5 @@ namespace phi
         double _speedAccumulationTime;
         double _inertiaTime;
         positionAnimation* _bounceAnimation;
-
-    private:
-        void cancelBounceAnimation();
-        void startBounceAnimation(float distance);
-
-    public:
-        cameraZoomInputController(camera* camera);
-        ~cameraZoomInputController();
-
-        void cancelZoom();
-        virtual bool onMouseWheel(mouseEventArgs* e) override;
-        virtual bool update() override;
     };
 }

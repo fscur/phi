@@ -15,8 +15,7 @@ namespace phi
 
     obbRenderAdapter::~obbRenderAdapter()
     {
-        safeDelete(_linesVao);
-        safeDelete(_boxVao);
+        safeDelete(_vao);
     }
 
     void obbRenderAdapter::createBuffers()
@@ -29,64 +28,10 @@ namespace phi
             vertexBufferAttribute(6, 4, GL_FLOAT, sizeof(mat4), (const void *)(sizeof(GLfloat) * 3 * 4), 1)  // I'm not dumb (I think), I just trust the compiler
         });
 
-        createLinesVao();
-        createBoxVao();
+        createVao();
     }
 
-    void obbRenderAdapter::createLinesVao()
-    {
-        vec3 vertices[8] =
-        {
-            vec3(-0.5f, -0.5f, -0.5f),
-            vec3(-0.5f, -0.5f, 0.5f),
-            vec3(-0.5f, 0.5f, 0.5f),
-            vec3(-0.5f, 0.5f, -0.5f),
-            vec3(0.5f, -0.5f, -0.5f),
-            vec3(0.5f, -0.5f, 0.5f),
-            vec3(0.5f, 0.5f, 0.5f),
-            vec3(0.5f, 0.5f, -0.5f)
-        };
-
-        uint32_t indices[24] =
-        {
-            0, 1,
-            1, 2,
-            2, 3,
-            3, 0,
-            4, 5,
-            5, 6,
-            6, 7,
-            7, 4,
-            0, 4,
-            1, 5,
-            2, 6,
-            3, 7
-        };
-
-        vector<vertexBufferAttribute> verticesAttribs =
-        {
-            vertexBufferAttribute(0, 3, GL_FLOAT, sizeof(vec3), 0)
-        };
-
-        auto vbo = new vertexBuffer("vbo", verticesAttribs);
-        vbo->storage(8 * sizeof(vec3), vertices, bufferStorageUsage::none);
-
-        auto ebo = new indexBuffer("ebo");
-        ebo->storage(24 * sizeof(uint32_t), indices, bufferStorageUsage::none);
-
-        auto renderFunction = [&]
-        {
-            glDrawElementsInstanced(GL_LINES, 24, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_modelMatricesBuffer->getInstanceCount()));
-        };
-
-        _linesVao = new vertexArrayObject();
-        _linesVao->addBuffer(vbo);
-        _linesVao->addBuffer(ebo);
-        _linesVao->addBuffer(_modelMatricesBuffer);
-        _linesVao->setOnRender(renderFunction);
-    }
-
-    void obbRenderAdapter::createBoxVao()
+    void obbRenderAdapter::createVao()
     {
         auto box = geometry::createBox(1.0f);
         auto indicesCount = box->indicesCount;
@@ -174,9 +119,9 @@ namespace phi
             glDrawElementsInstanced(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_modelMatricesBuffer->getInstanceCount()));
         };
 
-        _boxVao = vertexArrayObject::createBoxVao(box, renderFunction);
-        _boxVao->addBuffer(_modelMatricesBuffer);
-        _boxVao->addBuffer(rotationMatricesBuffer);
+        _vao = vertexArrayObject::createBoxVao(box, renderFunction);
+        _vao->addBuffer(_modelMatricesBuffer);
+        _vao->addBuffer(rotationMatricesBuffer);
         safeDelete(box);
     }
 

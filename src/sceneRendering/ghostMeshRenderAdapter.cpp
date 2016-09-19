@@ -1,10 +1,12 @@
 #include <precompiled.h>
-#include "ghostMeshRenderAdapter.h"
 
-#include <core\notImplementedException.h>
-#include <core\geometry.h>
-#include <core\node.h>
-#include <rendering\texturesManager.h>
+#include <core/geometry.h>
+#include <core/node.h>
+#include <core/notImplementedException.h>
+
+#include <rendering/texturesManager.h>
+
+#include "ghostMeshRenderAdapter.h"
 
 namespace phi
 {
@@ -16,11 +18,6 @@ namespace phi
     {
         createBuffers();
         initializeVao();
-    }
-
-    ghostMeshRenderAdapter::~ghostMeshRenderAdapter()
-    {
-        safeDelete(_vao);
     }
 
     void ghostMeshRenderAdapter::createBuffers()
@@ -56,6 +53,24 @@ namespace phi
         });
     }
 
+    ghostMeshRenderAdapter::~ghostMeshRenderAdapter()
+    {
+        safeDelete(_vao);
+        safeDelete(_multiDrawCommandsBuffer);
+    }
+
+    void ghostMeshRenderAdapter::add(const ghostMesh* ghostMesh)
+    {
+        auto geometry = ghostMesh->getGeometry();
+        auto containsGeometry = phi::contains(_geometries, geometry);
+
+        if (!containsGeometry)
+            addGeometry(geometry);
+
+        addInstance(ghostMesh);
+        updateMultiDrawCommands();
+    }
+
     void ghostMeshRenderAdapter::addGeometry(geometry* geometry)
     {
         _vbo->addRange(geometry, geometry->vboData, geometry->verticesCount);
@@ -81,30 +96,6 @@ namespace phi
         _modelMatricesBuffer->addInstance(geometry, ghostMesh, modelMatrix);
     }
 
-    void ghostMeshRenderAdapter::removeGeometry(geometry* geometry)
-    {
-        phi::removeIfContains(_geometries, geometry);
-        _ghostMeshes.erase(geometry);
-        _objectsCount--;
-
-        _vbo->remove(geometry);
-        _ebo->remove(geometry);
-
-        _modelMatricesBuffer->removeBucket(geometry);
-    }
-
-    void ghostMeshRenderAdapter::removeInstance(const ghostMesh* instance)
-    {
-        auto geometry = instance->getGeometry();
-
-        auto instances = &_ghostMeshes[geometry];
-        auto it = std::find(instances->begin(), instances->end(), instance);
-        if (it != instances->end())
-            instances->erase(it);
-
-        _modelMatricesBuffer->removeInstance(geometry, instance);
-    }
-
     void ghostMeshRenderAdapter::updateMultiDrawCommands()
     {
         _multiDrawCommandsBuffer->clear();
@@ -121,18 +112,6 @@ namespace phi
         _multiDrawCommandsBuffer->create();
     }
 
-    void ghostMeshRenderAdapter::add(const ghostMesh* ghostMesh)
-    {
-        auto geometry = ghostMesh->getGeometry();
-        auto containsGeometry = phi::contains(_geometries, geometry);
-
-        if (!containsGeometry)
-            addGeometry(geometry);
-
-        addInstance(ghostMesh);
-        updateMultiDrawCommands();
-    }
-
     void ghostMeshRenderAdapter::remove(const ghostMesh* instance)
     {
         removeInstance(instance);
@@ -144,6 +123,30 @@ namespace phi
             removeGeometry(instance->getGeometry());
 
         updateMultiDrawCommands();
+    }
+
+    void ghostMeshRenderAdapter::removeInstance(const ghostMesh* instance)
+    {
+        auto geometry = instance->getGeometry();
+
+        auto instances = &_ghostMeshes[geometry];
+        auto it = std::find(instances->begin(), instances->end(), instance);
+        if (it != instances->end())
+            instances->erase(it);
+
+        _modelMatricesBuffer->removeInstance(geometry, instance);
+    }
+
+    void ghostMeshRenderAdapter::removeGeometry(geometry* geometry)
+    {
+        phi::removeIfContains(_geometries, geometry);
+        _ghostMeshes.erase(geometry);
+        _objectsCount--;
+
+        _vbo->remove(geometry);
+        _ebo->remove(geometry);
+
+        _modelMatricesBuffer->removeBucket(geometry);
     }
 
     void ghostMeshRenderAdapter::update(const ghostMesh* ghostMesh)

@@ -1,10 +1,11 @@
 #include <precompiled.h>
-#include "gBufferRenderPass.h"
 
-#include <rendering\textureUnits.h>
-#include <rendering\texturesManager.h>
-#include <rendering\programBuilder.h>
-#include <rendering\framebufferLayoutBuilder.h>
+#include <rendering/framebufferLayoutBuilder.h>
+#include <rendering/programBuilder.h>
+#include <rendering/texturesManager.h>
+#include <rendering/textureUnits.h>
+
+#include "gBufferRenderPass.h"
 
 namespace phi
 {

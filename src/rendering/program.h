@@ -1,10 +1,11 @@
 #pragma once
-#include <phi.h>
-#include "renderingApi.h"
 
-#include "shader.h"
+#include <phi.h>
+
 #include "buffer.h"
 #include "programCompilationResult.h"
+#include "renderingApi.h"
+#include "shader.h"
 
 namespace phi
 {
@@ -16,19 +17,6 @@ namespace phi
 
     class program
     {
-    private:
-        uint _id;
-        vector<shader*> _shaders;
-
-        map<uint, GLuint> _uniforms;
-        map<uint, string> _uniformsNames;
-        vector<string> _attributes;
-        unordered_map<GLuint, buffer*> _buffers;
-
-    private:
-        bool validate();
-        GLint getBufferLocation(const buffer* const buffer) const;
-
     public:
         RENDERING_API program();
         RENDERING_API ~program();
@@ -58,5 +46,18 @@ namespace phi
         RENDERING_API programCompilationResult compile();
 
         GLuint getId() const { return _id; }
+
+    private:
+        bool validate();
+        GLint getBufferLocation(const buffer* const buffer) const;
+
+    private:
+        uint _id;
+        vector<shader*> _shaders;
+
+        map<uint, GLuint> _uniforms;
+        map<uint, string> _uniformsNames;
+        vector<string> _attributes;
+        unordered_map<GLuint, buffer*> _buffers;
     };
 }

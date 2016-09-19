@@ -15,14 +15,12 @@ namespace phi
     class obbRenderAdapter
     {
     private:
-        vertexArrayObject* _linesVao;
-        vertexArrayObject* _boxVao;
+        vertexArrayObject* _vao;
         mappedVertexBuffer<node*, mat4>* _modelMatricesBuffer;
 
     private:
         void createBuffers();
-        void createBoxVao();
-        void createLinesVao();
+        void createVao();
         void updateModelMatrix(node* node);
 
     public:
@@ -33,8 +31,7 @@ namespace phi
         DEBUG_RENDERING_API void remove(node* node);
         DEBUG_RENDERING_API void update(node* node);
 
-        vertexArrayObject* getLinesVao() const { return _linesVao; };
-        vertexArrayObject* getBoxVao() const { return _boxVao; };
+        vertexArrayObject* getVao() const { return _vao; };
 
         mappedVertexBuffer<node*, mat4>* getModelMatricesBuffer() const { return _modelMatricesBuffer; }
     };

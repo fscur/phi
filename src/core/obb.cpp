@@ -170,7 +170,7 @@ namespace phi
 
     vector<vec3> obb::getCorners() const
     {
-        auto getPoint = [this](vec3 pos) -> vec3
+        auto getPoint = [=](vec3 pos) -> vec3
         {
             return center +
                 axes[0] * halfSizes.x * pos.x +

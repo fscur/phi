@@ -32,6 +32,8 @@ namespace phi
 
     translationService::~translationService()
     {
+        safeDelete(_nodeTranslator);
+        safeDelete(_ghostTranslator);
     }
 
     void translationService::startTranslation(ivec2 mousePosition)
@@ -745,8 +747,7 @@ namespace phi
         translationPlane->hideGrid();
         auto planeGridNode = translationPlane->getPlaneGridNode();
         planeGridNode->getParent()->removeChild(planeGridNode);
-        delete translationPlane;
-        translationPlane = nullptr;
+        safeDelete(translationPlane);
     }
 
     void translationService::updatePlaneVisibility(translationPlane* translationPlane)

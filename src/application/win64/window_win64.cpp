@@ -1,14 +1,16 @@
 #include <precompiled.h>
 
-#include "..\window.h"
-#include "..\mouseButtonEventDispatcher.h"
+#include <core/exception.h>
+#include <core/invalidInitializationException.h>
 
-#include <input\input.h>
-#include <core\exception.h>
-#include <core\invalidInitializationException.h>
+#include <input/input.h>
 
-#include <diagnostic\stopwatch.h>
+#include <diagnostic/stopwatch.h>
+
 #include <ShellScalingApi.h>
+
+#include "../window.h"
+#include "../mouseButtonEventDispatcher.h"
 
 namespace phi
 {
@@ -700,6 +702,13 @@ namespace phi
         });
     }
 
+    void deleteMouseButtonDispatchers()
+    {
+        safeDelete(_leftMouseButton);
+        safeDelete(_rightMouseButton);
+        safeDelete(_middleMouseButton);
+    }
+
     void window::initWindow()
     {
         adjustWindowToScreenBounds();
@@ -798,6 +807,7 @@ namespace phi
 
         onClosing();
 
+        deleteMouseButtonDispatchers();
         releaseGLContext();
         ReleaseDC(_windowHandle, _deviceContext);
         DestroyWindow(_windowHandle);

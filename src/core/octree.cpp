@@ -31,6 +31,12 @@ namespace phi
         _maxItems = maxItems;
     }
 
+    octree::~octree()
+    {
+        for (auto child : _children)
+            safeDelete(child);
+    }
+
     aabb octree::createAabb(aabb parentAabb, uint index)
     {
         auto width = parentAabb.halfWidth;
@@ -203,7 +209,7 @@ namespace phi
                 posDataList.push_back(posData);
 
                 _positions.push_back(pos);
-                auto pSize = (unsigned int)_positions.size();
+                auto pSize = static_cast<unsigned int>(_positions.size());
                 _items[pSize - 1] = posDataList;
 
                 index = posData.index;

@@ -16,28 +16,6 @@ namespace phi
     class mappedBuffer :
         public buffer
     {
-    private:
-        unsigned long long _sizeOfDataType;
-        unordered_map<KEY, bufferSlot> _instances;
-        vector<DATA> _bufferData;
-        size_t _instanceCount;
-        size_t _capacity;
-
-    private:
-        void uploadData(size_t index, size_t size)
-        {
-            auto needToResize = _capacity != _bufferData.capacity();
-            if (needToResize)
-            {
-                _capacity = _bufferData.capacity();
-                data(_sizeOfDataType * _capacity, _bufferData.data(), bufferDataUsage::dynamicDraw);
-            }
-            else if (size > 0)
-            {
-                subData(_sizeOfDataType * index, _sizeOfDataType * size, &_bufferData[index]);
-            }
-        }
-
     public:
         mappedBuffer(string name, bufferTarget::bufferTarget target) :
             buffer(name, target),
@@ -124,5 +102,27 @@ namespace phi
         }
 
         size_t getInstanceCount() const { return _instanceCount; }
+
+    private:
+        void uploadData(size_t index, size_t size)
+        {
+            auto needToResize = _capacity != _bufferData.capacity();
+            if (needToResize)
+            {
+                _capacity = _bufferData.capacity();
+                data(_sizeOfDataType * _capacity, _bufferData.data(), bufferDataUsage::dynamicDraw);
+            }
+            else if (size > 0)
+            {
+                subData(_sizeOfDataType * index, _sizeOfDataType * size, &_bufferData[index]);
+            }
+        }
+
+    private:
+        unsigned long long _sizeOfDataType;
+        unordered_map<KEY, bufferSlot> _instances;
+        vector<DATA> _bufferData;
+        size_t _instanceCount;
+        size_t _capacity;
     };
 }

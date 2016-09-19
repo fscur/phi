@@ -16,6 +16,15 @@ namespace phi
     {
     }
 
+    translationPlane::~translationPlane()
+    {
+        safeDelete(_planeGridNode);
+        safeDelete(_draggingAnimation);
+        safeDelete(_fadeInAnimation);
+        safeDelete(_fadeOutAnimation);
+        safeDelete(_clippingPlanesFadeAnimation);
+    }
+
     void translationPlane::setPlaneGridNode(node* value)
     {
         _planeGridNode = value;
@@ -92,14 +101,13 @@ namespace phi
     void translationPlane::animatePlaneGridPosition(vec3 position)
     {
         auto planeTransform = _planeGridNode->getTransform();
-
-        auto fromPlaneTransform = new transform();
         auto fromPosition = planeTransform->getLocalPosition();
-
-        fromPlaneTransform->setLocalPosition(fromPosition);
-
-        auto toPlaneTransform = new transform();
-        toPlaneTransform->setLocalPosition(position);
+        
+        transform fromPlaneTransform;
+        fromPlaneTransform.setLocalPosition(fromPosition);
+        
+        transform toPlaneTransform;
+        toPlaneTransform.setLocalPosition(position);
 
         _draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
     }

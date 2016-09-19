@@ -34,7 +34,8 @@ namespace phi
 
     public:
         LAYERS_API translationPlane(plane plane);
-        
+        LAYERS_API ~translationPlane();
+
         plane getPlane() const { return _plane; }
         clippingPlane* getClippingPlane() const { return _clippingPlane; }
         node* getPlaneGridNode() const { return _planeGridNode; }

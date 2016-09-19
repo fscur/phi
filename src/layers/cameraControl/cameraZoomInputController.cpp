@@ -1,9 +1,10 @@
 #include <precompiled.h>
 
-#include <core\time.h>
+#include <core/time.h>
 
-#include <rendering\framebuffer.h>
-#include <rendering\defaultFramebuffer.h>
+#include <rendering/defaultFramebuffer.h>
+#include <rendering/framebuffer.h>
+
 #include "cameraZoomInputController.h"
 
 namespace phi
@@ -26,6 +27,7 @@ namespace phi
     cameraZoomInputController::~cameraZoomInputController()
     {
         cancelBounceAnimation();
+        safeDelete(_bounceAnimation);
     }
 
     void cameraZoomInputController::cancelBounceAnimation()

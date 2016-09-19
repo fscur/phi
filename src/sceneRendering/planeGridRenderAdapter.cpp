@@ -1,10 +1,12 @@
 #include <precompiled.h>
-#include "planeGridRenderAdapter.h"
 
-#include <core\notImplementedException.h>
-#include <core\geometry.h>
-#include <core\node.h>
-#include <rendering\texturesManager.h>
+#include <core/geometry.h>
+#include <core/node.h>
+#include <core/notImplementedException.h>
+
+#include <rendering/texturesManager.h>
+
+#include "planeGridRenderAdapter.h"
 
 namespace phi
 {
@@ -13,11 +15,6 @@ namespace phi
     {
         createVao();
         createPlaneGridRenderDataBuffer();
-    }
-
-    planeGridRenderAdapter::~planeGridRenderAdapter()
-    {
-        safeDelete(_vao);
     }
 
     void planeGridRenderAdapter::createVao()
@@ -62,6 +59,20 @@ namespace phi
         _planeGridRenderDataBuffer = new mappedBuffer<planeGrid*, planeGridRenderData>("PlaneGridRenderDataBuffer", bufferTarget::shader);
     }
 
+    planeGridRenderAdapter::~planeGridRenderAdapter()
+    {
+        safeDelete(_vao);
+        safeDelete(_planeGridRenderDataBuffer);
+    }
+
+    void planeGridRenderAdapter::add(planeGrid* planeGrid)
+    {
+        if (planeGrid->isVisible())
+            addPlaneGridToBuffers(planeGrid);
+
+        assignChangedEvents(planeGrid);
+    }
+
     void planeGridRenderAdapter::addPlaneGridToBuffers(planeGrid* planeGrid)
     {
         auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
@@ -69,39 +80,6 @@ namespace phi
 
         auto planeGridRenderData = planeGridRenderData::from(planeGrid);
         _planeGridRenderDataBuffer->add(planeGrid, planeGridRenderData);
-    }
-
-    void planeGridRenderAdapter::removePlaneGridFromBuffers(planeGrid* planeGrid)
-    {
-        _modelMatricesBuffer->remove(planeGrid);
-        _planeGridRenderDataBuffer->remove(planeGrid);
-    }
-
-    void planeGridRenderAdapter::planeGridVisibleChanged(planeGrid* planeGrid)
-    {
-        if (planeGrid->isVisible())
-            addPlaneGridToBuffers(planeGrid);
-        else
-            removePlaneGridFromBuffers(planeGrid);
-    }
-
-    void planeGridRenderAdapter::updateModelMatrix(planeGrid* planeGrid)
-    {
-        if (!planeGrid->isVisible())
-            return;
-
-        auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
-        _modelMatricesBuffer->update(planeGrid, modelMatrix);
-    }
-
-    void planeGridRenderAdapter::updateRenderData(planeGrid* planeGrid)
-    {
-        if (!planeGrid->isVisible())
-            return;
-
-        auto planeGridRenderData = planeGridRenderData::from(planeGrid);
-
-        _planeGridRenderDataBuffer->update(planeGrid, planeGridRenderData);
     }
 
     void planeGridRenderAdapter::assignChangedEvents(planeGrid* planeGrid)
@@ -122,6 +100,28 @@ namespace phi
         _planeGridEventTokens[planeGrid] = tokens;
     }
 
+    void planeGridRenderAdapter::planeGridVisibleChanged(planeGrid* planeGrid)
+    {
+        if (planeGrid->isVisible())
+            addPlaneGridToBuffers(planeGrid);
+        else
+            removePlaneGridFromBuffers(planeGrid);
+    }
+
+    void planeGridRenderAdapter::remove(planeGrid* planeGrid)
+    {
+        if (planeGrid->isVisible())
+            removePlaneGridFromBuffers(planeGrid);
+
+        unassignChangedEvents(planeGrid);
+    }
+
+    void planeGridRenderAdapter::removePlaneGridFromBuffers(planeGrid* planeGrid)
+    {
+        _modelMatricesBuffer->remove(planeGrid);
+        _planeGridRenderDataBuffer->remove(planeGrid);
+    }
+
     void planeGridRenderAdapter::unassignChangedEvents(planeGrid* planeGrid)
     {
         auto tokens = _planeGridEventTokens[planeGrid];
@@ -135,25 +135,28 @@ namespace phi
         _planeGridEventTokens.erase(planeGrid);
     }
 
-    void planeGridRenderAdapter::add(planeGrid* planeGrid)
-    {
-        if (planeGrid->isVisible())
-            addPlaneGridToBuffers(planeGrid);
-
-        assignChangedEvents(planeGrid);
-    }
-
-    void planeGridRenderAdapter::remove(planeGrid* planeGrid)
-    {
-        if (planeGrid->isVisible())
-            removePlaneGridFromBuffers(planeGrid);
-
-        unassignChangedEvents(planeGrid);
-    }
-
     void planeGridRenderAdapter::update(planeGrid* planeGrid)
     {
         updateModelMatrix(planeGrid);
         updateRenderData(planeGrid);
+    }
+
+    void planeGridRenderAdapter::updateModelMatrix(planeGrid* planeGrid)
+    {
+        if (!planeGrid->isVisible())
+            return;
+
+        auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
+        _modelMatricesBuffer->update(planeGrid, modelMatrix);
+    }
+
+    void planeGridRenderAdapter::updateRenderData(planeGrid* planeGrid)
+    {
+        if (!planeGrid->isVisible())
+            return;
+
+        auto planeGridRenderData = planeGridRenderData::from(planeGrid);
+
+        _planeGridRenderDataBuffer->update(planeGrid, planeGridRenderData);
     }
 }

@@ -45,6 +45,7 @@ dlldata.c
 *.obj
 *.pch
 *.pdb
+!libs/**/*.pdb
 *.pgc
 *.pgd
 *.rsp

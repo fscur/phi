@@ -64,7 +64,9 @@ namespace phi
             safeDelete(component);
 
         safeDelete(_transform);
+        safeDelete(_localObb);
         safeDelete(_obb);
+        safeDelete(_worldLocalObb);
     }
 
     inline node* node::clone() const

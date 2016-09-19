@@ -82,9 +82,9 @@ namespace phi
                 fileString.append(line);
                 fileString.append("\n");
             }
-
-            file.close();
         }
+
+        file.close();
 
         return fileString;
     }

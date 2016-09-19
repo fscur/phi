@@ -1,19 +1,26 @@
 #pragma once
 #include <phi.h>
-#include "sceneRenderingApi.h"
 
+#include <core/resolution.h>
 
-#include <core\resolution.h>
-
-#include <rendering\renderPass.h>
-#include <rendering\framebufferAllocator.h>
+#include <rendering/framebufferAllocator.h>
+#include <rendering/renderPass.h>
 
 #include "ghostMeshRenderAdapter.h"
+#include "sceneRenderingApi.h"
 
 namespace phi
 {
     class ghostMeshRenderPass
     {
+    public:
+        ghostMeshRenderPass() = delete;
+        SCENE_RENDERING_API static renderPass* configure(
+            ghostMeshRenderAdapter* meshAdapter,
+            const resolution& resolution,
+            const string& shadersPath,
+            framebufferAllocator* framebufferAllocator);
+
     private:
         static void ghostMeshRenderPass::createRTsBuffer(
             buffer* rtsBuffer,
@@ -22,13 +29,5 @@ namespace phi
             const texture* rt2Texture,
             const texture* rtDepthTexture,
             const texture* rtPickingTexture);
-
-    public:
-        ghostMeshRenderPass() = delete;
-        SCENE_RENDERING_API static renderPass* configure(
-            ghostMeshRenderAdapter* meshAdapter,
-            const resolution& resolution,
-            const string& shadersPath,
-            framebufferAllocator* framebufferAllocator);
     };
 }
