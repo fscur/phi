@@ -377,7 +377,7 @@ namespace phi
     {
         const string fileContents = fileReader::readFile(fileName);
         Document* phiJsonDoc = getJsonDocumentFromPhiFile(fileContents);
-        auto camera = loadCamera(phiJsonDoc);
+        //auto camera = loadCamera(phiJsonDoc);
         return loadNodes(phiJsonDoc, nodeRepository);
     }
 
