@@ -64,21 +64,9 @@ namespace phi
 
             auto guidValue = Value(guidString.c_str(), size, allocator);
 
-            Value translationValue(kArrayType);
-            translationValue.PushBack(translation.x, allocator);
-            translationValue.PushBack(translation.y, allocator);
-            translationValue.PushBack(translation.z, allocator);
-
-            Value rotationValue(kArrayType);
-            rotationValue.PushBack(rotation.x, allocator);
-            rotationValue.PushBack(rotation.y, allocator);
-            rotationValue.PushBack(rotation.z, allocator);
-            rotationValue.PushBack(rotation.w, allocator);
-
-            Value scaleValue(kArrayType);
-            scaleValue.PushBack(scale.x, allocator);
-            scaleValue.PushBack(scale.y, allocator);
-            scaleValue.PushBack(scale.z, allocator);
+            auto translationValue = rapidjsonHelper::getVec3JsonValue(translation, allocator);
+            auto scaleValue = rapidjsonHelper::getVec3JsonValue(scale, allocator);
+            auto rotationValue = rapidjsonHelper::getQuatJsonValue(rotation, allocator);
 
             auto nodeKey = Value(nodeName.c_str(), nameLength, allocator);
             auto nodeValue = Value(kObjectType);
