@@ -28,7 +28,7 @@ namespace phi
                 address = texturesManager::getTextureAddress(texture);
 
             auto renderData = controlRenderData();
-            renderData.backgroundColor = control->getBackgroundColor();
+            renderData.backgroundColor = control->getColor();
             renderData.backgroundTextureUnit = address.unit;
             renderData.backgroundTexturePage = address.page;
 

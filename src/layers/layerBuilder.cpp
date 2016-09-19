@@ -1,12 +1,12 @@
 #include <precompiled.h>
 #include "layerBuilder.h"
 
-#include <core\resolution.h>
+#include <core/resolution.h>
 
-#include <ui\control.h>
-#include <ui\text.h>
+#include <ui/control.h>
+#include <ui/text.h>
 
-#include <io\path.h>
+#include <io/path.h>
 
 namespace phi
 {
@@ -28,7 +28,8 @@ namespace phi
         _withPhysics(false),
         _withCameraController(false),
         _withSelectionController(false),
-        _withTranslationController(false)
+        _withTranslationController(false),
+        _withUIMouseController(false)
     {
     }
 
@@ -116,24 +117,29 @@ namespace phi
 
     void layerBuilder::buildGlassyControlRenderer()
     {
-        auto glassyBehaviour = new glassyControlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto adapter = new controlRenderAdapter();
+        auto renderPasses = glassyControlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
 
-        _layer->addOnNodeAdded(std::bind(&glassyControlLayerBehaviour::onNodeAdded, glassyBehaviour, std::placeholders::_1));
-        _layer->addOnNodeRemoved(std::bind(&glassyControlLayerBehaviour::onNodeRemoved, glassyBehaviour, std::placeholders::_1));
-        _layer->addOnNodeTransformChanged(std::bind(&glassyControlLayerBehaviour::onNodeTransformChanged, glassyBehaviour, std::placeholders::_1));
-        _layer->addOnNodeSelectionChanged(std::bind(&glassyControlLayerBehaviour::onNodeSelectionChanged, glassyBehaviour, std::placeholders::_1));
+        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
 
-        _layer->addRenderPasses(glassyBehaviour->getRenderPasses());
+        _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&controlLayerBehaviour::onNodeTransformChanged, controlBehaviour, std::placeholders::_1));
+        _layer->addOnNodeSelectionChanged(std::bind(&controlLayerBehaviour::onNodeSelectionChanged, controlBehaviour, std::placeholders::_1));
 
-        _layer->addOnDelete([glassyBehaviour]() mutable
+        _layer->addRenderPasses(renderPasses);
+
+        _layer->addOnDelete([controlBehaviour]() mutable
         {
-            safeDelete(glassyBehaviour);
+            safeDelete(controlBehaviour);
         });
     }
 
     void layerBuilder::buildControlRenderer()
     {
-        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto adapter = new controlRenderAdapter();
+        auto renderPasses = controlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
+        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
 
         _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
@@ -202,7 +208,7 @@ namespace phi
 
     void layerBuilder::buildSelectionController()
     {
-        _selectionInputController = new selectionInputController(_commandsManager);
+        _selectionInputController = new selectionInputController(_commandsManager, _layer);
         _layer->addMouseController(_selectionInputController);
     }
 
@@ -213,6 +219,12 @@ namespace phi
 
         auto translationController = new translationInputController(_selectionInputController->getSelectedNodes(), _layer);
         _layer->addMouseController(translationController);
+    }
+
+    void layerBuilder::buildUIMouseController()
+    {
+        auto controller = new uiMouseController(_layer);
+        _layer->addMouseController(controller);
     }
 
     layer* layerBuilder::build()
@@ -252,6 +264,9 @@ namespace phi
 
         if (_withTranslationController)
             buildTranslationController();
+
+        if (_withUIMouseController)
+            buildUIMouseController();
 
         return _layer;
     }

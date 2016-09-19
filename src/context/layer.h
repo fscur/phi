@@ -100,5 +100,6 @@ namespace phi
         camera* getCamera() { return _camera; }
 
         void resize(const resolution& resolution);
+        node* getRoot() { return _root; }
     };
 }

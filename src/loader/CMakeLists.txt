@@ -17,7 +17,10 @@ file(GLOB natvis_files *.natvis)
 
 add_library(loader SHARED ${source_files} ${header_files} ${natvis_files})
 
+target_link_libraries(loader animation)
 target_link_libraries(loader io)
+target_link_libraries(loader common)
+target_link_libraries(loader rendering)
 target_link_libraries(loader ${FREEIMAGE_LIBRARY})
 target_link_libraries(loader ${ASSIMP_LIBRARY})
 

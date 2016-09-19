@@ -14,9 +14,10 @@
 
 namespace phi
 {
-    selectionInputController::selectionInputController(commandsManager* commandsManager) :
+    selectionInputController::selectionInputController(commandsManager* commandsManager, layer* layer) :
         inputController(),
-        _commandsManager(commandsManager)
+        _commandsManager(commandsManager),
+        _layer(layer)
     {
     }
 
@@ -142,7 +143,7 @@ namespace phi
         if (clickComponent)
         {
             auto clickedNode = clickComponent->getNode();
-            clickComponent->onClick();
+            clickComponent->onMouseUp();
 
             auto selectedMesh = clickedNode->getComponent<mesh>();
             if (selectedMesh)
@@ -160,6 +161,53 @@ namespace phi
     bool selectionInputController::onMouseDoubleClick(phi::mouseEventArgs* e)
     {
         return false;
+    }
+
+    bool selectionInputController::onMouseMove(mouseEventArgs * e)
+    {
+        auto root = _layer->getRoot();
+
+        auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
+
+        auto click = pickingId::get(idOnMousePosition);
+        if (!click)
+        {
+            for (auto& child : *root->getChildren())
+            {
+                child->traverse<mouseInteractionComponent>([](mouseInteractionComponent* comp)
+                {
+                    if (comp->isMouseOver())
+                        comp->onMouseLeave();
+                });
+            }
+            return false;
+        }
+
+        auto selectedNode = click->getNode();
+        while (!isSonOfRoot(selectedNode))
+            selectedNode = selectedNode->getParent();
+
+        for (auto& child : *root->getChildren())
+        {
+            if (child != selectedNode)
+            {
+                child->traverse<mouseInteractionComponent>([](mouseInteractionComponent* comp)
+                {
+                    if (comp->isMouseOver())
+                        comp->onMouseLeave();
+                });
+            }
+            else
+            {
+                child->traverse<mouseInteractionComponent>([](mouseInteractionComponent* comp)
+                {
+                    if (!comp->isMouseOver())
+                        comp->onMouseEnter();
+                });
+            }
+        }
+
+        return true;
     }
 
     void selectionInputController::cancel()

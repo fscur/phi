@@ -28,7 +28,7 @@ namespace phi
     void text::updateControl()
     {
         vec2 textSize = _font->measureText(_text);
-        _control->setSize(vec3(textSize, 0.0f));
+        _control->setSize(vec3(textSize, 1.0f));
     }
 
     inline void text::setText(wstring value) 

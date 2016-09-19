@@ -2,7 +2,7 @@
 #include <phi.h>
 #include "contextApi.h"
 
-#include <core\clickComponent.h>
+#include <common\mouseInteractionComponent.h>
 
 namespace phi
 {
@@ -10,10 +10,11 @@ namespace phi
     {
     private:
         static int _currentId;
-        static map<int, clickComponent*> _ids;
+        static map<int, mouseInteractionComponent*> _ids;
     public:
-        CONTEXT_API static void setNextId(clickComponent* click);
-        CONTEXT_API static clickComponent* get(int id);
-        CONTEXT_API static void remove(clickComponent* click);
+        CONTEXT_API static void setNextId(mouseInteractionComponent* mouseInteractionComponent);
+        CONTEXT_API static mouseInteractionComponent* get(int id);
+        CONTEXT_API static map<int, mouseInteractionComponent*>* getAll();
+        CONTEXT_API static void remove(mouseInteractionComponent* click);
     };
 }

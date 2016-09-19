@@ -23,11 +23,16 @@ namespace phi
         resolution _resolution;
         string _resourcesPath;
 
+    private:
+        void onControlColorChanged(control* control);
+
     public:
         UI_RENDERING_API controlLayerBehaviour(
             const resolution& resolution, 
             const string& resourcesPath,
-            framebufferAllocator* framebufferAllocator);
+            framebufferAllocator* framebufferAllocator,
+            controlRenderAdapter* adapter,
+            vector<renderPass*> renderPasses);
 
         UI_RENDERING_API ~controlLayerBehaviour();
 

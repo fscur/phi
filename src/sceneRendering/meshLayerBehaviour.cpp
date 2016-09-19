@@ -1,9 +1,12 @@
 #include <precompiled.h>
 #include "meshLayerBehaviour.h"
 
-#include <core\clickComponent.h>
+#include <animation/animator.h>
+#include <animation/transformAnimation.h>
 
-#include <rendering\framebufferAllocator.h>
+#include <common/mouseInteractionComponent.h>
+
+#include <rendering/framebufferAllocator.h>
 
 namespace phi
 {
@@ -31,6 +34,30 @@ namespace phi
         auto mesh = node->getComponent<phi::mesh>();
         if (mesh)
         {
+            auto animator = node->getComponent<phi::animator>();
+            auto animation = new transformAnimation(node->getTransform());
+            animator->addAnimation(animation);
+
+            auto click = node->getComponent<mouseInteractionComponent>();
+            if (click)
+            {
+                click->addOnMouseEnter([animation](phi::node* n)
+                {
+                    auto from = n->getTransform();
+                    auto to = from->clone();
+                    to->setLocalSize(vec3(1.15f));
+                    animation->start(from, to, 0.33f);
+                });
+
+                click->addOnMouseLeave([animation](phi::node* n)
+                {
+                    auto from = n->getTransform();
+                    auto to = from->clone();
+                    to->setLocalSize(vec3(1.0f));
+                    animation->start(from, to, 0.33f);
+                });
+            }
+
             _adapter->add(mesh);
         }
     }

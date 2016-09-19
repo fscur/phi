@@ -23,6 +23,9 @@ THE SOFTWARE.
 */
 
 #include <precompiled.h>
+
+#include <core/base64.h>
+
 #include "guid.h"
 
 using namespace std;
@@ -58,7 +61,7 @@ namespace phi
         return hexDigitToChar(a) * 16 + hexDigitToChar(b);
     }
 
-    guid::guid(const string& fromString)
+    guid::guid(const string& fromHexaString)
     {
         _bytes.clear();
 
@@ -67,7 +70,7 @@ namespace phi
 
         bool lookingForFirstChar = true;
 
-        for (const char &ch : fromString)
+        for (const char &ch : fromHexaString)
         {
             if (ch == '-')
                 continue;
@@ -138,5 +141,10 @@ namespace phi
             << setw(2) << (int)guid._bytes[13]
             << setw(2) << (int)guid._bytes[14]
             << setw(2) << (int)guid._bytes[15];
+    }
+
+    string guid::toStringBase64() const
+    {
+        return base64::encode(&_bytes[0], _bytes.size());
     }
 }

@@ -22,6 +22,8 @@ file(GLOB node_selection_source_files ./nodeSelection/*.cpp)
 file(GLOB node_selection_header_files ./nodeSelection/*.h)
 file(GLOB node_translation_source_files ./nodeTranslation/*.cpp)
 file(GLOB node_translation_header_files ./nodeTranslation/*.h)
+file(GLOB ui_source_files ./ui/*.cpp)
+file(GLOB ui_header_files ./ui/*.h)
 
 add_library(layers SHARED 
     ${source_files}
@@ -34,7 +36,9 @@ add_library(layers SHARED
     ${node_selection_source_files} 
     ${node_selection_header_files}
     ${node_translation_source_files} 
-    ${node_translation_header_files})
+    ${node_translation_header_files}
+    ${ui_source_files} 
+    ${ui_header_files})
      
 source_group("Source Files\\cameraControl" FILES ${camera_control_source_files})
 source_group("Header Files\\cameraControl" FILES ${camera_control_header_files})
@@ -44,6 +48,8 @@ source_group("Source Files\\nodeSelection" FILES ${node_selection_source_files})
 source_group("Header Files\\nodeSelection" FILES ${node_selection_header_files})
 source_group("Source Files\\nodeTranslation" FILES ${node_translation_source_files})
 source_group("Header Files\\nodeTranslation" FILES ${node_translation_header_files})
+source_group("Source Files\\ui" FILES ${ui_source_files})
+source_group("Header Files\\ui" FILES ${ui_header_files})
 
 target_link_libraries(layers context)
 target_link_libraries(layers animation)

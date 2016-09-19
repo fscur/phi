@@ -10,7 +10,7 @@ namespace phi
     class animation
     {
     protected:
-        bool _isAnimating;
+        bool _isRunning;
         double _duration;
         double _elapsed;
         std::function<double(double)> _easingFunction;
@@ -31,6 +31,6 @@ namespace phi
         ANIMATION_API void stop();
 
         ANIMATION_API virtual animation* clone() = 0;
-        bool getIsAnimating() const { return _isAnimating; }
+        bool isRunning() const { return _isRunning; }
     };
 }

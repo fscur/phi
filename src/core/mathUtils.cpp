@@ -163,7 +163,12 @@ namespace phi
     vec3 mathUtils::multiply(const mat4& m, const vec3& v)
     {
         auto a = vec4(v, 1.0f);
-        auto b = m * a;
+        return multiply(m, a);
+    }
+
+    vec3 mathUtils::multiply(const mat4& m, const vec4& v)
+    {
+        auto b = m * v;
         return vec3(b.x, b.y, b.z);
     }
 }

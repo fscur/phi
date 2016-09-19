@@ -19,7 +19,7 @@ namespace phi
     {
     }
 
-    void window::render() 
+    void window::render()
     {
         onRender();
     }

@@ -7,7 +7,7 @@ namespace phi
     class CORE_API base64
     {
     public:
-        static string encode(byte const* buf, uint bufLen);
+        static string encode(byte const* buf, size_t bufLen);
         static vector<byte> decode(string const&);
     };
 }
