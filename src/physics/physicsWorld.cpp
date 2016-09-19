@@ -383,6 +383,8 @@ namespace phi
             }
         }
 
+        safeDeleteArray(hitBuffer);
+
         return result;
     }
 

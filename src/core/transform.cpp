@@ -16,7 +16,7 @@ namespace phi
         _up(vec3(0.0f, 1.0f, 0.0f)),
         _direction(vec3(0.0f, 0.0f, 1.0f)),
         _changed(false),
-        _changedEvent(new eventHandler<transform*>()),
+        _changedEvent(eventHandler<transform*>()),
         _parentTransformChangedEventToken(eventToken())
     {
     }
@@ -34,7 +34,7 @@ namespace phi
         _up(original._up),
         _direction(original._direction),
         _changed(original._changed),
-        _changedEvent(new eventHandler<transform*>()),
+        _changedEvent(eventHandler<transform*>()),
         _parentTransformChangedEventToken(eventToken())
     {
         if (_parent)
@@ -45,8 +45,6 @@ namespace phi
     {
         if (_parent)
             _parent->getChangedEvent()->unassign(_parentTransformChangedEventToken);
-
-        safeDelete(_changedEvent);
     }
 
     transform* transform::clone() const
@@ -84,7 +82,7 @@ namespace phi
     void transform::setChanged()
     {
         _changed = true;
-        _changedEvent->raise(this);
+        _changedEvent.raise(this);
     }
 
     void transform::parentTransformChanged(transform* transform)

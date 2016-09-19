@@ -1,23 +1,23 @@
 #include <precompiled.h>
-#include "obbBoxRenderPass.h"
 
-#include <core\time.h>
-#include <core\geometry.h>
+#include <core/time.h>
+#include <core/geometry.h>
 
-#include <rendering\textureUnits.h>
-#include <rendering\texturesManager.h>
-#include <rendering\gBufferRTAddresses.h>
-#include <rendering\textureAddress.h>
-#include <rendering\vertexArrayObject.h>
+#include <rendering/framebufferLayoutBuilder.h>
+#include <rendering/gBufferRTAddresses.h>
+#include <rendering/indexBuffer.h>
+#include <rendering/programBuilder.h>
+#include <rendering/textureAddress.h>
+#include <rendering/texturesManager.h>
+#include <rendering/textureUnits.h>
+#include <rendering/vertexArrayObject.h>
+#include <rendering/vertexBuffer.h>
 
-#include <rendering\programBuilder.h>
-#include <rendering\framebufferLayoutBuilder.h>
-#include <rendering\vertexBuffer.h>
-#include <rendering\indexBuffer.h>
+#include "obbRenderPass.h"
 
 namespace phi
 {
-    renderPass* obbBoxRenderPass::configure(
+    renderPass* obbRenderPass::configure(
         const obbRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,

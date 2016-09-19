@@ -100,21 +100,14 @@ namespace phi
     void translationPlane::animatePlaneGridPosition(vec3 position)
     {
         auto planeTransform = _planeGridNode->getTransform();
-
-        auto fromPlaneTransform = new transform();
         auto fromPosition = planeTransform->getLocalPosition();
+        
+        transform fromPlaneTransform;
+        fromPlaneTransform.setLocalPosition(fromPosition);
+        
+        transform toPlaneTransform;
+        toPlaneTransform.setLocalPosition(position);
 
-        fromPlaneTransform->setLocalPosition(fromPosition);
-
-        auto toPlaneTransform = new transform();
-        toPlaneTransform->setLocalPosition(position);
-
-        auto animationEndedFunction = [fromPlaneTransform, toPlaneTransform]() mutable
-        {
-            safeDelete(fromPlaneTransform);
-            safeDelete(toPlaneTransform);
-        };
-
-        _draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33, animationEndedFunction);
+        _draggingAnimation->start(fromPlaneTransform, toPlaneTransform, 0.33);
     }
 }

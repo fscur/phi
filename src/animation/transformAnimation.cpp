@@ -20,14 +20,14 @@ namespace phi
     {
     }
 
-    void transformAnimation::start(transform* from, transform* to, double duration)
+    void transformAnimation::start(transform& from, transform& to, double duration)
     {
         animation::start(duration);
         _from = from;
         _to = to;
     }
 
-    void transformAnimation::start(transform* from, transform* to, double duration, std::function<void(void)> animationEndedCallback)
+    void transformAnimation::start(transform& from, transform& to, double duration, std::function<void(void)> animationEndedCallback)
     {
         animation::start(duration, animationEndedCallback);
         _from = from;
@@ -36,8 +36,8 @@ namespace phi
 
     void transformAnimation::update(double t)
     {
-        auto fromPosition = _from->getLocalPosition();
-        auto toPosition = _to->getLocalPosition(); 
+        auto fromPosition = _from.getLocalPosition();
+        auto toPosition = _to.getLocalPosition();
         auto position = fromPosition + (toPosition - fromPosition) * static_cast<float>(t);
         _value->setLocalPosition(position);
     }
