@@ -38,16 +38,43 @@ namespace phi
         CORE_API bool intersectsLine(vec3 lineOrigin, vec3 lineDirection, float& t) const;
         CORE_API vec4 toVec4() const;
 
-        bool operator==(const plane& plane)
+        
+        bool operator==(const plane& plane) const
         {
             return
                 origin == plane.origin &&
                 normal == plane.normal;
         }
 
-        bool operator!=(const plane& plane)
+        bool operator!=(const plane& plane) const
         {
             return !(operator==(plane));
+        }
+    };
+}
+
+namespace std
+{
+    //http://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
+    template <>
+    struct hash<phi::plane>
+    {
+        std::size_t operator()(const phi::plane& plane) const
+        {
+            using std::size_t;
+            using std::hash;
+            using std::string;
+
+            std::size_t seed = 0;
+
+            std::hash_combine<float>(seed, plane.origin.x);
+            std::hash_combine<float>(seed, plane.origin.y);
+            std::hash_combine<float>(seed, plane.origin.z);
+            std::hash_combine<float>(seed, plane.normal.x);
+            std::hash_combine<float>(seed, plane.normal.y);
+            std::hash_combine<float>(seed, plane.normal.z);
+
+            return seed;
         }
     };
 }

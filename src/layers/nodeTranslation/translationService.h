@@ -12,6 +12,12 @@
 
 namespace phi
 {
+    struct collisionObbPlane
+    {
+        const obb* colliderObb;
+        plane plane;
+    };
+
     class translationService
     {
     public:
@@ -25,6 +31,8 @@ namespace phi
         void startTranslation(ivec2 mousePosition);
         void translate(ivec2 mousePosition);
         void endTranslation();
+
+        void deleteClippedPlanes();
 
         void update();
 
@@ -46,17 +54,19 @@ namespace phi
         void showTranslationPlane();
 
         void enqueuePlaneForDeletion(translationPlane* planeToRemove);
+        void updateClippedPlanes();
         void deletePlane(translationPlane* translationPlane);
         void deletePlaneIfNotVisible();
         
-        void updatePlaneVisibility();
+        void updatePlaneVisibility(translationPlane* translationPlane);
 
         bool canChangeTo(const plane& plane);
         bool isPlaneVisible(const plane& plane);
         float getExtinctionFactor(const vec3& normal);
         float getPlaneVisibility(const plane& plane);
         bool isNormalValidForCollision(const sweepCollision & touch, const vec3 & normal);
-        
+        void checkForClippingPlanes();
+
         bool tryChangingPlanes();
         bool tryChangeToPlanesFromCollisions();
         bool tryChangeToAttachedPlane();
@@ -92,7 +102,8 @@ namespace phi
         vector<sweepCollision> _currentCollisions;
 
         vector<boxCollider*> _targetNodesColliders;
-        vector<clippingPlane*> _clippingPlanes;
-        vector<translationPlane*> _clippingTranslationPlanes;
+        //vector<translationPlane*> _clippedTranslationPlanes;
+        vector<collisionObbPlane> _currentValidPlanes;
+        unordered_map<plane, translationPlane*> _clippedTranslationPlanes;
     };
 }

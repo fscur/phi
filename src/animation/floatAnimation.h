@@ -16,8 +16,8 @@ namespace phi
 
     public:
         ANIMATION_API floatAnimation();
-        /*ANIMATION_API floatAnimation(std::function<double(double)> easingFunction);
-
+        ANIMATION_API floatAnimation(std::function<double(double)> easingFunction);
+        /*
         ANIMATION_API floatAnimation(
             std::function<void(float)> updateFunction,
             std::function<double(double)> easingFunction = easingFunctions::linear);*/

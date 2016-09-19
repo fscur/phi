@@ -17,7 +17,7 @@ namespace phi
 
     bool plane::isParallel(const plane other) const
     {
-        return mathUtils::isClose(glm::dot(other.normal, normal), 1.0f);
+        return mathUtils::isClose(glm::abs(glm::dot(other.normal, normal)), 1.0f);
     }
 
     bool plane::intersectsLine(vec3 lineOrigin, vec3 lineDirection, float& t) const

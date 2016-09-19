@@ -15,7 +15,7 @@ namespace phi
 
         float lineThickness;
         float opacity;
-        float visibilityFactor;
+        float visibility;
         float pad1;
 
         float clipPlane0Opacity;
@@ -29,7 +29,7 @@ namespace phi
             data.color = planeGrid->getColor();
             data.lineThickness = planeGrid->getLineThickness();
             data.opacity = planeGrid->getOpacity();
-            data.visibilityFactor = planeGrid->getVisibilityFactor();
+            data.visibility = planeGrid->getVisibilityFactor();
             
             vector<vec4> planes = { vec4(0.0), vec4(0.0), vec4(0.0) };
             vector<float> opacities = { 0.0f, 0.0f, 0.0f };

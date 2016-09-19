@@ -8,6 +8,7 @@ namespace phi
         _color(color::white),
         _lineThickness(10.0f),
         _opacity(0.0f),
+        _visibilityFactor(0.0f),
         _isVisible(false),
         _clippingPlanes(vector<clippingPlane*>()),
         _clippingPlanesOpacities(unordered_map<clippingPlane*, float>()),
@@ -76,6 +77,7 @@ namespace phi
     {
         _clippingPlanes.push_back(plane);
         _clippingPlanesOpacities[plane] = 0.0f;
+        _clippingPlanesDistances[plane] = clippingDistance::negative;
         _clippingPlanesChanged.raise(this);
     }
 
@@ -83,6 +85,7 @@ namespace phi
     {
         phi::removeIfContains(_clippingPlanes, plane);
         _clippingPlanesOpacities.erase(plane);
+        _clippingPlanesDistances.erase(plane);
         _clippingPlanesChanged.raise(this);
     }
 

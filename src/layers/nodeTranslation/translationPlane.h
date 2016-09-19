@@ -16,7 +16,7 @@ namespace phi
     {
     private:
         const float FADE_IN_ANIMATION_TIME_IN_SECONDS = 0.4f;
-        const float FADE_OUT_ANIMATION_TIME_IN_SECONDS = 0.8f;
+        const float FADE_OUT_ANIMATION_TIME_IN_SECONDS = 0.6f;
         const float PLANE_VISIBILITY_EXTINCTION_FACTOR = 6.0f;
     private:
         plane _plane;
@@ -66,7 +66,7 @@ namespace phi
         LAYERS_API void fadeGridOpacityIn(std::function<void(void)> fadeInEndedFunction);
         LAYERS_API void fadeGridOpacityOut(std::function<void(void)> fadeOutEndedFunction);
         
-        LAYERS_API void updatePlaneGridVisibility(float visibility);
+        LAYERS_API void updatePlaneGridVisibilityFactor(float visibility);
         LAYERS_API void animatePlaneGridPosition(vec3 position);
     };
 }

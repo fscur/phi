@@ -7,6 +7,7 @@ namespace phi
 {
     translationPlane::translationPlane(plane plane) :
         _plane(plane),
+        _clippingPlane(new clippingPlane(plane)),
         _collidee(nullptr),
         _planeGridNode(nullptr),
         _draggingAnimation(nullptr),
@@ -79,13 +80,13 @@ namespace phi
         _fadeOutAnimation->start(_planeGrid->getOpacity(), 0.0f, FADE_OUT_ANIMATION_TIME_IN_SECONDS, fadeOutEndedFunction);
     }
 
-    void translationPlane::updatePlaneGridVisibility(float visibility)
+    void translationPlane::updatePlaneGridVisibilityFactor(float visibility)
     {
         auto min = _extinctionFactor;
         auto v = (visibility - min) / (1.0f - min);
-        auto planeGridVisibility = static_cast<float>(glm::pow(1.0f - v, PLANE_VISIBILITY_EXTINCTION_FACTOR));
+        auto planeGridVisibilityFactor = static_cast<float>(glm::pow(1.0f - v, PLANE_VISIBILITY_EXTINCTION_FACTOR));
         
-        _planeGrid->setVisibilityFactor(planeGridVisibility);
+        _planeGrid->setVisibilityFactor(planeGridVisibilityFactor);
     }
 
     void translationPlane::animatePlaneGridPosition(vec3 position)
