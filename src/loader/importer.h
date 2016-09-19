@@ -36,5 +36,19 @@ namespace phi
             const string& fileName,
             const resourcesRepository<material>* materialsRepo,
             const resourcesRepository<geometry>* geometriesRepo);
+
+		/*------------------- load .phi file ----------------------------*/
+		
+		static void importPhiFile(
+			const string& fileName,
+			const resourcesRepository<node>* nodeRepository);
+
+		static rapidjson::Document* getJsonDocumentFromPhiFile(
+			const string& phiFileContents);
+
+		static std::vector<resource<node>*> loadNodes(
+			const rapidjson::Document* phiJsonDoc,
+			const resourcesRepository<node>* nodeRepository);
+		/*------------------------------------------------------------------*/
     };
 }
