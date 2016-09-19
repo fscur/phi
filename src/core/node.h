@@ -3,6 +3,7 @@
 #include "component.h"
 #include "transform.h"
 #include "obb.h"
+#include "resource.h"
 
 namespace phi
 {
@@ -34,6 +35,8 @@ namespace phi
         eventHandler<node*> transformChanged;
         eventHandler<node*> selectionChanged;
         eventHandler<node*> obbChanged;
+
+        resource<node>* resource;
 
     private:
         void updateObb();

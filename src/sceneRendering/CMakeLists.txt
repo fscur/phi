@@ -23,6 +23,8 @@ file(GLOB natvis_files *.natvis)
 
 add_library(sceneRendering SHARED ${source_files} ${header_files} ${shader_files} ${natvis_files})
 target_link_libraries(sceneRendering rendering)
+target_link_libraries(sceneRendering animation)
+target_link_libraries(sceneRendering common)
 
 #opengl
 if (WIN32)

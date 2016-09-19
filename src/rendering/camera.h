@@ -33,8 +33,15 @@ namespace phi
         void transformChanged(transform * sender);
 
     public:
-        RENDERING_API  camera(
+        RENDERING_API camera(
             resolution resolution,
+            float near,
+            float far,
+            float fov);
+
+        RENDERING_API camera(
+            resolution resolution,
+            transform* transform,
             float near,
             float far,
             float fov);

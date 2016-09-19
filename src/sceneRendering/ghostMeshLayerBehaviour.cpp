@@ -3,7 +3,7 @@
 
 #include <sceneRendering\ghostMeshRenderPass.h>
 
-#include <core\clickComponent.h>
+#include <common\mouseInteractionComponent.h>
 
 #include <rendering\framebufferAllocator.h>
 #include <io\path.h>
@@ -27,7 +27,7 @@ namespace phi
     ghostMeshLayerBehaviour::~ghostMeshLayerBehaviour()
     {
         safeDelete(_adapter);
-        
+
         for (auto& renderPass : _renderPasses)
             safeDelete(renderPass);
     }

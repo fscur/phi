@@ -67,6 +67,7 @@ namespace phi
         bool _withCameraController;
         bool _withSelectionController;
         bool _withTranslationController;
+        bool _withUIMouseController;
 
     private:
         layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
@@ -84,6 +85,7 @@ namespace phi
         void buildCameraController();
         void buildSelectionController();
         void buildTranslationController();
+        void buildUIMouseController();
 
     public:
         LAYERS_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
@@ -100,6 +102,7 @@ namespace phi
         layerBuilder withCameraController() { _withCameraController = true; return *this; }
         layerBuilder withSelectionController() { _withSelectionController = true; return *this; }
         layerBuilder withTranslationController() { _withTranslationController = true; return *this; }
+        layerBuilder withUIMouseController() { _withUIMouseController = true; return *this; }
 
         LAYERS_API layer* build();
     };

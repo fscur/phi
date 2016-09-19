@@ -628,7 +628,6 @@ namespace phi
     bool translationService::isPlaneVisible(const plane& plane)
     {
         float planeVisibility = getPlaneVisibility(plane);
-        debug(std::to_string(planeVisibility));
         return planeVisibility > getExtinctionFactor(plane.normal);
     }
 

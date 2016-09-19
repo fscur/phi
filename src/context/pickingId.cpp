@@ -3,22 +3,27 @@
 
 namespace phi
 {
-    map<int, clickComponent*> pickingId::_ids = map<int, clickComponent*>();
+    map<int, mouseInteractionComponent*> pickingId::_ids = map<int, mouseInteractionComponent*>();
     int pickingId::_currentId = 1;
 
-    void pickingId::setNextId(clickComponent* click)
+    void pickingId::setNextId(mouseInteractionComponent* mouseInteractionComponent)
     {
-        click->setId(_currentId);
-        _ids[_currentId] = click;
+        mouseInteractionComponent->setId(_currentId);
+        _ids[_currentId] = mouseInteractionComponent;
         ++_currentId;
     }
 
-    clickComponent* pickingId::get(int id)
+    mouseInteractionComponent* pickingId::get(int id)
     {
         return _ids[id];
     }
 
-    void pickingId::remove(clickComponent* click)
+    map<int, mouseInteractionComponent*>* pickingId::getAll()
+    {
+        return &_ids;
+    }
+
+    void pickingId::remove(mouseInteractionComponent* click)
     {
         _ids.erase(click->getId());
     }

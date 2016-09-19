@@ -32,6 +32,12 @@ namespace phi
         _onSizeChanged->raise(value);
     }
 
+    void control::setColor(color value)
+    {
+        _color = value;
+        colorChanged.raise(this);
+    }
+
     component* control::clone() const
     {
         auto c = static_cast<const control*>(this);

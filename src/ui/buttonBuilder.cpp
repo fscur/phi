@@ -1,8 +1,13 @@
 #include <precompiled.h>
 #include "buttonBuilder.h"
 
-#include <core\clickComponent.h>
+#include <animation/animator.h>
+#include <animation/floatAnimation.h>
 
+#include <common/mouseInteractionComponent.h>
+
+#include "controlMouseClickAnimatable.h"
+#include "controlMouseHoverAnimatable.h"
 #include "control.h"
 #include "text.h"
 
@@ -46,9 +51,10 @@ namespace phi
         //TODO: this event should be unassigned.
         control->getOnSizeChanged()->assign([=](vec3 size)
         {
+            assert(size.x != 0 && size.y != 0 && size.z != 0);
             _button->setSize(size);
         });
-        
+
         _button->setSize(control->getSize());
 
         return *this;
@@ -56,7 +62,7 @@ namespace phi
 
     buttonBuilder buttonBuilder::withAction(std::function<void(node*)> action)
     {
-        _button->getComponent<clickComponent>()->addOnClick(action);
+        _button->getComponent<mouseInteractionComponent>()->addOnMouseUp(action);
         return *this;
     }
 
@@ -68,11 +74,16 @@ namespace phi
     buttonBuilder phi::buttonBuilder::newButton()
     {
         auto node = new phi::node("button");
+        auto animator = new phi::animator();
         auto control = new phi::control();
-        auto clickComponent = new phi::clickComponent();
+        auto mouseInteraction = new phi::mouseInteractionComponent();
+
+        mouseInteraction->setMouseClickAnimatable(new controlMouseClickAnimatable(control, animator));
+        mouseInteraction->setMouseHoverAnimatable(new controlMouseHoverAnimatable(control, animator));
 
         node->addComponent(control);
-        node->addComponent(clickComponent);
+        node->addComponent(mouseInteraction);
+        node->addComponent(animator);
 
         return buttonBuilder(node);
     }

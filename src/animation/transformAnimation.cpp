@@ -36,10 +36,17 @@ namespace phi
 
     void transformAnimation::update(double t)
     {
+        float factor = static_cast<float>(t);
+
         auto fromPosition = _from.getLocalPosition();
-        auto toPosition = _to.getLocalPosition();
-        auto position = fromPosition + (toPosition - fromPosition) * static_cast<float>(t);
+        auto toPosition = _to.getLocalPosition(); 
+        auto position = fromPosition + (toPosition - fromPosition) * factor;
         _value->setLocalPosition(position);
+
+        auto fromScale = _from.getLocalSize();
+        auto toScale = _to.getLocalSize();
+        auto scale = fromScale + (toScale - fromScale) * factor;
+        _value->setLocalSize(scale);
     }
 
     animation* transformAnimation::clone()

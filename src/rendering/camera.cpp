@@ -24,6 +24,26 @@ namespace phi
         _transformChangedEventToken = _transform->getChangedEvent()->assign(std::bind(&camera::transformChanged, this, std::placeholders::_1));
     }
 
+    camera::camera(
+        resolution resolution,
+        transform* transform,
+        float near,
+        float far,
+        float fov) :
+        _resolution(resolution),
+        _near(near),
+        _far(far),
+        _fov(fov),
+        _halfFovTangent(glm::tan(fov * 0.5f)),
+        _projectionMatrix(mat4(1.0f)),
+        _viewMatrix(mat4(1.0f)),
+        _transform(transform)
+    {
+        updateViewMatrix();
+        updateProjectionMatrix();
+        _transformChangedEventToken = _transform->getChangedEvent()->assign(std::bind(&camera::transformChanged, this, std::placeholders::_1));
+    }
+
     inline camera::~camera()
     {
         _transform->getChangedEvent()->unassign(_transformChangedEventToken);

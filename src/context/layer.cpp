@@ -1,8 +1,8 @@
 #include <precompiled.h>
 #include "layer.h"
 
-#include <core\clickComponent.h>
-#include <core\time.h>
+#include <common/mouseInteractionComponent.h>
+#include <core/time.h>
 
 #include "pickingId.h"
 namespace phi
@@ -98,7 +98,7 @@ namespace phi
         {
             trackNode(addedNode);
 
-            auto clickComponent = addedNode->getComponent<phi::clickComponent>();
+            auto clickComponent = addedNode->getComponent<phi::mouseInteractionComponent>();
             if (clickComponent)
                 pickingId::setNextId(clickComponent);
 

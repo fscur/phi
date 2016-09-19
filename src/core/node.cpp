@@ -27,7 +27,8 @@ namespace phi
         _localObb(nullptr),
         _obb(nullptr),
         _isSelected(original._isSelected),
-        _isTranslating(original._isTranslating)
+        _isTranslating(original._isTranslating),
+        resource(original.resource)
     {
         if (original._localObb)
             _localObb = new obb(*original._localObb);

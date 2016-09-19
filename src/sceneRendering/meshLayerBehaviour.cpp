@@ -1,9 +1,12 @@
 #include <precompiled.h>
 #include "meshLayerBehaviour.h"
 
-#include <core\clickComponent.h>
+#include <animation/animator.h>
+#include <animation/transformAnimation.h>
 
-#include <rendering\framebufferAllocator.h>
+#include <common/mouseInteractionComponent.h>
+
+#include <rendering/framebufferAllocator.h>
 
 namespace phi
 {
@@ -29,19 +32,17 @@ namespace phi
     void meshLayerBehaviour::onNodeAdded(node* node)
     {
         auto mesh = node->getComponent<phi::mesh>();
+
         if (mesh)
-        {
             _adapter->add(mesh);
-        }
     }
 
     void meshLayerBehaviour::onNodeRemoved(node* node)
     {
         auto mesh = node->getComponent<phi::mesh>();
+
         if (mesh)
-        {
             _adapter->remove(mesh);
-        }
     }
 
     void meshLayerBehaviour::onNodeTransformChanged(node* node)

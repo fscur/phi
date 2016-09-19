@@ -53,7 +53,7 @@ namespace phi
 
     bool cameraZoomInputController::onMouseWheel(mouseEventArgs* e)
     {
-        if (e->wheelDelta > 0.0f && _bounceAnimation->getIsAnimating())
+        if (e->wheelDelta > 0.0f && _bounceAnimation->isRunning())
             return false;
 
         cancelBounceAnimation();

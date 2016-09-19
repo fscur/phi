@@ -8,12 +8,14 @@ namespace phi
     controlLayerBehaviour::controlLayerBehaviour(
         const resolution & resolution, 
         const string & resourcesPath,
-        framebufferAllocator* framebufferAllocator) :
-        _adapter(new controlRenderAdapter()),
+        framebufferAllocator* framebufferAllocator,
+        controlRenderAdapter* adapter,
+        vector<renderPass*> renderPasses) :
+        _adapter(adapter),
         _resolution(resolution),
-        _resourcesPath(resourcesPath)
+        _resourcesPath(resourcesPath),
+        _renderPasses(renderPasses)
     {
-        _renderPasses = controlRenderer::configure(_adapter, resolution, resourcesPath, framebufferAllocator);
     }
 
     controlLayerBehaviour::~controlLayerBehaviour()
@@ -29,7 +31,10 @@ namespace phi
         auto control = node->getComponent<phi::control>();
 
         if (control)
+        {
+            control->colorChanged.assign(std::bind(&controlLayerBehaviour::onControlColorChanged, this, std::placeholders::_1));
             _adapter->add(control);
+        }
     }
 
     void controlLayerBehaviour::onNodeRemoved(node* node)
@@ -51,5 +56,10 @@ namespace phi
     void controlLayerBehaviour::onNodeSelectionChanged(node* node)
     {
         throw notImplementedException();
+    }
+
+    void controlLayerBehaviour::onControlColorChanged(control* control)
+    {
+        _adapter->update(control);
     }
 }

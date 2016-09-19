@@ -137,7 +137,7 @@ namespace phi
         return false;
     }
 
-    bool selectionInputController::onMouseClick(mouseEventArgs * e)
+    bool selectionInputController::onMouseClick(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed)
             return false;
@@ -153,7 +153,7 @@ namespace phi
             return false;
         }
 
-        clickComponent->onClick();
+        clickComponent->onMouseUp();
 
         auto clickedNode = clickComponent->getNode();
         select(clickedNode);

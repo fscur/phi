@@ -2,9 +2,9 @@
 #include <phi.h>
 #include "coreApi.h"
 
-#include <core\node.h>
-#include <core\geometry.h>
-#include <core\component.h>
+#include <core/node.h>
+#include <core/geometry.h>
+#include <core/component.h>
 
 #include "material.h"
 

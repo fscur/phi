@@ -17,6 +17,8 @@
 #include "screen.h"
 #include "demonApi.h"
 
+#include <core/guid.h>
+
 using namespace phi;
 
 extern "C"
@@ -121,12 +123,6 @@ void initializeDiagnostics(const char* executableFileName)
 
 int main(int argc, char* args[])
 {
-    //auto j = new int(1);
-
-    //auto i = new int(2);
-    //safeDelete(i);
-    //safeDelete(i);
-
     char executableFileName[FILENAME_MAX];
     strcpy_s(executableFileName, args[0]);
 
@@ -141,7 +137,6 @@ int main(int argc, char* args[])
         auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
         auto application = phi::application(appStartInfo);
         auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1920, 1080));
-        //auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1024, 768));
 
         application.run(&screen);
     }

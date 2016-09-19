@@ -2,7 +2,7 @@
 #include "batch.h"
 
 #include <core\node.h>
-#include <core\clickComponent.h>
+#include <common\mouseInteractionComponent.h>
 
 #include <rendering\drawElementsIndirectCommand.h>
 
@@ -120,7 +120,7 @@ namespace phi
         auto rootNode = node;
         while (rootNode->getParent()->getParent()) rootNode = rootNode->getParent();
 
-        auto clickComponent = rootNode->getComponent<phi::clickComponent>();
+        auto clickComponent = rootNode->getComponent<phi::mouseInteractionComponent>();
 
         auto selection = vec4(clickComponent->getSelectionColor(), static_cast<float>(flags) / 255.0);
 
@@ -222,7 +222,7 @@ namespace phi
         auto node = instance->mesh->getNode();
         auto rootNode = node;
         while (rootNode->getParent()->getParent()) rootNode = rootNode->getParent();
-        auto clickComponent = rootNode->getComponent<phi::clickComponent>();
+        auto clickComponent = rootNode->getComponent<phi::mouseInteractionComponent>();
         auto selection = vec4(clickComponent->getSelectionColor(), node->isSelected());
 
         auto geometry = instance->getGeometry();
@@ -237,7 +237,7 @@ namespace phi
         auto node = instance->mesh->getNode();
         auto rootNode = node;
         while (rootNode->getParent()->getParent()) rootNode = rootNode->getParent();
-        auto clickComponent = rootNode->getComponent<phi::clickComponent>();
+        auto clickComponent = rootNode->getComponent<phi::mouseInteractionComponent>();
 
         int flags = 0;
         if (isSelected)

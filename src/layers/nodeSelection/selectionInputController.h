@@ -3,7 +3,9 @@
 
 #include <core/node.h>
 
-#include <input/inputController.h>
+#include <context\layer.h>
+
+#include <input\inputController.h>
 
 #include <application/commandsManager.h>
 
@@ -20,6 +22,8 @@ namespace phi
         selectionLayerBehaviour* _selectionBehaviour;
         bool _isAdditiveSelection;
         eventToken _selectionBehaviourSelectedNodesChangedEventToken;
+
+        layer* _layer;
 
     private:
         bool isSelectedOrHasSelectedChildren(const node * const node);
