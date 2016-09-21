@@ -19,6 +19,12 @@ namespace phi
         return *this;
     }
 
+    buttonBuilder buttonBuilder::withOrientation(quat orientation)
+    {
+        _button->setOrientation(orientation);
+        return *this;
+    }
+
     buttonBuilder buttonBuilder::withFont(font * font)
     {
         _button->getComponent<text>()->setFont(font);
@@ -57,6 +63,13 @@ namespace phi
 
         _button->setSize(control->getSize());
 
+        return *this;
+    }
+
+    buttonBuilder buttonBuilder::asBillboard()
+    {
+        _button->getComponent<control>()->setIsBillboard(true);
+        _button->getComponent<text>()->setIsBillboard(true);
         return *this;
     }
 

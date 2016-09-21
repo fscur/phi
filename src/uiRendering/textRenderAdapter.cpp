@@ -8,9 +8,17 @@
 
 namespace phi
 {
-    textRenderAdapter::textRenderAdapter()
+    textRenderAdapter::textRenderAdapter(camera* camera) :
+        _camera(camera)
     {
+        _cameraChangedEventToken = _camera->getTransform()->getChangedEvent()->assign(std::bind(&textRenderAdapter::onCameraChanged, this, std::placeholders::_1));
         createBuffers();
+    }
+
+    void textRenderAdapter::onCameraChanged(transform* transform)
+    {
+        for (auto text : _texts)
+            update(text);
     }
 
     textRenderAdapter::~textRenderAdapter()
@@ -51,25 +59,99 @@ namespace phi
         safeDelete(textQuad);
     }
 
+    textInstance textRenderAdapter::createTextInstance(text* text)
+    {
+        auto textInstance = phi::textInstance();
+
+        auto font = text->getFont();
+        auto textString = text->getText();
+        auto textTransform = text->getNode()->getTransform();
+        auto position = textTransform->getPosition();
+        auto orientation = textTransform->getOrientation();
+        
+        mat4 rotationMatrix;
+        if (text->isBillboard())
+        {
+            auto cameraTransform = _camera->getTransform();
+            auto cameraUp = cameraTransform->getUp();
+            auto cameraRight = cameraTransform->getRight();
+            auto cameraDir = cameraTransform->getDirection();
+
+            rotationMatrix = mat4(
+                vec4(-cameraRight, 0.0f),
+                vec4(cameraUp, 0.0f),
+                vec4(-cameraDir, 0.0f),
+                vec4(vec3(), 1.0f));
+        }
+        else
+            rotationMatrix = mat4(orientation);
+
+        auto parentModelMatrix = glm::translate(position) * rotationMatrix;
+
+        auto baseLine = font->getBaseLine();
+        auto spacing = font->getSpacing();
+        auto x = spacing;
+        auto y = -baseLine + spacing;
+
+        glyph* previousGlyph = nullptr;
+
+        auto glyphTextureData = fontsManager::getGlyph(font, (ulong)textString[0]);
+        x -= glyphTextureData->glyph->offsetX;
+
+        auto textLength = textString.length();
+        for (auto i = 0u; i < textLength; i++)
+        {
+            glyphTextureData = fontsManager::getGlyph(font, (ulong)textString[i]);
+            auto glyph = glyphTextureData->glyph;
+
+            auto kern = font->getKerning(previousGlyph, glyphTextureData->glyph);
+            auto w = glyph->width;
+            auto h = glyph->height;
+            auto x0 = x + glyph->offsetX;
+            auto y0 = y - h + glyph->offsetY;
+
+            auto modelMatrix = mat4(
+                w, 0.0f, 0.0f, 0.0f,
+                0.0f, -h, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                x0, y0 + h, 0.0f, 1.0f);
+
+            x += glyph->horiAdvance + kern.x;
+
+            float shift = std::abs(x0 - static_cast<int>(x0));
+
+            auto renderData = glyphRenderData(glyphTextureData, shift, text->getColor());
+
+            textInstance.add(renderData);
+            textInstance.add(parentModelMatrix * modelMatrix);
+
+            previousGlyph = glyph;
+        }
+
+        return textInstance;
+    }
+
     void textRenderAdapter::add(text* text)
     {
-        auto textInstance = textInstance::from(text);
+        auto textInstance = createTextInstance(text);
         auto modelMatrices = textInstance.getModelMatrices();
         auto glyphsRenderData = textInstance.getGlyphsRenderData();
 
         _glyphRenderDataBuffer->addRange(text, &glyphsRenderData[0], glyphsRenderData.size());
         _modelMatricesBuffer->addRange(text, &modelMatrices[0], modelMatrices.size());
+        _texts.push_back(text);
     }
 
     void textRenderAdapter::remove(text* text)
     {
         _glyphRenderDataBuffer->remove(text);
         _modelMatricesBuffer->remove(text);
+        removeIfContains(_texts, text);
     }
 
     void textRenderAdapter::update(text* text)
     {
-        auto textInstance = textInstance::from(text);
+        auto textInstance = createTextInstance(text);
         auto modelMatrices = textInstance.getModelMatrices();
         auto glyphsRenderData = textInstance.getGlyphsRenderData();
 

@@ -8,7 +8,8 @@ namespace phi
         _font(nullptr),
         _control(nullptr),
         _text(L""),
-        _color(color::black)
+        _color(color::black),
+        _isBillboard(false)
     {
     }
 
@@ -17,18 +18,13 @@ namespace phi
         _font(text._font),
         _control(text._control),
         _text(text._text),
-        _color(text._color)
+        _color(text._color),
+        _isBillboard(text._isBillboard)
     {
     }
 
     text::~text()
     {
-    }
-
-    void text::updateControl()
-    {
-        vec2 textSize = _font->measureText(_text);
-        _control->setSize(vec3(textSize, 1.0f));
     }
 
     inline void text::setText(wstring value) 
@@ -41,6 +37,12 @@ namespace phi
     { 
         _font = value; 
         updateControl();
+    }
+
+    void text::updateControl()
+    {
+        vec2 textSize = _font->measureText(_text);
+        _control->setSize(vec3(textSize, 1.0f));
     }
 
     component* text::clone() const 

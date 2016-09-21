@@ -64,6 +64,7 @@ namespace phi
         CORE_API void isTranslating(bool value);
         CORE_API void setParent(node* const value);
         CORE_API void setPosition(vec3 value);
+        CORE_API void setOrientation(quat value);
         CORE_API void setSize(vec3 value);
         CORE_API void setLocalObb(obb* value);
 

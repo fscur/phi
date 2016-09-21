@@ -27,7 +27,8 @@ namespace phi
         UI_RENDERING_API textLayerBehaviour(
             const resolution& resolution, 
             const string& resourcesPath,
-            framebufferAllocator* framebufferAllocator);
+            framebufferAllocator* framebufferAllocator,
+            textRenderAdapter* adapter);
 
         UI_RENDERING_API ~textLayerBehaviour();
 

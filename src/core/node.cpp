@@ -267,6 +267,11 @@ namespace phi
         _transform->setLocalPosition(value);
     }
 
+    inline void node::setOrientation(quat value)
+    {
+        _transform->setLocalOrientation(value);
+    }
+
     inline void node::setSize(vec3 value)
     {
         _transform->setLocalSize(value);

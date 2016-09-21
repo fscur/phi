@@ -136,7 +136,7 @@ namespace phi
 
     void layerBuilder::buildGlassyControlRenderer()
     {
-        auto adapter = new controlRenderAdapter();
+        auto adapter = new controlRenderAdapter(_layer->getCamera());
         auto renderPasses = glassyControlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
 
         auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
@@ -144,7 +144,6 @@ namespace phi
         _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeTransformChanged(std::bind(&controlLayerBehaviour::onNodeTransformChanged, controlBehaviour, std::placeholders::_1));
-        _layer->addOnNodeSelectionChanged(std::bind(&controlLayerBehaviour::onNodeSelectionChanged, controlBehaviour, std::placeholders::_1));
 
         _layer->addRenderPasses(renderPasses);
 
@@ -156,14 +155,13 @@ namespace phi
 
     void layerBuilder::buildControlRenderer()
     {
-        auto adapter = new controlRenderAdapter();
+        auto adapter = new controlRenderAdapter(_layer->getCamera());
         auto renderPasses = controlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
         auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
 
         _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeTransformChanged(std::bind(&controlLayerBehaviour::onNodeTransformChanged, controlBehaviour, std::placeholders::_1));
-        _layer->addOnNodeSelectionChanged(std::bind(&controlLayerBehaviour::onNodeSelectionChanged, controlBehaviour, std::placeholders::_1));
 
         _layer->addRenderPasses(controlBehaviour->getRenderPasses());
 
@@ -175,10 +173,12 @@ namespace phi
 
     void layerBuilder::buildTextRenderer()
     {
+        auto adapter = new textRenderAdapter(_layer->getCamera());
         auto textBehaviour = new textLayerBehaviour(
             _resolution,
             _resourcesPath,
-            _framebufferAllocator);
+            _framebufferAllocator,
+            adapter);
 
         _layer->addOnNodeAdded(std::bind(&textLayerBehaviour::onNodeAdded, textBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&textLayerBehaviour::onNodeRemoved, textBehaviour, std::placeholders::_1));

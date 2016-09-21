@@ -8,7 +8,8 @@ namespace phi
         _image(image::defaultAlbedoImage),
         _onSizeChanged(new eventHandler<vec3>()),
         _color(color::transparent),
-        _size(vec3(0.0f))
+        _size(vec3(0.0f)),
+        _isBillboard(false)
     {
     }
 
@@ -17,7 +18,8 @@ namespace phi
         _image(original._image),
         _onSizeChanged(new eventHandler<vec3>()),
         _color(original._color),
-        _size(original._size)
+        _size(original._size),
+        _isBillboard(original._isBillboard)
     {
     }
 

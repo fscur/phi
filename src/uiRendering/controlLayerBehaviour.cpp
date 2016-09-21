@@ -53,11 +53,6 @@ namespace phi
             _adapter->update(control);
     }
 
-    void controlLayerBehaviour::onNodeSelectionChanged(node* node)
-    {
-        throw notImplementedException();
-    }
-
     void controlLayerBehaviour::onControlColorChanged(control* control)
     {
         _adapter->update(control);

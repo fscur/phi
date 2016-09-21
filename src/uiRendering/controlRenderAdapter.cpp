@@ -8,16 +8,17 @@
 
 namespace phi
 {
-    controlRenderAdapter::controlRenderAdapter()
+    controlRenderAdapter::controlRenderAdapter(camera* camera) :
+        _vao(nullptr),
+        _modelMatricesBuffer(nullptr),
+        _renderDataBuffer(nullptr),
+        _controls(vector<control*>()),
+        _camera(camera),
+        _cameraChangedEventToken()
     {
+        _cameraChangedEventToken = _camera->getTransform()->getChangedEvent()->assign(std::bind(&controlRenderAdapter::onCameraChanged, this, std::placeholders::_1));
         createVao();
         createControlRenderDataBuffer();
-    }
-
-    controlRenderAdapter::~controlRenderAdapter()
-    {
-        safeDelete(_renderDataBuffer);
-        safeDelete(_vao);
     }
 
     void controlRenderAdapter::createVao()
@@ -60,9 +61,68 @@ namespace phi
         _renderDataBuffer = new mappedBuffer<control*, controlRenderData>("ControlRenderDataBuffer", bufferTarget::shader);
     }
 
+    controlRenderAdapter::~controlRenderAdapter()
+    {
+        safeDelete(_renderDataBuffer);
+        safeDelete(_vao);
+    }
+
+    void controlRenderAdapter::add(control* control)
+    {
+        auto renderData = controlRenderData::from(control);
+        _renderDataBuffer->add(control, renderData);
+
+        auto modelMatrix = getModelMatrix(control);
+
+        _modelMatricesBuffer->add(control, modelMatrix);
+        _controls.push_back(control);
+    }
+
+    mat4 controlRenderAdapter::getModelMatrix(control* control)
+    {
+        mat4 modelMatrix;
+        if (control->isBillboard())
+        {
+            auto controlTransform = control->getNode()->getTransform();
+            auto position = controlTransform->getPosition();
+            auto scale = controlTransform->getSize();
+            auto cameraTransform = _camera->getTransform();
+            auto cameraUp = cameraTransform->getUp();
+            auto cameraRight = cameraTransform->getRight();
+            auto cameraDir = cameraTransform->getDirection();
+
+            auto rotationMatrix = mat4(
+                vec4(-cameraRight, 0.0f),
+                vec4(cameraUp, 0.0f),
+                vec4(-cameraDir, 0.0f),
+                vec4(vec3(), 1.0f));
+
+            auto scaleMatrix = glm::scale(scale);
+            auto translationMatrix = glm::translate(position);
+            modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+        }
+        else
+            modelMatrix = control->getNode()->getTransform()->getModelMatrix();
+
+        return modelMatrix;
+    }
+
+    void controlRenderAdapter::remove(control* control)
+    {
+        _renderDataBuffer->remove(control);
+        _modelMatricesBuffer->remove(control);
+        phi::removeIfContains(_controls, control);
+    }
+
+    void controlRenderAdapter::update(control* control)
+    {
+        updateModelMatrix(control);
+        updateControlRenderData(control);
+    }
+
     void controlRenderAdapter::updateModelMatrix(control* control)
     {
-        auto modelMatrix = control->getNode()->getTransform()->getModelMatrix();
+        auto modelMatrix = getModelMatrix(control);
         _modelMatricesBuffer->update(control, modelMatrix);
     }
 
@@ -72,24 +132,9 @@ namespace phi
         _renderDataBuffer->update(control, renderData);
     }
 
-    void controlRenderAdapter::add(control* control)
+    void controlRenderAdapter::onCameraChanged(transform* transform)
     {
-        auto renderData = controlRenderData::from(control);
-        _renderDataBuffer->add(control, renderData);
-
-        auto modelMatrix = control->getNode()->getTransform()->getModelMatrix();
-        _modelMatricesBuffer->add(control, modelMatrix);
-    }
-
-    void controlRenderAdapter::remove(control* control)
-    {
-        _renderDataBuffer->remove(control);
-        _modelMatricesBuffer->remove(control);
-    }
-
-    void controlRenderAdapter::update(control* control)
-    {
-        updateModelMatrix(control);
-        updateControlRenderData(control);
+        for (auto control : _controls)
+            updateModelMatrix(control);
     }
 }

@@ -165,7 +165,7 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
+        //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
 
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
@@ -196,6 +196,8 @@ namespace demon
                 .withCameraController()
                 .withSelectionController()
                 .withTranslationController()
+                .withControlRenderer()
+                .withTextRenderer()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -285,8 +287,34 @@ namespace demon
                     _sceneLayer->add(node);
                 }
             }
-        })
-            .build();
+        }).build();
+
+        node* cubeRotateButton;
+        cube0->selectionChanged.assign([&, font, cube0, cubeRotateButton](node* n) mutable
+        {
+            if (n->isSelected())
+            {
+                cubeRotateButton = buttonBuilder::newButton()
+                    .withPosition(vec3(0.5f, 0.5f, 0.0f))
+                    .withOrientation(glm::angleAxis(PI_OVER_2, vec3(0.0f, 1.0f, 0.0f)))
+                    .withText(L"R")
+                    .withTextColor(0.7f, 0.7f, 0.7f, 1.0f)
+                    .withFont(font)
+                    .withControlColor(1.0f, 1.0f, 1.0f, 1.0f)
+                    .asBillboard()
+                    .withAction([=](node* node)
+                {
+                    phi::debug("clicked!");
+                }).build();
+
+                cube0->addChild(cubeRotateButton);
+            }
+            else
+            {
+                cube0->removeChild(cubeRotateButton);
+                safeDelete(cubeRotateButton);
+            }
+        });
 
         _framebufferAllocator->allocate(_resolution);
 
@@ -301,24 +329,24 @@ namespace demon
             _framebufferAllocator,
             _commandsManager,
             { _sceneLayer, _constructionLayer });
-/*
+
         _sceneLayer->add(cube0);
-        _sceneLayer->add(cube1);
-        _sceneLayer->add(_chair0);
-        _sceneLayer->add(floor0);
-        _sceneLayer->add(back_wall);
-        _sceneLayer->add(table);
-        _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable)*/;
+        //_sceneLayer->add(cube1);
+        //_sceneLayer->add(_chair0);
+        //_sceneLayer->add(floor0);
+        //_sceneLayer->add(back_wall);
+        //_sceneLayer->add(table);
+        //_sceneLayer->add(tableChair);
+        //_sceneLayer->add(coffeTable);
 
         //TODO: prevent components that are not dealt with it from being added to layer
 
-        _constructionLayer->add(_constructionLabel);
-        _nandinhoLayer->add(_labelNandinho);
-        _nandinhoLayer->add(_labelFps);
-        _nandinhoLayer->add(changeContextButton);
-        _nandinhoLayer->add(loadProjectButton);
-        _nandinhoLayer->add(saveProjectButton);
+        //_constructionLayer->add(_constructionLabel);
+        //_nandinhoLayer->add(_labelNandinho);
+        //_nandinhoLayer->add(_labelFps);
+        //_nandinhoLayer->add(changeContextButton);
+        //_nandinhoLayer->add(loadProjectButton);
+        //_nandinhoLayer->add(saveProjectButton);
 
         _activeContext = _designContext;
     }
