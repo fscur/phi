@@ -63,6 +63,7 @@ namespace demon
         void openFileDialog();
         void initContexts();
         void initInput();
+        void addSelectionUITo(phi::node* node, phi::font* font);
 
         void onMouseDown(phi::mouseEventArgs* e);
         void onMouseUp(phi::mouseEventArgs* e);

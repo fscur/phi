@@ -289,32 +289,7 @@ namespace demon
             }
         }).build();
 
-        node* cubeRotateButton;
-        cube0->selectionChanged.assign([&, font, cube0, cubeRotateButton](node* n) mutable
-        {
-            if (n->isSelected())
-            {
-                cubeRotateButton = buttonBuilder::newButton()
-                    .withPosition(vec3(0.5f, 0.5f, 0.0f))
-                    .withOrientation(glm::angleAxis(PI_OVER_2, vec3(0.0f, 1.0f, 0.0f)))
-                    .withText(L"R")
-                    .withTextColor(0.7f, 0.7f, 0.7f, 1.0f)
-                    .withFont(font)
-                    .withControlColor(1.0f, 1.0f, 1.0f, 1.0f)
-                    .asBillboard()
-                    .withAction([=](node* node)
-                {
-                    phi::debug("clicked!");
-                }).build();
-
-                cube0->addChild(cubeRotateButton);
-            }
-            else
-            {
-                cube0->removeChild(cubeRotateButton);
-                safeDelete(cubeRotateButton);
-            }
-        });
+        addSelectionUITo(cube0, font);
 
         _framebufferAllocator->allocate(_resolution);
 
@@ -342,11 +317,11 @@ namespace demon
         //TODO: prevent components that are not dealt with it from being added to layer
 
         //_constructionLayer->add(_constructionLabel);
-        //_nandinhoLayer->add(_labelNandinho);
-        //_nandinhoLayer->add(_labelFps);
-        //_nandinhoLayer->add(changeContextButton);
-        //_nandinhoLayer->add(loadProjectButton);
-        //_nandinhoLayer->add(saveProjectButton);
+        _nandinhoLayer->add(_labelNandinho);
+        _nandinhoLayer->add(_labelFps);
+        _nandinhoLayer->add(changeContextButton);
+        _nandinhoLayer->add(loadProjectButton);
+        _nandinhoLayer->add(saveProjectButton);
 
         _activeContext = _designContext;
     }
@@ -368,6 +343,35 @@ namespace demon
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
+    }
+
+    void screen::addSelectionUITo(phi::node* node, phi::font* font)
+    {
+        phi::node* rotateButton;
+        node->selectionChanged.assign([&, font, rotateButton](phi::node* n) mutable
+        {
+            if (n->isSelected())
+            {
+                rotateButton = buttonBuilder::newButton()
+                    .withPosition(vec3(0.5f, 0.5f, 0.0f))
+                    .withText(L"R")
+                    .withTextColor(0.7f, 0.7f, 0.7f, 1.0f)
+                    .withFont(font)
+                    .withControlColor(1.0f, 1.0f, 1.0f, 1.0f)
+                    .asBillboard()
+                    .withAction([=](phi::node* node)
+                {
+                    phi::debug("clicked!");
+                }).build();
+
+                n->addChild(rotateButton);
+            }
+            else
+            {
+                n->removeChild(rotateButton);
+                safeDelete(rotateButton);
+            }
+        });
     }
 
     void screen::onMouseDown(phi::mouseEventArgs* e)
