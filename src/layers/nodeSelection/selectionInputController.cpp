@@ -150,7 +150,7 @@ namespace phi
             if (_selectionBehaviour->getSelectedNodes()->size() > 0)
                 _commandsManager->executeCommand(new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
 
-            return false;
+            return true;
         }
 
         clickComponent->onMouseUp();

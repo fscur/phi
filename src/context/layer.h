@@ -80,16 +80,16 @@ namespace phi
         CONTEXT_API void update();
         CONTEXT_API void render();
 
-        CONTEXT_API void onMouseDown(mouseEventArgs* e);
-        CONTEXT_API void onMouseUp(mouseEventArgs* e);
-        CONTEXT_API void onMouseClick(mouseEventArgs* e);
-        CONTEXT_API void onMouseDoubleClick(mouseEventArgs* e);
-        CONTEXT_API void onMouseMove(mouseEventArgs* e);
-        CONTEXT_API void onBeginMouseWheel(mouseEventArgs* e);
-        CONTEXT_API void onMouseWheel(mouseEventArgs* e);
-        CONTEXT_API void onEndMouseWheel(mouseEventArgs* e);
-        CONTEXT_API void onKeyDown(keyboardEventArgs* e);
-        CONTEXT_API void onKeyUp(keyboardEventArgs* e);
+        CONTEXT_API bool onMouseDown(mouseEventArgs* e);
+        CONTEXT_API bool onMouseUp(mouseEventArgs* e);
+        CONTEXT_API bool onMouseClick(mouseEventArgs* e);
+        CONTEXT_API bool onMouseDoubleClick(mouseEventArgs* e);
+        CONTEXT_API bool onMouseMove(mouseEventArgs* e);
+        CONTEXT_API bool onBeginMouseWheel(mouseEventArgs* e);
+        CONTEXT_API bool onMouseWheel(mouseEventArgs* e);
+        CONTEXT_API bool onEndMouseWheel(mouseEventArgs* e);
+        CONTEXT_API bool onKeyDown(keyboardEventArgs* e);
+        CONTEXT_API bool onKeyUp(keyboardEventArgs* e);
 
         void addOnUpdate(std::function<void(void)> onUpdate) { _onUpdate.push_back(onUpdate); }
         void addOnNodeAdded(std::function<void(node*)> onNodeAdded) { _onNodeAdded.push_back(onNodeAdded); }

@@ -26,6 +26,7 @@ namespace phi
         _name(original._name),
         _localObb(nullptr),
         _obb(nullptr),
+        _worldLocalObb(nullptr),
         _isSelected(original._isSelected),
         _isTranslating(original._isTranslating),
         resource(original.resource)

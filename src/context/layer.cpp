@@ -172,92 +172,110 @@ namespace phi
             renderPass->render();
     }
 
-    void layer::onMouseDown(mouseEventArgs* e)
+    bool layer::onMouseDown(mouseEventArgs* e)
     {
         if (_currentController && _currentController->onMouseDown(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller != _currentController && controller->onMouseDown(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onMouseUp(mouseEventArgs* e)
+    bool layer::onMouseUp(mouseEventArgs* e)
     {
         if (_currentController && _currentController->onMouseUp(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller != _currentController && controller->onMouseUp(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onMouseClick(mouseEventArgs* e)
+    bool layer::onMouseClick(mouseEventArgs* e)
     {
         auto lastCurrentController = _currentController;
         if (lastCurrentController && lastCurrentController->onMouseClick(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller != lastCurrentController && controller->onMouseClick(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onMouseDoubleClick(mouseEventArgs* e)
+    bool layer::onMouseDoubleClick(mouseEventArgs* e)
     {
         if (_currentController && _currentController->onMouseDoubleClick(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller != _currentController && controller->onMouseDoubleClick(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onMouseMove(mouseEventArgs* e)
+    bool layer::onMouseMove(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             if (controller->onMouseMove(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onBeginMouseWheel(mouseEventArgs* e)
+    bool layer::onBeginMouseWheel(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             controller->onBeginMouseWheel(e);
+
+        return false;
     }
 
-    void layer::onMouseWheel(mouseEventArgs* e)
+    bool layer::onMouseWheel(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             controller->onMouseWheel(e);
+
+        return false;
     }
 
-    void layer::onEndMouseWheel(mouseEventArgs* e)
+    bool layer::onEndMouseWheel(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             controller->onEndMouseWheel(e);
+
+        return false;
     }
 
-    void layer::onKeyDown(keyboardEventArgs* e)
+    bool layer::onKeyDown(keyboardEventArgs* e)
     {
         if (_currentController && _currentController->onKeyDown(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller->onKeyDown(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onKeyUp(keyboardEventArgs* e)
+    bool layer::onKeyUp(keyboardEventArgs* e)
     {
         if (e->key == PHIK_ESCAPE && _currentController)
-        {
             _currentController->cancel();
-        }
 
         for (auto& controller : _controllers)
             if (controller->onKeyUp(e))
-                break;
+                return true;
+
+        return false;
     }
 
     void layer::addMouseController(inputController * controller)

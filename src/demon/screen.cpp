@@ -191,13 +191,13 @@ namespace demon
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
                 .withPlaneGridRenderer()
+                .withControlRenderer()
+                .withTextRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
                 .withTranslationController()
-                .withControlRenderer()
-                .withTextRenderer()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -217,6 +217,7 @@ namespace demon
                 .withControlRenderer()
                 .withTextRenderer()
                 .withUIMouseController()
+                .withOnDemandUi(_sceneLayer)
                 .build();
         }
         catch (const phi::invalidLayerConfigurationException& ex)
@@ -289,8 +290,6 @@ namespace demon
             }
         }).build();
 
-        addSelectionUITo(cube0, font);
-
         _framebufferAllocator->allocate(_resolution);
 
         _designContext = new context(
@@ -306,13 +305,13 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(cube0);
-        //_sceneLayer->add(cube1);
-        //_sceneLayer->add(_chair0);
-        //_sceneLayer->add(floor0);
-        //_sceneLayer->add(back_wall);
-        //_sceneLayer->add(table);
-        //_sceneLayer->add(tableChair);
-        //_sceneLayer->add(coffeTable);
+        _sceneLayer->add(cube1);
+        _sceneLayer->add(_chair0);
+        _sceneLayer->add(floor0);
+        _sceneLayer->add(back_wall);
+        _sceneLayer->add(table);
+        _sceneLayer->add(tableChair);
+        _sceneLayer->add(coffeTable);
 
         //TODO: prevent components that are not dealt with it from being added to layer
 

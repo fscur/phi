@@ -7,7 +7,9 @@
 #include <ui/control.h>
 #include <ui/text.h>
 
+#include "ui/onDemandUiLayerBehaviour.h"
 #include "ui/uiMouseController.h"
+
 #include "layerBuilder.h"
 
 namespace phi
@@ -19,6 +21,8 @@ namespace phi
         _framebufferAllocator(framebufferAllocator),
         _meshBehaviour(nullptr),
         _physicsBehaviour(nullptr),
+        _selectionBehaviour(nullptr),
+        _onDemandUiTargetLayer(nullptr),
         _commandsManager(commandsManager),
         _withMeshRenderer(false),
         _withGhostMeshRenderer(false),
@@ -28,6 +32,7 @@ namespace phi
         _withControlRenderer(false),
         _withGlassyControlRenderer(false),
         _withTextRenderer(false),
+        _withOnDemandUi(false),
         _withPhysics(false),
         _withCameraController(false),
         _withSelectionController(false),
@@ -192,6 +197,15 @@ namespace phi
         });
     }
 
+    void layerBuilder::buildOnDemandUi()
+    {
+        auto onDemandUiBehaviour = new onDemandUiLayerBehaviour(_layer, _onDemandUiTargetLayer);
+        _layer->addOnDelete([onDemandUiBehaviour]() mutable
+        {
+            safeDelete(onDemandUiBehaviour);
+        });
+    }
+
     void layerBuilder::buildPhysics()
     {
         auto physicsBehaviour = new physicsLayerBehaviour();
@@ -284,6 +298,9 @@ namespace phi
 
         if (_withTextRenderer)
             buildTextRenderer();
+
+        if (_withOnDemandUi)
+            buildOnDemandUi();
 
         if (_withPhysics)
             buildPhysics();

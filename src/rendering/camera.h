@@ -65,6 +65,7 @@ namespace phi
         RENDERING_API vec3 screenPointToWorld(ivec2 mousePosition);
         RENDERING_API vec3 screenPointToWorld(int mouseX, int mouseY);
         RENDERING_API ray screenPointToRay(int mouseX, int mouseY);
+        RENDERING_API vec2 worldPointToScreen(vec3 worldPosition);
         RENDERING_API float zBufferToDepth(float zBufferValue);
         RENDERING_API vec3 castRayToPlane(int mouseX, int mouseY, plane plane);
 

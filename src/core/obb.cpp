@@ -124,10 +124,16 @@ namespace phi
 
     vec3 obb::getPositionAt(vec3 direction) const
     {
-        return center + direction * (
-            glm::abs(glm::dot(axes[0] * halfSizes.x, direction)) +
-            glm::abs(glm::dot(axes[1] * halfSizes.y, direction)) +
-            glm::abs(glm::dot(axes[2] * halfSizes.z, direction)));
+        auto extendedDirection = glm::normalize(direction * halfSizes);
+
+        auto dotX = glm::dot(axes[0] * halfSizes.x, extendedDirection);
+        auto dotY = glm::dot(axes[1] * halfSizes.y, extendedDirection);
+        auto dotZ = glm::dot(axes[2] * halfSizes.z, extendedDirection);
+
+        return center + extendedDirection * (
+            glm::abs(dotX) +
+            glm::abs(dotY) +
+            glm::abs(dotZ));
     }
 
     vec3 obb::findClosestNormalTo(vec3 direction) const
