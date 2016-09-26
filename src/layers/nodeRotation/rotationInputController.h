@@ -2,33 +2,34 @@
 
 #include <phi.h>
 
-#include <core\node.h>
-#include <rendering\camera.h>
-
-#include <input\inputController.h>
-#include <context\layer.h>
-#include "translationPlane.h"
-#include "translationService.h"
+#include <core/node.h>
+#include <input/inputController.h>
+#include <physics/physicsWorld.h>
+#include <rendering/camera.h>
+#include <application/commandsManager.h>
+#include <context/layer.h>
+#include "rotationService.h"
+#include "rotationPlane.h"
 
 namespace phi
 {
-    class translationInputController :
+    class rotationInputController :
         public inputController
     {
     private:
         commandsManager* _commandsManager;
         const vector<node*>* _targetNodes;
-        translationService* _translationService;
+        rotationService* _rotationService;
         unordered_map<node*, vec3> _originalPositions;
         bool _isMouseHidden;
 
     private:
-        bool canStartTranslation(mouseEventArgs* e);
-        void pushTranslateCommands();
+        bool canStartRotation(mouseEventArgs* e);
+        void pushRotateCommands();
 
     public:
-        translationInputController(commandsManager* commandsManager, const vector<node*>* targetNodes, layer* layer, physicsWorld* physicsWorld);
-        ~translationInputController();
+        rotationInputController(commandsManager* commandsManager, const vector<node*>* targetNodes, layer* layer, physicsWorld* physicsWorld);
+        ~rotationInputController();
 
         bool onMouseDown(mouseEventArgs* e) override;
         bool onMouseMove(mouseEventArgs* e) override;

@@ -4,6 +4,8 @@
 
 #include <io/path.h>
 
+#include <sceneRendering/rotationPlaneGridLayerBehaviour.h>
+
 #include <ui/control.h>
 #include <ui/text.h>
 
@@ -32,6 +34,7 @@ namespace phi
         _withCameraController(false),
         _withSelectionController(false),
         _withTranslationController(false),
+        _withRotationController(false),
         _withUIMouseController(false)
     {
     }
@@ -131,6 +134,21 @@ namespace phi
         _layer->addOnDelete([planeGridBehaviour]() mutable
         {
             safeDelete(planeGridBehaviour);
+        });
+    }
+
+    void layerBuilder::buildRotationPlaneGridRenderer()
+    {
+        auto rotationPlaneGridBehaviour = new rotationPlaneGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&rotationPlaneGridLayerBehaviour::onNodeAdded, rotationPlaneGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&rotationPlaneGridLayerBehaviour::onNodeRemoved, rotationPlaneGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&rotationPlaneGridLayerBehaviour::onNodeTransformChanged, rotationPlaneGridBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(rotationPlaneGridBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([rotationPlaneGridBehaviour]() mutable
+        {
+            safeDelete(rotationPlaneGridBehaviour);
         });
     }
 
@@ -253,6 +271,20 @@ namespace phi
         _layer->addMouseController(translationController);
     }
 
+    void layerBuilder::buildRotationController()
+    {
+        if (!_withRotationController)
+            throw invalidLayerConfigurationException("Rotation Controller could not be added. It requires Selection Controller.");
+
+        auto rotationController = new rotationInputController(
+            _commandsManager,
+            _selectionBehaviour->getSelectedNodes(),
+            _layer,
+            _physicsBehaviour->getPhysicsWorld());
+
+        _layer->addMouseController(rotationController);
+    }
+
     void layerBuilder::buildUIMouseController()
     {
         auto controller = new uiMouseController(_layer);
@@ -275,6 +307,9 @@ namespace phi
 
         if (_withPlaneGridRenderer)
             buildPlaneGridRenderer();
+
+        if (_withRotationPlaneGridRenderer)
+            buildRotationPlaneGridRenderer();
 
         if (_withGlassyControlRenderer)
             buildGlassyControlRenderer();
@@ -299,6 +334,9 @@ namespace phi
 
         if (_withTranslationController)
             buildTranslationController();
+
+        if (_withRotationController)
+            buildRotationController();
 
         if (_withUIMouseController)
             buildUIMouseController();

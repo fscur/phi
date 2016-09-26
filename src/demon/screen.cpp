@@ -4,7 +4,7 @@
 
 #include <core/multiCommand.h>
 #include <core/boxCollider.h>
-#include <core/planeGrid.h>
+#include <core/rotationPlaneGrid.h>
 #include <core/ghostMesh.h>
 
 #include <input/input.h>
@@ -190,12 +190,12 @@ namespace demon
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                .withPlaneGridRenderer()
+                .withRotationPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withTranslationController()
+                .withRotationController()
                 .withControlRenderer()
                 .withTextRenderer()
                 .build();
