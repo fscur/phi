@@ -49,6 +49,7 @@ namespace phi
         ghostMeshLayerBehaviour* _ghostMeshBehaviour;
         physicsLayerBehaviour* _physicsBehaviour;
         selectionLayerBehaviour* _selectionBehaviour;
+        layer* _onDemandUiTargetLayer;
 
         vector<renderPass*> _meshRenderPasses;
         vector<renderPass*> _controlRenderPasses;
@@ -64,6 +65,7 @@ namespace phi
         bool _withControlRenderer;
         bool _withGlassyControlRenderer;
         bool _withTextRenderer;
+        bool _withOnDemandUi;
         bool _withPhysics;
         bool _withAnimation;
         bool _withCameraController;
@@ -84,6 +86,7 @@ namespace phi
         void buildControlRenderer();
         void buildGlassyControlRenderer();
         void buildTextRenderer();
+        void buildOnDemandUi();
         void buildPhysics();
         void buildAnimation();
         void buildCameraController();
@@ -103,6 +106,7 @@ namespace phi
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
         layerBuilder withGlassyControlRenderer() { _withGlassyControlRenderer = true; return *this; }
         layerBuilder withTextRenderer() { _withTextRenderer = true; return *this; }
+        layerBuilder withOnDemandUi(layer* targetLayer) { _withOnDemandUi = true; _onDemandUiTargetLayer = targetLayer; return *this; }
         layerBuilder withPhysics() { _withPhysics = true; return *this; }
         layerBuilder withAnimation() { _withAnimation = true; return *this; }
         layerBuilder withCameraController() { _withCameraController = true; return *this; }

@@ -4,7 +4,7 @@
 
 #include <core/multiCommand.h>
 #include <core/boxCollider.h>
-#include <core/rotationPlaneGrid.h>
+#include <core/planeGrid.h>
 #include <core/ghostMesh.h>
 
 #include <input/input.h>
@@ -165,6 +165,7 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        cube0->getTransform()->yaw(PI_OVER_4);
         //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
 
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
@@ -182,7 +183,7 @@ namespace demon
         table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 2.0f));
         _sceneCamera->getTransform()->yaw(PI);
         
         try
@@ -190,14 +191,14 @@ namespace demon
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                .withRotationPlaneGridRenderer()
+                .withPlaneGridRenderer()
+                .withControlRenderer()
+                .withTextRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withRotationController()
-                .withControlRenderer()
-                .withTextRenderer()
+                .withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -210,13 +211,14 @@ namespace demon
                 .build();
 
             _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 600.0f));
             _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withControlRenderer()
                 .withTextRenderer()
                 .withUIMouseController()
+                .withOnDemandUi(_sceneLayer)
                 .build();
         }
         catch (const phi::invalidLayerConfigurationException& ex)
@@ -289,8 +291,6 @@ namespace demon
             }
         }).build();
 
-        addSelectionUITo(cube0, font);
-
         _framebufferAllocator->allocate(_resolution);
 
         _designContext = new context(
@@ -306,13 +306,13 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(cube0);
-        //_sceneLayer->add(cube1);
-        //_sceneLayer->add(_chair0);
-        //_sceneLayer->add(floor0);
-        //_sceneLayer->add(back_wall);
-        //_sceneLayer->add(table);
-        //_sceneLayer->add(tableChair);
-        //_sceneLayer->add(coffeTable);
+        _sceneLayer->add(cube1);
+        _sceneLayer->add(_chair0);
+        _sceneLayer->add(floor0);
+        _sceneLayer->add(back_wall);
+        _sceneLayer->add(table);
+        _sceneLayer->add(tableChair);
+        _sceneLayer->add(coffeTable);
 
         //TODO: prevent components that are not dealt with it from being added to layer
 

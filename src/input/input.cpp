@@ -3,6 +3,7 @@
 
 namespace phi
 {
+    ivec2 input::_mousePosition = ivec2();
     mouseEventHandler* input::mouseDown = new mouseEventHandler();
     mouseEventHandler* input::mouseUp = new mouseEventHandler();
     mouseEventHandler* input::mouseClick = new mouseEventHandler();
@@ -62,6 +63,11 @@ namespace phi
     void input::raiseKeyUpEvent(keyboardEventArgs* e)
     {
         keyUp->raise(e);
+    }
+
+    ivec2 input::getMousePosition()
+    {
+        return _mousePosition;
     }
 
     void input::notifyLeftMouseDown(int x, int y)
@@ -177,6 +183,7 @@ namespace phi
         auto mouseArgs = mouseEventArgs();
         mouseArgs.x = x;
         mouseArgs.y = y;
+        _mousePosition = ivec2(x, y);
         raiseMouseMoveEvent(&mouseArgs);
     }
 

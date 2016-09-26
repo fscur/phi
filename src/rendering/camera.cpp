@@ -228,6 +228,15 @@ namespace phi
         return ray(origin, direction);
     }
 
+    vec2 camera::worldPointToScreen(vec3 worldPosition)
+    {
+        auto vp = _projectionMatrix * _viewMatrix;
+        auto screenVec4 = vp * vec4(worldPosition, 1.0);
+        auto unitScreenPosition = vec2(screenVec4.x / screenVec4.w, screenVec4.y / screenVec4.w);
+        auto screenPosition = ((unitScreenPosition + 1.0f) / 2.0f) * _resolution.toVec2();
+        return screenPosition;
+    }
+
     float camera::zBufferToDepth(float zBufferValue)
     {
         return -_projectionMatrix[3].z / (zBufferValue * -2.0f + 1.0f - _projectionMatrix[2].z);
