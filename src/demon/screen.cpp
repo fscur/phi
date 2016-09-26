@@ -165,6 +165,7 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        cube0->getTransform()->yaw(PI_OVER_4);
         //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
 
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
@@ -182,7 +183,7 @@ namespace demon
         table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 2.0f));
         _sceneCamera->getTransform()->yaw(PI);
         
         try
@@ -210,7 +211,7 @@ namespace demon
                 .build();
 
             _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 600.0f));
             _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)

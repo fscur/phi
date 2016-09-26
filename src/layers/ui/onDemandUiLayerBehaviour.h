@@ -11,22 +11,18 @@ namespace phi
     class onDemandUiLayerBehaviour
     {
     private:
-        struct uiNodes
+        struct uiNodeData
         {
-            node* button01;
-            node* button02;
-            node* button03;
-            node* button04;
-            node* button05;
-            node* button06;
+            vec3 targetWorldPosition;
+            node* button;
         };
 
     public:
         onDemandUiLayerBehaviour(layer* uiLayer, layer* targetLayer);
 
     private:
-        node* createButtonFor(wstring text, node* node, float sphereAngle);
-        vec2 getPositionAtNodeSphere(node* node, float sphereAngle);
+        node* createButtonFor(wstring text, node* node);
+        vec2 getPositionAtNode(node* node);
         void onNodeSelectionChanged(node* node);
         void onTargetCameraChanged(transform* transform);
 
@@ -36,6 +32,6 @@ namespace phi
         camera* _uiCamera;
         camera* _targetCamera;
         font* _font;
-        unordered_map<node*, uiNodes> _uiNodes;
+        unordered_map<node*, uiNodeData> _uiNodeDatas;
     };
 }
