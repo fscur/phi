@@ -176,20 +176,24 @@ namespace phi
     {
         return abs(a - b) < error;
     }
+
     inline float mathUtils::truncateDecimals(float value)
     {
         return round(value * DECIMAL_TRUNCATION_INV) / DECIMAL_TRUNCATION_INV;
     }
+
     inline float mathUtils::truncateDecimals(float value, int decimals)
     {
         float exp = pow(10.0f, (float)decimals);
         return round(value * exp) / exp;
     }
+
     inline float mathUtils::isParallel(vec3 a, vec3 b)
     {
         return mathUtils::isClose(glm::dot(a, b), 1.0f);
     }
-    inline vec3 mathUtils::getCentroid(vector<vec3> points)
+
+    inline vec3 mathUtils::getCentroid(const vector<vec3>& points)
     {
         auto x = 0.0f;
         auto y = 0.0f;
@@ -205,6 +209,7 @@ namespace phi
         auto pointsCount = points.size();
         return vec3(x / pointsCount, y / pointsCount, z / pointsCount);
     }
+
     inline vec3 mathUtils::getClosestAxisTo(const vec3 & direction)
     {
         vec3 axisNormals[] =

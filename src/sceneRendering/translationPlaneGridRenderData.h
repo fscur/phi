@@ -1,12 +1,12 @@
 #pragma once
 #include <core\color.h>
-#include <core\planeGrid.h>
+#include <core\translationPlaneGrid.h>
 #include <rendering\texturesManager.h>
 #include <core\time.h>
 
 namespace phi
 {
-    struct planeGridRenderData
+    struct translationPlaneGridRenderData
     {
         color color;
         vec4 clipPlane0;
@@ -23,9 +23,9 @@ namespace phi
         float clipPlane2Opacity;
         float pad2;
 
-        static planeGridRenderData from(const planeGrid* planeGrid)
+        static translationPlaneGridRenderData from(const translationPlaneGrid* planeGrid)
         {
-            auto data = planeGridRenderData();
+            auto data = translationPlaneGridRenderData();
             data.color = planeGrid->getColor();
             data.lineThickness = planeGrid->getLineThickness();
             data.opacity = planeGrid->getOpacity();

@@ -8,11 +8,11 @@
 #include <core\clippingPlane.h>
 #include <animation\transformAnimation.h>
 #include <animation\floatAnimation.h>
-#include <core\translationPlaneGrid.h>
+#include <core\rotationPlaneGrid.h>
 
 namespace phi
 {
-    class translationPlane
+    class rotationPlane
     {
     private:
         const float FADE_IN_ANIMATION_TIME_IN_SECONDS = 0.4f;
@@ -21,8 +21,8 @@ namespace phi
     private:
         plane _plane;
         clippingPlane* _clippingPlane;
-        node* _planeGridNode;
-        translationPlaneGrid* _planeGrid;
+        node* _rotationPlaneGridNode;
+        rotationPlaneGrid* _rotationPlaneGrid;
         boxCollider* _collidee;
         boxCollider* _collider;
         transformAnimation* _draggingAnimation;
@@ -33,12 +33,12 @@ namespace phi
         bool _isHiding;
 
     public:
-        LAYERS_API translationPlane(plane plane);
-        LAYERS_API ~translationPlane();
+        LAYERS_API rotationPlane(plane plane);
+        LAYERS_API ~rotationPlane();
 
         plane getPlane() const { return _plane; }
         clippingPlane* getClippingPlane() const { return _clippingPlane; }
-        node* getPlaneGridNode() const { return _planeGridNode; }
+        node* getPlaneGridNode() const { return _rotationPlaneGridNode; }
         boxCollider* getCollidee() const { return _collidee; }
         boxCollider* getCollider() const { return _collider; }
         transformAnimation* getDraggingAnimation() const { return _draggingAnimation; }
@@ -59,7 +59,7 @@ namespace phi
 
         LAYERS_API void setFadeOutAnimation(floatAnimation* value);
 
-        LAYERS_API translationPlaneGrid* getPlaneGrid() { return _planeGrid; }
+        LAYERS_API rotationPlaneGrid* getPlaneGrid() { return _rotationPlaneGrid; }
 
         LAYERS_API void showGrid();
         LAYERS_API void hideGrid();

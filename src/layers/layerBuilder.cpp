@@ -4,6 +4,8 @@
 
 #include <io/path.h>
 
+#include <sceneRendering/rotationPlaneGridLayerBehaviour.h>
+
 #include <ui/control.h>
 #include <ui/text.h>
 
@@ -28,7 +30,8 @@ namespace phi
         _withGhostMeshRenderer(false),
         _withObbRenderer(false),
         _withBoxColliderRenderer(false),
-        _withPlaneGridRenderer(false),
+        _withTranslationPlaneGridRenderer(false),
+        _withRotationPlaneGridRenderer(false),
         _withControlRenderer(false),
         _withGlassyControlRenderer(false),
         _withTextRenderer(false),
@@ -37,6 +40,7 @@ namespace phi
         _withCameraController(false),
         _withSelectionController(false),
         _withTranslationController(false),
+        _withRotationController(false),
         _withUIMouseController(false)
     {
     }
@@ -124,18 +128,33 @@ namespace phi
         });
     }
 
-    void layerBuilder::buildPlaneGridRenderer()
+    void layerBuilder::buildTranslationPlaneGridRenderer()
     {
-        auto planeGridBehaviour = new planeGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
-        _layer->addOnNodeAdded(std::bind(&planeGridLayerBehaviour::onNodeAdded, planeGridBehaviour, std::placeholders::_1));
-        _layer->addOnNodeRemoved(std::bind(&planeGridLayerBehaviour::onNodeRemoved, planeGridBehaviour, std::placeholders::_1));
-        _layer->addOnNodeTransformChanged(std::bind(&planeGridLayerBehaviour::onNodeTransformChanged, planeGridBehaviour, std::placeholders::_1));
+        auto planeGridBehaviour = new translationPlaneGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&translationPlaneGridLayerBehaviour::onNodeAdded, planeGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&translationPlaneGridLayerBehaviour::onNodeRemoved, planeGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&translationPlaneGridLayerBehaviour::onNodeTransformChanged, planeGridBehaviour, std::placeholders::_1));
 
         _layer->addRenderPasses(planeGridBehaviour->getRenderPasses());
 
         _layer->addOnDelete([planeGridBehaviour]() mutable
         {
             safeDelete(planeGridBehaviour);
+        });
+    }
+
+    void layerBuilder::buildRotationPlaneGridRenderer()
+    {
+        auto rotationPlaneGridBehaviour = new rotationPlaneGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&rotationPlaneGridLayerBehaviour::onNodeAdded, rotationPlaneGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&rotationPlaneGridLayerBehaviour::onNodeRemoved, rotationPlaneGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&rotationPlaneGridLayerBehaviour::onNodeTransformChanged, rotationPlaneGridBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(rotationPlaneGridBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([rotationPlaneGridBehaviour]() mutable
+        {
+            safeDelete(rotationPlaneGridBehaviour);
         });
     }
 
@@ -267,6 +286,20 @@ namespace phi
         _layer->addMouseController(translationController);
     }
 
+    void layerBuilder::buildRotationController()
+    {
+        if (!_withRotationController)
+            throw invalidLayerConfigurationException("Rotation Controller could not be added. It requires Selection Controller.");
+
+        auto rotationController = new rotationInputController(
+            _commandsManager,
+            _selectionBehaviour->getSelectedNodes(),
+            _layer,
+            _physicsBehaviour->getPhysicsWorld());
+
+        _layer->addMouseController(rotationController);
+    }
+
     void layerBuilder::buildUIMouseController()
     {
         auto controller = new uiMouseController(_layer);
@@ -287,8 +320,11 @@ namespace phi
         if (_withBoxColliderRenderer)
             buildBoxColliderRenderer();
 
-        if (_withPlaneGridRenderer)
-            buildPlaneGridRenderer();
+        if (_withTranslationPlaneGridRenderer)
+            buildTranslationPlaneGridRenderer();
+
+        if (_withRotationPlaneGridRenderer)
+            buildRotationPlaneGridRenderer();
 
         if (_withGlassyControlRenderer)
             buildGlassyControlRenderer();
@@ -316,6 +352,9 @@ namespace phi
 
         if (_withTranslationController)
             buildTranslationController();
+
+        if (_withRotationController)
+            buildRotationController();
 
         if (_withUIMouseController)
             buildUIMouseController();

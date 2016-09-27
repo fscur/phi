@@ -1,29 +1,29 @@
 #include <precompiled.h>
-#include "planeGridLayerBehaviour.h"
+#include "rotationPlaneGridLayerBehaviour.h"
 
 #include <core\notImplementedException.h>
 #include <io\path.h>
 #include <rendering\framebufferAllocator.h>
-#include "planeGridRenderPass.h"
+#include "rotationPlaneGridRenderPass.h"
 #include <core\mesh.h>
 
 namespace phi
 {
-    planeGridLayerBehaviour::planeGridLayerBehaviour(
+    rotationPlaneGridLayerBehaviour::rotationPlaneGridLayerBehaviour(
         const resolution & resolution,
         const string & resourcesPath,
         framebufferAllocator* framebufferAllocator) :
-        _adapter(new planeGridRenderAdapter()),
+        _adapter(new rotationPlaneGridRenderAdapter()),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto boxRenderPass = planeGridRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+        auto boxRenderPass = rotationPlaneGridRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
 
         _renderPasses = { boxRenderPass };
     }
 
-    planeGridLayerBehaviour::~planeGridLayerBehaviour()
+    rotationPlaneGridLayerBehaviour::~rotationPlaneGridLayerBehaviour()
     {
         safeDelete(_adapter);
 
@@ -31,31 +31,31 @@ namespace phi
             safeDelete(renderPass);
     }
 
-    void planeGridLayerBehaviour::onNodeAdded(node* node)
+    void rotationPlaneGridLayerBehaviour::onNodeAdded(node* node)
     {
-        auto planeGrid = node->getComponent<phi::planeGrid>();
+        auto planeGrid = node->getComponent<phi::rotationPlaneGrid>();
 
         if (planeGrid)
             _adapter->add(planeGrid);
     }
 
-    void planeGridLayerBehaviour::onNodeRemoved(node* node)
+    void rotationPlaneGridLayerBehaviour::onNodeRemoved(node* node)
     {
-        auto planeGrid = node->getComponent<phi::planeGrid>();
+        auto planeGrid = node->getComponent<phi::rotationPlaneGrid>();
 
         if (planeGrid)
             _adapter->remove(planeGrid);
     }
 
-    void planeGridLayerBehaviour::onNodeTransformChanged(node* node)
+    void rotationPlaneGridLayerBehaviour::onNodeTransformChanged(node* node)
     {
-        auto planeGrid = node->getComponent<phi::planeGrid>();
+        auto planeGrid = node->getComponent<phi::rotationPlaneGrid>();
 
         if (planeGrid)
             _adapter->update(planeGrid);
     }
 
-    void planeGridLayerBehaviour::onNodeSelectionChanged(node* node)
+    void rotationPlaneGridLayerBehaviour::onNodeSelectionChanged(node* node)
     {
         throw notImplementedException();
     }

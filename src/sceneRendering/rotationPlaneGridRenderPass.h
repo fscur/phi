@@ -5,16 +5,16 @@
 #include <rendering\renderPass.h>
 #include <rendering\framebufferAllocator.h>
 
-#include "planeGridRenderAdapter.h"
+#include "rotationPlaneGridRenderAdapter.h"
 
 namespace phi
 {
-    class planeGridRenderPass
+    class rotationPlaneGridRenderPass
     {
     public:
-        planeGridRenderPass() = delete;
+        rotationPlaneGridRenderPass() = delete;
         SCENE_RENDERING_API static renderPass* configure(
-            const planeGridRenderAdapter* renderAdapter,
+            const rotationPlaneGridRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);

@@ -24,7 +24,7 @@ namespace phi
         static float truncateDecimals(float value);
         static float truncateDecimals(float value, int decimals);
         static float isParallel(vec3 a, vec3 b);
-        static vec3 getCentroid(vector<vec3> points);
+        static vec3 getCentroid(const vector<vec3>& points);
         static vec3 getClosestAxisTo(const vec3& direction);
     };
 }

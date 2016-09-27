@@ -7,7 +7,7 @@
 
 namespace phi
 {
-    class planeGrid :
+    class translationPlaneGrid :
         public component
     {
     private:
@@ -20,22 +20,22 @@ namespace phi
         unordered_map<clippingPlane*, float> _clippingPlanesOpacities;
         unordered_map<clippingPlane*, clippingDistance::clippingDistance> _clippingPlanesDistances;
 
-        eventHandler<planeGrid*> _colorChanged;
-        eventHandler<planeGrid*> _lineThicknessChanged;
-        eventHandler<planeGrid*> _opacityChanged;
-        eventHandler<planeGrid*> _visibleChanged;
-        eventHandler<planeGrid*> _clippingPlanesChanged;
+        eventHandler<translationPlaneGrid*> _colorChanged;
+        eventHandler<translationPlaneGrid*> _lineThicknessChanged;
+        eventHandler<translationPlaneGrid*> _opacityChanged;
+        eventHandler<translationPlaneGrid*> _visibleChanged;
+        eventHandler<translationPlaneGrid*> _clippingPlanesChanged;
 
     public:
         static componentType getComponentType() 
         { 
-            return componentType::PLANE_GRID; 
+            return componentType::TRANSLATION_PLANE_GRID; 
         }
 
     public:
-        CORE_API planeGrid();
-        CORE_API planeGrid(const planeGrid& original);
-        CORE_API ~planeGrid();
+        CORE_API translationPlaneGrid();
+        CORE_API translationPlaneGrid(const translationPlaneGrid& original);
+        CORE_API ~translationPlaneGrid();
 
         color getColor() const { return _color; }
         float getLineThickness() const { return _lineThickness; }
@@ -46,11 +46,11 @@ namespace phi
         unordered_map<clippingPlane*, float> getClippingPlanesOpacities() const { return _clippingPlanesOpacities; }
         unordered_map<clippingPlane*, clippingDistance::clippingDistance> getClippingPlanesDistances() const { return _clippingPlanesDistances; }
 
-        eventHandler<planeGrid*>* getColorChanged() { return &_colorChanged; }
-        eventHandler<planeGrid*>* getLineThicknessChanged() { return &_lineThicknessChanged; }
-        eventHandler<planeGrid*>* getOpacityChanged() { return &_opacityChanged; }
-        eventHandler<planeGrid*>* getVisibleChanged() { return &_visibleChanged; }
-        eventHandler<planeGrid*>* getClippingPlanesChanged() { return &_clippingPlanesChanged; }
+        eventHandler<translationPlaneGrid*>* getColorChanged() { return &_colorChanged; }
+        eventHandler<translationPlaneGrid*>* getLineThicknessChanged() { return &_lineThicknessChanged; }
+        eventHandler<translationPlaneGrid*>* getOpacityChanged() { return &_opacityChanged; }
+        eventHandler<translationPlaneGrid*>* getVisibleChanged() { return &_visibleChanged; }
+        eventHandler<translationPlaneGrid*>* getClippingPlanesChanged() { return &_clippingPlanesChanged; }
 
         CORE_API void setColor(const color& value);
         CORE_API void setLineThickness(const float value);

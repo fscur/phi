@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "planeGridRenderPass.h"
+#include "rotationPlaneGridRenderPass.h"
 
 #include <core\time.h>
 #include <core\geometry.h>
@@ -17,8 +17,8 @@
 
 namespace phi
 {
-    renderPass* planeGridRenderPass::configure(
-        const planeGridRenderAdapter* renderAdapter,
+    renderPass* rotationPlaneGridRenderPass::configure(
+        const rotationPlaneGridRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
@@ -26,7 +26,7 @@ namespace phi
         auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
         auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
-        auto planeGridProgram = programBuilder::buildProgram(shadersPath, "planeGrid", "planeGrid");
+        auto planeGridProgram = programBuilder::buildProgram(shadersPath, "rotationPlaneGrid", "rotationPlaneGrid");
         planeGridProgram->addBuffer(renderAdapter->getMousePlaneGridRenderDataBuffer());
 
         auto pass = new renderPass(planeGridProgram, defaultFramebuffer, resolution);

@@ -8,13 +8,13 @@
 
 #include <context\pickingId.h>
 
-#include "translationInputController.h"
-#include "translateNodeCommand.h"
+#include "rotationInputController.h"
+#include "rotateNodeCommand.h"
 #include <application/window.h>
 
 namespace phi
 {
-    translationInputController::translationInputController(
+    rotationInputController::rotationInputController(
         commandsManager* commandsManager,
         const vector<node*>* targetNodes,
         layer* layer,
@@ -22,17 +22,17 @@ namespace phi
         inputController(),
         _commandsManager(commandsManager),
         _targetNodes(targetNodes),
-        _translationService(new translationService(targetNodes, layer, physicsWorld)),
+        _rotationService(new rotationService(targetNodes, layer, physicsWorld)),
         _isMouseHidden(false)
     {
     }
 
-    translationInputController::~translationInputController()
+    rotationInputController::~rotationInputController()
     {
-        safeDelete(_translationService);
+        safeDelete(_rotationService);
     }
 
-    bool translationInputController::canStartTranslation(mouseEventArgs* e)
+    bool rotationInputController::canStartRotation(mouseEventArgs* e)
     {
         if (!e->leftButtonPressed)
             return false;
@@ -55,14 +55,14 @@ namespace phi
         return false;
     }
 
-    void translationInputController::pushTranslateCommands()
+    void rotationInputController::pushRotateCommands()
     {
         auto commands = vector<command*>();
 
         for (auto& node : *_targetNodes)
         {
             auto targetPosition = node->getTransform()->getLocalPosition();
-            auto translateCommand = new translateNodeCommand(node, _originalPositions[node], targetPosition);
+            auto translateCommand = new rotateNodeCommand(node, _originalPositions[node], targetPosition);
             commands.push_back(translateCommand);
         }
 
@@ -70,91 +70,91 @@ namespace phi
         _commandsManager->pushCommand(multiCommand);
     }
 
-    bool translationInputController::onMouseDown(mouseEventArgs* e)
+    bool rotationInputController::onMouseDown(mouseEventArgs* e)
     {
-        if (!canStartTranslation(e))
+        if (!canStartRotation(e))
             return false;
 
         for (auto& node : *_targetNodes)
             _originalPositions[node] = node->getTransform()->getLocalPosition();
 
-        _translationService->startTranslation(ivec2(e->x, e->y));
+        _rotationService->startRotation(ivec2(e->x, e->y));
 
         _requestControlEvent->raise(this);
 
         _isMouseHidden = true;
-        window::hideCursor();
+        //window::hideCursor();
 
         return false;
     }
 
-    bool translationInputController::onMouseMove(mouseEventArgs* e)
+    bool rotationInputController::onMouseMove(mouseEventArgs* e)
     {
-        _translationService->translate(ivec2(e->x, e->y));
+        //_translationService->translate(ivec2(e->x, e->y));
         return true;
     }
 
-    bool translationInputController::onMouseUp(mouseEventArgs* e)
+    bool rotationInputController::onMouseUp(mouseEventArgs* e)
     {
-        if (!e->leftButtonPressed || !_translationService->isTranslating())
+        if (!e->leftButtonPressed || !_rotationService->isRotating())
             return false;
 
-        _translationService->endTranslation();
+        _rotationService->endRotation();
 
-        pushTranslateCommands();
+        pushRotateCommands();
 
         _resignControlEvent->raise(this);
 
         _isMouseHidden = false;
-        window::showCursor();
+        //window::showCursor();
 
         return true;
     }
 
-    bool translationInputController::onMouseClick(mouseEventArgs* e)
+    bool rotationInputController::onMouseClick(mouseEventArgs* e)
     {
-        if (_translationService->isTranslating())
-            return true;
+        if (_rotationService->isRotating())
+          return true;
 
         // TODO: Não sei se isso é gambis. Discutir!!
 
         return false;
     }
 
-    bool translationInputController::onKeyDown(keyboardEventArgs* e)
+    bool rotationInputController::onKeyDown(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_CTRL && _translationService->isTranslating())
+        if (e->key == PHIK_CTRL && _rotationService->isRotating())
         {
-            _translationService->disableCollisions();
-            _translationService->disablePlaneChanges();
+            _rotationService->disableCollisions();
+            
             return true;
         }
 
         return false;
     }
 
-    bool translationInputController::onKeyUp(keyboardEventArgs* e)
+    bool rotationInputController::onKeyUp(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_CTRL && _translationService->isTranslating())
+        if (e->key == PHIK_CTRL && _rotationService->isRotating())
         {
-            _translationService->enableCollisions();
-            _translationService->enablePlaneChanges();
+            _rotationService->enableCollisions();
+
             return true;
         }
 
         return false;
     }
 
-    bool translationInputController::update()
+    bool rotationInputController::update()
     {
-        _translationService->update();
-
+        _rotationService->update();
+        
         return false;
     }
 
-    void translationInputController::cancel()
+    void rotationInputController::cancel()
     {
-        _translationService->endTranslation();
+        _rotationService->endRotation();
 
         for (auto& node : *_targetNodes)
             node->getTransform()->setLocalPosition(_originalPositions[node]);
