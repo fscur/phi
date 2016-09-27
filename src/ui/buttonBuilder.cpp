@@ -1,11 +1,13 @@
 #include <precompiled.h>
-#include "buttonBuilder.h"
 
 #include <animation/animator.h>
 #include <animation/floatAnimation.h>
 
 #include <common/mouseInteractionComponent.h>
 
+#include <ui/layoutTransform.h>
+
+#include "buttonBuilder.h"
 #include "controlMouseClickAnimatable.h"
 #include "controlMouseHoverAnimatable.h"
 #include "control.h"
@@ -86,7 +88,7 @@ namespace phi
 
     buttonBuilder phi::buttonBuilder::newButton()
     {
-        auto node = new phi::node("button");
+        auto node = new phi::node("button", new layoutTransform());
         auto animator = new phi::animator();
         auto control = new phi::control();
         auto mouseInteraction = new phi::mouseInteractionComponent();

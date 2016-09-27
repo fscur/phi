@@ -1,10 +1,11 @@
 #include <precompiled.h>
-#include "controlRenderAdapter.h"
 
-#include <core\notImplementedException.h>
-#include <core\geometry.h>
-#include <core\node.h>
-#include <rendering\texturesManager.h>
+#include <core/geometry.h>
+#include <core/node.h>
+#include <core/notImplementedException.h>
+#include <rendering/texturesManager.h>
+#include <ui/layoutTransform.h>
+#include "controlRenderAdapter.h"
 
 namespace phi
 {
@@ -48,8 +49,8 @@ namespace phi
         {
             vertex(vec3(0.0f, 0.0f, +0.0f), vec2(0.0f, 0.0f)),
             vertex(vec3(1.0f, 0.0f, +0.0f), vec2(1.0f, 0.0f)),
-            vertex(vec3(1.0f, 1.0f, +0.0f), vec2(1.0f, 1.0f)),
-            vertex(vec3(0.0f, 1.0f, +0.0f), vec2(0.0f, 1.0f))
+            vertex(vec3(1.0f, -1.0f, +0.0f), vec2(1.0f, 1.0f)),
+            vertex(vec3(0.0f, -1.0f, +0.0f), vec2(0.0f, 1.0f))
         };
 
         auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
@@ -80,29 +81,31 @@ namespace phi
 
     mat4 controlRenderAdapter::getModelMatrix(control* control)
     {
-        mat4 modelMatrix;
-        if (control->isBillboard())
-        {
-            auto controlTransform = control->getNode()->getTransform();
-            auto position = controlTransform->getPosition();
-            auto scale = controlTransform->getSize();
-            auto cameraTransform = _camera->getTransform();
-            auto cameraUp = cameraTransform->getUp();
-            auto cameraRight = cameraTransform->getRight();
-            auto cameraDir = cameraTransform->getDirection();
+        //mat4 modelMatrix;
+        //if (control->isBillboard())
+        //{
+        //    auto controlTransform = control->getNode()->getTransform();
+        //    auto position = controlTransform->getPosition();
+        //    auto scale = controlTransform->getSize();
+        //    auto cameraTransform = _camera->getTransform();
+        //    auto cameraUp = cameraTransform->getUp();
+        //    auto cameraRight = cameraTransform->getRight();
+        //    auto cameraDir = cameraTransform->getDirection();
 
-            auto rotationMatrix = mat4(
-                vec4(-cameraRight, 0.0f),
-                vec4(cameraUp, 0.0f),
-                vec4(-cameraDir, 0.0f),
-                vec4(vec3(), 1.0f));
+        //    auto rotationMatrix = mat4(
+        //        vec4(-cameraRight, 0.0f),
+        //        vec4(cameraUp, 0.0f),
+        //        vec4(-cameraDir, 0.0f),
+        //        vec4(vec3(), 1.0f));
 
-            auto scaleMatrix = glm::scale(scale);
-            auto translationMatrix = glm::translate(position);
-            modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
-        }
-        else
-            modelMatrix = control->getNode()->getTransform()->getModelMatrix();
+        //    auto scaleMatrix = glm::scale(scale);
+        //    auto translationMatrix = glm::translate(position);
+        //    modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+        //}
+        //else
+
+        auto layoutTransform = static_cast<phi::layoutTransform*>(control->getNode()->getTransform());
+        auto modelMatrix = layoutTransform->getModelMatrix() * layoutTransform->getLocalScaleMatrix();
 
         return modelMatrix;
     }

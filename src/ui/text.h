@@ -38,6 +38,9 @@ namespace phi
     private:
         void updateControl();
 
+    public:
+        eventHandler<text*> textChangedEvent;
+
     private:
         font* _font;
         control* _control;

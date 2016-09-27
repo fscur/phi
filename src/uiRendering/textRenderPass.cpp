@@ -15,7 +15,8 @@ namespace phi
     {
         auto program = programBuilder::buildProgram(shadersPath, "text", "text");
         program->addBuffer(renderAdapter->getGlyphRenderDataBuffer());
-        
+        program->addBuffer(renderAdapter->getParentModelMatricesBuffer());
+
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
 

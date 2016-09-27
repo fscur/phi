@@ -10,28 +10,19 @@ namespace phi
 {
     class textInstance
     {
-    private:
-        vector<glyphRenderData> _glyphsRenderData;
-        vector<mat4> _modelMatrices;
-
     public:
         textInstance() :
-            _glyphsRenderData(vector<glyphRenderData>()),
-            _modelMatrices(vector<mat4>())
+            glyphsRenderData(vector<glyphRenderData>()),
+            modelMatrices(vector<mat4>()),
+            parentModelMatrixIndex(),
+            textChangedEventToken()
         {
         }
 
-        void add(const mat4& modelMatrix)
-        {
-            _modelMatrices.push_back(modelMatrix);
-        }
-
-        void add(const glyphRenderData& renderData)
-        {
-            _glyphsRenderData.push_back(renderData);
-        }
-
-        vector<mat4> getModelMatrices() const { return _modelMatrices; }
-        vector<glyphRenderData> getGlyphsRenderData() const { return _glyphsRenderData; }
+    public:
+        vector<glyphRenderData> glyphsRenderData;
+        vector<mat4> modelMatrices;
+        int parentModelMatrixIndex;
+        eventToken textChangedEventToken;
     };
 }

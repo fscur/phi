@@ -192,8 +192,6 @@ namespace demon
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
                 .withPlaneGridRenderer()
-                .withControlRenderer()
-                .withTextRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
@@ -212,10 +210,10 @@ namespace demon
 
             _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 600.0f));
-            _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+            _nandinhoCamera->getTransform()->yaw(PI);
 
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-                .withControlRenderer()
+                .withGlassyControlRenderer()
                 .withTextRenderer()
                 .withUIMouseController()
                 .withOnDemandUi(_sceneLayer)

@@ -55,7 +55,7 @@ namespace phi
         auto position = _transform->getPosition();
         auto target = position + _transform->getDirection();
         
-        _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
+        _viewMatrix = glm::lookAt(position, target, _transform->getUp());
     }
 
     inline void camera::updateProjectionMatrix()

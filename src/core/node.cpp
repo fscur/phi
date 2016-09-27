@@ -3,9 +3,9 @@
 
 namespace phi
 {
-    node::node(string name) :
+    node::node(string name, transform* transform) :
         _parent(nullptr),
-        _transform(new transform()),
+        _transform(transform),
         _components(vector<component*>()),
         _children(vector<node*>()),
         _name(name),

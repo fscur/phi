@@ -1,11 +1,35 @@
 #include <precompiled.h>
-#include "labelBuilder.h"
+
+#include <ui/layoutTransform.h>
 
 #include "control.h"
+#include "labelBuilder.h"
 #include "text.h"
 
 namespace phi
 {
+    labelBuilder phi::labelBuilder::newLabel(wstring text)
+    {
+        auto node = new phi::node("label", new layoutTransform());
+        auto control = new phi::control();
+        auto label = new phi::text();
+        node->addComponent(control);
+        node->addComponent(label);
+
+        label->setControl(control);
+        label->setFont(fontsManager::defaultFont);
+        label->setText(text);
+
+        //TODO: this event should be unassigned.
+        control->getOnSizeChanged()->assign([node](vec3 size)
+        {
+            node->setSize(size);
+        });
+        node->setSize(control->getSize());
+
+        return labelBuilder(node);
+    }
+
     labelBuilder labelBuilder::withPosition(vec3 position)
     {
         _label->setPosition(position);
@@ -33,27 +57,5 @@ namespace phi
     node* labelBuilder::build()
     {
         return _label;
-    }
-
-    labelBuilder phi::labelBuilder::newLabel(wstring text)
-    {
-        auto node = new phi::node("label");
-        auto control = new phi::control();
-        auto label = new phi::text();
-        node->addComponent(control);
-        node->addComponent(label);
-
-        label->setControl(control);
-        label->setFont(fontsManager::defaultFont);
-        label->setText(text);
-
-        //TODO: this event should be unassigned.
-        control->getOnSizeChanged()->assign([node](vec3 size)
-        {
-            node->setSize(size);
-        });
-        node->setSize(control->getSize());
-
-        return labelBuilder(node);
     }
 }

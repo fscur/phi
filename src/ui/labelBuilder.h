@@ -11,14 +11,8 @@ namespace phi
 {
     class labelBuilder
     {
-    private:
-        phi::node* _label;
-
-    private:
-        labelBuilder(phi::node* node) :
-            _label(node)
-        {
-        }
+    public:
+        UI_API static labelBuilder newLabel(wstring text);
 
     public:
         UI_API labelBuilder withPosition(vec3 position);
@@ -27,7 +21,13 @@ namespace phi
         UI_API labelBuilder withTextColor(float r, float g, float b, float a);
         UI_API node* build();
 
-    public:
-        UI_API static labelBuilder newLabel(wstring text);
+    private:
+        labelBuilder(phi::node* node) :
+            _label(node)
+        {
+        }
+
+    private:
+        phi::node* _label;
     };
 }

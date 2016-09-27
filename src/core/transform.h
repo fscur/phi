@@ -8,7 +8,7 @@ namespace phi
 {
     class transform
     {
-    private:
+    protected:
         transform* _parent;
         mat4 _localModelMatrix;
         vec3 _localPosition;
@@ -25,7 +25,7 @@ namespace phi
         eventToken _parentTransformChangedEventToken;
 
     private:
-        void updateData();
+        void virtual updateData();
         void setChanged();
         void parentTransformChanged(transform* sender);
 

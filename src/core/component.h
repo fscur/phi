@@ -23,7 +23,8 @@ namespace phi
             BOX_COLLIDER = 9,
             PLANE_GRID = 10,
             ANIMATOR = 11,
-            GHOST_MESH = 12
+            GHOST_MESH = 12,
+            LAYOUT_TRANSFORM = 13
         };
 
     protected:

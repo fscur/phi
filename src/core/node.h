@@ -46,7 +46,7 @@ namespace phi
         bool calculateChildrenObbIfExists(obb& obb);
 
     public:
-        CORE_API node(string name = string(""));
+        CORE_API node(string name = string(""), transform* transform = new transform());
         CORE_API node(const node& original);
         CORE_API ~node();
 
