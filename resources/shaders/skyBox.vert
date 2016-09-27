@@ -25,7 +25,13 @@ flat out uint instanceId;
 
 void main()
 {
-    gl_Position = frameUniforms.p * frameUniforms.v * inModelMatrix * vec4(inPosition * 400.0, 1.0);
+    vec3 xAxis = normalize(frameUniforms.v * vec4(1.0, 0.0, 0.0, 0.0)).xyz;
+    vec3 yAxis = normalize(frameUniforms.v * vec4(0.0, 1.0, 0.0, 0.0)).xyz;
+    vec3 zAxis = normalize(frameUniforms.v * vec4(0.0, 0.0, 1.0, 0.0)).xyz;
+
+    mat3 rotationMatrix = mat3(xAxis, yAxis, zAxis);
+
+    gl_Position = frameUniforms.p * mat4(rotationMatrix) * vec4(inPosition * 100.0, 1.0);
 
     fragTexCoord = inTexCoord;
     fragPosCoord = inPosition;
