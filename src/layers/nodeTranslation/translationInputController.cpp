@@ -83,7 +83,7 @@ namespace phi
         _requestControlEvent->raise(this);
 
         _isMouseHidden = true;
-        //window::hideCursor();
+        window::hideCursor();
 
         return false;
     }
@@ -106,7 +106,7 @@ namespace phi
         _resignControlEvent->raise(this);
 
         _isMouseHidden = false;
-        //window::showCursor();
+        window::showCursor();
 
         return true;
     }
@@ -149,16 +149,6 @@ namespace phi
     {
         _translationService->update();
 
-        /*if (!_translationService->isTranslating() && _isMouseHidden)
-        {
-            _isMouseHidden = false;
-            window::showCursor();
-        }
-        else if (_translationService->isTranslating() && !_isMouseHidden)
-        {
-            _isMouseHidden = true;
-            window::hideCursor();
-        }*/
         return false;
     }
 

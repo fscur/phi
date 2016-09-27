@@ -6,20 +6,20 @@
 
 #include <rendering/texturesManager.h>
 
-#include "planeGridRenderAdapter.h"
+#include "translationPlaneGridRenderAdapter.h"
 
 namespace phi
 {
-    planeGridRenderAdapter::planeGridRenderAdapter() :
-        _planeGridEventTokens(unordered_map<planeGrid*, planeGridEventTokens>())
+    translationPlaneGridRenderAdapter::translationPlaneGridRenderAdapter() :
+        _planeGridEventTokens(unordered_map<translationPlaneGrid*, translationPlaneGridEventTokens>())
     {
         createVao();
         createPlaneGridRenderDataBuffer();
     }
 
-    void planeGridRenderAdapter::createVao()
+    void translationPlaneGridRenderAdapter::createVao()
     {
-        _modelMatricesBuffer = new mappedVertexBuffer<planeGrid*, mat4>("modelMatrices",
+        _modelMatricesBuffer = new mappedVertexBuffer<translationPlaneGrid*, mat4>("modelMatrices",
         {
             vertexBufferAttribute(2, 4, GL_FLOAT, sizeof(mat4), (const void *)(sizeof(GLfloat) * 0 * 4), 1), // I'm not dumb (I think), I just trust the compiler
             vertexBufferAttribute(3, 4, GL_FLOAT, sizeof(mat4), (const void *)(sizeof(GLfloat) * 1 * 4), 1), // I'm not dumb (I think), I just trust the compiler
@@ -40,7 +40,7 @@ namespace phi
         safeDelete(quad);
     }
 
-    geometry* planeGridRenderAdapter::createPlaneQuad()
+    geometry* translationPlaneGridRenderAdapter::createPlaneQuad()
     {
         auto vertices = vector<vertex>
         {
@@ -54,18 +54,18 @@ namespace phi
         return geometry::create(vertices, indices);
     }
 
-    void planeGridRenderAdapter::createPlaneGridRenderDataBuffer()
+    void translationPlaneGridRenderAdapter::createPlaneGridRenderDataBuffer()
     {
-        _planeGridRenderDataBuffer = new mappedBuffer<planeGrid*, planeGridRenderData>("PlaneGridRenderDataBuffer", bufferTarget::shader);
+        _planeGridRenderDataBuffer = new mappedBuffer<translationPlaneGrid*, translationPlaneGridRenderData>("PlaneGridRenderDataBuffer", bufferTarget::shader);
     }
 
-    planeGridRenderAdapter::~planeGridRenderAdapter()
+    translationPlaneGridRenderAdapter::~translationPlaneGridRenderAdapter()
     {
         safeDelete(_vao);
         safeDelete(_planeGridRenderDataBuffer);
     }
 
-    void planeGridRenderAdapter::add(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::add(translationPlaneGrid* planeGrid)
     {
         if (planeGrid->isVisible())
             addPlaneGridToBuffers(planeGrid);
@@ -73,24 +73,24 @@ namespace phi
         assignChangedEvents(planeGrid);
     }
 
-    void planeGridRenderAdapter::addPlaneGridToBuffers(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::addPlaneGridToBuffers(translationPlaneGrid* planeGrid)
     {
         auto modelMatrix = planeGrid->getNode()->getTransform()->getModelMatrix();
         _modelMatricesBuffer->add(planeGrid, modelMatrix);
 
-        auto planeGridRenderData = planeGridRenderData::from(planeGrid);
+        auto planeGridRenderData = translationPlaneGridRenderData::from(planeGrid);
         _planeGridRenderDataBuffer->add(planeGrid, planeGridRenderData);
     }
 
-    void planeGridRenderAdapter::assignChangedEvents(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::assignChangedEvents(translationPlaneGrid* planeGrid)
     {
-        auto colorChangedToken = planeGrid->getColorChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
-        auto lineThicknessChangedToken = planeGrid->getLineThicknessChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
-        auto opacityChangedToken = planeGrid->getOpacityChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
-        auto visibleChangedToken = planeGrid->getVisibleChanged()->assign(std::bind(&planeGridRenderAdapter::planeGridVisibleChanged, this, std::placeholders::_1));
-        auto clippingPlanesChangedToken = planeGrid->getClippingPlanesChanged()->assign(std::bind(&planeGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto colorChangedToken = planeGrid->getColorChanged()->assign(std::bind(&translationPlaneGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto lineThicknessChangedToken = planeGrid->getLineThicknessChanged()->assign(std::bind(&translationPlaneGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto opacityChangedToken = planeGrid->getOpacityChanged()->assign(std::bind(&translationPlaneGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto visibleChangedToken = planeGrid->getVisibleChanged()->assign(std::bind(&translationPlaneGridRenderAdapter::planeGridVisibleChanged, this, std::placeholders::_1));
+        auto clippingPlanesChangedToken = planeGrid->getClippingPlanesChanged()->assign(std::bind(&translationPlaneGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
 
-        auto tokens = planeGridEventTokens();
+        auto tokens = translationPlaneGridEventTokens();
         tokens.colorChangedEventToken = colorChangedToken;
         tokens.lineThicknessChangedEventToken = lineThicknessChangedToken;
         tokens.opacityChangedEventToken = opacityChangedToken;
@@ -100,7 +100,7 @@ namespace phi
         _planeGridEventTokens[planeGrid] = tokens;
     }
 
-    void planeGridRenderAdapter::planeGridVisibleChanged(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::planeGridVisibleChanged(translationPlaneGrid* planeGrid)
     {
         if (planeGrid->isVisible())
             addPlaneGridToBuffers(planeGrid);
@@ -108,7 +108,7 @@ namespace phi
             removePlaneGridFromBuffers(planeGrid);
     }
 
-    void planeGridRenderAdapter::remove(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::remove(translationPlaneGrid* planeGrid)
     {
         if (planeGrid->isVisible())
             removePlaneGridFromBuffers(planeGrid);
@@ -116,13 +116,13 @@ namespace phi
         unassignChangedEvents(planeGrid);
     }
 
-    void planeGridRenderAdapter::removePlaneGridFromBuffers(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::removePlaneGridFromBuffers(translationPlaneGrid* planeGrid)
     {
         _modelMatricesBuffer->remove(planeGrid);
         _planeGridRenderDataBuffer->remove(planeGrid);
     }
 
-    void planeGridRenderAdapter::unassignChangedEvents(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::unassignChangedEvents(translationPlaneGrid* planeGrid)
     {
         auto tokens = _planeGridEventTokens[planeGrid];
 
@@ -135,13 +135,13 @@ namespace phi
         _planeGridEventTokens.erase(planeGrid);
     }
 
-    void planeGridRenderAdapter::update(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::update(translationPlaneGrid* planeGrid)
     {
         updateModelMatrix(planeGrid);
         updateRenderData(planeGrid);
     }
 
-    void planeGridRenderAdapter::updateModelMatrix(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::updateModelMatrix(translationPlaneGrid* planeGrid)
     {
         if (!planeGrid->isVisible())
             return;
@@ -150,12 +150,12 @@ namespace phi
         _modelMatricesBuffer->update(planeGrid, modelMatrix);
     }
 
-    void planeGridRenderAdapter::updateRenderData(planeGrid* planeGrid)
+    void translationPlaneGridRenderAdapter::updateRenderData(translationPlaneGrid* planeGrid)
     {
         if (!planeGrid->isVisible())
             return;
 
-        auto planeGridRenderData = planeGridRenderData::from(planeGrid);
+        auto planeGridRenderData = translationPlaneGridRenderData::from(planeGrid);
 
         _planeGridRenderDataBuffer->update(planeGrid, planeGridRenderData);
     }

@@ -1,5 +1,5 @@
 #include <precompiled.h>
-#include "planeGridRenderPass.h"
+#include "translationPlaneGridRenderPass.h"
 
 #include <core\time.h>
 #include <core\geometry.h>
@@ -17,8 +17,8 @@
 
 namespace phi
 {
-    renderPass* planeGridRenderPass::configure(
-        const planeGridRenderAdapter* renderAdapter,
+    renderPass* translationPlaneGridRenderPass::configure(
+        const translationPlaneGridRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)

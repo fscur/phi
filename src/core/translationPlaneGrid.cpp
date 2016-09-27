@@ -1,10 +1,10 @@
 #include <precompiled.h>
-#include "planeGrid.h"
+#include "translationPlaneGrid.h"
 
 namespace phi
 {
-    planeGrid::planeGrid() :
-        component(component::PLANE_GRID),
+    translationPlaneGrid::translationPlaneGrid() :
+        component(component::TRANSLATION_PLANE_GRID),
         _color(color::white),
         _lineThickness(10.0f),
         _opacity(0.0f),
@@ -12,32 +12,32 @@ namespace phi
         _isVisible(false),
         _clippingPlanes(vector<clippingPlane*>()),
         _clippingPlanesOpacities(unordered_map<clippingPlane*, float>()),
-        _colorChanged(eventHandler<planeGrid*>()),
-        _lineThicknessChanged(eventHandler<planeGrid*>()),
-        _opacityChanged(eventHandler<planeGrid*>()),
-        _visibleChanged(eventHandler<planeGrid*>())
+        _colorChanged(eventHandler<translationPlaneGrid*>()),
+        _lineThicknessChanged(eventHandler<translationPlaneGrid*>()),
+        _opacityChanged(eventHandler<translationPlaneGrid*>()),
+        _visibleChanged(eventHandler<translationPlaneGrid*>())
     {
     }
 
-    planeGrid::planeGrid(const planeGrid& original) :
-        component(componentType::PLANE_GRID),
+    translationPlaneGrid::translationPlaneGrid(const translationPlaneGrid& original) :
+        component(componentType::TRANSLATION_PLANE_GRID),
         _color(original._color),
         _lineThickness(original._lineThickness),
         _opacity(original._opacity),
         _isVisible(original._isVisible),
         _clippingPlanes(original._clippingPlanes),
-        _colorChanged(eventHandler<planeGrid*>()),
-        _lineThicknessChanged(eventHandler<planeGrid*>()),
-        _opacityChanged(eventHandler<planeGrid*>()),
-        _visibleChanged(eventHandler<planeGrid*>())
+        _colorChanged(eventHandler<translationPlaneGrid*>()),
+        _lineThicknessChanged(eventHandler<translationPlaneGrid*>()),
+        _opacityChanged(eventHandler<translationPlaneGrid*>()),
+        _visibleChanged(eventHandler<translationPlaneGrid*>())
     {
     }
 
-    planeGrid::~planeGrid()
+    translationPlaneGrid::~translationPlaneGrid()
     {
     }
 
-    void planeGrid::setColor(const color& value)
+    void translationPlaneGrid::setColor(const color& value)
     {
         if (_color == value)
             return;
@@ -46,7 +46,7 @@ namespace phi
         _colorChanged.raise(this);
     }
 
-    void planeGrid::setLineThickness(const float value)
+    void translationPlaneGrid::setLineThickness(const float value)
     {
         if (_lineThickness == value)
             return;
@@ -55,7 +55,7 @@ namespace phi
         _lineThicknessChanged.raise(this);
     }
 
-    void planeGrid::setOpacity(const float value)
+    void translationPlaneGrid::setOpacity(const float value)
     {
         if (_opacity == value)
             return;
@@ -64,7 +64,7 @@ namespace phi
         _opacityChanged.raise(this);
     }
 
-    CORE_API void planeGrid::setVisibilityFactor(const float value)
+    CORE_API void translationPlaneGrid::setVisibilityFactor(const float value)
     {
         if (_visibilityFactor == value)
             return;
@@ -73,7 +73,7 @@ namespace phi
         _opacityChanged.raise(this);
     }
 
-    void planeGrid::addClippingPlane(clippingPlane* plane)
+    void translationPlaneGrid::addClippingPlane(clippingPlane* plane)
     {
         _clippingPlanes.push_back(plane);
         _clippingPlanesOpacities[plane] = 0.0f;
@@ -81,7 +81,7 @@ namespace phi
         _clippingPlanesChanged.raise(this);
     }
 
-    void planeGrid::removeClippingPlane(clippingPlane* plane)
+    void translationPlaneGrid::removeClippingPlane(clippingPlane* plane)
     {
         phi::removeIfContains(_clippingPlanes, plane);
         _clippingPlanesOpacities.erase(plane);
@@ -89,19 +89,19 @@ namespace phi
         _clippingPlanesChanged.raise(this);
     }
 
-    void planeGrid::setClippingPlaneOpacity(clippingPlane* clippingPlane, float opacity)
+    void translationPlaneGrid::setClippingPlaneOpacity(clippingPlane* clippingPlane, float opacity)
     {
         _clippingPlanesOpacities[clippingPlane] = opacity;
         _clippingPlanesChanged.raise(this);
     }
 
-    void planeGrid::setClippingPlaneDistance(clippingPlane* clippingPlane, clippingDistance::clippingDistance distance)
+    void translationPlaneGrid::setClippingPlaneDistance(clippingPlane* clippingPlane, clippingDistance::clippingDistance distance)
     {
         _clippingPlanesDistances[clippingPlane] = distance;
         _clippingPlanesChanged.raise(this);
     }
 
-    void planeGrid::show()
+    void translationPlaneGrid::show()
     {
         if (_isVisible)
             return;
@@ -110,7 +110,7 @@ namespace phi
         _visibleChanged.raise(this);
     }
 
-    void planeGrid::hide()
+    void translationPlaneGrid::hide()
     {
         if (!_isVisible)
             return;
@@ -119,9 +119,9 @@ namespace phi
         _visibleChanged.raise(this);
     }
 
-    component* planeGrid::clone() const
+    component* translationPlaneGrid::clone() const
     {
-        auto p = static_cast<const planeGrid*>(this);
-        return new planeGrid(*p);
+        auto p = static_cast<const translationPlaneGrid*>(this);
+        return new translationPlaneGrid(*p);
     }
 }

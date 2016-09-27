@@ -45,14 +45,16 @@ namespace phi
         bool isRotating() const { return _isRotating; }
 
     private:
-        void createPlanes();
+        void createPlane();
         rotationPlane * createAxisAlignedRotationPlane(ivec2 mousePosition);
+
+        vec3 getRotationOrigin();
 
         plane createPlaneFromAxis(const vec3 & axis);
 
         rotationPlane * createRotationPlane(const plane & plane);
 
-        void changePlanes(rotationPlane * rotationPlane, const plane & offsetPlane);
+        void changePlane(rotationPlane * rotationPlane);
 
         void enqueuePlaneForDeletion(rotationPlane * planeToRemove);
 
@@ -66,9 +68,8 @@ namespace phi
 
         bool _isRotating;
         ivec2 _lastMousePosition;
-        vec3 _offsetPlaneOrigin;
+        vec3 _rotationStartPosition;
         rotationPlane* _currentRotationPlane;
-        plane _offsetPlane;
         vector<rotationPlane*> _planesToDelete;
     };
 }

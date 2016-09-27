@@ -9,14 +9,14 @@
 #include <rendering\renderPass.h>
 #include <rendering\framebufferAllocator.h>
 
-#include "planeGridRenderAdapter.h"
+#include "translationPlaneGridRenderAdapter.h"
 
 namespace phi
 {
-    class planeGridLayerBehaviour
+    class translationPlaneGridLayerBehaviour
     {
     private:
-        planeGridRenderAdapter* _adapter;
+        translationPlaneGridRenderAdapter* _adapter;
         vector<renderPass*> _renderPasses;
 
         vector<node*> _selectedObjects;
@@ -25,12 +25,12 @@ namespace phi
         string _resourcesPath;
 
     public:
-        SCENE_RENDERING_API planeGridLayerBehaviour(
+        SCENE_RENDERING_API translationPlaneGridLayerBehaviour(
             const resolution& resolution, 
             const string& resourcesPath, 
             framebufferAllocator* framebufferAllocator);
 
-        SCENE_RENDERING_API ~planeGridLayerBehaviour();
+        SCENE_RENDERING_API ~translationPlaneGridLayerBehaviour();
 
         SCENE_RENDERING_API void onNodeAdded(node* node);
         SCENE_RENDERING_API void onNodeRemoved(node* node);

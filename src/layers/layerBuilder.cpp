@@ -30,7 +30,8 @@ namespace phi
         _withGhostMeshRenderer(false),
         _withObbRenderer(false),
         _withBoxColliderRenderer(false),
-        _withPlaneGridRenderer(false),
+        _withTranslationPlaneGridRenderer(false),
+        _withRotationPlaneGridRenderer(false),
         _withControlRenderer(false),
         _withGlassyControlRenderer(false),
         _withTextRenderer(false),
@@ -127,12 +128,12 @@ namespace phi
         });
     }
 
-    void layerBuilder::buildPlaneGridRenderer()
+    void layerBuilder::buildTranslationPlaneGridRenderer()
     {
-        auto planeGridBehaviour = new planeGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
-        _layer->addOnNodeAdded(std::bind(&planeGridLayerBehaviour::onNodeAdded, planeGridBehaviour, std::placeholders::_1));
-        _layer->addOnNodeRemoved(std::bind(&planeGridLayerBehaviour::onNodeRemoved, planeGridBehaviour, std::placeholders::_1));
-        _layer->addOnNodeTransformChanged(std::bind(&planeGridLayerBehaviour::onNodeTransformChanged, planeGridBehaviour, std::placeholders::_1));
+        auto planeGridBehaviour = new translationPlaneGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&translationPlaneGridLayerBehaviour::onNodeAdded, planeGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&translationPlaneGridLayerBehaviour::onNodeRemoved, planeGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&translationPlaneGridLayerBehaviour::onNodeTransformChanged, planeGridBehaviour, std::placeholders::_1));
 
         _layer->addRenderPasses(planeGridBehaviour->getRenderPasses());
 
@@ -319,8 +320,8 @@ namespace phi
         if (_withBoxColliderRenderer)
             buildBoxColliderRenderer();
 
-        if (_withPlaneGridRenderer)
-            buildPlaneGridRenderer();
+        if (_withTranslationPlaneGridRenderer)
+            buildTranslationPlaneGridRenderer();
 
         if (_withRotationPlaneGridRenderer)
             buildRotationPlaneGridRenderer();

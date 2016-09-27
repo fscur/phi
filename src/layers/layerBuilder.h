@@ -19,7 +19,7 @@
 #include <sceneRendering/ghostMeshLayerBehaviour.h>
 #include <sceneRendering/meshLayerBehaviour.h>
 #include <sceneRendering/meshRenderer.h>
-#include <sceneRendering/planeGridLayerBehaviour.h>
+#include <sceneRendering/translationPlaneGridLayerBehaviour.h>
 
 #include <uiRendering/controlLayerBehaviour.h>
 #include <uiRendering/controlRenderer.h>
@@ -60,7 +60,7 @@ namespace phi
         bool _withGhostMeshRenderer;
         bool _withObbRenderer;
         bool _withBoxColliderRenderer;
-        bool _withPlaneGridRenderer;
+        bool _withTranslationPlaneGridRenderer;
         bool _withRotationPlaneGridRenderer;
         bool _withControlRenderer;
         bool _withGlassyControlRenderer;
@@ -81,7 +81,7 @@ namespace phi
         void buildGhostMeshRenderer();
         void buildObbRenderer();
         void buildBoxColliderRenderer();
-        void buildPlaneGridRenderer();
+        void buildTranslationPlaneGridRenderer();
         void buildRotationPlaneGridRenderer();
         void buildControlRenderer();
         void buildGlassyControlRenderer();
@@ -101,7 +101,7 @@ namespace phi
         layerBuilder withGhostMeshRenderer() { _withGhostMeshRenderer = true; return *this; }
         layerBuilder withObbRenderer() { _withObbRenderer = true; return *this; }
         layerBuilder withBoxColliderRenderer() { _withBoxColliderRenderer = true; return *this; }
-        layerBuilder withPlaneGridRenderer() { _withPlaneGridRenderer = true; return *this; }
+        layerBuilder withTranslationPlaneGridRenderer() { _withTranslationPlaneGridRenderer = true; return *this; }
         layerBuilder withRotationPlaneGridRenderer() { _withRotationPlaneGridRenderer = true; return *this; }
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
         layerBuilder withGlassyControlRenderer() { _withGlassyControlRenderer = true; return *this; }

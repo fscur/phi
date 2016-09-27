@@ -36,17 +36,16 @@ namespace phi
         _currentRotationPlane = nullptr;
         _isRotating = true;
         _lastMousePosition = mousePosition;
-        _offsetPlaneOrigin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
+        _rotationStartPosition = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
 
-        createPlanes();
+        createPlane();
     }
 
-    void rotationService::createPlanes()
+    void rotationService::createPlane()
     {
         auto rotationPlane = createAxisAlignedRotationPlane(_lastMousePosition);
-        auto offsetPlane = plane(_offsetPlaneOrigin, rotationPlane->getPlane().normal);
 
-        changePlanes(rotationPlane, offsetPlane);
+        changePlane(rotationPlane);
         showRotationPlane();
     }
 
@@ -57,9 +56,20 @@ namespace phi
         auto axisPlane = createPlaneFromAxis(worldAxis);
 
         auto worldPosition = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
-        auto origin = axisPlane.projectPoint(worldPosition);
+        auto p = getRotationOrigin();
+        auto origin = axisPlane.projectPoint(p);
 
         return createRotationPlane(plane(origin, axisPlane.normal));
+    }
+
+    vec3 rotationService::getRotationOrigin()
+    {
+        vector<vec3> targetNodesPositions;
+
+        for (auto& node : *_targetNodes)
+            targetNodesPositions.push_back(node->getTransform()->getPosition());
+
+        return mathUtils::getCentroid(targetNodesPositions);
     }
 
     plane rotationService::createPlaneFromAxis(const vec3& axis)
@@ -132,13 +142,12 @@ namespace phi
         return translationPlane;
     }
 
-    void rotationService::changePlanes(rotationPlane* rotationPlane, const plane& offsetPlane)
+    void rotationService::changePlane(rotationPlane* rotationPlane)
     {
         if (_currentRotationPlane)
             enqueuePlaneForDeletion(_currentRotationPlane);
 
         _currentRotationPlane = rotationPlane;
-        _offsetPlane = offsetPlane;
     }
 
     void rotationService::enqueuePlaneForDeletion(rotationPlane* planeToRemove)
@@ -230,7 +239,7 @@ namespace phi
         if (!isPlaneVisible(_currentRotationPlane->getPlane()))
         {
             enqueuePlaneForDeletion(_currentRotationPlane);
-            createPlanes();
+            createPlane();
         }
     }
 

@@ -4,7 +4,7 @@
 
 #include <core/multiCommand.h>
 #include <core/boxCollider.h>
-#include <core/planeGrid.h>
+
 #include <core/ghostMesh.h>
 
 #include <input/input.h>
@@ -35,6 +35,7 @@
 
 #include "screen.h"
 #include "changeContextCommand.h"
+#include "changeNodeTransformModeCommand.h"
 
 using namespace phi;
 
@@ -191,13 +192,15 @@ namespace demon
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                .withPlaneGridRenderer()
+                .withTranslationPlaneGridRenderer()
+                .withRotationPlaneGridRenderer()
                 .withControlRenderer()
                 .withTextRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
+                .withRotationController()
                 .withTranslationController()
                 .build();
 
@@ -340,6 +343,7 @@ namespace demon
         input::keyUp->assign(std::bind(&screen::onKeyUp, this, std::placeholders::_1));
 
         _commandsManager = new commandsManager();
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_r }, [&]() { return new changeNodeTransformModeCommand(); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));

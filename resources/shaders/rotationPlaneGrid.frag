@@ -130,11 +130,10 @@ float lineSegment(in vec2 a, in vec2 b, in vec2 p)
 float radiiSdf(in vec2 uv, in float thickness, in float angle)
 {
 	vec2 polarUv = toPolar(uv);
-    float theta = polarUv.y; // [0, 2.0 * pi]
+    float theta = polarUv.y;
     float alpha = angle * ONE_DEGREE_IN_RADIAN;
     float edge = round(theta/alpha);
     
-    //float angle = edge/(360.0/d);
     float discreteAngle = edge/(360.0/angle) * 2.0 * PI;
     vec2 end = vec2(cos(discreteAngle), sin(discreteAngle));
     float line = lineSegment(vec2(0.0), end * planeDist * 100.0, uv);
@@ -168,8 +167,7 @@ float applyCirclesAA(
     in float thickness,
     in float size)
 {
-    //// Supersample, 4 extra points
-    float dscale = 0.354; // half of 1/sqrt2; you can play with this
+    float dscale = 0.354;
     vec2 duv = dscale * (dFdx(uv) + dFdy(uv));
     vec4 box = vec4(uv-duv, uv+duv);
 
@@ -188,8 +186,7 @@ float applyRadiiAA(
     in float thickness,
     in float size)
 {
-    //// Supersample, 4 extra points
-    float dscale = 0.354; // half of 1/sqrt2; you can play with this
+    float dscale = 0.354;
     vec2 duv = dscale * (dFdx(uv) + dFdy(uv));
     vec4 box = vec4(uv-duv, uv+duv);
 
@@ -203,22 +200,6 @@ float applyRadiiAA(
 
 float addRadii(in vec2 uv, in float thickness, in float angle)
 {
-	//vec2 polarUv = toPolar(uv);
- //   float theta = polarUv.y; // [0, 2.0 * pi]
- //   float alpha = angle * ONE_DEGREE_IN_RADIAN;
- //   float edge = round(theta/alpha);
-    
- //   //float angle = edge/(360.0/d);
- //   float discreteAngle = edge/(360.0/angle) * 2.0 * PI;
- //   vec2 end = vec2(cos(discreteAngle), sin(discreteAngle));
- //   float line = lineSegment(vec2(0.0), end * planeDist * 2.0, uv);
-
- //   if (line <= thickness * 0.5)
- //       return expNorm(line / thickness);
-
- //   return 0.0;
-
-
     float dist = radiiSdf(uv, thickness, angle);
     float width = fwidth(dist);
     float radii = contour(dist, width);
@@ -324,7 +305,7 @@ float addCircles(in vec2 uv, in float thicknessInPixels)
 float addNinetyDegreesMark(vec2 uv)
 {
     vec2 polarUv = toPolar(uv);
-    float theta = polarUv.y; // [0, 2.0 * pi]
+    float theta = polarUv.y;
     float angle = 90.0;
     float alpha = angle * ONE_DEGREE_IN_RADIAN;
     float edge = floor(theta/alpha);
@@ -342,14 +323,14 @@ float fadeBorder()
 void main()
 {
     rotationPlaneGridRenderData data = renderData.items[instanceId];
-    vec2 uv = fragWorldTexCoord;
+    vec2 uv = fragTexCoord;
     vec3 color = data.color.rgb;
 
     float circles = addCircles(uv, data.lineThickness);
     float radii = addRadii(uv, data.lineThickness);
     float ninetyDegrees = addNinetyDegreesMark(uv);
-    //float currentAngle = addCurrentAngle(uv, data.lineThickness, data.angle);
-    float currentAngle = addCurrentAngle(uv, data.lineThickness, 2.0 * PI * abs(cos(frameUniforms.time)));
+    float currentAngle = addCurrentAngle(uv, data.lineThickness, data.angle);
+    //float currentAngle = addCurrentAngle(uv, data.lineThickness, 2.0 * PI * abs(cos(frameUniforms.time)));
     float border = fadeBorder();
 
     float opacity = (circles + radii + ninetyDegrees + currentAngle) * border;

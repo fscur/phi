@@ -2,7 +2,7 @@
 
 #include <phi.h>
 
-#include <core/planeGrid.h>
+#include <core/rotationPlaneGrid.h>
 
 #include <rendering/indexBuffer.h>
 #include <rendering/mappedVertexBuffer.h>
