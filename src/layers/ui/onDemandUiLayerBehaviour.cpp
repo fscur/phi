@@ -26,7 +26,7 @@ namespace phi
     {
         if (node->isSelected())
         {
-            _uiNodeDatas[node].button = createButtonFor(node);
+            _uiNodeDatas[node].button = createUi(node);
 
             //auto worldPositionAtMouse = _targetCamera->screenPointToWorld(mousePosition.x, mousePosition.y);
             auto mousePosition = input::getMousePosition();
@@ -60,10 +60,10 @@ namespace phi
         }
     }
 
-    node* onDemandUiLayerBehaviour::createButtonFor(node* node)
+    node* onDemandUiLayerBehaviour::createUi(node* node)
     {
         auto panel = panelBuilder::newPanel()
-            .withControlColor(0.7f, 0.7f, 0.7f, 0.5f)
+            .withControlColor(0.7f, 0.7f, 0.7f, 0.7f)
             .build();
 
         auto labelMenu = labelBuilder::newLabel(L"Menu")

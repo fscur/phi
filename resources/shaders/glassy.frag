@@ -66,5 +66,5 @@ void main(void)
     vec2 resolution = glassyControlUniformBlock.resolution;
     vec3 glassy = fetchGlassyBackground(gl_FragCoord.xy/resolution);
     vec4 opaque = fetch(fragTexCoord);
-    fragColor = vec4(glassy * (1.0 - opaque.a) + opaque.rgb * opaque.a, 1.0);
+    fragColor = vec4(glassy * (1.0 - opaque.a) + opaque.rgb * opaque.a, opaque.a);
 }

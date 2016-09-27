@@ -21,7 +21,7 @@ namespace phi
         onDemandUiLayerBehaviour(layer* uiLayer, layer* targetLayer);
 
     private:
-        node* createButtonFor(node* node);
+        node* createUi(node* node);
         vec2 getPositionAtNode(node* node);
         void onNodeSelectionChanged(node* node);
         void onTargetCameraChanged(transform* transform);
