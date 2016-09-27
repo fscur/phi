@@ -4,7 +4,7 @@
 namespace phi
 {
     planeGrid::planeGrid() :
-        component(component::PLANE_GRID),
+        component(component::TRANSLATION_PLANE_GRID),
         _color(color::white),
         _lineThickness(10.0f),
         _opacity(0.0f),
@@ -20,7 +20,7 @@ namespace phi
     }
 
     planeGrid::planeGrid(const planeGrid& original) :
-        component(componentType::PLANE_GRID),
+        component(componentType::TRANSLATION_PLANE_GRID),
         _color(original._color),
         _lineThickness(original._lineThickness),
         _opacity(original._opacity),

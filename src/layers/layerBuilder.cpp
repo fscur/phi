@@ -4,11 +4,15 @@
 
 #include <io/path.h>
 
+
+#include <sceneRendering/skyBox/skyBoxLayerBehaviour.h>
 #include <ui/control.h>
 #include <ui/text.h>
 
 #include "ui/uiMouseController.h"
 #include "layerBuilder.h"
+
+
 
 namespace phi
 {
@@ -32,7 +36,8 @@ namespace phi
         _withCameraController(false),
         _withSelectionController(false),
         _withTranslationController(false),
-        _withUIMouseController(false)
+        _withUIMouseController(false),
+        _withSkyBoxRenderer(false)
     {
     }
 
@@ -259,6 +264,21 @@ namespace phi
         _layer->addMouseController(controller);
     }
 
+    void layerBuilder::buildSkyBoxRenderer()
+    {
+        auto skyBoxBehaviour = new skyBoxLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&skyBoxLayerBehaviour::onNodeAdded, skyBoxBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&skyBoxLayerBehaviour::onNodeRemoved, skyBoxBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&skyBoxLayerBehaviour::onNodeTransformChanged, skyBoxBehaviour, std::placeholders::_1));
+
+        _layer->addRenderPasses(skyBoxBehaviour->getRenderPasses());
+
+        _layer->addOnDelete([skyBoxBehaviour]() mutable
+        {
+            safeDelete(skyBoxBehaviour);
+        });
+    }
+
     layer* layerBuilder::build()
     {
         if (_withMeshRenderer)
@@ -266,6 +286,9 @@ namespace phi
 
         if (_withGhostMeshRenderer)
             buildGhostMeshRenderer();
+
+        if (_withSkyBoxRenderer)
+            buildSkyBoxRenderer();
 
         if (_withObbRenderer)
             buildObbRenderer();

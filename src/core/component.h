@@ -21,9 +21,11 @@ namespace phi
             TEXT = 7,
             CLICK = 8,
             BOX_COLLIDER = 9,
-            PLANE_GRID = 10,
+            TRANSLATION_PLANE_GRID = 10,
             ANIMATOR = 11,
-            GHOST_MESH = 12
+            GHOST_MESH = 12,
+            ROTATION_PLANE_GRID = 13,
+            SKY_BOX = 14
         };
 
     protected:

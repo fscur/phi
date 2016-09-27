@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
+
 if (MSVC)
     add_definitions(-DsceneRendering_EXPORTS)
 endif (MSVC)
@@ -21,7 +22,20 @@ file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 file(GLOB natvis_files *.natvis)
 
-add_library(sceneRendering SHARED ${source_files} ${header_files} ${shader_files} ${natvis_files})
+file(GLOB skyBox_source_files ./skyBox/*.cpp)
+file(GLOB skyBox_header_files ./skyBox/*.h)
+
+add_library(sceneRendering SHARED 
+    ${source_files} 
+    ${header_files} 
+    ${shader_files} 
+    ${natvis_files}
+    ${skyBox_source_files}
+    ${skyBox_header_files})
+
+source_group("Source Files\\skyBox" FILES ${skyBox_source_files})
+source_group("Header Files\\skyBox" FILES ${skyBox_header_files})
+
 target_link_libraries(sceneRendering rendering)
 target_link_libraries(sceneRendering animation)
 target_link_libraries(sceneRendering common)

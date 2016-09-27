@@ -68,6 +68,7 @@ namespace phi
         bool _withSelectionController;
         bool _withTranslationController;
         bool _withUIMouseController;
+        bool _withSkyBoxRenderer;
 
     private:
         layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
@@ -86,6 +87,7 @@ namespace phi
         void buildSelectionController();
         void buildTranslationController();
         void buildUIMouseController();
+        void buildSkyBoxRenderer();
 
     public:
         LAYERS_API static layerBuilder newLayer(camera* camera, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
@@ -103,6 +105,7 @@ namespace phi
         layerBuilder withSelectionController() { _withSelectionController = true; return *this; }
         layerBuilder withTranslationController() { _withTranslationController = true; return *this; }
         layerBuilder withUIMouseController() { _withUIMouseController = true; return *this; }
+        layerBuilder withSkyBoxRenderer() { _withSkyBoxRenderer = true; return *this; }
 
         LAYERS_API layer* build();
     };

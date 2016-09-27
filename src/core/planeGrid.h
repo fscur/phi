@@ -29,7 +29,7 @@ namespace phi
     public:
         static componentType getComponentType() 
         { 
-            return componentType::PLANE_GRID; 
+            return componentType::TRANSLATION_PLANE_GRID; 
         }
 
     public:

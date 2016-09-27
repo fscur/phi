@@ -35,6 +35,7 @@
 
 #include "screen.h"
 #include "changeContextCommand.h"
+#include <core/skyBox.h>
 
 using namespace phi;
 
@@ -196,6 +197,7 @@ namespace demon
                 .withCameraController()
                 .withSelectionController()
                 .withTranslationController()
+                .withSkyBoxRenderer()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -301,15 +303,22 @@ namespace demon
             _framebufferAllocator,
             _commandsManager,
             { _sceneLayer, _constructionLayer });
-/*
+
+        node* skyBoxNode = new node();
+        skyBox* skyBoxComp = new skyBox(color::red);
+        skyBoxNode->addComponent(skyBoxComp);
+
+        _sceneLayer->add(skyBoxNode);
         _sceneLayer->add(cube0);
         _sceneLayer->add(cube1);
+
+        /*
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(back_wall);
         _sceneLayer->add(table);
         _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable)*/;
+        _sceneLayer->add(coffeTable);*/
 
         //TODO: prevent components that are not dealt with it from being added to layer
 
