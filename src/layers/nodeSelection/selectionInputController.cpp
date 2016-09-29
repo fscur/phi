@@ -92,7 +92,8 @@ namespace phi
         while (node != nullptr && !hasModelComponentInItselfOrInDescendants(node))
             node = node->getParent();
 
-        assert(("Cannot select node tree without model component.", node));
+        if (!node)
+            return nullptr;
 
         while (!isSonOfRoot(node))
         {
@@ -153,17 +154,15 @@ namespace phi
             return true;
         }
 
-        clickComponent->onMouseUp();
-
         auto clickedNode = clickComponent->getNode();
+        auto targetNode = findTargetNode(clickedNode);
+        if (!targetNode)
+            return false;
+
+        clickComponent->onMouseUp();
         select(clickedNode);
 
         return true;
-    }
-
-    bool selectionInputController::onMouseDoubleClick(phi::mouseEventArgs* e)
-    {
-        return false;
     }
 
     void selectionInputController::cancel()
@@ -173,9 +172,7 @@ namespace phi
 
     void selectionInputController::select(node* node)
     {
-        auto targetNode = findTargetNode(node);
-
-        auto selectCommand = new selectNodeCommand(targetNode);
+        auto selectCommand = new selectNodeCommand(node);
 
         if (_isAdditiveSelection)
         {

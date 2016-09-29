@@ -64,7 +64,7 @@ namespace phi
         float z = 10.0;
         if (zBufferValue != 1.0f)
             z = _camera->zBufferToDepth(zBufferValue);
-        phi::debug(z);
+
         auto position = _camera->screenPointToView(e->x, e->y, z);
 
         auto cameraTransform = _camera->getTransform();

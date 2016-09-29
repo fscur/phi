@@ -54,8 +54,6 @@ namespace phi
             auto uiNodeData = pair.second;
 
             auto position = getPositionAtNode(pair.first);
-            //auto size = uiNodes.button->getTransform()->getSize();
-            //phi::debug(std::to_string(phi::stopwatch::measure([&]() {uiNodeData.button->setPosition(vec3(position, 0.0f)); }) * 1000.0f));
             uiNodeData.button->setPosition(vec3(position, 0.0f));
         }
     }
@@ -79,7 +77,7 @@ namespace phi
             .withControlColor(1.0f, 0.3f, 0.3f, 0.7f)
             .withAction([=](phi::node* node)
         {
-            phi::debug("clicked!");
+            phi::debug("translation!");
         }).build();
 
         auto buttonRotation = buttonBuilder::newButton()
@@ -89,7 +87,7 @@ namespace phi
             .withControlColor(1.0f, 0.3f, 0.3f, 0.7f)
             .withAction([=](phi::node* node)
         {
-            phi::debug("clicked!");
+            phi::debug("rotation!");
         }).build();
 
         auto margin = 10.0f;
@@ -104,7 +102,7 @@ namespace phi
         buttonRotationSize.x = panelWidth - 2.0f * margin;
 
         auto labelMenuPosition = vec3(panelWidth * 0.5f - labelMenuSize.x * 0.5f, -margin, 0.0f);
-        auto buttonTranslationPosition = vec3(panelWidth * 0.5f - buttonTranslationSize.x * 0.5f, labelMenuPosition.y - labelMenuSize.y - margin, 0.0f);
+        auto buttonTranslationPosition = vec3(panelWidth * 0.5f - buttonTranslationSize.x * 0.5f, labelMenuPosition.y - labelMenuSize.y - margin, 10.0f);
         auto buttonRotationPosition = vec3(panelWidth * 0.5f - buttonRotationSize.x * 0.5f, buttonTranslationPosition.y - buttonTranslationSize.y - margin, 0.0f);
 
         labelMenu->getTransform()->setLocalPosition(labelMenuPosition);
