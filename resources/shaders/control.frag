@@ -23,8 +23,10 @@ layout (location = 0) uniform sampler2DArray textureArrays[32];
 
 in vec2 fragTexCoord;
 flat in uint instanceId;
+flat in vec4 selectionColor;
 
 layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec4 pickingColor;
 
 vec4 fetch(vec2 uv)
 {
@@ -38,8 +40,6 @@ vec4 fetch(vec2 uv)
 
 void main(void)
 {
-    //fragColor = vec4(1.0, 0.0, 0.0, 1.0);
     fragColor = fetch(fragTexCoord);
-    //fragColor = vec4(1.0);
-    //fragColor = vec4(instanceId);
+    pickingColor = selectionColor; 
 }

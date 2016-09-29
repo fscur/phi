@@ -3,6 +3,7 @@
 #include <core/geometry.h>
 #include <core/node.h>
 #include <core/notImplementedException.h>
+#include <common/mouseInteractionComponent.h>
 #include <rendering/texturesManager.h>
 #include <ui/layoutTransform.h>
 #include "controlRenderAdapter.h"
@@ -24,20 +25,23 @@ namespace phi
 
     void controlRenderAdapter::createVao()
     {
+        vector<vertexBufferAttribute> selectionColorAttribs;
+        selectionColorAttribs.push_back(vertexBufferAttribute(2, 4, GL_FLOAT, 0, 0, 1));
+        _selectionColorBuffer = new mappedVertexBuffer<control*, vec4>("selectionColors", selectionColorAttribs);
+
         vector<vertexBufferAttribute> modelMatricesAttribs;
         for (uint i = 0; i < 4; ++i)
-            modelMatricesAttribs.push_back(vertexBufferAttribute(2 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
-
+            modelMatricesAttribs.push_back(vertexBufferAttribute(3 + i, 4, GL_FLOAT, sizeof(mat4), (const void*)(sizeof(GLfloat) * i * 4), 1));
         _modelMatricesBuffer = new mappedVertexBuffer<control*, mat4>("modelMatrices", modelMatricesAttribs);
 
+        auto controlQuad = createControlQuad();
         auto renderFunction = [&]
         {
             glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_modelMatricesBuffer->getInstanceCount()));
         };
 
-        auto controlQuad = createControlQuad();
-
         _vao = vertexArrayObject::createQuadVao(controlQuad, renderFunction);
+        _vao->addBuffer(_selectionColorBuffer);
         _vao->addBuffer(_modelMatricesBuffer);
 
         safeDelete(controlQuad);
@@ -75,7 +79,13 @@ namespace phi
 
         auto modelMatrix = getModelMatrix(control);
 
+        auto selectionColor = vec4();
+        auto clickComponent = control->getNode()->getComponent<mouseInteractionComponent>();
+        if (clickComponent)
+            selectionColor = vec4(clickComponent->getSelectionColor(), 1.0f);
+
         _modelMatricesBuffer->add(control, modelMatrix);
+        _selectionColorBuffer->add(control, selectionColor);
         _controls.push_back(control);
     }
 
@@ -114,6 +124,7 @@ namespace phi
     {
         _renderDataBuffer->remove(control);
         _modelMatricesBuffer->remove(control);
+        _selectionColorBuffer->remove(control);
         phi::removeIfContains(_controls, control);
     }
 

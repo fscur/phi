@@ -1,13 +1,15 @@
 #include <precompiled.h>
+
+#include <core/notImplementedException.h>
+#include <core/node.h>
+#include <core/vertex.h>
+#include <core/geometry.h>
+
+#include <io/path.h>
+
+#include <sceneRendering/selectionRenderPass.h>
+
 #include "controlRenderer.h"
-
-#include <core\notImplementedException.h>
-#include <core\node.h>
-#include <core\vertex.h>
-#include <core\geometry.h>
-
-#include <io\path.h>
-
 #include "controlRenderPass.h"
 
 namespace phi
@@ -37,6 +39,6 @@ namespace phi
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
         auto controlRenderPass = controlRenderPass::configure(renderAdapter, resolution, shadersPath, framebufferAllocator);
-        return {controlRenderPass};
+        return { controlRenderPass };
     }
 }

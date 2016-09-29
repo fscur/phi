@@ -12,12 +12,6 @@ namespace phi
 {
     class controlRenderer
     {
-    private:
-        vector<renderPass*> _renderPasses;
-
-    private:
-        UI_RENDERING_API controlRenderer(vector<renderPass*>&& renderPasses);
-
     public:
         UI_RENDERING_API  ~controlRenderer();
         UI_RENDERING_API  void render();
@@ -27,5 +21,11 @@ namespace phi
             const resolution& resolution,
             const string& resourcesPath,
             framebufferAllocator* framebufferAllocator);
+
+    private:
+        UI_RENDERING_API controlRenderer(vector<renderPass*>&& renderPasses);
+
+    private:
+        vector<renderPass*> _renderPasses;
     };
 }

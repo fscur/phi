@@ -40,7 +40,6 @@ namespace phi
         program->addBuffer(rtsBuffer);
 
         auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
-        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto pass = new renderPass(program, defaultFramebuffer, resolution);
         pass->addVao(quadVao);

@@ -198,7 +198,7 @@ namespace demon
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                .withRotationController()
+                //.withRotationController()
                 .withTranslationController()
                 .build();
 
@@ -216,10 +216,10 @@ namespace demon
             _nandinhoCamera->getTransform()->yaw(PI);
 
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-                .withGlassyControlRenderer()
+                .withControlRenderer()
                 .withTextRenderer()
-                .withUIMouseController()
                 .withOnDemandUi(_sceneLayer)
+                .withUIMouseController()
                 .build();
         }
         catch (const phi::invalidLayerConfigurationException& ex)
@@ -345,35 +345,6 @@ namespace demon
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
-    }
-
-    void screen::addSelectionUITo(phi::node* node, phi::font* font)
-    {
-        phi::node* rotateButton;
-        node->selectionChanged.assign([&, font, rotateButton](phi::node* n) mutable
-        {
-            if (n->isSelected())
-            {
-                rotateButton = buttonBuilder::newButton()
-                    .withPosition(vec3(0.5f, 0.5f, 0.0f))
-                    .withText(L"R")
-                    .withTextColor(0.7f, 0.7f, 0.7f, 1.0f)
-                    .withFont(font)
-                    .withControlColor(1.0f, 1.0f, 1.0f, 1.0f)
-                    .asBillboard()
-                    .withAction([=](phi::node* node)
-                {
-                    phi::debug("clicked!");
-                }).build();
-
-                n->addChild(rotateButton);
-            }
-            else
-            {
-                n->removeChild(rotateButton);
-                safeDelete(rotateButton);
-            }
-        });
     }
 
     void screen::onMouseDown(phi::mouseEventArgs* e)

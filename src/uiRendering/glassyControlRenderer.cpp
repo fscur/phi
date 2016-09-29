@@ -1,13 +1,15 @@
 #include <precompiled.h>
+
+#include <core/geometry.h>
+#include <core/node.h>
+#include <core/notImplementedException.h>
+#include <core/vertex.h>
+
+#include <io/path.h>
+
+#include <sceneRendering/selectionRenderPass.h>
+
 #include "glassyControlRenderer.h"
-
-#include <core\notImplementedException.h>
-#include <core\node.h>
-#include <core\vertex.h>
-#include <core\geometry.h>
-
-#include <io\path.h>
-
 #include "glassyControlRenderPass.h"
 
 namespace phi

@@ -90,6 +90,9 @@ namespace phi
 
     bool translationInputController::onMouseMove(mouseEventArgs* e)
     {
+        if (!_translationService->isTranslating())
+            return false;
+
         _translationService->translate(ivec2(e->x, e->y));
         return true;
     }

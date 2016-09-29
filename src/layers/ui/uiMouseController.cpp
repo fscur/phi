@@ -1,14 +1,17 @@
 #include <precompiled.h>
 #include "uiMouseController.h"
 
-#include <ui/control.h>
 #include <common/mouseInteractionComponent.h>
+#include <rendering/pickingFramebuffer.h>
+#include <context/pickingId.h>
+#include <ui/control.h>
 
 namespace phi
 {
     uiMouseController::uiMouseController(layer* layer) :
         _layer(layer),
-        _clickedControl(nullptr)
+        _clickedControl(nullptr),
+        _lastMouseOverControl(nullptr)
     {
     }
 
@@ -18,27 +21,11 @@ namespace phi
 
     control* uiMouseController::getControlUnderMouse(int x, int y)
     {
-        auto camera = _layer->getCamera();
-        auto ray = camera->screenPointToRay(x, y);
+        auto idOnMousePosition = pickingFramebuffer::pick(x, y);
+        auto clickComponent = pickingId::get(idOnMousePosition);
 
-        auto rootChildren = _layer->getRoot()->getChildren();
-        for (auto& child : *rootChildren)
-        {
-            auto control = child->getComponent<phi::control>();
-            if (control)
-            {
-                auto model = child->getTransform()->getModelMatrix();
-                auto aabb = phi::aabb(glm::vec3(0.0f), glm::vec3(1.0f));
-
-                auto transformedMin = mathUtils::multiply(model, aabb.min);
-                auto transformedMax = mathUtils::multiply(model, aabb.max);
-
-                auto transformedAabb = phi::aabb(transformedMin, transformedMax);
-
-                if (ray.intersects(transformedAabb))
-                    return control;
-            }
-        }
+        if (clickComponent)
+            return clickComponent->getNode()->getComponent<control>();
 
         return nullptr;
     }
@@ -71,39 +58,18 @@ namespace phi
 
     bool uiMouseController::onMouseMove(mouseEventArgs * e)
     {
-        auto camera = _layer->getCamera();
-        auto ray = camera->screenPointToRay(e->x, e->y);
-        auto aabb = phi::aabb(glm::vec3(0.0f), glm::vec3(1.0f));
+        auto mouseOverControl = getControlUnderMouse(e->x, e->y);
 
-        auto rootChildren = _layer->getRoot()->getChildren();
-        for (auto& child : *rootChildren)
+        if (_lastMouseOverControl != mouseOverControl)
         {
-            auto control = child->getComponent<phi::control>();
-            auto mouseInteraction = child->getComponent<mouseInteractionComponent>();
+            if (_lastMouseOverControl)
+                _lastMouseOverControl->getNode()->getComponent<mouseInteractionComponent>()->onMouseLeave();
 
-            if (control && mouseInteraction)
-            {
-                auto model = child->getTransform()->getModelMatrix();
-
-                auto transformedMin = mathUtils::multiply(model, aabb.min);
-                auto transformedMax = mathUtils::multiply(model, aabb.max);
-                auto transformedAabb = phi::aabb(transformedMin, transformedMax);
-
-                bool isMouseOver = ray.intersects(transformedAabb);
-                bool wasMouseOver = mouseInteraction->isMouseOver();
-
-                if (isMouseOver && !wasMouseOver)
-                {
-                    mouseInteraction->onMouseEnter();
-                    return true;
-                }
-                else if (!isMouseOver && wasMouseOver)
-                {
-                    mouseInteraction->onMouseLeave();
-                    return true;
-                }
-            }
+            if (mouseOverControl)
+                mouseOverControl->getNode()->getComponent<mouseInteractionComponent>()->onMouseEnter();
         }
+
+        _lastMouseOverControl = mouseOverControl;
 
         return false;
     }

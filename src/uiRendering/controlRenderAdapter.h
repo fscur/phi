@@ -41,6 +41,7 @@ namespace phi
 
         vertexArrayObject* _vao;
         mappedVertexBuffer<control*, mat4>* _modelMatricesBuffer;
+        mappedVertexBuffer<control*, vec4>* _selectionColorBuffer;
         mappedBuffer<control*, controlRenderData>* _renderDataBuffer;
         vector<control*> _controls;
         camera* _camera;

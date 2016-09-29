@@ -1,11 +1,13 @@
 #include <precompiled.h>
 
-#include <core\time.h>
+#include <core/time.h>
 
-#include <rendering\framebuffer.h>
+#include <rendering/defaultFramebuffer.h>
+#include <rendering/framebuffer.h>
+
+#include <application/window.h>
 
 #include "cameraRotationInputController.h"
-#include <application\window.h>
 
 namespace phi
 {
@@ -38,7 +40,7 @@ namespace phi
         cancelRotation();
 
         auto y = static_cast<int>(_camera->getResolution().height) - e->y;
-        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(e->x, y);
+        auto zBufferValue = defaultFramebuffer::getZBufferValue(e->x, y);
 
         if (zBufferValue == 1.0f)
             _targetPos = glm::vec3();

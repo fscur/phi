@@ -13,10 +13,6 @@ namespace phi
     class uiMouseController :
         public inputController
     {
-    private:
-        layer* _layer;
-        control* _clickedControl;
-
     public:
         uiMouseController(layer* layer);
         ~uiMouseController();
@@ -27,5 +23,10 @@ namespace phi
 
     private:
         control * getControlUnderMouse(int x, int y);
+
+    private:
+        layer* _layer;
+        control* _clickedControl;
+        control* _lastMouseOverControl;
     };
 }

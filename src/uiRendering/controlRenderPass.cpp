@@ -17,15 +17,28 @@ namespace phi
     {
         auto program = programBuilder::buildProgram(shadersPath, "control", "control");
         program->addBuffer(renderAdapter->getControlRenderDataBuffer());
+        
+        auto pickingRenderTarget = framebufferAllocator->getRenderTarget("pickingRenderTarget");
 
-        auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
+        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
+
+        auto controlFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("controlFrameBuffer")
+            .with(defaultRenderTarget, GL_COLOR_ATTACHMENT0)
+            .with(pickingRenderTarget, GL_COLOR_ATTACHMENT1)
+            .build();
+
+        auto controlFramebuffer = framebufferAllocator->newFramebuffer(controlFramebufferLayout, resolution);
+        safeDelete(controlFramebufferLayout);
+
+        auto pass = new renderPass(program, controlFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
 
-            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -45,13 +58,14 @@ namespace phi
                 vao->render();
         });
 
-        pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
+        pass->setOnEndRender([controlFramebuffer, defaultRenderTarget](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             program->unbind();
+            controlFramebuffer->blitToDefault(defaultRenderTarget, 0, 0, defaultRenderTarget->texture->w, defaultRenderTarget->texture->h);
 
             glBlendColor(0, 0, 0, 0);
             glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
         });
 
