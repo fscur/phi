@@ -144,7 +144,6 @@ namespace phi
             return false;
 
         auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
-
         auto clickComponent = pickingId::get(idOnMousePosition);
         if (!clickComponent)
         {
@@ -159,7 +158,6 @@ namespace phi
         if (!targetNode)
             return false;
 
-        clickComponent->onMouseUp();
         select(clickedNode);
 
         return true;

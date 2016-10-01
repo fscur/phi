@@ -38,6 +38,12 @@ namespace phi
         return *this;
     }
 
+    panelBuilder panelBuilder::withGlassyTransparency()
+    {
+        _panel->getComponent<control>()->setIsGlassy(true);
+        return *this;
+    }
+
     node* panelBuilder::build()
     {
         return _panel;

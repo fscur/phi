@@ -62,6 +62,7 @@ namespace phi
     {
         auto panel = panelBuilder::newPanel()
             .withControlColor(0.7f, 0.7f, 0.7f, 0.7f)
+            .withGlassyTransparency()
             .build();
 
         auto labelMenu = labelBuilder::newLabel(L"Menu")
@@ -103,7 +104,7 @@ namespace phi
 
         auto labelMenuPosition = vec3(panelWidth * 0.5f - labelMenuSize.x * 0.5f, -margin, 0.0f);
         auto buttonTranslationPosition = vec3(panelWidth * 0.5f - buttonTranslationSize.x * 0.5f, labelMenuPosition.y - labelMenuSize.y - margin, 10.0f);
-        auto buttonRotationPosition = vec3(panelWidth * 0.5f - buttonRotationSize.x * 0.5f, buttonTranslationPosition.y - buttonTranslationSize.y - margin, 0.0f);
+        auto buttonRotationPosition = vec3(panelWidth * 0.5f - buttonRotationSize.x * 0.5f, buttonTranslationPosition.y - buttonTranslationSize.y - margin, 10.0f);
 
         labelMenu->getTransform()->setLocalPosition(labelMenuPosition);
         buttonTranslation->getTransform()->setLocalPosition(buttonTranslationPosition);

@@ -14,6 +14,7 @@ namespace phi
         UI_API panelBuilder withOrientation(quat orientation);
         UI_API panelBuilder withSize(vec3 size);
         UI_API panelBuilder withControlColor(float r, float g, float b, float a);
+        UI_API panelBuilder withGlassyTransparency();
         UI_API node* build();
 
     private:

@@ -151,7 +151,7 @@ namespace demon
             .withControlColor(.5, .5, .2f, 1.f)
             .withAction([=](node* node)
         {
-            _commandsManager->executeCommand(new changeContextCommand());
+            //_commandsManager->executeCommand(new changeContextCommand());
         })
             .build();
 
@@ -186,7 +186,7 @@ namespace demon
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 2.0f));
         _sceneCamera->getTransform()->yaw(PI);
-        
+
         try
         {
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)

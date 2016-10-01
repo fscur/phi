@@ -23,8 +23,6 @@
 
 #include <uiRendering/controlLayerBehaviour.h>
 #include <uiRendering/controlRenderer.h>
-#include <uiRendering/glassyControlLayerBehaviour.h>
-#include <uiRendering/glassyControlRenderer.h>
 #include <uiRendering/textLayerBehaviour.h>
 #include <uiRendering/textRenderer.h>
 
@@ -63,7 +61,6 @@ namespace phi
         bool _withTranslationPlaneGridRenderer;
         bool _withRotationPlaneGridRenderer;
         bool _withControlRenderer;
-        bool _withGlassyControlRenderer;
         bool _withTextRenderer;
         bool _withOnDemandUi;
         bool _withPhysics;
@@ -84,7 +81,6 @@ namespace phi
         void buildTranslationPlaneGridRenderer();
         void buildRotationPlaneGridRenderer();
         void buildControlRenderer();
-        void buildGlassyControlRenderer();
         void buildTextRenderer();
         void buildOnDemandUi();
         void buildPhysics();
@@ -104,7 +100,6 @@ namespace phi
         layerBuilder withTranslationPlaneGridRenderer() { _withTranslationPlaneGridRenderer = true; return *this; }
         layerBuilder withRotationPlaneGridRenderer() { _withRotationPlaneGridRenderer = true; return *this; }
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
-        layerBuilder withGlassyControlRenderer() { _withGlassyControlRenderer = true; return *this; }
         layerBuilder withTextRenderer() { _withTextRenderer = true; return *this; }
         layerBuilder withOnDemandUi(layer* targetLayer) { _withOnDemandUi = true; _onDemandUiTargetLayer = targetLayer; return *this; }
         layerBuilder withPhysics() { _withPhysics = true; return *this; }

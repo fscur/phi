@@ -33,7 +33,6 @@ namespace phi
         _withTranslationPlaneGridRenderer(false),
         _withRotationPlaneGridRenderer(false),
         _withControlRenderer(false),
-        _withGlassyControlRenderer(false),
         _withTextRenderer(false),
         _withOnDemandUi(false),
         _withPhysics(false),
@@ -66,18 +65,6 @@ namespace phi
         });
 
         _meshBehaviour = meshBehaviour;
-
-        // Camera:
-            // Pan
-            // Rotate
-            // Zoom
-        // Objetos:
-            // Translate
-            // Rotate
-            // Selection
-        // UI:
-            // Drag and drop
-            // Resto
     }
 
     void layerBuilder::buildGhostMeshRenderer()
@@ -155,25 +142,6 @@ namespace phi
         _layer->addOnDelete([rotationPlaneGridBehaviour]() mutable
         {
             safeDelete(rotationPlaneGridBehaviour);
-        });
-    }
-
-    void layerBuilder::buildGlassyControlRenderer()
-    {
-        auto adapter = new controlRenderAdapter(_layer->getCamera());
-        auto renderPasses = glassyControlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
-
-        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
-
-        _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
-        _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
-        _layer->addOnNodeTransformChanged(std::bind(&controlLayerBehaviour::onNodeTransformChanged, controlBehaviour, std::placeholders::_1));
-
-        _layer->addRenderPasses(renderPasses);
-
-        _layer->addOnDelete([controlBehaviour]() mutable
-        {
-            safeDelete(controlBehaviour);
         });
     }
 
@@ -325,9 +293,6 @@ namespace phi
 
         if (_withRotationPlaneGridRenderer)
             buildRotationPlaneGridRenderer();
-
-        if (_withGlassyControlRenderer)
-            buildGlassyControlRenderer();
 
         if (_withControlRenderer)
             buildControlRenderer();

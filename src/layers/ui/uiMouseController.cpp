@@ -51,6 +51,9 @@ namespace phi
             auto mouseInteraction = _clickedControl->getNode()->getComponent<mouseInteractionComponent>();
             if (mouseInteraction)
                 mouseInteraction->onMouseUp();
+
+            _clickedControl = nullptr;
+            return true;
         }
 
         return false;
