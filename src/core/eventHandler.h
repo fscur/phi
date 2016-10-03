@@ -24,7 +24,7 @@ namespace phi
     public:
         eventToken assign(std::function<void(Args...)> function)
         {
-            auto guid = guidGenerator::newGuid();
+            auto guid = guid::newGuid();
             _functions.push_back(eventTokenFunction(guid, function));
             return guid;
         }

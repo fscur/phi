@@ -29,7 +29,7 @@
 #include <application/redoCommand.h>
 
 #include <layers/layerBuilder.h>
-#include <layers/nodeCreation\deleteNodeCommand.h>
+#include <layers/nodeCreation/deleteNodeCommand.h>
 
 #include <context/invalidLayerConfigurationException.h>
 
@@ -161,24 +161,24 @@ namespace demon
             .withFont(font)
             .build();
 
-        _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
+        auto chair0 = _userLibrary->getObjectsRepository()->getEntity(2);
+        chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
-        auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        auto cube0 = _userLibrary->getObjectsRepository()->getEntity(7);
         cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
 
-        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        auto cube1 = _userLibrary->getObjectsRepository()->getEntity(7);
         cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
 
-        auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
+        auto back_wall =_userLibrary->getObjectsRepository()->getEntity(21);
         back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
-        auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
+        auto floor0 = _userLibrary->getObjectsRepository()->getEntity(24);
 
-        auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
+        auto coffeTable = _userLibrary->getObjectsRepository()->getEntity(29);
         coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
-        auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
+        auto tableChair = _userLibrary->getObjectsRepository()->getEntity(5);
         tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
-        auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
+        auto table = _userLibrary->getObjectsRepository()->getEntity(28);
         table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
@@ -197,6 +197,8 @@ namespace demon
                 .withSelectionController()
                 .withTranslationController()
                 .build();
+
+            _scene = new scene(_sceneLayer, _sceneCamera);
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
@@ -301,15 +303,15 @@ namespace demon
             _framebufferAllocator,
             _commandsManager,
             { _sceneLayer, _constructionLayer });
-/*
-        _sceneLayer->add(cube0);
-        _sceneLayer->add(cube1);
+
+        _scene->add(cube0);
+/*        _sceneLayer->add(cube1);
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(back_wall);
         _sceneLayer->add(table);
         _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable)*/;
+        _sceneLayer->add(coffeTable);*/
 
         //TODO: prevent components that are not dealt with it from being added to layer
 
@@ -438,9 +440,9 @@ namespace demon
         safeDelete(_designContext);
         safeDelete(_constructionContext);
 
+        safeDelete(_scene);
         safeDelete(_nandinhoLayer);
         safeDelete(_constructionLayer);
-        safeDelete(_sceneLayer);
 
         safeDelete(_sceneCamera);
         safeDelete(_nandinhoCamera);

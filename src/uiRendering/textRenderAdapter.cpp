@@ -38,7 +38,7 @@ namespace phi
         };
 
         auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
-        auto textQuad = geometry::create(vertices, indices);
+        auto textQuad = geometry::create(guid::newGuid(), vertices, indices);
 
         auto renderFunction = [&]
         {

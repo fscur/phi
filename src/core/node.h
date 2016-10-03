@@ -3,7 +3,7 @@
 #include "component.h"
 #include "transform.h"
 #include "obb.h"
-#include "resource.h"
+#include "entity.h"
 
 namespace phi
 {
@@ -36,8 +36,6 @@ namespace phi
         eventHandler<node*> selectionChanged;
         eventHandler<node*> obbChanged;
 
-        resource<node>* resource;
-
     private:
         void updateObb();
         void raiseTransformChanged(transform* transform);
@@ -48,7 +46,7 @@ namespace phi
     public:
         CORE_API node(string name = string(""));
         CORE_API node(const node& original);
-        CORE_API ~node();
+        CORE_API virtual ~node();
 
         string getName() const { return _name; }
         transform* getTransform() const { return _transform; }

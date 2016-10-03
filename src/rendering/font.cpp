@@ -97,6 +97,7 @@ namespace phi
         w /= freetypeLcdScaleFactor;
 
         auto glyphImage = new image(
+            guid::newGuid(),
             w,
             h,
             imageDataFormat::rgb,

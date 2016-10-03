@@ -2,8 +2,9 @@
 #include <phi.h>
 #include "loaderApi.h"
 
-#include <core/resourcesRepository.h>
+#include <core/entityRepository.h>
 #include <core/node.h>
+#include <core/guid.h>
 #include <core/model.h>
 #include <core/mesh.h>
 #include <rendering/camera.h>
@@ -17,39 +18,39 @@ namespace phi
     private:
         static node* readNode(
             const rapidjson::Value& node,
-            const resourcesRepository<material>* materialsRepo,
-            const resourcesRepository<geometry>* geometriesRepo);
+            const entityRepository<material>* materialsRepo,
+            const entityRepository<geometry>* geometriesRepo);
 
         static guid convertToGuid(const char* bytesGuid);
 
     public:
-        static image* importImage(const string& fileName);
+        static image* importImage(const string& fileName, guid guid = guid::newGuid());
 
-        static resource<node>* importModel(
+        static model* importModel(
             const string& fileName,
-            resourcesRepository<material>* materialsRepo,
-            resourcesRepository<geometry>* geometriesRepo);
+            entityRepository<material>* materialsRepo,
+            entityRepository<geometry>* geometriesRepo);
 
-        static resource<image>* loadImage(const string& fileName);
-        static resource<geometry>* loadGeometry(const string& fileName);
-        static resource<material>* loadMaterial(const string& fileName, const resourcesRepository<image>* texturesRepo);
-        static resource<node>* loadNode(
+        static image* loadImage(const string& fileName);
+        static geometry* loadGeometry(const string& fileName);
+        static material* loadMaterial(const string& fileName, const entityRepository<image>* texturesRepo);
+        static model* loadModel(
             const string& fileName,
-            const resourcesRepository<material>* materialsRepo,
-            const resourcesRepository<geometry>* geometriesRepo);
+            const entityRepository<material>* materialsRepo,
+            const entityRepository<geometry>* geometriesRepo);
 
         /*------------------- load .phi file ----------------------------*/
 
         static vector<node*> loadPhiFile(
             const string& fileName,
-            const resourcesRepository<node>* nodeRepository);
+            const entityRepository<model>* modelsRepository);
 
         static rapidjson::Document* getJsonDocumentFromPhiFile(
             const string& phiFileContents);
 
         static std::vector<node*> loadNodes(
             const rapidjson::Document* phiJsonDoc,
-            const resourcesRepository<node>* nodeRepository);
+            const entityRepository<model>* nodeRepository);
 
         static camera* loadCamera(const rapidjson::Document* phiJsonDocument);
         /*------------------------------------------------------------------*/

@@ -1,4 +1,7 @@
 #include <precompiled.h>
+
+#include <core/model.h>
+
 #include "exporter.h"
 
 using namespace rapidjson;
@@ -45,42 +48,42 @@ namespace phi
 
         auto namelessNodesCount = 0u;
 
-        for (auto& node : *root->getChildren())
-        {
-            auto resource = node->resource;
-            if (!resource)
-                continue;
+        //for (auto& node : *root->getChildren())
+        //{
+        //    auto model = node->getComponent<phi::model>();
+        //    if (!model)
+        //        continue;
 
-            auto transform = node->getTransform();
-            auto translation = transform->getLocalPosition();
-            auto rotation = transform->getLocalOrientation();
-            auto scale = transform->getLocalSize();
+        //    auto transform = node->getTransform();
+        //    auto translation = transform->getLocalPosition();
+        //    auto rotation = transform->getLocalOrientation();
+        //    auto scale = transform->getLocalSize();
 
-            auto guidString = resource->getGuid().toStringBase64();
-            auto size = static_cast<SizeType>(guidString.length());
+        //    auto guidString = model->getGuid().toStringBase64();
+        //    auto size = static_cast<SizeType>(guidString.length());
 
-            auto nodeName = node->getName().empty() ? "node_" + std::to_string(namelessNodesCount++) : node->getName();
-            auto nameLength = static_cast<SizeType>(nodeName.length());
+        //    auto nodeName = node->getName().empty() ? "node_" + std::to_string(namelessNodesCount++) : node->getName();
+        //    auto nameLength = static_cast<SizeType>(nodeName.length());
 
-            auto guidValue = Value(guidString.c_str(), size, allocator);
+        //    auto guidValue = Value(guidString.c_str(), size, allocator);
 
-            auto translationValue = rapidjsonHelper::getVec3JsonValue(translation, allocator);
-            auto scaleValue = rapidjsonHelper::getVec3JsonValue(scale, allocator);
-            auto rotationValue = rapidjsonHelper::getQuatJsonValue(rotation, allocator);
+        //    auto translationValue = rapidjsonHelper::getVec3JsonValue(translation, allocator);
+        //    auto scaleValue = rapidjsonHelper::getVec3JsonValue(scale, allocator);
+        //    auto rotationValue = rapidjsonHelper::getQuatJsonValue(rotation, allocator);
 
-            auto nodeKey = Value(nodeName.c_str(), nameLength, allocator);
-            auto nodeValue = Value(kObjectType);
+        //    auto nodeKey = Value(nodeName.c_str(), nameLength, allocator);
+        //    auto nodeValue = Value(kObjectType);
 
-            nodeValue.AddMember("guid", guidValue, allocator);
-            nodeValue.AddMember("translation", translationValue, allocator);
-            nodeValue.AddMember("rotation", rotationValue, allocator);
-            nodeValue.AddMember("scale", scaleValue, allocator);
+        //    nodeValue.AddMember("guid", guidValue, allocator);
+        //    nodeValue.AddMember("translation", translationValue, allocator);
+        //    nodeValue.AddMember("rotation", rotationValue, allocator);
+        //    nodeValue.AddMember("scale", scaleValue, allocator);
 
-            nodes.AddMember(nodeKey, nodeValue, allocator);
+        //    nodes.AddMember(nodeKey, nodeValue, allocator);
 
-            auto sceneKey = Value(nodeName.c_str(), nameLength, allocator);
-            sceneNodes.PushBack(sceneKey, allocator);
-        }
+        //    auto sceneKey = Value(nodeName.c_str(), nameLength, allocator);
+        //    sceneNodes.PushBack(sceneKey, allocator);
+        //}
 
         scene.AddMember("nodes", sceneNodes, allocator);
 

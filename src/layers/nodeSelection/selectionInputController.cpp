@@ -1,7 +1,7 @@
 #include <precompiled.h>
 
 #include <core/mesh.h>
-#include <core/model.h>
+#include <core/modelNode.h>
 #include <core/multiCommand.h>
 
 #include <input/input.h>
@@ -70,7 +70,7 @@ namespace phi
                 return true;
         }
 
-        return node->getComponent<model>() != nullptr;
+        return node->getComponent<modelNode>() != nullptr;
     }
 
     node* selectionInputController::getSonOfFirstSelected(node* const node)

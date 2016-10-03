@@ -1,10 +1,12 @@
 #pragma once
 #include <phi.h>
-#include <loader\loaderApi.h>
-#include <core\node.h>
-#include <core\material.h>
-#include <core\geometry.h>
-#include <core\resourcesRepository.h>
+
+#include <core/node.h>
+#include <core/material.h>
+#include <core/geometry.h>
+#include <core/model.h>
+#include <core/entityRepository.h>
+#include <loader/loaderApi.h>
 
 namespace phi
 {
@@ -15,12 +17,12 @@ namespace phi
         static void loadGeometries(
             const aiScene* scene,
             vector<geometry*>& geometries,
-            resourcesRepository<geometry>* geometriesRepo);
+            entityRepository<geometry>* geometriesRepo);
 
         static void loadMaterials(
             const aiScene* scene,
             vector<material*>& materials,
-            resourcesRepository<material>* materialsRepo);
+            entityRepository<material>* materialsRepo);
 
         static void loadScene(
             const aiScene* scene,
@@ -30,9 +32,9 @@ namespace phi
             const vector<geometry*>& geometries);
 
     public:
-        LOADER_API static resource<node>* import(
+        LOADER_API static model* import(
             const string& fileName,
-            resourcesRepository<material>* materialsRepo,
-            resourcesRepository<geometry>* geometriesRepo);
+            entityRepository<material>* materialsRepo,
+            entityRepository<geometry>* geometriesRepo);
     };
 }

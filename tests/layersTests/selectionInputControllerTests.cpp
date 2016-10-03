@@ -2,7 +2,7 @@
 #include <gtest\gtest.h>
 
 #include <core\node.h>
-#include <core\model.h>
+#include <core\modelNode.h>
 #include <context\layer.h>
 #include <layers\nodeSelection\selectionInputController.h>
 
@@ -38,7 +38,7 @@ namespace selectionInputControllerTests
     node* newModelNode(string name)
     {
         auto newNode = new node(name);
-        newNode->addComponent(new model());
+        newNode->addComponent(new modelNode());
         return newNode;
     }
 

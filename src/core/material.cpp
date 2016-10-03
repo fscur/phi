@@ -8,6 +8,7 @@ namespace phi
     inline material * material::createDefaultMaterial()
     {
         return new material(
+            guid::newGuid(),
             image::defaultAlbedoImage,
             image::defaultNormalImage,
             image::defaultSpecularImage,

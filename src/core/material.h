@@ -1,11 +1,14 @@
 #pragma once
 #include <phi.h>
+
 #include "coreApi.h"
 #include "image.h"
+#include "entity.h"
 
 namespace phi
 {
-    struct material
+    struct material :
+        public entity
     {
     public:
         CORE_API static material* defaultMaterial;
@@ -25,6 +28,7 @@ namespace phi
 
     public:
         material(
+            guid guid,
             image* albedoImage,
             image* normalImage,
             image* specularImage,
@@ -36,6 +40,7 @@ namespace phi
             float reflectivity = 0.0f,
             float emission = 0.0f,
             float opacity = 1.0f) :
+            entity::entity(guid),
             albedoImage(albedoImage),
             normalImage(normalImage),
             specularImage(specularImage),
@@ -47,7 +52,9 @@ namespace phi
             reflectivity(reflectivity),
             emission(emission),
             opacity(1.0f)
-        {}
+        {
+        }
+        virtual ~material() {}
 
     private: 
         static material* createDefaultMaterial();

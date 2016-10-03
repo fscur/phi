@@ -30,7 +30,7 @@ namespace phi
             }
         }
 
-        return new image(w, h, imageDataFormat::rgba, imageDataType::ubyte_dataType, data);
+        return new image(guid::newGuid(), w, h, imageDataFormat::rgba, imageDataType::ubyte_dataType, data);
     }
 
     void image::release()

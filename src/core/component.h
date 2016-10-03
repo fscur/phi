@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+
 #include "transform.h"
 
 namespace phi
@@ -9,9 +10,10 @@ namespace phi
     class component
     {
     public:
+
         enum componentType
         {
-            MODEL = 0,
+            MODEL_NODE = 0,
             MESH = 1,
             CAMERA = 2,
             DIRECTIONAL_LIGHT = 3,

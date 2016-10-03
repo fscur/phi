@@ -8,78 +8,70 @@
 #include <core/random.h>
 #include <core/boxCollider.h>
 #include <core/transform.h>
+#include <core/model.h>
+#include <core/modelNode.h>
+#include <common/mouseInteractionComponent.h>
 
 #include <io/path.h>
 #include <io/fileReader.h>
 #include <io/rapidjsonHelper.h>
 
-#include <common/mouseInteractionComponent.h>
-
 #include "importResourceException.h"
 
 namespace phi
 {
-    using rapidjson::FileReadStream;
-    using rapidjson::Document;
-    using rapidjson::Value;
+    using namespace rapidjson;
 
     node* importer::readNode(
-        const rapidjson::Value& jsonNode,
-        const resourcesRepository<material>* materialsRepo,
-        const resourcesRepository<geometry>* geometriesRepo)
+        const Value& jsonNode,
+        const entityRepository<material>* materialsRepo,
+        const entityRepository<geometry>* geometriesRepo)
     {
         string nodeName;
 
         if (jsonNode.HasMember("Name"))
         {
-            const rapidjson::Value& name = jsonNode["Name"];
+            const Value& name = jsonNode["Name"];
             nodeName = name.GetString();
         }
 
         auto objectNode = new node(nodeName);
 
-        const rapidjson::Value& components = jsonNode["Components"];
+        const Value& components = jsonNode["Components"];
         auto componentsCount = components.Size();
-        for (rapidjson::SizeType i = 0; i < componentsCount; i++)
+        for (SizeType i = 0; i < componentsCount; i++)
         {
             auto type = components[i]["Type"].GetInt();
 
             switch (type)
             {
-            case 0:
-            {
-                objectNode->addComponent(new phi::model());
-                break;
-            }
+                //case 0:
+                //    objectNode->addComponent(new phi::model());
+                //    break;
             case 1:
-            {
-                auto geometryGuid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
-                auto geometry = geometriesRepo->getResource(geometryGuid)->getOriginalObject();
-
-                material* material = material::defaultMaterial;
+                auto guid = convertToGuid(components[i]["GeometryResourceGuid"].GetString());
+                auto geometry = geometriesRepo->getEntity(guid);
 
                 auto materialGuid = convertToGuid(components[i]["MaterialResourceGuid"].GetString());
-                auto materialResource = materialsRepo->getResource(materialGuid);
+                auto material = materialsRepo->getEntity(materialGuid);
 
-                if (materialResource != nullptr)
-                    material = materialResource->getOriginalObject();
+                if (material == nullptr)
+                    material = material::defaultMaterial;
 
                 objectNode->addComponent(new phi::mesh(geometry, material));
 
                 auto aabb = geometry->aabb;
                 objectNode->addComponent(new phi::boxCollider(aabb->center, vec3(aabb->width, aabb->height, aabb->depth)));
-                //objectNode->addComponent(new phi::mouseInteractionComponent());
                 objectNode->addComponent(new phi::animator());
                 objectNode->setLocalObb(new obb(aabb->center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
 
                 break;
             }
-            }
         }
 
-        const rapidjson::Value& children = jsonNode["Children"];
+        const Value& children = jsonNode["Children"];
         auto childrenCount = children.Size();
-        for (rapidjson::SizeType i = 0; i < childrenCount; i++)
+        for (SizeType i = 0; i < childrenCount; i++)
         {
             auto child = readNode(children[i], materialsRepo, geometriesRepo);
             objectNode->addChild(child);
@@ -94,7 +86,7 @@ namespace phi
         return guidBytes.data();
     }
 
-    image* importer::importImage(const string& fileName)
+    image* importer::importImage(const string& fileName, guid guid)
     {
         auto fileNameChar = fileName.c_str();
         auto imageFormat = FreeImage_GetFileType(fileNameChar, 0);
@@ -119,25 +111,24 @@ namespace phi
         if (dataPtr == nullptr || width == 0 || height == 0)
             throw importResourceException("Failed loading image data of", fileName);
 
-        //auto format = GL_BGRA;
         auto format = imageDataFormat::bgra;
         auto bpp = FreeImage_GetBPP(imagePointer);
         auto redMask = FreeImage_GetRedMask(imagePointer);
 
         switch (bpp)
         {
-            case 24:
-                if (redMask == 255)
-                    format = imageDataFormat::rgb;
-                else
-                    format = imageDataFormat::bgr;
-                break;
-            case 32:
-                if (redMask == 255)
-                    format = imageDataFormat::rgba;
-                else
-                    format = imageDataFormat::bgra;
-                break;
+        case 24:
+            if (redMask == 255)
+                format = imageDataFormat::rgb;
+            else
+                format = imageDataFormat::bgr;
+            break;
+        case 32:
+            if (redMask == 255)
+                format = imageDataFormat::rgba;
+            else
+                format = imageDataFormat::bgra;
+            break;
         }
 
         auto bytesPerPixel = bpp / 8;
@@ -147,7 +138,9 @@ namespace phi
 
         FreeImage_Unload(imagePointer);
 
+        //TODO: does all images need a guid?
         return new image(
+            guid,
             width,
             height,
             format,
@@ -155,10 +148,10 @@ namespace phi
             data);
     }
 
-    resource<node>* importer::importModel(
+    model* importer::importModel(
         const string& fileName,
-        resourcesRepository<material>* materialsRepo,
-        resourcesRepository<geometry>* geometriesRepo)
+        entityRepository<material>* materialsRepo,
+        entityRepository<geometry>* geometriesRepo)
     {
         return assimpImporter::import(
             fileName,
@@ -166,33 +159,22 @@ namespace phi
             geometriesRepo);
     }
 
-    resource<image>* importer::loadImage(const string& fileName)
+    image* importer::loadImage(const string& fileName)
     {
-#ifdef _WIN32
-        FILE* file;
-        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
-        char readBuffer[65536];
-
-        FileReadStream fileStream(file, readBuffer, sizeof(readBuffer));
+        auto contents = fileReader::readFile(fileName);
         Document document;
-        document.ParseStream(fileStream);
-
-        fclose(file);
+        document.Parse(contents.c_str());
 
         auto guid = convertToGuid(document["Guid"].GetString());
         auto imageName = document["ImageFileName"].GetString();
 
         auto imageFileName = path::getDirectoryFullName(fileName) + "\\" + imageName;
         auto textureName = path::getFileNameWithoutExtension(fileName);
-        auto tex = importImage(imageFileName);
 
-        return new resource<image>(guid, textureName, tex);
-#else
-        throw importResourceException("Import texture was not implemented in other platforms than Win32", fileName);
-#endif
+        return importImage(imageFileName, guid);
     }
 
-    resource<geometry>* importer::loadGeometry(const string& fileName)
+    geometry* importer::loadGeometry(const string& fileName)
     {
 #ifdef _WIN32
         std::ifstream file;
@@ -230,44 +212,46 @@ namespace phi
         file.close();
 
         auto name = path::getFileNameWithoutExtension(fileName);
-        auto geometryGuid = guid(geometryGuidBytes);
+        auto guid = phi::guid(geometryGuidBytes);
         safeDelete(geometryGuidBytes);
 
-        auto geom = geometry::create(verticesCount, positionsBuffer, texCoordsBuffer, normalsBuffer, indicesCount, indicesBuffer);
+        auto geometry = geometry::create(
+            guid,
+            verticesCount,
+            positionsBuffer,
+            texCoordsBuffer,
+            normalsBuffer,
+            indicesCount,
+            indicesBuffer);
+
         safeDeleteArray(positionsBuffer);
         safeDeleteArray(texCoordsBuffer);
         safeDeleteArray(normalsBuffer);
         safeDeleteArray(indicesBuffer);
 
-        return new resource<geometry>(geometryGuid, name, geom);
+        return geometry;
 #else
         throw importResourceException("importGeometry was not implemented ins other platforms than WIN32");
 #endif
     }
 
-    resource<material>* importer::loadMaterial(const string& fileName, const resourcesRepository<image>* texturesRepo)
+    material* importer::loadMaterial(const string& fileName, const entityRepository<image>* texturesRepo)
     {
-#ifdef _WIN32
-        FILE* file;
-        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
+        auto contents = fileReader::readFile(fileName);
 
-        char readBuffer[65536];
-        FileReadStream fileStream(file, readBuffer, sizeof(readBuffer));
         Document document;
-        document.ParseStream(fileStream);
-
-        fclose(file);
-
+        document.Parse(contents.c_str());
         //TODO: change texture to image into the converter
+
         auto guid = convertToGuid(document["Guid"].GetString());
         auto albedoImageGuid = convertToGuid(document["AlbedoTextureGuid"].GetString());
         auto normalImageGuid = convertToGuid(document["NormalTextureGuid"].GetString());
         auto specularImageGuid = convertToGuid(document["SpecularTextureGuid"].GetString());
         auto emissiveImageGuid = convertToGuid(document["EmissiveTextureGuid"].GetString());
-        auto albedoImageResource = texturesRepo->getResource(albedoImageGuid);
-        auto normalImageResource = texturesRepo->getResource(normalImageGuid);
-        auto specularImageResource = texturesRepo->getResource(specularImageGuid);
-        auto emissiveImageResource = texturesRepo->getResource(emissiveImageGuid);
+        auto albedoImage = texturesRepo->getEntity(albedoImageGuid);
+        auto normalImage = texturesRepo->getEntity(normalImageGuid);
+        auto specularImage = texturesRepo->getEntity(specularImageGuid);
+        auto emissiveImage = texturesRepo->getEntity(emissiveImageGuid);
 
         const Value& albedoColorNode = document["AlbedoColor"];
         const Value& specularColorNode = document["SpecularColor"];
@@ -281,32 +265,21 @@ namespace phi
         auto emission = static_cast<float>(document["Emission"].GetDouble());
         auto opacity = static_cast<float>(document["Opacity"].GetDouble());
 
-        image* albedoImage = nullptr;
-        if (albedoImageResource)
-            albedoImage = albedoImageResource->getOriginalObject();
-        else
+        if (!albedoImage)
             albedoImage = image::defaultAlbedoImage;
 
-        image* normalImage = nullptr;
-        if (normalImageResource)
-            normalImage = normalImageResource->getOriginalObject();
-        else
+        if (!normalImage)
             normalImage = image::defaultNormalImage;
 
-        image* specularImage = nullptr;
-        if (specularImageResource)
-            specularImage = specularImageResource->getOriginalObject();
-        else
+        if (!specularImage)
             specularImage = image::defaultSpecularImage;
 
-        image* emissiveImage = nullptr;
-        if (emissiveImageResource)
-            emissiveImage = emissiveImageResource->getOriginalObject();
-        else
+        if (!emissiveImage)
             emissiveImage = image::defaultEmissiveImage;
 
         auto materialName = path::getFileNameWithoutExtension(fileName);
-        auto mat = new material(
+        return new material(
+            guid,
             albedoImage,
             normalImage,
             specularImage,
@@ -318,34 +291,21 @@ namespace phi
             reflectivity,
             emission,
             opacity);
-
-        return new resource<material>(guid, materialName, mat);
-#else
-        throw importResourceException("Import material was not implemented in other platforms than Win32", fileName);
-#endif
     }
 
-    resource<node>* importer::loadNode(
+    model* importer::loadModel(
         const string& fileName,
-        const resourcesRepository<material>* materialsRepo,
-        const resourcesRepository<geometry>* geometriesRepo)
+        const entityRepository<material>* materialsRepo,
+        const entityRepository<geometry>* geometriesRepo)
     {
-        //TODO:: create load file fuction in the io API
-#ifdef _WIN32 
-        FILE* file;
-        fopen_s(&file, fileName.c_str(), "rb"); // non-Windows use "r"
+        auto contents = fileReader::readFile(fileName);
 
-        char fileBuffer[65536];
-        FileReadStream fileStream(file, fileBuffer, sizeof(fileBuffer));
         Document document;
-        document.ParseStream(fileStream);
-
-        fclose(file);
-
+        document.Parse(contents.c_str());
         auto nodeName = path::getFileNameWithoutExtension(fileName);
-        auto rootNode = readNode(document["Node"], materialsRepo, geometriesRepo);
 
-        auto guid = convertToGuid(document["Guid"].GetString());
+        auto rootNode = readNode(document["Node"], materialsRepo, geometriesRepo);
+        rootNode->addComponent(new modelNode());
 
         bool foundAabb = false;
         aabb rootAabb;
@@ -368,23 +328,20 @@ namespace phi
         rootBoxCollider->disable();
         rootNode->addComponent(rootBoxCollider);
 
-        auto r = new resource<node>(guid, nodeName, rootNode);
-        rootNode->resource = r;
+        auto guid = convertToGuid(document["Guid"].GetString());
+        auto model = new phi::model(guid, rootNode);
 
-        return r;
-#else
-        throw importResourceException("importNode was not implemented in other platforms than WIN32", fileName);
-#endif
+        return model;
     }
 
     vector<node*> importer::loadPhiFile(
         const string& fileName,
-        const resourcesRepository<node>* nodeRepository)
+        const entityRepository<model>* modelsRepository)
     {
         const string fileContents = fileReader::readFile(fileName);
         Document* phiJsonDoc = getJsonDocumentFromPhiFile(fileContents);
         //auto camera = loadCamera(phiJsonDoc);
-        return loadNodes(phiJsonDoc, nodeRepository);
+        return loadNodes(phiJsonDoc, modelsRepository);
     }
 
     Document* importer::getJsonDocumentFromPhiFile(const string& phiFileContents)
@@ -396,7 +353,7 @@ namespace phi
 
     std::vector<node*> importer::loadNodes(
         const Document* phiJsonDoc,
-        const resourcesRepository<node>* nodeRepository)
+        const entityRepository<model>* modelsRepository)
     {
         std::vector<node*> loadedNodes;
         if (phiJsonDoc->IsObject() && phiJsonDoc->HasMember("scene") && phiJsonDoc->HasMember("nodes"))
@@ -404,7 +361,7 @@ namespace phi
             auto& nodes = (*phiJsonDoc)["nodes"];
             if (nodes.IsObject())
             {
-                for (rapidjson::Value::ConstMemberIterator nodeIt = nodes.MemberBegin(); nodeIt != nodes.MemberEnd(); ++nodeIt)
+                for (Value::ConstMemberIterator nodeIt = nodes.MemberBegin(); nodeIt != nodes.MemberEnd(); ++nodeIt)
                 {
                     auto nodeGuidStr = nodeIt->value.FindMember("guid")->value.GetString();
                     auto nodeGuid = convertToGuid(nodeGuidStr);
@@ -412,7 +369,7 @@ namespace phi
                     auto scale = rapidjsonHelper::iteratorToVec3(nodeIt->value.FindMember("scale"));
                     auto rotation = rapidjsonHelper::iteratorToQuat(nodeIt->value.FindMember("rotation"));
 
-                    auto selectedNode = nodeRepository->getResource(nodeGuid)->getClonedObject();
+                    auto selectedNode = modelsRepository->getEntity(nodeGuid)->getNode();
                     if (selectedNode)
                     {
                         selectedNode->getTransform()->setLocalPosition(translation);
@@ -447,8 +404,8 @@ namespace phi
         return new camera(
             resolution(1920, 1080),
             transform,
-            (float)near, 
-            (float)far, 
+            (float)near,
+            (float)far,
             (float)fov);
     }
-}
+    }

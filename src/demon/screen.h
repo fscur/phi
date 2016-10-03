@@ -1,21 +1,22 @@
 #pragma once
 #include <phi.h>
 
-#include <core\resolution.h>
+#include <core/resolution.h>
 
 #ifdef _DEBUG
 #include <io/watcher.h>
 #endif
 
-#include <rendering\framebufferAllocator.h>
+#include <rendering/framebufferAllocator.h>
 
-#include <application\window.h>
-#include <application\commandsManager.h>
+#include <application/window.h>
+#include <application/commandsManager.h>
 
-#include <context\layer.h>
-#include <context\context.h>
+#include <context/layer.h>
+#include <context/context.h>
+#include <context/scene.h>
 
-#include <rendering\gl.h>
+#include <rendering/gl.h>
 
 #include "library.h"
 
@@ -33,6 +34,7 @@ namespace demon
         phi::context* _constructionContext;
         phi::context* _activeContext;
 
+        phi::scene* _scene;
         phi::layer* _sceneLayer;
         phi::layer* _onDemandLayer;
         phi::layer* _constructionLayer;
@@ -45,7 +47,6 @@ namespace demon
         phi::node* _labelFps;
         phi::node* _labelNandinho;
         phi::node* _constructionLabel;
-        phi::node* _chair0;
 
         phi::commandsManager* _commandsManager;
 #ifdef _DEBUG

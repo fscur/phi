@@ -52,7 +52,7 @@ namespace phi
         };
 
         auto indices = vector<uint>{ 0, 1, 2, 2, 3, 0 };
-        return geometry::create(vertices, indices);
+        return geometry::create(guid::newGuid(), vertices, indices);
     }
 
     void controlRenderAdapter::createControlRenderDataBuffer()
