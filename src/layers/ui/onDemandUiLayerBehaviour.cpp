@@ -1,11 +1,10 @@
 #include <precompiled.h>
 #include <diagnostic/stopwatch.h>
 #include <input/input.h>
-#include <ui/buttonBuilder.h>
-#include <ui/labelBuilder.h>
-#include <ui/panelBuilder.h>
+#include <ui/switchControlBuilder.h>
 #include <ui/layoutTransform.h>
 #include <rendering/defaultFramebuffer.h>
+#include <rendering/fontsManager.h>
 
 #include "onDemandUiLayerBehaviour.h"
 
@@ -60,65 +59,11 @@ namespace phi
 
     node* onDemandUiLayerBehaviour::createUi(node* node)
     {
-        auto panel = panelBuilder::newPanel()
-            .withControlColor(0.7f, 0.7f, 0.7f, 0.7f)
-            .withGlassyTransparency()
+        auto switchControl = switchControlBuilder::newSwitchControl()
+            .withSize(vec3(15.0f, 30.0f, 0.1f))
             .build();
 
-        auto labelMenu = labelBuilder::newLabel(L"Menu")
-            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
-            .withFont(_font)
-            .withControlColor(0.0f, 0.0f, 0.0f, 0.0f)
-            .build();
-
-        auto buttonTranslation = buttonBuilder::newButton()
-            .withText(L"Translation")
-            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
-            .withFont(_font)
-            .withControlColor(1.0f, 0.3f, 0.3f, 0.7f)
-            .withAction([=](phi::node* node)
-        {
-            phi::debug("translation!");
-        }).build();
-
-        auto buttonRotation = buttonBuilder::newButton()
-            .withText(L"Rotation")
-            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
-            .withFont(_font)
-            .withControlColor(1.0f, 0.3f, 0.3f, 0.7f)
-            .withAction([=](phi::node* node)
-        {
-            phi::debug("rotation!");
-        }).build();
-
-        auto margin = 10.0f;
-
-        auto labelMenuSize = labelMenu->getTransform()->getSize();
-        auto buttonTranslationSize = buttonTranslation->getTransform()->getSize();
-        auto buttonRotationSize = buttonRotation->getTransform()->getSize();
-        auto panelWidth = glm::max(glm::max(labelMenuSize.x, buttonTranslationSize.x), buttonRotationSize.x) + 2.0f * margin;
-        auto panelHeight = labelMenuSize.y + buttonTranslationSize.y + buttonRotationSize.y + 4.0f * margin;
-
-        buttonTranslationSize.x = panelWidth - 2.0f * margin;
-        buttonRotationSize.x = panelWidth - 2.0f * margin;
-
-        auto labelMenuPosition = vec3(panelWidth * 0.5f - labelMenuSize.x * 0.5f, -margin, 0.0f);
-        auto buttonTranslationPosition = vec3(panelWidth * 0.5f - buttonTranslationSize.x * 0.5f, labelMenuPosition.y - labelMenuSize.y - margin, 10.0f);
-        auto buttonRotationPosition = vec3(panelWidth * 0.5f - buttonRotationSize.x * 0.5f, buttonTranslationPosition.y - buttonTranslationSize.y - margin, 10.0f);
-
-        labelMenu->getTransform()->setLocalPosition(labelMenuPosition);
-        buttonTranslation->getTransform()->setLocalPosition(buttonTranslationPosition);
-        buttonRotation->getTransform()->setLocalPosition(buttonRotationPosition);
-
-        panel->setSize(vec3(panelWidth, panelHeight, 0.0f));
-        buttonTranslation->setSize(buttonTranslationSize);
-        buttonRotation->setSize(buttonRotationSize);
-
-        panel->addChild(labelMenu);
-        panel->addChild(buttonTranslation);
-        panel->addChild(buttonRotation);
-
-        return panel;
+        return switchControl;
     }
 
     vec2 onDemandUiLayerBehaviour::getPositionAtNode(node* node)
@@ -139,13 +84,13 @@ namespace phi
         }
 
         auto uiNodeData = _uiNodeDatas[node];
-        auto screenPosition = vec2(maxCornerOnScreen.x + 50, minCornerOnScreen.y + (maxCornerOnScreen.y - minCornerOnScreen.y) * 0.5f);
+        auto screenPosition = vec2(maxCornerOnScreen.x + 50, minCornerOnScreen.y + (maxCornerOnScreen.y - minCornerOnScreen.y) * 1.0f);
 
         auto uiCameraViewPosition = _uiCamera->screenPointToView(static_cast<int>(screenPosition.x), static_cast<int>(_uiCamera->getResolution().height - screenPosition.y), _uiCamera->getTransform()->getPosition().z);
         auto uiCameraWorldPosition = mathUtils::multiply(glm::inverse(_uiCamera->getViewMatrix()), uiCameraViewPosition);
 
         auto uiNodeSize = uiNodeData.button->getTransform()->getSize();
 
-        return vec2(uiCameraWorldPosition.x, uiCameraWorldPosition.y + uiNodeSize.y * 0.5f);
+        return vec2(uiCameraWorldPosition.x, uiCameraWorldPosition.y - uiNodeSize.y * 0.5f);
     }
 }

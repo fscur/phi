@@ -10,7 +10,7 @@ namespace phi
 {
     uiMouseController::uiMouseController(layer* layer) :
         _layer(layer),
-        _clickedControl(nullptr),
+        _focusedControl(nullptr),
         _lastMouseOverControl(nullptr)
     {
     }
@@ -32,11 +32,11 @@ namespace phi
 
     bool uiMouseController::onMouseDown(mouseEventArgs * e)
     {
-        _clickedControl = getControlUnderMouse(e->x, e->y);
+        _focusedControl = getControlUnderMouse(e->x, e->y);
 
-        if (_clickedControl)
+        if (_focusedControl)
         {
-            auto mouseInteraction = _clickedControl->getNode()->getComponent<mouseInteractionComponent>();
+            auto mouseInteraction = _focusedControl->getNode()->getComponent<mouseInteractionComponent>();
             if (mouseInteraction)
                 mouseInteraction->onMouseDown();
         }
@@ -46,20 +46,19 @@ namespace phi
 
     bool uiMouseController::onMouseUp(mouseEventArgs * e)
     {
-        if (_clickedControl)
+        if (_focusedControl)
         {
-            auto mouseInteraction = _clickedControl->getNode()->getComponent<mouseInteractionComponent>();
+            auto mouseInteraction = _focusedControl->getNode()->getComponent<mouseInteractionComponent>();
             if (mouseInteraction)
                 mouseInteraction->onMouseUp();
 
-            _clickedControl = nullptr;
             return true;
         }
 
         return false;
     }
 
-    bool uiMouseController::onMouseMove(mouseEventArgs * e)
+    bool uiMouseController::onMouseMove(mouseEventArgs* e)
     {
         auto mouseOverControl = getControlUnderMouse(e->x, e->y);
 
@@ -73,6 +72,9 @@ namespace phi
         }
 
         _lastMouseOverControl = mouseOverControl;
+
+        if (_focusedControl)
+            _focusedControl->getNode()->getComponent<mouseInteractionComponent>()->onMouseMove(e);
 
         return false;
     }

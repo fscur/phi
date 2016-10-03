@@ -26,7 +26,8 @@ namespace phi
             GHOST_MESH = 12,
             ROTATION_PLANE_GRID = 13,
             SKY_BOX = 14,
-            LAYOUT_TRANSFORM = 15
+            LAYOUT_TRANSFORM = 15,
+            SWITCH_CONTROL
         };
 
     protected:

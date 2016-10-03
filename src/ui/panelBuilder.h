@@ -18,12 +18,12 @@ namespace phi
         UI_API node* build();
 
     private:
-        panelBuilder(phi::node* node) :
+        panelBuilder(node* node) :
             _panel(node)
         {
         }
 
     private:
-        phi::node* _panel;
+        node* _panel;
     };
 }

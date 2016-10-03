@@ -26,7 +26,7 @@ namespace phi
 
     private:
         layer* _layer;
-        control* _clickedControl;
+        control* _focusedControl;
         control* _lastMouseOverControl;
     };
 }

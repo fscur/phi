@@ -60,7 +60,7 @@ namespace phi
 
         pass->setOnInitialize([=]
         {
-            updateUniformBlock(glassyUniformBlockBuffer, defaultRenderTarget, resolution);
+            updateGlassyUniformBlock(glassyUniformBlockBuffer, defaultRenderTarget, resolution);
         });
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
@@ -69,7 +69,7 @@ namespace phi
 
             auto one = 1.0f;
             glClearBufferfv(GL_DEPTH, 0, &one);
-            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -91,7 +91,7 @@ namespace phi
 
         pass->setOnResize([=](const phi::resolution& resolution)
         {
-            updateUniformBlock(glassyUniformBlockBuffer, defaultRenderTarget, resolution);
+            updateGlassyUniformBlock(glassyUniformBlockBuffer, defaultRenderTarget, resolution);
         });
 
         pass->setOnEndRender([controlFramebuffer, defaultRenderTarget](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
@@ -101,7 +101,7 @@ namespace phi
 
             glBlendColor(0, 0, 0, 0);
             glDisable(GL_BLEND);
-            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
         });
 
