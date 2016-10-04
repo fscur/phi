@@ -5,7 +5,7 @@ namespace phi
 {
     control::control() :
         component(component::CONTROL),
-        _image(image::defaultAlbedoImage),
+        _image(image::defaultBlankImage),
         _onSizeChanged(new eventHandler<vec3>()),
         _color(color::transparent),
         _size(vec3(0.0f)),

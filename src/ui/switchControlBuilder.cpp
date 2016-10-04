@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include <common/mouseInteractionComponent.h>
-#include <ui/control.h>
 #include <ui/layoutTransform.h>
+#include <ui/controlMouseHoverAnimatable.h>
 #include "switchControl.h"
 #include "switchControlBuilder.h"
 
@@ -9,62 +9,90 @@ namespace phi
 {
     switchControlBuilder switchControlBuilder::newSwitchControl()
     {
-        auto node = new phi::node("switchControl", new layoutTransform());
+        return switchControlBuilder();
+    }
+
+    switchControlBuilder::switchControlBuilder()
+    {
+        _switchControlNode = new phi::node("switchControl", new layoutTransform());
         auto control = new phi::control();
-        node->addComponent(control);
-        auto interaction = new mouseInteractionComponent();
-        node->addComponent(interaction);
+        control->setColor(color(1.0f, 1.0f, 1.0f, 0.5f));
+        control->setIsGlassy(true);
         auto switchControl = new phi::switchControl();
-        node->addComponent(switchControl);
+        _switchControlNode->addComponent(control);
+        _switchControlNode->addComponent(switchControl);
 
         auto handle = new phi::node("handle", new layoutTransform());
         auto handleControl = new phi::control();
-        handleControl->setColor(color(1.0f, 1.0f, 1.0f, 0.5f));
+        handleControl->setColor(color(33.0f / 255.0f, 150.0f / 255.0f, 243.0f / 255.0f, 0.6f));
+        auto handleAnimator = new animator();
         handle->addComponent(handleControl);
+        handle->addComponent(handleAnimator);
 
-        auto optionA = new phi::node("optionA", new layoutTransform());
-        auto optionAControl = new phi::control();
-        optionAControl->setIsGlassy(true);
-        optionAControl->setColor(color(1.0f, 1.0f, 1.0f, 0.5f));
-        optionA->addComponent(optionAControl);
+        _optionANode = createOptionNode("optionA");
+        _optionBNode = createOptionNode("optionB");
 
-        auto optionB = new phi::node("optionB", new layoutTransform());
-        auto optionBControl = new phi::control();
-        optionBControl->setIsGlassy(true);
-        optionBControl->setColor(color(1.0f, 1.0f, 1.0f, 0.5f));
-        optionB->addComponent(optionBControl);
+        _switchControlNode->addChild(handle);
+        _switchControlNode->addChild(_optionANode);
+        _switchControlNode->addChild(_optionBNode);
 
-        node->addChild(optionA);
-        node->addChild(optionB);
-        node->addChild(handle);
-
-        switchControl->setHandleControl(handleControl);
-        switchControl->setOptionAControl(optionAControl);
-        switchControl->setOptionBControl(optionBControl);
-
-        return switchControlBuilder(node);
+        switchControl->setHandle(handle);
+        switchControl->setOptionA(_optionANode);
+        switchControl->setOptionB(_optionBNode);
     }
 
     switchControlBuilder switchControlBuilder::withPosition(vec3 position)
     {
-        _switchControl->setPosition(position);
+        _switchControlNode->setPosition(position);
         return *this;
     }
 
     switchControlBuilder switchControlBuilder::withOrientation(quat orientation)
     {
-        _switchControl->setOrientation(orientation);
+        _switchControlNode->setOrientation(orientation);
         return *this;
     }
 
     switchControlBuilder switchControlBuilder::withSize(vec3 size)
     {
-        _switchControl->setSize(size);
+        _switchControlNode->setSize(size);
+        return *this;
+    }
+
+    switchControlBuilder switchControlBuilder::withOptionAImage(image* image)
+    {
+        _optionANode->getComponent<control>()->setImage(image);
+        return *this;
+    }
+
+    switchControlBuilder switchControlBuilder::withOptionBImage(image* image)
+    {
+        _optionBNode->getComponent<control>()->setImage(image);
         return *this;
     }
 
     node* switchControlBuilder::build()
     {
-        return _switchControl;
+        return _switchControlNode;
+    }
+
+    node * switchControlBuilder::createOptionNode(string name)
+    {
+        auto optionNode = new phi::node(name, new layoutTransform());
+
+        auto control = new phi::control();
+        auto animator = new phi::animator();
+        auto interaction = new mouseInteractionComponent();
+
+        auto hoverAnimation = new controlMouseHoverAnimatable(control, animator);
+        hoverAnimation->setHoverColor(color(1.0f, 1.0f, 1.0f, 0.15f));
+
+        interaction->setMouseHoverAnimatable(hoverAnimation);
+
+        optionNode->addComponent(control);
+        optionNode->addComponent(animator);
+        optionNode->addComponent(interaction);
+
+        return optionNode;
     }
 }

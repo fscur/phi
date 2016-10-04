@@ -53,6 +53,11 @@ vec3 fetchGlassyBackground(vec2 uv)
     return color;
 }
 
+vec4 blendFunc(vec4 source, vec4 dest)
+{
+    return source * source.a + dest * (1.0 - source.a);
+}
+
 vec4 fetch(vec2 uv)
 {
     controlRenderData data = renderData.items[instanceId];
@@ -61,20 +66,21 @@ vec4 fetch(vec2 uv)
     float page = data.backgroundTexturePage;
     
     vec4 textureColor = texture(textureArrays[unit], vec3(uv, page));
-    return textureColor * data.backgroundColor;
+    return textureColor;
 }
 
 void main(void)
 {
     controlRenderData data = renderData.items[instanceId];
-    vec4 opaque = fetch(fragTexCoord);
+    vec4 textureColor = fetch(fragTexCoord);
     if (data.isGlassy == 1)
     {
         vec2 resolution = glassyControlUniformBlock.resolution;
         vec3 glassy = fetchGlassyBackground(gl_FragCoord.xy/resolution);
-        fragColor = vec4(glassy * (1.0 - opaque.a) + opaque.rgb * opaque.a, 1.0);
+        fragColor = blendFunc(textureColor, blendFunc(data.backgroundColor, vec4(glassy, 1.0)));
     }
     else
-        fragColor = opaque;
+        fragColor = blendFunc(textureColor, data.backgroundColor);
+
     pickingColor = selectionColor; 
 }

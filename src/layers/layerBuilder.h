@@ -48,6 +48,7 @@ namespace phi
         physicsLayerBehaviour* _physicsBehaviour;
         selectionLayerBehaviour* _selectionBehaviour;
         layer* _onDemandUiTargetLayer;
+        std::function<node*()> _onDemandUiCreateUiFunction;
 
         vector<renderPass*> _meshRenderPasses;
         vector<renderPass*> _controlRenderPasses;
@@ -101,7 +102,7 @@ namespace phi
         layerBuilder withRotationPlaneGridRenderer() { _withRotationPlaneGridRenderer = true; return *this; }
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
         layerBuilder withTextRenderer() { _withTextRenderer = true; return *this; }
-        layerBuilder withOnDemandUi(layer* targetLayer) { _withOnDemandUi = true; _onDemandUiTargetLayer = targetLayer; return *this; }
+        LAYERS_API layerBuilder withOnDemandUi(layer* targetLayer, std::function<node*()> createUiFunction);
         layerBuilder withPhysics() { _withPhysics = true; return *this; }
         layerBuilder withAnimation() { _withAnimation = true; return *this; }
         layerBuilder withCameraController() { _withCameraController = true; return *this; }

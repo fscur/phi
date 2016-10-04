@@ -50,7 +50,7 @@ namespace phi
         auto control = node->getComponent<phi::control>();
 
         if (control)
-            _adapter->update(control);
+            _adapter->updateModelMatrix(control);
     }
 
     void controlLayerBehaviour::onControlColorChanged(control* control)

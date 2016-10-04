@@ -13,15 +13,14 @@ namespace phi
     private:
         struct uiNodeData
         {
-            vec3 targetWorldPosition;
-            node* button;
+            node* uiRoot;
+            bool isInLayer;
         };
 
     public:
-        onDemandUiLayerBehaviour(layer* uiLayer, layer* targetLayer);
+        onDemandUiLayerBehaviour(layer* uiLayer, layer* targetLayer, std::function<node*()> createUiFunction);
 
     private:
-        node* createUi(node* node);
         vec2 getPositionAtNode(node* node);
         void onNodeSelectionChanged(node* node);
         void onTargetCameraChanged(transform* transform);
@@ -29,9 +28,9 @@ namespace phi
     private:
         layer* _uiLayer;
         layer* _targetLayer;
+        std::function<node*()> _createUiFunction;
         camera* _uiCamera;
         camera* _targetCamera;
-        font* _font;
         unordered_map<node*, uiNodeData> _uiNodeDatas;
     };
 }

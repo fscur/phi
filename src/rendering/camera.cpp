@@ -1,6 +1,7 @@
 #include <precompiled.h>
+#include <core/transform.h>
+#include <rendering/defaultFramebuffer.h>
 #include "camera.h"
-#include <core\transform.h>
 #include "frameBuffer.h"
 
 namespace phi
@@ -190,7 +191,7 @@ namespace phi
         auto vp = _projectionMatrix * _viewMatrix;
         auto ivp = glm::inverse(vp);
         
-        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(screenX, static_cast<int>(_resolution.height) - screenY);
+        auto zBufferValue = defaultFramebuffer::getZBufferValue(screenX, static_cast<int>(_resolution.height) - screenY);
 
         float x = (2.0f * static_cast<float>(screenX)) / _resolution.width - 1.0f;
         float y = 1.0f - (2.0f * screenY) / _resolution.height;

@@ -27,7 +27,7 @@ namespace phi
         bool isGlassy() const { return _isGlassy; }
         bool isBillboard() const { return _isBillboard; }
 
-        void setImage(image* value) { _image = value; }
+        UI_API void setImage(image* value) { _image = value; }
         UI_API void setColor(color value);
         UI_API void setSize(vec3 value);
         UI_API void setIsGlassy(bool value) { _isGlassy = value; }

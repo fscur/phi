@@ -1,21 +1,18 @@
 #include <precompiled.h>
-#include <diagnostic/stopwatch.h>
 #include <input/input.h>
-#include <ui/switchControlBuilder.h>
 #include <ui/layoutTransform.h>
-#include <rendering/defaultFramebuffer.h>
-#include <rendering/fontsManager.h>
+#include <diagnostic/stopwatch.h>
 
 #include "onDemandUiLayerBehaviour.h"
 
 namespace phi
 {
-    onDemandUiLayerBehaviour::onDemandUiLayerBehaviour(layer* uiLayer, layer* targetLayer) :
+    onDemandUiLayerBehaviour::onDemandUiLayerBehaviour(layer* uiLayer, layer* targetLayer, std::function<node*()> createUiFunction) :
         _uiLayer(uiLayer),
         _targetLayer(targetLayer),
+        _createUiFunction(createUiFunction),
         _uiCamera(_uiLayer->getCamera()),
-        _targetCamera(_targetLayer->getCamera()),
-        _font(fontsManager::defaultFont)
+        _targetCamera(_targetLayer->getCamera())
     {
         _targetLayer->addOnNodeSelectionChanged(std::bind(&onDemandUiLayerBehaviour::onNodeSelectionChanged, this, std::placeholders::_1));
         _targetCamera->getTransform()->getChangedEvent()->assign(std::bind(&onDemandUiLayerBehaviour::onTargetCameraChanged, this, std::placeholders::_1));
@@ -25,24 +22,18 @@ namespace phi
     {
         if (node->isSelected())
         {
-            _uiNodeDatas[node].button = createUi(node);
-
-            //auto worldPositionAtMouse = _targetCamera->screenPointToWorld(mousePosition.x, mousePosition.y);
-            auto mousePosition = input::getMousePosition();
-
-            _uiNodeDatas[node].targetWorldPosition = vec3(mousePosition, 0.0f);
-
-            _uiNodeDatas[node].button->getTransform()->setLocalPosition(vec3(getPositionAtNode(node), 0.0f));
-
-            _uiLayer->add(_uiNodeDatas[node].button);
+            _uiNodeDatas[node].uiRoot = _createUiFunction();
+            _uiNodeDatas[node].uiRoot->getTransform()->setLocalPosition(vec3(getPositionAtNode(node), 0.0f));
+            _uiLayer->add(_uiNodeDatas[node].uiRoot);
+            _uiNodeDatas[node].isInLayer = true;
         }
         else
         {
             auto uiNodes = _uiNodeDatas[node];
             _uiNodeDatas.erase(node);
 
-            uiNodes.button->getParent()->removeChild(uiNodes.button);
-            safeDelete(uiNodes.button);
+            uiNodes.uiRoot->getParent()->removeChild(uiNodes.uiRoot);
+            safeDelete(uiNodes.uiRoot);
         }
     }
 
@@ -51,19 +42,9 @@ namespace phi
         for (auto pair : _uiNodeDatas)
         {
             auto uiNodeData = pair.second;
-
             auto position = getPositionAtNode(pair.first);
-            uiNodeData.button->setPosition(vec3(position, 0.0f));
+            uiNodeData.uiRoot->setPosition(vec3(position, 0.0f));
         }
-    }
-
-    node* onDemandUiLayerBehaviour::createUi(node* node)
-    {
-        auto switchControl = switchControlBuilder::newSwitchControl()
-            .withSize(vec3(15.0f, 30.0f, 0.1f))
-            .build();
-
-        return switchControl;
     }
 
     vec2 onDemandUiLayerBehaviour::getPositionAtNode(node* node)
@@ -89,8 +70,8 @@ namespace phi
         auto uiCameraViewPosition = _uiCamera->screenPointToView(static_cast<int>(screenPosition.x), static_cast<int>(_uiCamera->getResolution().height - screenPosition.y), _uiCamera->getTransform()->getPosition().z);
         auto uiCameraWorldPosition = mathUtils::multiply(glm::inverse(_uiCamera->getViewMatrix()), uiCameraViewPosition);
 
-        auto uiNodeSize = uiNodeData.button->getTransform()->getSize();
+        auto uiNodeSize = uiNodeData.uiRoot->getTransform()->getSize();
 
-        return vec2(uiCameraWorldPosition.x, uiCameraWorldPosition.y - uiNodeSize.y * 0.5f);
+        return vec2(uiCameraWorldPosition.x, uiCameraWorldPosition.y - uiNodeSize.y * 0.0f);
     }
 }

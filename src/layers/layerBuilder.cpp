@@ -49,6 +49,14 @@ namespace phi
         return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath, framebufferAllocator, commandsManager);
     }
 
+    layerBuilder layerBuilder::withOnDemandUi(layer * targetLayer, std::function<node*()> createUiFunction)
+    {
+        _withOnDemandUi = true;
+        _onDemandUiTargetLayer = targetLayer;
+        _onDemandUiCreateUiFunction = createUiFunction;
+        return *this;
+    }
+
     void layerBuilder::buildMeshRenderer()
     {
         auto meshBehaviour = new meshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
@@ -186,7 +194,7 @@ namespace phi
 
     void layerBuilder::buildOnDemandUi()
     {
-        auto onDemandUiBehaviour = new onDemandUiLayerBehaviour(_layer, _onDemandUiTargetLayer);
+        auto onDemandUiBehaviour = new onDemandUiLayerBehaviour(_layer, _onDemandUiTargetLayer, _onDemandUiCreateUiFunction);
         _layer->addOnDelete([onDemandUiBehaviour]() mutable
         {
             safeDelete(onDemandUiBehaviour);

@@ -21,6 +21,7 @@
 
 #include <ui/labelBuilder.h>
 #include <ui/buttonBuilder.h>
+#include <ui/switchControlBuilder.h>
 #include <ui/control.h>
 #include <ui/text.h>
 
@@ -187,13 +188,16 @@ namespace demon
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 2.0f));
         _sceneCamera->getTransform()->yaw(PI);
 
+        _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
+        _rotationImage = importer::importImage(application::resourcesPath + "/images/rotation.png");
+
         try
         {
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
                 .withTranslationPlaneGridRenderer()
-                .withRotationPlaneGridRenderer()
+                //.withRotationPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
@@ -218,7 +222,7 @@ namespace demon
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withControlRenderer()
                 .withTextRenderer()
-                .withOnDemandUi(_sceneLayer)
+                .withOnDemandUi(_sceneLayer, std::bind<node*>(&screen::onDemandCreateUi, this))
                 .withUIMouseController()
                 .build();
         }
@@ -471,5 +475,16 @@ namespace demon
 
         _framebufferAllocator->reallocate(resolution);
         _activeContext->resize(resolution);
+    }
+
+    node* screen::onDemandCreateUi()
+    {
+        auto switchControl = switchControlBuilder::newSwitchControl()
+            .withSize(vec3(15.0f, 30.0f, 0.1f))
+            .withOptionAImage(_translationImage)
+            .withOptionBImage(_rotationImage)
+            .build();
+
+        return switchControl;
     }
 }

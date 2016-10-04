@@ -1,5 +1,7 @@
 #include <phi.h>
 #include <core/node.h>
+#include <core/image.h>
+#include "control.h"
 #include "uiApi.h"
 
 namespace phi
@@ -13,15 +15,18 @@ namespace phi
         UI_API switchControlBuilder withPosition(vec3 position);
         UI_API switchControlBuilder withOrientation(quat orientation);
         UI_API switchControlBuilder withSize(vec3 size);
+        UI_API switchControlBuilder withOptionAImage(image* texture);
+        UI_API switchControlBuilder withOptionBImage(image* texture);
         UI_API node* build();
 
     private:
-        switchControlBuilder(phi::node* node) :
-            _switchControl(node)
-        {
-        }
+        switchControlBuilder();
+
+        node* createOptionNode(string name);
 
     private:
-        node* _switchControl;
+        node* _switchControlNode;
+        node* _optionANode;
+        node* _optionBNode;
     };
 }

@@ -4,6 +4,7 @@
 namespace phi
 {
     image* image::defaultAlbedoImage = image::createDefaultImage(vec4(1.0f));
+    image* image::defaultBlankImage = image::createDefaultImage(vec4(0.0f));
     image* image::defaultNormalImage = image::createDefaultImage(vec4(0.5f, 0.5f, 1.0f, 1.0f));
     image* image::defaultSpecularImage = image::createDefaultImage(vec4(1.0f));
     image* image::defaultEmissiveImage = image::createDefaultImage(vec4(0.0f));

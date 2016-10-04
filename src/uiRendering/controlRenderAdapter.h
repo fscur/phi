@@ -23,6 +23,7 @@ namespace phi
         UI_RENDERING_API void add(control* control);
         UI_RENDERING_API void remove(control* control);
         UI_RENDERING_API void update(control* control);
+        UI_RENDERING_API void updateModelMatrix(control* control);
 
         vertexArrayObject* getVao() const { return _vao; };
         mappedBuffer<control*, controlRenderData>* getControlRenderDataBuffer() const { return _renderDataBuffer; };
@@ -31,7 +32,6 @@ namespace phi
         void createVao();
         geometry* createControlQuad();
         void createControlRenderDataBuffer();
-        void updateModelMatrix(control* control);
         void updateControlRenderData(control* control);
         mat4 getModelMatrix(control* control);
         void onCameraChanged(transform* transform);

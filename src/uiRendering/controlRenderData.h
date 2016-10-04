@@ -19,7 +19,7 @@ namespace phi
 
         static controlRenderData from(const control* control)
         {
-            auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage());
+            auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage(), false);
             textureAddress address;
 
             if (!texturesManager::contains(texture))

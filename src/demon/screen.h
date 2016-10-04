@@ -55,6 +55,9 @@ namespace demon
 
         phi::framebufferAllocator* _framebufferAllocator;
 
+        phi::image* _translationImage;
+        phi::image* _rotationImage;
+
     private:
         void initGL();
         void initWatcher();
@@ -64,6 +67,7 @@ namespace demon
         void initContexts();
         void initInput();
         void addSelectionUITo(phi::node* node, phi::font* font);
+        phi::node* onDemandCreateUi();
 
         void onMouseDown(phi::mouseEventArgs* e);
         void onMouseUp(phi::mouseEventArgs* e);
