@@ -47,6 +47,11 @@ namespace phi
                 pickingRenderTarget->texture);
         });
 
+        pass->setOnCanRender([=]()
+        {
+            return !renderAdapter->isEmpty();
+        });
+
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
@@ -59,9 +64,9 @@ namespace phi
             program->bind();
 
             if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::handles);
+                program->setUniform(0, texturesManager::textureArraysHandles);
             else
-                program->setUniform(0, textureUnits::units);
+                program->setUniform(0, texturesManager::textureArraysUnits);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
@@ -90,7 +95,7 @@ namespace phi
 
             auto address = texturesManager::getTextureAddress(defaultRenderTarget->texture);
             glActiveTexture(GL_TEXTURE0 + address.unit);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, address.containerId);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, address.arrayId);
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         });
 

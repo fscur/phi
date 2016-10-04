@@ -50,9 +50,9 @@ namespace phi
             program->setUniform(2, resolution.toVec2());
 
             if (texturesManager::getIsBindless())
-                program->setUniform(3, texturesManager::handles);
+                program->setUniform(3, texturesManager::textureArraysHandles);
             else
-                program->setUniform(3, textureUnits::units);
+                program->setUniform(3, texturesManager::textureArraysUnits);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)

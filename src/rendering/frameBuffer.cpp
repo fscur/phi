@@ -66,7 +66,7 @@ namespace phi
             glNamedFramebufferTextureLayer(
                 _id,
                 attachment,
-                address.containerId,
+                address.arrayId,
                 0,
                 static_cast<GLint>(address.page));
         }

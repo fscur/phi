@@ -46,6 +46,11 @@ namespace phi
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
         
+        pass->setOnCanRender([=]()
+        {
+            return true;
+        });
+
         pass->setOnInitialize([=] 
         {
             updateUniformBlock(uniformBlockBuffer, defaultRenderTarget, resolution);
@@ -64,9 +69,9 @@ namespace phi
             program->bind();
 
             if(texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::handles);
+                program->setUniform(0, texturesManager::textureArraysHandles);
             else
-                program->setUniform(0, textureUnits::units);
+                program->setUniform(0, texturesManager::textureArraysUnits);
         });
 
         pass->setOnRender([](const vector<vertexArrayObject*>& vaos)

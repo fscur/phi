@@ -72,10 +72,10 @@ namespace phi
             const textureAddress& emissiveTextureAddress,
             const material* const material)
             : materialRenderData::materialRenderData(
-                albedoTextureAddress.unit,
-                normalTextureAddress.unit,
-                specularTextureAddress.unit,
-                emissiveTextureAddress.unit,
+                albedoTextureAddress.index,
+                normalTextureAddress.index,
+                specularTextureAddress.index,
+                emissiveTextureAddress.index,
                 albedoTextureAddress.page,
                 normalTextureAddress.page,
                 specularTextureAddress.page,

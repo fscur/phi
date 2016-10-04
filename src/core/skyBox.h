@@ -2,10 +2,20 @@
 #include <phi.h>
 #include "coreApi.h"
 #include <core\component.h>
-#include <core\color.h>
+#include <core\image.h>
 
 namespace phi
 {
+    struct skyBoxImages
+    {
+        image* PositiveX;
+        image* NegativeX;
+        image* PositiveY;
+        image* NegativeY;
+        image* PositiveZ;
+        image* NegativeZ;
+    };
+
     class skyBox :
         public component
     {
@@ -16,13 +26,14 @@ namespace phi
         }
 
     public:
-        CORE_API skyBox(color color);
+        CORE_API skyBox(const skyBoxImages& images);
         CORE_API skyBox(const skyBox& original);
         CORE_API ~skyBox();
 
         CORE_API component* clone() const override;
-        color getColor() const { return _color; }
+        skyBoxImages getImages() const { return _images; }
+
     private:
-        color _color;
+        skyBoxImages _images;
     };
 }

@@ -39,8 +39,6 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
     float pad1;
 } frameUniforms;
 
-layout (location = 0) uniform sampler2DArray textureArrays[32];
-
 in vec4 fragWorldPosition;
 in vec3 fragViewPosition;
 in vec2 fragWorldTexCoord;

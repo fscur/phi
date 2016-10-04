@@ -32,6 +32,11 @@ namespace phi
         auto pass = new renderPass(planeGridProgram, defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
 
+        pass->setOnCanRender([=]()
+        {
+            return true;
+        });
+
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
@@ -46,11 +51,6 @@ namespace phi
             glEnable(GL_CLIP_DISTANCE2);
 
             program->bind();
-
-            if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::handles);
-            else
-                program->setUniform(0, textureUnits::units);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
@@ -85,7 +85,7 @@ namespace phi
 
             auto address = texturesManager::getTextureAddress(defaultRenderTarget->texture);
             glActiveTexture(GL_TEXTURE0 + address.unit);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, address.containerId);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, address.arrayId);
             glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
         });
 

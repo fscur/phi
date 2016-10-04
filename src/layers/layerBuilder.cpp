@@ -284,11 +284,11 @@ namespace phi
         if (_withMeshRenderer)
             buildMeshRenderer();
 
-        if (_withGhostMeshRenderer)
-            buildGhostMeshRenderer();
-
         if (_withSkyBoxRenderer)
             buildSkyBoxRenderer();
+
+        if (_withGhostMeshRenderer)
+            buildGhostMeshRenderer();
 
         if (_withObbRenderer)
             buildObbRenderer();

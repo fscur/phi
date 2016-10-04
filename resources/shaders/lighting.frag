@@ -1,7 +1,7 @@
 #version 450
 
 const float ambientIntensity = 0.5;
-const vec3 lightDirection = vec3(-0.7, -0.3, -0.6);
+const vec3 lightDirection = vec3(0.0, -1.0, -1.0);
 const float lightIntensity = 1.0;
 const vec4 lightColor = vec4(1.0);
 

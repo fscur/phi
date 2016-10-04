@@ -31,11 +31,6 @@ namespace phi
 
         auto rtsBuffer = new buffer("gBufferRTAddresses", bufferTarget::uniform);
 
-        /*rtsBuffer->data(
-        sizeof(gBufferRTAddresses),
-        nullptr,
-        bufferDataUsage::dynamicDraw);*/
-
         auto program = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
         program->addBuffer(rtsBuffer);
 
@@ -56,6 +51,11 @@ namespace phi
                 rtPicking->texture);
         });
 
+        pass->setOnCanRender([=]()
+        {
+            return true;
+        });
+
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
@@ -66,9 +66,9 @@ namespace phi
             program->bind();
 
             if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::handles);
+                program->setUniform(0, texturesManager::textureArraysHandles);
             else
-                program->setUniform(0, textureUnits::units);
+                program->setUniform(0, texturesManager::textureArraysUnits);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)

@@ -3,15 +3,15 @@
 
 namespace phi
 {
-    skyBox::skyBox(color color) :
+    skyBox::skyBox(const skyBoxImages& images) :
         component(component::SKY_BOX),
-        _color(color)
+        _images(images)
     {
     }
 
     skyBox::skyBox(const skyBox& original) :
         component(componentType::SKY_BOX),
-        _color(original._color)
+        _images(original._images)
     {
     }
 

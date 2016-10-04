@@ -30,9 +30,12 @@ namespace phi
 
     void renderPass::render()
     {
-        _onBeginRender(_program, _framebuffer, _resolution);
-        _onRender(_vaos);
-        _onEndRender(_program, _framebuffer, _resolution);
+        if (_onCanRender && _onCanRender())
+        {
+            _onBeginRender(_program, _framebuffer, _resolution);
+            _onRender(_vaos);
+            _onEndRender(_program, _framebuffer, _resolution);
+        }
     }
 
     void renderPass::resize(const resolution& resolution)

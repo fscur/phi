@@ -119,13 +119,13 @@ namespace phi
         for (auto& pair : _layoutsCount)
         {
             auto size = sizeui(static_cast<uint>(resolution.width), static_cast<uint>(resolution.height), _layoutsCount[pair.first]);
-            texturesManager::reserveContainer(size, pair.first);
+            texturesManager::reserveTextureArray(size, pair.first);
         }
 
         for (auto& pair : _renderTargets)
         {
             auto renderTarget = pair.second;
-            texturesManager::add(renderTarget->texture);
+            texturesManager::addTexture(renderTarget->texture);
         }
 
         for (auto& framebuffer : _framebuffers)
@@ -138,7 +138,7 @@ namespace phi
         {
             auto renderTarget = pair.second;
 
-            texturesManager::remove(renderTarget->texture);
+            texturesManager::removeTexture(renderTarget->texture);
         }
 
         for (auto& pair : _layoutsCount)
@@ -150,7 +150,7 @@ namespace phi
 
             auto size = sizeui(static_cast<uint>(resolution.width), static_cast<uint>(resolution.height), _layoutsCount[pair.first]);
 
-            texturesManager::reserveContainer(size, layout);
+            texturesManager::reserveTextureArray(size, layout);
         }
 
         for (auto& pair : _renderTargets)
@@ -166,7 +166,7 @@ namespace phi
                 static_cast<uint>(resolution.height),
                 layout);
 
-            texturesManager::add(texture);
+            texturesManager::addTexture(texture);
             renderTarget->texture = texture;
         }
 

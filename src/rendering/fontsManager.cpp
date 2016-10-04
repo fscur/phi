@@ -61,7 +61,7 @@ namespace phi
         _glyphLayout.minFilter = GL_LINEAR;
         _glyphLayout.magFilter = GL_LINEAR;
 
-        texturesManager::reserveContainer(sizeui(glyphAtlasSize, glyphAtlasSize, 1), _glyphLayout);
+        texturesManager::reserveTextureArray(sizeui(glyphAtlasSize, glyphAtlasSize, 1), _glyphLayout);
 
         auto inverseGlyphAtlasSize = 1.0f / static_cast<float>(glyphAtlasSize);
         _texelSize = vec2(inverseGlyphAtlasSize);
@@ -75,13 +75,13 @@ namespace phi
             return _glyphTextureDataCache[glyph];
 
         auto glyphTexture = new texture(glyph->image, _glyphLayout, true, true);
-        auto address = texturesManager::addAtlasTexture(glyphTexture);
+        auto address = texturesManager::addTextureAsAtlasTexture(glyphTexture);
 
         auto glyphTextureData = new phi::glyphTextureData(glyph);
 
         glyphTextureData->texturePosition = vec2((float)address.rect.x * _texelSize.x, (float)address.rect.y * _texelSize.y);
         glyphTextureData->textureSize = vec2((float)address.rect.w * _texelSize.x, (float)address.rect.h * _texelSize.y);
-        glyphTextureData->unit = address.unit;
+        glyphTextureData->unit = address.index;
         glyphTextureData->page = address.page;
         glyphTextureData->texelSize = _texelSize;
 

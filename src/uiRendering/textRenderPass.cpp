@@ -18,6 +18,11 @@ namespace phi
         
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
+        
+        pass->setOnCanRender([=]()
+        {
+            return true;
+        });
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
@@ -32,9 +37,9 @@ namespace phi
             program->bind();
 
             if (texturesManager::getIsBindless())//TODO: AAAAAAAAAAAAA ARRUMA LAMBDAS SOMETHING
-                program->setUniform(0, texturesManager::handles);
+                program->setUniform(0, texturesManager::textureArraysHandles);
             else
-                program->setUniform(0, textureUnits::units);
+                program->setUniform(0, texturesManager::textureArraysUnits);
         });
 
         pass->setOnRender([](const vector<vertexArrayObject*>& vaos)

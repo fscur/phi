@@ -1,18 +1,18 @@
 #pragma once
 #include <phi.h>
-#include "textureContainer.h"
+#include "textureArray.h"
 
 namespace phi
 {
-    class bindlessTextureContainer :
-        public textureContainer
+    class sparseBindlessTextureArray :
+        public textureArray
     {
     public:
-        bindlessTextureContainer(
+        sparseBindlessTextureArray(
             sizeui size,
             textureLayout layout);
 
-        ~bindlessTextureContainer();
+        ~sparseBindlessTextureArray();
 
         void onCreate() override;
 

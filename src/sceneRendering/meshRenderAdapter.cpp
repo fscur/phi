@@ -51,7 +51,7 @@ namespace phi
         auto getTextureAdress = [](const texture* texture)
         {
             if (!texturesManager::contains(texture))
-                return texturesManager::add(texture);
+                return texturesManager::addTexture(texture);
             else
                 return texturesManager::getTextureAddress(texture);
         };

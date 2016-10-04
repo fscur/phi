@@ -6,7 +6,8 @@ namespace phi
 {
     struct textureAddress
     {
-        GLuint containerId;
+        GLuint arrayId;
+        GLint index;
         GLint unit;
         GLfloat page;
         rectangle<uint> rect;

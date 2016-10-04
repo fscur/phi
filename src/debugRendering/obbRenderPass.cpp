@@ -30,6 +30,11 @@ namespace phi
         auto pass = new renderPass(boxColliderProgram, defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
 
+        pass->setOnCanRender([=]()
+        {
+            return true;
+        });
+
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             glDisable(GL_CULL_FACE);

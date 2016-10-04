@@ -45,6 +45,11 @@ namespace phi
             meshAdapter->onBatchAdded->unassign(batchAddedToken);
         });
 
+        pass->setOnCanRender([=]()
+        {
+            return true;
+        });
+
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             const auto selectionRenderTargetNumber = 3;
@@ -61,9 +66,9 @@ namespace phi
             program->bind();
 
             if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::handles);
+                program->setUniform(0, texturesManager::textureArraysHandles);
             else
-                program->setUniform(0, textureUnits::units);
+                program->setUniform(0, texturesManager::textureArraysUnits);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)

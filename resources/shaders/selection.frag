@@ -18,11 +18,9 @@ layout (std140, binding = 0) uniform FrameUniformsBufferData
 } frameUniforms; 
 
 layout (location = 0) uniform vec2 resolution;
-layout (location = 1) uniform float offset;
-layout (location = 2) uniform float time;
-layout (location = 3) uniform int pickingRTUnit;
-layout (location = 4) uniform float pickingRTPage;
-layout (location = 5) uniform sampler2DArray textureArrays[32];
+layout (location = 1) uniform int pickingRTUnit;
+layout (location = 2) uniform float pickingRTPage;
+layout (location = 3) uniform sampler2DArray textureArrays[32];
 
 layout (location = 0) out vec4 fragColor;
 

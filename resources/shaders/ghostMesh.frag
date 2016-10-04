@@ -115,10 +115,7 @@ void main()
     float a = 0.4;
 
     if (!(myDepth < bufferDepth || isTranslating))
-    {
-        color = vec3(0.5, 0.0, 0.0);
         a = 0.8 * max(dot(normal, -lightDir), 0.8);
-    }
 
-    fragColor = vec4(vec3(color), a);
+    fragColor = vec4(color, a);
 }

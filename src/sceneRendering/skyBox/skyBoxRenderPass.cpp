@@ -26,11 +26,16 @@ namespace phi
         auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
         auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
-        auto planeGridProgram = programBuilder::buildProgram(shadersPath, "skyBox", "skyBox");
-        planeGridProgram->addBuffer(renderAdapter->getSkyBoxDataBuffer());
+        auto skyBoxProgram = programBuilder::buildProgram(shadersPath, "skyBox", "skyBox");
+        skyBoxProgram->addBuffer(renderAdapter->getSkyBoxDataBuffer());
 
-        auto pass = new renderPass(planeGridProgram, defaultFramebuffer, resolution);
+        auto pass = new renderPass(skyBoxProgram, defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
+
+        pass->setOnCanRender([=]()
+        {
+            return true;
+        });
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
@@ -39,9 +44,9 @@ namespace phi
             program->bind();
 
             if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::handles);
+                program->setUniform(0, texturesManager::cubeMapArraysHandles);
             else
-                program->setUniform(0, textureUnits::units);
+                program->setUniform(0, texturesManager::cubeMapArraysUnits);
 
             glEnable(GL_DEPTH_TEST);
 
@@ -58,6 +63,10 @@ namespace phi
             program->unbind();
 
             glDisable(GL_DEPTH_TEST);
+            
+            framebuffer->unbind(GL_FRAMEBUFFER);
+
+            
         });
 
         return pass;

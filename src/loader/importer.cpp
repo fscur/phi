@@ -109,9 +109,11 @@ namespace phi
             throw importResourceException("Image format not supported ", fileName);
 
         auto imagePointer = FreeImage_Load(imageFormat, fileNameChar);
+        
         if (!imagePointer)
             throw importResourceException("Failed loading image", fileName);
 
+        FreeImage_FlipVertical(imagePointer);
         auto dataPtr = FreeImage_GetBits(imagePointer);
         auto width = FreeImage_GetWidth(imagePointer);
         auto height = FreeImage_GetHeight(imagePointer);

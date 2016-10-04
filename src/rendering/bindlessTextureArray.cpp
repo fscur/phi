@@ -1,21 +1,21 @@
 #include <precompiled.h>
-#include "bindlessTextureContainer.h"
+#include "bindlessTextureArray.h"
 
 namespace phi
 {
-    bindlessTextureContainer::bindlessTextureContainer(
+    bindlessTextureArray::bindlessTextureArray(
         sizeui size,
         textureLayout layout) :
-        textureContainer(size, layout)
+        textureArray(size, layout)
     {
     }
 
-    bindlessTextureContainer::~bindlessTextureContainer()
+    bindlessTextureArray::~bindlessTextureArray()
     {
         glMakeTextureHandleNonResidentARB(_handle);
     }
 
-    void bindlessTextureContainer::onCreate()
+    void bindlessTextureArray::onCreate()
     {
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
 
@@ -35,7 +35,7 @@ namespace phi
         glMakeTextureHandleResidentARB(_handle);
     }
 
-    void bindlessTextureContainer::onLoadData(
+    void bindlessTextureArray::onLoadData(
         float page,
         const void* const data)
     {
@@ -60,7 +60,7 @@ namespace phi
         }
     }
 
-    void bindlessTextureContainer::onLoadSubData(
+    void bindlessTextureArray::onLoadSubData(
         const rectangle<GLint>& rect,
         float page,
         const void* const data)

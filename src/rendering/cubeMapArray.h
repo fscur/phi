@@ -3,20 +3,17 @@
 #include <core\rectangle.h>
 #include <core\atlas.h>
 
-#include "texture.h"
+#include "cubeMap.h"
 #include "textureAddress.h"
 #include "textureLayout.h"
 
 namespace phi
 {
-    class textureContainer
+    class cubeMapArray
     {
     private:
         bool _created;
-        vec2 _texelSize;
-
         unordered_map<float, bool> _pages;
-        unordered_map<float, atlas*> _atlases;
 
     protected:
         sizeui _size;
@@ -25,29 +22,19 @@ namespace phi
         GLint _unit;
         GLuint _id;
         GLuint64 _handle;
-        vector<const texture*> _textures;
-        map<const texture*, phi::textureAddress> _texturesAddresses;
+        vector<const cubeMap*> _cubeMaps;
+        map<const cubeMap*, phi::textureAddress> _cubeMapsAddresses;
 
     private:
         void create();
         bool loadData(
-            const texture* const texture, 
+            const cubeMap* cubeMap,
             textureAddress& textureAddress);
 
         void loadData(
-            float page, 
-            const void* const data);
+            float page,
+            const cubeMap* cubeMap);
 
-        bool loadSubData(
-            const texture* texture, 
-            textureAddress& textureAddress);
-
-        void loadSubData(
-            const rectangle<GLint>& rect, 
-            float page, 
-            const void* const data);
-
-        float getEmptyPage();
         float getAvailablePage();
 
     protected:
@@ -55,22 +42,17 @@ namespace phi
 
         virtual void onLoadData(
             float page,
-            const void* const data);
-
-        virtual void onLoadSubData(
-            const rectangle<GLint>& rect, 
-            float page, 
-            const void* const data);
+            const cubeMap* cubeMap);
 
     public:
-        textureContainer(
+        cubeMapArray(
             sizeui size,
             textureLayout layout);
 
-        virtual ~textureContainer();
+        virtual ~cubeMapArray();
 
-        bool add(const texture* const texture, textureAddress& textureAddress);
-        void remove(const texture* texture);
+        bool add(const cubeMap* const cubeMap, textureAddress& cubeMapAddress);
+        void remove(const cubeMap* cubeMap);
         bool isEmpty();
         void release();
 
@@ -78,7 +60,7 @@ namespace phi
         textureLayout getLayout() const { return _layout; }
         GLint getUnit() const { return _unit; }
         GLuint64 getHandle() const { return _handle; }
-        vec2 getTexelSize() const { return _texelSize; }
+        //vec2 getTexelSize() const { return _texelSize; }
         sizeui getSize() const { return _size; }
     };
 }

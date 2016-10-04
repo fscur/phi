@@ -31,6 +31,11 @@ namespace phi
         auto pass = new renderPass(selectionProgram, defaultFramebuffer, resolution);
         pass->addVao(quadVao);
 
+        pass->setOnCanRender([=]()
+        {
+            return true;
+        });
+
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
             framebuffer->bindForDrawing();
@@ -43,15 +48,13 @@ namespace phi
             auto pickingRenderTargetAddress = texturesManager::getTextureAddress(pickingRenderTarget->texture);
 
             program->setUniform(0, resolution.toVec2());
-            program->setUniform(1, 1.0f);
-            program->setUniform(2, static_cast<float>(time::totalSeconds));
-            program->setUniform(3, pickingRenderTargetAddress.unit);
-            program->setUniform(4, pickingRenderTargetAddress.page);
+            program->setUniform(1, pickingRenderTargetAddress.unit);
+            program->setUniform(2, pickingRenderTargetAddress.page);
 
             if (texturesManager::getIsBindless())
-                program->setUniform(5, texturesManager::handles);
+                program->setUniform(3, texturesManager::textureArraysHandles);
             else
-                program->setUniform(5, textureUnits::units);
+                program->setUniform(3, texturesManager::textureArraysUnits);
         });
 
         pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)

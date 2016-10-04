@@ -23,13 +23,13 @@ namespace phi
             textureAddress address;
 
             if (!texturesManager::contains(texture))
-                address = texturesManager::add(texture);
+                address = texturesManager::addTexture(texture);
             else
                 address = texturesManager::getTextureAddress(texture);
 
             auto renderData = controlRenderData();
             renderData.backgroundColor = control->getColor();
-            renderData.backgroundTextureUnit = address.unit;
+            renderData.backgroundTextureUnit = address.index;
             renderData.backgroundTexturePage = address.page;
 
             return renderData;

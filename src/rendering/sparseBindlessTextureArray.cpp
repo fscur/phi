@@ -1,19 +1,25 @@
 #include <precompiled.h>
-#include "sparseTextureContainer.h"
+#include "sparseBindlessTextureArray.h"
 
 namespace phi
 {
-    sparseTextureContainer::sparseTextureContainer(
+    sparseBindlessTextureArray::sparseBindlessTextureArray(
         sizeui size,
         textureLayout layout) :
-        textureContainer(size, layout)
+        textureArray(size, layout)
     {
     }
 
-    void sparseTextureContainer::onCreate()
+    sparseBindlessTextureArray::~sparseBindlessTextureArray()
     {
-        glActiveTexture(GL_TEXTURE0 + _unit);
+        glMakeTextureHandleNonResidentARB(_handle);
+    }
+
+    void sparseBindlessTextureArray::onCreate()
+    {
+        glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_id);
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
+
         glTextureParameteri(_id, GL_TEXTURE_SPARSE_ARB, GL_TRUE);
 
         // TODO: This could be done once per internal format. For now, just do it every time.
@@ -63,9 +69,12 @@ namespace phi
         glTextureParameteri(_id, GL_TEXTURE_WRAP_T, _layout.wrapMode);
         glTextureParameteri(_id, GL_TEXTURE_MIN_FILTER, _layout.minFilter);
         glTextureParameteri(_id, GL_TEXTURE_MAG_FILTER, _layout.magFilter);
+
+        _handle = glGetTextureHandleARB(_id);
+        glMakeTextureHandleResidentARB(_handle);
     }
 
-    void sparseTextureContainer::onLoadData(
+    void sparseBindlessTextureArray::onLoadData(
         float page,
         const void* const data)
     {
@@ -84,6 +93,7 @@ namespace phi
                 levelHeight,
                 1,
                 GL_TRUE);
+            
 
             levelWidth = std::max(levelWidth / 2, 1);
             levelHeight = std::max(levelHeight / 2, 1);
@@ -91,7 +101,6 @@ namespace phi
 
         if (data != nullptr)
         {
-            glActiveTexture(GL_TEXTURE0 + _unit);
             glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
 
             glTextureSubImage3D(
@@ -111,12 +120,11 @@ namespace phi
         }
     }
 
-    void sparseTextureContainer::onLoadSubData(
+    void sparseBindlessTextureArray::onLoadSubData(
         const rectangle<GLint>& rect,
         float page,
         const void* const data)
     {
-        glActiveTexture(GL_TEXTURE0 + _unit);
         glBindTexture(GL_TEXTURE_2D_ARRAY, _id);
 
         glTextureSubImage3D(

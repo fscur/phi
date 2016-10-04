@@ -4,9 +4,9 @@
 #include <core\keyNotFoundException.h>
 
 #include "texturesManager.h"
-#include "bindlessTextureContainer.h"
-#include "sparseTextureContainer.h"
-#include "sparseBindlessTextureContainer.h"
+#include "bindlessTextureArray.h"
+#include "sparseTextureArray.h"
+#include "sparseBindlessTextureArray.h"
 #include "textureUnits.h"
 
 namespace phi
@@ -18,14 +18,20 @@ namespace phi
     bool texturesManager::_initialized = false;
     map<image*, texture*> texturesManager::_imageTextures;
 
-    unordered_map<textureLayout, vector<textureContainer*>> texturesManager::_containers;
+    unordered_map<textureLayout, vector<textureArray*>> texturesManager::_textureArrays;
+    unordered_map<textureLayout, vector<cubeMapArray*>> texturesManager::_cubeMapArrays;
+    
     map<const texture*, textureAddress> texturesManager::_textures;
+    map<const cubeMap*, textureAddress> texturesManager::_cubeMaps;
 
     bool texturesManager::_isBindless = false;
     bool texturesManager::_isSparse = false;
     uint texturesManager::_maxPages = texturesManager::DEFAULT_MAX_PAGES;
 
-    vector<GLuint64> texturesManager::handles;
+    vector<GLint> texturesManager::textureArraysUnits;
+    vector<GLint> texturesManager::cubeMapArraysUnits;
+    vector<GLuint64> texturesManager::textureArraysHandles;
+    vector<GLuint64> texturesManager::cubeMapArraysHandles;
 
     void texturesManager::initialize(bool sparse, bool bindless)
     {
@@ -48,10 +54,16 @@ namespace phi
 
     void texturesManager::release()
     {
-        for (auto& pair : _containers)
+        for (auto& pair : _textureArrays)
         {
-            for (auto& container : pair.second)
-                safeDelete(container);
+            for (auto& textureArray : pair.second)
+                safeDelete(textureArray);
+        }
+
+        for (auto& pair : _cubeMapArrays)
+        {
+            for (auto& cubeMapArray : pair.second)
+                safeDelete(cubeMapArray);
         }
     }
 
@@ -61,104 +73,192 @@ namespace phi
         return static_cast<uint>(glm::floor(glm::log2(biggestTextureSize)) + 1.0f);
     }
 
-    textureAddress texturesManager::addAtlasTexture(const texture* const texture)
-    {
-        auto textureAddress = phi::textureAddress();
-        textureContainer* container;
-        sizeui containerSize = sizeui(texture->w, texture->h, _maxPages);
-        auto layout = texture->layout;
-
-        auto it = _containers.find(layout);
-        if (it != _containers.end())
-        {
-            auto containers = (*it).second;
-            uint i = 0;
-            bool added = false;
-            auto containersCount = containers.size();
-
-            while (!added && i < containersCount)
-            {
-                container = containers[i++];
-                containerSize = container->getSize();
-                added = container->add(texture, textureAddress);
-            }
-
-            if (added)
-            {
-                _textures[texture] = textureAddress;
-                return textureAddress;
-            }
-        }
-
-        container = createContainer(containerSize, layout);
-        container->add(texture, textureAddress);
-        _textures[texture] = textureAddress;
-
-        return textureAddress;
-    }
-
-    void texturesManager::remove(texture* texture)
+    void texturesManager::removeTexture(texture* texture)
     {
         auto address = getTextureAddress(texture);
 
-        auto container = findContainer(address.containerId);
+        auto textureArray = findTextureArray(address.arrayId);
 
-        container->remove(texture);
+        textureArray->remove(texture);
 
-        if (container->isEmpty())
+        if (textureArray->isEmpty())
         {
             if (_isBindless)
             {
-                auto handle = container->getHandle();
-                phi::removeIfContains(handles, handle);
+                auto handle = textureArray->getHandle();
+                phi::removeIfContains(textureArraysHandles, handle);
             }
 
-            container->release();
-            removeContainer(container);
-            safeDelete(container);
+            textureArray->release();
+            removeTextureArray(textureArray);
+            safeDelete(textureArray);
         }
     }
 
-    textureAddress texturesManager::add(const texture* const texture)
+    void texturesManager::removeCubeMap(cubeMap* cubeMap)
+    {
+        auto address = getCubeMapAddress(cubeMap);
+
+        auto cubeMapArray = findCubeMapArray(address.arrayId);
+
+        cubeMapArray->remove(cubeMap);
+
+        if (cubeMapArray->isEmpty())
+        {
+            if (_isBindless)
+            {
+                auto handle = cubeMapArray->getHandle();
+                phi::removeIfContains(cubeMapArraysHandles, handle);
+            }
+
+            cubeMapArray->release();
+            removeCubeMapArray(cubeMapArray);
+            safeDelete(cubeMapArray);
+        }
+    }
+
+    textureAddress texturesManager::addTexture(const texture* const texture)
     {   
         auto layout = texture->layout;
 
         auto textureAddress = phi::textureAddress();
-        textureContainer* container;
+        textureArray* textureArray;
         sizeui size = sizeui(texture->w, texture->h, _maxPages);
+        auto index = static_cast<int>(textureArraysUnits.size());
 
-        auto it = _containers.find(layout);
-        if (it != _containers.end())
+        auto it = _textureArrays.find(layout);
+        if (it != _textureArrays.end())
         {
-            auto containers = (*it).second;
+            auto arrays = (*it).second;
             uint i = 0;
             bool added = false;
-            auto containersCount = containers.size();
-            sizeui containerSize = sizeui(0);
-
-            while (!added && i < containersCount)
+            auto arraysCount = arrays.size();
+            sizeui arraySize = sizeui(0);
+            while (!added && i < arraysCount)
             {
-                container = containers[i++];
-                containerSize = container->getSize();
+                textureArray = arrays[i++];
+                arraySize = textureArray->getSize();
                 
-                if (containerSize.w != texture->w || containerSize.h != texture->h)
+                if (arraySize.w != texture->w || arraySize.h != texture->h)
                     continue;
 
-                added = container->add(texture, textureAddress);
+                added = textureArray->add(texture, textureAddress);
             }
 
             if (added)
             {
+                auto index = static_cast<int>(phi::indexOf(textureArraysUnits, textureAddress.unit));
+                textureAddress.index = index;
                 _textures[texture] = textureAddress;
                 return textureAddress;
             }
         }
 
-        container = createContainer(size, layout);
-        container->add(texture, textureAddress);
+        textureArray = createTextureArray(size, layout);
+        textureAddress.index = static_cast<int>(textureArraysUnits.size() - 1);
+        textureArray->add(texture, textureAddress);
         _textures[texture] = textureAddress;
 
         return textureAddress;
+    }
+
+    textureAddress texturesManager::addTextureAsAtlasTexture(const texture* const texture)
+    {
+        auto textureAddress = phi::textureAddress();
+        textureArray* textureArray;
+        sizeui arraySize = sizeui(texture->w, texture->h, _maxPages);
+        auto layout = texture->layout;
+        auto index = static_cast<int>(textureArraysUnits.size());
+        auto it = _textureArrays.find(layout);
+        if (it != _textureArrays.end())
+        {
+            auto arrays = (*it).second;
+            uint i = 0;
+            bool added = false;
+            auto arraysCount = arrays.size();
+
+            while (!added && i < arraysCount)
+            {
+                textureArray = arrays[i++];
+                arraySize = textureArray->getSize();
+
+                added = textureArray->add(texture, textureAddress);
+            }
+
+            if (added)
+            {
+                auto index = static_cast<int>(phi::indexOf(textureArraysUnits, textureAddress.unit));
+                textureAddress.index = index;
+                _textures[texture] = textureAddress;
+                return textureAddress;
+            }
+        }
+
+        textureArray = createTextureArray(arraySize, layout);
+        textureAddress.index = static_cast<int>(textureArraysUnits.size() - 1);
+        textureArray->add(texture, textureAddress);
+        _textures[texture] = textureAddress;
+
+        return textureAddress;
+    }
+
+    textureAddress texturesManager::addCubeMap(const cubeMap* const cubeMap)
+    {
+        auto layout = cubeMap->layout;
+
+        auto cubeMapAddress = phi::textureAddress();
+        cubeMapArray* cubeMapArray;
+        sizeui size = sizeui(cubeMap->w, cubeMap->h, _maxPages);
+
+        auto it = _cubeMapArrays.find(layout);
+        if (it != _cubeMapArrays.end())
+        {
+            auto arrays = (*it).second;
+            uint i = 0;
+            bool added = false;
+            auto arraysCount = arrays.size();
+            sizeui arraySize = sizeui(0);
+
+            while (!added && i < arraysCount)
+            {
+                cubeMapArray = arrays[i++];
+                arraySize = cubeMapArray->getSize();
+
+                if (arraySize.w != cubeMap->w || arraySize.h != cubeMap->h)
+                    continue;
+
+                added = cubeMapArray->add(cubeMap, cubeMapAddress);
+            }
+
+            if (added)
+            {
+                auto index = static_cast<int>(phi::indexOf(cubeMapArraysUnits, cubeMapAddress.unit));
+                cubeMapAddress.index = index;
+                _cubeMaps[cubeMap] = cubeMapAddress;
+                return cubeMapAddress;
+            }
+        }
+
+        cubeMapArray = createCubeMapArray(size, layout);
+        cubeMapAddress.index = static_cast<int>(cubeMapArraysUnits.size() - 1);
+        cubeMapArray->add(cubeMap, cubeMapAddress);
+        _cubeMaps[cubeMap] = cubeMapAddress;
+
+        return cubeMapAddress;
+    }
+    
+    cubeMapArray* texturesManager::createCubeMapArray(sizeui size, textureLayout layout)
+    {
+        auto cubeMapArray = new phi::cubeMapArray(size, layout);
+        cubeMapArraysUnits.push_back(cubeMapArray->getUnit());
+        _cubeMapArrays[layout].push_back(cubeMapArray);
+
+
+
+        //if (_isBindless)
+          //  textureArraysHandles.push_back(textureArray->getHandle());
+
+        return cubeMapArray;
     }
 
     textureAddress texturesManager::getTextureAddress(const texture* const texture)
@@ -168,6 +268,17 @@ namespace phi
 
         if (contains(texture))
             return _textures[texture];
+
+        throw keyNotFoundException("texture not found.");
+    }
+
+    textureAddress texturesManager::getCubeMapAddress(const cubeMap* const cubeMap)
+    {
+        if (!_initialized)
+            throw invalidInitializationException("texturesManager not initialized.");
+
+        if (contains(cubeMap))
+            return _cubeMaps[cubeMap];
 
         throw keyNotFoundException("texture not found.");
     }
@@ -210,55 +321,89 @@ namespace phi
         return phi::contains(_textures, texture);
     }
 
-    textureContainer* texturesManager::createContainer(sizeui size, textureLayout layout)
+    bool texturesManager::contains(const cubeMap* const cubeMap)
     {
-        textureContainer* container;
-
-        if (_isSparse && _isBindless)
-            container = new sparseBindlessTextureContainer(size, layout);
-        else if (_isSparse)
-            container = new sparseTextureContainer(size, layout);
-        else if (_isBindless)
-            container = new bindlessTextureContainer(size, layout);
-        else
-            container = new textureContainer(size, layout);
-
-        _containers[layout].push_back(container);
-
-        if (_isBindless)
-            handles.push_back(container->getHandle());
-
-        return container;
+        return phi::contains(_cubeMaps, cubeMap);
     }
 
-    textureContainer* texturesManager::findContainer(const GLuint containerId)
+    textureArray* texturesManager::createTextureArray(sizeui size, textureLayout layout)
     {
-        for (auto& pair : _containers)
+        textureArray* textureArray;
+
+        if (_isSparse && _isBindless)
+            textureArray = new sparseBindlessTextureArray(size, layout);
+        else if (_isSparse)
+            textureArray = new sparseTextureArray(size, layout);
+        else if (_isBindless)
+            textureArray = new bindlessTextureArray(size, layout);
+        else
+            textureArray = new phi::textureArray(size, layout);
+
+        _textureArrays[layout].push_back(textureArray);
+
+        if (_isBindless)
+            textureArraysHandles.push_back(textureArray->getHandle());
+        else
+            textureArraysUnits.push_back(textureArray->getUnit());
+
+        return textureArray;
+    }
+
+    textureArray* texturesManager::findTextureArray(const GLuint id)
+    {
+        for (auto& pair : _textureArrays)
         {
-            auto containers = pair.second;
+            auto arrays = pair.second;
 
             auto it = std::find_if(
-                containers.begin(),
-                containers.end(),
-                [=](textureContainer* container)
+                arrays.begin(),
+                arrays.end(),
+                [=](textureArray* textureArray)
                 { 
-                    return container->getId() == containerId;
+                    return textureArray->getId() == id;
                 }
             );
 
-            if (it != containers.end())
+            if (it != arrays.end())
                 return *it;
         }
 
-        throw argumentException(containerId + " containerId not found.");
+        throw argumentException(id + " texture array Id not found.");
     }
 
-    void texturesManager::removeContainer(textureContainer* container)
+    cubeMapArray* texturesManager::findCubeMapArray(const GLuint id)
     {
-        phi::removeIfContains(_containers[container->getLayout()], container);
+        for (auto& pair : _cubeMapArrays)
+        {
+            auto arrays = pair.second;
+
+            auto it = std::find_if(
+                arrays.begin(),
+                arrays.end(),
+                [=](cubeMapArray* cubeMapArray)
+            {
+                return cubeMapArray->getId() == id;
+            }
+            );
+
+            if (it != arrays.end())
+                return *it;
+        }
+
+        throw argumentException(id + " cubeMap Array Id not found.");
     }
 
-    textureContainer* texturesManager::reserveContainer(sizeui size, textureLayout layout)
+    void texturesManager::removeTextureArray(textureArray* textureArray)
+    {
+        phi::removeIfContains(_textureArrays[textureArray->getLayout()], textureArray);
+    }
+
+    void texturesManager::removeCubeMapArray(cubeMapArray* cubeMapArray)
+    {
+        phi::removeIfContains(_cubeMapArrays[cubeMapArray->getLayout()], cubeMapArray);
+    }
+
+    textureArray* texturesManager::reserveTextureArray(sizeui size, textureLayout layout)
     {
         if (!_initialized)
             throw invalidInitializationException("texturesManager not initialized.");
@@ -266,7 +411,18 @@ namespace phi
         auto maxPages = std::min(_maxPages, size.d);
         size.d = maxPages;
 
-        return createContainer(size, layout);
+        return createTextureArray(size, layout);
+    }
+
+    cubeMapArray* texturesManager::reserveCubeMapArray(sizeui size, textureLayout layout)
+    {
+        if (!_initialized)
+            throw invalidInitializationException("texturesManager not initialized.");
+
+        auto maxPages = std::min(_maxPages, size.d);
+        size.d = maxPages;
+
+        return createCubeMapArray(size, layout);
     }
 
     bool texturesManager::getIsBindless() { return _isBindless; }

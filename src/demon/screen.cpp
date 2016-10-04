@@ -305,20 +305,30 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         node* skyBoxNode = new node();
-        skyBox* skyBoxComp = new skyBox(color::red);
+        skyBoxImages images;
+        images.PositiveX = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\PositiveX.png");
+        images.NegativeX = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\NegativeX.png");
+        images.PositiveY = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\PositiveY.png");
+        images.NegativeY = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\NegativeY.png");
+        images.PositiveZ = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\PositiveZ.png");
+        images.NegativeZ = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\NegativeZ.png");
+        
+        skyBox* skyBoxComp = new skyBox(images);
         skyBoxNode->addComponent(skyBoxComp);
 
         _sceneLayer->add(skyBoxNode);
+
         _sceneLayer->add(cube0);
         _sceneLayer->add(cube1);
-
+        
         /*
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
         _sceneLayer->add(back_wall);
         _sceneLayer->add(table);
         _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable);*/
+        _sceneLayer->add(coffeTable);
+        */
 
         //TODO: prevent components that are not dealt with it from being added to layer
 
