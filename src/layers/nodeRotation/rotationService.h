@@ -71,5 +71,7 @@ namespace phi
         vec3 _rotationStartPosition;
         rotationPlane* _currentRotationPlane;
         vector<rotationPlane*> _planesToDelete;
+        plane _currentPlane;
+        float _lastAngle;
     };
 }

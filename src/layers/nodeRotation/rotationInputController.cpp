@@ -62,8 +62,8 @@ namespace phi
 
         for (auto& node : *_targetNodes)
         {
-            auto targetPosition = node->getTransform()->getLocalPosition();
-            auto translateCommand = new rotateNodeCommand(node, _originalPositions[node], targetPosition);
+            auto targetOrientation = node->getTransform()->getLocalOrientation();
+            auto translateCommand = new rotateNodeCommand(node, _originalOrientations[node], targetOrientation);
             commands.push_back(translateCommand);
         }
 
@@ -77,7 +77,7 @@ namespace phi
             return false;
 
         for (auto& node : *_targetNodes)
-            _originalPositions[node] = node->getTransform()->getLocalPosition();
+            _originalOrientations[node] = node->getTransform()->getLocalOrientation();
 
         _rotationService->startRotation(ivec2(e->x, e->y));
 
@@ -91,7 +91,10 @@ namespace phi
 
     bool rotationInputController::onMouseMove(mouseEventArgs* e)
     {
-        //_translationService->translate(ivec2(e->x, e->y));
+        if (!_rotationService->isRotating())
+            return false;
+
+        _rotationService->rotate(ivec2(e->x, e->y));
         return true;
     }
 
@@ -158,7 +161,7 @@ namespace phi
         _rotationService->endRotation();
 
         for (auto& node : *_targetNodes)
-            node->getTransform()->setLocalPosition(_originalPositions[node]);
+            node->getTransform()->setLocalOrientation(_originalOrientations[node]);
 
         _resignControlEvent->raise(this);
     }

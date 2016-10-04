@@ -4,20 +4,20 @@
 
 namespace phi
 {
-    rotateNodeCommand::rotateNodeCommand(node* node, vec3 originalPosition, vec3 targetPosition) :
+    rotateNodeCommand::rotateNodeCommand(node* node, quat originalOrientation, quat targetOrientation) :
         _node(node),
-        _originalPosition(originalPosition),
-        _targetPosition(targetPosition)
+        _originalOrientation(originalOrientation),
+        _targetOrientation(targetOrientation)
     {
     }
 
     void rotateNodeCommand::execute()
     {
-        _node->getTransform()->setLocalPosition(_targetPosition);
+        _node->getTransform()->setLocalOrientation(_targetOrientation);
     }
 
     void rotateNodeCommand::executeUndo()
     {
-        _node->getTransform()->setLocalPosition(_originalPosition);
+        _node->getTransform()->setLocalOrientation(_originalOrientation);
     }
 }

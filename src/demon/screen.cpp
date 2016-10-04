@@ -196,14 +196,14 @@ namespace demon
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                .withTranslationPlaneGridRenderer()
-                //.withRotationPlaneGridRenderer()
+                //.withTranslationPlaneGridRenderer()
+                .withRotationPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
-                //.withRotationController()
-                .withTranslationController()
+                .withRotationController()
+                //.withTranslationController()
                 .build();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);

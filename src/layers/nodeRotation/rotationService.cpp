@@ -36,9 +36,13 @@ namespace phi
         _currentRotationPlane = nullptr;
         _isRotating = true;
         _lastMousePosition = mousePosition;
-        _rotationStartPosition = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
+        _lastAngle = 0.0f;
 
         createPlane();
+
+        _currentPlane = plane(_camera->screenPointToWorld(mousePosition.x, mousePosition.y), _currentRotationPlane->getPlane().normal);
+        _currentPlane.origin = _currentPlane.projectPoint(_currentRotationPlane->getPlane().origin);
+        _rotationStartPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _currentPlane);
     }
 
     void rotationService::createPlane()
@@ -148,6 +152,11 @@ namespace phi
             enqueuePlaneForDeletion(_currentRotationPlane);
 
         _currentRotationPlane = rotationPlane;
+        _lastAngle = 0.0f;
+
+        _currentPlane.normal = _currentRotationPlane->getPlane().normal;
+        _currentPlane.origin = _currentPlane.projectPoint(_currentRotationPlane->getPlane().origin);
+        _rotationStartPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _currentPlane);
     }
 
     void rotationService::enqueuePlaneForDeletion(rotationPlane* planeToRemove)
@@ -170,6 +179,23 @@ namespace phi
     {
         if (!_isRotating)
             return;
+
+        auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _currentPlane);
+        auto originToStart = glm::normalize(_rotationStartPosition - _currentPlane.origin);
+        auto originToEnd = glm::normalize(endPosition - _currentPlane.origin);
+        auto angle = glm::orientedAngle(originToStart, originToEnd, _currentPlane.normal);
+
+        auto angleDifference = angle - _lastAngle;
+
+        for (auto& targetNode : (*_targetNodes))
+        {
+            auto transform = targetNode->getTransform();
+            auto orientation = transform->getLocalOrientation();
+            transform->setLocalOrientation(glm::angleAxis(angleDifference, _currentPlane.normal) * orientation);
+        }
+
+        _lastAngle = angle;
+        _lastMousePosition = mousePosition;
     }
 
     void rotationService::endRotation()

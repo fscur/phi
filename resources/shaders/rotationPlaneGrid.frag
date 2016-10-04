@@ -336,5 +336,5 @@ void main()
     float opacity = (circles + radii + ninetyDegrees + currentAngle) * border;
 
     vec3 finalColor = mix(color, vec3(1.0, 0.0, 0.0), data.visibility);
-    fragColor = vec4(finalColor, opacity);
+    fragColor = vec4(finalColor, opacity * data.opacity);
 }

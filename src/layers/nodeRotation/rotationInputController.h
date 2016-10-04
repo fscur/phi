@@ -20,7 +20,7 @@ namespace phi
         commandsManager* _commandsManager;
         const vector<node*>* _targetNodes;
         rotationService* _rotationService;
-        unordered_map<node*, vec3> _originalPositions;
+        unordered_map<node*, quat> _originalOrientations;
         bool _isMouseHidden;
 
     private:

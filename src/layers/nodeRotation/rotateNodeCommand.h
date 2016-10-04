@@ -14,11 +14,11 @@ namespace phi
     {
     private:
         node* _node;
-        vec3 _originalPosition;
-        vec3 _targetPosition;
+        quat _originalOrientation;
+        quat _targetOrientation;
 
     public:
-        LAYERS_API rotateNodeCommand(node* node, vec3 originalPosition, vec3 targetPosition);
+        LAYERS_API rotateNodeCommand(node* node, quat originalOrientation, quat targetOrientation);
 
         LAYERS_API virtual void execute() override;
         LAYERS_API virtual void executeUndo() override;
