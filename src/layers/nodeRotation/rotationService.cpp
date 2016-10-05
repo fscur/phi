@@ -40,8 +40,9 @@ namespace phi
 
         createPlane();
 
-        _currentPlane = plane(_camera->screenPointToWorld(mousePosition.x, mousePosition.y), _currentRotationPlane->getPlane().normal);
-        _currentPlane.origin = _currentPlane.projectPoint(_currentRotationPlane->getPlane().origin);
+        //_currentPlane = plane(_camera->screenPointToWorld(mousePosition.x, mousePosition.y), _currentRotationPlane->getPlane().normal);
+        //_currentPlane.origin = _currentPlane.projectPoint(_currentRotationPlane->getPlane().origin);
+        _currentPlane = _currentRotationPlane->getPlane();
         _rotationStartPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _currentPlane);
     }
 
@@ -186,12 +187,22 @@ namespace phi
         auto angle = glm::orientedAngle(originToStart, originToEnd, _currentPlane.normal);
 
         auto angleDifference = angle - _lastAngle;
+        auto rotation = glm::angleAxis(angleDifference, _currentPlane.normal);
 
         for (auto& targetNode : (*_targetNodes))
         {
             auto transform = targetNode->getTransform();
+
             auto orientation = transform->getLocalOrientation();
-            transform->setLocalOrientation(glm::angleAxis(angleDifference, _currentPlane.normal) * orientation);
+            auto targetOrientation = rotation * orientation;
+
+            auto position = transform->getLocalPosition();
+            auto projectedPosition = _currentPlane.projectPoint(position);
+            auto originToProjectedPosition = projectedPosition - _currentPlane.origin;
+            auto rotatedOriginToProjectedPosition = rotation * originToProjectedPosition;
+
+            transform->setLocalPosition(rotatedOriginToProjectedPosition + _currentPlane.origin + (position - projectedPosition));
+            transform->setLocalOrientation(targetOrientation);
         }
 
         auto absoluteAngle = angle;

@@ -167,22 +167,22 @@ namespace demon
         _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        cube0->getTransform()->yaw(PI_OVER_4);
-        //cube0->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
+        //cube0->getTransform()->yaw(PI_OVER_4);
+        cube0->getTransform()->setLocalPosition(vec3(2.0f, 0.5f, 0.0f));
 
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
+        cube1->getTransform()->setLocalPosition(vec3(-2.0f, 0.5f, 0.0f));
 
         auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
         back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
         auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
 
         auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
-        coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
+        coffeTable->getTransform()->translate(vec3(5.0f, 0.0f, 0.0f));
         auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
-        tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
+        tableChair->getTransform()->translate(vec3(-5.0f, 0.0f, 0.0f));
         auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
-        table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
+        table->getTransform()->translate(vec3(10.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 2.0f));
