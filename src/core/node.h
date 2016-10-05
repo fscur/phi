@@ -28,6 +28,7 @@ namespace phi
         bool _isSelected;
         bool _isTranslating;
         unordered_map<node*, nodeEventTokens> _childrenEventTokens;
+        bool _isObbDirty;
 
     public:
         eventHandler<node*> childAdded;
@@ -44,6 +45,7 @@ namespace phi
         void onChildTransformChanged(node* child);
         void onChildObbChanged(node * child);
         bool calculateChildrenObbIfExists(obb& obb);
+        void raiseObbChanged();
 
     public:
         CORE_API node(string name = string(""), transform* transform = new transform());
@@ -55,9 +57,9 @@ namespace phi
         node* getParent() const { return _parent; }
         const vector<node*>* getChildren() const { return &_children; }
         const vector<component*>* getComponents() const { return &_components; }
-        const obb* const getLocalObb() const { return _localObb; }
-        const obb* const getObb() const { return _obb; }
-        const obb* const getWorldLocalObb() const { return _worldLocalObb; }
+        CORE_API const obb* const getLocalObb();
+        CORE_API const obb* const getObb();
+        CORE_API const obb* const getWorldLocalObb();
         bool isSelected() const { return _isSelected; }
         bool isTranslating() const { return _isTranslating; }
 

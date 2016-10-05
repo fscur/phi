@@ -240,7 +240,7 @@ namespace phi
         return finitePlanes;
     }
 
-    void obb::getLimits(vec3 & min, vec3 & max) const
+    void obb::getLimits(vec3& min, vec3& max) const
     {
         auto corners = obb::getCorners();
         min = corners[0];

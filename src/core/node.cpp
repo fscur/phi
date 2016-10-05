@@ -13,7 +13,8 @@ namespace phi
         _obb(nullptr),
         _worldLocalObb(nullptr),
         _isSelected(false),
-        _isTranslating(false)
+        _isTranslating(false),
+        _isObbDirty(false)
     {
         _transform->getChangedEvent()->assign(std::bind(&node::raiseTransformChanged, this, std::placeholders::_1));
     }
@@ -29,6 +30,7 @@ namespace phi
         _worldLocalObb(nullptr),
         _isSelected(original._isSelected),
         _isTranslating(original._isTranslating),
+        _isObbDirty(original._isObbDirty),
         resource(original.resource)
     {
         if (original._localObb)
@@ -94,7 +96,7 @@ namespace phi
         _childrenEventTokens[child].obbChangedToken = obbChangedToken;
 
         childAdded.raise(child);
-        updateObb();
+        raiseObbChanged();
     }
 
     void node::removeChild(node* child)
@@ -110,7 +112,7 @@ namespace phi
             childRemoved.raise(child);
         }
 
-        updateObb();
+        raiseObbChanged();
     }
 
     void node::clearChildren()
@@ -186,6 +188,12 @@ namespace phi
         return true;
     }
 
+    void node::raiseObbChanged()
+    {
+        _isObbDirty = true;
+        obbChanged.raise(this);
+    }
+
     void node::updateObb()
     {
         obb obb;
@@ -210,24 +218,22 @@ namespace phi
             if (_worldLocalObb)
                 safeDelete(_worldLocalObb);
         }
-
-        obbChanged.raise(this);
     }
 
     inline void node::raiseTransformChanged(transform* transform)
     {
-        updateObb();
         transformChanged.raise(this);
+        raiseObbChanged();
     }
 
     void node::onChildTransformChanged(node* child)
     {
-        updateObb();
+        raiseObbChanged();
     }
 
     void node::onChildObbChanged(node* child)
     {
-        updateObb();
+        raiseObbChanged();
     }
 
     inline void node::select() 
@@ -247,6 +253,12 @@ namespace phi
         _isSelected = false;
         selectionChanged.raise(this);
     }
+
+    inline const obb * const node::getLocalObb() { if (_isObbDirty) updateObb(); return _localObb; }
+
+    inline const obb * const node::getObb() { if (_isObbDirty) updateObb(); return _obb; }
+
+    inline const obb * const node::getWorldLocalObb() { if (_isObbDirty) updateObb(); return _worldLocalObb; }
 
     inline void node::isTranslating(bool value)
     {
@@ -284,7 +296,7 @@ namespace phi
             safeDelete(_localObb);
 
         _localObb = value;
-        updateObb();
+        raiseObbChanged();
     }
 
     bool node::operator==(const node& other)
