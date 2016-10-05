@@ -17,6 +17,8 @@ namespace phi
         UI_API switchControlBuilder withSize(vec3 size);
         UI_API switchControlBuilder withOptionAImage(image* texture);
         UI_API switchControlBuilder withOptionBImage(image* texture);
+        UI_API switchControlBuilder withOptionACallback(action<> callback);
+        UI_API switchControlBuilder withOptionBCallback(action<> callback);
         UI_API node* build();
 
     private:

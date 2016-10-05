@@ -483,6 +483,8 @@ namespace demon
             .withSize(vec3(15.0f, 30.0f, 0.1f))
             .withOptionAImage(_translationImage)
             .withOptionBImage(_rotationImage)
+            .withOptionACallback([]() { phi::debug("set translation"); })
+            .withOptionBCallback([]() { phi::debug("set rotation"); })
             .build();
 
         return switchControl;

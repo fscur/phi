@@ -89,6 +89,7 @@ namespace phi
 
         _currentOption = 0;
         adjustLayout();
+        _optionACallback();
     }
 
     void switchControl::switchToOptionB()
@@ -98,6 +99,7 @@ namespace phi
 
         _currentOption = 1;
         adjustLayout();
+        _optionBCallback();
     }
 
     void switchControl::adjustLayout()

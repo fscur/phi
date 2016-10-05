@@ -71,6 +71,18 @@ namespace phi
         return *this;
     }
 
+    switchControlBuilder switchControlBuilder::withOptionACallback(action<> callback)
+    {
+        _switchControlNode->getComponent<switchControl>()->setOptionACallback(callback);
+        return *this;
+    }
+
+    switchControlBuilder switchControlBuilder::withOptionBCallback(action<> callback)
+    {
+        _switchControlNode->getComponent<switchControl>()->setOptionBCallback(callback);
+        return *this;
+    }
+
     node* switchControlBuilder::build()
     {
         return _switchControlNode;
