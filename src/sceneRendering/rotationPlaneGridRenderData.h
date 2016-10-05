@@ -13,7 +13,7 @@ namespace phi
         float lineThickness;
         float opacity;
         float visibility;
-        float pad1;
+        float angle;
 
         static rotationPlaneGridRenderData from(const rotationPlaneGrid* planeGrid)
         {
@@ -22,6 +22,7 @@ namespace phi
             data.lineThickness = planeGrid->getLineThickness();
             data.opacity = planeGrid->getOpacity();
             data.visibility = planeGrid->getVisibilityFactor();
+            data.angle = planeGrid->getFilledAngle();
 
             return data;
         }

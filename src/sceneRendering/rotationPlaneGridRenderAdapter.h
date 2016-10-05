@@ -23,6 +23,7 @@ namespace phi
             eventToken opacityChangedEventToken;
             eventToken visibleChangedEventToken;
             eventToken clippingPlanesChangedEventToken;
+            eventToken filledAngleChangedEventToken;
         };
 
     public:

@@ -89,6 +89,7 @@ namespace phi
         auto opacityChangedToken = rotationPlaneGrid->getOpacityChanged()->assign(std::bind(&rotationPlaneGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
         auto visibleChangedToken = rotationPlaneGrid->getVisibleChanged()->assign(std::bind(&rotationPlaneGridRenderAdapter::planeGridVisibleChanged, this, std::placeholders::_1));
         auto clippingPlanesChangedToken = rotationPlaneGrid->getClippingPlanesChanged()->assign(std::bind(&rotationPlaneGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
+        auto filledAngleChangedToken = rotationPlaneGrid->getFilledAngleChanged()->assign(std::bind(&rotationPlaneGridRenderAdapter::updateRenderData, this, std::placeholders::_1));
 
         auto tokens = rotationPlaneGridEventTokens();
         tokens.colorChangedEventToken = colorChangedToken;
@@ -96,6 +97,7 @@ namespace phi
         tokens.opacityChangedEventToken = opacityChangedToken;
         tokens.visibleChangedEventToken = visibleChangedToken;
         tokens.clippingPlanesChangedEventToken = clippingPlanesChangedToken;
+        tokens.filledAngleChangedEventToken = filledAngleChangedToken;
 
         _planeGridEventTokens[rotationPlaneGrid] = tokens;
     }
@@ -131,6 +133,7 @@ namespace phi
         rotationPlaneGrid->getOpacityChanged()->unassign(tokens.opacityChangedEventToken);
         rotationPlaneGrid->getVisibleChanged()->unassign(tokens.visibleChangedEventToken);
         rotationPlaneGrid->getClippingPlanesChanged()->unassign(tokens.clippingPlanesChangedEventToken);
+        rotationPlaneGrid->getFilledAngleChanged()->unassign(tokens.filledAngleChangedEventToken);
 
         _planeGridEventTokens.erase(rotationPlaneGrid);
     }

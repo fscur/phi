@@ -16,6 +16,7 @@ namespace phi
         float _opacity;
         float _visibilityFactor;
         bool _isVisible;
+        float _filledAngle;
         vector<clippingPlane*> _clippingPlanes;
         unordered_map<clippingPlane*, float> _clippingPlanesOpacities;
         unordered_map<clippingPlane*, clippingDistance::clippingDistance> _clippingPlanesDistances;
@@ -24,6 +25,7 @@ namespace phi
         eventHandler<rotationPlaneGrid*> _lineThicknessChanged;
         eventHandler<rotationPlaneGrid*> _opacityChanged;
         eventHandler<rotationPlaneGrid*> _visibleChanged;
+        eventHandler<rotationPlaneGrid*> _filledAngleChanged;
         eventHandler<rotationPlaneGrid*> _clippingPlanesChanged;
 
     public:
@@ -42,6 +44,7 @@ namespace phi
         float getOpacity() const { return _opacity; }
         float getVisibilityFactor() const { return _visibilityFactor; }
         bool isVisible() const { return _isVisible; }
+        float getFilledAngle() const { return _filledAngle; }
         vector<clippingPlane*> getClippingPlanes() const { return _clippingPlanes; }
         unordered_map<clippingPlane*, float> getClippingPlanesOpacities() const { return _clippingPlanesOpacities; }
         unordered_map<clippingPlane*, clippingDistance::clippingDistance> getClippingPlanesDistances() const { return _clippingPlanesDistances; }
@@ -50,12 +53,14 @@ namespace phi
         eventHandler<rotationPlaneGrid*>* getLineThicknessChanged() { return &_lineThicknessChanged; }
         eventHandler<rotationPlaneGrid*>* getOpacityChanged() { return &_opacityChanged; }
         eventHandler<rotationPlaneGrid*>* getVisibleChanged() { return &_visibleChanged; }
+        eventHandler<rotationPlaneGrid*>* getFilledAngleChanged() { return &_filledAngleChanged; }
         eventHandler<rotationPlaneGrid*>* getClippingPlanesChanged() { return &_clippingPlanesChanged; }
 
         CORE_API void setColor(const color& value);
         CORE_API void setLineThickness(const float value);
         CORE_API void setOpacity(const float value); 
         CORE_API void setVisibilityFactor(const float value);
+        CORE_API void setFilledAngle(const float value);
 
         CORE_API void addClippingPlane(clippingPlane* clippingPlane);
         CORE_API void removeClippingPlane(clippingPlane* clippingPlane);

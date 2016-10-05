@@ -73,6 +73,15 @@ namespace phi
         _opacityChanged.raise(this);
     }
 
+    CORE_API void rotationPlaneGrid::setFilledAngle(const float value)
+    {
+        if (_filledAngle == value)
+            return;
+
+        _filledAngle = value;
+        _filledAngleChanged.raise(this);
+    }
+
     void rotationPlaneGrid::addClippingPlane(clippingPlane* plane)
     {
         _clippingPlanes.push_back(plane);

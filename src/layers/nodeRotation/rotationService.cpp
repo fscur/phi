@@ -194,6 +194,11 @@ namespace phi
             transform->setLocalOrientation(glm::angleAxis(angleDifference, _currentPlane.normal) * orientation);
         }
 
+        auto absoluteAngle = angle;
+        if (absoluteAngle < 0.0f)
+            absoluteAngle = PI + (PI - glm::abs(angle));
+
+        _currentRotationPlane->getPlaneGrid()->setFilledAngle(absoluteAngle);
         _lastAngle = angle;
         _lastMousePosition = mousePosition;
     }
