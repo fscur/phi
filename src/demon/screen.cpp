@@ -215,9 +215,10 @@ namespace demon
             _translationController->translationStarted += std::bind(&screen::hideOnDemandUi, this);
             _translationController->translationEnded += std::bind(&screen::showOnDemandUi, this);
             _rotationController = sceneLayerBuilder.rotationInputController;
-            _rotationController ->rotationStarted += std::bind(&screen::hideOnDemandUi, this);
-            _rotationController ->rotationEnded += std::bind(&screen::showOnDemandUi, this);
+            _rotationController->rotationStarted += std::bind(&screen::hideOnDemandUi, this);
+            _rotationController->rotationEnded += std::bind(&screen::showOnDemandUi, this);
             _rotationController->disable();
+            _selectionBehaviour = sceneLayerBuilder.selectionLayerBehaviour;
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
@@ -525,12 +526,20 @@ namespace demon
 
     void screen::onNodeSelectionChanged(node* node)
     {
-        if (node->isSelected())
+        auto selectedNodes = _selectionBehaviour->getSelectedNodes();
+        auto selectedNodesCount = selectedNodes->size();
+
+        auto previousTargetNode = _onDemandUi->getComponent<relativeLayoutPosition>()->getTargetNode();
+
+        if (selectedNodesCount > 0)
         {
-            _onDemandUi->getComponent<relativeLayoutPosition>()->setTargetNode(node);
-            showOnDemandUi();
+            if (!previousTargetNode)
+                showOnDemandUi();
+
+            auto lastNode = (*selectedNodes)[selectedNodesCount - 1];
+            _onDemandUi->getComponent<relativeLayoutPosition>()->setTargetNode(lastNode);
         }
-        else
+        else if (previousTargetNode)
         {
             _onDemandUi->getComponent<relativeLayoutPosition>()->setTargetNode(nullptr);
             hideOnDemandUi();

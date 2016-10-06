@@ -35,7 +35,7 @@ namespace phi
         void cancel() override;
 
     private:
-        bool canStartRotation(mouseEventArgs* e);
+        bool canStartRotation(mouseEventArgs* e, node*& clickedNode);
         void pushRotateCommands();
 
     public:

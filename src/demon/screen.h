@@ -17,6 +17,7 @@
 
 #include <rendering\gl.h>
 
+#include <layers/nodeSelection/selectionLayerBehaviour.h>
 #include <layers/nodeTranslation/translationInputController.h>
 #include <layers/nodeRotation/rotationInputController.h>
 
@@ -60,6 +61,7 @@ namespace demon
 
         phi::translationInputController* _translationController;
         phi::rotationInputController* _rotationController;
+        phi::selectionLayerBehaviour* _selectionBehaviour;
 
         phi::node* _onDemandUi;
         phi::image* _translationImage;

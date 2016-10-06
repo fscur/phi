@@ -35,7 +35,7 @@ namespace phi
         safeDelete(_rotationService);
     }
 
-    bool rotationInputController::canStartRotation(mouseEventArgs* e)
+    bool rotationInputController::canStartRotation(mouseEventArgs* e, node*& clickedNode)
     {
         if (!_isEnabled)
             return false;
@@ -53,10 +53,11 @@ namespace phi
             return false;
 
         auto node = clickComponent->getNode();
-        auto rootNode = node;
-
-        if (rootNode->isSelected())
+        if (node->isSelected())
+        {
+            clickedNode = node;
             return true;
+        }
 
         return false;
     }
@@ -80,7 +81,8 @@ namespace phi
 
     bool rotationInputController::onMouseDown(mouseEventArgs* e)
     {
-        if (!canStartRotation(e))
+        node* clickedNode;
+        if (!canStartRotation(e, clickedNode))
             return false;
 
         for (auto& node : *_targetNodes)
@@ -89,7 +91,7 @@ namespace phi
             _originalOrientations[node] = node->getTransform()->getLocalOrientation();
         }
 
-        _rotationService->startRotation(ivec2(e->x, e->y));
+        _rotationService->startRotation(ivec2(e->x, e->y), clickedNode);
 
         _isMouseHidden = true;
         //window::hideCursor();
@@ -142,9 +144,15 @@ namespace phi
         if (e->key == PHIK_CTRL && _rotationService->isRotating())
         {
             _rotationService->disableCollisions();
-            
             return true;
         }
+
+        if (e->key == PHIK_1)
+            _rotationService->setUsageMode(rotationService::rotationUsageMode::ROTATE_AT_CENTROID);
+        else if (e->key == PHIK_2)
+            _rotationService->setUsageMode(rotationService::rotationUsageMode::ROTATE_AT_MOUSE_POSITION);
+        else if (e->key == PHIK_3)
+            _rotationService->setUsageMode(rotationService::rotationUsageMode::ROTATE_AT_INDIVIDUAL_ORIGINS);
 
         return false;
     }

@@ -22,8 +22,14 @@ namespace phi
         _layer(layer),
         _camera(layer->getCamera()),
         _physicsWorld(physicsWorld),
+        _isRotating(false),
+        _lastMousePosition(ivec2()),
+        _rotationStartPosition(vec3()),
         _currentRotationPlane(nullptr),
-        _isRotating(false)
+        _planesToDelete(vector<rotationPlane*>()),
+        _currentPlane(plane()),
+        _lastAngle(0.0f),
+        _usageMode(rotationUsageMode::ROTATE_AT_CENTROID)
     {
     }
 
@@ -31,8 +37,9 @@ namespace phi
     {
     }
 
-    void rotationService::startRotation(ivec2 mousePosition)
+    void rotationService::startRotation(ivec2 mousePosition, node* clickedNode)
     {
+        _clickedNode = clickedNode;
         _currentRotationPlane = nullptr;
         _isRotating = true;
         _lastMousePosition = mousePosition;
@@ -40,8 +47,6 @@ namespace phi
 
         createPlane();
 
-        //_currentPlane = plane(_camera->screenPointToWorld(mousePosition.x, mousePosition.y), _currentRotationPlane->getPlane().normal);
-        //_currentPlane.origin = _currentPlane.projectPoint(_currentRotationPlane->getPlane().origin);
         _currentPlane = _currentRotationPlane->getPlane();
         _rotationStartPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _currentPlane);
     }
@@ -60,14 +65,22 @@ namespace phi
         auto worldAxis = mathUtils::getClosestAxisTo(viewDirection);
         auto axisPlane = createPlaneFromAxis(worldAxis);
 
-        auto worldPosition = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
-        auto p = getRotationOrigin();
-        auto origin = axisPlane.projectPoint(p);
+        vec3 worldPosition;
+        switch (_usageMode)
+        {
+            case rotationUsageMode::ROTATE_AT_CENTROID:
+                worldPosition = getTargetNodesCentroid(); break;
+            case rotationUsageMode::ROTATE_AT_MOUSE_POSITION:
+                worldPosition = _camera->screenPointToWorld(mousePosition); break;
+            case rotationUsageMode::ROTATE_AT_INDIVIDUAL_ORIGINS:
+                worldPosition = _clickedNode->getTransform()->getPosition(); break;
+        }
 
+        auto origin = axisPlane.projectPoint(worldPosition);
         return createRotationPlane(plane(origin, axisPlane.normal));
     }
 
-    vec3 rotationService::getRotationOrigin()
+    vec3 rotationService::getTargetNodesCentroid()
     {
         vector<vec3> targetNodesPositions;
 
@@ -195,14 +208,17 @@ namespace phi
 
             auto orientation = transform->getLocalOrientation();
             auto targetOrientation = rotation * orientation;
-
-            auto position = transform->getLocalPosition();
-            auto projectedPosition = _currentPlane.projectPoint(position);
-            auto originToProjectedPosition = projectedPosition - _currentPlane.origin;
-            auto rotatedOriginToProjectedPosition = rotation * originToProjectedPosition;
-
-            transform->setLocalPosition(rotatedOriginToProjectedPosition + _currentPlane.origin + (position - projectedPosition));
             transform->setLocalOrientation(targetOrientation);
+
+            if (_usageMode == rotationUsageMode::ROTATE_AT_CENTROID ||
+                _usageMode == rotationUsageMode::ROTATE_AT_MOUSE_POSITION)
+            {
+                auto position = transform->getLocalPosition();
+                auto projectedPosition = _currentPlane.projectPoint(position);
+                auto originToProjectedPosition = projectedPosition - _currentPlane.origin;
+                auto rotatedOriginToProjectedPosition = rotation * originToProjectedPosition;
+                transform->setLocalPosition(rotatedOriginToProjectedPosition + _currentPlane.origin + (position - projectedPosition));
+            }
         }
 
         auto absoluteAngle = angle;
