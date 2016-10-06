@@ -1,25 +1,24 @@
 #include <precompiled.h>
-#include "uiMouseController.h"
-
 #include <common/mouseInteractionComponent.h>
 #include <rendering/pickingFramebuffer.h>
 #include <context/pickingId.h>
 #include <ui/control.h>
+#include "uiInputController.h"
 
 namespace phi
 {
-    uiMouseController::uiMouseController(layer* layer) :
+    uiInputController::uiInputController(layer* layer) :
         _layer(layer),
         _focusedControl(nullptr),
         _lastMouseOverControl(nullptr)
     {
     }
 
-    uiMouseController::~uiMouseController()
+    uiInputController::~uiInputController()
     {
     }
 
-    control* uiMouseController::getControlUnderMouse(int x, int y)
+    control* uiInputController::getControlUnderMouse(int x, int y)
     {
         auto idOnMousePosition = pickingFramebuffer::pick(x, y);
         auto clickComponent = pickingId::get(idOnMousePosition);
@@ -30,7 +29,7 @@ namespace phi
         return nullptr;
     }
 
-    bool uiMouseController::onMouseDown(mouseEventArgs * e)
+    bool uiInputController::onMouseDown(mouseEventArgs * e)
     {
         _focusedControl = getControlUnderMouse(e->x, e->y);
 
@@ -44,7 +43,7 @@ namespace phi
         return false;
     }
 
-    bool uiMouseController::onMouseUp(mouseEventArgs * e)
+    bool uiInputController::onMouseUp(mouseEventArgs * e)
     {
         if (_focusedControl)
         {
@@ -58,7 +57,7 @@ namespace phi
         return false;
     }
 
-    bool uiMouseController::onMouseMove(mouseEventArgs* e)
+    bool uiInputController::onMouseMove(mouseEventArgs* e)
     {
         auto mouseOverControl = getControlUnderMouse(e->x, e->y);
 

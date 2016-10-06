@@ -98,7 +98,7 @@ namespace phi
         void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged) { _onNodeSelectionChanged.push_back(onNodeSelectionChanged); }
         void addOnNodeObbChanged(std::function<void(node*)> onNodeObbChanged) { _onNodeObbChanged.push_back(onNodeObbChanged); }
 
-        CONTEXT_API void addMouseController(inputController* controller);
+        CONTEXT_API void addInputController(inputController* controller);
         void addRenderPass(renderPass* renderPass) { _renderPasses.push_back(renderPass); }
         void addRenderPasses(vector<renderPass*> renderPasses) { _renderPasses.insert(_renderPasses.end(), renderPasses.begin(), renderPasses.end()); }
         void addOnDelete(std::function<void(void)> onDelete) { _onDelete.push_back(onDelete); }

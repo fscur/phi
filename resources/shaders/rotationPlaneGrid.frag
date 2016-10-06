@@ -333,7 +333,7 @@ void main()
     //float currentAngle = addCurrentAngle(uv, data.lineThickness, 2.0 * PI - 0.2);
     float border = fadeBorder();
 
-    float opacity = (circles + radii + currentAngle) * border;
+    float opacity = (circles + radii + currentAngle + ninetyDegrees) * border;
 
     vec3 finalColor = mix(color, vec3(1.0, 0.0, 0.0), data.visibility);
     fragColor = vec4(finalColor, opacity * data.opacity);

@@ -17,6 +17,9 @@
 
 #include <rendering\gl.h>
 
+#include <layers/nodeTranslation/translationInputController.h>
+#include <layers/nodeRotation/rotationInputController.h>
+
 #include "library.h"
 
 namespace demon
@@ -55,6 +58,10 @@ namespace demon
 
         phi::framebufferAllocator* _framebufferAllocator;
 
+        phi::translationInputController* _translationController;
+        phi::rotationInputController* _rotationController;
+
+        phi::node* _onDemandUi;
         phi::image* _translationImage;
         phi::image* _rotationImage;
 
@@ -66,8 +73,11 @@ namespace demon
         void openFileDialog();
         void initContexts();
         void initInput();
-        void addSelectionUITo(phi::node* node, phi::font* font);
-        phi::node* onDemandCreateUi();
+
+        phi::node* createOnDemandUiNode();
+        void showOnDemandUi();
+        void hideOnDemandUi();
+        void onNodeSelectionChanged(phi::node* node);
 
         void onMouseDown(phi::mouseEventArgs* e);
         void onMouseUp(phi::mouseEventArgs* e);

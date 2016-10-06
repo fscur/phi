@@ -20,11 +20,10 @@
 #include <sceneRendering/meshLayerBehaviour.h>
 #include <sceneRendering/meshRenderer.h>
 #include <sceneRendering/translationPlaneGridLayerBehaviour.h>
+#include <sceneRendering/rotationPlaneGridLayerBehaviour.h>
 
 #include <uiRendering/controlLayerBehaviour.h>
-#include <uiRendering/controlRenderer.h>
 #include <uiRendering/textLayerBehaviour.h>
-#include <uiRendering/textRenderer.h>
 
 #include "layersApi.h"
 #include "nodeSelection/selectionInputController.h"
@@ -32,6 +31,7 @@
 #include "cameraControl/cameraInputController.h"
 #include "nodeTranslation/translationInputController.h"
 #include "nodeRotation/rotationInputController.h"
+#include "ui/uiInputController.h"
 
 namespace phi
 {
@@ -43,17 +43,8 @@ namespace phi
         string _resourcesPath;
         framebufferAllocator* _framebufferAllocator;
         commandsManager* _commandsManager;
-        meshLayerBehaviour* _meshBehaviour;
-        ghostMeshLayerBehaviour* _ghostMeshBehaviour;
-        physicsLayerBehaviour* _physicsBehaviour;
-        selectionLayerBehaviour* _selectionBehaviour;
-        layer* _onDemandUiTargetLayer;
-        std::function<node*()> _onDemandUiCreateUiFunction;
 
-        vector<renderPass*> _meshRenderPasses;
-        vector<renderPass*> _controlRenderPasses;
-        vector<renderPass*> _glassyControlRenderPasses;
-        vector<renderPass*> _textRenderPasses;
+        layer* _onDemandUiTargetLayer;
 
         bool _withMeshRenderer;
         bool _withGhostMeshRenderer;
@@ -63,7 +54,6 @@ namespace phi
         bool _withRotationPlaneGridRenderer;
         bool _withControlRenderer;
         bool _withTextRenderer;
-        bool _withOnDemandUi;
         bool _withPhysics;
         bool _withAnimation;
         bool _withCameraController;
@@ -71,6 +61,24 @@ namespace phi
         bool _withTranslationController;
         bool _withRotationController;
         bool _withUIMouseController;
+
+    public:
+        meshLayerBehaviour* meshLayerBehaviour;
+        ghostMeshLayerBehaviour* ghostMeshLayerBehaviour;
+        obbLayerBehaviour* obbLayerBehaviour;
+        boxColliderLayerBehaviour* boxColliderLayerBehaviour;
+        translationPlaneGridLayerBehaviour* translationPlaneGridLayerBehaviour;
+        rotationPlaneGridLayerBehaviour* rotationPlaneGridLayerBehaviour;
+        controlLayerBehaviour* controlLayerBehaviour;
+        textLayerBehaviour* textLayerBehaviour;
+        physicsLayerBehaviour* physicsLayerBehaviour;
+        animatorLayerBehaviour* animatorLayerBehaviour;
+        cameraInputController* cameraInputController;
+        selectionLayerBehaviour* selectionLayerBehaviour;
+        selectionInputController* selectionInputController;
+        translationInputController* translationInputController;
+        rotationInputController* rotationInputController;
+        uiInputController* uiInputController;
 
     private:
         layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
@@ -83,7 +91,6 @@ namespace phi
         void buildRotationPlaneGridRenderer();
         void buildControlRenderer();
         void buildTextRenderer();
-        void buildOnDemandUi();
         void buildPhysics();
         void buildAnimation();
         void buildCameraController();
@@ -102,7 +109,6 @@ namespace phi
         layerBuilder withRotationPlaneGridRenderer() { _withRotationPlaneGridRenderer = true; return *this; }
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
         layerBuilder withTextRenderer() { _withTextRenderer = true; return *this; }
-        LAYERS_API layerBuilder withOnDemandUi(layer* targetLayer, std::function<node*()> createUiFunction);
         layerBuilder withPhysics() { _withPhysics = true; return *this; }
         layerBuilder withAnimation() { _withAnimation = true; return *this; }
         layerBuilder withCameraController() { _withCameraController = true; return *this; }

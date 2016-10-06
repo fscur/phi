@@ -26,11 +26,11 @@ namespace phi
         UI_API void setOptionB(node* value);
         UI_API void setOptionACallback(action<> value) { _optionACallback = value; }
         UI_API void setOptionBCallback(action<> value) { _optionBCallback = value; }
+        UI_API void switchToOptionA();
+        UI_API void switchToOptionB();
 
     private:
         void virtual onNodeChanged(node* previousValue) override;
-        void switchToOptionA();
-        void switchToOptionB();
         void adjustLayout();
 
     private:

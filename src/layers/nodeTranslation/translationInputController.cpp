@@ -23,7 +23,8 @@ namespace phi
         _commandsManager(commandsManager),
         _targetNodes(targetNodes),
         _translationService(new translationService(targetNodes, layer, physicsWorld)),
-        _isMouseHidden(false)
+        _isMouseHidden(false),
+        _isEnabled(true)
     {
     }
 
@@ -34,6 +35,9 @@ namespace phi
 
     bool translationInputController::canStartTranslation(mouseEventArgs* e)
     {
+        if (!_isEnabled)
+            return false;
+
         if (!e->leftButtonPressed)
             return false;
 
@@ -80,10 +84,11 @@ namespace phi
 
         _translationService->startTranslation(ivec2(e->x, e->y));
 
-        _requestControlEvent->raise(this);
-
         _isMouseHidden = true;
         window::hideCursor();
+
+        _requestControlEvent->raise(this);
+        translationStarted.raise();
 
         return false;
     }
@@ -106,10 +111,11 @@ namespace phi
 
         pushTranslateCommands();
 
-        _resignControlEvent->raise(this);
-
         _isMouseHidden = false;
         window::showCursor();
+
+        _resignControlEvent->raise(this);
+        translationEnded.raise();
 
         return true;
     }

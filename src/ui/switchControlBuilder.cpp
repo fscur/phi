@@ -88,7 +88,7 @@ namespace phi
         return _switchControlNode;
     }
 
-    node * switchControlBuilder::createOptionNode(string name)
+    node* switchControlBuilder::createOptionNode(string name)
     {
         auto optionNode = new phi::node(name, new layoutTransform());
 

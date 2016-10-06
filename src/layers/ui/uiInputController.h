@@ -10,12 +10,12 @@
 
 namespace phi
 {
-    class uiMouseController :
+    class uiInputController :
         public inputController
     {
     public:
-        uiMouseController(layer* layer);
-        ~uiMouseController();
+        uiInputController(layer* layer);
+        ~uiInputController();
 
         virtual bool onMouseDown(mouseEventArgs* e) override;
         virtual bool onMouseUp(mouseEventArgs* e) override;

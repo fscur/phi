@@ -278,7 +278,7 @@ namespace phi
         return false;
     }
 
-    void layer::addMouseController(inputController * controller)
+    void layer::addInputController(inputController * controller)
     {
         controller->getRequestControlEvent()->assign([&](inputController* controller) 
         {

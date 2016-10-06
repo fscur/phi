@@ -12,6 +12,7 @@
 
 #include "rotationInputController.h"
 #include "rotateNodeCommand.h"
+#include "../nodeTranslation/translateNodeCommand.h"
 
 namespace phi
 {
@@ -24,7 +25,8 @@ namespace phi
         _commandsManager(commandsManager),
         _targetNodes(targetNodes),
         _rotationService(new rotationService(targetNodes, layer, physicsWorld)),
-        _isMouseHidden(false)
+        _isMouseHidden(false),
+        _isEnabled(true)
     {
     }
 
@@ -35,6 +37,9 @@ namespace phi
 
     bool rotationInputController::canStartRotation(mouseEventArgs* e)
     {
+        if (!_isEnabled)
+            return false;
+
         if (!e->leftButtonPressed)
             return false;
 
@@ -62,9 +67,11 @@ namespace phi
 
         for (auto& node : *_targetNodes)
         {
+            auto targetPosition = node->getTransform()->getLocalPosition();
             auto targetOrientation = node->getTransform()->getLocalOrientation();
-            auto translateCommand = new rotateNodeCommand(node, _originalOrientations[node], targetOrientation);
-            commands.push_back(translateCommand);
+            auto rotateCommand = new rotateNodeCommand(node, _originalOrientations[node], targetOrientation);
+            auto translateCommand = new translateNodeCommand(node, _originalPositions[node], targetPosition);
+            commands.push_back(new multiCommand({ rotateCommand, translateCommand }));
         }
 
         auto multiCommand = new phi::multiCommand(commands);
@@ -77,14 +84,18 @@ namespace phi
             return false;
 
         for (auto& node : *_targetNodes)
+        {
+            _originalPositions[node] = node->getTransform()->getLocalPosition();
             _originalOrientations[node] = node->getTransform()->getLocalOrientation();
+        }
 
         _rotationService->startRotation(ivec2(e->x, e->y));
 
-        _requestControlEvent->raise(this);
-
         _isMouseHidden = true;
         //window::hideCursor();
+
+        _requestControlEvent->raise(this);
+        rotationStarted.raise();
 
         return false;
     }
@@ -107,10 +118,11 @@ namespace phi
 
         pushRotateCommands();
 
-        _resignControlEvent->raise(this);
-
         _isMouseHidden = false;
         //window::showCursor();
+
+        _resignControlEvent->raise(this);
+        rotationEnded.raise();
 
         return true;
     }

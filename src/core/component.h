@@ -27,7 +27,8 @@ namespace phi
             ROTATION_PLANE_GRID = 13,
             SKY_BOX = 14,
             LAYOUT_TRANSFORM = 15,
-            SWITCH_CONTROL
+            SWITCH_CONTROL = 16,
+            RELATIVE_LAYOUT_POSITION = 17
         };
 
     protected:

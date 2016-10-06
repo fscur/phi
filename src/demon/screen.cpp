@@ -24,6 +24,7 @@
 #include <ui/switchControlBuilder.h>
 #include <ui/control.h>
 #include <ui/text.h>
+#include <ui/relativeLayoutPosition.h>
 
 #include <application/application.h>
 #include <application/undoCommand.h>
@@ -33,6 +34,8 @@
 #include <layers/nodeCreation\deleteNodeCommand.h>
 
 #include <context/invalidLayerConfigurationException.h>
+
+#include <ui/switchControl.h>
 
 #include "screen.h"
 #include "changeContextCommand.h"
@@ -193,18 +196,28 @@ namespace demon
 
         try
         {
-            _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            auto sceneLayerBuilder = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                //.withTranslationPlaneGridRenderer()
+                .withTranslationPlaneGridRenderer()
                 .withRotationPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
                 .withRotationController()
-                //.withTranslationController()
-                .build();
+                .withTranslationController();
+
+            _sceneLayer = sceneLayerBuilder.build();
+            _sceneLayer->addOnNodeSelectionChanged(std::bind(&screen::onNodeSelectionChanged, this, std::placeholders::_1));
+
+            _translationController = sceneLayerBuilder.translationInputController;
+            _translationController->translationStarted += std::bind(&screen::hideOnDemandUi, this);
+            _translationController->translationEnded += std::bind(&screen::showOnDemandUi, this);
+            _rotationController = sceneLayerBuilder.rotationInputController;
+            _rotationController ->rotationStarted += std::bind(&screen::hideOnDemandUi, this);
+            _rotationController ->rotationEnded += std::bind(&screen::showOnDemandUi, this);
+            _rotationController->disable();
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
@@ -222,7 +235,6 @@ namespace demon
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withControlRenderer()
                 .withTextRenderer()
-                .withOnDemandUi(_sceneLayer, std::bind<node*>(&screen::onDemandCreateUi, this))
                 .withUIMouseController()
                 .build();
         }
@@ -322,6 +334,10 @@ namespace demon
         //TODO: prevent components that are not dealt with it from being added to layer
 
         //_constructionLayer->add(_constructionLabel);
+
+        _onDemandUi = createOnDemandUiNode();
+        _onDemandUi->addComponent(new relativeLayoutPosition(_nandinhoCamera, _sceneLayer));
+
         _nandinhoLayer->add(_labelNandinho);
         _nandinhoLayer->add(_labelFps);
         _nandinhoLayer->add(changeContextButton);
@@ -477,16 +493,47 @@ namespace demon
         _activeContext->resize(resolution);
     }
 
-    node* screen::onDemandCreateUi()
+    node* screen::createOnDemandUiNode()
     {
         auto switchControl = switchControlBuilder::newSwitchControl()
             .withSize(vec3(15.0f, 30.0f, 0.1f))
             .withOptionAImage(_translationImage)
             .withOptionBImage(_rotationImage)
-            .withOptionACallback([]() { phi::debug("set translation"); })
-            .withOptionBCallback([]() { phi::debug("set rotation"); })
-            .build();
+            .withOptionACallback([&]()
+        {
+            _translationController->enable();
+            _rotationController->disable();
+        })
+            .withOptionBCallback([&]()
+        {
+            _translationController->disable();
+            _rotationController->enable();
+        }).build();
 
         return switchControl;
+    }
+
+    void screen::showOnDemandUi()
+    {
+        _nandinhoLayer->add(_onDemandUi);
+    }
+
+    void screen::hideOnDemandUi()
+    {
+        _onDemandUi->getParent()->removeChild(_onDemandUi);
+    }
+
+    void screen::onNodeSelectionChanged(node* node)
+    {
+        if (node->isSelected())
+        {
+            _onDemandUi->getComponent<relativeLayoutPosition>()->setTargetNode(node);
+            showOnDemandUi();
+        }
+        else
+        {
+            _onDemandUi->getComponent<relativeLayoutPosition>()->setTargetNode(nullptr);
+            hideOnDemandUi();
+        }
     }
 }

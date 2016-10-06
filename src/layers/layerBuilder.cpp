@@ -4,14 +4,6 @@
 
 #include <io/path.h>
 
-#include <sceneRendering/rotationPlaneGridLayerBehaviour.h>
-
-#include <ui/control.h>
-#include <ui/text.h>
-
-#include "ui/onDemandUiLayerBehaviour.h"
-#include "ui/uiMouseController.h"
-
 #include "layerBuilder.h"
 
 namespace phi
@@ -21,9 +13,22 @@ namespace phi
         _resolution(resolution),
         _resourcesPath(resourcesPath),
         _framebufferAllocator(framebufferAllocator),
-        _meshBehaviour(nullptr),
-        _physicsBehaviour(nullptr),
-        _selectionBehaviour(nullptr),
+        meshLayerBehaviour(nullptr),
+        ghostMeshLayerBehaviour(nullptr),
+        obbLayerBehaviour(nullptr),
+        boxColliderLayerBehaviour(nullptr),
+        translationPlaneGridLayerBehaviour(nullptr),
+        rotationPlaneGridLayerBehaviour(nullptr),
+        controlLayerBehaviour(nullptr),
+        textLayerBehaviour(nullptr),
+        physicsLayerBehaviour(nullptr),
+        animatorLayerBehaviour(nullptr),
+        cameraInputController(nullptr),
+        selectionLayerBehaviour(nullptr),
+        selectionInputController(nullptr),
+        translationInputController(nullptr),
+        rotationInputController(nullptr),
+        uiInputController(nullptr),
         _onDemandUiTargetLayer(nullptr),
         _commandsManager(commandsManager),
         _withMeshRenderer(false),
@@ -34,7 +39,6 @@ namespace phi
         _withRotationPlaneGridRenderer(false),
         _withControlRenderer(false),
         _withTextRenderer(false),
-        _withOnDemandUi(false),
         _withPhysics(false),
         _withCameraController(false),
         _withSelectionController(false),
@@ -49,17 +53,9 @@ namespace phi
         return layerBuilder(new layer(camera), camera->getResolution(), resourcesPath, framebufferAllocator, commandsManager);
     }
 
-    layerBuilder layerBuilder::withOnDemandUi(layer * targetLayer, std::function<node*()> createUiFunction)
-    {
-        _withOnDemandUi = true;
-        _onDemandUiTargetLayer = targetLayer;
-        _onDemandUiCreateUiFunction = createUiFunction;
-        return *this;
-    }
-
     void layerBuilder::buildMeshRenderer()
     {
-        auto meshBehaviour = new meshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto meshBehaviour = new phi::meshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
         _layer->addOnNodeAdded(std::bind(&meshLayerBehaviour::onNodeAdded, meshBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&meshLayerBehaviour::onNodeRemoved, meshBehaviour, std::placeholders::_1));
@@ -72,12 +68,12 @@ namespace phi
             safeDelete(meshBehaviour);
         });
 
-        _meshBehaviour = meshBehaviour;
+        meshLayerBehaviour = meshBehaviour;
     }
 
     void layerBuilder::buildGhostMeshRenderer()
     {
-        auto ghostMeshBehaviour = new ghostMeshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto ghostMeshBehaviour = new phi::ghostMeshLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
 
         _layer->addOnNodeAdded(std::bind(&ghostMeshLayerBehaviour::onNodeAdded, ghostMeshBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&ghostMeshLayerBehaviour::onNodeRemoved, ghostMeshBehaviour, std::placeholders::_1));
@@ -89,12 +85,12 @@ namespace phi
             safeDelete(ghostMeshBehaviour);
         });
 
-        _ghostMeshBehaviour = ghostMeshBehaviour;
+        ghostMeshLayerBehaviour = ghostMeshBehaviour;
     }
 
     void layerBuilder::buildObbRenderer()
     {
-        auto obbBehaviour = new obbLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto obbBehaviour = new phi::obbLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
         _layer->addOnNodeAdded(std::bind(&obbLayerBehaviour::onNodeAdded, obbBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&obbLayerBehaviour::onNodeRemoved, obbBehaviour, std::placeholders::_1));
         _layer->addOnNodeTransformChanged(std::bind(&obbLayerBehaviour::onNodeTransformChanged, obbBehaviour, std::placeholders::_1));
@@ -106,11 +102,13 @@ namespace phi
         {
             safeDelete(obbBehaviour);
         });
+
+        obbLayerBehaviour = obbBehaviour;
     }
 
     void layerBuilder::buildBoxColliderRenderer()
     {
-        auto boxColliderBehaviour = new boxColliderLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto boxColliderBehaviour = new phi::boxColliderLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
         _layer->addOnNodeAdded(std::bind(&boxColliderLayerBehaviour::onNodeAdded, boxColliderBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&boxColliderLayerBehaviour::onNodeRemoved, boxColliderBehaviour, std::placeholders::_1));
         _layer->addOnNodeTransformChanged(std::bind(&boxColliderLayerBehaviour::onNodeTransformChanged, boxColliderBehaviour, std::placeholders::_1));
@@ -121,26 +119,30 @@ namespace phi
         {
             safeDelete(boxColliderBehaviour);
         });
+
+        boxColliderLayerBehaviour = boxColliderBehaviour;
     }
 
     void layerBuilder::buildTranslationPlaneGridRenderer()
     {
-        auto planeGridBehaviour = new translationPlaneGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
-        _layer->addOnNodeAdded(std::bind(&translationPlaneGridLayerBehaviour::onNodeAdded, planeGridBehaviour, std::placeholders::_1));
-        _layer->addOnNodeRemoved(std::bind(&translationPlaneGridLayerBehaviour::onNodeRemoved, planeGridBehaviour, std::placeholders::_1));
-        _layer->addOnNodeTransformChanged(std::bind(&translationPlaneGridLayerBehaviour::onNodeTransformChanged, planeGridBehaviour, std::placeholders::_1));
+        auto translationPlaneGridBehaviour = new phi::translationPlaneGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        _layer->addOnNodeAdded(std::bind(&translationPlaneGridLayerBehaviour::onNodeAdded, translationPlaneGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeRemoved(std::bind(&translationPlaneGridLayerBehaviour::onNodeRemoved, translationPlaneGridBehaviour, std::placeholders::_1));
+        _layer->addOnNodeTransformChanged(std::bind(&translationPlaneGridLayerBehaviour::onNodeTransformChanged, translationPlaneGridBehaviour, std::placeholders::_1));
 
-        _layer->addRenderPasses(planeGridBehaviour->getRenderPasses());
+        _layer->addRenderPasses(translationPlaneGridBehaviour->getRenderPasses());
 
-        _layer->addOnDelete([planeGridBehaviour]() mutable
+        _layer->addOnDelete([translationPlaneGridBehaviour]() mutable
         {
-            safeDelete(planeGridBehaviour);
+            safeDelete(translationPlaneGridBehaviour);
         });
+
+        translationPlaneGridLayerBehaviour = translationPlaneGridBehaviour;
     }
 
     void layerBuilder::buildRotationPlaneGridRenderer()
     {
-        auto rotationPlaneGridBehaviour = new rotationPlaneGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
+        auto rotationPlaneGridBehaviour = new phi::rotationPlaneGridLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator);
         _layer->addOnNodeAdded(std::bind(&rotationPlaneGridLayerBehaviour::onNodeAdded, rotationPlaneGridBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&rotationPlaneGridLayerBehaviour::onNodeRemoved, rotationPlaneGridBehaviour, std::placeholders::_1));
         _layer->addOnNodeTransformChanged(std::bind(&rotationPlaneGridLayerBehaviour::onNodeTransformChanged, rotationPlaneGridBehaviour, std::placeholders::_1));
@@ -151,13 +153,15 @@ namespace phi
         {
             safeDelete(rotationPlaneGridBehaviour);
         });
+
+        rotationPlaneGridLayerBehaviour = rotationPlaneGridBehaviour;
     }
 
     void layerBuilder::buildControlRenderer()
     {
         auto adapter = new controlRenderAdapter(_layer->getCamera());
         auto renderPasses = controlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
-        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
+        auto controlBehaviour = new phi::controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
 
         _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
@@ -169,12 +173,14 @@ namespace phi
         {
             safeDelete(controlBehaviour);
         });
+
+        controlLayerBehaviour = controlBehaviour;
     }
 
     void layerBuilder::buildTextRenderer()
     {
         auto adapter = new textRenderAdapter(_layer->getCamera());
-        auto textBehaviour = new textLayerBehaviour(
+        auto textBehaviour = new phi::textLayerBehaviour(
             _resolution,
             _resourcesPath,
             _framebufferAllocator,
@@ -190,20 +196,13 @@ namespace phi
         {
             safeDelete(textBehaviour);
         });
-    }
 
-    void layerBuilder::buildOnDemandUi()
-    {
-        auto onDemandUiBehaviour = new onDemandUiLayerBehaviour(_layer, _onDemandUiTargetLayer, _onDemandUiCreateUiFunction);
-        _layer->addOnDelete([onDemandUiBehaviour]() mutable
-        {
-            safeDelete(onDemandUiBehaviour);
-        });
+        textLayerBehaviour = textBehaviour;
     }
 
     void layerBuilder::buildPhysics()
     {
-        auto physicsBehaviour = new physicsLayerBehaviour();
+        auto physicsBehaviour = new phi::physicsLayerBehaviour();
 
         _layer->addOnNodeAdded(std::bind(&physicsLayerBehaviour::onNodeAdded, physicsBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&physicsLayerBehaviour::onNodeRemoved, physicsBehaviour, std::placeholders::_1));
@@ -212,12 +211,12 @@ namespace phi
             safeDelete(physicsBehaviour);
         });
 
-        _physicsBehaviour = physicsBehaviour;
+        physicsLayerBehaviour = physicsBehaviour;
     }
 
     void layerBuilder::buildAnimation()
     {
-        auto animatorBehaviour = new animatorLayerBehaviour();
+        auto animatorBehaviour = new phi::animatorLayerBehaviour();
 
         _layer->addOnUpdate(std::bind(&animatorLayerBehaviour::onUpdate, animatorBehaviour));
         _layer->addOnNodeAdded(std::bind(&animatorLayerBehaviour::onNodeAdded, animatorBehaviour, std::placeholders::_1));
@@ -227,16 +226,19 @@ namespace phi
         {
             safeDelete(animatorBehaviour);
         });
+
+        animatorLayerBehaviour = animatorBehaviour;
     }
 
     void layerBuilder::buildCameraController()
     {
-        _layer->addMouseController(new cameraInputController(_layer->getCamera()));
+        cameraInputController = new phi::cameraInputController(_layer->getCamera());
+        _layer->addInputController(cameraInputController);
     }
 
     void layerBuilder::buildSelectionController()
     {
-        auto selectionBehaviour = new selectionLayerBehaviour();
+        auto selectionBehaviour = new phi::selectionLayerBehaviour();
 
         _layer->addOnNodeSelectionChanged(std::bind(&selectionLayerBehaviour::onNodeSelectionChanged, selectionBehaviour, std::placeholders::_1));
         _layer->addOnDelete([selectionBehaviour]() mutable
@@ -244,8 +246,12 @@ namespace phi
             safeDelete(selectionBehaviour);
         });
 
-        _selectionBehaviour= selectionBehaviour;
-        _layer->addMouseController(new selectionInputController(_commandsManager, selectionBehaviour));
+        selectionLayerBehaviour= selectionBehaviour;
+
+        selectionInputController = new phi::selectionInputController(_commandsManager, selectionBehaviour);
+        _layer->addInputController(selectionInputController);
+
+        selectionLayerBehaviour = selectionBehaviour;
     }
 
     void layerBuilder::buildTranslationController()
@@ -253,13 +259,13 @@ namespace phi
         if (!_withSelectionController)
             throw invalidLayerConfigurationException("Translation Controller could not be added. It requires Selection Controller.");
 
-        auto translationController = new translationInputController(
+        translationInputController = new phi::translationInputController(
             _commandsManager,
-            _selectionBehaviour->getSelectedNodes(), 
+            selectionLayerBehaviour->getSelectedNodes(), 
             _layer,
-            _physicsBehaviour->getPhysicsWorld());
+            physicsLayerBehaviour->getPhysicsWorld());
 
-        _layer->addMouseController(translationController);
+        _layer->addInputController(translationInputController);
     }
 
     void layerBuilder::buildRotationController()
@@ -267,19 +273,19 @@ namespace phi
         if (!_withRotationController)
             throw invalidLayerConfigurationException("Rotation Controller could not be added. It requires Selection Controller.");
 
-        auto rotationController = new rotationInputController(
+        rotationInputController = new phi::rotationInputController(
             _commandsManager,
-            _selectionBehaviour->getSelectedNodes(),
+            selectionLayerBehaviour->getSelectedNodes(),
             _layer,
-            _physicsBehaviour->getPhysicsWorld());
+            physicsLayerBehaviour->getPhysicsWorld());
 
-        _layer->addMouseController(rotationController);
+        _layer->addInputController(rotationInputController);
     }
 
     void layerBuilder::buildUIMouseController()
     {
-        auto controller = new uiMouseController(_layer);
-        _layer->addMouseController(controller);
+        uiInputController = new phi::uiInputController(_layer);
+        _layer->addInputController(uiInputController);
     }
 
     layer* layerBuilder::build()
@@ -307,9 +313,6 @@ namespace phi
 
         if (_withTextRenderer)
             buildTextRenderer();
-
-        if (_withOnDemandUi)
-            buildOnDemandUi();
 
         if (_withPhysics)
             buildPhysics();
