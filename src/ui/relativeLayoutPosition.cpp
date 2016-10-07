@@ -39,21 +39,21 @@ namespace phi
     void relativeLayoutPosition::setTargetNode(node* value)
     {
         _targetNode = value;
+        updatePosition();
+    }
 
-        if (_targetNode)
-        {
-            auto position = getRelativePositionToTargetNode();
-            getNode()->setPosition(vec3(position, 0.0f));
-        }
+    void relativeLayoutPosition::updatePosition()
+    {
+        if (!_targetNode)
+            return;
+
+        auto position = getRelativePositionToTargetNode();
+        getNode()->setPosition(vec3(position, 0.0f));
     }
 
     void relativeLayoutPosition::onTargetCameraChanged(transform* transform)
     {
-        if (_targetNode)
-        {
-            auto position = getRelativePositionToTargetNode();
-            getNode()->setPosition(vec3(position, 0.0f));
-        }
+        updatePosition();
     }
 
     vec2 relativeLayoutPosition::getRelativePositionToTargetNode()

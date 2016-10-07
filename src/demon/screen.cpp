@@ -517,6 +517,7 @@ namespace demon
     void screen::showOnDemandUi()
     {
         _nandinhoLayer->add(_onDemandUi);
+        _onDemandUi->getComponent<relativeLayoutPosition>()->updatePosition();
     }
 
     void screen::hideOnDemandUi()
@@ -529,20 +530,22 @@ namespace demon
         auto selectedNodes = _selectionBehaviour->getSelectedNodes();
         auto selectedNodesCount = selectedNodes->size();
 
-        auto previousTargetNode = _onDemandUi->getComponent<relativeLayoutPosition>()->getTargetNode();
+        auto relativePositionComponent = _onDemandUi->getComponent<relativeLayoutPosition>();
+        auto previousTargetNode = relativePositionComponent->getTargetNode();
 
         if (selectedNodesCount > 0)
         {
+            auto lastNode = (*selectedNodes)[selectedNodesCount - 1];
+            relativePositionComponent->setTargetNode(lastNode);
+
             if (!previousTargetNode)
                 showOnDemandUi();
-
-            auto lastNode = (*selectedNodes)[selectedNodesCount - 1];
-            _onDemandUi->getComponent<relativeLayoutPosition>()->setTargetNode(lastNode);
         }
-        else if (previousTargetNode)
+        else
         {
-            _onDemandUi->getComponent<relativeLayoutPosition>()->setTargetNode(nullptr);
-            hideOnDemandUi();
+            relativePositionComponent->setTargetNode(nullptr);
+            if (previousTargetNode)
+                hideOnDemandUi();
         }
     }
 }

@@ -33,6 +33,7 @@ namespace phi
 
     private:
         bool canStartTranslation(mouseEventArgs* e);
+        void startTranslation();
         void pushTranslateCommands();
 
     public:
@@ -46,5 +47,8 @@ namespace phi
         unordered_map<node*, vec3> _originalPositions;
         bool _isMouseHidden;
         bool _isEnabled;
+        bool _isWaitingToStart;
+        double _startTimer;
+        ivec2 _startMousePosition;
     };
 }

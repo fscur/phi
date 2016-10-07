@@ -36,6 +36,7 @@ namespace phi
 
     private:
         bool canStartRotation(mouseEventArgs* e, node*& clickedNode);
+        void startRotation();
         void pushRotateCommands();
 
     public:
@@ -50,5 +51,9 @@ namespace phi
         unordered_map<node*, quat> _originalOrientations;
         bool _isMouseHidden;
         bool _isEnabled;
+        bool _isWaitingToStart;
+        double _startTimer;
+        ivec2 _startMousePosition;
+        node* _startClickedNode;
     };
 }

@@ -25,6 +25,8 @@ namespace phi
         UI_API node* getTargetNode() const;
         UI_API void setTargetNode(node* value);
 
+        UI_API void updatePosition();
+
     private:
         vec2 getRelativePositionToTargetNode();
         void onTargetCameraChanged(transform* transform);

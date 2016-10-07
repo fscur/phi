@@ -203,8 +203,13 @@ namespace phi
             return true;
 
         for (auto& controller : _controllers)
-            if (controller != lastCurrentController && controller->onMouseClick(e))
+        {
+            if (controller == lastCurrentController)
+                continue;
+
+            if (controller->onMouseClick(e))
                 return true;
+        }
 
         return false;
     }

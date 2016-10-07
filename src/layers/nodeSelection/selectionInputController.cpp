@@ -158,7 +158,10 @@ namespace phi
         if (!targetNode)
             return false;
 
-        select(clickedNode);
+        if (!targetNode->isSelected())
+            select(targetNode);
+        else if (_isAdditiveSelection)
+            deselect(targetNode);
 
         return true;
     }
@@ -185,6 +188,12 @@ namespace phi
         });
 
         _commandsManager->executeCommand(commands);
+    }
+
+    void selectionInputController::deselect(node* node)
+    {
+        auto deselectCommand = new unselectNodeCommand({ node });
+        _commandsManager->executeCommand(deselectCommand);
     }
 
     void selectionInputController::deselectAll()

@@ -45,6 +45,7 @@ namespace phi
         LAYERS_API virtual void cancel() override;
 
         LAYERS_API void select(node* node);
+        LAYERS_API void deselect(node* node);
         LAYERS_API void deselectAll();
     };
 }

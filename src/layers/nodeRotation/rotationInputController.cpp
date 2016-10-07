@@ -26,7 +26,11 @@ namespace phi
         _targetNodes(targetNodes),
         _rotationService(new rotationService(targetNodes, layer, physicsWorld)),
         _isMouseHidden(false),
-        _isEnabled(true)
+        _isEnabled(true),
+        _isWaitingToStart(false),
+        _startTimer(0.0f),
+        _startMousePosition(ivec2()),
+        _startClickedNode(nullptr)
     {
     }
 
@@ -62,6 +66,23 @@ namespace phi
         return false;
     }
 
+    void rotationInputController::startRotation()
+    {
+        for (auto& node : *_targetNodes)
+        {
+            _originalPositions[node] = node->getTransform()->getLocalPosition();
+            _originalOrientations[node] = node->getTransform()->getLocalOrientation();
+        }
+
+        _rotationService->startRotation(_startMousePosition, _startClickedNode);
+
+        _isMouseHidden = true;
+        //window::hideCursor();
+
+        _requestControlEvent->raise(this);
+        rotationStarted.raise();
+    }
+
     void rotationInputController::pushRotateCommands()
     {
         auto commands = vector<command*>();
@@ -85,19 +106,10 @@ namespace phi
         if (!canStartRotation(e, clickedNode))
             return false;
 
-        for (auto& node : *_targetNodes)
-        {
-            _originalPositions[node] = node->getTransform()->getLocalPosition();
-            _originalOrientations[node] = node->getTransform()->getLocalOrientation();
-        }
-
-        _rotationService->startRotation(ivec2(e->x, e->y), clickedNode);
-
-        _isMouseHidden = true;
-        //window::hideCursor();
-
-        _requestControlEvent->raise(this);
-        rotationStarted.raise();
+        _startTimer = 0.5;
+        _isWaitingToStart = true;
+        _startMousePosition = ivec2(e->x, e->y);
+        _startClickedNode = clickedNode;
 
         return false;
     }
@@ -105,7 +117,12 @@ namespace phi
     bool rotationInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_rotationService->isRotating())
-            return false;
+        {
+            if (!_isWaitingToStart)
+                return false;
+
+            startRotation();
+        }
 
         _rotationService->rotate(ivec2(e->x, e->y));
         return true;
@@ -113,7 +130,12 @@ namespace phi
 
     bool rotationInputController::onMouseUp(mouseEventArgs* e)
     {
-        if (!e->leftButtonPressed || !_rotationService->isRotating())
+        if (!e->leftButtonPressed)
+            return false;
+
+        _isWaitingToStart = false;
+
+        if (!_rotationService->isRotating())
             return false;
 
         _rotationService->endRotation();
@@ -171,8 +193,23 @@ namespace phi
 
     bool rotationInputController::update()
     {
-        _rotationService->update();
+        if (_rotationService->isRotating())
+        {
+            _rotationService->update();
+            return true;
+        }
         
+        if (!_isWaitingToStart)
+            return false;
+
+        _startTimer = glm::max(_startTimer - time::deltaSeconds, 0.0);
+        if (_startTimer <= 0.0)
+        {
+            startRotation();
+            _isWaitingToStart = false;
+            return true;
+        }
+
         return false;
     }
 

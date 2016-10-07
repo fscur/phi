@@ -24,7 +24,10 @@ namespace phi
         _targetNodes(targetNodes),
         _translationService(new translationService(targetNodes, layer, physicsWorld)),
         _isMouseHidden(false),
-        _isEnabled(true)
+        _isEnabled(true),
+        _isWaitingToStart(false),
+        _startTimer(0.0f),
+        _startMousePosition(ivec2())
     {
     }
 
@@ -79,24 +82,35 @@ namespace phi
         if (!canStartTranslation(e))
             return false;
 
+        _startTimer = 0.5;
+        _isWaitingToStart = true;
+        _startMousePosition = ivec2(e->x, e->y);
+        return false;
+    }
+
+    void translationInputController::startTranslation()
+    {
         for (auto& node : *_targetNodes)
             _originalPositions[node] = node->getTransform()->getLocalPosition();
 
-        _translationService->startTranslation(ivec2(e->x, e->y));
+        _translationService->startTranslation(_startMousePosition);
 
         _isMouseHidden = true;
         window::hideCursor();
 
         _requestControlEvent->raise(this);
         translationStarted.raise();
-
-        return false;
     }
 
     bool translationInputController::onMouseMove(mouseEventArgs* e)
     {
         if (!_translationService->isTranslating())
-            return false;
+        {
+            if (!_isWaitingToStart)
+                return false;
+
+            startTranslation();
+        }
 
         _translationService->translate(ivec2(e->x, e->y));
         return true;
@@ -104,7 +118,12 @@ namespace phi
 
     bool translationInputController::onMouseUp(mouseEventArgs* e)
     {
-        if (!e->leftButtonPressed || !_translationService->isTranslating())
+        if (!e->leftButtonPressed)
+            return false;
+
+        _isWaitingToStart = false;
+
+        if (!_translationService->isTranslating())
             return false;
 
         _translationService->endTranslation();
@@ -156,7 +175,22 @@ namespace phi
 
     bool translationInputController::update()
     {
-        _translationService->update();
+        if (_translationService->isTranslating())
+        {
+            _translationService->update();
+            return true;
+        }
+
+        if (!_isWaitingToStart)
+            return false;
+
+        _startTimer = glm::max(_startTimer - time::deltaSeconds, 0.0);
+        if (_startTimer <= 0.0)
+        {
+            startTranslation();
+            _isWaitingToStart = false;
+            return true;
+        }
 
         return false;
     }

@@ -22,6 +22,7 @@ namespace phi
         _layer(layer),
         _camera(layer->getCamera()),
         _physicsWorld(physicsWorld),
+        _nodeTranslator(new collisionNodeTranslator(physicsWorld)),
         _isRotating(false),
         _lastMousePosition(ivec2()),
         _rotationStartPosition(vec3()),
@@ -44,6 +45,11 @@ namespace phi
         _isRotating = true;
         _lastMousePosition = mousePosition;
         _lastAngle = 0.0f;
+        _nodeTranslator->addRange(*_targetNodes);
+
+        _targetNodesColliders.clear();
+        for (auto& node : *_targetNodes)
+            _targetNodesColliders[node].push_back(node->getComponent<boxCollider>());
 
         createPlane();
 
@@ -199,16 +205,67 @@ namespace phi
         auto originToEnd = glm::normalize(endPosition - _currentPlane.origin);
         auto angle = glm::orientedAngle(originToStart, originToEnd, _currentPlane.normal);
 
-        auto angleDifference = angle - _lastAngle;
-        auto rotation = glm::angleAxis(angleDifference, _currentPlane.normal);
+        auto absoluteAngle = angle;
+        if (absoluteAngle < 0.0f)
+            absoluteAngle = PI + (PI - glm::abs(angle));
+
+        auto currentAngle = absoluteAngle - _lastAngle;
+        auto currentRotation = glm::angleAxis(currentAngle, _currentPlane.normal);
+
+        if (_usageMode == rotationUsageMode::ROTATE_AT_CENTROID ||
+            _usageMode == rotationUsageMode::ROTATE_AT_MOUSE_POSITION)
+        {
+            for (auto& targetNode : (*_targetNodes))
+            {
+                auto transform = targetNode->getTransform();
+
+                if (_usageMode == rotationUsageMode::ROTATE_AT_CENTROID ||
+                    _usageMode == rotationUsageMode::ROTATE_AT_MOUSE_POSITION)
+                {
+                    auto position = transform->getLocalPosition();
+                    auto projectedPosition = _currentPlane.projectPoint(position);
+                    auto originToProjectedPosition = projectedPosition - _currentPlane.origin;
+
+                    auto rotatedOriginToProjectedPosition = currentRotation * originToProjectedPosition;
+                    auto offset = rotatedOriginToProjectedPosition - originToProjectedPosition;
+
+                    if (offset == vec3())
+                        break;
+
+                    auto direction = glm::normalize(offset);
+                    auto sweepTest = sweepCollisionMultiTest();
+                    sweepTest.colliders = &_targetNodesColliders[targetNode];
+                    sweepTest.distance = glm::length(offset);
+                    sweepTest.direction = direction;
+                    auto result = _physicsWorld->sweep(sweepTest);
+
+                    assert(!isnan(direction.x));
+
+                    if (result.collided)
+                    {
+                        auto collidedOffset = direction * result.collisions[0].distance;
+                        rotatedOriginToProjectedPosition = originToProjectedPosition + collidedOffset;
+
+                        auto collidedAngle = glm::orientedAngle(originToProjectedPosition, rotatedOriginToProjectedPosition, _currentPlane.normal);
+                        if (glm::abs(collidedAngle) < glm::abs(currentAngle))
+                        {
+                            currentAngle = collidedAngle;
+                            currentRotation = glm::angleAxis(currentAngle, _currentPlane.normal);
+                        }
+                    }
+                }
+
+                if (currentAngle == 0.0f)
+                    break;
+            }
+        }
 
         for (auto& targetNode : (*_targetNodes))
         {
             auto transform = targetNode->getTransform();
 
             auto orientation = transform->getLocalOrientation();
-            auto targetOrientation = rotation * orientation;
-            transform->setLocalOrientation(targetOrientation);
+            auto targetOrientation = currentRotation * orientation;
 
             if (_usageMode == rotationUsageMode::ROTATE_AT_CENTROID ||
                 _usageMode == rotationUsageMode::ROTATE_AT_MOUSE_POSITION)
@@ -216,17 +273,17 @@ namespace phi
                 auto position = transform->getLocalPosition();
                 auto projectedPosition = _currentPlane.projectPoint(position);
                 auto originToProjectedPosition = projectedPosition - _currentPlane.origin;
-                auto rotatedOriginToProjectedPosition = rotation * originToProjectedPosition;
-                transform->setLocalPosition(rotatedOriginToProjectedPosition + _currentPlane.origin + (position - projectedPosition));
+                auto rotatedOriginToProjectedPosition = currentRotation * originToProjectedPosition;
+                auto offset = rotatedOriginToProjectedPosition - originToProjectedPosition;
+
+                transform->translate(offset);
             }
+
+            transform->setLocalOrientation(targetOrientation);
         }
 
-        auto absoluteAngle = angle;
-        if (absoluteAngle < 0.0f)
-            absoluteAngle = PI + (PI - glm::abs(angle));
-
-        _currentRotationPlane->getPlaneGrid()->setFilledAngle(absoluteAngle);
-        _lastAngle = angle;
+        _lastAngle += currentAngle;
+        _currentRotationPlane->getPlaneGrid()->setFilledAngle(_lastAngle);
         _lastMousePosition = mousePosition;
     }
 
@@ -234,6 +291,8 @@ namespace phi
     {
         _isRotating = false;
         enqueuePlaneForDeletion(_currentRotationPlane);
+
+        _nodeTranslator->clear();
     }
 
     void rotationService::update()
