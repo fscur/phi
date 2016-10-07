@@ -6,7 +6,7 @@
 #include <physics/physicsWorld.h>
 #include <application/commandsManager.h>
 #include <context/layer.h>
-#include <layers/nodeTranslation/collisionNodeTranslator.h>
+#include <layers/nodeRotation/collisionNodeOrbiter.h>
 
 #include "rotationPlane.h"
 
@@ -63,7 +63,7 @@ namespace phi
         layer* _layer;
         camera* _camera;
         physicsWorld* _physicsWorld;
-        collisionNodeTranslator* _nodeTranslator;
+        collisionNodeOrbiter* _nodeOrbiter;
 
         bool _isRotating;
         node* _clickedNode;
@@ -74,6 +74,5 @@ namespace phi
         plane _currentPlane;
         float _lastAngle;
         rotationUsageMode _usageMode;
-        unordered_map<node*, vector<boxCollider*>> _targetNodesColliders;
     };
 }

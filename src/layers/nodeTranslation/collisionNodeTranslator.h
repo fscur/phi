@@ -1,31 +1,12 @@
 #pragma once
 
-#include <core\node.h>
-
-#include <physics\physicsWorld.h>
+#include <core/node.h>
+#include <physics/physicsWorld.h>
 
 namespace phi
 {
     class collisionNodeTranslator
     {
-    private:
-        physicsWorld* _physicsWorld;
-        plane _plane;
-        vector<node*> _nodes;
-        vector<boxCollider*> _colliders;
-        vector<transform*> _transforms;
-        vector<sweepCollision>* _lastTranslationTouchingCollisions;
-        bool _resolveCollisions;
-
-    private:
-        void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
-        bool objectFitsInOffsetedPosition(vec3 offset);
-        sweepCollisionResult* performCollisionSweep(vector<transform*>* transforms, vec3 offset, uint32_t maximumHits = 32u);
-        vector<boxCollider*>* getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult);
-        bool findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision);
-        vec3 getAdjustedOffset(sweepCollision collision, vec3 offset);
-        vec3 collisionNodeTranslator::resolveCollisions(vec3 offset);
-
     public:
         collisionNodeTranslator(physicsWorld* physicsWorld);
         ~collisionNodeTranslator();
@@ -45,5 +26,23 @@ namespace phi
 
         void disableCollisions();
         void enableCollisions();
+
+    private:
+        void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
+        bool objectFitsInOffsetedPosition(vec3 offset);
+        sweepCollisionResult* performCollisionSweep(vector<transform*>* transforms, vec3 offset, uint32_t maximumHits = 32u);
+        vector<boxCollider*>* getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult);
+        bool findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision);
+        vec3 getAdjustedOffset(sweepCollision collision, vec3 offset);
+        vec3 collisionNodeTranslator::resolveCollisions(vec3 offset);
+
+    private:
+        physicsWorld* _physicsWorld;
+        plane _plane;
+        vector<node*> _nodes;
+        vector<boxCollider*> _colliders;
+        vector<transform*> _transforms;
+        vector<sweepCollision>* _lastTranslationTouchingCollisions;
+        bool _resolveCollisions;
     };
 }

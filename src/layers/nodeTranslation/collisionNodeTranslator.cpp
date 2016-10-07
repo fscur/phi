@@ -1,5 +1,4 @@
 #include <precompiled.h>
-#include <core/string.h>
 #include "collisionNodeTranslator.h"
 
 namespace phi
