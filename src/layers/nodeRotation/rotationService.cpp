@@ -201,11 +201,7 @@ namespace phi
         auto originToEnd = glm::normalize(endPosition - _currentPlane.origin);
         auto angle = glm::orientedAngle(originToStart, originToEnd, _currentPlane.normal);
 
-        auto absoluteAngle = angle;
-        if (absoluteAngle < 0.0f)
-            absoluteAngle = PI + (PI - glm::abs(angle));
-
-        auto deltaAngle = absoluteAngle - _lastAngle;
+        auto deltaAngle = angle - _lastAngle;
 
         if (_usageMode == rotationUsageMode::ROTATE_AT_CENTROID ||
             _usageMode == rotationUsageMode::ROTATE_AT_MOUSE_POSITION)
@@ -218,7 +214,12 @@ namespace phi
         }
 
         _lastAngle += deltaAngle;
-        _currentRotationPlane->getPlaneGrid()->setFilledAngle(_lastAngle);
+
+        auto absoluteAngle = _lastAngle;
+        if (absoluteAngle < 0.0f)
+            absoluteAngle = PI + (PI - glm::abs(_lastAngle));
+
+        _currentRotationPlane->getPlaneGrid()->setFilledAngle(absoluteAngle);
         _lastMousePosition = mousePosition;
     }
 

@@ -18,7 +18,7 @@ namespace phi
         float orbit(float angle, plane plane);
 
     private:
-        vector<transform*>* createRotatedTransforms(node* node, quat rotation);
+        vector<transform*>* createTransformedTransforms(node* node, vec3 offset, quat rotation);
 
     private:
         physicsWorld* _physicsWorld;

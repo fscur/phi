@@ -12,7 +12,7 @@ namespace phi
     {
     }
 
-    vector<transform*>* collisionNodeOrbiter::createRotatedTransforms(node* node, quat rotation)
+    vector<transform*>* collisionNodeOrbiter::createTransformedTransforms(node* node, vec3 offset, quat rotation)
     {
         auto transformsCount = _nodesTransforms[node].size();
         auto offsetedTransforms = new vector<transform*>(transformsCount);
@@ -20,7 +20,7 @@ namespace phi
         for (size_t i = 0; i < transformsCount; ++i)
         {
             auto transform = _nodesTransforms[node].at(i);
-            auto position = transform->getPosition();
+            auto position = transform->getPosition() + offset;
             auto orientation = rotation * transform->getOrientation();
             auto size = transform->getSize();
             auto offsetTransform = new phi::transform();
@@ -64,55 +64,46 @@ namespace phi
 
     float collisionNodeOrbiter::orbit(float angle, plane plane)
     {
+        auto angleStep = PI * 1e-3f; // TODO: find a decimal truncation for angles?
         auto currentAngle = angle;
         auto currentRotation = glm::angleAxis(currentAngle, plane.normal);
 
-        for (auto& pair : _nodesColliders)
+        auto collidedWithAnything = true;
+        while (collidedWithAnything && glm::abs(currentAngle - angle) < glm::abs(angle))
         {
-            auto node = pair.first;
-            auto transform = node->getTransform();
-
-            auto position = transform->getLocalPosition();
-            auto projectedPosition = plane.projectPoint(position);
-            auto originToProjectedPosition = projectedPosition - plane.origin;
-
-            auto rotatedOriginToProjectedPosition = currentRotation * originToProjectedPosition;
-            auto offset = rotatedOriginToProjectedPosition - originToProjectedPosition;
-
-            if (offset == vec3())
-                break;
-
-            auto rotatedTransforms = createRotatedTransforms(node, currentRotation);
-            auto direction = glm::normalize(offset);
-            auto sweepTest = sweepCollisionMultiTest();
-            sweepTest.colliders = &pair.second;
-            sweepTest.transforms = rotatedTransforms;
-            sweepTest.distance = glm::length(offset);
-            sweepTest.direction = direction;
-            auto result = _physicsWorld->sweep(sweepTest);
-
-            for (auto transform : (*rotatedTransforms))
-                safeDelete(transform);
-            safeDelete(rotatedTransforms);
-
-            assert(!isnan(direction.x));
-
-            if (result.collided)
+            collidedWithAnything = false;
+            for (auto& pair : _nodesColliders)
             {
-                auto collidedOffset = direction * result.collisions[0].distance;
-                rotatedOriginToProjectedPosition = originToProjectedPosition + collidedOffset;
+                auto node = pair.first;
 
-                auto collidedAngle = glm::orientedAngle(glm::normalize(originToProjectedPosition), glm::normalize(rotatedOriginToProjectedPosition), plane.normal);
-                if (glm::abs(collidedAngle) < glm::abs(currentAngle))
+                auto position = node->getTransform()->getLocalPosition();
+                auto projectedPosition = plane.projectPoint(position);
+                auto originToProjectedPosition = projectedPosition - plane.origin;
+
+                auto rotatedOriginToProjectedPosition = currentRotation * originToProjectedPosition;
+                auto offset = rotatedOriginToProjectedPosition - originToProjectedPosition;
+
+                auto transforms = createTransformedTransforms(node, offset, currentRotation);
+                auto test = intersectionCollisionMultiTest();
+                test.colliders = &_nodesColliders[node];
+                test.transforms = transforms;
+
+                if (_physicsWorld->intersects(test))
                 {
-                    currentAngle = collidedAngle;
-                    currentRotation = glm::angleAxis(currentAngle, plane.normal);
+                    collidedWithAnything = true;
+                    break;
                 }
             }
 
-            if (currentAngle == 0.0f)
-                break;
+            if (collidedWithAnything)
+            {
+                currentAngle -= glm::sign(angle) * angleStep;
+                currentRotation = glm::angleAxis(currentAngle, plane.normal);
+            }
         }
+
+        if (currentAngle == 0.0f)
+            return currentAngle;
 
         for (auto& pair : _nodesColliders)
         {
