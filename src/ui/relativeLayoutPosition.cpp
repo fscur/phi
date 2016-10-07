@@ -48,7 +48,7 @@ namespace phi
             return;
 
         auto position = getRelativePositionToTargetNode();
-        getNode()->setPosition(vec3(position, 0.0f));
+        getNode()->setPosition(position);
     }
 
     void relativeLayoutPosition::onTargetCameraChanged(transform* transform)
@@ -56,12 +56,12 @@ namespace phi
         updatePosition();
     }
 
-    vec2 relativeLayoutPosition::getRelativePositionToTargetNode()
+    vec3 relativeLayoutPosition::getRelativePositionToTargetNode()
     {
         auto obb = _targetNode->getObb();
         auto obbCorners = obb->getCorners();
         auto maxFloat = std::numeric_limits<float>().max();
-        auto minFloat = std::numeric_limits<float>().min();
+        auto minFloat = std::numeric_limits<float>().lowest();
         auto minCornerOnScreen = vec2(maxFloat, maxFloat);
         auto maxCornerOnScreen = vec2(minFloat, minFloat);
         for (size_t i = 0; i < 8; i++)
@@ -73,13 +73,16 @@ namespace phi
             minCornerOnScreen.y = glm::min(minCornerOnScreen.y, cornerOnScreen.y);
         }
 
-        auto screenPosition = vec2(maxCornerOnScreen.x + 50, minCornerOnScreen.y + (maxCornerOnScreen.y - minCornerOnScreen.y) * 1.0f);
+        auto screenPosition = vec2(maxCornerOnScreen.x + 50.0f, maxCornerOnScreen.y);
 
-        auto uiCameraViewPosition = _camera->screenPointToView(static_cast<int>(screenPosition.x), static_cast<int>(_camera->getResolution().height - screenPosition.y), _camera->getTransform()->getPosition().z);
+        screenPosition.x = glm::max(50.0f, glm::min(screenPosition.x, _camera->getResolution().width - 50.0f));
+        screenPosition.y = glm::max(50.0f, glm::min(screenPosition.y, _camera->getResolution().height - 50.0f));
+
+        auto depth = -500.0f;
+        auto uiCameraViewPosition = _camera->screenPointToView(static_cast<int>(_camera->getResolution().width - screenPosition.x), static_cast<int>(screenPosition.y), depth);
         auto uiCameraWorldPosition = mathUtils::multiply(glm::inverse(_camera->getViewMatrix()), uiCameraViewPosition);
 
         auto uiNodeSize = getNode()->getTransform()->getSize();
-
-        return vec2(uiCameraWorldPosition.x, uiCameraWorldPosition.y - uiNodeSize.y * 0.0f);
+        return uiCameraWorldPosition + vec3(-uiNodeSize.x * 0.5f, uiNodeSize.y * 0.5f, 0.0f);
     }
 }
