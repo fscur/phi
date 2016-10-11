@@ -22,7 +22,7 @@ namespace phi
         _layer(layer),
         _camera(layer->getCamera()),
         _physicsWorld(physicsWorld),
-        _nodeOrbiter(new collisionNodeOrbiter(physicsWorld)),
+        _nodeRotator(new collisionNodeRotator(physicsWorld)),
         _ghostTranslator(new ghostNodeTranslator(layer)),
         _isRotating(false),
         _lastMousePosition(ivec2()),
@@ -38,7 +38,7 @@ namespace phi
 
     rotationService::~rotationService()
     {
-        safeDelete(_nodeOrbiter);
+        safeDelete(_nodeRotator);
         safeDelete(_ghostTranslator);
     }
 
@@ -50,7 +50,7 @@ namespace phi
         _lastMousePosition = mousePosition;
         _lastAngle = 0.0f;
         _lastCollidedAngle = 0.0f;
-        _nodeOrbiter->addRange(*_targetNodes);
+        _nodeRotator->addRange(*_targetNodes);
         _ghostTranslator->addRange(*_targetNodes);
 
         createPlane();
@@ -228,9 +228,9 @@ namespace phi
         float angleDifference = _lastAngle - _lastCollidedAngle;
 
         if (_usageMode == rotationUsageMode::ROTATE_AT_INDIVIDUAL_ORIGINS)
-            collidedDeltaAngle = _nodeOrbiter->rotate(angleDifference, _currentPlane);
+            collidedDeltaAngle = _nodeRotator->rotate(angleDifference, _currentPlane);
         else
-            collidedDeltaAngle = _nodeOrbiter->orbit(angleDifference, _currentPlane);
+            collidedDeltaAngle = _nodeRotator->orbit(angleDifference, _currentPlane);
 
         _lastCollidedAngle += collidedDeltaAngle;
     }
@@ -264,7 +264,7 @@ namespace phi
         _isRotating = false;
         enqueuePlaneForDeletion(_currentRotationPlane);
 
-        _nodeOrbiter->clear();
+        _nodeRotator->clear();
         _ghostTranslator->clear();
     }
 
@@ -335,11 +335,11 @@ namespace phi
 
     void rotationService::disableCollisions()
     {
-
+        _nodeRotator->disableCollisions();
     }
 
     void rotationService::enableCollisions()
     {
-
+        _nodeRotator->enableCollisions();
     }
 }

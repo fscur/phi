@@ -253,14 +253,4 @@ namespace phi
 
         return offset;
     }
-
-    void collisionNodeTranslator::disableCollisions()
-    {
-        _resolveCollisions = false;
-    }
-
-    void collisionNodeTranslator::enableCollisions()
-    {
-        _resolveCollisions = true;
-    }
 }

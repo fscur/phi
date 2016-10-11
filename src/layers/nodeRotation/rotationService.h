@@ -8,7 +8,7 @@
 #include <context/layer.h>
 #include <layers/nodeTranslation/ghostNodeTranslator.h>
 
-#include "collisionNodeOrbiter.h"
+#include "collisionNodeRotator.h"
 #include "rotationPlane.h"
 
 namespace phi
@@ -68,7 +68,7 @@ namespace phi
         layer* _layer;
         camera* _camera;
         physicsWorld* _physicsWorld;
-        collisionNodeOrbiter* _nodeOrbiter;
+        collisionNodeRotator* _nodeRotator;
         ghostNodeTranslator* _ghostTranslator;
 
         bool _isRotating;

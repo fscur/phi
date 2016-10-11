@@ -24,8 +24,8 @@ namespace phi
         void clear();
         vec3 translate(vec3 offset);
 
-        void disableCollisions();
-        void enableCollisions();
+        void disableCollisions() { _resolveCollisions = false; }
+        void enableCollisions() { _resolveCollisions = true; }
 
     private:
         void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);

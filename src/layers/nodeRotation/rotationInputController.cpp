@@ -1,15 +1,9 @@
 #include <precompiled.h>
-
 #include <core/multiCommand.h>
-
 #include <animation/animator.h>
-
 #include <rendering/pickingFramebuffer.h>
-
 #include <context/pickingId.h>
-
 #include <application/window.h>
-
 #include "rotationInputController.h"
 #include "rotateNodeCommand.h"
 #include "../nodeTranslation/translateNodeCommand.h"

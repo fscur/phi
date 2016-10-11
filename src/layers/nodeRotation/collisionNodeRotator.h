@@ -6,11 +6,11 @@
 
 namespace phi
 {
-    class collisionNodeOrbiter
+    class collisionNodeRotator
     {
     public:
-        collisionNodeOrbiter(physicsWorld* physicsWorld);
-        ~collisionNodeOrbiter();
+        collisionNodeRotator(physicsWorld* physicsWorld);
+        ~collisionNodeRotator();
 
         void addNode(node* node);
         void addRange(const vector<node*>& nodes);
@@ -18,16 +18,22 @@ namespace phi
         float orbit(float angle, plane plane);
         float rotate(float angle, plane plane);
 
+        void disableCollisions() { _resolveCollisions = false; }
+        void enableCollisions() { _resolveCollisions = true; }
+
     private:
         vector<transform*>* createTransformedTransforms(node* node, vec3 offset, quat rotation);
         bool isValidOrbit(float angle, plane plane);
         bool isValidRotation(float angle, plane plane);
         float findMaximumOrbitPossible(float angle, plane plane);
         float findMaximumRotationPossible(float angle, plane plane);
+        void orbitNodes(float angle, plane plane);
+        void rotateNodes(float angle, plane plane);
 
     private:
         physicsWorld* _physicsWorld;
         unordered_map<node*, vector<boxCollider*>> _nodesColliders;
         unordered_map<node*, vector<transform*>> _nodesTransforms;
+        bool _resolveCollisions;
     };
 }
