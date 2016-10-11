@@ -23,19 +23,23 @@ namespace phi
         _camera(layer->getCamera()),
         _physicsWorld(physicsWorld),
         _nodeOrbiter(new collisionNodeOrbiter(physicsWorld)),
+        _ghostTranslator(new ghostNodeTranslator(layer)),
         _isRotating(false),
         _lastMousePosition(ivec2()),
-        _rotationStartPosition(vec3()),
+        _rotationLastPosition(vec3()),
         _currentRotationPlane(nullptr),
         _planesToDelete(vector<rotationPlane*>()),
         _currentPlane(plane()),
         _lastAngle(0.0f),
+        _lastCollidedAngle(0.0f),
         _usageMode(rotationUsageMode::ROTATE_AT_CENTROID)
     {
     }
 
     rotationService::~rotationService()
     {
+        safeDelete(_nodeOrbiter);
+        safeDelete(_ghostTranslator);
     }
 
     void rotationService::startRotation(ivec2 mousePosition, node* clickedNode)
@@ -45,12 +49,14 @@ namespace phi
         _isRotating = true;
         _lastMousePosition = mousePosition;
         _lastAngle = 0.0f;
+        _lastCollidedAngle = 0.0f;
         _nodeOrbiter->addRange(*_targetNodes);
+        _ghostTranslator->addRange(*_targetNodes);
 
         createPlane();
 
         _currentPlane = _currentRotationPlane->getPlane();
-        _rotationStartPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _currentPlane);
+        _rotationLastPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _currentPlane);
     }
 
     void rotationService::createPlane()
@@ -169,10 +175,11 @@ namespace phi
 
         _currentRotationPlane = rotationPlane;
         _lastAngle = 0.0f;
+        _lastCollidedAngle = 0.0f;
 
         _currentPlane.normal = _currentRotationPlane->getPlane().normal;
         _currentPlane.origin = _currentPlane.projectPoint(_currentRotationPlane->getPlane().origin);
-        _rotationStartPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _currentPlane);
+        _rotationLastPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _currentPlane);
     }
 
     void rotationService::enqueuePlaneForDeletion(rotationPlane* planeToRemove)
@@ -196,31 +203,60 @@ namespace phi
         if (!_isRotating)
             return;
 
+        addMouseMovementDeltaAngle(mousePosition);
+        rotateTargetNodes();
+        rotateGhostNodes();
+        updateRotationPlaneFilledAngle();
+    }
+
+    void rotationService::addMouseMovementDeltaAngle(ivec2 mousePosition)
+    {
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _currentPlane);
-        auto originToStart = glm::normalize(_rotationStartPosition - _currentPlane.origin);
+        auto originToStart = glm::normalize(_rotationLastPosition - _currentPlane.origin);
         auto originToEnd = glm::normalize(endPosition - _currentPlane.origin);
-        auto angle = glm::orientedAngle(originToStart, originToEnd, _currentPlane.normal);
-
-        auto deltaAngle = angle - _lastAngle;
-
-        if (_usageMode == rotationUsageMode::ROTATE_AT_CENTROID ||
-            _usageMode == rotationUsageMode::ROTATE_AT_MOUSE_POSITION)
-        {
-            deltaAngle = _nodeOrbiter->orbit(deltaAngle, _currentPlane);
-        }
-        else
-        {
-            // Do only rotation!
-        }
+        auto deltaAngle = glm::orientedAngle(originToStart, originToEnd, _currentPlane.normal);
 
         _lastAngle += deltaAngle;
 
-        auto absoluteAngle = _lastAngle;
-        if (absoluteAngle < 0.0f)
-            absoluteAngle = PI + (PI - glm::abs(_lastAngle));
-
-        _currentRotationPlane->getPlaneGrid()->setFilledAngle(absoluteAngle);
         _lastMousePosition = mousePosition;
+        _rotationLastPosition = endPosition;
+    }
+
+    void rotationService::rotateTargetNodes()
+    {
+        float collidedDeltaAngle;
+        float angleDifference = _lastAngle - _lastCollidedAngle;
+
+        if (_usageMode == rotationUsageMode::ROTATE_AT_INDIVIDUAL_ORIGINS)
+            collidedDeltaAngle = _nodeOrbiter->rotate(angleDifference, _currentPlane);
+        else
+            collidedDeltaAngle = _nodeOrbiter->orbit(angleDifference, _currentPlane);
+
+        _lastCollidedAngle += collidedDeltaAngle;
+    }
+
+    void rotationService::rotateGhostNodes()
+    {
+        auto shouldShowGhost = _lastCollidedAngle != _lastAngle;
+        if (shouldShowGhost)
+        {
+            _ghostTranslator->enable();
+
+            auto ghostDeltaAngle = _lastAngle - _lastCollidedAngle;
+
+            if (_usageMode == rotationUsageMode::ROTATE_AT_INDIVIDUAL_ORIGINS)
+                _ghostTranslator->rotate(ghostDeltaAngle, _currentPlane);
+            else
+                _ghostTranslator->orbit(ghostDeltaAngle, _currentPlane);
+        }
+        else
+            _ghostTranslator->disable();
+    }
+
+    void rotationService::updateRotationPlaneFilledAngle()
+    {
+        auto filledAngle = mathUtils::counterClockwiseAngle(mathUtils::normalizeAngle(_lastAngle));
+        _currentRotationPlane->getPlaneGrid()->setFilledAngle(filledAngle);
     }
 
     void rotationService::endRotation()
@@ -229,6 +265,7 @@ namespace phi
         enqueuePlaneForDeletion(_currentRotationPlane);
 
         _nodeOrbiter->clear();
+        _ghostTranslator->clear();
     }
 
     void rotationService::update()

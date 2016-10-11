@@ -238,4 +238,17 @@ namespace phi
 
         return glm::normalize(maxNormal);
     }
+
+    inline float mathUtils::normalizeAngle(float angle)
+    {
+        return glm::mod(angle, PI * 2.0f * glm::sign(angle));
+    }
+
+    inline float mathUtils::counterClockwiseAngle(float angle)
+    {
+        if (angle >= 0.0f)
+            return angle;
+
+        return angle + PI * 2.0f;
+    };
 }

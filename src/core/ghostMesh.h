@@ -27,10 +27,6 @@ namespace phi
 
         material* getMaterial() const { return _material; }
         geometry* getGeometry() const { return _geometry; }
-        
-        void setOffset(vec3 value) { _offset = value; }
-        vec3 getOffset() const { return _offset; }
-
         mat4 getModelMatrix() const { return getNode()->getTransform()->getModelMatrix(); }
 
         static componentType getComponentType() { return componentType::GHOST_MESH; }

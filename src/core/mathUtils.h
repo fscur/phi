@@ -26,5 +26,7 @@ namespace phi
         static float isParallel(vec3 a, vec3 b);
         static vec3 getCentroid(const vector<vec3>& points);
         static vec3 getClosestAxisTo(const vec3& direction);
+        static float normalizeAngle(float angle);
+        static float counterClockwiseAngle(float angle);
     };
 }

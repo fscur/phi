@@ -60,6 +60,7 @@ namespace phi
 
         CORE_API void translate(vec3 translation);
         CORE_API void rotate(float angle, vec3 axis);
+        CORE_API void rotate(quat rotation);
         CORE_API void pitch(float angle);
         CORE_API void yaw(float angle);
         CORE_API void roll(float angle);

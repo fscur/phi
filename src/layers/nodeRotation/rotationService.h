@@ -6,8 +6,9 @@
 #include <physics/physicsWorld.h>
 #include <application/commandsManager.h>
 #include <context/layer.h>
-#include <layers/nodeRotation/collisionNodeOrbiter.h>
+#include <layers/nodeTranslation/ghostNodeTranslator.h>
 
+#include "collisionNodeOrbiter.h"
 #include "rotationPlane.h"
 
 namespace phi
@@ -57,6 +58,10 @@ namespace phi
         void changePlane(rotationPlane * rotationPlane);
         void enqueuePlaneForDeletion(rotationPlane * planeToRemove);
         void showRotationPlane();
+        void addMouseMovementDeltaAngle(ivec2 mousePosition);
+        void rotateTargetNodes();
+        void rotateGhostNodes();
+        void updateRotationPlaneFilledAngle();
 
     private:
         const vector<node*>* _targetNodes;
@@ -64,15 +69,17 @@ namespace phi
         camera* _camera;
         physicsWorld* _physicsWorld;
         collisionNodeOrbiter* _nodeOrbiter;
+        ghostNodeTranslator* _ghostTranslator;
 
         bool _isRotating;
         node* _clickedNode;
         ivec2 _lastMousePosition;
-        vec3 _rotationStartPosition;
+        vec3 _rotationLastPosition;
         rotationPlane* _currentRotationPlane;
         vector<rotationPlane*> _planesToDelete;
         plane _currentPlane;
         float _lastAngle;
+        float _lastCollidedAngle;
         rotationUsageMode _usageMode;
     };
 }

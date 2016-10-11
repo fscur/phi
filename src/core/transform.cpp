@@ -224,6 +224,11 @@ namespace phi
         setLocalOrientation(angleAxis(angle, axis) * _localOrientation);
     }
 
+    inline void transform::rotate(quat orientation)
+    {
+        setLocalOrientation(orientation * _localOrientation);
+    }
+
     inline void transform::pitch(float angle) { setLocalOrientation(angleAxis(angle, vec3(1.0f, 0.0f, 0.0f)) * _localOrientation); }
     inline void transform::yaw(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 1.0f, 0.0f)) * _localOrientation); }
     inline void transform::roll(float angle) { setLocalOrientation(angleAxis(angle, vec3(0.0f, 0.0f, 1.0f)) * _localOrientation); }
