@@ -127,14 +127,12 @@ namespace phi
             return false;
 
         _translationService->endTranslation();
-
         pushTranslateCommands();
-
         _isMouseHidden = false;
         window::showCursor();
 
-        _resignControlEvent->raise(this);
         translationEnded.raise();
+        _resignControlEvent->raise(this);
 
         return true;
     }
@@ -202,6 +200,10 @@ namespace phi
         for (auto& node : *_targetNodes)
             node->getTransform()->setLocalPosition(_originalPositions[node]);
 
+        _isMouseHidden = false;
+        window::showCursor();
+
+        translationEnded.raise();
         _resignControlEvent->raise(this);
     }
 }

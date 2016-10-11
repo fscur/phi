@@ -68,6 +68,8 @@ namespace phi
 
     void rotationInputController::startRotation()
     {
+        _isWaitingToStart = false;
+
         for (auto& node : *_targetNodes)
         {
             _originalPositions[node] = node->getTransform()->getLocalPosition();
@@ -75,12 +77,12 @@ namespace phi
         }
 
         _rotationService->startRotation(_startMousePosition, _startClickedNode);
+        rotationStarted.raise();
 
         _isMouseHidden = true;
         //window::hideCursor();
 
         _requestControlEvent->raise(this);
-        rotationStarted.raise();
     }
 
     void rotationInputController::pushRotateCommands()
@@ -139,6 +141,7 @@ namespace phi
             return false;
 
         _rotationService->endRotation();
+        rotationEnded.raise();
 
         pushRotateCommands();
 
@@ -146,7 +149,6 @@ namespace phi
         //window::showCursor();
 
         _resignControlEvent->raise(this);
-        rotationEnded.raise();
 
         return true;
     }
@@ -184,7 +186,6 @@ namespace phi
         if (e->key == PHIK_CTRL && _rotationService->isRotating())
         {
             _rotationService->enableCollisions();
-
             return true;
         }
 
@@ -206,7 +207,6 @@ namespace phi
         if (_startTimer <= 0.0)
         {
             startRotation();
-            _isWaitingToStart = false;
             return true;
         }
 
@@ -216,6 +216,7 @@ namespace phi
     void rotationInputController::cancel()
     {
         _rotationService->endRotation();
+        rotationEnded.raise();
 
         for (auto& node : *_targetNodes)
             node->getTransform()->setLocalOrientation(_originalOrientations[node]);
