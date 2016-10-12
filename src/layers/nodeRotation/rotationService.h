@@ -32,7 +32,7 @@ namespace phi
         ~rotationService();
 
         rotationUsageMode getUsageMode() { return _usageMode; }
-        void setUsageMode(rotationUsageMode value) { _usageMode = value; }
+        void setUsageMode(rotationUsageMode value);
 
         void startRotation(ivec2 mousePosition, node* clickedNode);
         void rotate(ivec2 mousePosition);

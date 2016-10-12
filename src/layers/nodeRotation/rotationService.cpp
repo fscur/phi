@@ -6,7 +6,6 @@
 #include <core/string.h>
 #include <animation/animator.h>
 #include <physics/intersectionCollisionMultiTest.h>
-#include <physics/intersectionCollisionPairTest.h>
 #include <physics/sweepCollision.h>
 #include <physics/sweepCollisionMultiTest.h>
 
@@ -40,6 +39,15 @@ namespace phi
     {
         safeDelete(_nodeRotator);
         safeDelete(_ghostTranslator);
+    }
+
+    void rotationService::setUsageMode(rotationUsageMode value)
+    {
+        _usageMode = value;
+        if (_usageMode == rotationUsageMode::ROTATE_AT_INDIVIDUAL_ORIGINS)
+            _nodeRotator->enableSelfCollision();
+        else
+            _nodeRotator->disableSelfCollision();
     }
 
     void rotationService::startRotation(ivec2 mousePosition, node* clickedNode)

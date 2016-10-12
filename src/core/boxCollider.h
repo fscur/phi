@@ -13,6 +13,7 @@ namespace phi
     private:
         vec3 _center;
         vec3 _size;
+        obb _localObb;
         obb _obb;
         eventToken _transformChangedEventToken;
         mat4 _modelMatrix;
@@ -39,6 +40,7 @@ namespace phi
 
         vec3 getSize() const { return _size; }
         vec3 getCenter() const { return _center; }
+        obb getLocalObb() const { return _localObb; }
         obb getObb() const { return _obb; }
         mat4 getModelMatrix() const { return _modelMatrix; }
         bool getIsEnabled() const { return _isEnabled; }

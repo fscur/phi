@@ -5,6 +5,7 @@ namespace phi
 {
     collisionNodeRotator::collisionNodeRotator(physicsWorld* physicsWorld) :
         _physicsWorld(physicsWorld),
+        _isSelfCollisionEnabled(false),
         _resolveCollisions(true)
     {
     }
@@ -19,7 +20,9 @@ namespace phi
         {
             if (b->getIsEnabled())
             {
-                b->disable();
+                if (!_isSelfCollisionEnabled)
+                    b->disable();
+
                 _nodesColliders[node].push_back(b);
                 _nodesTransforms[node].push_back(b->getNode()->getTransform());
             }
@@ -51,7 +54,7 @@ namespace phi
         }
 
         auto maximumAngle = findMaximumOrbitPossible(angle, plane);
-        if (maximumAngle > 0.0f)
+        if (glm::abs(maximumAngle) > 0.0f)
             orbitNodes(maximumAngle, plane);
 
         return maximumAngle;
@@ -134,9 +137,9 @@ namespace phi
             return angle;
         }
 
-        auto maximumAngle = findMaximumOrbitPossible(angle, plane);
-        if (maximumAngle > 0.0f)
-            orbitNodes(maximumAngle, plane);
+        auto maximumAngle = findMaximumRotationPossible(angle, plane);
+        if (glm::abs(maximumAngle) > 0.0f)
+            rotateNodes(maximumAngle, plane);
 
         return maximumAngle;
     }
@@ -165,20 +168,70 @@ namespace phi
     bool collisionNodeRotator::isValidRotation(float angle, plane plane)
     {
         auto rotation = glm::angleAxis(angle, plane.normal);
+
+        auto transforms = assignRotatedTransformsToPhysicsWorld(rotation);
+        auto result = testIntersections(transforms);
+        assignOriginalTransformsToPhysicsWorld(transforms);
+
+        return result;
+    }
+
+    bool collisionNodeRotator::testIntersections(nodeTransforms transforms)
+    {
         for (auto& pair : _nodesColliders)
         {
-            auto node = pair.first;
-
-            auto transforms = createTransformedTransforms(node, vec3(), rotation);
             auto test = intersectionCollisionMultiTest();
-            test.colliders = &_nodesColliders[node];
-            test.transforms = transforms;
+            test.colliders = &pair.second;
+            test.transforms = &transforms[pair.first];
 
-            if (_physicsWorld->intersects(test))
+            for (auto boxCollider : pair.second)
+                boxCollider->disable();
+
+            auto intersected = _physicsWorld->intersects(test);
+
+            for (auto boxCollider : pair.second)
+                boxCollider->enable();
+
+            if (intersected)
                 return false;
         }
 
         return true;
+    }
+
+    nodeTransforms collisionNodeRotator::assignRotatedTransformsToPhysicsWorld(quat rotation)
+    {
+        auto transforms = nodeTransforms();
+        for (auto& pair : _nodesColliders)
+        {
+            auto node = pair.first;
+            transforms[node] = *createTransformedTransforms(node, vec3(), rotation);
+
+            for (size_t i = 0; i < pair.second.size(); ++i)
+            {
+                auto collider = pair.second[i];
+                auto transform = transforms[node][i];
+                _physicsWorld->changeTransform(collider, transform);
+            }
+        }
+
+        return transforms;
+    }
+
+    void collisionNodeRotator::assignOriginalTransformsToPhysicsWorld(nodeTransforms transforms)
+    {
+        for (auto& pair : _nodesColliders)
+        {
+            auto node = pair.first;
+
+            for (size_t i = 0; i < pair.second.size(); ++i)
+            {
+                auto collider = pair.second[i];
+                auto originalTransform = collider->getNode()->getTransform();
+                _physicsWorld->changeTransform(collider, originalTransform);
+                safeDelete(transforms[pair.first][i]);
+            }
+        }
     }
 
     vector<transform*>* collisionNodeRotator::createTransformedTransforms(node* node, vec3 offset, quat rotation)

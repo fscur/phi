@@ -97,23 +97,18 @@ namespace phi
     void physicsWorld::addCollider(boxCollider* collider)
     {
         auto obb = collider->getObb();
+
         auto data = new colliderData();
+        data->transform = collider->getNode()->getTransform();
         data->body = _physics->createRigidStatic(PxTransform(PxVec3()));
-
-        data->geometry = new PxBoxGeometry(createBoxGeometry(obb.halfSizes));
         auto material = _physics->createMaterial(0.0f, 0.0f, 0.0f);
-        data->shape = data->body->createShape(*data->geometry, *material);
+        data->shape = data->body->createShape(PxBoxGeometry(createBoxGeometry(obb.halfSizes)), *material);
         data->body->userData = collider;
-        data->body->setGlobalPose(createPose(obb));
 
-        data->transformChangedToken = collider->getNode()->getTransform()->getChangedEvent()->assign(
-            [this, collider, data](transform* sender) -> void
+        data->transformChangedToken = data->transform->getChangedEvent()->assign(
+            [this, collider](transform* sender) -> void
         {
-            auto obb = collider->getObb();
-            safeDelete(data->geometry); // I hate this pointer
-            data->geometry = new PxBoxGeometry(createBoxGeometry(obb.halfSizes));
-            data->shape->setGeometry(*data->geometry);
-            data->body->setGlobalPose(createPose(obb));
+            updateShape(collider);
         });
 
         data->isEnabledChangedToken = collider->getIsEnabledChanged()->assign(
@@ -128,6 +123,8 @@ namespace phi
         _scene->addActor(*data->body);
         _colliders[collider] = data;
 
+        updateShape(collider);
+
         if (collider->getIsEnabled())
             enableQueryOn(collider);
         else
@@ -141,9 +138,32 @@ namespace phi
         collider->getIsEnabledChanged()->unassign(data->isEnabledChangedToken);
 
         _scene->removeActor(*data->body);
-        safeDelete(data->geometry);
         data->body->release();
         _colliders.erase(collider);
+    }
+
+    void physicsWorld::changeTransform(boxCollider* collider, transform* newTransform)
+    {
+        auto data = _colliders[collider];
+        data->transform->getChangedEvent()->unassign(data->transformChangedToken);
+
+        data->transformChangedToken = newTransform->getChangedEvent()->assign(
+            [this, collider](transform* sender) -> void
+        {
+            updateShape(collider);
+        });
+
+        data->transform = newTransform;
+        updateShape(collider);
+    }
+
+    void physicsWorld::updateShape(boxCollider* collider)
+    {
+        auto data = _colliders[collider];
+        auto obb = collider->getLocalObb();
+        obb = obb.transform(data->transform);
+        data->shape->setGeometry(PxBoxGeometry(createBoxGeometry(obb.halfSizes)));
+        data->body->setGlobalPose(createPose(obb));
     }
 
     void physicsWorld::enableQueryOn(boxCollider* collider)
@@ -186,7 +206,7 @@ namespace phi
     {
         auto geometry = createBoxGeometry(test.collider, test.transform);
         auto pose = createPose(test.collider, test.transform);
-
+        
         auto hit = PxOverlapBuffer();
         PxQueryFilterData filterData = PxQueryFilterData(PxQueryFlag::eANY_HIT | PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;

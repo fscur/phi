@@ -50,8 +50,8 @@ namespace phi
         auto transform = getTransform();
         _modelMatrix = transform->getModelMatrix() * translationMatrix * scaleMatrix;
 
-        auto localObb = obb(_center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), _size * 0.5f);
-        _obb = localObb.transform(transform);
+        _localObb = obb(_center, vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), _size * 0.5f);
+        _obb = _localObb.transform(transform);
     }
 
     inline void boxCollider::nodeTransformChanged(transform* const sender)

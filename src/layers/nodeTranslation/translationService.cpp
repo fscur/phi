@@ -6,7 +6,6 @@
 #include <core/string.h>
 #include <animation/animator.h>
 #include <physics/intersectionCollisionMultiTest.h>
-#include <physics/intersectionCollisionPairTest.h>
 #include <physics/sweepCollision.h>
 #include <physics/sweepCollisionMultiTest.h>
 
