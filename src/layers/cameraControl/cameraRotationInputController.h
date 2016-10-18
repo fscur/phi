@@ -21,11 +21,14 @@ namespace phi
         bool update() override;
 
     private:
+        void orbitCamera(float horizontalAngle, float verticalAngle);
+
+    private:
         camera* _camera;
         bool _rotating;
         bool _doingInertia;
         vec2 _delta;
-        vec3 _targetPos;
+        vec3 _origin;
         double _lastMouseMoveTime;
         double _inertiaTime;
         float _inertiaLastPercent;
