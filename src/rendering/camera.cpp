@@ -155,7 +155,7 @@ namespace phi
 
     float camera::limitOrbitVerticalRotation(float angle)
     {
-        float const LIMIT_ANGLE = PI / 18;
+        float const LIMIT_ANGLE = PI / 18.0f;
         auto direction = _transform->getDirection();
         auto right = _transform->getRight();
 
@@ -172,13 +172,13 @@ namespace phi
 
     quat camera::createOrbitRightAxisFixRotation(quat rotation)
     {
-        auto rotatedDirection = rotation * _transform->getDirection();
-        auto rotatedRight = rotation * _transform->getRight();
+        auto rotatedDirection = glm::normalize(rotation * _transform->getDirection());
+        auto rotatedRight = glm::normalize(rotation * _transform->getRight());
 
         auto fixedRight = glm::normalize(glm::cross(vec3(0.0f, 1.0f, 0.0f), rotatedDirection));
-        auto angleNeededToFixRight = glm::orientedAngle(rotatedRight, fixedRight, rotatedDirection);
-        auto rightFixRotation = glm::angleAxis(angleNeededToFixRight, rotatedDirection);
-        return rightFixRotation * rotation;
+        auto rightFixRotation = mathUtils::rotationBetweenVectors(rotatedRight, fixedRight);
+
+        return rightFixRotation;
     }
 
     vec3 camera::getOrbitedPosition(vec3 origin, quat rotation)
