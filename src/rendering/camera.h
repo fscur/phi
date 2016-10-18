@@ -31,6 +31,10 @@ namespace phi
         void updateViewMatrix();
         void updateProjectionMatrix();
         void transformChanged(transform * sender);
+        quat createOrbitRotation(float horizontalRotation, float verticalRotation);
+        float limitOrbitVerticalRotation(float angle);
+        quat createOrbitRightAxisFixRotation(quat rotation);
+        vec3 getOrbitedPosition(vec3 origin, quat rotation);
 
     public:
         RENDERING_API camera(
@@ -59,7 +63,7 @@ namespace phi
 
         RENDERING_API void moveTo(vec3 position);
         RENDERING_API void zoom(vec3 offset);
-        RENDERING_API void orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY);
+        RENDERING_API void orbit(vec3 origin, float angleX, float angleY);
 
         RENDERING_API vec3 screenPointToView(int mouseX, int mouseY, float depth);
         RENDERING_API vec3 screenPointToWorld(ivec2 mousePosition);

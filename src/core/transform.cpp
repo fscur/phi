@@ -74,9 +74,9 @@ namespace phi
             _size = _localSize;
         }
 
-        _right = _orientation * vec3(1.0f, 0.0f, 0.0f);
-        _up = _orientation * vec3(0.0f, 1.0f, 0.0f);
-        _direction = _orientation *  vec3(0.0f, 0.0f, 1.0f);
+        _right = glm::normalize(_orientation * vec3(1.0f, 0.0f, 0.0f));
+        _up = glm::normalize(_orientation * vec3(0.0f, 1.0f, 0.0f));
+        _direction = glm::normalize(_orientation *  vec3(0.0f, 0.0f, 1.0f));
     }
 
     void transform::setChanged()

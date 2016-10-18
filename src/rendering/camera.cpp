@@ -129,35 +129,65 @@ namespace phi
         updateViewMatrix();
     }
 
-    void camera::orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY)
+    void camera::orbit(vec3 origin, float horizontalAngle, float verticalAngle)
     {
-        auto position = _transform->getPosition();
-        position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
-        position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
+        auto rotation = createOrbitRotation(horizontalAngle, verticalAngle);
+        _transform->rotate(rotation);
 
-        auto target = _transform->getPosition() + _transform->getDirection();
-        target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
-        target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
-
-        auto dir = normalize(target - position);
-
-        auto upDot = dot(dir, vec3(0.0f, 1.0f, 0.0f));
-        if (upDot > 0.98f || upDot < -0.98f)
-        {
-            orbit(origin, axisX, axisY, angleX, 0.0f); // I hope this line never starts a stack overflow... well, it did!
-            return;
-        }
-
-        auto right = normalize(cross(dir, vec3(0.0f, -1.0f, 0.0f)));
-
-        auto q1 = mathUtils::rotationBetweenVectors(vec3(0.0f, 0.0f, 1.0f), dir);
-        auto angle = orientedAngle(q1 * vec3(1.0f, 0.0f, 0.0f), right, dir);
-        auto q2 = angleAxis(angle, dir);
-
+        auto position = getOrbitedPosition(origin, rotation);
         _transform->setLocalPosition(position);
-        _transform->setLocalOrientation(q2 * q1);
 
         updateViewMatrix();
+    }
+
+    quat camera::createOrbitRotation(float horizontalAngle, float verticalAngle)
+    {
+        verticalAngle = limitOrbitVerticalRotation(verticalAngle);
+
+        auto horizontalRotation = glm::angleAxis(horizontalAngle, vec3(0.0f, 1.0f, 0.0f));
+        auto verticalRotation = glm::angleAxis(verticalAngle, _transform->getRight());
+        auto rotation = verticalRotation * horizontalRotation;
+
+        auto rightAxisFixRotation = createOrbitRightAxisFixRotation(rotation);
+
+        return rightAxisFixRotation * rotation;
+    }
+
+    float camera::limitOrbitVerticalRotation(float angle)
+    {
+        float const LIMIT_ANGLE = PI / 18;
+        auto direction = _transform->getDirection();
+        auto right = _transform->getRight();
+
+        auto remainingAngleToUp = glm::orientedAngle(direction, vec3(0.0f, 1.0f, 0.0f), right);
+        auto limitedAngleToUp = glm::min(remainingAngleToUp + LIMIT_ANGLE, 0.0f);
+        angle = glm::max(angle, limitedAngleToUp);
+
+        auto remainingAngleToDown = glm::orientedAngle(direction, vec3(0.0f, -1.0f, 0.0f), right);
+        auto limitedAngleToDown = glm::max(remainingAngleToDown - LIMIT_ANGLE, 0.0f);
+        angle = glm::min(angle, limitedAngleToDown);
+
+        return angle;
+    }
+
+    quat camera::createOrbitRightAxisFixRotation(quat rotation)
+    {
+        auto rotatedDirection = rotation * _transform->getDirection();
+        auto rotatedRight = rotation * _transform->getRight();
+
+        auto fixedRight = glm::normalize(glm::cross(vec3(0.0f, 1.0f, 0.0f), rotatedDirection));
+        auto angleNeededToFixRight = glm::orientedAngle(rotatedRight, fixedRight, rotatedDirection);
+        auto rightFixRotation = glm::angleAxis(angleNeededToFixRight, rotatedDirection);
+        return rightFixRotation * rotation;
+    }
+
+    vec3 camera::getOrbitedPosition(vec3 origin, quat rotation)
+    {
+        auto originToPosition = _transform->getLocalPosition() - origin;
+        auto rotatedOriginToPosition = rotation * originToPosition;
+        auto rotatedPosition = origin + rotatedOriginToPosition;
+
+        return rotatedPosition;
     }
 
     vec3 camera::screenPointToView(int mouseX, int mouseY, float depth)
