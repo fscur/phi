@@ -167,7 +167,8 @@ namespace demon
             .build();
 
         _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
+        _chair0->getTransform()->setLocalPosition(vec3(4.f, 3.0f, 0.0f));
+        //_chair0->getTransform()->roll(-PI_OVER_2);
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         //cube0->getTransform()->yaw(PI_OVER_4);
@@ -188,8 +189,8 @@ namespace demon
         table->getTransform()->translate(vec3(10.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 2.0f));
-        _sceneCamera->getTransform()->yaw(PI);
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, -4.0f));
+        _sceneCamera->getTransform()->pitch(PI_OVER_4);
 
         _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
         _rotationImage = importer::importImage(application::resourcesPath + "/images/rotation.png");
@@ -231,7 +232,6 @@ namespace demon
 
             _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 600.0f));
-            _nandinhoCamera->getTransform()->yaw(PI);
 
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withControlRenderer()
@@ -324,13 +324,13 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         _sceneLayer->add(cube0);
-        _sceneLayer->add(cube1);
+        //_sceneLayer->add(cube1);
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
-        _sceneLayer->add(back_wall);
-        _sceneLayer->add(table);
-        _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable);
+        //_sceneLayer->add(back_wall);
+        //_sceneLayer->add(table);
+        //_sceneLayer->add(tableChair);
+        //_sceneLayer->add(coffeTable);
 
         //TODO: prevent components that are not dealt with it from being added to layer
 

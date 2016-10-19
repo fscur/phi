@@ -178,7 +178,7 @@ namespace phi
         auto fixedRight = glm::normalize(glm::cross(vec3(0.0f, 1.0f, 0.0f), rotatedDirection));
         auto rightFixRotation = mathUtils::rotationBetweenVectors(rotatedRight, fixedRight);
 
-        return rightFixRotation;
+        return rightFixRotation * rotation;
     }
 
     vec3 camera::getOrbitedPosition(vec3 origin, quat rotation)

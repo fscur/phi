@@ -212,7 +212,7 @@ namespace phi
 
     inline vec3 mathUtils::getClosestAxisTo(const vec3 & direction)
     {
-        vec3 axisNormals[] =
+        vector<vec3> axisNormals =
         {
             vec3(1.0f, 0.0f, 0.0f),
             vec3(0.0f, 1.0f, 0.0f),
@@ -222,15 +222,21 @@ namespace phi
             vec3(0.0f, 0.0f, -1.0f)
         };
 
+        return getClosestAxisTo(direction, axisNormals);
+    }
+
+    inline vec3 mathUtils::getClosestAxisTo(const vec3 & direction, const vector<vec3>& axes)
+    {
         auto maxDot = -20.0f;
         auto maxNormal = vec3();
-        for (uint_fast8_t i = 0; i < 6; ++i)
+        auto axesCount = axes.size();
+        for (uint_fast8_t i = 0; i < axesCount; ++i)
         {
-            auto dot = glm::dot(direction, axisNormals[i]);
+            auto dot = glm::dot(direction, axes[i]);
             if (dot > maxDot)
             {
                 maxDot = dot;
-                maxNormal = axisNormals[i];
+                maxNormal = axes[i];
             }
         }
 

@@ -78,8 +78,27 @@ namespace phi
     rotationPlane* rotationService::createAxisAlignedRotationPlane(ivec2 mousePosition)
     {
         auto viewDirection = -_camera->screenPointToRay(mousePosition.x, mousePosition.y).getDirection();
-        auto worldAxis = mathUtils::getClosestAxisTo(viewDirection);
-        auto axisPlane = createPlaneFromAxis(worldAxis);
+
+        vec3 axis;
+        if (_targetNodes->size() == 1)
+        {
+            auto targetNodeObb = _targetNodes->at(0)->getObb();
+            auto obbAxes = vector<vec3>
+            {
+                targetNodeObb->axes[0],
+                targetNodeObb->axes[1],
+                targetNodeObb->axes[2],
+                -targetNodeObb->axes[0],
+                -targetNodeObb->axes[1],
+                -targetNodeObb->axes[2]
+            };
+
+            axis = mathUtils::getClosestAxisTo(viewDirection, obbAxes);
+        }
+        else
+            axis = mathUtils::getClosestAxisTo(viewDirection);
+
+        auto axisPlane = createPlaneFromAxis(axis);
 
         vec3 worldPosition;
         switch (_usageMode)
@@ -133,7 +152,32 @@ namespace phi
         auto planeTransform = planeGridNode->getTransform();
 
         planeTransform->setLocalPosition(plane.origin);
-        planeTransform->setDirection(plane.normal);
+
+        quat orientation;
+        auto targetNodeTransform = _targetNodes->at(0)->getTransform();
+        auto targetNodeOrientation = targetNodeTransform->getOrientation();
+        auto planeNormal = plane.normal;
+        auto planeNormalOriginal = glm::abs(glm::inverse(targetNodeOrientation) * planeNormal);
+        planeNormalOriginal = glm::abs(mathUtils::getClosestAxisTo(planeNormalOriginal));
+
+        vec3 right;
+        if (planeNormalOriginal == vec3(0.0f, 0.0f, 1.0f))
+            right = vec3(1.0f, 0.0f, 0.0f);
+        else if (planeNormalOriginal == vec3(1.0f, 0.0f, 0.0f))
+            right = vec3(0.0f, 0.0f, -1.0f);
+        else
+            right = vec3(1.0f, 0.0f, 0.0f);
+
+        auto up = glm::normalize(glm::cross(planeNormal, right));
+        right = glm::normalize(glm::cross(up, planeNormal));
+
+        orientation = quat(mat3(
+            right,
+            up,
+            planeNormal));
+
+        planeTransform->setLocalOrientation(orientation);
+        auto cross = glm::cross(vec3(0.0f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 0.0f));
 
         auto animator = new phi::animator();
 
@@ -182,8 +226,41 @@ namespace phi
             enqueuePlaneForDeletion(_currentRotationPlane);
 
         _currentRotationPlane = rotationPlane;
-        _lastAngle = 0.0f;
-        _lastCollidedAngle = 0.0f;
+
+        if (_targetNodes->size() == 1)
+        {
+            auto targetNodeTransform = _targetNodes->at(0)->getTransform();
+            auto targetNodeOrientation = targetNodeTransform->getOrientation();
+
+            //auto transformDirection = targetNodeTransform->getDirection(); // Z
+            auto planeNormal = _currentRotationPlane->getPlane().normal;
+            auto planeNormalOriginal = glm::inverse(targetNodeOrientation) * planeNormal;
+
+            planeNormalOriginal = mathUtils::getClosestAxisTo(planeNormalOriginal);
+
+            auto rotation = mathUtils::rotationBetweenVectors(planeNormal, planeNormalOriginal);
+            auto finalOrientation = rotation * targetNodeOrientation;
+
+            vec3 comparisonAxis = vec3();
+            if (glm::abs(planeNormalOriginal) == vec3(0.0f, 0.0f, 1.0f))
+                comparisonAxis = vec3(1.0f, 0.0f, 0.0f);
+            else if (glm::abs(planeNormalOriginal) == vec3(0.0f, 1.0f, 0.0f))
+                comparisonAxis = vec3(0.0f, 0.0f, 1.0f);
+            else if (glm::abs(planeNormalOriginal) == vec3(1.0f, 0.0f, 0.0f))
+                comparisonAxis = vec3(0.0f, 1.0f, 0.0f);
+
+            auto right = finalOrientation * comparisonAxis; // X
+
+            auto rotatedAngle = glm::orientedAngle(comparisonAxis, right, planeNormalOriginal); // X
+
+            //debug(to_string(planeNormalOriginal));
+
+            _lastAngle = _lastCollidedAngle = rotatedAngle;
+        }
+        else
+            _lastAngle = _lastCollidedAngle = 0.0f;
+
+        updateRotationPlaneFilledAngle();
 
         _currentPlane.normal = _currentRotationPlane->getPlane().normal;
         _currentPlane.origin = _currentPlane.projectPoint(_currentRotationPlane->getPlane().origin);
