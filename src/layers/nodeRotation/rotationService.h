@@ -56,6 +56,7 @@ namespace phi
         plane createPlaneFromAxis(const vec3 & axis);
         rotationPlane * createRotationPlane(const plane & plane);
         void changePlane(rotationPlane * rotationPlane);
+        void setStartingRotatedAngleAndPlaneOrientation();
         void enqueuePlaneForDeletion(rotationPlane * planeToRemove);
         void showRotationPlane();
         void addMouseMovementDeltaAngle(ivec2 mousePosition);

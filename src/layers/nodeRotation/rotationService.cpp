@@ -152,36 +152,7 @@ namespace phi
         auto planeTransform = planeGridNode->getTransform();
 
         planeTransform->setLocalPosition(plane.origin);
-
-        //quat orientation;
-        //auto targetNodeTransform = _targetNodes->at(0)->getTransform();
-        //auto targetNodeOrientation = targetNodeTransform->getOrientation();
-        //auto planeNormal = plane.normal;
-        //auto planeNormalOriginal = glm::abs(glm::inverse(targetNodeOrientation) * planeNormal);
-        //planeNormalOriginal = glm::abs(mathUtils::getClosestAxisTo(planeNormalOriginal));
-
-        ////vec3 up;
-        //vec3 right;
-        //if (planeNormalOriginal == vec3(0.0f, 0.0f, 1.0f))
-        //{
-        //    //up = targetNodeTransform->getUp();
-        //    right = vec3(1.0f, 0.0f, 0.0f);
-        //}
-        //else if (planeNormalOriginal == vec3(1.0f, 0.0f, 0.0f))
-        //    right = vec3(0.0f, 0.0f, -1.0f);
-        //else
-        //    right = vec3(1.0f, 0.0f, 0.0f);
-
-        //auto up = glm::normalize(glm::cross(planeNormal, right));
-        //right = glm::normalize(glm::cross(up, planeNormal));
-
-        //orientation = quat(mat3(
-        //    right,
-        //    up,
-        //    planeNormal));
-
-        //planeTransform->setLocalOrientation(orientation);
-        auto cross = glm::cross(vec3(0.0f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 0.0f));
+        planeTransform->setDirection(plane.normal);
 
         auto animator = new phi::animator();
 
@@ -232,51 +203,7 @@ namespace phi
         _currentRotationPlane = rotationPlane;
 
         if (_targetNodes->size() == 1)
-        {
-            // TODO: refactor this!!
-
-            auto targetNodeTransform = _targetNodes->at(0)->getTransform();
-            auto targetNodeOrientation = targetNodeTransform->getOrientation();
-
-            auto planeNormal = _currentRotationPlane->getPlane().normal;
-            auto planeNormalOriginal = glm::inverse(targetNodeOrientation) * planeNormal;
-
-            planeNormalOriginal = mathUtils::getClosestAxisTo(planeNormalOriginal);
-
-            vec3 transformedAxis = vec3();
-            vec3 comparisonAxis = vec3();
-            if (glm::abs(planeNormalOriginal) == vec3(0.0f, 0.0f, 1.0f))
-            {
-                comparisonAxis = vec3(1.0f, 0.0f, 0.0f);
-                transformedAxis = targetNodeTransform->getRight();
-            }
-            else if (glm::abs(planeNormalOriginal) == vec3(0.0f, 1.0f, 0.0f))
-            {
-                comparisonAxis = vec3(0.0f, 0.0f, 1.0f);
-                transformedAxis = targetNodeTransform->getRight();
-            }
-            else if (glm::abs(planeNormalOriginal) == vec3(1.0f, 0.0f, 0.0f))
-            {
-                comparisonAxis = vec3(0.0f, 1.0f, 0.0f);
-                transformedAxis = -targetNodeTransform->getDirection();
-            }
-
-            auto rotation = mathUtils::rotationBetweenVectors(planeNormal, planeNormalOriginal);
-            auto finalOrientation = rotation * targetNodeOrientation;
-
-            auto right = finalOrientation * comparisonAxis;
-
-            auto rotatedAngle = glm::orientedAngle(comparisonAxis, right, planeNormalOriginal);
-
-            auto planeUp = glm::cross(planeNormal, transformedAxis);
-            auto planeOrientation = quat(
-                mat3(transformedAxis, planeUp, planeNormal));
-            planeOrientation = glm::angleAxis(-rotatedAngle, planeNormal) * planeOrientation;
-
-            _currentRotationPlane->getPlaneGridNode()->getTransform()->setLocalOrientation(planeOrientation);
-
-            _lastAngle = _lastCollidedAngle = rotatedAngle;
-        }
+            setStartingRotatedAngleAndPlaneOrientation();
         else
             _lastAngle = _lastCollidedAngle = 0.0f;
 
@@ -285,6 +212,49 @@ namespace phi
         _currentPlane.normal = _currentRotationPlane->getPlane().normal;
         _currentPlane.origin = _currentPlane.projectPoint(_currentRotationPlane->getPlane().origin);
         _rotationLastPosition = _camera->castRayToPlane(_lastMousePosition.x, _lastMousePosition.y, _currentPlane);
+    }
+
+    void rotationService::setStartingRotatedAngleAndPlaneOrientation()
+    {
+        auto targetNodeTransform = _targetNodes->at(0)->getTransform();
+        auto targetNodeOrientation = targetNodeTransform->getOrientation();
+
+        auto planeNormal = _currentRotationPlane->getPlane().normal;
+        auto planeNormalWorldAxis = glm::inverse(targetNodeOrientation) * planeNormal;
+        planeNormalWorldAxis = glm::abs(mathUtils::getClosestAxisTo(planeNormalWorldAxis));
+
+        vec3 planeRight = vec3();
+        vec3 angleAxis = vec3();
+        if (planeNormalWorldAxis == vec3(1.0f, 0.0f, 0.0f))
+        {
+            angleAxis = vec3(0.0f, 1.0f, 0.0f);
+            planeRight = -targetNodeTransform->getDirection();
+        }
+        else if (planeNormalWorldAxis == vec3(0.0f, 1.0f, 0.0f))
+        {
+            angleAxis = vec3(0.0f, 0.0f, 1.0f);
+            planeRight = targetNodeTransform->getRight();
+        }
+        else if (planeNormalWorldAxis == vec3(0.0f, 0.0f, 1.0f))
+        {
+            angleAxis = vec3(1.0f, 0.0f, 0.0f);
+            planeRight = targetNodeTransform->getRight();
+        }
+
+        auto rotationToWorldAxis = mathUtils::rotationBetweenVectors(planeNormal, planeNormalWorldAxis);
+        auto rotatedAngleAxis = rotationToWorldAxis * targetNodeOrientation * angleAxis;
+
+        auto rotatedAngle = glm::orientedAngle(angleAxis, rotatedAngleAxis, planeNormalWorldAxis);
+
+        auto planeUp = glm::cross(planeNormal, planeRight);
+        auto planeOrientation = quat(mat3(planeRight, planeUp, planeNormal));
+
+        auto angleRotation = glm::angleAxis(-rotatedAngle, planeNormal);
+        planeOrientation = angleRotation * planeOrientation;
+
+        _currentRotationPlane->getPlaneGridNode()->getTransform()->setLocalOrientation(planeOrientation);
+
+        _lastAngle = _lastCollidedAngle = rotatedAngle;
     }
 
     void rotationService::enqueuePlaneForDeletion(rotationPlane* planeToRemove)
