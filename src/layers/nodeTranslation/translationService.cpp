@@ -35,16 +35,18 @@ namespace phi
         safeDelete(_ghostTranslator);
     }
 
-    void translationService::startTranslation(ivec2 mousePosition)
+    void translationService::startTranslation(ivec2 mousePosition, node* clickedNode)
     {
         resetTargetNodesColliders();
 
+        _clickedNode = clickedNode;
         _nodeTranslator->addRange(*_targetNodes);
         _ghostTranslator->addRange(*_targetNodes);
         _currentTranslationPlane = nullptr;
         _isTranslating = true;
         _lastMousePosition = mousePosition;
-        _offsetPlaneOrigin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
+        _offsetPlane.origin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
+        _snappedAtX = _snappedAtY = false;
 
         checkCollisionsBeforeTranslation();
 
@@ -72,7 +74,7 @@ namespace phi
     void translationService::createPlanes()
     {
         auto translationPlane = createAxisAlignedTranslationPlane(_lastMousePosition);
-        auto offsetPlane = plane(_offsetPlaneOrigin, translationPlane->getPlane().normal);
+        auto offsetPlane = plane(_offsetPlane.origin, translationPlane->getPlane().normal);
 
         changePlanes(translationPlane, offsetPlane);
         showTranslationPlane();
@@ -137,7 +139,7 @@ namespace phi
         };
 
         auto fadeInAnimation = new phi::floatAnimation(easingFunctions::easeInQuad);
-        
+
         fadeInAnimation->setUpdateFunction(fadeUpdadeFunction);
         animator->addAnimation(fadeInAnimation);
 
@@ -185,16 +187,98 @@ namespace phi
 
         tryChangingPlanes();
         checkForClippingPlanes();
-        
-        auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
 
-        translateTargetNodes(endPosition);
+        auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
+        auto offset = endPosition - _offsetPlane.origin;
+        //offset.x = 0.0f;
+        //offset.y = 0.0f;
+        offset.z = 0.0f;
+
+        auto snappedOffset = snapTranslationToGrid(offset + _snappedDelta);
+
+        translateTargetNodes(snappedOffset);
+
+        if (_snappedAtX)
+            _snappedDelta.x += offset.x;
+        else
+            _snappedDelta.x = 0.0f;
+
+        if (_snappedAtY)
+            _snappedDelta.y += offset.y;
+        else
+            _snappedDelta.y = 0.0f;
+
+        _offsetPlane.origin = endPosition;
+        //debug("x = [" + string(_snappedAtX ? "true" : "false") + "]" + " y = [" + string(_snappedAtY ? "true" : "false") + "] | " +  to_string(_snappedDelta));
         translatePlaneGrid(endPosition);
         checkCollisionsAferTranslation();
 
         //updateClippedPlanes();
 
         _lastMousePosition = mousePosition;
+    }
+
+    vec3 translationService::snapTranslationToGrid(vec3 offset)
+    {
+        // TODO: test snapping at limits of clicked object
+
+        auto obb = _clickedNode->getObb();
+        vec3 minimum;
+        vec3 maximum;
+        obb->getLimits(minimum, maximum);
+
+        vec3 limits[2] = { minimum, maximum };
+        vec3 mods[2];
+        vec3 offsetedLimits[2];
+
+        for (auto i = 0; i < 2; ++i)
+        {
+            offsetedLimits[i] = limits[i] + offset;
+            mods[i] = glm::abs(glm::modf(offsetedLimits[i], vec3(1.0f)));
+        }
+
+        _snappedAtX = _snappedAtY = false;
+        bool snapped[2];
+        snapped[0] = false;
+        snapped[1] = false;
+
+        vec3 snappedOffset;
+
+        for (auto i = 0; i < 2; ++i)
+        {
+            auto mod = mods[i];
+
+            if (!_snappedAtX)
+            {
+                if (mod.x < 0.1f || mod.x > 0.9f)
+                {
+                    _snappedAtX = true;
+                    snapped[i] = true;
+                    snappedOffset.x = glm::round(offsetedLimits[i].x) - limits[i].x;
+                }
+                else
+                    snappedOffset.x = offset.x;
+            }
+
+            if (!_snappedAtY)
+            {
+                if (mod.y < 0.1f || mod.y > 0.9f)
+                {
+                    _snappedAtY = true;
+                    snapped[i] = true;
+                    snappedOffset.y = glm::round(offsetedLimits[i].y) - limits[i].y;
+                }
+                else
+                    snappedOffset.y = offset.y;
+            }
+
+            snappedOffset.z = offset.z;
+        }
+
+        if (_snappedAtX || _snappedAtY)
+            return snappedOffset;
+
+        return offset;
     }
 
     void translationService::checkForClippingPlanes()
@@ -310,7 +394,7 @@ namespace phi
         for (auto& touch : _currentCollisions)
         {
             auto node = touch.collider->getNode();
-            while (node->getParent()->getParent() != nullptr) 
+            while (node->getParent()->getParent() != nullptr)
                 node = node->getParent();
 
             auto colliderObb = node->getObb();
@@ -326,7 +410,7 @@ namespace phi
                 {
                     maxDistance = distanceFromPlane;
                     leavingPlane = collideePlane;
-                    vec4 leavingPos = vec4(colliderObb->getPositionAt(-leavingPlane.normal), 1.0);
+                    auto leavingPos = vec4(colliderObb->getPositionAt(-leavingPlane.normal), 1.0);
                     leavingDistance = glm::dot(leavingPlane.toVec4(), leavingPos);
 
                     if (leavingDistance > DECIMAL_TRUNCATION)
@@ -353,7 +437,7 @@ namespace phi
         {
             _nodeTranslator->translate(-leavingPlane.normal * (leavingDistance - DECIMAL_TRUNCATION));
 
-            auto offsetPlane = plane(_offsetPlaneOrigin, leavingPlane.normal);
+            auto offsetPlane = plane(_offsetPlane.origin, leavingPlane.normal);
             auto translationPlane = createTranslationPlane(leavingPlane);
 
             changePlanes(translationPlane, offsetPlane);
@@ -383,7 +467,7 @@ namespace phi
             if (canChangeTo(touchPlane))
             {
                 auto translationPlane = createTranslationPlane(touchPlane);
-                auto offsetPlane = plane(_offsetPlaneOrigin, touchPlane.normal);
+                auto offsetPlane = plane(_offsetPlane.origin, touchPlane.normal);
                 changePlanes(translationPlane, offsetPlane);
                 showTranslationPlane();
                 return true;
@@ -438,17 +522,14 @@ namespace phi
         return isNormalValid;
     }
 
-    void translationService::translateTargetNodes(const vec3& targetPosition)
+    void translationService::translateTargetNodes(const vec3 offset)
     {
-        auto offset = targetPosition - _offsetPlaneOrigin;
-
         if (offset == vec3())
             return;
 
         auto resolvedOffset = _nodeTranslator->translate(offset);
 
-        _offsetPlaneOrigin += resolvedOffset;
-        _offsetPlane.origin = _offsetPlaneOrigin;
+        //_objectToPlaneDelta += resolvedOffset - offset;
 
         _lastCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
 
@@ -501,7 +582,7 @@ namespace phi
         if (touchCollisions.size() > 0 && _lastCollisions->size() == 0)
             _currentCollisions = getValidTouchCollisions(touchCollisions);
     }
-    
+
     void translationService::updateClippedPlanes()
     {
         //update opacity
@@ -533,7 +614,7 @@ namespace phi
 
             if (distanceFromPlane > 0.0f)
             {
-                auto opacity = glm::clamp(distanceFromPlane/0.4f, 0.0f, 1.0f);
+                auto opacity = glm::clamp(distanceFromPlane / 0.4f, 0.0f, 1.0f);
                 auto currentClippingPlane = clippedTranslationPlane->getClippingPlane();
                 auto currentPlaneGrid = _currentTranslationPlane->getPlaneGrid();
 
@@ -601,7 +682,7 @@ namespace phi
 
         for (auto& touch : touchs)
         {
-            
+
             auto touchPlane = plane(_currentTranslationPlane->getPlane().origin, touch.normal);
             bool isTouchPlaneParallelToAnyOtherTouchPlane = false;
 
@@ -703,7 +784,7 @@ namespace phi
      auto shouldAddClippedPlane = _clippedTranslationPlanes.find(collideePlane) == _clippedTranslationPlanes.end();
      if (shouldAddClippedPlane)
      {
-         
+
          //if (clippedTranslationPlane)
          //_clippedTranslationPlanes[collideePlane] = clippedTranslationPlane;
          /*auto clippingPlane = _currentTranslationPlane->getClippingPlane();

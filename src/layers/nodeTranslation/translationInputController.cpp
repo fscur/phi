@@ -36,7 +36,7 @@ namespace phi
         safeDelete(_translationService);
     }
 
-    bool translationInputController::canStartTranslation(mouseEventArgs* e)
+    bool translationInputController::canStartTranslation(mouseEventArgs* e, node*& clickedNode)
     {
         if (!_isEnabled)
             return false;
@@ -54,10 +54,12 @@ namespace phi
             return false;
 
         auto node = clickComponent->getNode();
-        auto rootNode = node;
 
-        if (rootNode->isSelected())
+        if (node->isSelected())
+        {
+            clickedNode = node;
             return true;
+        }
 
         return false;
     }
@@ -79,12 +81,14 @@ namespace phi
 
     bool translationInputController::onMouseDown(mouseEventArgs* e)
     {
-        if (!canStartTranslation(e))
+        node* clickedNode;
+        if (!canStartTranslation(e, clickedNode))
             return false;
 
         _startTimer = 0.5;
         _isWaitingToStart = true;
         _startMousePosition = ivec2(e->x, e->y);
+        _startClickedNode = clickedNode;
         return false;
     }
 
@@ -93,7 +97,7 @@ namespace phi
         for (auto& node : *_targetNodes)
             _originalPositions[node] = node->getTransform()->getLocalPosition();
 
-        _translationService->startTranslation(_startMousePosition);
+        _translationService->startTranslation(_startMousePosition, _startClickedNode);
 
         _isMouseHidden = true;
         window::hideCursor();

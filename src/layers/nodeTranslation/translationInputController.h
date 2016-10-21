@@ -32,7 +32,7 @@ namespace phi
         void cancel() override;
 
     private:
-        bool canStartTranslation(mouseEventArgs* e);
+        bool canStartTranslation(mouseEventArgs* e, node*& clickedNode);
         void startTranslation();
         void pushTranslateCommands();
 
@@ -50,5 +50,6 @@ namespace phi
         bool _isWaitingToStart;
         double _startTimer;
         ivec2 _startMousePosition;
+        node* _startClickedNode;
     };
 }

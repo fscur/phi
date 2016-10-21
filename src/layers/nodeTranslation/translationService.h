@@ -28,7 +28,7 @@ namespace phi
 
         ~translationService();
 
-        void startTranslation(ivec2 mousePosition);
+        void startTranslation(ivec2 mousePosition, node* clickedNode);
         void translate(ivec2 mousePosition);
         void endTranslation();
 
@@ -57,7 +57,7 @@ namespace phi
         void updateClippedPlanes();
         void deletePlane(translationPlane* translationPlane);
         void deletePlaneIfNotVisible();
-        
+
         void updatePlaneVisibility(translationPlane* translationPlane);
 
         bool canChangeTo(const plane& plane);
@@ -71,8 +71,9 @@ namespace phi
         bool tryChangeToPlanesFromCollisions();
         bool tryChangeToAttachedPlane();
         void changePlanes(translationPlane * translationPlane, const plane& offsetPlane);
-        
-        void translateTargetNodes(const vec3& targetPosition);
+
+        vec3 snapTranslationToGrid(vec3 endPosition);
+        void translateTargetNodes(const vec3 targetPosition);
         void translatePlaneGrid(const vec3& targetPosition);
 
         void resetCurrentCollisions();
@@ -92,11 +93,14 @@ namespace phi
         bool _isTranslating;
         bool _canChangePlanes;
 
-        vec3 _offsetPlaneOrigin;
+        node* _clickedNode;
         plane _offsetPlane;
         translationPlane* _currentTranslationPlane;
         vector<translationPlane*> _planesToDelete;
         ivec2 _lastMousePosition;
+        bool _snappedAtX;
+        bool _snappedAtY;
+        vec3 _snappedDelta;
 
         vector<sweepCollision>* _lastCollisions;
         vector<sweepCollision> _currentCollisions;
