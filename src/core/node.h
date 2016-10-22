@@ -36,6 +36,8 @@ namespace phi
         eventHandler<node*> transformChanged;
         eventHandler<node*> selectionChanged;
         eventHandler<node*> obbChanged;
+        eventHandler<node*, component*> componentAdded;
+        eventHandler<node*, component*> componentRemoved;
 
         resource<node>* resource;
 
@@ -75,6 +77,7 @@ namespace phi
 
         CORE_API node* clone() const;
         CORE_API void addComponent(component* const component);
+        CORE_API void removeComponent(component* component);
         CORE_API void addChild(node* const child);
         CORE_API void removeChild(node* child);
         CORE_API void clearChildren();

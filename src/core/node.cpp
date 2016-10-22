@@ -82,6 +82,14 @@ namespace phi
     {
         _components.push_back(component);
         component->setNode(this);
+        componentAdded.raise(this, component);
+    }
+
+    inline void node::removeComponent(component* component)
+    {
+        component->setNode(nullptr);
+        removeIfContains(_components, component);
+        componentRemoved.raise(this, component);
     }
 
     inline void node::addChild(node* const child)

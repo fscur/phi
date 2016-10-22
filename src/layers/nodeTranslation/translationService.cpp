@@ -192,18 +192,20 @@ namespace phi
         auto offset = endPosition - _offsetPlane.origin;
         //offset.x = 0.0f;
         //offset.y = 0.0f;
-        offset.z = 0.0f;
+        //offset.z = 0.0f;
 
+        auto oldSnappedAtX = _snappedAtX;
+        auto oldSnappedAtY = _snappedAtY;
         auto snappedOffset = snapTranslationToGrid(offset + _snappedDelta);
 
         translateTargetNodes(snappedOffset);
 
-        if (_snappedAtX)
+        if (oldSnappedAtX && _snappedAtX)
             _snappedDelta.x += offset.x;
         else
             _snappedDelta.x = 0.0f;
 
-        if (_snappedAtY)
+        if (oldSnappedAtY && _snappedAtY)
             _snappedDelta.y += offset.y;
         else
             _snappedDelta.y = 0.0f;
@@ -220,8 +222,6 @@ namespace phi
 
     vec3 translationService::snapTranslationToGrid(vec3 offset)
     {
-        // TODO: test snapping at limits of clicked object
-
         auto obb = _clickedNode->getObb();
         vec3 minimum;
         vec3 maximum;
@@ -272,6 +272,7 @@ namespace phi
                     snappedOffset.y = offset.y;
             }
 
+            //snappedOffset.y = offset.y;
             snappedOffset.z = offset.z;
         }
 

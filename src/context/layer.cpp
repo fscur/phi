@@ -1,10 +1,9 @@
 #include <precompiled.h>
-#include "layer.h"
-
 #include <common/mouseInteractionComponent.h>
 #include <core/time.h>
-
+#include "layer.h"
 #include "pickingId.h"
+
 namespace phi
 {
     layer::layer(camera* camera) :
@@ -56,13 +55,17 @@ namespace phi
         auto transformChangedToken = node->transformChanged.assign(std::bind(&layer::nodeTransformChanged, this, std::placeholders::_1));
         auto selectionChangedToken = node->selectionChanged.assign(std::bind(&layer::nodeSelectionChanged, this, std::placeholders::_1));
         auto obbChangedToken = node->obbChanged.assign(std::bind(&layer::nodeObbChanged, this, std::placeholders::_1));
+        auto componentAddedToken = node->componentAdded.assign(std::bind(&layer::nodeComponentAdded, this, std::placeholders::_1, std::placeholders::_2));
+        auto componentRemovedToken = node->componentRemoved.assign(std::bind(&layer::nodeComponentRemoved, this, std::placeholders::_1, std::placeholders::_2));
 
         _nodeTokens[node] = new nodeEventTokens(
             childAddedToken,
             childRemovedToken,
             transformChangedToken,
             selectionChangedToken,
-            obbChangedToken);
+            obbChangedToken,
+            componentAddedToken,
+            componentRemovedToken);
     }
 
     void layer::untrackNode(node* node)
@@ -72,6 +75,7 @@ namespace phi
         node->transformChanged.unassign(_nodeTokens[node]->transformChanged);
         node->selectionChanged.unassign(_nodeTokens[node]->selectionChanged);
         node->obbChanged.unassign(_nodeTokens[node]->obbChanged);
+        node->componentAdded.unassign(_nodeTokens[node]->componentAdded);
 
         safeDelete(_nodeTokens[node]);
     }
@@ -140,6 +144,20 @@ namespace phi
         for (auto onNodeObbChangedFunction : _onNodeObbChanged)
             if (onNodeObbChangedFunction)
                 onNodeObbChangedFunction(changedNode);
+    }
+
+    void layer::nodeComponentAdded(node* node, component* component)
+    {
+        for (auto onNodeComponentAddedFunction : _onNodeComponentAdded)
+            if (onNodeComponentAddedFunction)
+                onNodeComponentAddedFunction(node, component);
+    }
+
+    void layer::nodeComponentRemoved(node* node, component* component)
+    {
+        for (auto onNodeComponentRemovedFunction : _onNodeComponentRemoved)
+            if (onNodeComponentRemovedFunction)
+                onNodeComponentRemovedFunction(node, component);
     }
 
     void layer::add(node* node)

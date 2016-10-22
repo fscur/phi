@@ -221,6 +221,8 @@ namespace phi
         _layer->addOnUpdate(std::bind(&animatorLayerBehaviour::onUpdate, animatorBehaviour));
         _layer->addOnNodeAdded(std::bind(&animatorLayerBehaviour::onNodeAdded, animatorBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&animatorLayerBehaviour::onNodeRemoved, animatorBehaviour, std::placeholders::_1));
+        _layer->addOnNodeComponentAdded(std::bind(&animatorLayerBehaviour::onNodeComponentAdded, animatorBehaviour, std::placeholders::_1, std::placeholders::_2));
+        _layer->addOnNodeComponentRemoved(std::bind(&animatorLayerBehaviour::onNodeComponentRemoved, animatorBehaviour, std::placeholders::_1, std::placeholders::_2));
 
         _layer->addOnDelete([animatorBehaviour]() mutable
         {

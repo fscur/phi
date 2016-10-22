@@ -1,6 +1,8 @@
 #pragma once
 
 #include <core/node.h>
+#include <animation/animator.h>
+#include <animation/translateAnimation.h>
 #include <physics/physicsWorld.h>
 
 namespace phi
@@ -37,12 +39,14 @@ namespace phi
         vec3 collisionNodeTranslator::resolveCollisions(vec3 offset);
 
     private:
+        bool _resolveCollisions;
         physicsWorld* _physicsWorld;
         plane _plane;
         vector<node*> _nodes;
         vector<boxCollider*> _colliders;
         vector<transform*> _transforms;
         vector<sweepCollision>* _lastTranslationTouchingCollisions;
-        bool _resolveCollisions;
+        unordered_map<node*, vec3> _nodesPositions;
+        unordered_map<node*, translateAnimation*> _nodesTranslateAnimations;
     };
 }

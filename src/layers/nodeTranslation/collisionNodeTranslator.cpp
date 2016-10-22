@@ -223,6 +223,16 @@ namespace phi
                 b->disable();
                 _colliders.push_back(b);
                 _transforms.push_back(b->getNode()->getTransform());
+
+                auto animator = new phi::animator();
+                node->addComponent(animator);
+                auto translateAnimation = new phi::translateAnimation([node](vec3 position)
+                {
+                    node->getTransform()->setLocalPosition(position);
+                }, easingFunctions::easeOutCubic);
+                animator->addAnimation(translateAnimation);
+                _nodesTranslateAnimations[node] = translateAnimation;
+                _nodesPositions[node] = node->getTransform()->getLocalPosition();
             }
         });
     }
@@ -231,6 +241,15 @@ namespace phi
     {
         for (auto& collider : _colliders)
             collider->enable();
+
+        for (auto& pair : _nodesTranslateAnimations)
+        {
+            auto node = pair.first;
+            auto animator = node->getComponent<phi::animator>();
+            node->removeComponent(animator);
+            safeDelete(animator);
+            safeDelete(pair.second);
+        }
 
         _colliders.clear();
         _transforms.clear();
@@ -249,7 +268,12 @@ namespace phi
         assert(!isnan(offset.z));
 
         for (auto& node : _nodes)
+        {
+            //_nodesPositions[node] += offset;
+            //auto translateAnimation = _nodesTranslateAnimations[node];
+            //translateAnimation->start(node->getTransform()->getLocalPosition(), _nodesPositions[node], 0.25f);
             node->getTransform()->translate(offset);
+        }
 
         return offset;
     }
