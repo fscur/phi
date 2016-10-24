@@ -9,6 +9,13 @@
 
 #include <input/input.h>
 
+#include <data/abstractions/iModelDataService.h>
+#include <data/geometryRepository.h>
+#include <data/materialRepository.h>
+#include <data/imageRepository.h>
+#include <data/modelRepository.h>
+#include <data/modelDataService.h>
+
 #include <loader/importer.h>
 #include <loader/exporter.h>
 
@@ -117,10 +124,19 @@ namespace demon
 
     void screen::initLibraries()
     {
-        _userLibrary = new library(application::libraryPath);
-        _userLibrary->load();
+        auto materialRepository = new phi::materialRepository();
+        auto imageRepository = new phi::imageRepository();
+        auto geometryRepository = new phi::geometryRepository();
+        auto modelRepository = new phi::modelRepository();
+        auto modelDataService = new phi::modelDataService(
+            geometryRepository,
+            materialRepository,
+            imageRepository,
+            modelRepository);
 
-        _projectLibrary = new library(application::path);
+        _userLibrary = new library(modelDataService);
+
+        _projectLibrary = new library(modelDataService);
     }
 
     void screen::initContexts()
@@ -161,30 +177,31 @@ namespace demon
             .withFont(font)
             .build();
 
-        auto chair0 = _userLibrary->getObjectsRepository()->getEntity(2);
-        chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
+        auto obj = _userLibrary->getModelByIndex(0);
+        //auto chair0 = _userLibrary->getObjectsRepository()->getEntity(2);
+        //chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
 
-        auto cube0 = _userLibrary->getObjectsRepository()->getEntity(7);
-        cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
+        //auto cube0 = _userLibrary->getObjectsRepository()->getEntity(7);
+        //cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
 
-        auto cube1 = _userLibrary->getObjectsRepository()->getEntity(7);
-        cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
+        //auto cube1 = _userLibrary->getObjectsRepository()->getEntity(7);
+        //cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
 
-        auto back_wall =_userLibrary->getObjectsRepository()->getEntity(21);
-        back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
-        auto floor0 = _userLibrary->getObjectsRepository()->getEntity(24);
+        //auto back_wall =_userLibrary->getObjectsRepository()->getEntity(21);
+        //back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
+        //auto floor0 = _userLibrary->getObjectsRepository()->getEntity(24);
 
-        auto coffeTable = _userLibrary->getObjectsRepository()->getEntity(29);
-        coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
-        auto tableChair = _userLibrary->getObjectsRepository()->getEntity(5);
-        tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
-        auto table = _userLibrary->getObjectsRepository()->getEntity(28);
-        table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
+        //auto coffeTable = _userLibrary->getObjectsRepository()->getEntity(29);
+        //coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
+        //auto tableChair = _userLibrary->getObjectsRepository()->getEntity(5);
+        //tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
+        //auto table = _userLibrary->getObjectsRepository()->getEntity(28);
+        //table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
         _sceneCamera->getTransform()->yaw(PI);
-        
+
         try
         {
             _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
@@ -279,14 +296,14 @@ namespace demon
 
             // Display the Open dialog box.
 
-            if (GetOpenFileName(&ofn) == TRUE)
-            {
-                auto nodes = importer::loadPhiFile(ofn.lpstrFile, _userLibrary->getObjectsRepository());
-                for (auto& node : nodes)
-                {
-                    _sceneLayer->add(node);
-                }
-            }
+            //if (GetOpenFileName(&ofn) == TRUE)
+            //{
+            //    auto nodes = importer::loadPhiFile(ofn.lpstrFile, _userLibrary->getObjectsRepository());
+            //    for (auto& node : nodes)
+            //    {
+            //        _sceneLayer->add(node);
+            //    }
+            //}
         })
             .build();
 
@@ -304,7 +321,7 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
-        _scene->add(cube0);
+        //_scene->add(cube0);
 /*        _sceneLayer->add(cube1);
         _sceneLayer->add(_chair0);
         _sceneLayer->add(floor0);
