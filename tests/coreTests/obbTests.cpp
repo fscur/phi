@@ -363,13 +363,29 @@ namespace obbTests
         obb1->axes[1] = rotation * obb1->axes[1];
         obb1->axes[2] = rotation * obb1->axes[2];
         obb1->halfSizes = vec3(1.0f, 0.25f, 0.5f);
-        obb1->center = vec3(0.0f, 0.75f, 0.0f);
+        obb1->center = vec3(0.0f, 0.8f, 0.0f);
 
         //Act
         auto colliding = obb::intersects(*obb0, *obb1);
 
         //Assert
         ASSERT_FALSE(colliding);
+    }
+
+    TEST_F(unitObbFixture, intersects_secondObbRotatedInsideFirst_colliding)
+    {
+        //Arrange
+        auto rotation = glm::angleAxis(PI_OVER_4, glm::normalize(vec3(0.0f, 1.0f, 0.0f)));
+        obb1->axes[0] = rotation * obb1->axes[0];
+        obb1->axes[1] = rotation * obb1->axes[1];
+        obb1->axes[2] = rotation * obb1->axes[2];
+        obb1->center = vec3(0.5f, 0.0f, 0.0f);
+
+        //Act
+        auto colliding = obb::intersects(*obb0, *obb1);
+
+        //Assert
+        ASSERT_TRUE(colliding);
     }
 
     TEST_F(unitObbFixture, getPositionAt_xAxis_correctPosition)

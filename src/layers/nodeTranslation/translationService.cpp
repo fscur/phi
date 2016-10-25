@@ -257,7 +257,7 @@ namespace phi
         {
             auto mod = glm::abs(glm::modf(offsetedLimits[i], vec3(gridSize)));
 
-            if (!_snappedAtX)
+            if (!_snappedAtX && glm::abs(_offsetPlane.normal) != vec3(1.0f, 0.0f, 0.0f))
             {
                 if (mod.x < snapMargin || mod.x > highSnapMargin)
                 {
@@ -266,7 +266,7 @@ namespace phi
                 }
             }
 
-            if (!_snappedAtY)
+            if (!_snappedAtY && glm::abs(_offsetPlane.normal) != vec3(0.0f, 1.0f, 0.0f))
             {
                 if (mod.y < snapMargin || mod.y > highSnapMargin)
                 {
@@ -275,7 +275,7 @@ namespace phi
                 }
             }
 
-            if (!_snappedAtZ)
+            if (!_snappedAtZ && glm::abs(_offsetPlane.normal) != vec3(0.0f, 0.0f, 1.0f))
             {
                 if (mod.z < snapMargin || mod.z > highSnapMargin)
                 {

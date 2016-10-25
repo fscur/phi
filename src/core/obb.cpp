@@ -50,31 +50,31 @@ namespace phi
         if (comp(a0 * abs(C[0][2]) + a1 * abs(C[1][2]) + a2 * abs(C[2][2]), b2, abs(dot(B2, D))))
             return false;
 
-        if (comp(a1 * abs(C[2][0]) + a2 * abs(C[1][0]), b1 * abs(C[0][2]) + b2 * abs(C[0][1]), dot(abs(C[1][0] * A2), D) - dot(C[2][0] * A1, D)))
+        if (comp(a1 * abs(C[2][0]) + a2 * abs(C[1][0]), b1 * abs(C[0][2]) + b2 * abs(C[0][1]), abs(dot(C[1][0] * A2, D) - dot(C[2][0] * A1, D))))
             return false;
 
-        if (comp(a1 * abs(C[2][1]) + a2 * abs(C[1][1]), b0 * abs(C[0][2]) + b2 * abs(C[0][0]), dot(abs(C[1][1] * A2), D) - dot(C[2][1] * A1, D)))
+        if (comp(a1 * abs(C[2][1]) + a2 * abs(C[1][1]), b0 * abs(C[0][2]) + b2 * abs(C[0][0]), abs(dot(C[1][1] * A2, D) - dot(C[2][1] * A1, D))))
             return false;
 
-        if (comp(a1 * abs(C[2][2]) + a2 * abs(C[1][2]), b0 * abs(C[0][1]) + b1 * abs(C[0][0]), dot(abs(C[1][2] * A2), D) - dot(C[2][2] * A1, D)))
+        if (comp(a1 * abs(C[2][2]) + a2 * abs(C[1][2]), b0 * abs(C[0][1]) + b1 * abs(C[0][0]), abs(dot(C[1][2] * A2, D) - dot(C[2][2] * A1, D))))
             return false;
 
-        if (comp(a0 * abs(C[2][0]) + a2 * abs(C[0][0]), b1 * abs(C[1][2]) + b2 * abs(C[1][1]), dot(abs(C[2][0] * A0), D) - dot(C[0][0] * A2, D)))
+        if (comp(a0 * abs(C[2][0]) + a2 * abs(C[0][0]), b1 * abs(C[1][2]) + b2 * abs(C[1][1]), abs(dot(C[2][0] * A0, D) - dot(C[0][0] * A2, D))))
             return false;
 
-        if (comp(a0 * abs(C[2][1]) + a2 * abs(C[0][1]), b0 * abs(C[1][2]) + b2 * abs(C[0][0]), dot(abs(C[2][1] * A0), D) - dot(C[0][1] * A2, D)))
+        if (comp(a0 * abs(C[2][1]) + a2 * abs(C[0][1]), b0 * abs(C[1][2]) + b2 * abs(C[0][0]), abs(dot(C[2][1] * A0, D) - dot(C[0][1] * A2, D))))
             return false;
 
-        if (comp(a0 * abs(C[2][2]) + a2 * abs(C[0][2]), b0 * abs(C[1][1]) + b1 * abs(C[0][0]), dot(abs(C[2][2] * A0), D) - dot(C[0][2] * A2, D)))
+        if (comp(a0 * abs(C[2][2]) + a2 * abs(C[0][2]), b0 * abs(C[1][1]) + b1 * abs(C[1][0]), abs(dot(C[2][2] * A0, D) - dot(C[0][2] * A2, D))))
             return false;
 
-        if (comp(a0 * abs(C[1][0]) + a1 * abs(C[0][0]), b1 * abs(C[2][2]) + b2 * abs(C[0][0]), dot(abs(C[0][0] * A1), D) - dot(C[1][0] * A0, D)))
+        if (comp(a0 * abs(C[1][0]) + a1 * abs(C[0][0]), b1 * abs(C[2][2]) + b2 * abs(C[2][1]), abs(dot(C[0][0] * A1, D) - dot(C[1][0] * A0, D))))
             return false;
 
-        if (comp(a0 * abs(C[1][1]) + a1 * abs(C[0][1]), b0 * abs(C[2][2]) + b2 * abs(C[0][0]), dot(abs(C[0][1] * A1), D) - dot(C[1][1] * A0, D)))
+        if (comp(a0 * abs(C[1][1]) + a1 * abs(C[0][1]), b0 * abs(C[2][2]) + b2 * abs(C[2][0]), abs(dot(C[0][1] * A1, D) - dot(C[1][1] * A0, D))))
             return false;
 
-        if (comp(a0 * abs(C[1][2]) + a1 * abs(C[0][2]), b0 * abs(C[2][1]) + b1 * abs(C[0][0]), dot(abs(C[0][2] * A1), D) - dot(C[1][2] * A0, D)))
+        if (comp(a0 * abs(C[1][2]) + a1 * abs(C[0][2]), b0 * abs(C[2][1]) + b1 * abs(C[2][0]), abs(dot(C[0][2] * A1, D) - dot(C[1][2] * A0, D))))
             return false;
 
         return true;
