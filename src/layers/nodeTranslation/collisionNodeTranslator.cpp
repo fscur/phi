@@ -38,7 +38,7 @@ namespace phi
         for (size_t i = 0; i < transformsCount; ++i)
         {
             auto transform = _transforms.at(i);
-            auto position = transform->getPosition() + offset;
+            auto position = _nodesDestinationPositions[_nodes.at(i)] + offset;
             auto rotation = transform->getOrientation();
             auto size = transform->getSize();
             auto offsetTransform = new phi::transform();
@@ -156,16 +156,18 @@ namespace phi
         if (objectFitsInOffsetedPosition(offset))
             return offset;
 
-        auto finalOffset = vec3();
+        auto resolvedOffset = vec3();
 
-        auto sweepResult = performCollisionSweep(&_transforms, offset);
+        auto destinationTransforms = createOffsetedTransforms(vec3());
+
+        auto sweepResult = performCollisionSweep(destinationTransforms, offset);
         if (sweepResult->collisions.size() > 0u)
         {
             sweepCollision farthestCollision;
             auto foundFarthestCollision = findFarthestValidCollision(sweepResult, offset, farthestCollision);
             if (!foundFarthestCollision)
             {
-                finalOffset = vec3();
+                resolvedOffset = vec3();
                 addTouchingCollisions(sweepResult, sweepResult->collisions[0]);
             }
             else
@@ -175,7 +177,7 @@ namespace phi
 
                 if (adjustedOffset == vec3())
                 {
-                    finalOffset = limitedOffset;
+                    resolvedOffset = limitedOffset;
                     addTouchingCollisions(sweepResult, farthestCollision);
                 }
                 else
@@ -186,12 +188,12 @@ namespace phi
                     if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
                     {
                         auto firstCollision = adjustSweepResult->collisions.begin();
-                        finalOffset = limitedOffset + glm::normalize(adjustedOffset) * firstCollision->distance;
+                        resolvedOffset = limitedOffset + glm::normalize(adjustedOffset) * firstCollision->distance;
                         addTouchingCollisions(adjustSweepResult, *firstCollision);
                     }
                     else
                     {
-                        finalOffset = limitedOffset + adjustedOffset;
+                        resolvedOffset = limitedOffset + adjustedOffset;
                         addTouchingCollisions(sweepResult, farthestCollision);
                     }
 
@@ -203,8 +205,12 @@ namespace phi
             }
         }
 
+        for (auto& transform : (*destinationTransforms))
+            safeDelete(transform);
+        safeDelete(destinationTransforms);
+
         safeDelete(sweepResult);
-        return finalOffset;
+        return resolvedOffset;
     }
 
     void collisionNodeTranslator::addRange(const vector<node*>& nodes)

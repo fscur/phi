@@ -48,6 +48,7 @@ namespace phi
         _offsetPlane.origin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
         _snappedAtX = _snappedAtY = _snappedAtZ = false;
         _snappedDelta = vec3();
+        _collidedDelta = vec3();
 
         checkCollisionsBeforeTranslation();
 
@@ -195,7 +196,7 @@ namespace phi
         auto oldSnappedAtX = _snappedAtX;
         auto oldSnappedAtY = _snappedAtY;
         auto oldSnappedAtZ = _snappedAtZ;
-        auto snappedOffset = snapToGrid(offset + _snappedDelta);
+        auto snappedOffset = snapToGrid(offset + _collidedDelta + _snappedDelta);
 
         translateTargetNodes(snappedOffset);
 
@@ -548,14 +549,15 @@ namespace phi
             _ghostTranslator->translate(offset);
         }
         else
-        {
             _ghostTranslator->disable();
-        }
 
         if (hadAnyCollisions)
         {
+            _collidedDelta = offset - resolvedOffset;
             resetCurrentCollisions();
         }
+        else
+            _collidedDelta = vec3();
     }
 
     void translationService::resetCurrentCollisions()

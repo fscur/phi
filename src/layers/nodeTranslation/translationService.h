@@ -98,6 +98,7 @@ namespace phi
         translationPlane* _currentTranslationPlane;
         vector<translationPlane*> _planesToDelete;
         ivec2 _lastMousePosition;
+        vec3 _collidedDelta;
         bool _snappedAtX;
         bool _snappedAtY;
         bool _snappedAtZ;
