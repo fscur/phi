@@ -27,12 +27,12 @@ namespace phi
             // For now, it causes undefined behaviour
         }
 
-        vec3 getOrigin() { return _origin; }
-        vec3 getRightPoint() { return _rightPoint; }
-        vec3 getUpPoint() { return _upPoint; }
-        vec3 getNormal() { return _normal; }
-        vec3 getXAxis() { return _xAxis; }
-        vec3 getYAxis() { return _yAxis; }
+        vec3 getOrigin() const { return _origin; }
+        vec3 getRightPoint() const { return _rightPoint; }
+        vec3 getUpPoint() const { return _upPoint; }
+        vec3 getNormal() const { return _normal; }
+        vec3 getXAxis() const { return _xAxis; }
+        vec3 getYAxis() const { return _yAxis; }
 
         vec2 projectPoint(vec3 point)
         {

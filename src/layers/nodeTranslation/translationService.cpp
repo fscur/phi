@@ -417,6 +417,7 @@ namespace phi
 
     bool translationService::isNormalValidForCollision(const sweepCollision& touch, const vec3& normal)
     {
+        _unused(normal);
         bool isNormalValid = false;
         for (auto& collideePlane : touch.collidee->getObb().getPlanes())
         {

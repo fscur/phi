@@ -5,8 +5,8 @@
 #endif
 
 #ifdef MSVC
-#pragma warning(disable : 4800)
-#pragma warning(push, 3)
+#pragma warning(disable : 4100)
+#pragma warning(push, 2)
 #endif
 
 #include <algorithm>
@@ -47,15 +47,10 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
-//#include <shellscalingapi.h>
-#elif APPLE
-#include <OpenGL\gl3.h>
 #endif
 
 #include <gl/glew.h>
 #include <gl/wglew.h>
-
-//#include <bullet\btBulletDynamicsCommon.h>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_CXX11
@@ -70,12 +65,6 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
-
-#include <rapidjson/document.h>
-#include <rapidjson/filereadstream.h>
-#include <rapidjson/filewritestream.h>
-#include <rapidjson/writer.h>
-
 
 #include <freeimage/FreeImage.h>
 
@@ -97,4 +86,5 @@
 
 #ifdef MSVC
 #pragma warning(pop)
+#pragma warning(default : 4100)
 #endif

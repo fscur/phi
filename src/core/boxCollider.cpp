@@ -56,6 +56,8 @@ namespace phi
 
     inline void boxCollider::nodeTransformChanged(transform* const sender)
     {
+        _unused(sender);
+
         updateModelMatrix();
     }
 

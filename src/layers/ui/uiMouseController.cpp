@@ -59,6 +59,8 @@ namespace phi
 
     bool uiMouseController::onMouseUp(mouseEventArgs * e)
     {
+        _unused(e);
+
         if (_clickedControl)
         {
             auto mouseInteraction = _clickedControl->getNode()->getComponent<mouseInteractionComponent>();

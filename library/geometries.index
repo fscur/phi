@@ -1,0 +1,616 @@
+{
+    "Entries": [
+        {
+            "Guid": "DEfayg9UB02TdngHUIYXyQ==",
+            "Path": "models\\Cabinets\\cabinet_mesh_0.geometry"
+        },
+        {
+            "Guid": "dNaOFP1bqU2pm7BG3ElwBQ==",
+            "Path": "models\\Cabinets\\cabinet_mesh_1.geometry"
+        },
+        {
+            "Guid": "Q1juhxuhNUqtfOU5HekcWg==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_0.geometry"
+        },
+        {
+            "Guid": "5MUpaG9gHEOh4X6RtcHxmw==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_1.geometry"
+        },
+        {
+            "Guid": "xeyEAFty0UaBgOU0jFj8rQ==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_2.geometry"
+        },
+        {
+            "Guid": "6cD3b3EbF0KfNL10T4wtSg==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_3.geometry"
+        },
+        {
+            "Guid": "Y80IQn2p5UCUppKn2WvBLw==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_4.geometry"
+        },
+        {
+            "Guid": "yNt4VoecpUKLgpvXptUmAQ==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_5.geometry"
+        },
+        {
+            "Guid": "alQHU+0qKESRpY2UA2Mqrw==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_6.geometry"
+        },
+        {
+            "Guid": "A40+bLbkzU6gCzB71IoL/g==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_7.geometry"
+        },
+        {
+            "Guid": "PJaQ0j+Qs0i2/n/FiQG6wQ==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_8.geometry"
+        },
+        {
+            "Guid": "xlKIJW9d9Um5GYuOdwWyQw==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_9.geometry"
+        },
+        {
+            "Guid": "IrwV9yK3Gk2vJly2zuDdfQ==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_10.geometry"
+        },
+        {
+            "Guid": "HRNQNTs4IkemPxCu7BxI7Q==",
+            "Path": "models\\Cabinets\\modulo_porta_mesh_11.geometry"
+        },
+        {
+            "Guid": "X9MAkk16IkeUJ0rCkdVnQA==",
+            "Path": "models\\Chairs\\black_chair_mesh_0.geometry"
+        },
+        {
+            "Guid": "NzAoOlJuIkqaFdtqWDutOQ==",
+            "Path": "models\\Chairs\\black_chair_mesh_1.geometry"
+        },
+        {
+            "Guid": "MxWI+muFcEqZNP8qIst/1A==",
+            "Path": "models\\Chairs\\black_chair_mesh_2.geometry"
+        },
+        {
+            "Guid": "eRWxoRNm2EWyQGNu6IsuWw==",
+            "Path": "models\\Chairs\\black_chair_mesh_3.geometry"
+        },
+        {
+            "Guid": "mVw4NdNODUafJ/WnPk1u+g==",
+            "Path": "models\\Chairs\\black_chair_mesh_4.geometry"
+        },
+        {
+            "Guid": "zaTt8NX3tk6xjrJjC25tFw==",
+            "Path": "models\\Chairs\\black_chair_mesh_5.geometry"
+        },
+        {
+            "Guid": "vFs/jWf3Ck2vM/+omVPmOw==",
+            "Path": "models\\Chairs\\black_chair_mesh_6.geometry"
+        },
+        {
+            "Guid": "caGxs2cnDkO1k+sjG8DECQ==",
+            "Path": "models\\Chairs\\black_chair_mesh_7.geometry"
+        },
+        {
+            "Guid": "xnkJllz/y0qWzOGF+ix7+Q==",
+            "Path": "models\\Chairs\\black_chair_mesh_8.geometry"
+        },
+        {
+            "Guid": "EhEdnvBVxUeJYEiKBXTeMA==",
+            "Path": "models\\Chairs\\black_chair_mesh_9.geometry"
+        },
+        {
+            "Guid": "EQpAliPHzkCkbZJP/UjACQ==",
+            "Path": "models\\Chairs\\brown_chair_mesh_0.geometry"
+        },
+        {
+            "Guid": "49s5V3NjykW3D8Lexo9usA==",
+            "Path": "models\\Chairs\\brown_chair_mesh_1.geometry"
+        },
+        {
+            "Guid": "m1xdCmgD60GySvJkGY+u5A==",
+            "Path": "models\\Chairs\\brown_chair_mesh_2.geometry"
+        },
+        {
+            "Guid": "418GLlUTlUS4OFWoCzduSQ==",
+            "Path": "models\\Chairs\\brown_chair_mesh_3.geometry"
+        },
+        {
+            "Guid": "MPMo9ZeMwkWeun6M6TaEiw==",
+            "Path": "models\\Chairs\\brown_chair_mesh_4.geometry"
+        },
+        {
+            "Guid": "UjKbmvNtUkSkpfgsUc5QqQ==",
+            "Path": "models\\Chairs\\brown_chair_mesh_5.geometry"
+        },
+        {
+            "Guid": "qN5ihr/FoUqFNPmmX2W7ag==",
+            "Path": "models\\Chairs\\brown_chair_mesh_6.geometry"
+        },
+        {
+            "Guid": "MI/B7C4wzE+QYgU8PVZPHw==",
+            "Path": "models\\Chairs\\brown_chair_mesh_7.geometry"
+        },
+        {
+            "Guid": "YCCGXAnkhk2D2qo3yEXVTQ==",
+            "Path": "models\\Chairs\\brown_chair_mesh_8.geometry"
+        },
+        {
+            "Guid": "snhsG1ACn06HMGATAyXUuw==",
+            "Path": "models\\Chairs\\brown_chair_mesh_9.geometry"
+        },
+        {
+            "Guid": "M3vHpADx+UCi1nz4KAXfUw==",
+            "Path": "models\\Chairs\\sofa_mesh_0.geometry"
+        },
+        {
+            "Guid": "koOvIuPkvkuxZTvs/oW/1A==",
+            "Path": "models\\Chairs\\sofa_mesh_1.geometry"
+        },
+        {
+            "Guid": "kfPOfL5EPUi3B3h43y4V3g==",
+            "Path": "models\\Chairs\\sofa_mesh_2.geometry"
+        },
+        {
+            "Guid": "5oYT6NqQREKltPqbJj13bw==",
+            "Path": "models\\Chairs\\sofa_mesh_3.geometry"
+        },
+        {
+            "Guid": "eKdEx2nOi0alCXLSbdd3xg==",
+            "Path": "models\\Chairs\\sofa_mesh_4.geometry"
+        },
+        {
+            "Guid": "qrmlYKAy10migE9evLE3ZA==",
+            "Path": "models\\Chairs\\sofa_mesh_5.geometry"
+        },
+        {
+            "Guid": "oGWzlxFlp0mCXpYPklWrig==",
+            "Path": "models\\Chairs\\sofa_mesh_6.geometry"
+        },
+        {
+            "Guid": "dFY0wkmlZE2cQpOIuitXQw==",
+            "Path": "models\\Chairs\\sofa_mesh_7.geometry"
+        },
+        {
+            "Guid": "Hy8qL0O2vE2f7zdqBEPM4g==",
+            "Path": "models\\Chairs\\table_chair_mesh_0.geometry"
+        },
+        {
+            "Guid": "XcwfENrnT0Kuw/CCQNnXSA==",
+            "Path": "models\\Chairs\\table_chair_mesh_1.geometry"
+        },
+        {
+            "Guid": "1TIwt97m7Em9KPCkMkOEOQ==",
+            "Path": "models\\Decorations\\casket_mesh_0.geometry"
+        },
+        {
+            "Guid": "B2OuWxi1rEqJKrOmuixnJg==",
+            "Path": "models\\Decorations\\casket_mesh_1.geometry"
+        },
+        {
+            "Guid": "14Hu2WnOd0GFJhYEeHkS2w==",
+            "Path": "models\\Decorations\\casket_mesh_2.geometry"
+        },
+        {
+            "Guid": "wJczaykhE0Gzifv1aGqY4Q==",
+            "Path": "models\\Decorations\\casket_mesh_3.geometry"
+        },
+        {
+            "Guid": "XZiN+hJdlUeiuWYB/cvVIQ==",
+            "Path": "models\\Decorations\\casket_mesh_4.geometry"
+        },
+        {
+            "Guid": "1O5oFl+5tkmxhS9DMTTVgg==",
+            "Path": "models\\Decorations\\casket_mesh_5.geometry"
+        },
+        {
+            "Guid": "Mj5oxr1AXEWGtk6LxyflGw==",
+            "Path": "models\\Decorations\\casket_mesh_6.geometry"
+        },
+        {
+            "Guid": "FFJiw2FzBE6Y6rUZFruvLg==",
+            "Path": "models\\Decorations\\casket_mesh_7.geometry"
+        },
+        {
+            "Guid": "U/f0lqTXL0SepJo48/lFYQ==",
+            "Path": "models\\Decorations\\casket_mesh_8.geometry"
+        },
+        {
+            "Guid": "v3fQj1zRmUG589xAowjvEA==",
+            "Path": "models\\Decorations\\casket_mesh_9.geometry"
+        },
+        {
+            "Guid": "cMmtvtU0G0KFAy3GWWtBew==",
+            "Path": "models\\Decorations\\cube_mesh_0.geometry"
+        },
+        {
+            "Guid": "kvhuoCvs8EGN49fMEj61sw==",
+            "Path": "models\\Decorations\\cube_1_mesh_0.geometry"
+        },
+        {
+            "Guid": "V6c0BXlO5kOGAz/xRRHxKQ==",
+            "Path": "models\\Decorations\\flower_mesh_0.geometry"
+        },
+        {
+            "Guid": "878+ghq1xkmM3ovv3PkozA==",
+            "Path": "models\\Decorations\\flower_mesh_1.geometry"
+        },
+        {
+            "Guid": "WuZDsSuF/EyiB2R9imOq/g==",
+            "Path": "models\\Decorations\\flower_mesh_2.geometry"
+        },
+        {
+            "Guid": "MjlwNzOi3Uid0UNfYlVW2g==",
+            "Path": "models\\Decorations\\flower_mesh_3.geometry"
+        },
+        {
+            "Guid": "2f7PZcZ/9EGhfJe4cK236w==",
+            "Path": "models\\Decorations\\flower_mesh_4.geometry"
+        },
+        {
+            "Guid": "OnHjbtnNe0KcwrHh7sUhhA==",
+            "Path": "models\\Decorations\\flower_mesh_5.geometry"
+        },
+        {
+            "Guid": "oeQfX+HwIUWcxn4r5obYQg==",
+            "Path": "models\\Decorations\\flower_mesh_6.geometry"
+        },
+        {
+            "Guid": "1Ld+dDJdx0ePeuB37tAY+w==",
+            "Path": "models\\Decorations\\flower_mesh_7.geometry"
+        },
+        {
+            "Guid": "cS2oWwrljEuLwhMyeGaBzQ==",
+            "Path": "models\\Decorations\\flower_mesh_8.geometry"
+        },
+        {
+            "Guid": "HPk3hjPpKUONP61prgCRKA==",
+            "Path": "models\\Decorations\\flower_mesh_9.geometry"
+        },
+        {
+            "Guid": "odpXRLNNAES9PXpDLVLo/A==",
+            "Path": "models\\Decorations\\flower_mesh_10.geometry"
+        },
+        {
+            "Guid": "1SmJvqVMwEKGMWTN7VmkHA==",
+            "Path": "models\\Decorations\\flower_mesh_11.geometry"
+        },
+        {
+            "Guid": "PrJ1DbldkEiU/Co656acXg==",
+            "Path": "models\\Decorations\\flower_vase_mesh_0.geometry"
+        },
+        {
+            "Guid": "LOHhLtGfT0WIEOLoOT4Ehg==",
+            "Path": "models\\Decorations\\pair_vase_mesh_0.geometry"
+        },
+        {
+            "Guid": "TvZHHrPFMUuQzK70SEoZvQ==",
+            "Path": "models\\Decorations\\pair_vase_mesh_1.geometry"
+        },
+        {
+            "Guid": "nCPtCEMpE0a8Wb6RF85r0A==",
+            "Path": "models\\Decorations\\persian_rug_mesh_0.geometry"
+        },
+        {
+            "Guid": "pT+v7V6qSUSwa1rBTTgCHQ==",
+            "Path": "models\\Decorations\\persian_rug_1_mesh_0.geometry"
+        },
+        {
+            "Guid": "zvlBiD0ZKUC0L/2rkjJGJA==",
+            "Path": "models\\Decorations\\portrait_mesh_0.geometry"
+        },
+        {
+            "Guid": "MYCpmWDRYEe/YZZCOA/Lcw==",
+            "Path": "models\\Decorations\\portrait_mesh_1.geometry"
+        },
+        {
+            "Guid": "CQ/t57OEEkGSTbUL7PSwhQ==",
+            "Path": "models\\Decorations\\sphere_mesh_0.geometry"
+        },
+        {
+            "Guid": "ZXYt9hmcF02NInIVJvCEbQ==",
+            "Path": "models\\Decorations\\telephone_mesh_0.geometry"
+        },
+        {
+            "Guid": "GuKN8hl9B0CL7VSxHpqrPg==",
+            "Path": "models\\Decorations\\telephone_mesh_1.geometry"
+        },
+        {
+            "Guid": "pWDtHOO4g0WS5F180N7hsA==",
+            "Path": "models\\Decorations\\telephone_mesh_2.geometry"
+        },
+        {
+            "Guid": "MNazr2JGRkGt8/SbLqOMiw==",
+            "Path": "models\\Decorations\\telephone_mesh_3.geometry"
+        },
+        {
+            "Guid": "f8eym4oGXEieRINr6qyMng==",
+            "Path": "models\\Decorations\\telephone_mesh_4.geometry"
+        },
+        {
+            "Guid": "PkoGNzYibkiTUk80U5avLQ==",
+            "Path": "models\\Decorations\\telephone_mesh_5.geometry"
+        },
+        {
+            "Guid": "597vBxtUREiONyup/ZR+BQ==",
+            "Path": "models\\Decorations\\telephone_mesh_6.geometry"
+        },
+        {
+            "Guid": "tvhs8cHe7EWIA0aZ0o7WHA==",
+            "Path": "models\\Decorations\\telephone_mesh_7.geometry"
+        },
+        {
+            "Guid": "km9zHgeyj0qGqWDDjwpBYg==",
+            "Path": "models\\Lamps\\ceiling_lamp_mesh_0.geometry"
+        },
+        {
+            "Guid": "bkdPU9vkI0+T10Vjjc8IAw==",
+            "Path": "models\\Lamps\\ceiling_lamp_mesh_1.geometry"
+        },
+        {
+            "Guid": "NH9SG4/2YkK79Xui5UUBJg==",
+            "Path": "models\\Lamps\\ceiling_lamp_mesh_2.geometry"
+        },
+        {
+            "Guid": "gwGH0a/sUUKYSuQsdrJufw==",
+            "Path": "models\\Lamps\\floor_lamp_mesh_0.geometry"
+        },
+        {
+            "Guid": "s7uJ1VyczUiG5kesUeW65Q==",
+            "Path": "models\\Lamps\\floor_lamp_mesh_1.geometry"
+        },
+        {
+            "Guid": "5eOAuRUJmkCF0lYEAl1XGg==",
+            "Path": "models\\Lamps\\floor_lamp_mesh_2.geometry"
+        },
+        {
+            "Guid": "EeAaMr9ryEibPJUf8bUAtg==",
+            "Path": "models\\Lamps\\hanging_lamp_mesh_0.geometry"
+        },
+        {
+            "Guid": "VJgmfQ2fJ0OS2g3354HuUw==",
+            "Path": "models\\Lamps\\hanging_lamp_mesh_1.geometry"
+        },
+        {
+            "Guid": "lduj0XgPRUOrgo1NUWmLOg==",
+            "Path": "models\\Lamps\\hanging_lamp_mesh_2.geometry"
+        },
+        {
+            "Guid": "HwGW3IcXY0KrwFxNsl8DqA==",
+            "Path": "models\\Lamps\\hanging_lamp_mesh_3.geometry"
+        },
+        {
+            "Guid": "FCjmi6Ibvk++F6VF87gnsQ==",
+            "Path": "models\\Lamps\\hanging_lamp_mesh_4.geometry"
+        },
+        {
+            "Guid": "pQ/J5PQzoEmMvzACwZTO/A==",
+            "Path": "models\\Lamps\\hanging_lamp_mesh_5.geometry"
+        },
+        {
+            "Guid": "UetnL/2/yE2ET9BJBB+eVg==",
+            "Path": "models\\Lamps\\spot_lamp_mesh_0.geometry"
+        },
+        {
+            "Guid": "7jbWYaNS3U2WqwntH9HSiA==",
+            "Path": "models\\Lamps\\spot_lamp_mesh_1.geometry"
+        },
+        {
+            "Guid": "5Dk8uo92Ok6NqiSwj9d0iw==",
+            "Path": "models\\Lamps\\spot_lamp_mesh_2.geometry"
+        },
+        {
+            "Guid": "iywD0Kqylk6P/0/a0DfBPQ==",
+            "Path": "models\\Lamps\\spot_lamp_mesh_3.geometry"
+        },
+        {
+            "Guid": "s9WeRPISpEWTwE3MmHeOVQ==",
+            "Path": "models\\Lamps\\spot_lamp_mesh_4.geometry"
+        },
+        {
+            "Guid": "oEF0h+mnNUqjkAx5qFraMg==",
+            "Path": "models\\Lamps\\spot_lamp_mesh_5.geometry"
+        },
+        {
+            "Guid": "9TZ9xpuw00GFlofrVU9m4Q==",
+            "Path": "models\\Lamps\\spot_lamp_mesh_6.geometry"
+        },
+        {
+            "Guid": "psmK3wbLzkmPAU8npndkRw==",
+            "Path": "models\\Lamps\\spot_lamp_mesh_7.geometry"
+        },
+        {
+            "Guid": "szUqxq1re0WOwmWW4ZybyA==",
+            "Path": "models\\Structures\\back_wall_mesh_0.geometry"
+        },
+        {
+            "Guid": "s8DgoJXaV0+EZRVjoCY84A==",
+            "Path": "models\\Structures\\back_wall_mesh_1.geometry"
+        },
+        {
+            "Guid": "DylVlrKo2kSDX2j4s0vz3Q==",
+            "Path": "models\\Structures\\back_wall_mesh_2.geometry"
+        },
+        {
+            "Guid": "d3j65azXnkSyYC1DyxZMCw==",
+            "Path": "models\\Structures\\back_wall_mesh_3.geometry"
+        },
+        {
+            "Guid": "Vasd/R2zyk+LDRt4bMoaaQ==",
+            "Path": "models\\Structures\\back_wall_mesh_4.geometry"
+        },
+        {
+            "Guid": "WX4VTheK70STDj4j3x9fXg==",
+            "Path": "models\\Structures\\back_wall_mesh_5.geometry"
+        },
+        {
+            "Guid": "dAjtbsES30KqyAEFMiM0jw==",
+            "Path": "models\\Structures\\ceiling_mesh_0.geometry"
+        },
+        {
+            "Guid": "njX1WU66uUqOE3+Id6HfDw==",
+            "Path": "models\\Structures\\door_mesh_0.geometry"
+        },
+        {
+            "Guid": "gauFQxJKVUCSeYt0jPx2Hw==",
+            "Path": "models\\Structures\\door_mesh_1.geometry"
+        },
+        {
+            "Guid": "oOeSAxbYA0uxWcosHGoVOg==",
+            "Path": "models\\Structures\\door_mesh_2.geometry"
+        },
+        {
+            "Guid": "2Y9iyrj8ykGfUSOWp4fA+A==",
+            "Path": "models\\Structures\\door_mesh_3.geometry"
+        },
+        {
+            "Guid": "dPE+efBamU6gYfB1dkuPVQ==",
+            "Path": "models\\Structures\\door_mesh_4.geometry"
+        },
+        {
+            "Guid": "APLzLhEQDEyFqOVOHBom9A==",
+            "Path": "models\\Structures\\floor_mesh_0.geometry"
+        },
+        {
+            "Guid": "4ItcAjuPqEKca8Avt+8J3Q==",
+            "Path": "models\\Structures\\floor_mesh_1.geometry"
+        },
+        {
+            "Guid": "fDiYqBH/X0eDcegjZpSMZA==",
+            "Path": "models\\Structures\\front_wall_mesh_0.geometry"
+        },
+        {
+            "Guid": "Km5BLV2Pc0yKrNtZ3OnwhQ==",
+            "Path": "models\\Structures\\front_wall_mesh_1.geometry"
+        },
+        {
+            "Guid": "G8pgEUEN4k+DjAmFimW7qw==",
+            "Path": "models\\Structures\\front_wall_mesh_2.geometry"
+        },
+        {
+            "Guid": "p/xpgRKl7UGKzBaaHABQJw==",
+            "Path": "models\\Structures\\side_wall_mesh_0.geometry"
+        },
+        {
+            "Guid": "+5TpcVUp+0OFlb8LUNZy+g==",
+            "Path": "models\\Structures\\side_wall_mesh_1.geometry"
+        },
+        {
+            "Guid": "1DdRFkOPj0q6x6Y3PRfeXA==",
+            "Path": "models\\Structures\\side_wall_mesh_2.geometry"
+        },
+        {
+            "Guid": "sbrjTP2u5ECRMEsal/4VKA==",
+            "Path": "models\\Structures\\window_mesh_0.geometry"
+        },
+        {
+            "Guid": "GbRESD3XfEmAvui92AYKjQ==",
+            "Path": "models\\Structures\\window_mesh_1.geometry"
+        },
+        {
+            "Guid": "oTk2voaRbUW4Cda9ckXqow==",
+            "Path": "models\\Structures\\window_mesh_2.geometry"
+        },
+        {
+            "Guid": "71Ykha14Ekm1P3PdUpG0Hw==",
+            "Path": "models\\Structures\\window_mesh_3.geometry"
+        },
+        {
+            "Guid": "+8pyYg5z3kKQk9DT2q8QpQ==",
+            "Path": "models\\Structures\\window_mesh_4.geometry"
+        },
+        {
+            "Guid": "mZI8Yxdt206DAIcqzrNvxA==",
+            "Path": "models\\Structures\\window_mesh_5.geometry"
+        },
+        {
+            "Guid": "6Rq2uwgkm0qaKx4gyeEs1g==",
+            "Path": "models\\Structures\\window_mesh_6.geometry"
+        },
+        {
+            "Guid": "gGylRH9nz0S1AH/+0zdY3Q==",
+            "Path": "models\\Structures\\window_mesh_7.geometry"
+        },
+        {
+            "Guid": "+yArjJ2+1UWLXh77Xk5BZw==",
+            "Path": "models\\Structures\\window_mesh_8.geometry"
+        },
+        {
+            "Guid": "BKTc1jaUIE6jkbTpZW4fJQ==",
+            "Path": "models\\Structures\\window_mesh_9.geometry"
+        },
+        {
+            "Guid": "N2LrOvU/QUuPe9X3DVAiiQ==",
+            "Path": "models\\Structures\\window_mesh_10.geometry"
+        },
+        {
+            "Guid": "mOIZtQY2XEmdngk19+45Iw==",
+            "Path": "models\\Structures\\window_mesh_11.geometry"
+        },
+        {
+            "Guid": "Cqk53pQSREKK6Chr9TehQA==",
+            "Path": "models\\Structures\\window_mesh_12.geometry"
+        },
+        {
+            "Guid": "umXm6o2jL0G2B6rHWMG9kQ==",
+            "Path": "models\\Structures\\window_mesh_13.geometry"
+        },
+        {
+            "Guid": "8cB8v/jFFECxjmEtmVOoOA==",
+            "Path": "models\\Structures\\window_mesh_14.geometry"
+        },
+        {
+            "Guid": "a0NO2SROOEy6qwrz3IIpIA==",
+            "Path": "models\\Structures\\window_mesh_15.geometry"
+        },
+        {
+            "Guid": "THYkCP65V02al6oLxvDC/Q==",
+            "Path": "models\\Structures\\window_mesh_16.geometry"
+        },
+        {
+            "Guid": "a6dYDORakUm70xRVeSzSaw==",
+            "Path": "models\\Structures\\window_mesh_17.geometry"
+        },
+        {
+            "Guid": "/qMfdDupk0KUvEuYz4jJuw==",
+            "Path": "models\\Structures\\window_mesh_18.geometry"
+        },
+        {
+            "Guid": "bkGnuzwHoUuhYulSkLrMuA==",
+            "Path": "models\\Structures\\window_mesh_19.geometry"
+        },
+        {
+            "Guid": "PpaSAoqmMEKgDQ82blMsQA==",
+            "Path": "models\\Structures\\window_mesh_20.geometry"
+        },
+        {
+            "Guid": "in9KBixH6028/hUrGCot4A==",
+            "Path": "models\\Structures\\window_mesh_21.geometry"
+        },
+        {
+            "Guid": "v6cHj9cefECRgIZuRm/eaA==",
+            "Path": "models\\Tables\\table_mesh_0.geometry"
+        },
+        {
+            "Guid": "C21Agw5rCk6nRixaddXh+A==",
+            "Path": "models\\Tables\\table2_mesh_0.geometry"
+        },
+        {
+            "Guid": "1PrteG/D20+CStJ44iI5uA==",
+            "Path": "models\\Tables\\table2_mesh_1.geometry"
+        },
+        {
+            "Guid": "UzQkvQwIlkmKjmD3++ghdQ==",
+            "Path": "models\\Tables\\table2_mesh_2.geometry"
+        },
+        {
+            "Guid": "QBy6tq2ZsUaDSjJFiz2TDw==",
+            "Path": "models\\Tables\\table2_mesh_3.geometry"
+        },
+        {
+            "Guid": "Sc089p/WbEWv0qFR9cUGTQ==",
+            "Path": "models\\Tables\\table2_mesh_4.geometry"
+        },
+        {
+            "Guid": "ebVr6E3l70Wyb0ajhucqDQ==",
+            "Path": "models\\Tables\\table2_mesh_5.geometry"
+        }
+    ]
+}

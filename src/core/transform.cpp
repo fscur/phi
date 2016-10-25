@@ -87,6 +87,8 @@ namespace phi
 
     void transform::parentTransformChanged(transform* transform)
     {
+        _unused(transform);
+
         setChanged();
     }
 

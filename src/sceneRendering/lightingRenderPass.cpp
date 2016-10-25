@@ -16,7 +16,6 @@
 namespace phi
 {
     renderPass* lightingRenderPass::configure(
-        renderPass* gBufferRenderPass,
         const resolution& resolution,
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
@@ -40,7 +39,6 @@ namespace phi
         program->addBuffer(rtsBuffer);
 
         auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
-        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto pass = new renderPass(program, defaultFramebuffer, resolution);
         pass->addVao(quadVao);
@@ -58,6 +56,8 @@ namespace phi
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             framebuffer->bindForDrawing();
             glDisable(GL_DEPTH_TEST);
             glDepthMask(GL_FALSE);
@@ -79,11 +79,16 @@ namespace phi
 
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+            _unused(framebuffer);
+
             program->unbind();
         });
 
         pass->setOnResize([=](const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             updateGBufferRTsBuffer(
                 rtsBuffer,
                 rt0->texture,

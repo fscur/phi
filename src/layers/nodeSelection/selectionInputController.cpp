@@ -113,6 +113,8 @@ namespace phi
 
     void selectionInputController::onSelectionBehaviourSelectedNodesChanged(selectionLayerBehaviour* selectionBehaviour)
     {
+        _unused(selectionBehaviour);
+
         if (_selectionBehaviour->getSelectedNodes()->size() > 0)
             _requestControlEvent->raise(this);
         else
@@ -163,6 +165,7 @@ namespace phi
 
     bool selectionInputController::onMouseDoubleClick(phi::mouseEventArgs* e)
     {
+        _unused(e);
         return false;
     }
 

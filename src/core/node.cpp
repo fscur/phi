@@ -214,17 +214,23 @@ namespace phi
 
     inline void node::raiseTransformChanged(transform* transform)
     {
+        _unused(transform);
+
         updateObb();
         transformChanged.raise(this);
     }
 
     void node::onChildTransformChanged(node* child)
     {
+        _unused(child);
+
         updateObb();
     }
 
     void node::onChildObbChanged(node* child)
     {
+        _unused(child);
+
         updateObb();
     }
 

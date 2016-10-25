@@ -12,7 +12,6 @@ namespace phi
     public:
         selectionRenderPass() = delete;
         static renderPass* configure(
-            const renderPass* lightingRenderPass, 
             const resolution& resolution, 
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);

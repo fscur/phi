@@ -179,6 +179,7 @@ namespace phi
 
     vec2 getDpi(HWND hWnd)
     {
+        _unused(hWnd);
         //TODO: FIX DPI AWARE 
 
         /*auto monitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
@@ -199,6 +200,10 @@ namespace phi
 
     LRESULT onActivate(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        _unused(hWnd);
+        _unused(message);
+        _unused(lParam);
+
         if (!HIWORD(wParam)) // Is minimized
         {
             // active
@@ -320,12 +325,22 @@ namespace phi
 
     LRESULT onEnterSizeMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        _unused(hWnd);
+        _unused(message);
+        _unused(wParam);
+        _unused(lParam);
+
         _hasEnteredSizeMove = true;
         return 0;
     }
 
     LRESULT onExitSizeMove(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        _unused(hWnd);
+        _unused(message);
+        _unused(wParam);
+        _unused(lParam);
+
         if (_isResizing)
             window::resize.raise(_currentResolution);
 
@@ -336,24 +351,40 @@ namespace phi
 
     LRESULT onDestroy(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        _unused(hWnd);
+        _unused(message);
+        _unused(wParam);
+        _unused(lParam);
+
         PostQuitMessage(0);
         return 0;
     }
 
     LRESULT onKeyDown(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        _unused(hWnd);
+        _unused(message);
+        _unused(lParam);
+
         input::notifyKeyDown(convertToKey(wParam));
         return 0;
     }
 
     LRESULT onKeyUp(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        _unused(hWnd);
+        _unused(message);
+        _unused(lParam);
+
         input::notifyKeyUp(convertToKey(wParam));
         return 0;
     }
 
     LRESULT onMouseWheel(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        _unused(hWnd);
+        _unused(message);
+
         auto point = POINT();
         point.x = GET_X_LPARAM(lParam);
         point.y = GET_Y_LPARAM(lParam);
@@ -449,6 +480,10 @@ namespace phi
 
     LRESULT onCaptureChanged(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        _unused(hWnd);
+        _unused(message);
+        _unused(wParam);
+        _unused(lParam);
         //Any operation that uses SetCapture function and has an end state should set it end state here,
         //for example changing the cursor at the end of a drag and drog operation.
         return 0;
@@ -456,10 +491,8 @@ namespace phi
 
     LRESULT onDpiChanged(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        /*debug("entrou dpi changed.");
-
-        auto x = LOWORD(wParam);
-        auto y = HIWORD(wParam);*/
+        _unused(message);
+        _unused(wParam);
 
         auto rect = *reinterpret_cast<RECT *>(lParam);
 

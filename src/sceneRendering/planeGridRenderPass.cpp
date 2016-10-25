@@ -34,6 +34,8 @@ namespace phi
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             framebuffer->bindForDrawing();
             glDisable(GL_CULL_FACE);
             glDepthMask(GL_FALSE);

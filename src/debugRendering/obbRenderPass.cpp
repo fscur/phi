@@ -32,6 +32,9 @@ namespace phi
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(framebuffer);
+            _unused(resolution);
+
             glDisable(GL_CULL_FACE);
             glDepthMask(GL_FALSE);
             glEnable(GL_DEPTH_TEST);
@@ -52,6 +55,8 @@ namespace phi
 
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             framebuffer->unbind(GL_FRAMEBUFFER);
             program->unbind();
 

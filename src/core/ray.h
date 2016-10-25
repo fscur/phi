@@ -32,7 +32,7 @@ namespace phi
         CORE_API bool intersects(aabb& aabb, vector<rayIntersection>& intersections);
         CORE_API bool intersects(obb& obb, vector<rayIntersection>& intersections);
         CORE_API bool intersects(plane& plane, float& t);
-        CORE_API bool intersects(finitePlane& plane, float& t);
+        CORE_API bool intersects(const finitePlane& plane, float& t);
 
         vec3 getOrigin() const { return _origin; }
         vec3 getDirection() const { return _direction; }

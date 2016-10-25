@@ -76,8 +76,7 @@ namespace phi
 
     void framebufferAllocator::addRenderTargets(
         framebuffer* framebuffer,
-        const unordered_map<GLenum, renderTarget*>* renderTargets,
-        const resolution & resolution)
+        const unordered_map<GLenum, renderTarget*>* renderTargets)
     {
         for (auto& pair : *renderTargets)
         {
@@ -108,7 +107,7 @@ namespace phi
         addRenderTargetLayouts(framebuffer, renderTargetsLayouts, resolution);
 
         auto renderTargets = framebufferLayout->getRenderTargets();
-        addRenderTargets(framebuffer, renderTargets, resolution);
+        addRenderTargets(framebuffer, renderTargets);
 
         _framebuffers.push_back(framebuffer);
         return framebuffer;

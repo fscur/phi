@@ -30,7 +30,6 @@ namespace phi
         UI_RENDERING_API controlLayerBehaviour(
             const resolution& resolution, 
             const string& resourcesPath,
-            framebufferAllocator* framebufferAllocator,
             controlRenderAdapter* adapter,
             vector<renderPass*> renderPasses);
 

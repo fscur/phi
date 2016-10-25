@@ -26,8 +26,7 @@ namespace phi
 
         void addRenderTargets(
             framebuffer* framebuffer,
-            const unordered_map<GLenum, renderTarget*>* renderTargets,
-            const resolution & resolution);
+            const unordered_map<GLenum, renderTarget*>* renderTargets);
 
     public:
         RENDERING_API framebufferAllocator();

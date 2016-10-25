@@ -8,7 +8,6 @@ namespace phi
     controlLayerBehaviour::controlLayerBehaviour(
         const resolution & resolution, 
         const string & resourcesPath,
-        framebufferAllocator* framebufferAllocator,
         controlRenderAdapter* adapter,
         vector<renderPass*> renderPasses) :
         _adapter(adapter),
@@ -55,6 +54,7 @@ namespace phi
 
     void controlLayerBehaviour::onNodeSelectionChanged(node* node)
     {
+        _unused(node);
         throw notImplementedException();
     }
 

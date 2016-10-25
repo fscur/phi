@@ -132,7 +132,7 @@ namespace phi
         }*/
     }
 
-    bool octree::insertIntoChildren(vertex vertex, uint &index)
+    bool octree::insertIntoChildren(vertex vertex, int &index)
     {
         auto pos = vertex.position;
 
@@ -171,7 +171,7 @@ namespace phi
         _isSubdivided = true;
     }
 
-    bool octree::insert(phi::vertex vertex, uint &index)
+    bool octree::insert(phi::vertex vertex, int &index)
     {
         auto pos = vertex.position;
 
@@ -219,9 +219,9 @@ namespace phi
             else if (found)
             {
                 auto posDataList = &(_items[posIndex]);
-                auto s = posDataList->size();
+                auto size = posDataList->size();
 
-                for (unsigned int i = 0; i < s; i++)
+                for (unsigned int i = 0; i < size; i++)
                 {
                     auto pData = (*posDataList)[i];
                     if (pData.vertex == vertex)

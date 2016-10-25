@@ -33,11 +33,10 @@ namespace phi
     vector<renderPass*> textRenderer::configure(
         textRenderAdapter* renderAdapter,
         const resolution& resolution,
-        const string& resourcesPath,
-        framebufferAllocator* framebufferAllocator)
+        const string& resourcesPath)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto textRenderPass = textRenderPass::configure(renderAdapter, resolution, shadersPath, framebufferAllocator);
+        auto textRenderPass = textRenderPass::configure(renderAdapter, resolution, shadersPath);
         return { textRenderPass };
     }
 }

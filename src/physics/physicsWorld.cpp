@@ -109,6 +109,8 @@ namespace phi
         data->transformChangedToken = collider->getNode()->getTransform()->getChangedEvent()->assign(
             [this, collider, data](transform* sender) -> void
         {
+            _unused(sender);
+
             auto obb = collider->getObb();
             safeDelete(data->geometry); // I hate this pointer
             data->geometry = new PxBoxGeometry(createBoxGeometry(obb.halfSizes));
@@ -252,7 +254,7 @@ namespace phi
         auto collideeGeometry = createBoxGeometry(test.collidee, test.collideeTransform);
         auto collideePose = createPose(test.collidee, test.collideeTransform);
 
-        int flags = PxHitFlag::eDEFAULT;
+        PxHitFlag::Enum flags = PxHitFlag::eDEFAULT;
 
         PxSweepHit hit;
         return PxGeometryQuery::sweep(
@@ -277,7 +279,7 @@ namespace phi
 
         auto direction = toPxVec3(test.direction);
 
-        int flags = PxHitFlag::eDEFAULT;
+        PxHitFlags flags = PxHitFlag::eDEFAULT;
         if (test.checkPenetration)
             flags |= PxHitFlag::eMTD;
 
@@ -288,7 +290,7 @@ namespace phi
             colliderGeometry, colliderPose,
             collideeGeometry, collideePose,
             hit,
-            static_cast<PxHitFlags>(flags),
+            flags,
             test.inflation))
         {
             auto collision = sweepCollision();
@@ -310,7 +312,7 @@ namespace phi
         auto geometry = createBoxGeometry(test.collider, test.transform);
         auto pose = createPose(test.collider, test.transform);
 
-        int flags = PxHitFlag::eDEFAULT;
+        PxHitFlags flags = PxHitFlag::eDEFAULT;
         if (test.inflation == 0.0f)
             flags |= PxHitFlag::ePRECISE_SWEEP;
 
@@ -326,7 +328,7 @@ namespace phi
             PxVec3(test.direction.x, test.direction.y, test.direction.z),
             test.distance,
             hit,
-            static_cast<PxHitFlags>(flags),
+            flags,
             filterData,
             nullptr,
             nullptr,
@@ -497,12 +499,12 @@ namespace phi
             auto firstHitPosition = firstHit.position + firstHitNormal * DECIMAL_TRUNCATION;
             auto firstHitBoxCollider = reinterpret_cast<boxCollider*>(firstHit.actor->userData);
 
-            auto hit = rayCastHit();
-            hit.position = vec3(firstHitPosition.x, firstHitPosition.y, firstHitPosition.z);
-            hit.normal = vec3(firstHitNormal.x, firstHitNormal.y, firstHitNormal.z);
-            hit.collider = firstHitBoxCollider;
+            auto rayHit = rayCastHit();
+            rayHit.position = vec3(firstHitPosition.x, firstHitPosition.y, firstHitPosition.z);
+            rayHit.normal = vec3(firstHitNormal.x, firstHitNormal.y, firstHitNormal.z);
+            rayHit.collider = firstHitBoxCollider;
 
-            return rayCastResult({ hit });
+            return rayCastResult({ rayHit });
         }
 
         return rayCastResult();

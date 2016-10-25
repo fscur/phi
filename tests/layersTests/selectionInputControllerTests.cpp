@@ -52,7 +52,7 @@ namespace selectionInputControllerTests
 
         AssignNodeSelectionChangedToBehaviour(node);
 
-        node->selectionChanged.assign([&](phi::node* node) { eventRaised = true; });
+        node->selectionChanged.assign([&](phi::node* node) { _unused(node); eventRaised = true; });
 
         //Act
         _selectionController->select(node);
@@ -77,7 +77,7 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        node->selectionChanged.assign([&](phi::node* node) { eventRaisedCount++; });
+        node->selectionChanged.assign([&](phi::node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->deselectAll();
@@ -104,8 +104,8 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(parent);
@@ -135,8 +135,8 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->deselectAll();
@@ -164,8 +164,8 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(child);
@@ -195,8 +195,8 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->deselectAll();
@@ -226,8 +226,8 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(child);
@@ -258,8 +258,8 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->deselectAll();
@@ -290,9 +290,9 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        grandparent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        grandparent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(child);
@@ -326,9 +326,9 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        grandparent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        grandparent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->deselectAll();
@@ -362,9 +362,9 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
-        grandparent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        grandparent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(child);
@@ -399,9 +399,9 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
-        grandparent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        grandparent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(child);
@@ -436,9 +436,9 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child1->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child2->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child1->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child2->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(child2);
@@ -474,9 +474,9 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child1->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child2->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child1->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child2->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->deselectAll();
@@ -526,13 +526,13 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        group1->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        group2->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child1->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child2->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child3->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child4->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        group1->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        group2->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child1->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child2->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child3->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child4->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(child3);
@@ -587,13 +587,13 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 1u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        group1->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        group2->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child1->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child2->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child3->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child4->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        group1->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        group2->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child1->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child2->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child3->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child4->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->deselectAll();
@@ -628,8 +628,8 @@ namespace selectionInputControllerTests
 
         auto eventRaisedCount = 0u;
         auto expectedEventRaisedCount = 2u;
-        parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
-        child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
+        parent->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
+        child->selectionChanged.assign([&](node* node) { _unused(node); eventRaisedCount++; });
 
         //Act
         _selectionController->select(child);

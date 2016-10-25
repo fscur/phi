@@ -143,7 +143,7 @@ namespace phi
         return !mathUtils::isClose(planeNormalOnDirection, 0.0f);
     }
 
-    bool ray::intersects(finitePlane& plane, float& t)
+    bool ray::intersects(const finitePlane& plane, float& t)
     {
         auto planeNormal = plane.getNormal();
         auto planeOrigin = plane.getOrigin();

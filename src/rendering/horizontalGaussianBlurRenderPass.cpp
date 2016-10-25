@@ -63,6 +63,8 @@ namespace phi
 
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution resolution)
         {
+            _unused(resolution);
+
             program->unbind();
             framebuffer->unbind(GL_FRAMEBUFFER);
         });

@@ -65,6 +65,7 @@ namespace phi
 
     inline void camera::transformChanged(transform* sender)
     {
+        _unused(sender);
         updateViewMatrix();
     }
 

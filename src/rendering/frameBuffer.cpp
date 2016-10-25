@@ -16,7 +16,7 @@ namespace phi
         _maxColorAttachments(0),
         _currentAttachment(0),
         _drawBuffers(vector<GLenum>()),
-        _isDefaultFramebuffer(true)
+        _isDefaultFramebuffer(isDefaultFramebuffer)
     {
     }
 
@@ -127,7 +127,7 @@ namespace phi
         glBlitFramebuffer(0, 0, renderTarget->texture->w, renderTarget->texture->h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
 
-    void framebuffer::blit(renderTarget * sourceRenderTarget, framebuffer * targetFramebuffer, renderTarget * targetRenderTarget)
+    void framebuffer::blit(renderTarget * sourceRenderTarget, renderTarget * targetRenderTarget)
     {
         bindForReading(sourceRenderTarget);
 

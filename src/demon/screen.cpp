@@ -127,7 +127,7 @@ namespace demon
         auto materialRepository = new phi::materialRepository();
         auto imageRepository = new phi::imageRepository();
         auto geometryRepository = new phi::geometryRepository();
-        auto modelRepository = new phi::modelRepository();
+        auto modelRepository = new phi::modelRepository(application::libraryPath);
         auto modelDataService = new phi::modelDataService(
             geometryRepository,
             materialRepository,
@@ -166,6 +166,7 @@ namespace demon
             .withControlColor(.5, .5, .2f, 1.f)
             .withAction([=](node* node)
         {
+            _unused(node);
             _commandsManager->executeCommand(new changeContextCommand());
         })
             .build();
@@ -249,24 +250,25 @@ namespace demon
             .withControlColor(.3f, .9f, .2f, 1.f)
             .withAction([=](node* node)
         {
-            OPENFILENAME ofn;
+            _unused(node);
+            //OPENFILENAME ofn;
 
-            char szFileName[MAX_PATH] = "";
+            //char szFileName[MAX_PATH] = "";
 
-            ZeroMemory(&ofn, sizeof(ofn));
+            //ZeroMemory(&ofn, sizeof(ofn));
 
-            ofn.lStructSize = sizeof(ofn);
-            ofn.hwndOwner = NULL;
-            ofn.lpstrFilter = (LPCSTR)"Phi Files (*.phi)\0";
-            ofn.lpstrFile = (LPSTR)szFileName;
-            ofn.nMaxFile = MAX_PATH;
-            ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-            ofn.lpstrDefExt = (LPCSTR)"phi";
+            //ofn.lStructSize = sizeof(ofn);
+            //ofn.hwndOwner = NULL;
+            //ofn.lpstrFilter = (LPCSTR)"Phi Files (*.phi)\0";
+            //ofn.lpstrFile = (LPSTR)szFileName;
+            //ofn.nMaxFile = MAX_PATH;
+            //ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+            //ofn.lpstrDefExt = (LPCSTR)"phi";
 
-            GetSaveFileName(&ofn);
-            auto path = ofn.lpstrFile;
+            //GetSaveFileName(&ofn);
+            //auto path = ofn.lpstrFile;
 
-            exporter::exportScene(_sceneLayer->getRoot(), path);
+            //exporter::exportScene(_sceneLayer->getRoot(), path);
         })
             .build();
 
@@ -278,21 +280,22 @@ namespace demon
             .withControlColor(.7f, .1f, .2f, 1.f)
             .withAction([=](node* node)
         {
-            OPENFILENAME ofn;
-            char fileNameBuffer[260];
+            _unused(node);
+            //OPENFILENAME ofn;
+            //char fileNameBuffer[260];
 
-            ZeroMemory(&ofn, sizeof(ofn));
-            ofn.lStructSize = sizeof(ofn);
-            ofn.lpstrFile = fileNameBuffer;
+            //ZeroMemory(&ofn, sizeof(ofn));
+            //ofn.lStructSize = sizeof(ofn);
+            //ofn.lpstrFile = fileNameBuffer;
 
-            ofn.lpstrFile[0] = '\0';
-            ofn.nMaxFile = sizeof(fileNameBuffer);
-            ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-            ofn.nFilterIndex = 1;
-            ofn.lpstrFileTitle = NULL;
-            ofn.nMaxFileTitle = 0;
-            ofn.lpstrInitialDir = NULL;
-            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+            //ofn.lpstrFile[0] = '\0';
+            //ofn.nMaxFile = sizeof(fileNameBuffer);
+            //ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+            //ofn.nFilterIndex = 1;
+            //ofn.lpstrFileTitle = NULL;
+            //ofn.nMaxFileTitle = 0;
+            //ofn.lpstrInitialDir = NULL;
+            //ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
             // Display the Open dialog box.
 
@@ -321,6 +324,7 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _constructionLayer });
 
+        _scene->add(obj);
         //_scene->add(cube0);
 /*        _sceneLayer->add(cube1);
         _sceneLayer->add(_chair0);

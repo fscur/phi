@@ -15,16 +15,16 @@ namespace phi
     public:
         INPUT_API virtual ~inputController();
 
-        virtual bool onMouseDown(mouseEventArgs* e) { return false; }
-        virtual bool onMouseUp(mouseEventArgs* e) { return false; }
-        virtual bool onMouseClick(mouseEventArgs* e) { return false; }
-        virtual bool onMouseDoubleClick(mouseEventArgs* e) { return false; }
-        virtual bool onMouseMove(mouseEventArgs* e) { return false; }
-        virtual bool onBeginMouseWheel(mouseEventArgs* e) { return false; }
-        virtual bool onMouseWheel(mouseEventArgs* e) { return false; }
-        virtual bool onEndMouseWheel(mouseEventArgs* e) { return false; }
-        virtual bool onKeyDown(keyboardEventArgs* e) { return false; }
-        virtual bool onKeyUp(keyboardEventArgs* e) { return false; }
+        virtual bool onMouseDown(mouseEventArgs* e) { _unused(e); return false; }
+        virtual bool onMouseUp(mouseEventArgs* e) { _unused(e); return false; }
+        virtual bool onMouseClick(mouseEventArgs* e) { _unused(e); return false; }
+        virtual bool onMouseDoubleClick(mouseEventArgs* e) { _unused(e); return false; }
+        virtual bool onMouseMove(mouseEventArgs* e) { _unused(e); return false; }
+        virtual bool onBeginMouseWheel(mouseEventArgs* e) { _unused(e); return false; }
+        virtual bool onMouseWheel(mouseEventArgs* e) { _unused(e); return false; }
+        virtual bool onEndMouseWheel(mouseEventArgs* e) { _unused(e); return false; }
+        virtual bool onKeyDown(keyboardEventArgs* e) { _unused(e); return false; }
+        virtual bool onKeyUp(keyboardEventArgs* e) { _unused(e); return false; }
         virtual bool update() { return false; }
         virtual void cancel() { }
 

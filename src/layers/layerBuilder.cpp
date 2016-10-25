@@ -139,7 +139,7 @@ namespace phi
         auto adapter = new controlRenderAdapter();
         auto renderPasses = glassyControlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
 
-        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
+        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, adapter, renderPasses);
 
         _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
@@ -158,7 +158,7 @@ namespace phi
     {
         auto adapter = new controlRenderAdapter();
         auto renderPasses = controlRenderer::configure(adapter, _resolution, _resourcesPath, _framebufferAllocator);
-        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, _framebufferAllocator, adapter, renderPasses);
+        auto controlBehaviour = new controlLayerBehaviour(_resolution, _resourcesPath, adapter, renderPasses);
 
         _layer->addOnNodeAdded(std::bind(&controlLayerBehaviour::onNodeAdded, controlBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&controlLayerBehaviour::onNodeRemoved, controlBehaviour, std::placeholders::_1));
@@ -177,8 +177,7 @@ namespace phi
     {
         auto textBehaviour = new textLayerBehaviour(
             _resolution,
-            _resourcesPath,
-            _framebufferAllocator);
+            _resourcesPath);
 
         _layer->addOnNodeAdded(std::bind(&textLayerBehaviour::onNodeAdded, textBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&textLayerBehaviour::onNodeRemoved, textBehaviour, std::placeholders::_1));

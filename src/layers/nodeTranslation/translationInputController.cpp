@@ -113,6 +113,8 @@ namespace phi
 
     bool translationInputController::onMouseClick(mouseEventArgs* e)
     {
+        _unused(e);
+
         if (_translationService->isTranslating())
             return true;
 

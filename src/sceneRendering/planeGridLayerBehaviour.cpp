@@ -57,6 +57,8 @@ namespace phi
 
     void planeGridLayerBehaviour::onNodeSelectionChanged(node* node)
     {
+        _unused(node);
+
         throw notImplementedException();
     }
 }

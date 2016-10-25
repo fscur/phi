@@ -38,15 +38,14 @@ namespace phi
         safeDelete(_vao);
     }
 
-    void batch::initialize(const meshInstance* instance)
+    void batch::initialize()
     {
-        auto vaoSize = std::max(instance->getVaoSize(), MAX_VAO_SIZE);
-        createBuffers(vaoSize);
+        createBuffers();
         initializeVao();
         _empty = false;
     }
 
-    void batch::createBuffers(size_t vboSize)
+    void batch::createBuffers()
     {
         vector<vertexBufferAttribute> vboAttribs;
         vboAttribs.push_back(vertexBufferAttribute(0, 3, GL_FLOAT, sizeof(vertex), (void*)offsetof(vertex, vertex::position)));
@@ -195,7 +194,7 @@ namespace phi
         auto containsGeometry = phi::contains(_geometries, geometry);
 
         if (_empty)
-            initialize(instance);
+            initialize();
 
         if (!containsGeometry)
             addGeometry(geometry);

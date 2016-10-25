@@ -15,9 +15,8 @@ namespace phi
     public:
         textRenderPass() = delete;
         static renderPass * configure(
-            textRenderAdapter* renderAdapter, 
+            textRenderAdapter* renderAdapter,
             const resolution& resolution,
-            const string& shadersPath,
-            framebufferAllocator* framebufferAllocator);
+            const string& shadersPath);
     };
 }

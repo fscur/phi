@@ -46,7 +46,7 @@ namespace phi
 
         int getType() const { return _type; }
 
-        void virtual onNodeChanged(node* previousValue) { }
+        void virtual onNodeChanged(node* previousValue) { _unused(previousValue); }
 
         node* getNode() const { return _node; }
 

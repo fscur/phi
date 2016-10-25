@@ -273,6 +273,8 @@ namespace phi
 
         controller->getResignControlEvent()->assign([&](inputController* controller)
         {
+            _unused(controller);
+
             _controllersStack.pop();
 
             if (_controllersStack.size() > 0)

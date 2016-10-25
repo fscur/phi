@@ -15,6 +15,8 @@ namespace phi
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
+        _unused(framebufferAllocator);
+
         auto program = programBuilder::buildProgram(shadersPath, "control", "control");
         program->addBuffer(renderAdapter->getControlRenderDataBuffer());
 
@@ -23,6 +25,8 @@ namespace phi
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             framebuffer->bindForDrawing();
 
             glDisable(GL_DEPTH_TEST);
@@ -47,6 +51,9 @@ namespace phi
 
         pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(framebuffer);
+            _unused(resolution);
+
             program->unbind();
 
             glBlendColor(0, 0, 0, 0);

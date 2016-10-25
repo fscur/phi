@@ -58,7 +58,7 @@ namespace phi
             reflectivity(reflectivity),
             emissiveColor(emissiveColor),
             emission(emission),
-            opacity(1.0f),
+            opacity(opacity),
             pad0(0.0f),
             pad1(0.0f),
             pad2(0.0f)

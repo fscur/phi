@@ -51,7 +51,7 @@ namespace phi
             shininess(shininess),
             reflectivity(reflectivity),
             emission(emission),
-            opacity(1.0f)
+            opacity(opacity)
         {
         }
         virtual ~material() {}

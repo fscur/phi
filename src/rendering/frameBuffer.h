@@ -41,10 +41,7 @@ namespace phi
         RENDERING_API void bindForReading(const renderTarget* const sourceRenderTarget);
         RENDERING_API void unbind(GLenum target);
         RENDERING_API void blitToDefault(renderTarget* renderTarget, int x = 0, int y = 0, int w = -1, int h = -1);
-        RENDERING_API void blit(
-            renderTarget* sourceRenderTarget,
-            framebuffer* targetFramebuffer,
-            renderTarget* targetRenderTarget);
+        RENDERING_API void blit(renderTarget* sourceRenderTarget, renderTarget* targetRenderTarget);
 
         RENDERING_API renderTarget* getRenderTarget(string name);
         RENDERING_API GLfloat getZBufferValue(int x, int y);

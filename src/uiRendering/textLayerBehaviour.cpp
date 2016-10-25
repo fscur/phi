@@ -7,13 +7,12 @@ namespace phi
 {
     textLayerBehaviour::textLayerBehaviour(
         const resolution & resolution, 
-        const string & resourcesPath,
-        framebufferAllocator* framebufferAllocator) :
+        const string & resourcesPath):
         _adapter(new textRenderAdapter()),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        _renderPasses = textRenderer::configure(_adapter, resolution, resourcesPath, framebufferAllocator);
+        _renderPasses = textRenderer::configure(_adapter, resolution, resourcesPath);
     }
 
     textLayerBehaviour::~textLayerBehaviour()

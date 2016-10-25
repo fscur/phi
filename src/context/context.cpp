@@ -7,8 +7,6 @@
 
 namespace phi
 {
-    using namespace phi;
-
     context::context(
         resolution& resolution,
         framebufferAllocator* framebufferAllocator,
