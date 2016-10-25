@@ -17,8 +17,8 @@ namespace phi
 
         vector<boxCollider*>* getColliders() { return &_colliders; }
         vector<transform*>* getTransforms() { return &_transforms; }
-
         vector<sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
+        vec3 getNodeDestinationPosition(node* node) { return _nodesDestinationPositions[node]; }
 
         void setPlane(plane value) { _plane = value; }
         void addNode(node* node);
@@ -46,7 +46,7 @@ namespace phi
         vector<boxCollider*> _colliders;
         vector<transform*> _transforms;
         vector<sweepCollision>* _lastTranslationTouchingCollisions;
-        unordered_map<node*, vec3> _nodesPositions;
+        unordered_map<node*, vec3> _nodesDestinationPositions;
         unordered_map<node*, translateAnimation*> _nodesTranslateAnimations;
     };
 }

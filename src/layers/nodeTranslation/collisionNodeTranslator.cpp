@@ -223,18 +223,18 @@ namespace phi
                 b->disable();
                 _colliders.push_back(b);
                 _transforms.push_back(b->getNode()->getTransform());
-
-                auto animator = new phi::animator();
-                node->addComponent(animator);
-                auto translateAnimation = new phi::translateAnimation([node](vec3 position)
-                {
-                    node->getTransform()->setLocalPosition(position);
-                }, easingFunctions::easeOutCubic);
-                animator->addAnimation(translateAnimation);
-                _nodesTranslateAnimations[node] = translateAnimation;
-                _nodesPositions[node] = node->getTransform()->getLocalPosition();
             }
         });
+
+        auto animator = new phi::animator();
+        node->addComponent(animator);
+        auto translateAnimation = new phi::translateAnimation([node](vec3 position)
+        {
+            node->getTransform()->setLocalPosition(position);
+        }, easingFunctions::easeOutCubic);
+        animator->addAnimation(translateAnimation);
+        _nodesTranslateAnimations[node] = translateAnimation;
+        _nodesDestinationPositions[node] = node->getTransform()->getLocalPosition();
     }
 
     void collisionNodeTranslator::clear()
@@ -250,6 +250,8 @@ namespace phi
             safeDelete(animator);
             safeDelete(pair.second);
         }
+
+        _nodesTranslateAnimations.clear();
 
         _colliders.clear();
         _transforms.clear();
@@ -269,10 +271,13 @@ namespace phi
 
         for (auto& node : _nodes)
         {
-            //_nodesPositions[node] += offset;
-            //auto translateAnimation = _nodesTranslateAnimations[node];
-            //translateAnimation->start(node->getTransform()->getLocalPosition(), _nodesPositions[node], 0.25f);
-            node->getTransform()->translate(offset);
+            auto destination = _nodesDestinationPositions[node];
+            destination += offset;
+            auto translateAnimation = _nodesTranslateAnimations[node];
+            translateAnimation->start(node->getTransform()->getLocalPosition(), destination, 0.2f);
+            _nodesDestinationPositions[node] = destination;
+
+            //node->getTransform()->translate(offset);
         }
 
         return offset;

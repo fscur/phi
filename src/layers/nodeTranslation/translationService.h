@@ -72,7 +72,7 @@ namespace phi
         bool tryChangeToAttachedPlane();
         void changePlanes(translationPlane * translationPlane, const plane& offsetPlane);
 
-        vec3 snapTranslationToGrid(vec3 endPosition);
+        vec3 snapToGrid(vec3 endPosition);
         void translateTargetNodes(const vec3 targetPosition);
         void translatePlaneGrid(const vec3& targetPosition);
 
@@ -100,6 +100,7 @@ namespace phi
         ivec2 _lastMousePosition;
         bool _snappedAtX;
         bool _snappedAtY;
+        bool _snappedAtZ;
         vec3 _snappedDelta;
 
         vector<sweepCollision>* _lastCollisions;

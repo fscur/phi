@@ -46,7 +46,8 @@ namespace phi
         _isTranslating = true;
         _lastMousePosition = mousePosition;
         _offsetPlane.origin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
-        _snappedAtX = _snappedAtY = false;
+        _snappedAtX = _snappedAtY = _snappedAtZ = false;
+        _snappedDelta = vec3();
 
         checkCollisionsBeforeTranslation();
 
@@ -190,13 +191,11 @@ namespace phi
 
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
         auto offset = endPosition - _offsetPlane.origin;
-        //offset.x = 0.0f;
-        //offset.y = 0.0f;
-        //offset.z = 0.0f;
 
         auto oldSnappedAtX = _snappedAtX;
         auto oldSnappedAtY = _snappedAtY;
-        auto snappedOffset = snapTranslationToGrid(offset + _snappedDelta);
+        auto oldSnappedAtZ = _snappedAtZ;
+        auto snappedOffset = snapToGrid(offset + _snappedDelta);
 
         translateTargetNodes(snappedOffset);
 
@@ -210,8 +209,12 @@ namespace phi
         else
             _snappedDelta.y = 0.0f;
 
+        if (oldSnappedAtZ && _snappedAtZ)
+            _snappedDelta.z += offset.z;
+        else
+            _snappedDelta.z = 0.0f;
+
         _offsetPlane.origin = endPosition;
-        //debug("x = [" + string(_snappedAtX ? "true" : "false") + "]" + " y = [" + string(_snappedAtY ? "true" : "false") + "] | " +  to_string(_snappedDelta));
         translatePlaneGrid(endPosition);
         checkCollisionsAferTranslation();
 
@@ -220,66 +223,68 @@ namespace phi
         _lastMousePosition = mousePosition;
     }
 
-    vec3 translationService::snapTranslationToGrid(vec3 offset)
+    vec3 translationService::snapToGrid(vec3 offset)
     {
+        auto destinationPosition = _nodeTranslator->getNodeDestinationPosition(_clickedNode);
+        auto currentPosition = _clickedNode->getTransform()->getLocalPosition();
+        auto deltaToDestination = destinationPosition - currentPosition;
+
         auto obb = _clickedNode->getObb();
+        auto destinationObb = obb::obb(*obb);
+        destinationObb.center += deltaToDestination;
         vec3 minimum;
         vec3 maximum;
-        obb->getLimits(minimum, maximum);
+        destinationObb.getLimits(minimum, maximum);
 
         vec3 limits[2] = { minimum, maximum };
-        vec3 mods[2];
         vec3 offsetedLimits[2];
 
+        float const SNAP_MARGIN_GRID_SIZE_PERCENT = 0.15f;
+        auto gridSize = 1.0f;
+
         for (auto i = 0; i < 2; ++i)
-        {
             offsetedLimits[i] = limits[i] + offset;
-            mods[i] = glm::abs(glm::modf(offsetedLimits[i], vec3(1.0f)));
-        }
 
-        _snappedAtX = _snappedAtY = false;
-        bool snapped[2];
-        snapped[0] = false;
-        snapped[1] = false;
+        auto snapMargin = gridSize * SNAP_MARGIN_GRID_SIZE_PERCENT;
+        auto highSnapMargin = gridSize - snapMargin;
+        _snappedAtX = false;
+        _snappedAtY = false;
+        _snappedAtZ = false;
 
-        vec3 snappedOffset;
-
+        auto snappedOffset = offset;
         for (auto i = 0; i < 2; ++i)
         {
-            auto mod = mods[i];
+            auto mod = glm::abs(glm::modf(offsetedLimits[i], vec3(gridSize)));
 
             if (!_snappedAtX)
             {
-                if (mod.x < 0.1f || mod.x > 0.9f)
+                if (mod.x < snapMargin || mod.x > highSnapMargin)
                 {
                     _snappedAtX = true;
-                    snapped[i] = true;
                     snappedOffset.x = glm::round(offsetedLimits[i].x) - limits[i].x;
                 }
-                else
-                    snappedOffset.x = offset.x;
             }
 
             if (!_snappedAtY)
             {
-                if (mod.y < 0.1f || mod.y > 0.9f)
+                if (mod.y < snapMargin || mod.y > highSnapMargin)
                 {
                     _snappedAtY = true;
-                    snapped[i] = true;
                     snappedOffset.y = glm::round(offsetedLimits[i].y) - limits[i].y;
                 }
-                else
-                    snappedOffset.y = offset.y;
             }
 
-            //snappedOffset.y = offset.y;
-            snappedOffset.z = offset.z;
+            if (!_snappedAtZ)
+            {
+                if (mod.z < snapMargin || mod.z > highSnapMargin)
+                {
+                    _snappedAtZ = true;
+                    snappedOffset.z = glm::round(offsetedLimits[i].z) - limits[i].z;
+                }
+            }
         }
 
-        if (_snappedAtX || _snappedAtY)
-            return snappedOffset;
-
-        return offset;
+        return snappedOffset;
     }
 
     void translationService::checkForClippingPlanes()
