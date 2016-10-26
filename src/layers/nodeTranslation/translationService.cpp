@@ -37,8 +37,6 @@ namespace phi
 
     void translationService::startTranslation(ivec2 mousePosition, node* clickedNode)
     {
-        resetTargetNodesColliders();
-
         _clickedNode = clickedNode;
         _nodeTranslator->addRange(*_targetNodes);
         _ghostTranslator->addRange(*_targetNodes);
@@ -56,14 +54,6 @@ namespace phi
 
         if (!changedPlanes)
             createPlanes();
-    }
-
-    void translationService::resetTargetNodesColliders()
-    {
-        _targetNodesColliders.clear();
-
-        for (auto& node : *_targetNodes)
-            _targetNodesColliders.push_back(node->getComponent<boxCollider>());
     }
 
     void translationService::checkCollisionsBeforeTranslation()
@@ -662,8 +652,8 @@ namespace phi
     vector<sweepCollision> translationService::findTouchingCollisions(const vec3& direction, float distance)
     {
         auto sweepTest = sweepCollisionMultiTest();
-        sweepTest.colliders = &_targetNodesColliders;
-        sweepTest.transforms = _nodeTranslator->getTransforms();
+        sweepTest.colliders = _nodeTranslator->getPiledUpColliders();
+        sweepTest.transforms = _nodeTranslator->createOffsetedTransforms(vec3()); // TODO: delete these transforms
         sweepTest.direction = direction;
         sweepTest.distance = distance;
 

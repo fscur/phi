@@ -14,9 +14,7 @@ namespace phi
         ~collisionNodeTranslator();
 
         vector<transform*>* createOffsetedTransforms(vec3 offset);
-
-        vector<boxCollider*>* getColliders() { return &_colliders; }
-        vector<transform*>* getTransforms() { return &_transforms; }
+        vector<boxCollider*>* getPiledUpColliders() { return &_piledUpColliders; }
         vector<sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
         vec3 getNodeDestinationPosition(node* node) { return _nodesDestinationPositions[node]; }
 
@@ -43,8 +41,9 @@ namespace phi
         physicsWorld* _physicsWorld;
         plane _plane;
         vector<node*> _nodes;
-        vector<boxCollider*> _colliders;
-        vector<transform*> _transforms;
+        vector<node*> _piledUpNodes;
+        vector<transform*> _piledUpTransforms;
+        vector<boxCollider*> _piledUpColliders;
         vector<sweepCollision>* _lastTranslationTouchingCollisions;
         unordered_map<node*, vec3> _nodesDestinationPositions;
         unordered_map<node*, translateAnimation*> _nodesTranslateAnimations;

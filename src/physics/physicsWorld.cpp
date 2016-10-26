@@ -514,7 +514,7 @@ namespace phi
         {
             auto firstHit = hit.getAnyHit(0);
             auto firstHitNormal = firstHit.normal;
-            auto firstHitPosition = firstHit.position + firstHitNormal * DECIMAL_TRUNCATION;
+            auto firstHitPosition = firstHit.position;
             auto firstHitBoxCollider = reinterpret_cast<boxCollider*>(firstHit.actor->userData);
 
             auto hit = rayCastHit();

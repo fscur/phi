@@ -45,8 +45,6 @@ namespace phi
         bool isTranslating() const { return _isTranslating; }
         
     private:
-        void resetTargetNodesColliders();
-
         void createPlanes();
         plane createPlaneFromAxis(const vec3& axis);
         translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
@@ -107,7 +105,6 @@ namespace phi
         vector<sweepCollision>* _lastCollisions;
         vector<sweepCollision> _currentCollisions;
 
-        vector<boxCollider*> _targetNodesColliders;
         //vector<translationPlane*> _clippedTranslationPlanes;
         vector<collisionObbPlane> _currentValidPlanes;
         unordered_map<plane, translationPlane*> _clippedTranslationPlanes;

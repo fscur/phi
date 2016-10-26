@@ -6,8 +6,9 @@ namespace phi
     collisionNodeTranslator::collisionNodeTranslator(physicsWorld* physicsWorld) :
         _physicsWorld(physicsWorld),
         _plane(plane()),
-        _colliders(vector<boxCollider*>()),
-        _transforms(vector<transform*>()),
+        _piledUpNodes(vector<node*>()),
+        _piledUpTransforms(vector<transform*>()),
+        _piledUpColliders(vector<boxCollider*>()),
         _lastTranslationTouchingCollisions(new vector<sweepCollision>()),
         _resolveCollisions(true)
     {
@@ -32,13 +33,15 @@ namespace phi
 
     vector<transform*>* collisionNodeTranslator::createOffsetedTransforms(vec3 offset)
     {
-        auto transformsCount = _transforms.size();
+        size_t transformsCount = _piledUpTransforms.size();
+
         auto offsetedTransforms = new vector<transform*>(transformsCount);
 
         for (size_t i = 0; i < transformsCount; ++i)
         {
-            auto transform = _transforms.at(i);
-            auto position = _nodesDestinationPositions[_nodes.at(i)] + offset;
+            auto node = _piledUpNodes.at(i);
+            auto transform = _piledUpTransforms.at(i);
+            auto position = _nodesDestinationPositions[node] + offset;
             auto rotation = transform->getOrientation();
             auto size = transform->getSize();
             auto offsetTransform = new phi::transform();
@@ -55,7 +58,7 @@ namespace phi
     {
         auto offsetedTransforms = createOffsetedTransforms(offset);
         intersectionCollisionMultiTest intersectionTest;
-        intersectionTest.colliders = &_colliders;
+        intersectionTest.colliders = &_piledUpColliders;
         intersectionTest.transforms = offsetedTransforms;
 
         auto intersectionResult = _physicsWorld->intersects(intersectionTest);
@@ -70,7 +73,7 @@ namespace phi
     sweepCollisionResult* collisionNodeTranslator::performCollisionSweep(vector<transform*>* transforms, vec3 offset, uint32_t maximumHits)
     {
         sweepCollisionMultiTest sweepTest;
-        sweepTest.colliders = &_colliders;
+        sweepTest.colliders = &_piledUpColliders;
         sweepTest.transforms = transforms;
         sweepTest.direction = glm::normalize(offset);
         sweepTest.distance = glm::length(offset);
@@ -108,7 +111,7 @@ namespace phi
             auto offsetedTransforms = createOffsetedTransforms(offsetNormal * currentCollision.distance);
 
             intersectionCollisionGroupTest intersectionTest;
-            intersectionTest.colliders = &_colliders;
+            intersectionTest.colliders = &_piledUpColliders;
             intersectionTest.transforms = offsetedTransforms;
             intersectionTest.collidees = collisionColliders;
             if (!_physicsWorld->intersects(intersectionTest))
@@ -222,14 +225,14 @@ namespace phi
     void collisionNodeTranslator::addNode(node* node)
     {
         _nodes.push_back(node);
-        node->traverse<boxCollider>([&](boxCollider* b)
+        node->traverseNodesContaining<boxCollider>([&](phi::node* traversedNode, boxCollider* collider)
         {
-            if (b->getIsEnabled())
-            {
-                b->disable();
-                _colliders.push_back(b);
-                _transforms.push_back(b->getNode()->getTransform());
-            }
+            collider->disable();
+            auto transform = traversedNode->getTransform();
+            _piledUpNodes.push_back(traversedNode);
+            _piledUpTransforms.push_back(transform);
+            _piledUpColliders.push_back(collider);
+            _nodesDestinationPositions[traversedNode] = transform->getPosition();
         });
 
         auto animator = new phi::animator();
@@ -240,12 +243,12 @@ namespace phi
         }, easingFunctions::easeOutCubic);
         animator->addAnimation(translateAnimation);
         _nodesTranslateAnimations[node] = translateAnimation;
-        _nodesDestinationPositions[node] = node->getTransform()->getLocalPosition();
+        _nodesDestinationPositions[node] = node->getTransform()->getPosition();
     }
 
     void collisionNodeTranslator::clear()
     {
-        for (auto& collider : _colliders)
+        for (auto& collider : _piledUpColliders)
             collider->enable();
 
         for (auto& pair : _nodesTranslateAnimations)
@@ -258,9 +261,11 @@ namespace phi
         }
 
         _nodesTranslateAnimations.clear();
+        _nodesDestinationPositions.clear();
 
-        _colliders.clear();
-        _transforms.clear();
+        _piledUpNodes.clear();
+        _piledUpTransforms.clear();
+        _piledUpColliders.clear();
         _nodes.clear();
     }
 
@@ -283,6 +288,12 @@ namespace phi
             translateAnimation->start(node->getTransform()->getLocalPosition(), destination, 0.2f);
             _nodesDestinationPositions[node] = destination;
 
+            node->traverseNodesContaining<boxCollider>([&](phi::node* traversedNode, boxCollider* collider)
+            {
+                auto destination = _nodesDestinationPositions[node];
+                destination += offset;
+                _nodesDestinationPositions[traversedNode] = destination;
+            });
             //node->getTransform()->translate(offset);
         }
 

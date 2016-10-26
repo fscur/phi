@@ -347,26 +347,7 @@ namespace phi
 
         auto guid = convertToGuid(document["Guid"].GetString());
 
-        bool foundAabb = false;
-        aabb rootAabb;
-        rootNode->traverse<mesh>([&rootAabb, &foundAabb](mesh* mesh)
-        {
-            rootAabb = aabb::add(rootAabb, *mesh->getGeometry()->aabb);
-            foundAabb = true;
-        });
-
-        if (foundAabb)
-        {
-            auto boxCollider = new phi::boxCollider(rootAabb.center, rootAabb.getSize());
-            boxCollider->disable();
-            rootNode->addComponent(boxCollider);
-        }
-
         rootNode->addComponent(new phi::mouseInteractionComponent());
-        // TODO: do not add this collider after the nodes have obb information
-        auto rootBoxCollider = new phi::boxCollider(rootAabb.center, vec3(rootAabb.width, rootAabb.height, rootAabb.depth));
-        rootBoxCollider->disable();
-        rootNode->addComponent(rootBoxCollider);
 
         auto r = new resource<node>(guid, nodeName, rootNode);
         rootNode->resource = r;
