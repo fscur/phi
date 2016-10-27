@@ -31,7 +31,7 @@ namespace phi
         transform* createOffsetedTransform(node* node, vec3 offset);
         void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
         bool objectFitsInOffsetedPosition(vec3 offset);
-        sweepCollisionResult* performCollisionSweep(vector<transform*>& transforms, vec3 offset, uint32_t maximumHits = 32u);
+        sweepCollisionResult* performCollisionSweep(vector<transform*>& transforms, vec3 offset);
         vector<boxCollider*> getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult);
         bool findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision);
         vec3 getAdjustedOffset(sweepCollision collision, vec3 offset);

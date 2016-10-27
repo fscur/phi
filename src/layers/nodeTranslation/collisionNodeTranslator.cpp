@@ -70,6 +70,9 @@ namespace phi
         intersectionTest.colliders = &_piledUpColliders;
         intersectionTest.transforms = &offsetedTransforms;
 
+        auto position = offsetedTransforms.at(0)->getPosition();
+        a += to_string(position);
+
         auto intersectionResult = _physicsWorld->intersects(intersectionTest);
 
         for (auto transform : offsetedTransforms)
@@ -78,15 +81,14 @@ namespace phi
         return !intersectionResult;
     }
 
-    sweepCollisionResult* collisionNodeTranslator::performCollisionSweep(vector<transform*>& transforms, vec3 offset, uint32_t maximumHits)
+    sweepCollisionResult* collisionNodeTranslator::performCollisionSweep(vector<transform*>& transforms, vec3 offset)
     {
         sweepCollisionMultiTest sweepTest;
         sweepTest.colliders = &_piledUpColliders;
         sweepTest.transforms = &transforms;
         sweepTest.direction = glm::normalize(offset);
-        sweepTest.distance = glm::length(offset);
+        sweepTest.distance = glm::length(offset) + DECIMAL_TRUNCATION;
         sweepTest.findOnlyClosestPerTarget = true;
-        sweepTest.maximumHits = maximumHits;
         sweepTest.disregardDivergentNormals = false;
 
         return new sweepCollisionResult(_physicsWorld->sweep(sweepTest));
@@ -106,8 +108,8 @@ namespace phi
     {
         farthestValidCollision = *sweepResult->collisions.begin();
 
-        if (farthestValidCollision.isIntersecting)
-            return false;
+        //if (farthestValidCollision.isIntersecting)
+        //    return false;
 
         auto collisionColliders = getSweepCollisionResultCollidees(sweepResult);
         auto offsetNormal = glm::normalize(offset);
@@ -176,8 +178,8 @@ namespace phi
         auto resolvedOffset = vec3();
 
         auto destinationTransforms = createOffsetedTransforms(vec3());
-
         auto sweepResult = performCollisionSweep(destinationTransforms, offset);
+
         if (sweepResult->collisions.size() > 0u)
         {
             sweepCollision farthestCollision;
@@ -210,7 +212,7 @@ namespace phi
                     a += "has adjust offset -> ";
 
                     auto limitedOffsetTransforms = createOffsetedTransforms(limitedOffset);
-                    auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset, 5u);
+                    auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset);
 
                     if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
                     {

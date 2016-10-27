@@ -43,9 +43,9 @@ namespace phi
         void enablePlaneChanges();
 
         bool isTranslating() const { return _isTranslating; }
-        
+
     private:
-        void createPlanes();
+        void changeToAxisAlignedPlane();
         plane createPlaneFromAxis(const vec3& axis);
         translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
         translationPlane* createTranslationPlane(const plane& plane);
@@ -75,7 +75,7 @@ namespace phi
         void translatePlaneGrid(const vec3& targetPosition);
 
         void resetCurrentCollisions();
-        void checkCollisionsBeforeTranslation();
+        bool changeToTouchingPlaneIfAble();
         void checkCollisionsAferTranslation();
         vector<sweepCollision> findTouchingCollisions(const vec3& direction, float distance);
         vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
@@ -101,8 +101,8 @@ namespace phi
         bool _snappedAtY;
         bool _snappedAtZ;
         vec3 _snappedDelta;
+        plane _lastOffsetPlane;
 
-        vector<sweepCollision>* _lastCollisions;
         vector<sweepCollision> _currentCollisions;
 
         //vector<translationPlane*> _clippedTranslationPlanes;
