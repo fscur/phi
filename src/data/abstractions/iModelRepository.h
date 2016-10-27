@@ -1,13 +1,13 @@
 #pragma once
 #include <phi.h>
 
-#include "data/model/modelJson.h"
+#include "data/model/modelDTO.h"
 
 namespace phi
 {
     class iModelRepository
     {
     public:
-        virtual modelJson getModelByIndex(int index) = 0;
+        virtual modelDTO getModelByIndex(int index) = 0;
     };
 }

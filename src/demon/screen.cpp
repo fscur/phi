@@ -12,7 +12,7 @@
 #include <data/abstractions/iModelDataService.h>
 #include <data/geometryRepository.h>
 #include <data/materialRepository.h>
-#include <data/imageRepository.h>
+#include <data/textureRepository.h>
 #include <data/modelRepository.h>
 #include <data/modelDataService.h>
 
@@ -124,14 +124,14 @@ namespace demon
 
     void screen::initLibraries()
     {
-        auto materialRepository = new phi::materialRepository();
-        auto imageRepository = new phi::imageRepository();
-        auto geometryRepository = new phi::geometryRepository();
+        auto textureRepository = new phi::textureRepository(application::libraryPath);
+        auto materialRepository = new phi::materialRepository(application::libraryPath, textureRepository);
+        auto geometryRepository = new phi::geometryRepository(application::libraryPath);
         auto modelRepository = new phi::modelRepository(application::libraryPath);
         auto modelDataService = new phi::modelDataService(
             geometryRepository,
             materialRepository,
-            imageRepository,
+            textureRepository,
             modelRepository);
 
         _userLibrary = new library(modelDataService);

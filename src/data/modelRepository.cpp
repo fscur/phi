@@ -4,35 +4,33 @@
 #include <io/path.h>
 #include <io/fileReader.h>
 
-#include <strstream>
-
-#include <cereal/cereal.hpp>
-#include <cereal/archives/json.hpp>
+#include "utils/cerealSerializationFunctions.h"
 
 namespace phi
 {
+    using namespace cereal;
+
     modelRepository::modelRepository(string libraryPath) :
         _libraryPath(libraryPath)
     {
-        loadIndex();
+        auto indexPath = path::combine(_libraryPath, MODELS_INDEX_FILE_NAME);
+        _index = index::load(indexPath);
     }
 
     modelRepository::~modelRepository()
     {
     }
 
-    void modelRepository::loadIndex()
+    modelDTO modelRepository::getModelByIndex(int index)
     {
-        string indexPath = path::combine(_libraryPath, "models.index");
-        std::ifstream inputFileStream(indexPath);
-        cereal::JSONInputArchive archive(inputFileStream);
+        auto entry = _index.getEntryByIndex(index);
+        auto modelPath = path::combine(_libraryPath, entry.path);
+        std::ifstream inputFileStream(modelPath);
+        JSONInputArchive archive(inputFileStream);
 
-        _index.load(archive);
-    }
+        auto model = modelDTO();
+        model.serialize(archive);
 
-    modelJson modelRepository::getModelByIndex(int index)
-    {
-        _unused(index);
-        return modelJson();
+        return model;
     }
 }

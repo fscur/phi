@@ -68,6 +68,11 @@
 
 #include <freeimage/FreeImage.h>
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_LCD_FILTER_H

@@ -3,6 +3,7 @@
 
 #include "dataApi.h"
 #include "abstractions/iModelRepository.h"
+#include "model/modelDTO.h"
 #include "model/index.h"
 
 namespace phi
@@ -13,10 +14,7 @@ namespace phi
         DATA_API modelRepository(string libraryPath);
         DATA_API ~modelRepository();
 
-        DATA_API virtual modelJson getModelByIndex(int index) override;
-
-    private:
-        void loadIndex();
+        DATA_API virtual modelDTO getModelByIndex(int index) override;
 
     private:
         const string MODELS_INDEX_FILE_NAME = "models.index";

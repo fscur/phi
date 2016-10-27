@@ -126,6 +126,7 @@
 //        case 32:
 //            if (redMask == 255)
 //                format = imageDataFormat::rgba;
+
 //            else
 //                format = imageDataFormat::bgra;
 //            break;

@@ -16,19 +16,23 @@ file(GLOB source_files *.cpp)
 file(GLOB natvis_files *.natvis)
 file(GLOB abstractions_header_files ./abstractions/*.h)
 FILE(GLOB model_header_files ./model/*.h)
+FILE(GLOB utils_header_files ./utils/*.h)
 
 add_library(data SHARED 
     ${source_files} 
     ${abstractions_header_files} 
     ${model_header_files} 
+    ${utils_header_files} 
     ${header_files} 
     ${natvis_files})
 
 source_group("Header Files\\Abstractions" FILES ${abstractions_header_files})
 source_group("Header Files\\Model" FILES ${model_header_files})
+source_group("Header Files\\Utils" FILES ${utils_header_files})
 target_link_libraries(data io)
 target_link_libraries(data common)
 target_link_libraries(data rendering)
+target_link_libraries(data ${FREEIMAGE_LIBRARY})
 
 if (MINGW)
     set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})

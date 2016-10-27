@@ -1,13 +1,9 @@
 #pragma once
 #include <phi.h>
 
+#include <core/exception.h>
 #include <core/guid.h>
 #include <core/base64.h>
-
-#include <cereal/cereal.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/archives/json.hpp>
 
 namespace phi
 {
@@ -43,22 +39,54 @@ namespace phi
         };
 
     public:
-        vector<indexEntry> entries;
-
-    public:
         index() {};
         ~index() {};
 
         template <typename Archive>
-        void save(Archive& archive) const
+        void serialize(Archive& archive)
         {
-            archive(cereal::make_nvp("Entries", entries));
+            archive(cereal::make_nvp("Entries", _entries));
         }
 
-        template <typename Archive>
-        void load(Archive& archive)
+        indexEntry getEntryByIndex(int index)
         {
-            archive(cereal::make_nvp("Entries", entries));
+            return _entries[index];
         }
+
+        bool contains(const guid& id)
+        {
+            for (auto& entry : _entries)
+            {
+                if (entry.guid == id)
+                    return true;
+            }
+
+            return false;
+        }
+
+        indexEntry getEntryById(const guid& id)
+        {
+            for (auto& entry : _entries)
+            {
+                if (entry.guid == id)
+                    return entry;
+            }
+
+            throw exception("Index entry not found");
+        }
+
+        static index load(string filePath)
+        {
+            std::ifstream inputFileStream(filePath);
+            cereal::JSONInputArchive archive(inputFileStream);
+
+            index index;
+            index.serialize(archive);
+
+            return index;
+        }
+
+    private:
+        vector<indexEntry> _entries;
     };
 }
