@@ -576,8 +576,11 @@ namespace phi
 
     void translationService::checkCollisionsAferTranslation()
     {
+        if (_lastCollisions->size() > 0)
+            return;
+
         auto touchCollisions = findTouchingCollisions(-_offsetPlane.normal, 2.5f * DECIMAL_TRUNCATION);
-        if (touchCollisions.size() > 0 && _lastCollisions->size() == 0)
+        if (touchCollisions.size() > 0)
             _currentCollisions = getValidTouchCollisions(touchCollisions);
     }
 
@@ -653,7 +656,7 @@ namespace phi
     {
         auto sweepTest = sweepCollisionMultiTest();
         sweepTest.colliders = _nodeTranslator->getPiledUpColliders();
-        sweepTest.transforms = _nodeTranslator->createOffsetedTransforms(vec3()); // TODO: delete these transforms
+        sweepTest.transforms = &_nodeTranslator->createOffsetedTransforms(vec3()); // TODO: delete these transforms
         sweepTest.direction = direction;
         sweepTest.distance = distance;
 

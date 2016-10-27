@@ -16,7 +16,8 @@ namespace phi
             disregardDivergentNormals(true),
             findOnlyClosestPerTarget(false),
             maximumHits(32u),
-            inflation(0.0f)
+            inflation(0.0f),
+            checkPenetration(false)
         {
         }
 
@@ -26,5 +27,6 @@ namespace phi
         bool findOnlyClosestPerTarget;
         uint32_t maximumHits;
         float inflation;
+        bool checkPenetration;
     };
 }

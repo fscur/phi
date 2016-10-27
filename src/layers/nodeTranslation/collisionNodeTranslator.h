@@ -13,7 +13,7 @@ namespace phi
         collisionNodeTranslator(physicsWorld* physicsWorld);
         ~collisionNodeTranslator();
 
-        vector<transform*>* createOffsetedTransforms(vec3 offset);
+        vector<transform*> createOffsetedTransforms(vec3 offset);
         vector<boxCollider*>* getPiledUpColliders() { return &_piledUpColliders; }
         vector<sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
         vec3 getNodeDestinationPosition(node* node) { return _nodesDestinationPositions[node]; }
@@ -28,13 +28,15 @@ namespace phi
         void enableCollisions() { _resolveCollisions = true; }
 
     private:
+        transform* createOffsetedTransform(node* node, vec3 offset);
         void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
         bool objectFitsInOffsetedPosition(vec3 offset);
-        sweepCollisionResult* performCollisionSweep(vector<transform*>* transforms, vec3 offset, uint32_t maximumHits = 32u);
-        vector<boxCollider*>* getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult);
+        sweepCollisionResult* performCollisionSweep(vector<transform*>& transforms, vec3 offset, uint32_t maximumHits = 32u);
+        vector<boxCollider*> getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult);
         bool findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision);
         vec3 getAdjustedOffset(sweepCollision collision, vec3 offset);
-        vec3 collisionNodeTranslator::resolveCollisions(vec3 offset);
+        vec3 resolveCollisions(vec3 offset);
+        void translateNodes(vec3 offset);
 
     private:
         bool _resolveCollisions;

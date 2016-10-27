@@ -206,7 +206,7 @@ namespace phi
     {
         auto geometry = createBoxGeometry(test.collider, test.transform);
         auto pose = createPose(test.collider, test.transform);
-        
+
         auto hit = PxOverlapBuffer();
         PxQueryFilterData filterData = PxQueryFilterData(PxQueryFlag::eANY_HIT | PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
@@ -331,8 +331,11 @@ namespace phi
         auto pose = createPose(test.collider, test.transform);
 
         int flags = PxHitFlag::eDEFAULT;
-        if (test.inflation == 0.0f)
+        if (test.inflation == 0.0f && !test.checkPenetration)
             flags |= PxHitFlag::ePRECISE_SWEEP;
+
+        if (test.checkPenetration)
+            flags |= PxHitFlag::eMTD;
 
         auto filterData = PxQueryFilterData(PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
@@ -357,7 +360,7 @@ namespace phi
             {
                 auto touch = hit.getTouch(static_cast<PxU32>(i));
                 auto collidee = reinterpret_cast<boxCollider*>(touch.actor->userData);
-                auto normal = vec3(touch.normal.x, touch.normal.y, touch.normal.z);
+                auto normal = collidee->getObb().findClosestNormalTo(vec3(touch.normal.x, touch.normal.y, touch.normal.z));
                 auto isIntersecting = false;
 
                 // Penetration check for invalid normals:
@@ -394,7 +397,7 @@ namespace phi
                 sweepCollision collision;
                 collision.collidee = collidee;
                 collision.collider = test.collider;
-                collision.distance = glm::max(touch.distance - DECIMAL_TRUNCATION, 0.0f);
+                collision.distance = touch.distance;
                 collision.normal = normal;
                 collision.isIntersecting = isIntersecting;
                 collision.position = vec3(touch.position.x, touch.position.y, touch.position.z);
@@ -431,6 +434,7 @@ namespace phi
             singleTest.disregardDivergentNormals = test.disregardDivergentNormals;
             singleTest.inflation = test.inflation;
             singleTest.maximumHits = test.maximumHits;
+            singleTest.checkPenetration = test.checkPenetration;
             auto result = sweep(singleTest);
 
             if (result.collided)

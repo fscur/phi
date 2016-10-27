@@ -15,7 +15,8 @@ namespace phi
             direction(vec3()),
             disregardDivergentNormals(true),
             maximumHits(32u),
-            inflation(0.0f)
+            inflation(0.0f),
+            checkPenetration(false)
         {
         }
 
@@ -24,5 +25,6 @@ namespace phi
         bool disregardDivergentNormals;
         uint32_t maximumHits;
         float inflation;
+        bool checkPenetration;
     };
 }

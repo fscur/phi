@@ -1,8 +1,11 @@
 #include <precompiled.h>
+#include <core/string.h>
 #include "collisionNodeTranslator.h"
 
 namespace phi
 {
+    string a;
+
     collisionNodeTranslator::collisionNodeTranslator(physicsWorld* physicsWorld) :
         _physicsWorld(physicsWorld),
         _plane(plane()),
@@ -31,24 +34,29 @@ namespace phi
         }
     }
 
-    vector<transform*>* collisionNodeTranslator::createOffsetedTransforms(vec3 offset)
+    transform* collisionNodeTranslator::createOffsetedTransform(node* node, vec3 offset)
+    {
+        auto transform = node->getTransform();
+        auto position = _nodesDestinationPositions[node] + offset;
+        auto rotation = transform->getOrientation();
+        auto size = transform->getSize();
+        auto offsetTransform = new phi::transform();
+        offsetTransform->setLocalPosition(position);
+        offsetTransform->setLocalOrientation(rotation);
+        offsetTransform->setLocalSize(size);
+        return offsetTransform;
+    }
+
+    vector<transform*> collisionNodeTranslator::createOffsetedTransforms(vec3 offset)
     {
         size_t transformsCount = _piledUpTransforms.size();
 
-        auto offsetedTransforms = new vector<transform*>(transformsCount);
+        auto offsetedTransforms = vector<transform*>(transformsCount);
 
         for (size_t i = 0; i < transformsCount; ++i)
         {
             auto node = _piledUpNodes.at(i);
-            auto transform = _piledUpTransforms.at(i);
-            auto position = _nodesDestinationPositions[node] + offset;
-            auto rotation = transform->getOrientation();
-            auto size = transform->getSize();
-            auto offsetTransform = new phi::transform();
-            offsetTransform->setLocalPosition(position);
-            offsetTransform->setLocalOrientation(rotation);
-            offsetTransform->setLocalSize(size);
-            offsetedTransforms->at(i) = offsetTransform;
+            offsetedTransforms.at(i) = createOffsetedTransform(node, offset);
         }
 
         return offsetedTransforms;
@@ -57,24 +65,24 @@ namespace phi
     bool collisionNodeTranslator::objectFitsInOffsetedPosition(vec3 offset)
     {
         auto offsetedTransforms = createOffsetedTransforms(offset);
+
         intersectionCollisionMultiTest intersectionTest;
         intersectionTest.colliders = &_piledUpColliders;
-        intersectionTest.transforms = offsetedTransforms;
+        intersectionTest.transforms = &offsetedTransforms;
 
         auto intersectionResult = _physicsWorld->intersects(intersectionTest);
 
-        for (auto transform : (*offsetedTransforms))
+        for (auto transform : offsetedTransforms)
             safeDelete(transform);
-        safeDelete(offsetedTransforms);
 
         return !intersectionResult;
     }
 
-    sweepCollisionResult* collisionNodeTranslator::performCollisionSweep(vector<transform*>* transforms, vec3 offset, uint32_t maximumHits)
+    sweepCollisionResult* collisionNodeTranslator::performCollisionSweep(vector<transform*>& transforms, vec3 offset, uint32_t maximumHits)
     {
         sweepCollisionMultiTest sweepTest;
         sweepTest.colliders = &_piledUpColliders;
-        sweepTest.transforms = transforms;
+        sweepTest.transforms = &transforms;
         sweepTest.direction = glm::normalize(offset);
         sweepTest.distance = glm::length(offset);
         sweepTest.findOnlyClosestPerTarget = true;
@@ -84,12 +92,12 @@ namespace phi
         return new sweepCollisionResult(_physicsWorld->sweep(sweepTest));
     }
 
-    vector<boxCollider*>* collisionNodeTranslator::getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult)
+    vector<boxCollider*> collisionNodeTranslator::getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult)
     {
-        auto collidees = new vector<boxCollider*>();
+        auto collidees = vector<boxCollider*>();
 
         for (auto collision : sweepResult->collisions)
-            collidees->push_back(collision.collidee);
+            collidees.push_back(collision.collidee);
 
         return collidees;
     }
@@ -107,27 +115,28 @@ namespace phi
         while (reverseIterator != sweepResult->collisions.rend())
         {
             auto currentCollision = *reverseIterator;
-            phi::removeIfContains(*collisionColliders, currentCollision.collidee);
+            removeIfContains(collisionColliders, currentCollision.collidee);
             auto offsetedTransforms = createOffsetedTransforms(offsetNormal * currentCollision.distance);
 
             intersectionCollisionGroupTest intersectionTest;
             intersectionTest.colliders = &_piledUpColliders;
-            intersectionTest.transforms = offsetedTransforms;
-            intersectionTest.collidees = collisionColliders;
-            if (!_physicsWorld->intersects(intersectionTest))
+            intersectionTest.transforms = &offsetedTransforms;
+            intersectionTest.collidees = &collisionColliders;
+
+            auto intersects = _physicsWorld->intersects(intersectionTest);
+
+            for (auto& transform : offsetedTransforms)
+                safeDelete(transform);
+
+            if (!intersects)
             {
                 farthestValidCollision = currentCollision;
-                reverseIterator = sweepResult->collisions.rend();
+                break;
             }
-            else
-                ++reverseIterator;
 
-            for (auto transform : (*offsetedTransforms))
-                safeDelete(transform);
-            safeDelete(offsetedTransforms);
+            ++reverseIterator;
         }
 
-        safeDelete(collisionColliders);
         return true;
     }
 
@@ -157,7 +166,12 @@ namespace phi
         assert(offset != vec3());
 
         if (objectFitsInOffsetedPosition(offset))
+        {
+            a += "fits offset";
             return offset;
+        }
+
+        a += "does not fits offset -> ";
 
         auto resolvedOffset = vec3();
 
@@ -172,45 +186,59 @@ namespace phi
             {
                 resolvedOffset = vec3();
                 addTouchingCollisions(sweepResult, sweepResult->collisions[0]);
+
+                a += "no farthest collision: vec3() ";
             }
             else
             {
+                a += "farthest collision found [d = " + std::to_string(farthestCollision.distance) + "] -> ";
+
                 auto limitedOffset = glm::normalize(offset) * farthestCollision.distance;
+                limitedOffset = limitedOffset + farthestCollision.normal * DECIMAL_TRUNCATION;
+
                 auto adjustedOffset = getAdjustedOffset(farthestCollision, offset - limitedOffset);
 
                 if (adjustedOffset == vec3())
                 {
                     resolvedOffset = limitedOffset;
                     addTouchingCollisions(sweepResult, farthestCollision);
+
+                    a += "no adjust: farthest limited offset";
                 }
                 else
                 {
+                    a += "has adjust offset -> ";
+
                     auto limitedOffsetTransforms = createOffsetedTransforms(limitedOffset);
                     auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset, 5u);
 
                     if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
                     {
+                        a += "collided on adjust: farthest limited offset + collided adjusted offset ";
                         auto firstCollision = adjustSweepResult->collisions.begin();
                         resolvedOffset = limitedOffset + glm::normalize(adjustedOffset) * firstCollision->distance;
                         addTouchingCollisions(adjustSweepResult, *firstCollision);
                     }
                     else
                     {
+                        a += "no collision on adjust: farthest limited offset + adjusted offset ";
                         resolvedOffset = limitedOffset + adjustedOffset;
                         addTouchingCollisions(sweepResult, farthestCollision);
                     }
 
                     safeDelete(adjustSweepResult);
-                    for (auto& transform : (*limitedOffsetTransforms))
+                    for (auto& transform : limitedOffsetTransforms)
                         safeDelete(transform);
-                    safeDelete(limitedOffsetTransforms);
                 }
             }
         }
+        else
+        {
+            a += "no sweep results: vec3()";
+        }
 
-        for (auto& transform : (*destinationTransforms))
+        for (auto& transform : destinationTransforms)
             safeDelete(transform);
-        safeDelete(destinationTransforms);
 
         safeDelete(sweepResult);
         return resolvedOffset;
@@ -269,13 +297,8 @@ namespace phi
         _nodes.clear();
     }
 
-    vec3 collisionNodeTranslator::translate(vec3 offset)
+    void collisionNodeTranslator::translateNodes(vec3 offset)
     {
-        _lastTranslationTouchingCollisions->clear();
-
-        if (_resolveCollisions)
-            offset = resolveCollisions(offset);
-
         assert(!isnan(offset.x));
         assert(!isnan(offset.y));
         assert(!isnan(offset.z));
@@ -284,19 +307,35 @@ namespace phi
         {
             auto destination = _nodesDestinationPositions[node];
             destination += offset;
+
             auto translateAnimation = _nodesTranslateAnimations[node];
             translateAnimation->start(node->getTransform()->getLocalPosition(), destination, 0.2f);
             _nodesDestinationPositions[node] = destination;
 
             node->traverseNodesContaining<boxCollider>([&](phi::node* traversedNode, boxCollider* collider)
             {
-                auto destination = _nodesDestinationPositions[node];
+                auto destination = _nodesDestinationPositions[traversedNode];
                 destination += offset;
                 _nodesDestinationPositions[traversedNode] = destination;
             });
-            //node->getTransform()->translate(offset);
+
+            //debug(to_string(destination) + "| " + a);
+            //debug(to_string(destination));
+        }
+    }
+
+    vec3 collisionNodeTranslator::translate(vec3 offset)
+    {
+        _lastTranslationTouchingCollisions->clear();
+        a = "";
+        if (_resolveCollisions)
+        {
+            auto resolvedOffset = resolveCollisions(offset);
+            translateNodes(resolvedOffset);
+            return resolvedOffset;
         }
 
+        translateNodes(offset);
         return offset;
     }
 }
