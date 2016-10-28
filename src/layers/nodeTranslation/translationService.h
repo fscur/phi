@@ -67,7 +67,7 @@ namespace phi
 
         bool tryChangingPlanes();
         bool tryChangeToPlanesFromCollisions();
-        bool tryChangeToAttachedPlane();
+        vec3 tryChangeToAttachedPlane(vec3 offset);
         void changePlanes(translationPlane * translationPlane, const plane& offsetPlane);
 
         vec3 snapToGrid(vec3 endPosition);
@@ -102,8 +102,7 @@ namespace phi
         bool _snappedAtZ;
         vec3 _snappedDelta;
         plane _lastOffsetPlane;
-
-        vector<sweepCollision> _currentCollisions;
+        boxCollider* _lastOffsetPlaneCollider;
 
         //vector<translationPlane*> _clippedTranslationPlanes;
         vector<collisionObbPlane> _currentValidPlanes;

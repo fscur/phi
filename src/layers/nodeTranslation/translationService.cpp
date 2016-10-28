@@ -47,12 +47,12 @@ namespace phi
         _snappedAtX = _snappedAtY = _snappedAtZ = false;
         _snappedDelta = vec3();
         _collidedDelta = vec3();
-        _currentCollisions = vector<sweepCollision>();
 
         changeToAxisAlignedPlane();
         changeToTouchingPlaneIfAble();
 
         _lastOffsetPlane = _offsetPlane;
+        _lastOffsetPlaneCollider = nullptr;
     }
 
     bool translationService::changeToTouchingPlaneIfAble()
@@ -67,6 +67,7 @@ namespace phi
         auto offsetPlane = plane(_offsetPlane.origin, firstValidCollision.normal);
         auto planeGridPlane = plane(firstValidCollision.collider->getObb().getPositionAt(-firstValidCollision.normal), firstValidCollision.normal);
         auto translationPlane = createTranslationPlane(planeGridPlane);
+        translationPlane->setCollidee(firstValidCollision.collidee);
 
         changePlanes(translationPlane, offsetPlane);
         showTranslationPlane();
@@ -174,7 +175,10 @@ namespace phi
     void translationService::changePlanes(translationPlane* translationPlane, const plane& offsetPlane)
     {
         if (_currentTranslationPlane)
+        {
             enqueuePlaneForDeletion(_currentTranslationPlane);
+            _lastOffsetPlaneCollider = _currentTranslationPlane->getCollidee();
+        }
 
         _lastOffsetPlane = _offsetPlane;
         _currentTranslationPlane = translationPlane;
@@ -193,37 +197,42 @@ namespace phi
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
         auto offset = endPosition - _offsetPlane.origin;
 
-        auto oldSnappedAtX = _snappedAtX;
-        auto oldSnappedAtY = _snappedAtY;
-        auto oldSnappedAtZ = _snappedAtZ;
-        auto snappedOffset = snapToGrid(offset + _collidedDelta + _snappedDelta);
+        //auto oldSnappedAtX = _snappedAtX;
+        //auto oldSnappedAtY = _snappedAtY;
+        //auto oldSnappedAtZ = _snappedAtZ;
+        //auto snappedOffset = snapToGrid(offset + _collidedDelta + _snappedDelta);
+        auto snappedOffset = offset;
 
-        translateTargetNodes(snappedOffset);
+        auto snappedAndCheckedOffset = tryChangeToAttachedPlane(snappedOffset);
+        translateTargetNodes(snappedAndCheckedOffset);
 
-        if (oldSnappedAtX && _snappedAtX)
-            _snappedDelta.x += offset.x;
-        else
-            _snappedDelta.x = 0.0f;
+        //if (oldSnappedAtX && _snappedAtX)
+        //    _snappedDelta.x += offset.x;
+        //else
+        //    _snappedDelta.x = 0.0f;
 
-        if (oldSnappedAtY && _snappedAtY)
-            _snappedDelta.y += offset.y;
-        else
-            _snappedDelta.y = 0.0f;
+        //if (oldSnappedAtY && _snappedAtY)
+        //    _snappedDelta.y += offset.y;
+        //else
+        //    _snappedDelta.y = 0.0f;
 
-        if (oldSnappedAtZ && _snappedAtZ)
-            _snappedDelta.z += offset.z;
-        else
-            _snappedDelta.z = 0.0f;
+        //if (oldSnappedAtZ && _snappedAtZ)
+        //    _snappedDelta.z += offset.z;
+        //else
+        //    _snappedDelta.z = 0.0f;
 
         _offsetPlane.origin = endPosition;
         translatePlaneGrid(endPosition);
-        checkCollisionsAferTranslation();
+        //checkCollisionsAferTranslation();
 
-        if (glm::length(_lastOffsetPlane.origin - endPosition) >= 0.5f)
+        if (glm::length(_lastOffsetPlane.origin - endPosition) >= 0.2f)
+        {
             _lastOffsetPlane = _offsetPlane;
+            _lastOffsetPlaneCollider = nullptr;
+        }
 
         tryChangingPlanes();
-        //checkForClippingPlanes();
+        checkForClippingPlanes();
 
         //updateClippedPlanes();
 
@@ -232,13 +241,7 @@ namespace phi
 
     vec3 translationService::snapToGrid(vec3 offset)
     {
-        auto destinationPosition = _nodeTranslator->getNodeDestinationPosition(_clickedNode);
-        auto currentPosition = _clickedNode->getTransform()->getLocalPosition();
-        auto deltaToDestination = destinationPosition - currentPosition;
-
-        auto obb = _clickedNode->getObb();
-        auto destinationObb = obb::obb(*obb);
-        destinationObb.center += deltaToDestination;
+        auto destinationObb = _nodeTranslator->getNodeDestinationObb(_clickedNode);
         vec3 minimum;
         vec3 maximum;
         destinationObb.getLimits(minimum, maximum);
@@ -257,36 +260,82 @@ namespace phi
         _snappedAtX = false;
         _snappedAtY = false;
         _snappedAtZ = false;
+        vec3 amountSnapped;
 
         auto snappedOffset = offset;
         for (auto i = 0; i < 2; ++i)
         {
             auto mod = glm::abs(glm::modf(offsetedLimits[i], vec3(gridSize)));
 
-            if (!_snappedAtX && glm::abs(_offsetPlane.normal) != vec3(1.0f, 0.0f, 0.0f))
+            if (glm::abs(_offsetPlane.normal) != vec3(1.0f, 0.0f, 0.0f))
             {
                 if (mod.x < snapMargin || mod.x > highSnapMargin)
                 {
-                    _snappedAtX = true;
-                    snappedOffset.x = glm::round(offsetedLimits[i].x) - limits[i].x;
+                    if (!_snappedAtX)
+                    {
+                        _snappedAtX = true;
+                        auto roundedX = glm::round(offsetedLimits[i].x);
+                        amountSnapped.x = glm::abs(roundedX - offsetedLimits[i].x);
+                        snappedOffset.x = roundedX - limits[i].x;
+                    }
+                    else
+                    {
+                        auto roundedX = glm::round(offsetedLimits[i].x);
+                        auto amountSnappedX = glm::abs(roundedX - offsetedLimits[i].x);
+                        if (amountSnappedX < amountSnapped.x)
+                        {
+                            amountSnapped.x = amountSnappedX;
+                            snappedOffset.x = roundedX - limits[i].x;
+                        }
+                    }
                 }
             }
 
-            if (!_snappedAtY && glm::abs(_offsetPlane.normal) != vec3(0.0f, 1.0f, 0.0f))
+            if (glm::abs(_offsetPlane.normal) != vec3(0.0f, 1.0f, 0.0f))
             {
                 if (mod.y < snapMargin || mod.y > highSnapMargin)
                 {
-                    _snappedAtY = true;
-                    snappedOffset.y = glm::round(offsetedLimits[i].y) - limits[i].y;
+                    if (!_snappedAtY)
+                    {
+                        _snappedAtY = true;
+                        auto roundedY = glm::round(offsetedLimits[i].y);
+                        amountSnapped.y = glm::abs(roundedY - offsetedLimits[i].y);
+                        snappedOffset.y = roundedY - limits[i].y;
+                    }
+                    else
+                    {
+                        auto roundedY = glm::round(offsetedLimits[i].y);
+                        auto amountSnappedY = glm::abs(roundedY - offsetedLimits[i].y);
+                        if (amountSnappedY < amountSnapped.y)
+                        {
+                            amountSnapped.y = amountSnappedY;
+                            snappedOffset.y = roundedY - limits[i].y;
+                        }
+                    }
                 }
             }
 
-            if (!_snappedAtZ && glm::abs(_offsetPlane.normal) != vec3(0.0f, 0.0f, 1.0f))
+            if (glm::abs(_offsetPlane.normal) != vec3(0.0f, 0.0f, 1.0f))
             {
                 if (mod.z < snapMargin || mod.z > highSnapMargin)
                 {
-                    _snappedAtZ = true;
-                    snappedOffset.z = glm::round(offsetedLimits[i].z) - limits[i].z;
+                    if (!_snappedAtZ)
+                    {
+                        _snappedAtZ = true;
+                        auto roundedZ = glm::round(offsetedLimits[i].z);
+                        amountSnapped.z = glm::abs(roundedZ - offsetedLimits[i].z);
+                        snappedOffset.z = roundedZ - limits[i].z;
+                    }
+                    else
+                    {
+                        auto roundedZ = glm::round(offsetedLimits[i].z);
+                        auto amountSnappedZ = glm::abs(roundedZ - offsetedLimits[i].z);
+                        if (amountSnappedZ < amountSnapped.z)
+                        {
+                            amountSnapped.z = amountSnappedZ;
+                            snappedOffset.z = roundedZ - limits[i].z;
+                        }
+                    }
                 }
             }
         }
@@ -296,99 +345,96 @@ namespace phi
 
     void translationService::checkForClippingPlanes()
     {
-        for (auto& touch : _currentCollisions)
-        {
-            auto node = touch.collider->getNode();
-            while (node->getParent()->getParent() != nullptr)
-                node = node->getParent();
+        //for (auto& touch : _currentCollisions)
+        //{
+        //    auto node = touch.collider->getNode();
+        //    while (node->getParent()->getParent() != nullptr)
+        //        node = node->getParent();
 
-            auto colliderObb = node->getObb();
-            auto collideePlanes = touch.collidee->getObb().getPlanes();
+        //    auto colliderObb = node->getObb();
+        //    auto collideePlanes = touch.collidee->getObb().getPlanes();
 
-            //find suitable planes
-            for (auto& collideePlane : collideePlanes)
-            {
-                if (collideePlane.isParallel(_offsetPlane))
-                    continue;
+        //    //find suitable planes
+        //    for (auto& collideePlane : collideePlanes)
+        //    {
+        //        if (collideePlane.isParallel(_offsetPlane))
+        //            continue;
 
-                auto collideePlaneVisibility = getPlaneVisibility(collideePlane);
-                if (collideePlaneVisibility < 0.0f)
-                    continue;
+        //        auto collideePlaneVisibility = getPlaneVisibility(collideePlane);
+        //        if (collideePlaneVisibility < 0.0f)
+        //            continue;
 
-                bool isParallelToValidPlane = false;
-                for (auto& validPlane : _currentValidPlanes)
-                {
-                    if (validPlane.plane.isParallel(collideePlane))
-                    {
-                        isParallelToValidPlane = true;
-                        break;
-                    }
-                }
+        //        bool isParallelToValidPlane = false;
+        //        for (auto& validPlane : _currentValidPlanes)
+        //        {
+        //            if (validPlane.plane.isParallel(collideePlane))
+        //            {
+        //                isParallelToValidPlane = true;
+        //                break;
+        //            }
+        //        }
 
-                for (auto& pair : _clippedTranslationPlanes)
-                {
-                    auto clippedPlane = pair.first;
-                    if (clippedPlane.isParallel(collideePlane))
-                    {
-                        isParallelToValidPlane = true;
-                        break;
-                    }
-                }
+        //        for (auto& pair : _clippedTranslationPlanes)
+        //        {
+        //            auto clippedPlane = pair.first;
+        //            if (clippedPlane.isParallel(collideePlane))
+        //            {
+        //                isParallelToValidPlane = true;
+        //                break;
+        //            }
+        //        }
 
-                if (isParallelToValidPlane)
-                    continue;
+        //        if (isParallelToValidPlane)
+        //            continue;
 
-                auto plane = collisionObbPlane();
-                plane.colliderObb = colliderObb;
-                plane.plane = collideePlane;
+        //        auto plane = collisionObbPlane();
+        //        plane.colliderObb = colliderObb;
+        //        plane.plane = collideePlane;
 
-                _currentValidPlanes.push_back(plane);
-            }
-        }
+        //        _currentValidPlanes.push_back(plane);
+        //    }
+        //}
 
-        //create planes
-        for (auto& collideePlane : _currentValidPlanes)
-        {
-            if (collideePlane.plane.isParallel(_offsetPlane))
-                continue;
+        ////create planes
+        //for (auto& collideePlane : _currentValidPlanes)
+        //{
+        //    if (collideePlane.plane.isParallel(_offsetPlane))
+        //        continue;
 
-            auto colliderObb = collideePlane.colliderObb;
-            vec4 leavingPos = vec4(colliderObb->getPositionAt(-collideePlane.plane.normal), 1.0);
-            float distanceFromPlane = glm::dot(collideePlane.plane.toVec4(), leavingPos) + 0.4f;
+        //    auto colliderObb = collideePlane.colliderObb;
+        //    vec4 leavingPos = vec4(colliderObb->getPositionAt(-collideePlane.plane.normal), 1.0);
+        //    float distanceFromPlane = glm::dot(collideePlane.plane.toVec4(), leavingPos) + 0.4f;
 
-            bool shouldCreateClippedPlane = _clippedTranslationPlanes.find(collideePlane.plane) == _clippedTranslationPlanes.end();
+        //    bool shouldCreateClippedPlane = _clippedTranslationPlanes.find(collideePlane.plane) == _clippedTranslationPlanes.end();
 
-            if (distanceFromPlane > 0.0f && shouldCreateClippedPlane)
-            {
-                auto clippedTranslationPlane = createTranslationPlane(collideePlane.plane);
-                _clippedTranslationPlanes[collideePlane.plane] = clippedTranslationPlane;
+        //    if (distanceFromPlane > 0.0f && shouldCreateClippedPlane)
+        //    {
+        //        auto clippedTranslationPlane = createTranslationPlane(collideePlane.plane);
+        //        _clippedTranslationPlanes[collideePlane.plane] = clippedTranslationPlane;
 
-                auto clippingPlane = _currentTranslationPlane->getClippingPlane();
-                auto clippedPlaneGrid = clippedTranslationPlane->getPlaneGrid();
-                clippedPlaneGrid->addClippingPlane(clippingPlane);
-                clippedPlaneGrid->setClippingPlaneDistance(clippingPlane, clippingDistance::negative);
-                clippedPlaneGrid->setClippingPlaneOpacity(clippingPlane, 0.0f);
-                clippedPlaneGrid->setVisibilityFactor(1.0f);
-                clippedPlaneGrid->setOpacity(0.0f);
-                _layer->add(clippedTranslationPlane->getPlaneGridNode());
-                clippedPlaneGrid->show();
+        //        auto clippingPlane = _currentTranslationPlane->getClippingPlane();
+        //        auto clippedPlaneGrid = clippedTranslationPlane->getPlaneGrid();
+        //        clippedPlaneGrid->addClippingPlane(clippingPlane);
+        //        clippedPlaneGrid->setClippingPlaneDistance(clippingPlane, clippingDistance::negative);
+        //        clippedPlaneGrid->setClippingPlaneOpacity(clippingPlane, 0.0f);
+        //        clippedPlaneGrid->setVisibilityFactor(1.0f);
+        //        clippedPlaneGrid->setOpacity(0.0f);
+        //        _layer->add(clippedTranslationPlane->getPlaneGridNode());
+        //        clippedPlaneGrid->show();
 
-                auto currentPlaneGrid = _currentTranslationPlane->getPlaneGrid();
-                auto currentClippingPlane = clippedTranslationPlane->getClippingPlane();
-                currentPlaneGrid->addClippingPlane(currentClippingPlane);
-                currentPlaneGrid->setClippingPlaneDistance(currentClippingPlane, clippingDistance::negative);
-                currentPlaneGrid->setClippingPlaneOpacity(currentClippingPlane, 0.0f);
-            }
-        }
+        //        auto currentPlaneGrid = _currentTranslationPlane->getPlaneGrid();
+        //        auto currentClippingPlane = clippedTranslationPlane->getClippingPlane();
+        //        currentPlaneGrid->addClippingPlane(currentClippingPlane);
+        //        currentPlaneGrid->setClippingPlaneDistance(currentClippingPlane, clippingDistance::negative);
+        //        currentPlaneGrid->setClippingPlaneOpacity(currentClippingPlane, 0.0f);
+        //    }
+        //}
     }
 
     bool translationService::tryChangingPlanes()
     {
         if (_canChangePlanes)
         {
-            //if (tryChangeToAttachedPlane())
-            //    return true;
-
             if (tryChangeToPlanesFromCollisions())
                 return true;
         }
@@ -396,70 +442,59 @@ namespace phi
         return false;
     }
 
-    bool translationService::tryChangeToAttachedPlane()
+    vec3 translationService::tryChangeToAttachedPlane(vec3 offset)
     {
         auto shouldLeavePlane = false;
-        auto deleteCollisions = false;
-        auto maxDistance = std::numeric_limits<float>().lowest();
-        auto leavingDistance = -1.0f;
-        plane leavingPlane;
+        auto touchCollisions = findTouchingCollisions(-_offsetPlane.normal, 2.5f * DECIMAL_TRUNCATION);
+        auto validCollisions = getValidTouchCollisions(touchCollisions);
 
-        for (auto& touch : _currentCollisions)
+        for (auto& touch : validCollisions)
         {
             auto node = touch.collider->getNode();
             while (node->getParent()->getParent() != nullptr)
                 node = node->getParent();
 
-            auto colliderObb = node->getObb();
-            auto collideePlanes = touch.collidee->getObb().getPlanes();
+            auto translatedColliderObb = _nodeTranslator->getNodeDestinationObb(node);
+            translatedColliderObb.center += offset;
 
+            auto collideePlanes = touch.collidee->getObb().getPlanes();
             for (auto& collideePlane : collideePlanes)
             {
                 if (collideePlane.isParallel(_offsetPlane))
                     continue;
 
-                auto distanceFromPlane = glm::dot(collideePlane.toVec4(), vec4(colliderObb->center, 1.0f));
-                if (distanceFromPlane > maxDistance)
+                if (!isPlaneVisible(collideePlane))
+                    continue;
+
+                if (mathUtils::isParallel(_lastOffsetPlane.normal, collideePlane.normal))
+                    continue;
+
+                auto leavingPosition = translatedColliderObb.getPositionAt(-collideePlane.normal);
+                auto leavingDistance = collideePlane.distanceFrom(leavingPosition);
+
+                if (leavingDistance > 0.0f)
                 {
-                    maxDistance = distanceFromPlane;
-                    leavingPlane = collideePlane;
-                    auto leavingPos = vec4(colliderObb->getPositionAt(-leavingPlane.normal), 1.0);
-                    leavingDistance = glm::dot(leavingPlane.toVec4(), leavingPos);
+                    auto projectedLeavingPosition = collideePlane.projectPoint(leavingPosition);
+                    projectedLeavingPosition += collideePlane.normal * DECIMAL_TRUNCATION;
 
-                    if (leavingDistance > DECIMAL_TRUNCATION)
-                    {
-                        if (!isPlaneVisible(collideePlane))
-                        {
-                            deleteCollisions = true;
-                            break;
-                        }
+                    auto offsetPlane = plane(_offsetPlane.origin, collideePlane.normal);
+                    auto translationPlane = createTranslationPlane(collideePlane);
 
-                        shouldLeavePlane = true;
-                    }
+                    changePlanes(translationPlane, offsetPlane);
+                    showTranslationPlane();
+
+                    auto snapToPlaneOffset = projectedLeavingPosition - leavingPosition;
+                    return offset + snapToPlaneOffset;
                 }
             }
+
+            if (shouldLeavePlane)
+                break;
         }
 
-        if (deleteCollisions)
-        {
-            deleteClippedPlanes();
-            _currentCollisions.clear();
-        }
+        //deleteClippedPlanes();
 
-        if (shouldLeavePlane)
-        {
-            _nodeTranslator->translate(-leavingPlane.normal * (leavingDistance - DECIMAL_TRUNCATION));
-
-            auto offsetPlane = plane(_offsetPlane.origin, leavingPlane.normal);
-            auto translationPlane = createTranslationPlane(leavingPlane);
-
-            changePlanes(translationPlane, offsetPlane);
-            showTranslationPlane();
-
-            return true;
-        }
-
-        return false;
+        return offset;
     }
 
     bool translationService::tryChangeToPlanesFromCollisions()
@@ -474,7 +509,7 @@ namespace phi
             if (!isNormalValidForCollision(touch, touchPlaneNormal))
                 continue;
 
-            if (mathUtils::isParallel(_lastOffsetPlane.normal, touchPlaneNormal))
+            if (touch.collidee == _lastOffsetPlaneCollider)
                 continue;
 
             auto touchPlaneOrigin = touch.collidee->getObb().getPositionAt(touchPlaneNormal);
@@ -485,6 +520,7 @@ namespace phi
             if (canChangeTo(touchPlane))
             {
                 auto translationPlane = createTranslationPlane(touchPlane);
+                translationPlane->setCollidee(touch.collidee);
                 auto offsetPlane = plane(_offsetPlane.origin, touchPlane.normal);
                 changePlanes(translationPlane, offsetPlane);
                 showTranslationPlane();
@@ -564,7 +600,7 @@ namespace phi
         if (hadAnyCollisions)
         {
             _collidedDelta = offset - resolvedOffset;
-            resetCurrentCollisions();
+            //resetCurrentCollisions();
         }
         else
             _collidedDelta = vec3();
@@ -572,21 +608,21 @@ namespace phi
 
     void translationService::resetCurrentCollisions()
     {
-        _currentCollisions.clear();
+        //_currentCollisions.clear();
 
-        float minDistance = std::numeric_limits<float>().max();
-        sweepCollision closestTouch;
-        auto resultedCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
-        for (auto& touch : *resultedCollisions)
-        {
-            if (touch.distance < minDistance)
-            {
-                minDistance = touch.distance;
-                closestTouch = touch;
-            }
-        }
+        //float minDistance = std::numeric_limits<float>().max();
+        //sweepCollision closestTouch;
+        //auto resultedCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
+        //for (auto& touch : *resultedCollisions)
+        //{
+        //    if (touch.distance < minDistance)
+        //    {
+        //        minDistance = touch.distance;
+        //        closestTouch = touch;
+        //    }
+        //}
 
-        _currentCollisions.push_back(closestTouch);
+        //_currentCollisions.push_back(closestTouch);
     }
 
     void translationService::translatePlaneGrid(const vec3& targetPosition)
@@ -597,13 +633,13 @@ namespace phi
 
     void translationService::checkCollisionsAferTranslation()
     {
-        auto resultedCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
-        if (resultedCollisions->size() > 0)
-            return;
+        //auto resultedCollisions = _nodeTranslator->getLastTranslationTouchingCollisions();
+        //if (resultedCollisions->size() > 0)
+        //    return;
 
-        auto touchCollisions = findTouchingCollisions(-_offsetPlane.normal, 2.5f * DECIMAL_TRUNCATION);
-        if (touchCollisions.size() > 0)
-            _currentCollisions = getValidTouchCollisions(touchCollisions);
+        //auto touchCollisions = findTouchingCollisions(-_offsetPlane.normal, 2.5f * DECIMAL_TRUNCATION);
+        //if (touchCollisions.size() > 0)
+        //    _currentCollisions = getValidTouchCollisions(touchCollisions);
     }
 
     void translationService::updateClippedPlanes()

@@ -16,7 +16,18 @@ namespace phi
         vector<transform*> createOffsetedTransforms(vec3 offset);
         vector<boxCollider*>* getPiledUpColliders() { return &_piledUpColliders; }
         vector<sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
-        vec3 getNodeDestinationPosition(node* node) { return _nodesDestinationPositions[node]; }
+        obb getNodeDestinationObb(node* node)
+        {
+            auto destinationPosition = _nodesDestinationPositions[node];
+            auto currentPosition = node->getTransform()->getPosition();
+            auto deltaToDestination = destinationPosition - currentPosition;
+
+            auto obb = node->getObb();
+            auto destinationObb = obb::obb(*obb);
+            destinationObb.center += deltaToDestination;
+
+            return destinationObb;
+        }
 
         void setPlane(plane value) { _plane = value; }
         void addNode(node* node);

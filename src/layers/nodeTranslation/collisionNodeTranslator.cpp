@@ -321,6 +321,11 @@ namespace phi
                 _nodesDestinationPositions[traversedNode] = destination;
             });
 
+            //auto newTranslatedObb = obb(*node->getObb());
+            //newTranslatedObb.center = destination;
+            //auto newLeavingPosition = newTranslatedObb.getPositionAt(vec3(0.0f, 0.0f, -1.0f));
+            //debug(to_string(newLeavingPosition));
+
             //debug(to_string(destination) + "| " + a);
             //debug(to_string(destination));
         }
