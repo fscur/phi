@@ -96,7 +96,7 @@ namespace phi
             auto offset = rotatedOriginToProjectedPosition - originToProjectedPosition;
 
             auto transforms = createTransformedTransforms(node, offset, rotation);
-            auto test = intersectionCollisionMultiTest();
+            auto test = intersection::groupToSceneTest();
             test.colliders = &_nodesColliders[node];
             test.transforms = transforms;
 
@@ -180,7 +180,7 @@ namespace phi
     {
         for (auto& pair : _nodesColliders)
         {
-            auto test = intersectionCollisionMultiTest();
+            auto test = intersection::groupToSceneTest();
             test.colliders = &pair.second;
             test.transforms = &transforms[pair.first];
 

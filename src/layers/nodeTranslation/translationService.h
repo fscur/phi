@@ -62,7 +62,7 @@ namespace phi
         bool isPlaneVisible(const plane& plane);
         float getExtinctionFactor(const vec3& normal);
         float getPlaneVisibility(const plane& plane);
-        bool isNormalValidForCollision(const sweepCollision & touch, const vec3 & normal);
+        bool isNormalValidForCollision(const sweep::sweepCollision & touch, const vec3 & normal);
         void checkForClippingPlanes();
 
         bool tryChangingPlanes();
@@ -77,8 +77,10 @@ namespace phi
         void resetCurrentCollisions();
         bool changeToTouchingPlaneIfAble();
         void checkCollisionsAferTranslation();
-        vector<sweepCollision> findTouchingCollisions(const vec3& direction, float distance);
-        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
+        vector<sweep::sweepCollision> findTouchingCollisions();
+        vector<sweep::sweepObbCollision> findTouchingCollisionsOnDirection(const vec3& direction, float distance);
+        vector<sweep::sweepCollision> getValidTouchCollisions(vector<sweep::sweepCollision>& touchs);
+        vector<sweep::sweepObbCollision> getValidTouchCollisions(vector<sweep::sweepObbCollision>& touchs);
 
     private:
         const vector<node*>* _targetNodes;
@@ -101,8 +103,7 @@ namespace phi
         bool _snappedAtY;
         bool _snappedAtZ;
         vec3 _snappedDelta;
-        plane _lastOffsetPlane;
-        boxCollider* _lastOffsetPlaneCollider;
+        vector<const obb*> _targetNodesDestinationObbs;
 
         //vector<translationPlane*> _clippedTranslationPlanes;
         vector<collisionObbPlane> _currentValidPlanes;

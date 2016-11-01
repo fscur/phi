@@ -5,9 +5,9 @@
 #include <core/plane.h>
 #include <core/string.h>
 #include <animation/animator.h>
-#include <physics/intersectionCollisionMultiTest.h>
-#include <physics/sweepCollision.h>
-#include <physics/sweepCollisionMultiTest.h>
+#include <physics/intersection/groupToSceneTest.h>
+#include <physics/sweep/sweepCollision.h>
+#include <physics/sweep/groupToSceneObbTest.h>
 
 #include "translationService.h"
 
@@ -50,14 +50,11 @@ namespace phi
 
         changeToAxisAlignedPlane();
         changeToTouchingPlaneIfAble();
-
-        _lastOffsetPlane = _offsetPlane;
-        _lastOffsetPlaneCollider = nullptr;
     }
 
     bool translationService::changeToTouchingPlaneIfAble()
     {
-        auto touchCollisions = findTouchingCollisions(vec3(0.0f, 1.0f, 0.0f), 0.0f);
+        auto touchCollisions = findTouchingCollisions();
         auto validCollisions = getValidTouchCollisions(touchCollisions);
 
         if (validCollisions.size() == 0)
@@ -65,9 +62,10 @@ namespace phi
 
         auto firstValidCollision = validCollisions[0];
         auto offsetPlane = plane(_offsetPlane.origin, firstValidCollision.normal);
-        auto planeGridPlane = plane(firstValidCollision.collider->getObb().getPositionAt(-firstValidCollision.normal), firstValidCollision.normal);
+        auto planeGridPlane = plane(firstValidCollision.collider->getNode()->getObb()->getPositionAt(-firstValidCollision.normal), firstValidCollision.normal);
         auto translationPlane = createTranslationPlane(planeGridPlane);
         translationPlane->setCollidee(firstValidCollision.collidee);
+        translationPlane->setCollider(firstValidCollision.collider);
 
         changePlanes(translationPlane, offsetPlane);
         showTranslationPlane();
@@ -175,12 +173,9 @@ namespace phi
     void translationService::changePlanes(translationPlane* translationPlane, const plane& offsetPlane)
     {
         if (_currentTranslationPlane)
-        {
             enqueuePlaneForDeletion(_currentTranslationPlane);
-            _lastOffsetPlaneCollider = _currentTranslationPlane->getCollidee();
-        }
 
-        _lastOffsetPlane = _offsetPlane;
+        //_libered = false;
         _currentTranslationPlane = translationPlane;
         _offsetPlane = offsetPlane;
         _nodeTranslator->setPlane(_offsetPlane);
@@ -197,39 +192,32 @@ namespace phi
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
         auto offset = endPosition - _offsetPlane.origin;
 
-        //auto oldSnappedAtX = _snappedAtX;
-        //auto oldSnappedAtY = _snappedAtY;
-        //auto oldSnappedAtZ = _snappedAtZ;
-        //auto snappedOffset = snapToGrid(offset + _collidedDelta + _snappedDelta);
-        auto snappedOffset = offset;
+        auto oldSnappedAtX = _snappedAtX;
+        auto oldSnappedAtY = _snappedAtY;
+        auto oldSnappedAtZ = _snappedAtZ;
+        auto snappedOffset = snapToGrid(offset + _collidedDelta + _snappedDelta);
 
         auto snappedAndCheckedOffset = tryChangeToAttachedPlane(snappedOffset);
         translateTargetNodes(snappedAndCheckedOffset);
 
-        //if (oldSnappedAtX && _snappedAtX)
-        //    _snappedDelta.x += offset.x;
-        //else
-        //    _snappedDelta.x = 0.0f;
+        if (oldSnappedAtX && _snappedAtX)
+            _snappedDelta.x += offset.x;
+        else
+            _snappedDelta.x = 0.0f;
 
-        //if (oldSnappedAtY && _snappedAtY)
-        //    _snappedDelta.y += offset.y;
-        //else
-        //    _snappedDelta.y = 0.0f;
+        if (oldSnappedAtY && _snappedAtY)
+            _snappedDelta.y += offset.y;
+        else
+            _snappedDelta.y = 0.0f;
 
-        //if (oldSnappedAtZ && _snappedAtZ)
-        //    _snappedDelta.z += offset.z;
-        //else
-        //    _snappedDelta.z = 0.0f;
+        if (oldSnappedAtZ && _snappedAtZ)
+            _snappedDelta.z += offset.z;
+        else
+            _snappedDelta.z = 0.0f;
 
         _offsetPlane.origin = endPosition;
         translatePlaneGrid(endPosition);
         //checkCollisionsAferTranslation();
-
-        if (glm::length(_lastOffsetPlane.origin - endPosition) >= 0.2f)
-        {
-            _lastOffsetPlane = _offsetPlane;
-            _lastOffsetPlaneCollider = nullptr;
-        }
 
         tryChangingPlanes();
         checkForClippingPlanes();
@@ -444,17 +432,12 @@ namespace phi
 
     vec3 translationService::tryChangeToAttachedPlane(vec3 offset)
     {
-        auto shouldLeavePlane = false;
-        auto touchCollisions = findTouchingCollisions(-_offsetPlane.normal, 2.5f * DECIMAL_TRUNCATION);
+        auto touchCollisions = findTouchingCollisionsOnDirection(-_offsetPlane.normal, 2.5f * DECIMAL_TRUNCATION);
         auto validCollisions = getValidTouchCollisions(touchCollisions);
 
         for (auto& touch : validCollisions)
         {
-            auto node = touch.collider->getNode();
-            while (node->getParent()->getParent() != nullptr)
-                node = node->getParent();
-
-            auto translatedColliderObb = _nodeTranslator->getNodeDestinationObb(node);
+            auto translatedColliderObb = obb(*touch.colliderObb);
             translatedColliderObb.center += offset;
 
             auto collideePlanes = touch.collidee->getObb().getPlanes();
@@ -464,9 +447,6 @@ namespace phi
                     continue;
 
                 if (!isPlaneVisible(collideePlane))
-                    continue;
-
-                if (mathUtils::isParallel(_lastOffsetPlane.normal, collideePlane.normal))
                     continue;
 
                 auto leavingPosition = translatedColliderObb.getPositionAt(-collideePlane.normal);
@@ -479,7 +459,8 @@ namespace phi
 
                     auto offsetPlane = plane(_offsetPlane.origin, collideePlane.normal);
                     auto translationPlane = createTranslationPlane(collideePlane);
-
+                    translationPlane->setCollidee(touch.collidee);
+                    translationPlane->setCollider(touch.collider);
                     changePlanes(translationPlane, offsetPlane);
                     showTranslationPlane();
 
@@ -487,9 +468,6 @@ namespace phi
                     return offset + snapToPlaneOffset;
                 }
             }
-
-            if (shouldLeavePlane)
-                break;
         }
 
         //deleteClippedPlanes();
@@ -509,9 +487,6 @@ namespace phi
             if (!isNormalValidForCollision(touch, touchPlaneNormal))
                 continue;
 
-            if (touch.collidee == _lastOffsetPlaneCollider)
-                continue;
-
             auto touchPlaneOrigin = touch.collidee->getObb().getPositionAt(touchPlaneNormal);
             auto touchPlane = phi::plane(touchPlaneOrigin, touchPlaneNormal);
 
@@ -521,6 +496,7 @@ namespace phi
             {
                 auto translationPlane = createTranslationPlane(touchPlane);
                 translationPlane->setCollidee(touch.collidee);
+                translationPlane->setCollider(touch.collider);
                 auto offsetPlane = plane(_offsetPlane.origin, touchPlane.normal);
                 changePlanes(translationPlane, offsetPlane);
                 showTranslationPlane();
@@ -552,7 +528,7 @@ namespace phi
         return true;
     }
 
-    bool translationService::isNormalValidForCollision(const sweepCollision& touch, const vec3& normal)
+    bool translationService::isNormalValidForCollision(const sweep::sweepCollision& touch, const vec3& normal)
     {
         bool isNormalValid = false;
         for (auto& collideePlane : touch.collidee->getObb().getPlanes())
@@ -604,6 +580,16 @@ namespace phi
         }
         else
             _collidedDelta = vec3();
+
+        for (auto& obb : _targetNodesDestinationObbs)
+            safeDelete(obb);
+
+        _targetNodesDestinationObbs.clear();
+        for (auto& targetNode : *_targetNodes)
+        {
+            auto destinationObb = new obb(_nodeTranslator->getNodeDestinationObb(targetNode));
+            _targetNodesDestinationObbs.push_back(destinationObb);
+        }
     }
 
     void translationService::resetCurrentCollisions()
@@ -710,55 +696,66 @@ namespace phi
         }*/
     }
 
-    vector<sweepCollision> translationService::findTouchingCollisions(const vec3& direction, float distance)
+    vector<sweep::sweepCollision> translationService::findTouchingCollisions()
     {
-        auto sweepTest = sweepCollisionMultiTest();
+        auto sweepTest = sweep::groupToSceneTest();
         sweepTest.colliders = _nodeTranslator->getPiledUpColliders();
-        sweepTest.transforms = &_nodeTranslator->createOffsetedTransforms(vec3()); // TODO: delete these transforms
-        sweepTest.direction = direction;
-        sweepTest.distance = distance;
-
-        if (distance == 0.0f)
-            sweepTest.inflation = 2.5f * DECIMAL_TRUNCATION;
-
-        sweepTest.disregardDivergentNormals = false;
+        sweepTest.parameters.direction = vec3(1.0f, 0.0f, 0.0f);
+        sweepTest.parameters.distance = 0.0f;
+        sweepTest.parameters.disregardDivergentNormals = false;
+        sweepTest.parameters.inflation = 2.5f * DECIMAL_TRUNCATION;
 
         auto sweepResult = _physicsWorld->sweep(sweepTest);
         if (!sweepResult.collided)
-            return vector<sweepCollision>();
+            return vector<sweep::sweepCollision>();
 
         return sweepResult.collisions;
     }
 
-    vector<sweepCollision> translationService::getValidTouchCollisions(vector<sweepCollision>& touchs)
+    vector<sweep::sweepObbCollision> translationService::findTouchingCollisionsOnDirection(const vec3& direction, float distance)
     {
-        auto validTouchs = vector<sweepCollision>();
+        auto sweepTest = sweep::groupToSceneObbTest();
+        sweepTest.colliders = &_targetNodesDestinationObbs;
+        sweepTest.parameters.direction = direction;
+        sweepTest.parameters.distance = distance;
+        sweepTest.parameters.disregardDivergentNormals = false;
+
+        auto sweepResult = _physicsWorld->sweep(sweepTest);
+        if (!sweepResult.collided)
+            return vector<sweep::sweepObbCollision>();
+
+        return sweepResult.collisions;
+    }
+
+    vector<sweep::sweepObbCollision> translationService::getValidTouchCollisions(vector<sweep::sweepObbCollision>& touchs)
+    {
+        auto validTouchs = vector<sweep::sweepObbCollision>();
 
         if (_currentTranslationPlane == nullptr)
             return validTouchs;
 
-        auto validPlanes = vector<plane>();
         for (auto& touch : touchs)
         {
-            auto isTouchPlaneParallelToAnyOtherTouchPlane = false;
-            for (auto& validPlane : validPlanes)
-            {
-                if (mathUtils::isParallel(touch.normal, validPlane.normal))
-                {
-                    isTouchPlaneParallelToAnyOtherTouchPlane = true;
-                    break;
-                }
-            }
-
-            if (isTouchPlaneParallelToAnyOtherTouchPlane)
-                continue;
-
             auto touchPlane = plane(_currentTranslationPlane->getPlane().origin, touch.normal);
             if (isPlaneVisible(touchPlane))
-            {
-                validPlanes.push_back(touchPlane);
                 validTouchs.push_back(touch);
-            }
+        }
+
+        return validTouchs;
+    }
+
+    vector<sweep::sweepCollision> translationService::getValidTouchCollisions(vector<sweep::sweepCollision>& touchs)
+    {
+        auto validTouchs = vector<sweep::sweepCollision>();
+
+        if (_currentTranslationPlane == nullptr)
+            return validTouchs;
+
+        for (auto& touch : touchs)
+        {
+            auto touchPlane = plane(_currentTranslationPlane->getPlane().origin, touch.normal);
+            if (isPlaneVisible(touchPlane))
+                validTouchs.push_back(touch);
         }
 
         return validTouchs;

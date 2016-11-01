@@ -5,9 +5,9 @@
 #include <core/plane.h>
 #include <core/string.h>
 #include <animation/animator.h>
-#include <physics/intersectionCollisionMultiTest.h>
-#include <physics/sweepCollision.h>
-#include <physics/sweepCollisionMultiTest.h>
+#include <physics/intersection/groupToSceneTest.h>
+#include <physics/sweep/sweepCollision.h>
+#include <physics/sweep/groupToSceneTest.h>
 
 #include "rotationService.h"
 

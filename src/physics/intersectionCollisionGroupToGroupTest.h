@@ -2,13 +2,13 @@
 
 #include <phi.h>
 
-#include <core\boxCollider.h>
+#include <core/boxCollider.h>
 
 namespace phi
 {
-    struct intersectionCollisionGroupTest
+    struct groupToGroupTest
     {
-        intersectionCollisionGroupTest() :
+        intersectionCollisionGroupToGroupTest() :
             colliders(),
             transforms(),
             collidees(),

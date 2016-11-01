@@ -12,7 +12,7 @@ namespace phi
         _piledUpNodes(vector<node*>()),
         _piledUpTransforms(vector<transform*>()),
         _piledUpColliders(vector<boxCollider*>()),
-        _lastTranslationTouchingCollisions(new vector<sweepCollision>()),
+        _lastTranslationTouchingCollisions(new vector<sweep::sweepCollision>()),
         _resolveCollisions(true)
     {
     }
@@ -22,7 +22,7 @@ namespace phi
         safeDelete(_lastTranslationTouchingCollisions);
     }
 
-    void collisionNodeTranslator::addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision)
+    void collisionNodeTranslator::addTouchingCollisions(sweep::sweepTestResult* sweepResult, sweep::sweepCollision compareCollision)
     {
         for (auto& collision : sweepResult->collisions)
         {
@@ -66,7 +66,7 @@ namespace phi
     {
         auto offsetedTransforms = createOffsetedTransforms(offset);
 
-        intersectionCollisionMultiTest intersectionTest;
+        intersection::groupToSceneTest intersectionTest;
         intersectionTest.colliders = &_piledUpColliders;
         intersectionTest.transforms = &offsetedTransforms;
 
@@ -81,20 +81,20 @@ namespace phi
         return !intersectionResult;
     }
 
-    sweepCollisionResult* collisionNodeTranslator::performCollisionSweep(vector<transform*>& transforms, vec3 offset)
+    sweep::sweepTestResult* collisionNodeTranslator::performCollisionSweep(vector<transform*>& transforms, vec3 offset)
     {
-        sweepCollisionMultiTest sweepTest;
+        sweep::groupToSceneTest sweepTest;
         sweepTest.colliders = &_piledUpColliders;
         sweepTest.transforms = &transforms;
-        sweepTest.direction = glm::normalize(offset);
-        sweepTest.distance = glm::length(offset) + DECIMAL_TRUNCATION;
         sweepTest.findOnlyClosestPerTarget = true;
-        sweepTest.disregardDivergentNormals = false;
+        sweepTest.parameters.direction = glm::normalize(offset);
+        sweepTest.parameters.distance = glm::length(offset) + DECIMAL_TRUNCATION;
+        sweepTest.parameters.disregardDivergentNormals = false;
 
-        return new sweepCollisionResult(_physicsWorld->sweep(sweepTest));
+        return new sweep::sweepTestResult(_physicsWorld->sweep(sweepTest));
     }
 
-    vector<boxCollider*> collisionNodeTranslator::getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult)
+    vector<boxCollider*> collisionNodeTranslator::getSweepCollisionResultCollidees(sweep::sweepTestResult* sweepResult)
     {
         auto collidees = vector<boxCollider*>();
 
@@ -104,7 +104,7 @@ namespace phi
         return collidees;
     }
 
-    bool collisionNodeTranslator::findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision)
+    bool collisionNodeTranslator::findFarthestValidCollision(sweep::sweepTestResult* sweepResult, vec3 offset, sweep::sweepCollision& farthestValidCollision)
     {
         farthestValidCollision = *sweepResult->collisions.begin();
 
@@ -120,7 +120,7 @@ namespace phi
             removeIfContains(collisionColliders, currentCollision.collidee);
             auto offsetedTransforms = createOffsetedTransforms(offsetNormal * currentCollision.distance);
 
-            intersectionCollisionGroupTest intersectionTest;
+            intersection::groupToGroupTest intersectionTest;
             intersectionTest.colliders = &_piledUpColliders;
             intersectionTest.transforms = &offsetedTransforms;
             intersectionTest.collidees = &collisionColliders;
@@ -142,7 +142,7 @@ namespace phi
         return true;
     }
 
-    vec3 collisionNodeTranslator::getAdjustedOffset(sweepCollision collision, vec3 offset)
+    vec3 collisionNodeTranslator::getAdjustedOffset(sweep::sweepCollision collision, vec3 offset)
     {
         auto offsetNormal = glm::normalize(offset);
 
@@ -182,7 +182,7 @@ namespace phi
 
         if (sweepResult->collisions.size() > 0u)
         {
-            sweepCollision farthestCollision;
+            sweep::sweepCollision farthestCollision;
             auto foundFarthestCollision = findFarthestValidCollision(sweepResult, offset, farthestCollision);
             if (!foundFarthestCollision)
             {

@@ -13,9 +13,10 @@ namespace phi
         collisionNodeTranslator(physicsWorld* physicsWorld);
         ~collisionNodeTranslator();
 
+        transform* createOffsetedTransform(node* node, vec3 offset);
         vector<transform*> createOffsetedTransforms(vec3 offset);
         vector<boxCollider*>* getPiledUpColliders() { return &_piledUpColliders; }
-        vector<sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
+        vector<sweep::sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
         obb getNodeDestinationObb(node* node)
         {
             auto destinationPosition = _nodesDestinationPositions[node];
@@ -39,13 +40,12 @@ namespace phi
         void enableCollisions() { _resolveCollisions = true; }
 
     private:
-        transform* createOffsetedTransform(node* node, vec3 offset);
-        void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
+        void addTouchingCollisions(sweep::sweepTestResult* sweepResult, sweep::sweepCollision compareCollision);
         bool objectFitsInOffsetedPosition(vec3 offset);
-        sweepCollisionResult* performCollisionSweep(vector<transform*>& transforms, vec3 offset);
-        vector<boxCollider*> getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult);
-        bool findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision);
-        vec3 getAdjustedOffset(sweepCollision collision, vec3 offset);
+        sweep::sweepTestResult* performCollisionSweep(vector<transform*>& transforms, vec3 offset);
+        vector<boxCollider*> getSweepCollisionResultCollidees(sweep::sweepTestResult* sweepResult);
+        bool findFarthestValidCollision(sweep::sweepTestResult* sweepResult, vec3 offset, sweep::sweepCollision& farthestValidCollision);
+        vec3 getAdjustedOffset(sweep::sweepCollision collision, vec3 offset);
         vec3 resolveCollisions(vec3 offset);
         void translateNodes(vec3 offset);
 
@@ -57,7 +57,7 @@ namespace phi
         vector<node*> _piledUpNodes;
         vector<transform*> _piledUpTransforms;
         vector<boxCollider*> _piledUpColliders;
-        vector<sweepCollision>* _lastTranslationTouchingCollisions;
+        vector<sweep::sweepCollision>* _lastTranslationTouchingCollisions;
         unordered_map<node*, vec3> _nodesDestinationPositions;
         unordered_map<node*, translateAnimation*> _nodesTranslateAnimations;
     };
