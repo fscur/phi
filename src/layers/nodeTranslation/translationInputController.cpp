@@ -153,10 +153,19 @@ namespace phi
 
     bool translationInputController::onKeyDown(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_CTRL && _translationService->isTranslating())
+        if (!_translationService->isTranslating())
+            return false;
+
+        if (e->key == PHIK_CTRL)
         {
             _translationService->disableCollisions();
             _translationService->disablePlaneChanges();
+            return true;
+        }
+
+        if (e->key == PHIK_SHIFT)
+        {
+            _translationService->enableSnapToGrid();
             return true;
         }
 
@@ -165,10 +174,19 @@ namespace phi
 
     bool translationInputController::onKeyUp(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_CTRL && _translationService->isTranslating())
+        if (!_translationService->isTranslating())
+            return false;
+
+        if (e->key == PHIK_CTRL)
         {
             _translationService->enableCollisions();
             _translationService->enablePlaneChanges();
+            return true;
+        }
+
+        if (e->key == PHIK_SHIFT)
+        {
+            _translationService->disableSnapToGrid();
             return true;
         }
 

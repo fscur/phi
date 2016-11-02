@@ -38,9 +38,10 @@ namespace phi
 
         void disableCollisions();
         void enableCollisions();
-
         void disablePlaneChanges();
         void enablePlaneChanges();
+        void disableSnapToGrid();
+        void enableSnapToGrid();
 
         bool isTranslating() const { return _isTranslating; }
 
@@ -65,8 +66,7 @@ namespace phi
         bool isNormalValidForCollision(const sweep::sweepCollision & touch, const vec3 & normal);
         void checkForClippingPlanes();
 
-        bool tryChangingPlanes();
-        bool tryChangeToPlanesFromCollisions();
+        void tryChangeToPlanesFromCollisions();
         vec3 tryChangeToAttachedPlane(vec3 offset);
         void changePlanes(translationPlane * translationPlane, const plane& offsetPlane);
 
@@ -76,7 +76,6 @@ namespace phi
 
         void resetCurrentCollisions();
         bool changeToTouchingPlaneIfAble();
-        void checkCollisionsAferTranslation();
         vector<sweep::sweepCollision> findTouchingCollisions();
         vector<sweep::sweepObbCollision> findTouchingCollisionsOnDirection(const vec3& direction, float distance);
         vector<sweep::sweepCollision> getValidTouchCollisions(vector<sweep::sweepCollision>& touchs);
@@ -92,6 +91,7 @@ namespace phi
 
         bool _isTranslating;
         bool _canChangePlanes;
+        bool _isSnapToGridEnabled;
 
         node* _clickedNode;
         plane _offsetPlane;
