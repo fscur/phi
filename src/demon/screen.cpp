@@ -172,10 +172,11 @@ namespace demon
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
         cube0->getTransform()->yaw(PI_OVER_4);
-        cube0->getTransform()->setLocalPosition(vec3(0.45f, 1.0f, 0.0f));
+        cube0->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 0.0f));
         //cube0->getTransform()->setLocalSize(vec3(0.5f, 0.5f, 0.5f));
 
         auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
+        cube1->getTransform()->yaw(PI_OVER_4);
         cube1->getTransform()->setLocalPosition(vec3(-2.0f, 1.0f, 0.0f));
 
         auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();

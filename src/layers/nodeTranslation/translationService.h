@@ -95,13 +95,11 @@ namespace phi
 
         node* _clickedNode;
         plane _offsetPlane;
+        finitePlane _offsetFinitePlane;
         translationPlane* _currentTranslationPlane;
         vector<translationPlane*> _planesToDelete;
         ivec2 _lastMousePosition;
         vec3 _collidedDelta;
-        bool _snappedAtX;
-        bool _snappedAtY;
-        bool _snappedAtZ;
         vec3 _snappedDelta;
         vector<const obb*> _targetNodesDestinationObbs;
 

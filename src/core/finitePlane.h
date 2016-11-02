@@ -15,6 +15,11 @@ namespace phi
         vec3 _yAxis;
 
     public:
+        finitePlane() :
+            finitePlane(vec3(), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f))
+        {
+        }
+
         finitePlane(vec3 origin, vec3 rightPoint, vec3 upPoint) :
             _origin(origin),
             _rightPoint(rightPoint),

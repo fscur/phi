@@ -44,7 +44,6 @@ namespace phi
         _isTranslating = true;
         _lastMousePosition = mousePosition;
         _offsetPlane.origin = _camera->screenPointToWorld(mousePosition.x, mousePosition.y);
-        _snappedAtX = _snappedAtY = _snappedAtZ = false;
         _snappedDelta = vec3();
         _collidedDelta = vec3();
 
@@ -178,6 +177,12 @@ namespace phi
         //_libered = false;
         _currentTranslationPlane = translationPlane;
         _offsetPlane = offsetPlane;
+        auto planeGridNodeTransform = _currentTranslationPlane->getPlaneGridNode()->getTransform();
+
+        auto origin = _offsetPlane.projectPoint(vec3());
+        _offsetFinitePlane = finitePlane(origin, origin + planeGridNodeTransform->getRight(), origin + planeGridNodeTransform->getUp());
+        debug(to_string(origin));
+
         _nodeTranslator->setPlane(_offsetPlane);
         _collidedDelta = vec3();
 
@@ -192,28 +197,16 @@ namespace phi
         auto endPosition = _camera->castRayToPlane(mousePosition.x, mousePosition.y, _offsetPlane);
         auto offset = endPosition - _offsetPlane.origin;
 
-        auto oldSnappedAtX = _snappedAtX;
-        auto oldSnappedAtY = _snappedAtY;
-        auto oldSnappedAtZ = _snappedAtZ;
-        auto snappedOffset = snapToGrid(offset + _collidedDelta + _snappedDelta);
+        auto offsetPlusDeltas = offset + _collidedDelta + _snappedDelta;
+        auto snapOffset = snapToGrid(offsetPlusDeltas);
 
-        auto snappedAndCheckedOffset = tryChangeToAttachedPlane(snappedOffset);
+        auto snappedAndCheckedOffset = tryChangeToAttachedPlane(offsetPlusDeltas + snapOffset);
         translateTargetNodes(snappedAndCheckedOffset);
 
-        if (oldSnappedAtX && _snappedAtX)
-            _snappedDelta.x += offset.x;
+        if (snapOffset != vec3() && glm::dot(offsetPlusDeltas, snapOffset) < 0.0f)
+            _snappedDelta = glm::normalize(-snapOffset) * glm::dot(-glm::normalize(snapOffset), offsetPlusDeltas);
         else
-            _snappedDelta.x = 0.0f;
-
-        if (oldSnappedAtY && _snappedAtY)
-            _snappedDelta.y += offset.y;
-        else
-            _snappedDelta.y = 0.0f;
-
-        if (oldSnappedAtZ && _snappedAtZ)
-            _snappedDelta.z += offset.z;
-        else
-            _snappedDelta.z = 0.0f;
+            _snappedDelta = vec3();
 
         _offsetPlane.origin = endPosition;
         translatePlaneGrid(endPosition);
@@ -230,103 +223,49 @@ namespace phi
     vec3 translationService::snapToGrid(vec3 offset)
     {
         auto destinationObb = _nodeTranslator->getNodeDestinationObb(_clickedNode);
-        vec3 minimum;
-        vec3 maximum;
-        destinationObb.getLimits(minimum, maximum);
+        destinationObb.center += offset;
+        auto obbCorners = destinationObb.getCorners();
+        vec2 minimum = _offsetFinitePlane.projectPoint(obbCorners[0]);
+        vec2 maximum = minimum;
+        for (auto i = 1; i < 8; ++i)
+        {
+            auto projectedCorner = _offsetFinitePlane.projectPoint(obbCorners[i]);
 
-        vec3 limits[2] = { minimum, maximum };
-        vec3 offsetedLimits[2];
+            if (projectedCorner.x < minimum.x)
+                minimum.x = projectedCorner.x;
+            if (projectedCorner.y < minimum.y)
+                minimum.y = projectedCorner.y;
+
+            if (projectedCorner.x > maximum.x)
+                maximum.x = projectedCorner.x;
+            if (projectedCorner.y > maximum.y)
+                maximum.y = projectedCorner.y;
+        }
+
+        vec2 projectedOffsetedLimits[2] = { minimum, maximum };
 
         float const SNAP_MARGIN_GRID_SIZE_PERCENT = 0.15f;
         auto gridSize = 1.0f;
 
-        for (auto i = 0; i < 2; ++i)
-            offsetedLimits[i] = limits[i] + offset;
-
         auto snapMargin = gridSize * SNAP_MARGIN_GRID_SIZE_PERCENT;
         auto highSnapMargin = gridSize - snapMargin;
-        _snappedAtX = false;
-        _snappedAtY = false;
-        _snappedAtZ = false;
-        vec3 amountSnapped;
+        vec2 amountSnapped;
 
-        auto snappedOffset = offset;
         for (auto i = 0; i < 2; ++i)
         {
-            auto mod = glm::abs(glm::modf(offsetedLimits[i], vec3(gridSize)));
+            auto mod = glm::modf(projectedOffsetedLimits[i], vec2(gridSize));
+            auto absMod = glm::abs(mod);
 
-            if (glm::abs(_offsetPlane.normal) != vec3(1.0f, 0.0f, 0.0f))
-            {
-                if (mod.x < snapMargin || mod.x > highSnapMargin)
-                {
-                    if (!_snappedAtX)
-                    {
-                        _snappedAtX = true;
-                        auto roundedX = glm::round(offsetedLimits[i].x);
-                        amountSnapped.x = glm::abs(roundedX - offsetedLimits[i].x);
-                        snappedOffset.x = roundedX - limits[i].x;
-                    }
-                    else
-                    {
-                        auto roundedX = glm::round(offsetedLimits[i].x);
-                        auto amountSnappedX = glm::abs(roundedX - offsetedLimits[i].x);
-                        if (amountSnappedX < amountSnapped.x)
-                        {
-                            amountSnapped.x = amountSnappedX;
-                            snappedOffset.x = roundedX - limits[i].x;
-                        }
-                    }
-                }
-            }
+            if (absMod.x < snapMargin || absMod.x > highSnapMargin)
+                amountSnapped.x = glm::round(mod.x) - mod.x; // Round only for works for grid of size 1!!!!!!!
 
-            if (glm::abs(_offsetPlane.normal) != vec3(0.0f, 1.0f, 0.0f))
-            {
-                if (mod.y < snapMargin || mod.y > highSnapMargin)
-                {
-                    if (!_snappedAtY)
-                    {
-                        _snappedAtY = true;
-                        auto roundedY = glm::round(offsetedLimits[i].y);
-                        amountSnapped.y = glm::abs(roundedY - offsetedLimits[i].y);
-                        snappedOffset.y = roundedY - limits[i].y;
-                    }
-                    else
-                    {
-                        auto roundedY = glm::round(offsetedLimits[i].y);
-                        auto amountSnappedY = glm::abs(roundedY - offsetedLimits[i].y);
-                        if (amountSnappedY < amountSnapped.y)
-                        {
-                            amountSnapped.y = amountSnappedY;
-                            snappedOffset.y = roundedY - limits[i].y;
-                        }
-                    }
-                }
-            }
-
-            if (glm::abs(_offsetPlane.normal) != vec3(0.0f, 0.0f, 1.0f))
-            {
-                if (mod.z < snapMargin || mod.z > highSnapMargin)
-                {
-                    if (!_snappedAtZ)
-                    {
-                        _snappedAtZ = true;
-                        auto roundedZ = glm::round(offsetedLimits[i].z);
-                        amountSnapped.z = glm::abs(roundedZ - offsetedLimits[i].z);
-                        snappedOffset.z = roundedZ - limits[i].z;
-                    }
-                    else
-                    {
-                        auto roundedZ = glm::round(offsetedLimits[i].z);
-                        auto amountSnappedZ = glm::abs(roundedZ - offsetedLimits[i].z);
-                        if (amountSnappedZ < amountSnapped.z)
-                        {
-                            amountSnapped.z = amountSnappedZ;
-                            snappedOffset.z = roundedZ - limits[i].z;
-                        }
-                    }
-                }
-            }
+            if (absMod.y < snapMargin || absMod.y > highSnapMargin)
+                amountSnapped.y = glm::round(mod.y) - mod.y; // Round only for works for grid of size 1!!!!!!!
         }
+
+        auto snappedOffset = _offsetFinitePlane.getXAxis() * amountSnapped.x + _offsetFinitePlane.getYAxis() * amountSnapped.y;
+
+        debug(to_string(projectedOffsetedLimits[0] + amountSnapped));
 
         return snappedOffset;
     }
