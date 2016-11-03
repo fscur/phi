@@ -171,7 +171,7 @@ namespace demon
         //_chair0->getTransform()->roll(-PI_OVER_2);
 
         auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        cube0->getTransform()->yaw(PI_OVER_4);
+        //cube0->getTransform()->yaw(PI_OVER_4);
         cube0->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 0.0f));
         //cube0->getTransform()->setLocalSize(vec3(0.5f, 0.5f, 0.5f));
 

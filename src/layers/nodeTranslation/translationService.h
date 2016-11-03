@@ -50,7 +50,6 @@ namespace phi
         plane createPlaneFromAxis(const vec3& axis);
         translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
         translationPlane* createTranslationPlane(const plane& plane);
-        void showTranslationPlane();
 
         void enqueuePlaneForDeletion(translationPlane* planeToRemove);
         void updateClippedPlanes();
@@ -63,23 +62,26 @@ namespace phi
         bool isPlaneVisible(const plane& plane);
         float getExtinctionFactor(const vec3& normal);
         float getPlaneVisibility(const plane& plane);
-        bool isNormalValidForCollision(const sweep::sweepCollision & touch, const vec3 & normal);
+        bool isNormalValidForCollision(const sweep::sweepCollision & touch);
         void checkForClippingPlanes();
 
         void tryChangeToPlanesFromCollisions();
         vec3 tryChangeToAttachedPlane(vec3 offset);
         void changePlanes(translationPlane * translationPlane, const plane& offsetPlane);
+        void createOffsetFinitePlane();
+        void showTranslationPlane();
 
+        vec3 getSnapOffset(vec3 offset);
         vec3 snapToGrid(vec3 endPosition);
         void translateTargetNodes(const vec3 targetPosition);
         void translatePlaneGrid(const vec3& targetPosition);
+        void updateDestinationObbs();
 
-        void resetCurrentCollisions();
         bool changeToTouchingPlaneIfAble();
         vector<sweep::sweepCollision> findTouchingCollisions();
         vector<sweep::sweepObbCollision> findTouchingCollisionsOnDirection(const vec3& direction, float distance);
-        vector<sweep::sweepCollision> getValidTouchCollisions(vector<sweep::sweepCollision>& touchs);
-        vector<sweep::sweepObbCollision> getValidTouchCollisions(vector<sweep::sweepObbCollision>& touchs);
+        vector<sweep::sweepCollision> filterValidTouchCollisions(vector<sweep::sweepCollision>& touchs);
+        vector<sweep::sweepObbCollision> filterValidTouchCollisions(vector<sweep::sweepObbCollision>& touchs);
 
     private:
         const vector<node*>* _targetNodes;

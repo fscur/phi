@@ -4,8 +4,6 @@
 
 namespace phi
 {
-    string a;
-
     collisionNodeTranslator::collisionNodeTranslator(physicsWorld* physicsWorld) :
         _physicsWorld(physicsWorld),
         _plane(plane()),
@@ -69,9 +67,6 @@ namespace phi
         intersection::groupToSceneTest intersectionTest;
         intersectionTest.colliders = &_piledUpColliders;
         intersectionTest.transforms = &offsetedTransforms;
-
-        auto position = offsetedTransforms.at(0)->getPosition();
-        a += to_string(position);
 
         auto intersectionResult = _physicsWorld->intersects(intersectionTest);
 
@@ -168,12 +163,7 @@ namespace phi
         assert(offset != vec3());
 
         if (objectFitsInOffsetedPosition(offset))
-        {
-            a += "fits offset";
             return offset;
-        }
-
-        a += "does not fits offset -> ";
 
         auto resolvedOffset = vec3();
 
@@ -188,13 +178,9 @@ namespace phi
             {
                 resolvedOffset = vec3();
                 addTouchingCollisions(sweepResult, sweepResult->collisions[0]);
-
-                a += "no farthest collision: vec3() ";
             }
             else
             {
-                a += "farthest collision found [d = " + std::to_string(farthestCollision.distance) + "] -> ";
-
                 auto limitedOffset = glm::normalize(offset) * farthestCollision.distance;
                 limitedOffset = limitedOffset + farthestCollision.normal * DECIMAL_TRUNCATION;
 
@@ -204,26 +190,20 @@ namespace phi
                 {
                     resolvedOffset = limitedOffset;
                     addTouchingCollisions(sweepResult, farthestCollision);
-
-                    a += "no adjust: farthest limited offset";
                 }
                 else
                 {
-                    a += "has adjust offset -> ";
-
                     auto limitedOffsetTransforms = createOffsetedTransforms(limitedOffset);
                     auto adjustSweepResult = performCollisionSweep(limitedOffsetTransforms, adjustedOffset);
 
                     if (adjustSweepResult->collided && adjustSweepResult->collisions.size() > 0u)
                     {
-                        a += "collided on adjust: farthest limited offset + collided adjusted offset ";
                         auto firstCollision = adjustSweepResult->collisions.begin();
                         resolvedOffset = limitedOffset + glm::normalize(adjustedOffset) * firstCollision->distance;
                         addTouchingCollisions(adjustSweepResult, *firstCollision);
                     }
                     else
                     {
-                        a += "no collision on adjust: farthest limited offset + adjusted offset ";
                         resolvedOffset = limitedOffset + adjustedOffset;
                         addTouchingCollisions(sweepResult, farthestCollision);
                     }
@@ -233,10 +213,6 @@ namespace phi
                         safeDelete(transform);
                 }
             }
-        }
-        else
-        {
-            a += "no sweep results: vec3()";
         }
 
         for (auto& transform : destinationTransforms)
@@ -320,21 +296,13 @@ namespace phi
                 destination += offset;
                 _nodesDestinationPositions[traversedNode] = destination;
             });
-
-            //auto newTranslatedObb = obb(*node->getObb());
-            //newTranslatedObb.center = destination;
-            //auto newLeavingPosition = newTranslatedObb.getPositionAt(vec3(0.0f, 0.0f, -1.0f));
-            //debug(to_string(newLeavingPosition));
-
-            //debug(to_string(destination) + "| " + a);
-            //debug(to_string(destination));
         }
     }
 
     vec3 collisionNodeTranslator::translate(vec3 offset)
     {
         _lastTranslationTouchingCollisions->clear();
-        a = "";
+
         if (_resolveCollisions)
         {
             auto resolvedOffset = resolveCollisions(offset);

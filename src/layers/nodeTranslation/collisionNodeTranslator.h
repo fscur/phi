@@ -36,8 +36,8 @@ namespace phi
         void clear();
         vec3 translate(vec3 offset);
 
-        void disableCollisions() { _resolveCollisions = false; }
-        void enableCollisions() { _resolveCollisions = true; }
+        void disableCollisions() { _resolveCollisions = false; debug("disabled"); }
+        void enableCollisions() { _resolveCollisions = true; debug("enabled"); }
 
     private:
         void addTouchingCollisions(sweep::sweepTestResult* sweepResult, sweep::sweepCollision compareCollision);
