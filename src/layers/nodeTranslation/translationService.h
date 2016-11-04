@@ -76,6 +76,7 @@ namespace phi
         void translateTargetNodes(const vec3 targetPosition);
         void translatePlaneGrid(const vec3& targetPosition);
         void updateDestinationObbs();
+        void updateTranslationPlaneGridSize();
 
         bool changeToTouchingPlaneIfAble();
         vector<sweep::sweepCollision> findTouchingCollisions();

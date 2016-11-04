@@ -271,7 +271,7 @@ namespace phi
         vec2 projectedOffsetedLimits[2] = { minimum, maximum };
 
         float const SNAP_MARGIN_GRID_SIZE_PERCENT = 0.15f;
-        auto gridSize = 1.0f;
+        auto gridSize = _currentTranslationPlane->getPlaneGrid()->getInnerGridSize();
 
         auto snapMargin = gridSize * SNAP_MARGIN_GRID_SIZE_PERCENT;
         auto highSnapMargin = gridSize - snapMargin;
@@ -281,12 +281,12 @@ namespace phi
 
         for (auto i = 0; i < 2; ++i)
         {
-            auto mod = glm::modf(projectedOffsetedLimits[i], vec2(gridSize));
+            auto mod = glm::sign(projectedOffsetedLimits[i]) * glm::mod(glm::abs(projectedOffsetedLimits[i]), vec2(gridSize));
             auto absMod = glm::abs(mod);
 
             if (absMod.x < snapMargin || absMod.x > highSnapMargin)
             {
-                auto snapDelta = glm::round(mod.x) - mod.x;
+                auto snapDelta = mathUtils::round(mod.x, gridSize) - mod.x;
                 if (!snappedAtX)
                 {
                     amountSnapped.x = snapDelta; // Round only for works for grid of size 1!!!!!!!
@@ -298,7 +298,7 @@ namespace phi
 
             if (absMod.y < snapMargin || absMod.y > highSnapMargin)
             {
-                auto snapDelta = glm::round(mod.y) - mod.y;
+                auto snapDelta = mathUtils::round(mod.y, gridSize) - mod.y;
                 if (!snappedAtY)
                 {
                     amountSnapped.y = snapDelta; // Round only for works for grid of size 1!!!!!!!
@@ -317,7 +317,6 @@ namespace phi
     void translationService::addClippingPlanes()
     {
         _lastTranslationTouchingCollisions = findTouchingCollisionsOnDirection(-_offsetPlane.normal, DECIMAL_TRUNCATION * 1.5f);
-        debug(_lastTranslationTouchingCollisions.size());
         auto validCollisions = filterValidTouchCollisions(_lastTranslationTouchingCollisions);
 
         for (auto& touch : validCollisions)
@@ -552,6 +551,42 @@ namespace phi
         }
     }
 
+    void translationService::updateTranslationPlaneGridSize()
+    {
+        const float planeDistances[] = { 0.0f, 1.0f, 5.0f, 100.0f, 500.0f, 5000.0f };
+        const float gridSizes[] = { 0.01f, 0.1f, 1.0f, 10.0f, 100.0f, 1000.0f };
+
+        auto distance = glm::abs(mathUtils::multiply(_camera->getViewMatrix(), _currentTranslationPlane->getPlaneGridNode()->getTransform()->getPosition()).z);
+        auto planeGrid = _currentTranslationPlane->getPlaneGrid();
+        if (distance > planeDistances[4])
+        {
+            planeGrid->setOuterGridSize(gridSizes[5]);
+            planeGrid->setInnerGridSize(gridSizes[4]);
+        }
+        else if (distance > planeDistances[3])
+        {
+            planeGrid->setOuterGridSize(gridSizes[4]);
+            planeGrid->setInnerGridSize(gridSizes[3]);
+        }
+        else if (distance > planeDistances[2])
+        {
+            planeGrid->setOuterGridSize(gridSizes[3]);
+            planeGrid->setInnerGridSize(gridSizes[2]);
+        }
+        else if (distance > planeDistances[1])
+        {
+            planeGrid->setOuterGridSize(gridSizes[2]);
+            planeGrid->setInnerGridSize(gridSizes[1]);
+        }
+        else
+        {
+            planeGrid->setOuterGridSize(gridSizes[1]);
+            planeGrid->setInnerGridSize(gridSizes[0]);
+        }
+
+        debug(std::to_string(planeGrid->getInnerGridSize()) + "[" + std::to_string(distance) + "]");
+    }
+
     void translationService::translatePlaneGrid(const vec3& targetPosition)
     {
         auto planeGridPosition = _currentTranslationPlane->getPlane().projectPoint(targetPosition);
@@ -696,6 +731,7 @@ namespace phi
                 updatePlaneVisibility(clippedTranslationPlane);
         }
 
+        updateTranslationPlaneGridSize();
         updatePlaneVisibility(_currentTranslationPlane);
         deletePlaneIfNotVisible();
     }

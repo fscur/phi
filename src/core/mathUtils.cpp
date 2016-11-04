@@ -257,4 +257,10 @@ namespace phi
 
         return angle + PI * 2.0f;
     };
+
+    inline float mathUtils::round(float value, float interval)
+    {
+        auto v = value * (1.0f / interval);
+        return interval * glm::round(v);
+    }
 }
