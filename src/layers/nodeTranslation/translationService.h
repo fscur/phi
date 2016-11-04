@@ -52,7 +52,6 @@ namespace phi
         translationPlane* createTranslationPlane(const plane& plane);
 
         void enqueuePlaneForDeletion(translationPlane* planeToRemove);
-        void updateClippedPlanes();
         void deletePlane(translationPlane* translationPlane);
         void deletePlaneIfNotVisible();
 
@@ -63,7 +62,8 @@ namespace phi
         float getExtinctionFactor(const vec3& normal);
         float getPlaneVisibility(const plane& plane);
         bool isNormalValidForCollision(const sweep::sweepCollision & touch);
-        void checkForClippingPlanes();
+        void addClippingPlanes();
+        void updateClippingPlanes();
 
         void tryChangeToPlanesFromCollisions();
         vec3 tryChangeToAttachedPlane(vec3 offset);
@@ -103,10 +103,9 @@ namespace phi
         ivec2 _lastMousePosition;
         vec3 _collidedDelta;
         vec3 _snappedDelta;
-        vector<const obb*> _targetNodesDestinationObbs;
+        vector<obb*> _targetNodesDestinationObbs;
+        vector<sweep::sweepObbCollision> _lastTranslationTouchingCollisions;
 
-        //vector<translationPlane*> _clippedTranslationPlanes;
-        vector<collisionObbPlane> _currentValidPlanes;
-        unordered_map<plane, translationPlane*> _clippedTranslationPlanes;
+        unordered_map<const obb*, vector<translationPlane*>> _clippedTranslationPlanes;
     };
 }

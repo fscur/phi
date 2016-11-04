@@ -47,6 +47,6 @@ namespace phi
         CORE_API vector<plane> getPlanes() const;
         CORE_API vector<finitePlane> getFinitePlanes() const;
         CORE_API void getLimits(vec3& min, vec3& max) const;
-        CORE_API void set(obb obb);
+        CORE_API void set(const obb obb);
     };
 }

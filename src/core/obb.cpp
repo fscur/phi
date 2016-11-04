@@ -265,7 +265,7 @@ namespace phi
         }
     }
 
-    void obb::set(obb obb)
+    void obb::set(const obb obb)
     {
         center = obb.center;
         axes[0] = obb.axes[0];

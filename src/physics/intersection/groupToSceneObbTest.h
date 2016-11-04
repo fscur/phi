@@ -16,7 +16,7 @@ namespace phi
             {
             }
 
-            vector<const obb*>* colliders;
+            vector<obb*>* colliders;
             uint16_t group;
         };
     }
