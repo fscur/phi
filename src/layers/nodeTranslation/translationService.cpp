@@ -553,7 +553,8 @@ namespace phi
 
     void translationService::updateTranslationPlaneGridSize()
     {
-        const float planeDistances[] = { 0.0f, 1.0f, 5.0f, 100.0f, 500.0f, 5000.0f };
+        //const float planeDistances[] = { 0.0f, 1.0f, 5.0f, 100.0f, 500.0f, 5000.0f };
+        const float planeDistances[] = { 0.0f, 0.23f, 1.5f, 30.0f, 200.0f, 5000.0f };
         const float gridSizes[] = { 0.01f, 0.1f, 1.0f, 10.0f, 100.0f, 1000.0f };
 
         auto distance = glm::abs(mathUtils::multiply(_camera->getViewMatrix(), _currentTranslationPlane->getPlaneGridNode()->getTransform()->getPosition()).z);
