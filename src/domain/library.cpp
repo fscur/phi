@@ -10,16 +10,10 @@ namespace demon
     library::library(iModelDataService* modelDataService) :
         _modelDataService(modelDataService)
     {
-        load();
     }
 
     library::~library()
     {
-    }
-
-    void library::load()
-    {
-        debug(_("Library initialized."));
     }
 
     model* library::getModelByIndex(int index)

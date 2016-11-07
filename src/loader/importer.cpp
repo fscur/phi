@@ -14,7 +14,6 @@
 
 #include <io/path.h>
 #include <io/fileReader.h>
-#include <io/rapidjsonHelper.h>
 
 #include "importResourceException.h"
 //

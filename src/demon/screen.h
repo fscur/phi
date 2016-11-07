@@ -18,7 +18,8 @@
 
 #include <rendering/gl.h>
 
-#include "library.h"
+#include <domain/library.h>
+#include <domain/repositories/iProjectRepository.h>
 
 namespace demon
 {
@@ -26,10 +27,12 @@ namespace demon
         public phi::window
     {
     private:
-        phi::gl* _gl;
         library* _userLibrary;
-        library* _projectLibrary;
+        project* _project;
 
+        iProjectRepository* _projectRepository;
+
+        phi::gl* _gl;
         phi::context* _designContext;
         phi::context* _constructionContext;
         phi::context* _activeContext;
@@ -61,7 +64,6 @@ namespace demon
         void initWatcher();
         void initFramebuffers();
         void initLibraries();
-        void openFileDialog();
         void initContexts();
         void initInput();
 

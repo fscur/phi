@@ -21,6 +21,8 @@ target_link_libraries(demon animation)
 target_link_libraries(demon loader)
 target_link_libraries(demon data)
 target_link_libraries(demon layers)
+target_link_libraries(demon domain)
+target_link_libraries(demon persistence)
 
 find_package(FREETYPE REQUIRED)
 link_directories(${FREETYPE_LIBRARIES})
@@ -61,4 +63,4 @@ if (MSVC)
         
 endif(MSVC)
 
-set_target_properties(demon PROPERTIES FOLDER App)
+set_target_properties(demon PROPERTIES FOLDER Application)

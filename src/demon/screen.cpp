@@ -16,6 +16,8 @@
 #include <data/modelRepository.h>
 #include <data/modelDataService.h>
 
+#include <io/path.h>
+
 #include <loader/importer.h>
 #include <loader/exporter.h>
 
@@ -39,6 +41,8 @@
 #include <layers/nodeCreation/deleteNodeCommand.h>
 
 #include <context/invalidLayerConfigurationException.h>
+
+#include <persistence/projectRepository.h>
 
 #include "screen.h"
 #include "changeContextCommand.h"
@@ -135,8 +139,7 @@ namespace demon
             modelRepository);
 
         _userLibrary = new library(modelDataService);
-
-        _projectLibrary = new library(modelDataService);
+        _projectRepository = new projectRepository();
     }
 
     void screen::initContexts()
@@ -179,25 +182,6 @@ namespace demon
             .build();
 
         auto obj = _userLibrary->getModelByIndex(0);
-        //auto chair0 = _userLibrary->getObjectsRepository()->getEntity(2);
-        //chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
-
-        //auto cube0 = _userLibrary->getObjectsRepository()->getEntity(7);
-        //cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
-
-        //auto cube1 = _userLibrary->getObjectsRepository()->getEntity(7);
-        //cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
-
-        //auto back_wall =_userLibrary->getObjectsRepository()->getEntity(21);
-        //back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
-        //auto floor0 = _userLibrary->getObjectsRepository()->getEntity(24);
-
-        //auto coffeTable = _userLibrary->getObjectsRepository()->getEntity(29);
-        //coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
-        //auto tableChair = _userLibrary->getObjectsRepository()->getEntity(5);
-        //tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
-        //auto table = _userLibrary->getObjectsRepository()->getEntity(28);
-        //table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
@@ -216,7 +200,8 @@ namespace demon
                 .withTranslationController()
                 .build();
 
-            _scene = new scene(_sceneLayer, _sceneCamera);
+            _scene = new phi::scene(_sceneLayer, _sceneCamera);
+            _project = new project(_scene);
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
@@ -251,24 +236,24 @@ namespace demon
             .withAction([=](node* node)
         {
             _unused(node);
-            //OPENFILENAME ofn;
+            OPENFILENAME ofn;
 
-            //char szFileName[MAX_PATH] = "";
+            char szFileName[MAX_PATH] = "";
 
-            //ZeroMemory(&ofn, sizeof(ofn));
+            ZeroMemory(&ofn, sizeof(ofn));
 
-            //ofn.lStructSize = sizeof(ofn);
-            //ofn.hwndOwner = NULL;
-            //ofn.lpstrFilter = (LPCSTR)"Phi Files (*.phi)\0";
-            //ofn.lpstrFile = (LPSTR)szFileName;
-            //ofn.nMaxFile = MAX_PATH;
-            //ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-            //ofn.lpstrDefExt = (LPCSTR)"phi";
+            ofn.lStructSize = sizeof(ofn);
+            ofn.hwndOwner = NULL;
+            ofn.lpstrFilter = (LPCSTR)"Phi Files (*.phi)\0";
+            ofn.lpstrFile = (LPSTR)szFileName;
+            ofn.nMaxFile = MAX_PATH;
+            ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+            ofn.lpstrDefExt = (LPCSTR)"phi";
 
-            //GetSaveFileName(&ofn);
-            //auto path = ofn.lpstrFile;
+            GetSaveFileName(&ofn);
+            auto path = ofn.lpstrFile;
 
-            //exporter::exportScene(_sceneLayer->getRoot(), path);
+            _projectRepository->save(_project, path);
         })
             .build();
 
@@ -325,16 +310,6 @@ namespace demon
             { _sceneLayer, _constructionLayer });
 
         _scene->add(obj);
-        //_scene->add(cube0);
-/*        _sceneLayer->add(cube1);
-        _sceneLayer->add(_chair0);
-        _sceneLayer->add(floor0);
-        _sceneLayer->add(back_wall);
-        _sceneLayer->add(table);
-        _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable);*/
-
-        //TODO: prevent components that are not dealt with it from being added to layer
 
         _constructionLayer->add(_constructionLabel);
         _nandinhoLayer->add(_labelNandinho);
@@ -456,12 +431,12 @@ namespace demon
         safeDelete(_commandsManager);
         safeDelete(_gl);
         safeDelete(_userLibrary);
-        safeDelete(_projectLibrary);
 
         safeDelete(_designContext);
         safeDelete(_constructionContext);
 
-        safeDelete(_scene);
+        safeDelete(_projectRepository);
+        safeDelete(_project);
         safeDelete(_nandinhoLayer);
         safeDelete(_constructionLayer);
 

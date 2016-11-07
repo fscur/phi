@@ -1,3 +1,4 @@
+#pragma once
 #include <phi.h>
 
 #include <core/model.h>
@@ -22,5 +23,8 @@ namespace phi
         CONTEXT_API ~scene();
 
         CONTEXT_API void add(model* model);
+
+        CONTEXT_API vector<model*> getModels();
+        CONTEXT_API camera* getCamera();
     };
 }
