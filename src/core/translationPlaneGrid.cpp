@@ -15,11 +15,7 @@ namespace phi
         _colorChanged(eventHandler<translationPlaneGrid*>()),
         _lineThicknessChanged(eventHandler<translationPlaneGrid*>()),
         _opacityChanged(eventHandler<translationPlaneGrid*>()),
-        _visibleChanged(eventHandler<translationPlaneGrid*>()),
-        _innerPlaneDistance(0.0f),
-        _innerGridSize(1.0f),
-        _outerPlaneDistance(0.0f),
-        _outerGridSize(0.0f)
+        _visibleChanged(eventHandler<translationPlaneGrid*>())
     {
     }
 

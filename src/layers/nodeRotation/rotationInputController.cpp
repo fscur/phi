@@ -159,11 +159,8 @@ namespace phi
 
     bool rotationInputController::onKeyDown(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_CTRL && _rotationService->isRotating())
-        {
+        if (e->key == PHIK_CTRL)
             _rotationService->disableCollisions();
-            return true;
-        }
 
         if (e->key == PHIK_1)
             _rotationService->setUsageMode(rotationService::rotationUsageMode::ROTATE_AT_CENTROID);
@@ -177,11 +174,8 @@ namespace phi
 
     bool rotationInputController::onKeyUp(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_CTRL && _rotationService->isRotating())
-        {
+        if (e->key == PHIK_CTRL)
             _rotationService->enableCollisions();
-            return true;
-        }
 
         return false;
     }

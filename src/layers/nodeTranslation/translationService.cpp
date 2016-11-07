@@ -34,7 +34,8 @@ namespace phi
         _lastMousePosition(),
         _collidedDelta(),
         _snappedDelta(),
-        _targetNodesDestinationObbs()
+        _targetNodesDestinationObbs(),
+        _snapGridSize(1.0f)
     {
     }
 
@@ -232,7 +233,12 @@ namespace phi
     vec3 translationService::getSnapOffset(vec3 offset)
     {
         if (!_isSnapToGridEnabled)
+        {
+            debug("not snapping");
             return vec3();
+        }
+        else
+            debug("snapping");
 
         auto snapOffset = snapToGrid(offset);
         if (snapOffset != vec3() && glm::dot(offset - _collidedDelta, snapOffset) < 0.0f)
@@ -271,25 +277,24 @@ namespace phi
         vec2 projectedOffsetedLimits[2] = { minimum, maximum };
 
         float const SNAP_MARGIN_GRID_SIZE_PERCENT = 0.15f;
-        auto gridSize = _currentTranslationPlane->getPlaneGrid()->getInnerGridSize();
 
-        auto snapMargin = gridSize * SNAP_MARGIN_GRID_SIZE_PERCENT;
-        auto highSnapMargin = gridSize - snapMargin;
+        auto snapMargin = _snapGridSize * SNAP_MARGIN_GRID_SIZE_PERCENT;
+        auto highSnapMargin = _snapGridSize - snapMargin;
         vec2 amountSnapped;
         auto snappedAtX = false;
         auto snappedAtY = false;
 
         for (auto i = 0; i < 2; ++i)
         {
-            auto mod = glm::sign(projectedOffsetedLimits[i]) * glm::mod(glm::abs(projectedOffsetedLimits[i]), vec2(gridSize));
+            auto mod = glm::sign(projectedOffsetedLimits[i]) * glm::mod(glm::abs(projectedOffsetedLimits[i]), vec2(_snapGridSize));
             auto absMod = glm::abs(mod);
 
             if (absMod.x < snapMargin || absMod.x > highSnapMargin)
             {
-                auto snapDelta = mathUtils::round(mod.x, gridSize) - mod.x;
+                auto snapDelta = mathUtils::round(mod.x, _snapGridSize) - mod.x;
                 if (!snappedAtX)
                 {
-                    amountSnapped.x = snapDelta; // Round only for works for grid of size 1!!!!!!!
+                    amountSnapped.x = snapDelta;
                     snappedAtX = true;
                 }
                 else if (glm::abs(snapDelta) < glm::abs(amountSnapped.x))
@@ -298,10 +303,10 @@ namespace phi
 
             if (absMod.y < snapMargin || absMod.y > highSnapMargin)
             {
-                auto snapDelta = mathUtils::round(mod.y, gridSize) - mod.y;
+                auto snapDelta = mathUtils::round(mod.y, _snapGridSize) - mod.y;
                 if (!snappedAtY)
                 {
-                    amountSnapped.y = snapDelta; // Round only for works for grid of size 1!!!!!!!
+                    amountSnapped.y = snapDelta;
                     snappedAtY = true;
                 }
                 else if (glm::abs(snapDelta) < glm::abs(amountSnapped.y))
@@ -551,41 +556,26 @@ namespace phi
         }
     }
 
-    void translationService::updateTranslationPlaneGridSize()
+    void translationService::updateSnapGridSize()
     {
-        //const float planeDistances[] = { 0.0f, 1.0f, 5.0f, 100.0f, 500.0f, 5000.0f };
         const float planeDistances[] = { 0.0f, 0.23f, 1.5f, 30.0f, 200.0f, 5000.0f };
         const float gridSizes[] = { 0.01f, 0.1f, 1.0f, 10.0f, 100.0f, 1000.0f };
 
-        auto distance = glm::abs(mathUtils::multiply(_camera->getViewMatrix(), _currentTranslationPlane->getPlaneGridNode()->getTransform()->getPosition()).z);
+        auto planeNodePosition = _currentTranslationPlane->getPlaneGridNode()->getTransform()->getPosition();
+        auto planeNodePositionRelativeToCamera = mathUtils::multiply(_camera->getViewMatrix(), planeNodePosition);
+        auto distance = glm::abs(planeNodePositionRelativeToCamera.z);
+
         auto planeGrid = _currentTranslationPlane->getPlaneGrid();
         if (distance > planeDistances[4])
-        {
-            planeGrid->setOuterGridSize(gridSizes[5]);
-            planeGrid->setInnerGridSize(gridSizes[4]);
-        }
+            _snapGridSize = gridSizes[4];
         else if (distance > planeDistances[3])
-        {
-            planeGrid->setOuterGridSize(gridSizes[4]);
-            planeGrid->setInnerGridSize(gridSizes[3]);
-        }
+            _snapGridSize = gridSizes[3];
         else if (distance > planeDistances[2])
-        {
-            planeGrid->setOuterGridSize(gridSizes[3]);
-            planeGrid->setInnerGridSize(gridSizes[2]);
-        }
+            _snapGridSize = gridSizes[2];
         else if (distance > planeDistances[1])
-        {
-            planeGrid->setOuterGridSize(gridSizes[2]);
-            planeGrid->setInnerGridSize(gridSizes[1]);
-        }
+            _snapGridSize = gridSizes[1];
         else
-        {
-            planeGrid->setOuterGridSize(gridSizes[1]);
-            planeGrid->setInnerGridSize(gridSizes[0]);
-        }
-
-        debug(std::to_string(planeGrid->getInnerGridSize()) + "[" + std::to_string(distance) + "]");
+            _snapGridSize = gridSizes[0];
     }
 
     void translationService::translatePlaneGrid(const vec3& targetPosition)
@@ -732,7 +722,7 @@ namespace phi
                 updatePlaneVisibility(clippedTranslationPlane);
         }
 
-        updateTranslationPlaneGridSize();
+        updateSnapGridSize();
         updatePlaneVisibility(_currentTranslationPlane);
         deletePlaneIfNotVisible();
     }

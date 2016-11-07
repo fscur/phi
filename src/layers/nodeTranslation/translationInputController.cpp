@@ -153,42 +153,28 @@ namespace phi
 
     bool translationInputController::onKeyDown(keyboardEventArgs* e)
     {
-        if (!_translationService->isTranslating())
-            return false;
-
         if (e->key == PHIK_CTRL)
         {
             _translationService->disableCollisions();
             _translationService->disablePlaneChanges();
-            return true;
         }
 
         if (e->key == PHIK_SHIFT)
-        {
             _translationService->enableSnapToGrid();
-            return true;
-        }
 
         return false;
     }
 
     bool translationInputController::onKeyUp(keyboardEventArgs* e)
     {
-        if (!_translationService->isTranslating())
-            return false;
-
         if (e->key == PHIK_CTRL)
         {
             _translationService->enableCollisions();
             _translationService->enablePlaneChanges();
-            return true;
         }
 
         if (e->key == PHIK_SHIFT)
-        {
             _translationService->disableSnapToGrid();
-            return true;
-        }
 
         return false;
     }

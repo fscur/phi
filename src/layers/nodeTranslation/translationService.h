@@ -76,7 +76,7 @@ namespace phi
         void translateTargetNodes(const vec3 targetPosition);
         void translatePlaneGrid(const vec3& targetPosition);
         void updateDestinationObbs();
-        void updateTranslationPlaneGridSize();
+        void updateSnapGridSize();
 
         bool changeToTouchingPlaneIfAble();
         vector<sweep::sweepCollision> findTouchingCollisions();
@@ -106,6 +106,7 @@ namespace phi
         vec3 _snappedDelta;
         vector<obb*> _targetNodesDestinationObbs;
         vector<sweep::sweepObbCollision> _lastTranslationTouchingCollisions;
+        float _snapGridSize;
 
         unordered_map<const obb*, vector<translationPlane*>> _clippedTranslationPlanes;
     };
