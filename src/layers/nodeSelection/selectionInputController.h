@@ -34,6 +34,7 @@ namespace phi
         node* getSonOfFirstSelected(node* const node);
         node* findTargetNode(node* const node);
         void onSelectionBehaviourSelectedNodesChanged(selectionLayerBehaviour * selectionBehaviour);
+        void pushSelectCommand(node* node);
 
     public:
         LAYERS_API selectionInputController(commandsManager* commandsManager, selectionLayerBehaviour* selectionBehaviour);

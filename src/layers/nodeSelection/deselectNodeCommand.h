@@ -7,15 +7,15 @@
 
 namespace phi
 {
-    class unselectNodeCommand :
+    class deselectNodeCommand :
         public command
     {
     private:
-        vector<node*> _nodesToUnselect;
-        vector<node*> _unselectedNodes;
+        vector<node*> _nodesToDeselect;
+        vector<node*> _deselectedNodes;
     public:
-        LAYERS_API unselectNodeCommand(const vector<node*>& nodesToUnselect);
-        LAYERS_API ~unselectNodeCommand();
+        LAYERS_API deselectNodeCommand(const vector<node*>& nodesToDeselect);
+        LAYERS_API ~deselectNodeCommand();
 
         LAYERS_API virtual void execute();
         LAYERS_API virtual void executeUndo();

@@ -627,7 +627,7 @@ namespace selectionInputControllerTests
         _selectionController->select(parent);
 
         auto eventRaisedCount = 0u;
-        auto expectedEventRaisedCount = 2u;
+        auto expectedEventRaisedCount = 0u;
         parent->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
         child->selectionChanged.assign([&](node* node) { eventRaisedCount++; });
 

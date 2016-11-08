@@ -1,7 +1,6 @@
 #include <precompiled.h>
-#include <gtest\gtest.h>
-
-#include <core\finitePlane.h>
+#include <gtest/gtest.h>
+#include <core/orientedPlane.h>
 
 using namespace phi;
 
@@ -20,7 +19,7 @@ TEST(finitePlane, construct_planeOnPositiveXPositiveZPositiveNormal_correctNorma
     auto upPoint = vec3(1.0f, 0.0f, 0.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -39,7 +38,7 @@ TEST(finitePlane, construct_planeOnPositiveXPositiveZInvertedPositiveNormal_corr
     auto upPoint = vec3(0.0f, 0.0f, 1.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -58,7 +57,7 @@ TEST(finitePlane, construct_planeOnPositiveXPositiveZNegativeNormal_correctNorma
     auto upPoint = vec3(0.0f, 0.0f, 1.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -77,7 +76,7 @@ TEST(finitePlane, construct_planeOnPositiveXNegativeZPositiveNormal_correctNorma
     auto upPoint = vec3(1.0f, 1.0f, -3.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -99,7 +98,7 @@ TEST(finitePlane, construct_planeOnPositiveXNegativeZNegativeNormal_correctNorma
     auto upPoint = vec3(3.0f, 1.0f, -1.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -118,7 +117,7 @@ TEST(finitePlane, construct_planeOnNegativeXPositiveZPositiveNormal_correctNorma
     auto upPoint = vec3(-1.0f, 1.0f, 3.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -140,7 +139,7 @@ TEST(finitePlane, construct_planeOnNegativeXPositiveZNegativeNormal_correctNorma
     auto upPoint = vec3(-3.0f, 1.0f, 1.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -159,7 +158,7 @@ TEST(finitePlane, construct_planeOnNegativeXNegativeZPositiveNormal_correctNorma
     auto upPoint = vec3(-3.0f, -2.0f, -2.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -178,7 +177,7 @@ TEST(finitePlane, construct_planeOnNegativeXNegativeZNegativeNormal_correctNorma
     auto upPoint = vec3(-1.0f, -2.0f, -3.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -197,7 +196,7 @@ TEST(finitePlane, construct_plane45DegreesRampDescendingToPositiveX_correctNorma
     auto upPoint = vec3(5.0f, 0.0f, 0.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -217,7 +216,7 @@ TEST(finitePlane, construct_plane45DegreesRampDescendingToNegativeX_correctNorma
     auto upPoint = vec3(-1.0f, -0.5f, 0.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     //Assert
     auto normal = plane.getNormal();
@@ -237,7 +236,7 @@ TEST(finitePlane, construct_plane45DegreesRampDescendingToPositiveXZ_correctNorm
     auto upPoint = vec3(3.0f, 0.0f, -3.0f);
 
     //Act
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
 
     auto diffX = rightPoint - origin;
     auto diffY = upPoint - origin;

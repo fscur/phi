@@ -12,7 +12,7 @@
 
 #include "selectionInputController.h"
 #include "selectNodeCommand.h"
-#include "unselectNodeCommand.h"
+#include "deselectNodeCommand.h"
 
 namespace phi
 {
@@ -120,6 +120,25 @@ namespace phi
             _resignControlEvent->raise(this);
     }
 
+    void selectionInputController::pushSelectCommand(node* node)
+    {
+        auto selectCommand = new selectNodeCommand(node);
+
+        if (_isAdditiveSelection)
+        {
+            _commandsManager->executeCommand(selectCommand);
+            return;
+        }
+
+        auto commands = new multiCommand(
+        {
+            new deselectNodeCommand(*_selectionBehaviour->getSelectedNodes()),
+            selectCommand
+        });
+
+        _commandsManager->executeCommand(commands);
+    }
+
     bool selectionInputController::onKeyDown(keyboardEventArgs* e)
     {
         if (e->key != PHIK_CTRL)
@@ -148,20 +167,13 @@ namespace phi
         if (!clickComponent)
         {
             if (_selectionBehaviour->getSelectedNodes()->size() > 0)
-                _commandsManager->executeCommand(new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
+                deselectAll();
 
             return true;
         }
 
         auto clickedNode = clickComponent->getNode();
-        auto targetNode = findTargetNode(clickedNode);
-        if (!targetNode)
-            return false;
-
-        if (!targetNode->isSelected())
-            select(targetNode);
-        else if (_isAdditiveSelection)
-            deselect(targetNode);
+        select(clickedNode);
 
         return true;
     }
@@ -173,31 +185,24 @@ namespace phi
 
     void selectionInputController::select(node* node)
     {
-        auto selectCommand = new selectNodeCommand(node);
-
-        if (_isAdditiveSelection)
-        {
-            _commandsManager->executeCommand(selectCommand);
+        auto targetNode = findTargetNode(node);
+        if (!targetNode)
             return;
-        }
 
-        auto commands = new multiCommand(
-        {
-            new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()),
-            selectCommand
-        });
-
-        _commandsManager->executeCommand(commands);
+        if (!targetNode->isSelected())
+            pushSelectCommand(targetNode);
+        else if (_isAdditiveSelection)
+            deselect(targetNode);
     }
 
     void selectionInputController::deselect(node* node)
     {
-        auto deselectCommand = new unselectNodeCommand({ node });
+        auto deselectCommand = new deselectNodeCommand({ node });
         _commandsManager->executeCommand(deselectCommand);
     }
 
     void selectionInputController::deselectAll()
     {
-        _commandsManager->executeCommand(new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
+        _commandsManager->executeCommand(new deselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
     }
 }
