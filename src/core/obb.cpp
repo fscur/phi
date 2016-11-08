@@ -214,7 +214,7 @@ namespace phi
         return planes;
     }
 
-    vector<finitePlane> obb::getFinitePlanes() const
+    vector<orientedPlane> obb::getSidesPlanes() const
     {
         auto corners = getCorners();
 
@@ -227,17 +227,17 @@ namespace phi
         auto rtf = corners[6];
         auto rtb = corners[7];
 
-        auto finitePlanes = vector<finitePlane>
+        auto sidesPlanes = vector<orientedPlane>
         {
-            finitePlane(lbb, lbf, ltb),
-            finitePlane(rbf, rbb, rtf),
-            finitePlane(lbf, rbf, ltf),
-            finitePlane(rbb, lbb, rtb),
-            finitePlane(ltf, rtf, ltb),
-            finitePlane(lbb, rbb, lbf)
+            orientedPlane(lbb, lbf, ltb),
+            orientedPlane(rbf, rbb, rtf),
+            orientedPlane(lbf, rbf, ltf),
+            orientedPlane(rbb, lbb, rtb),
+            orientedPlane(ltf, rtf, ltb),
+            orientedPlane(lbb, rbb, lbf)
         };
 
-        return finitePlanes;
+        return sidesPlanes;
     }
 
     void obb::getLimits(vec3& min, vec3& max) const

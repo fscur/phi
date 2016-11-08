@@ -68,11 +68,12 @@ namespace phi
         void tryChangeToPlanesFromCollisions();
         vec3 tryChangeToAttachedPlane(vec3 offset);
         void changePlanes(translationPlane * translationPlane, const plane& offsetPlane);
-        void createOffsetFinitePlane();
+        void createOffsetOrientedPlane();
         void showTranslationPlane();
 
         vec3 getSnapOffset(vec3 offset);
         vec3 snapToGrid(vec3 endPosition);
+        void getObbLimitsOnOrientedOffsetPlane(vec3 offset, vec2& minimum, vec2& maximum);
         void translateTargetNodes(const vec3 targetPosition);
         void translatePlaneGrid(const vec3& targetPosition);
         void updateDestinationObbs();
@@ -98,7 +99,7 @@ namespace phi
 
         node* _clickedNode;
         plane _offsetPlane;
-        finitePlane _offsetFinitePlane;
+        orientedPlane _orientedOffsetPlane;
         translationPlane* _currentTranslationPlane;
         vector<translationPlane*> _planesToDelete;
         ivec2 _lastMousePosition;

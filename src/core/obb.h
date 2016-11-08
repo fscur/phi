@@ -4,7 +4,7 @@
 
 #include "coreApi.h"
 #include "plane.h"
-#include "finitePlane.h"
+#include "orientedPlane.h"
 #include "transform.h"
 
 namespace phi
@@ -45,7 +45,7 @@ namespace phi
         CORE_API vec3 getPositionAt(vec3 direction) const;
         CORE_API vector<vec3> getCorners() const;
         CORE_API vector<plane> getPlanes() const;
-        CORE_API vector<finitePlane> getFinitePlanes() const;
+        CORE_API vector<orientedPlane> getSidesPlanes() const;
         CORE_API void getLimits(vec3& min, vec3& max) const;
         CORE_API void set(const obb obb);
     };

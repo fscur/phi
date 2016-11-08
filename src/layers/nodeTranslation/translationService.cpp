@@ -28,7 +28,7 @@ namespace phi
         _isSnapToGridEnabled(false),
         _clickedNode(nullptr),
         _offsetPlane(),
-        _offsetFinitePlane(),
+        _orientedOffsetPlane(),
         _currentTranslationPlane(nullptr),
         _planesToDelete(),
         _lastMousePosition(),
@@ -186,18 +186,18 @@ namespace phi
         _nodeTranslator->setPlane(_offsetPlane);
         _collidedDelta = vec3();
 
-        createOffsetFinitePlane();
+        createOffsetOrientedPlane();
         deleteClippedPlanes();
         showTranslationPlane();
     }
 
-    void translationService::createOffsetFinitePlane()
+    void translationService::createOffsetOrientedPlane()
     {
         auto planeGridNodeTransform = _currentTranslationPlane->getPlaneGridNode()->getTransform();
         auto origin = _offsetPlane.projectPoint(vec3());
         auto rightPoint = origin + planeGridNodeTransform->getRight();
         auto upPoint = origin + planeGridNodeTransform->getUp();
-        _offsetFinitePlane = finitePlane(origin, rightPoint, upPoint);
+        _orientedOffsetPlane = orientedPlane(origin, rightPoint, upPoint);
     }
 
     void translationService::showTranslationPlane()
@@ -233,15 +233,12 @@ namespace phi
     vec3 translationService::getSnapOffset(vec3 offset)
     {
         if (!_isSnapToGridEnabled)
-        {
-            debug("not snapping");
             return vec3();
-        }
-        else
-            debug("snapping");
 
         auto snapOffset = snapToGrid(offset);
-        if (snapOffset != vec3() && glm::dot(offset - _collidedDelta, snapOffset) < 0.0f)
+
+        auto tryingToLeaveSnap = glm::dot(offset - _collidedDelta, snapOffset) < 0.0f;
+        if (snapOffset != vec3() && tryingToLeaveSnap)
         {
             auto inverseSnapDirection = -glm::normalize(snapOffset);
             _snappedDelta = inverseSnapDirection * glm::dot(inverseSnapDirection, offset - _collidedDelta);
@@ -254,26 +251,8 @@ namespace phi
 
     vec3 translationService::snapToGrid(vec3 offset)
     {
-        auto destinationObb = _nodeTranslator->getNodeDestinationObb(_clickedNode);
-        destinationObb.center += offset;
-        auto obbCorners = destinationObb.getCorners();
-        vec2 minimum = _offsetFinitePlane.projectPoint(obbCorners[0]);
-        vec2 maximum = minimum;
-        for (auto i = 1; i < 8; ++i)
-        {
-            auto projectedCorner = _offsetFinitePlane.projectPoint(obbCorners[i]);
-
-            if (projectedCorner.x < minimum.x)
-                minimum.x = projectedCorner.x;
-            if (projectedCorner.y < minimum.y)
-                minimum.y = projectedCorner.y;
-
-            if (projectedCorner.x > maximum.x)
-                maximum.x = projectedCorner.x;
-            if (projectedCorner.y > maximum.y)
-                maximum.y = projectedCorner.y;
-        }
-
+        vec2 minimum, maximum;
+        getObbLimitsOnOrientedOffsetPlane(offset, minimum, maximum);
         vec2 projectedOffsetedLimits[2] = { minimum, maximum };
 
         float const SNAP_MARGIN_GRID_SIZE_PERCENT = 0.15f;
@@ -314,9 +293,34 @@ namespace phi
             }
         }
 
-        auto snappedOffset = _offsetFinitePlane.getXAxis() * amountSnapped.x + _offsetFinitePlane.getYAxis() * amountSnapped.y;
+        auto snappedOffset =
+            _orientedOffsetPlane.getXAxis() * amountSnapped.x +
+            _orientedOffsetPlane.getYAxis() * amountSnapped.y;
 
         return snappedOffset;
+    }
+
+    void translationService::getObbLimitsOnOrientedOffsetPlane(vec3 offset, vec2& minimum, vec2& maximum)
+    {
+        auto destinationObb = _nodeTranslator->getNodeDestinationObb(_clickedNode);
+        destinationObb.center += offset;
+        auto obbCorners = destinationObb.getCorners();
+        minimum = _orientedOffsetPlane.projectPoint(obbCorners[0]);
+        maximum = minimum;
+        for (auto i = 1; i < 8; ++i)
+        {
+            auto projectedCorner = _orientedOffsetPlane.projectPoint(obbCorners[i]);
+
+            if (projectedCorner.x < minimum.x)
+                minimum.x = projectedCorner.x;
+            if (projectedCorner.y < minimum.y)
+                minimum.y = projectedCorner.y;
+
+            if (projectedCorner.x > maximum.x)
+                maximum.x = projectedCorner.x;
+            if (projectedCorner.y > maximum.y)
+                maximum.y = projectedCorner.y;
+        }
     }
 
     void translationService::addClippingPlanes()
