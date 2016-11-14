@@ -9,7 +9,7 @@ namespace phi
     public:
 
         static float distance(vec3 v0, vec3 v1);
-        
+
         static vector<vec3> rotateAboutAxis(vector<vec3>* points, vec3 origin, vec3 axis, float angle);
         static vector<vec3> rotateAboutAxis(vector<vec3>* points, vec3 axis, float angle);
         static vec3 rotateAboutAxis(vec3 point, vec3 origin, vec3 axis, float angle);
@@ -24,7 +24,11 @@ namespace phi
         static float truncateDecimals(float value);
         static float truncateDecimals(float value, int decimals);
         static float isParallel(vec3 a, vec3 b);
-        static vec3 getCentroid(vector<vec3> points);
+        static vec3 getCentroid(const vector<vec3>& points);
         static vec3 getClosestAxisTo(const vec3& direction);
+        static vec3 getClosestAxisTo(const vec3& direction, const vector<vec3>& axes);
+        static float normalizeAngle(float angle);
+        static float counterClockwiseAngle(float angle);
+        static float round(float value, float interval = 1.0f);
     };
 }

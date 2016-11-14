@@ -5,10 +5,12 @@ namespace phi
 {
     control::control() :
         component(component::CONTROL),
-        _image(image::defaultAlbedoImage),
+        _image(image::defaultBlankImage),
         _onSizeChanged(new eventHandler<vec3>()),
         _color(color::transparent),
-        _size(vec3(0.0f))
+        _size(vec3(0.0f)),
+        _isGlassy(false),
+        _isBillboard(false)
     {
     }
 
@@ -17,7 +19,9 @@ namespace phi
         _image(original._image),
         _onSizeChanged(new eventHandler<vec3>()),
         _color(original._color),
-        _size(original._size)
+        _size(original._size),
+        _isGlassy(original._isGlassy),
+        _isBillboard(original._isBillboard)
     {
     }
 

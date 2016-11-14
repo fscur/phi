@@ -30,7 +30,7 @@ namespace phi
         float shift;
         float page;
         int unit;
-        int pad2;
+        int parentModelMatrixIndex;
         int pad3;
         int pad4;
     };

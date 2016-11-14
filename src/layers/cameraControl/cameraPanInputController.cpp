@@ -1,11 +1,12 @@
 #include <precompiled.h>
 
-#include <core\time.h>
+#include <core/time.h>
 
-#include <rendering\frameBuffer.h>
+#include <rendering/defaultFramebuffer.h>
+#include <rendering/frameBuffer.h>
 
+#include <application/window.h>
 #include "cameraPanInputController.h"
-#include <application\window.h>
 
 namespace phi
 {
@@ -41,7 +42,7 @@ namespace phi
         cancelPan();
 
         auto y = static_cast<int>(_camera->getResolution().height) - e->y;
-        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(e->x, y);
+        auto zBufferValue = defaultFramebuffer::getZBufferValue(e->x, y);
 
         if (zBufferValue == 1.0f)
             _eyeZ = 20.0f;

@@ -28,7 +28,7 @@ namespace phi
     void translationPlane::setPlaneGridNode(node* value)
     {
         _planeGridNode = value;
-        _planeGrid = _planeGridNode->getComponent<planeGrid>();
+        _planeGrid = _planeGridNode->getComponent<translationPlaneGrid>();
         assert(_planeGrid);
     }
 
@@ -42,7 +42,7 @@ namespace phi
         assert(_planeGridNode != nullptr);
         assert(_fadeInAnimation != nullptr);
 
-        auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
+        auto planeGrid = _planeGridNode->getComponent<phi::translationPlaneGrid>();
 
         if (planeGrid->isVisible())
             return;
@@ -57,7 +57,7 @@ namespace phi
         assert(_planeGridNode != nullptr);
         assert(_fadeOutAnimation != nullptr);
 
-        auto planeGrid = _planeGridNode->getComponent<phi::planeGrid>();
+        auto planeGrid = _planeGridNode->getComponent<phi::translationPlaneGrid>();
 
         if (!planeGrid->isVisible())
             return;

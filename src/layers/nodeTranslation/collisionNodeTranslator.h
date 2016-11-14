@@ -1,41 +1,34 @@
 #pragma once
 
-#include <core\node.h>
-
-#include <physics\physicsWorld.h>
+#include <core/node.h>
+#include <animation/animator.h>
+#include <animation/translateAnimation.h>
+#include <physics/physicsWorld.h>
 
 namespace phi
 {
     class collisionNodeTranslator
     {
-    private:
-        physicsWorld* _physicsWorld;
-        plane _plane;
-        vector<node*> _nodes;
-        vector<boxCollider*> _colliders;
-        vector<transform*> _transforms;
-        vector<sweepCollision>* _lastTranslationTouchingCollisions;
-        bool _resolveCollisions;
-
-    private:
-        void addTouchingCollisions(sweepCollisionResult* sweepResult, sweepCollision compareCollision);
-        bool objectFitsInOffsetedPosition(vec3 offset);
-        sweepCollisionResult* performCollisionSweep(vector<transform*>* transforms, vec3 offset, uint32_t maximumHits = 32u);
-        vector<boxCollider*>* getSweepCollisionResultCollidees(sweepCollisionResult* sweepResult);
-        bool findFarthestValidCollision(sweepCollisionResult* sweepResult, vec3 offset, sweepCollision& farthestValidCollision);
-        vec3 getAdjustedOffset(sweepCollision collision, vec3 offset);
-        vec3 collisionNodeTranslator::resolveCollisions(vec3 offset);
-
     public:
         collisionNodeTranslator(physicsWorld* physicsWorld);
         ~collisionNodeTranslator();
 
-        vector<transform*>* createOffsetedTransforms(vec3 offset);
+        transform* createOffsetedTransform(node* node, vec3 offset);
+        vector<transform*> createOffsetedTransforms(vec3 offset);
+        vector<boxCollider*>* getPiledUpColliders() { return &_piledUpColliders; }
+        vector<sweep::sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
+        obb getNodeDestinationObb(node* node)
+        {
+            auto destinationPosition = _nodesDestinationPositions[node];
+            auto currentPosition = node->getTransform()->getPosition();
+            auto deltaToDestination = destinationPosition - currentPosition;
 
-        vector<boxCollider*>* getColliders() { return &_colliders; }
-        vector<transform*>* getTransforms() { return &_transforms; }
+            auto obb = node->getObb();
+            auto destinationObb = obb::obb(*obb);
+            destinationObb.center += deltaToDestination;
 
-        vector<sweepCollision>* getLastTranslationTouchingCollisions() { return _lastTranslationTouchingCollisions; }
+            return destinationObb;
+        }
 
         void setPlane(plane value) { _plane = value; }
         void addNode(node* node);
@@ -43,7 +36,29 @@ namespace phi
         void clear();
         vec3 translate(vec3 offset);
 
-        void disableCollisions();
-        void enableCollisions();
+        void disableCollisions() { _resolveCollisions = false; debug("disabled"); }
+        void enableCollisions() { _resolveCollisions = true; debug("enabled"); }
+
+    private:
+        void addTouchingCollisions(sweep::sweepTestResult* sweepResult, sweep::sweepCollision compareCollision);
+        bool objectFitsInOffsetedPosition(vec3 offset);
+        sweep::sweepTestResult* performCollisionSweep(vector<transform*>& transforms, vec3 offset);
+        vector<boxCollider*> getSweepCollisionResultCollidees(sweep::sweepTestResult* sweepResult);
+        bool findFarthestValidCollision(sweep::sweepTestResult* sweepResult, vec3 offset, sweep::sweepCollision& farthestValidCollision);
+        vec3 getAdjustedOffset(sweep::sweepCollision collision, vec3 offset);
+        vec3 resolveCollisions(vec3 offset);
+        void translateNodes(vec3 offset);
+
+    private:
+        bool _resolveCollisions;
+        physicsWorld* _physicsWorld;
+        plane _plane;
+        vector<node*> _nodes;
+        vector<node*> _piledUpNodes;
+        vector<transform*> _piledUpTransforms;
+        vector<boxCollider*> _piledUpColliders;
+        vector<sweep::sweepCollision>* _lastTranslationTouchingCollisions;
+        unordered_map<node*, vec3> _nodesDestinationPositions;
+        unordered_map<node*, translateAnimation*> _nodesTranslateAnimations;
     };
 }

@@ -6,9 +6,10 @@
 namespace phi
 {
     textLayerBehaviour::textLayerBehaviour(
+        textRenderAdapter* adapter,
         const resolution & resolution, 
         const string & resourcesPath):
-        _adapter(new textRenderAdapter()),
+        _adapter(adapter),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
@@ -44,7 +45,7 @@ namespace phi
         auto text = node->getComponent<phi::text>();
 
         if (text)
-            _adapter->update(text);
+            _adapter->updateTransform(text);
     }
 
     void textLayerBehaviour::onNodeSelectionChanged(node* node)

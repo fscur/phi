@@ -25,6 +25,7 @@ namespace phi
 
     public:
         UI_RENDERING_API textLayerBehaviour(
+            textRenderAdapter* adapter,
             const resolution& resolution,
             const string& resourcesPath);
 

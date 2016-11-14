@@ -28,7 +28,7 @@ namespace phi
 
         ~translationService();
 
-        void startTranslation(ivec2 mousePosition);
+        void startTranslation(ivec2 mousePosition, node* clickedNode);
         void translate(ivec2 mousePosition);
         void endTranslation();
 
@@ -38,48 +38,52 @@ namespace phi
 
         void disableCollisions();
         void enableCollisions();
-
         void disablePlaneChanges();
         void enablePlaneChanges();
+        void disableSnapToGrid();
+        void enableSnapToGrid();
 
         bool isTranslating() const { return _isTranslating; }
-        
-    private:
-        void resetTargetNodesColliders();
 
-        void createPlanes();
+    private:
+        void changeToAxisAlignedPlane();
         plane createPlaneFromAxis(const vec3& axis);
         translationPlane* createAxisAlignedTranslationPlane(ivec2 position);
         translationPlane* createTranslationPlane(const plane& plane);
-        void showTranslationPlane();
 
         void enqueuePlaneForDeletion(translationPlane* planeToRemove);
-        void updateClippedPlanes();
         void deletePlane(translationPlane* translationPlane);
         void deletePlaneIfNotVisible();
-        
+
         void updatePlaneVisibility(translationPlane* translationPlane);
 
         bool canChangeTo(const plane& plane);
         bool isPlaneVisible(const plane& plane);
         float getExtinctionFactor(const vec3& normal);
         float getPlaneVisibility(const plane& plane);
-        bool isNormalValidForCollision(const sweepCollision & touch, const vec3 & normal);
-        void checkForClippingPlanes();
+        bool isNormalValidForCollision(const sweep::sweepCollision & touch);
+        void addClippingPlanes();
+        void updateClippingPlanes();
 
-        bool tryChangingPlanes();
-        bool tryChangeToPlanesFromCollisions();
-        bool tryChangeToAttachedPlane();
+        void tryChangeToPlanesFromCollisions();
+        vec3 tryChangeToAttachedPlane(vec3 offset);
         void changePlanes(translationPlane * translationPlane, const plane& offsetPlane);
-        
-        void translateTargetNodes(const vec3& targetPosition);
-        void translatePlaneGrid(const vec3& targetPosition);
+        void createOffsetOrientedPlane();
+        void showTranslationPlane();
 
-        void resetCurrentCollisions();
-        void checkCollisionsBeforeTranslation();
-        void checkCollisionsAferTranslation();
-        vector<sweepCollision> findTouchingCollisions(const vec3& direction, float distance);
-        vector<sweepCollision> getValidTouchCollisions(vector<sweepCollision>& touchs);
+        vec3 getSnapOffset(vec3 offset);
+        vec3 snapToGrid(vec3 endPosition);
+        void getObbLimitsOnOrientedOffsetPlane(vec3 offset, vec2& minimum, vec2& maximum);
+        void translateTargetNodes(const vec3 targetPosition);
+        void translatePlaneGrid(const vec3& targetPosition);
+        void updateDestinationObbs();
+        void updateSnapGridSize();
+
+        bool changeToTouchingPlaneIfAble();
+        vector<sweep::sweepCollision> findTouchingCollisions();
+        vector<sweep::sweepObbCollision> findTouchingCollisionsOnDirection(const vec3& direction, float distance);
+        vector<sweep::sweepCollision> filterValidTouchCollisions(vector<sweep::sweepCollision>& touchs);
+        vector<sweep::sweepObbCollision> filterValidTouchCollisions(vector<sweep::sweepObbCollision>& touchs);
 
     private:
         const vector<node*>* _targetNodes;
@@ -91,19 +95,20 @@ namespace phi
 
         bool _isTranslating;
         bool _canChangePlanes;
+        bool _isSnapToGridEnabled;
 
-        vec3 _offsetPlaneOrigin;
+        node* _clickedNode;
         plane _offsetPlane;
+        orientedPlane _orientedOffsetPlane;
         translationPlane* _currentTranslationPlane;
         vector<translationPlane*> _planesToDelete;
         ivec2 _lastMousePosition;
+        vec3 _collidedDelta;
+        vec3 _snappedDelta;
+        vector<obb*> _targetNodesDestinationObbs;
+        vector<sweep::sweepObbCollision> _lastTranslationTouchingCollisions;
+        float _snapGridSize;
 
-        vector<sweepCollision>* _lastCollisions;
-        vector<sweepCollision> _currentCollisions;
-
-        vector<boxCollider*> _targetNodesColliders;
-        //vector<translationPlane*> _clippedTranslationPlanes;
-        vector<collisionObbPlane> _currentValidPlanes;
-        unordered_map<plane, translationPlane*> _clippedTranslationPlanes;
+        unordered_map<const obb*, vector<translationPlane*>> _clippedTranslationPlanes;
     };
 }

@@ -176,20 +176,24 @@ namespace phi
     {
         return abs(a - b) < error;
     }
+
     inline float mathUtils::truncateDecimals(float value)
     {
         return round(value * DECIMAL_TRUNCATION_INV) / DECIMAL_TRUNCATION_INV;
     }
+
     inline float mathUtils::truncateDecimals(float value, int decimals)
     {
         float exp = pow(10.0f, (float)decimals);
         return round(value * exp) / exp;
     }
+
     inline float mathUtils::isParallel(vec3 a, vec3 b)
     {
         return mathUtils::isClose(glm::dot(a, b), 1.0f);
     }
-    inline vec3 mathUtils::getCentroid(vector<vec3> points)
+
+    inline vec3 mathUtils::getCentroid(const vector<vec3>& points)
     {
         auto x = 0.0f;
         auto y = 0.0f;
@@ -205,9 +209,10 @@ namespace phi
         auto pointsCount = points.size();
         return vec3(x / pointsCount, y / pointsCount, z / pointsCount);
     }
+
     inline vec3 mathUtils::getClosestAxisTo(const vec3 & direction)
     {
-        vec3 axisNormals[] =
+        vector<vec3> axisNormals =
         {
             vec3(1.0f, 0.0f, 0.0f),
             vec3(0.0f, 1.0f, 0.0f),
@@ -217,20 +222,45 @@ namespace phi
             vec3(0.0f, 0.0f, -1.0f)
         };
 
+        return getClosestAxisTo(direction, axisNormals);
+    }
+
+    inline vec3 mathUtils::getClosestAxisTo(const vec3 & direction, const vector<vec3>& axes)
+    {
         auto maxDot = -20.0f;
         auto maxNormal = vec3();
-        for (uint_fast8_t i = 0; i < 6; ++i)
+        auto axesCount = axes.size();
+        for (uint_fast8_t i = 0; i < axesCount; ++i)
         {
-            auto dot = glm::dot(direction, axisNormals[i]);
+            auto dot = glm::dot(direction, axes[i]);
             if (dot > maxDot)
             {
                 maxDot = dot;
-                maxNormal = axisNormals[i];
+                maxNormal = axes[i];
             }
         }
 
         assert(maxNormal != vec3());
 
         return glm::normalize(maxNormal);
+    }
+
+    inline float mathUtils::normalizeAngle(float angle)
+    {
+        return glm::mod(angle, PI * 2.0f * glm::sign(angle));
+    }
+
+    inline float mathUtils::counterClockwiseAngle(float angle)
+    {
+        if (angle >= 0.0f)
+            return angle;
+
+        return angle + PI * 2.0f;
+    };
+
+    inline float mathUtils::round(float value, float interval)
+    {
+        auto v = value * (1.0f / interval);
+        return interval * glm::round(v);
     }
 }

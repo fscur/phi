@@ -1,6 +1,7 @@
 #include <precompiled.h>
 
-#include <core\node.h>
+#include <core/node.h>
+#include "sweep/sweepTestParameters.h"
 #include "physicsWorld.h"
 
 using namespace physx;
@@ -43,6 +44,11 @@ namespace phi
         _physics->release();
         _profileZoneManager->release();
         _foundation->release();
+    }
+
+    vec3 physicsWorld::toVec3(const physx::PxVec3 vector)
+    {
+        return vec3(vector.x, vector.y, vector.z);
     }
 
     PxVec3 physicsWorld::toPxVec3(const vec3 vector)
@@ -97,25 +103,19 @@ namespace phi
     void physicsWorld::addCollider(boxCollider* collider)
     {
         auto obb = collider->getObb();
+
         auto data = new colliderData();
+        data->transform = collider->getNode()->getTransform();
         data->body = _physics->createRigidStatic(PxTransform(PxVec3()));
-
-        data->geometry = new PxBoxGeometry(createBoxGeometry(obb.halfSizes));
         auto material = _physics->createMaterial(0.0f, 0.0f, 0.0f);
-        data->shape = data->body->createShape(*data->geometry, *material);
+        data->shape = data->body->createShape(PxBoxGeometry(createBoxGeometry(obb.halfSizes)), *material);
         data->body->userData = collider;
-        data->body->setGlobalPose(createPose(obb));
 
-        data->transformChangedToken = collider->getNode()->getTransform()->getChangedEvent()->assign(
-            [this, collider, data](transform* sender) -> void
+        data->transformChangedToken = data->transform->getChangedEvent()->assign(
+            [this, collider](transform* sender) -> void
         {
             _unused(sender);
-
-            auto obb = collider->getObb();
-            safeDelete(data->geometry); // I hate this pointer
-            data->geometry = new PxBoxGeometry(createBoxGeometry(obb.halfSizes));
-            data->shape->setGeometry(*data->geometry);
-            data->body->setGlobalPose(createPose(obb));
+            updateShape(collider);
         });
 
         data->isEnabledChangedToken = collider->getIsEnabledChanged()->assign(
@@ -130,6 +130,8 @@ namespace phi
         _scene->addActor(*data->body);
         _colliders[collider] = data;
 
+        updateShape(collider);
+
         if (collider->getIsEnabled())
             enableQueryOn(collider);
         else
@@ -143,9 +145,33 @@ namespace phi
         collider->getIsEnabledChanged()->unassign(data->isEnabledChangedToken);
 
         _scene->removeActor(*data->body);
-        safeDelete(data->geometry);
         data->body->release();
         _colliders.erase(collider);
+    }
+
+    void physicsWorld::changeTransform(boxCollider* collider, transform* newTransform)
+    {
+        auto data = _colliders[collider];
+        data->transform->getChangedEvent()->unassign(data->transformChangedToken);
+
+        data->transformChangedToken = newTransform->getChangedEvent()->assign(
+            [this, collider](transform* sender) -> void
+        {
+            _unused(sender);
+            updateShape(collider);
+        });
+
+        data->transform = newTransform;
+        updateShape(collider);
+    }
+
+    void physicsWorld::updateShape(boxCollider* collider)
+    {
+        auto data = _colliders[collider];
+        auto obb = collider->getLocalObb();
+        obb = obb.transform(data->transform);
+        data->shape->setGeometry(PxBoxGeometry(createBoxGeometry(obb.halfSizes)));
+        data->body->setGlobalPose(createPose(obb));
     }
 
     void physicsWorld::enableQueryOn(boxCollider* collider)
@@ -184,17 +210,14 @@ namespace phi
         }
     }
 
-    bool physicsWorld::intersects(intersectionCollisionTest test)
+    bool physicsWorld::intersects(PxBoxGeometry geometry, PxTransform transform, uint16_t group)
     {
-        auto geometry = createBoxGeometry(test.collider, test.transform);
-        auto pose = createPose(test.collider, test.transform);
-
         auto hit = PxOverlapBuffer();
         PxQueryFilterData filterData = PxQueryFilterData(PxQueryFlag::eANY_HIT | PxQueryFlag::eSTATIC);
-        filterData.data.word0 = test.group;
+        filterData.data.word0 = group;
         if (_scene->overlap(
             geometry,
-            pose,
+            transform,
             hit,
             filterData))
             return true;
@@ -202,7 +225,15 @@ namespace phi
         return false;
     }
 
-    bool physicsWorld::intersects(intersectionCollisionMultiTest test)
+    bool physicsWorld::intersects(intersection::singleToSceneTest test)
+    {
+        auto geometry = createBoxGeometry(test.collider, test.transform);
+        auto pose = createPose(test.collider, test.transform);
+
+        return intersects(geometry, pose, test.group);
+    }
+
+    bool physicsWorld::intersects(intersection::groupToSceneTest test)
     {
         auto collidersCount = test.colliders->size();
         for (size_t i = 0; i < collidersCount; i++)
@@ -214,24 +245,22 @@ namespace phi
             else
                 transform = collider->getNode()->getTransform();
 
-            intersectionCollisionTest singleTest;
-            singleTest.collider = collider;
-            singleTest.transform = transform;
-            singleTest.group = test.group;
+            auto geometry = createBoxGeometry(collider, transform);
+            auto pose = createPose(collider, transform);
 
-            if (intersects(singleTest))
+            if (intersects(geometry, pose, test.group))
                 return true;
         }
 
         return false;
     }
 
-    bool physicsWorld::intersects(intersectionCollisionGroupTest test)
+    bool physicsWorld::intersects(intersection::groupToGroupTest test)
     {
         setGroupOn(test.colliders, 1u);
         setGroupOn(test.collidees, 1u);
 
-        intersectionCollisionMultiTest multiTest;
+        intersection::groupToSceneTest multiTest;
         multiTest.colliders = test.colliders;
         multiTest.transforms = test.transforms;
         multiTest.group = 1u;
@@ -244,102 +273,77 @@ namespace phi
         return result;
     }
 
-    bool physicsWorld::intersects(intersectionCollisionPairTest test)
+    bool physicsWorld::intersects(intersection::singleToSingleTest test)
     {
-        auto result = sweepCollisionResult();
-
         auto colliderGeometry = createBoxGeometry(test.collider, test.colliderTransform);
         auto colliderPose = createPose(test.collider, test.colliderTransform);
 
         auto collideeGeometry = createBoxGeometry(test.collidee, test.collideeTransform);
         auto collideePose = createPose(test.collidee, test.collideeTransform);
 
-        PxHitFlag::Enum flags = PxHitFlag::eDEFAULT;
-
         PxSweepHit hit;
-        return PxGeometryQuery::sweep(
-            PxVec3(1.0, 0.0, 0.0),
-            0.0f,
+        return PxGeometryQuery::overlap(
             colliderGeometry, colliderPose,
-            collideeGeometry, collideePose,
-            hit,
-            static_cast<PxHitFlags>(flags),
-            test.inflation);
+            collideeGeometry, collideePose);
     }
 
-    sweepCollisionResult physicsWorld::sweep(sweepCollisionPairTest test)
+    bool physicsWorld::intersects(intersection::groupToSceneObbTest test)
     {
-        auto result = sweepCollisionResult();
-
-        auto colliderGeometry = createBoxGeometry(test.collider, test.colliderTransform);
-        auto colliderPose = createPose(test.collider, test.colliderTransform);
-
-        auto collideeGeometry = createBoxGeometry(test.collidee, test.collideeTransform);
-        auto collideePose = createPose(test.collidee, test.collideeTransform);
-
-        auto direction = toPxVec3(test.direction);
-
-        PxHitFlags flags = PxHitFlag::eDEFAULT;
-        if (test.checkPenetration)
-            flags |= PxHitFlag::eMTD;
-
-        PxSweepHit hit;
-        if (PxGeometryQuery::sweep(
-            direction,
-            test.distance,
-            colliderGeometry, colliderPose,
-            collideeGeometry, collideePose,
-            hit,
-            flags,
-            test.inflation))
+        auto collidersCount = test.colliders->size();
+        for (size_t i = 0; i < collidersCount; i++)
         {
-            auto collision = sweepCollision();
-            collision.collider = test.collider;
-            collision.collidee = test.collidee;
-            collision.distance = hit.distance;
-            collision.normal = vec3(hit.normal.x, hit.normal.y, hit.normal.z);
-            collision.position = vec3(hit.position.x, hit.position.y, hit.position.z);
-            result.collided = true;
-            result.collisions.push_back(collision);
+            auto collider = (*test.colliders)[i];
+            auto geometry = createBoxGeometry(collider->halfSizes);
+            auto pose = createPose(*collider);
+
+            if (intersects(geometry, pose, test.group))
+                return true;
         }
 
-        return result;
+        return false;
     }
 
-    sweepCollisionResult physicsWorld::sweep(sweepCollisionTest test)
+    sweep::sweepTestResult physicsWorld::sweep(sweep::singleToSceneTest test)
     {
-        auto result = sweepCollisionResult();
+        auto result = sweep::sweepTestResult();
+        auto parameters = test.parameters;
         auto geometry = createBoxGeometry(test.collider, test.transform);
         auto pose = createPose(test.collider, test.transform);
 
         PxHitFlags flags = PxHitFlag::eDEFAULT;
-        if (test.inflation == 0.0f)
-            flags |= PxHitFlag::ePRECISE_SWEEP;
+
+        if (parameters.checkPenetration)
+            flags |= PxHitFlag::eMTD;
+        else
+        {
+            if (parameters.inflation == 0.0f)
+                flags |= PxHitFlag::ePRECISE_SWEEP;
+        }
 
         auto filterData = PxQueryFilterData(PxQueryFlag::eSTATIC);
         filterData.data.word0 = test.group;
 
-        auto hitBuffer = new PxSweepHit[test.maximumHits];
-        auto hit = PxSweepBuffer(hitBuffer, test.maximumHits);
+        auto hitBuffer = new PxSweepHit[parameters.maximumHits];
+        auto hit = PxSweepBuffer(hitBuffer, parameters.maximumHits);
 
         if (_scene->sweep(
             geometry,
             pose,
-            PxVec3(test.direction.x, test.direction.y, test.direction.z),
-            test.distance,
+            toPxVec3(parameters.direction),
+            parameters.distance,
             hit,
             flags,
             filterData,
             nullptr,
             nullptr,
-            test.inflation))
+            parameters.inflation))
         {
             auto touchesCount = hit.getNbTouches();
             for (size_t i = 0; i < touchesCount; i++)
             {
                 auto touch = hit.getTouch(static_cast<PxU32>(i));
                 auto collidee = reinterpret_cast<boxCollider*>(touch.actor->userData);
-                auto normal = vec3(touch.normal.x, touch.normal.y, touch.normal.z);
+                auto normal = collidee->getObb().findClosestNormalTo(toVec3(touch.normal));
                 auto isIntersecting = false;
 
                 // Penetration check for invalid normals:
@@ -349,15 +353,16 @@ namespace phi
                 {
                     isIntersecting = true;
 
-                    sweepCollisionPairTest pairTest;
+                    sweep::singleToSingleTest pairTest;
                     pairTest.collider = test.collider;
                     pairTest.colliderTransform = test.transform;
-                    pairTest.distance = test.distance;
-                    pairTest.direction = test.direction;
                     pairTest.collidee = collidee;
                     pairTest.collideeTransform = collidee->getNode()->getTransform();
-                    pairTest.inflation = 0.0f;
-                    pairTest.checkPenetration = true;
+                    pairTest.parameters = parameters;
+                    pairTest.parameters.distance = parameters.distance;
+                    pairTest.parameters.direction = parameters.direction;
+                    pairTest.parameters.inflation = 0.0f;
+                    pairTest.parameters.checkPenetration = true;
                     auto penetrationResult = sweep(pairTest);
 
                     //assert(penetrationResult.collided);
@@ -365,21 +370,21 @@ namespace phi
                         continue;
 
                     normal = collidee->getObb().findClosestNormalTo(penetrationResult.collisions[0].normal);
-                    if (test.disregardDivergentNormals)
+                    if (parameters.disregardDivergentNormals)
                     {
-                        auto dot = glm::dot(normal, test.direction);
+                        auto dot = glm::dot(normal, parameters.direction);
                         if (mathUtils::isClose(dot, 0.0f) || dot > 0.0f)
                             continue;
                     }
                 }
 
-                sweepCollision collision;
+                sweep::sweepCollision collision;
                 collision.collidee = collidee;
                 collision.collider = test.collider;
-                collision.distance = glm::max(touch.distance - DECIMAL_TRUNCATION, 0.0f);
+                collision.distance = touch.distance;
                 collision.normal = normal;
                 collision.isIntersecting = isIntersecting;
-                collision.position = vec3(touch.position.x, touch.position.y, touch.position.z);
+                collision.position = toVec3(touch.position);
                 result.collisions.push_back(collision);
                 result.collided = true;
             }
@@ -390,9 +395,10 @@ namespace phi
         return result;
     }
 
-    sweepCollisionResult physicsWorld::sweep(sweepCollisionMultiTest test)
+    sweep::sweepTestResult physicsWorld::sweep(sweep::groupToSceneTest test)
     {
-        auto allResult = sweepCollisionResult();
+        auto allResult = sweep::sweepTestResult();
+        auto parameters = test.parameters;
 
         auto collidersCount = test.colliders->size();
         for (size_t i = 0; i < collidersCount; i++)
@@ -404,15 +410,11 @@ namespace phi
             else
                 transform = collider->getNode()->getTransform();
 
-            sweepCollisionTest singleTest;
+            sweep::singleToSceneTest singleTest;
             singleTest.collider = collider;
             singleTest.transform = transform;
-            singleTest.direction = test.direction;
-            singleTest.distance = test.distance;
             singleTest.group = test.group;
-            singleTest.disregardDivergentNormals = test.disregardDivergentNormals;
-            singleTest.inflation = test.inflation;
-            singleTest.maximumHits = test.maximumHits;
+            singleTest.parameters = parameters;
             auto result = sweep(singleTest);
 
             if (result.collided)
@@ -424,7 +426,7 @@ namespace phi
                     if (test.findOnlyClosestPerTarget)
                     {
                         auto alreadyFoundCollision = std::find_if(allResult.collisions.begin(), allResult.collisions.end(),
-                            [&collision](sweepCollision const& sc)
+                            [&collision](sweep::sweepCollision const& sc)
                         {
                             return collision.collidee == sc.collidee;
                         });
@@ -446,7 +448,7 @@ namespace phi
             }
         }
 
-        std::sort(allResult.collisions.begin(), allResult.collisions.end(), [](const sweepCollision& a, const sweepCollision& b) -> bool
+        std::sort(allResult.collisions.begin(), allResult.collisions.end(), [](const sweep::sweepCollision& a, const sweep::sweepCollision& b) -> bool
         {
             return a.distance < b.distance;
         });
@@ -454,20 +456,16 @@ namespace phi
         return allResult;
     }
 
-    sweepCollisionResult physicsWorld::sweep(sweepCollisionGroupTest test)
+    sweep::sweepTestResult physicsWorld::sweep(sweep::groupToGroupTest test)
     {
         setGroupOn(test.colliders, 1u);
         setGroupOn(test.collidees, 1u);
 
-        sweepCollisionMultiTest multiTest;
+        sweep::groupToSceneTest multiTest;
         multiTest.colliders = test.colliders;
         multiTest.transforms = test.transforms;
-        multiTest.direction = test.direction;
-        multiTest.distance = test.distance;
-        multiTest.maximumHits = test.maximumHits;
         multiTest.group = 1u;
-        multiTest.disregardDivergentNormals = test.disregardDivergentNormals;
-        multiTest.inflation = test.inflation;
+        multiTest.parameters = test.parameters;
 
         auto result = sweep(multiTest);
 
@@ -475,6 +473,157 @@ namespace phi
         setGroupOn(test.collidees, 0u);
 
         return result;
+    }
+
+    sweep::sweepTestResult physicsWorld::sweep(sweep::singleToSingleTest test)
+    {
+        auto result = sweep::sweepTestResult();
+        auto parameters = test.parameters;
+
+        auto colliderGeometry = createBoxGeometry(test.collider, test.colliderTransform);
+        auto colliderPose = createPose(test.collider, test.colliderTransform);
+
+        auto collideeGeometry = createBoxGeometry(test.collidee, test.collideeTransform);
+        auto collideePose = createPose(test.collidee, test.collideeTransform);
+
+        auto direction = toPxVec3(parameters.direction);
+
+        PxHitFlags flags = PxHitFlag::eDEFAULT;
+        if (parameters.checkPenetration)
+            flags |= PxHitFlag::eMTD;
+
+        PxSweepHit hit;
+        if (PxGeometryQuery::sweep(
+            direction,
+            parameters.distance,
+            colliderGeometry, colliderPose,
+            collideeGeometry, collideePose,
+            hit,
+            static_cast<PxHitFlags>(flags),
+            parameters.inflation))
+        {
+            auto collision = sweep::sweepCollision();
+            collision.collider = test.collider;
+            collision.collidee = test.collidee;
+            collision.distance = hit.distance;
+            collision.normal = toVec3(hit.normal);
+            collision.position = toVec3(hit.position);
+            result.collided = true;
+            result.collisions.push_back(collision);
+        }
+
+        return result;
+    }
+
+    sweep::sweepObbTestResult physicsWorld::sweep(sweep::singleToSceneObbTest test)
+    {
+        auto result = sweep::sweepObbTestResult();
+        auto parameters = test.parameters;
+        auto geometry = createBoxGeometry(test.collider->halfSizes);
+        auto pose = createPose(*test.collider);
+
+        PxHitFlags flags = PxHitFlag::eDEFAULT;
+
+        if (parameters.checkPenetration)
+            flags |= PxHitFlag::eMTD;
+        else
+        {
+            if (parameters.inflation == 0.0f)
+                flags |= PxHitFlag::ePRECISE_SWEEP;
+        }
+
+        auto filterData = PxQueryFilterData(PxQueryFlag::eSTATIC);
+        filterData.data.word0 = test.group;
+
+        auto hitBuffer = new PxSweepHit[parameters.maximumHits];
+        auto hit = PxSweepBuffer(hitBuffer, parameters.maximumHits);
+
+        if (_scene->sweep(
+            geometry,
+            pose,
+            toPxVec3(parameters.direction),
+            parameters.distance,
+            hit,
+            flags,
+            filterData,
+            nullptr,
+            nullptr,
+            parameters.inflation))
+        {
+            auto touchesCount = hit.getNbTouches();
+            for (size_t i = 0; i < touchesCount; i++)
+            {
+                auto touch = hit.getTouch(static_cast<PxU32>(i));
+                auto collidee = reinterpret_cast<boxCollider*>(touch.actor->userData);
+                auto normal = collidee->getObb().findClosestNormalTo(toVec3(touch.normal));
+
+                sweep::sweepObbCollision collision;
+                collision.collidee = collidee;
+                collision.colliderObb = test.collider;
+                collision.distance = touch.distance;
+                collision.normal = normal;
+                collision.isIntersecting = false;
+                collision.position = toVec3(touch.position);
+                result.collisions.push_back(collision);
+                result.collided = true;
+            }
+        }
+
+        safeDeleteArray(hitBuffer);
+
+        return result;
+    }
+
+    sweep::sweepObbTestResult physicsWorld::sweep(sweep::groupToSceneObbTest test)
+    {
+        auto allResult = sweep::sweepObbTestResult();
+        auto parameters = test.parameters;
+
+        for (auto& collider : *test.colliders)
+        {
+            sweep::singleToSceneObbTest singleTest;
+            singleTest.collider = collider;
+            singleTest.group = test.group;
+            singleTest.parameters = parameters;
+            auto result = sweep(singleTest);
+
+            if (result.collided)
+            {
+                allResult.collided = true;
+
+                for (auto& collision : result.collisions)
+                {
+                    if (test.findOnlyClosestPerTarget)
+                    {
+                        auto alreadyFoundCollision = std::find_if(allResult.collisions.begin(), allResult.collisions.end(),
+                            [&collision](sweep::sweepObbCollision const& sc)
+                        {
+                            return collision.collidee == sc.collidee;
+                        });
+
+                        if (alreadyFoundCollision != allResult.collisions.end())
+                        {
+                            if (collision.distance < alreadyFoundCollision->distance)
+                            {
+                                phi::removeIfContains(allResult.collisions, (*alreadyFoundCollision));
+                                allResult.collisions.push_back(collision);
+                            }
+                        }
+                        else
+                            allResult.collisions.push_back(collision);
+                    }
+                    else
+                        allResult.collisions.push_back(collision);
+                }
+            }
+        }
+
+        std::sort(allResult.collisions.begin(), allResult.collisions.end(), [](const sweep::sweepObbCollision& a, const sweep::sweepObbCollision& b) -> bool
+        {
+            return a.distance < b.distance;
+        });
+
+        return allResult;
     }
 
     rayCastResult physicsWorld::rayCast(const rayCastTest& test)
@@ -496,12 +645,12 @@ namespace phi
         {
             auto firstHit = hit.getAnyHit(0);
             auto firstHitNormal = firstHit.normal;
-            auto firstHitPosition = firstHit.position + firstHitNormal * DECIMAL_TRUNCATION;
+            auto firstHitPosition = firstHit.position;
             auto firstHitBoxCollider = reinterpret_cast<boxCollider*>(firstHit.actor->userData);
 
             auto rayHit = rayCastHit();
-            rayHit.position = vec3(firstHitPosition.x, firstHitPosition.y, firstHitPosition.z);
-            rayHit.normal = vec3(firstHitNormal.x, firstHitNormal.y, firstHitNormal.z);
+            rayHit.position = toVec3(firstHitPosition);
+            rayHit.normal = toVec3(firstHitNormal);
             rayHit.collider = firstHitBoxCollider;
 
             return rayCastResult({ rayHit });

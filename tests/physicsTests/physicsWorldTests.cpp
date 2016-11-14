@@ -40,13 +40,13 @@ TEST_F(physicsWorldWithCubeFixture, sweep_cubeAlmostCollidingFromTheSide_doesNot
     auto cube = new boxCollider(vec3(1.001f, 1.0f, 0.0f), vec3(1.0f));
     //auto cube = new boxCollider(vec3(1.00010002f, 1.00079584f, 0.0f), vec3(1.0f));
 
-    auto sweepTest = sweepCollisionTest();
+    auto sweepTest = sweep::singleToSceneTest();
     sweepTest.collider = cube;
     sweepTest.transform = new transform();
-    sweepTest.direction = vec3(0.0f, -1.0f, 0.0f);
-    sweepTest.distance = 1.0f;
-    sweepTest.maximumHits = 1;
-    sweepTest.disregardDivergentNormals = false;
+    sweepTest.parameters.direction = vec3(0.0f, -1.0f, 0.0f);
+    sweepTest.parameters.distance = 1.0f;
+    sweepTest.parameters.maximumHits = 1;
+    sweepTest.parameters.disregardDivergentNormals = false;
 
     //Act
     auto testResult = physicsWorld->sweep(sweepTest);
@@ -60,13 +60,13 @@ TEST_F(physicsWorldWithCubeFixture, sweep_cubeHittingFromTheSide_collidesWithCor
     //Arrange
     auto cube = new boxCollider(vec3(1.5f, 0.0f, 0.0f), vec3(1.0f));
 
-    auto sweepTest = sweepCollisionTest();
+    auto sweepTest = sweep::singleToSceneTest();
     sweepTest.collider = cube;
     sweepTest.transform = new transform();
-    sweepTest.direction = vec3(-1.0f, 0.0f, 0.0f);
-    sweepTest.distance = 0.5f;
-    sweepTest.maximumHits = 1;
-    sweepTest.disregardDivergentNormals = false;
+    sweepTest.parameters.direction = vec3(-1.0f, 0.0f, 0.0f);
+    sweepTest.parameters.distance = 0.5f;
+    sweepTest.parameters.maximumHits = 1;
+    sweepTest.parameters.disregardDivergentNormals = false;
 
     //Act
     auto testResult = physicsWorld->sweep(sweepTest);

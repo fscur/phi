@@ -13,8 +13,8 @@
 
 namespace phi
 {
-    //class LOADER_API importer
-    //{
+    class LOADER_API importer
+    {
     //private:
     //    static node* readNode(
     //        const rapidjson::Value& node,
@@ -23,8 +23,8 @@ namespace phi
 
     //    static guid convertToGuid(const char* bytesGuid);
 
-    //public:
-    //    static image* importImage(const string& fileName, guid guid = guid::newGuid());
+    public:
+        static image* importImage(const string& fileName, guid guid = guid::newGuid());
 
     //    static model* importModel(
     //        const string& fileName,
@@ -54,5 +54,5 @@ namespace phi
 
     //    static camera* loadCamera(const rapidjson::Document* phiJsonDocument);
     //    /*------------------------------------------------------------------*/
-    //};
+    };
 }

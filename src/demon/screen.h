@@ -18,6 +18,10 @@
 
 #include <rendering/gl.h>
 
+#include  <layers/nodeTranslation/translationInputController.h>
+#include <layers/nodeRotation/rotationInputController.h>
+#include <layers/nodeSelection/selectionLayerBehaviour.h>
+
 #include <domain/library.h>
 #include <domain/repositories/iProjectRepository.h>
 
@@ -59,6 +63,14 @@ namespace demon
 
         phi::framebufferAllocator* _framebufferAllocator;
 
+        phi::translationInputController* _translationController;
+        phi::rotationInputController* _rotationController;
+        phi::selectionLayerBehaviour* _selectionBehaviour;
+
+        phi::node* _onDemandUi;
+        phi::image* _translationImage;
+        phi::image* _rotationImage;
+
     private:
         void initGL();
         void initWatcher();
@@ -66,6 +78,11 @@ namespace demon
         void initLibraries();
         void initContexts();
         void initInput();
+
+        phi::node* createOnDemandUiNode();
+        void showOnDemandUi();
+        void hideOnDemandUi();
+        void onNodeSelectionChanged(phi::node* node);
 
         void onMouseDown(phi::mouseEventArgs* e);
         void onMouseUp(phi::mouseEventArgs* e);

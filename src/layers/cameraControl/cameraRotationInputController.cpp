@@ -1,11 +1,13 @@
 #include <precompiled.h>
 
-#include <core\time.h>
+#include <core/time.h>
 
-#include <rendering\framebuffer.h>
+#include <rendering/defaultFramebuffer.h>
+#include <rendering/framebuffer.h>
+
+#include <application/window.h>
 
 #include "cameraRotationInputController.h"
-#include <application\window.h>
 
 namespace phi
 {
@@ -15,7 +17,7 @@ namespace phi
         _rotating(false),
         _doingInertia(false),
         _delta(phi::vec2()),
-        _targetPos(phi::vec3()),
+        _origin(phi::vec3()),
         _lastMouseMoveTime(0.0),
         _inertiaTime(0.0),
         _inertiaLastPercent(0.0f),
@@ -38,10 +40,10 @@ namespace phi
         cancelRotation();
 
         auto y = static_cast<int>(_camera->getResolution().height) - e->y;
-        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(e->x, y);
+        auto zBufferValue = defaultFramebuffer::getZBufferValue(e->x, y);
 
         if (zBufferValue == 1.0f)
-            _targetPos = glm::vec3();
+            _origin = glm::vec3();
         else
         {
             auto depth = _camera->zBufferToDepth(zBufferValue);
@@ -53,7 +55,7 @@ namespace phi
             auto camRight = transform->getRight();
             auto camUp = transform->getUp();
 
-            _targetPos =
+            _origin =
                 camPos +
                 (-camRight * worldPosition.x) +
                 (camUp * worldPosition.y) +
@@ -86,16 +88,15 @@ namespace phi
         auto x = (dx / w) * 3.0f * phi::PI;
         auto y = (dy / h) * 3.0f * phi::PI;
 
-        auto delta = phi::vec2(x, y);
+        auto delta = vec2(x, y);
 
         auto lastRemainingRotation = (1.0f - _inertiaLastPercent) * glm::length(_delta);
         _delta = glm::normalize(delta) * (lastRemainingRotation + glm::length(delta));
 
-        _lastMouseMoveTime = phi::time::totalSeconds * 1000.0;
+        _lastMouseMoveTime = time::totalSeconds * 1000.0;
         _inertiaTime = 0.0;
         _doingInertia = true;
         _inertiaLastPercent = 0.0f;
-
 
         return true;
     }
@@ -133,7 +134,7 @@ namespace phi
         auto delta = _delta * (percent - _inertiaLastPercent);
         _inertiaLastPercent = percent;
 
-        _camera->orbit(_targetPos, phi::vec3(0.0f, 1.0f, 0.0f), -_camera->getTransform()->getRight(), -delta.x, -delta.y);
+        _camera->orbit(_origin, -delta.x, delta.y);
         if (percent >= 1.0f)
             _doingInertia = false;
 

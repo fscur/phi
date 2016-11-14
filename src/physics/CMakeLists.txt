@@ -14,7 +14,24 @@ file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
 file(GLOB natvis_files *.natvis)
 
-add_library(physics SHARED ${source_files} ${header_files} ${natvis_files})
+file(GLOB sweep_source_files ./sweep/*.cpp)
+file(GLOB sweep_header_files ./sweep/*.h)
+file(GLOB intersection_source_files ./intersection/*.cpp)
+file(GLOB intersection_header_files ./intersection/*.h)
+
+add_library(physics SHARED
+    ${source_files}
+    ${header_files}
+    ${natvis_files}
+    ${sweep_header_files}
+    ${sweep_source_files}
+    ${intersection_header_files}
+    ${intersection_source_files})
+
+source_group("Source Files\\sweep" FILES ${sweep_source_files})
+source_group("Header Files\\sweep" FILES ${sweep_header_files})
+source_group("Source Files\\intersection" FILES ${intersection_source_files})
+source_group("Header Files\\intersection" FILES ${intersection_header_files})
 
 target_link_libraries(physics core)
 target_link_libraries(physics ${PHYSX_LIBRARY})

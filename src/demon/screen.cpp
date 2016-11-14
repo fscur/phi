@@ -4,7 +4,7 @@
 
 #include <core/multiCommand.h>
 #include <core/boxCollider.h>
-#include <core/planeGrid.h>
+
 #include <core/ghostMesh.h>
 
 #include <input/input.h>
@@ -30,8 +30,10 @@
 
 #include <ui/labelBuilder.h>
 #include <ui/buttonBuilder.h>
+#include <ui/switchControlBuilder.h>
 #include <ui/control.h>
 #include <ui/text.h>
+#include <ui/relativeLayoutPosition.h>
 
 #include <application/application.h>
 #include <application/undoCommand.h>
@@ -42,10 +44,13 @@
 
 #include <context/invalidLayerConfigurationException.h>
 
+#include <ui/switchControl.h>
+
 #include <persistence/projectRepository.h>
 
 #include "screen.h"
 #include "changeContextCommand.h"
+#include "changeNodeTransformModeCommand.h"
 
 using namespace phi;
 
@@ -184,21 +189,38 @@ namespace demon
         auto obj = _userLibrary->getModelByIndex(0);
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, 4.0f));
         _sceneCamera->getTransform()->yaw(PI);
+
+        _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
+        _rotationImage = importer::importImage(application::resourcesPath + "/images/rotation.png");
 
         try
         {
-            _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            auto sceneLayerBuilder = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                .withPlaneGridRenderer()
+                .withTranslationPlaneGridRenderer()
+                .withRotationPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
+                .withRotationController()
                 .withTranslationController()
-                .build();
+                .withBoxColliderRenderer();
+
+            _sceneLayer = sceneLayerBuilder.build();
+            _sceneLayer->addOnNodeSelectionChanged(std::bind(&screen::onNodeSelectionChanged, this, std::placeholders::_1));
+
+            _translationController = sceneLayerBuilder.translationInputController;
+            _translationController->translationStarted += std::bind(&screen::hideOnDemandUi, this);
+            _translationController->translationEnded += std::bind(&screen::showOnDemandUi, this);
+            _rotationController = sceneLayerBuilder.rotationInputController;
+            _rotationController->rotationStarted += std::bind(&screen::hideOnDemandUi, this);
+            _rotationController->rotationEnded += std::bind(&screen::showOnDemandUi, this);
+            _rotationController->disable();
+            _selectionBehaviour = sceneLayerBuilder.selectionLayerBehaviour;
 
             _scene = new phi::scene(_sceneLayer, _sceneCamera);
             _project = new project(_scene);
@@ -213,8 +235,7 @@ namespace demon
                 .build();
 
             _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-            _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 600.0f));
 
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withControlRenderer()
@@ -311,7 +332,11 @@ namespace demon
 
         _scene->add(obj);
 
-        _constructionLayer->add(_constructionLabel);
+        //_constructionLayer->add(_constructionLabel);
+
+        _onDemandUi = createOnDemandUiNode();
+        _onDemandUi->addComponent(new relativeLayoutPosition(_nandinhoCamera, _sceneLayer));
+
         _nandinhoLayer->add(_labelNandinho);
         _nandinhoLayer->add(_labelFps);
         _nandinhoLayer->add(changeContextButton);
@@ -335,6 +360,7 @@ namespace demon
         input::keyUp->assign(std::bind(&screen::onKeyUp, this, std::placeholders::_1));
 
         _commandsManager = new commandsManager();
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_r }, [&]() { return new changeNodeTransformModeCommand(); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
@@ -464,5 +490,61 @@ namespace demon
 
         _framebufferAllocator->reallocate(resolution);
         _activeContext->resize(resolution);
+    }
+
+    node* screen::createOnDemandUiNode()
+    {
+        auto switchControl = switchControlBuilder::newSwitchControl()
+            .withSize(vec3(15.0f, 30.0f, 0.1f))
+            .withOptionAImage(_translationImage)
+            .withOptionBImage(_rotationImage)
+            .withOptionACallback([&]()
+        {
+            _translationController->enable();
+            _rotationController->disable();
+        })
+            .withOptionBCallback([&]()
+        {
+            _translationController->disable();
+            _rotationController->enable();
+        }).build();
+
+        return switchControl;
+    }
+
+    void screen::showOnDemandUi()
+    {
+        _nandinhoLayer->add(_onDemandUi);
+        _onDemandUi->getComponent<relativeLayoutPosition>()->updatePosition();
+    }
+
+    void screen::hideOnDemandUi()
+    {
+        _onDemandUi->getParent()->removeChild(_onDemandUi);
+    }
+
+    void screen::onNodeSelectionChanged(node* node)
+    {
+        _unused(node);
+        auto selectedNodes = _selectionBehaviour->getSelectedNodes();
+        auto selectedNodesCount = selectedNodes->size();
+
+        auto relativePositionComponent = _onDemandUi->getComponent<relativeLayoutPosition>();
+        auto previousTargetNode = relativePositionComponent->getTargetNode();
+
+        if (selectedNodesCount > 0)
+        {
+            auto lastNode = (*selectedNodes)[selectedNodesCount - 1];
+            relativePositionComponent->setTargetNode(lastNode);
+
+            if (!previousTargetNode)
+                showOnDemandUi();
+        }
+        else
+        {
+            relativePositionComponent->setTargetNode(nullptr);
+            if (previousTargetNode)
+                hideOnDemandUi();
+        }
     }
 }

@@ -244,7 +244,7 @@ namespace phi
         if (node->isTranslating())
             flags |= 2;
 
-        auto selection = vec4(clickComponent->getSelectionColor(), static_cast<float>(flags)/255.0);
+        auto selection = vec4(clickComponent->getSelectionColor(), static_cast<float>(flags) / 255.0);
 
         _selectionBuffer->update(instance->getGeometry(), instance, selection);
     }

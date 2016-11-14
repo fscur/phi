@@ -74,9 +74,9 @@ namespace phi
             _size = _localSize;
         }
 
-        _right = _orientation * vec3(1.0f, 0.0f, 0.0f);
-        _up = _orientation * vec3(0.0f, 1.0f, 0.0f);
-        _direction = _orientation *  vec3(0.0f, 0.0f, 1.0f);
+        _right = glm::normalize(_orientation * vec3(1.0f, 0.0f, 0.0f));
+        _up = glm::normalize(_orientation * vec3(0.0f, 1.0f, 0.0f));
+        _direction = glm::normalize(_orientation *  vec3(0.0f, 0.0f, 1.0f));
     }
 
     void transform::setChanged()
@@ -224,6 +224,11 @@ namespace phi
     inline void transform::rotate(float angle, vec3 axis)
     {
         setLocalOrientation(angleAxis(angle, axis) * _localOrientation);
+    }
+
+    inline void transform::rotate(quat orientation)
+    {
+        setLocalOrientation(orientation * _localOrientation);
     }
 
     inline void transform::pitch(float angle) { setLocalOrientation(angleAxis(angle, vec3(1.0f, 0.0f, 0.0f)) * _localOrientation); }

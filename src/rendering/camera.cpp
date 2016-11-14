@@ -1,6 +1,7 @@
 #include <precompiled.h>
+#include <core/transform.h>
+#include <rendering/defaultFramebuffer.h>
 #include "camera.h"
-#include <core\transform.h>
 #include "frameBuffer.h"
 
 namespace phi
@@ -55,7 +56,7 @@ namespace phi
         auto position = _transform->getPosition();
         auto target = position + _transform->getDirection();
         
-        _viewMatrix = glm::lookAt(position, target, vec3(0.0, 1.0, 0.0));
+        _viewMatrix = glm::lookAt(position, target, _transform->getUp());
     }
 
     inline void camera::updateProjectionMatrix()
@@ -129,35 +130,65 @@ namespace phi
         updateViewMatrix();
     }
 
-    void camera::orbit(vec3 origin, vec3 axisX, vec3 axisY, float angleX, float angleY)
+    void camera::orbit(vec3 origin, float horizontalAngle, float verticalAngle)
     {
-        auto position = _transform->getPosition();
-        position = mathUtils::rotateAboutAxis(position, origin, axisX, angleX);
-        position = mathUtils::rotateAboutAxis(position, origin, axisY, angleY);
+        auto rotation = createOrbitRotation(horizontalAngle, verticalAngle);
+        _transform->rotate(rotation);
 
-        auto target = _transform->getPosition() + _transform->getDirection();
-        target = mathUtils::rotateAboutAxis(target, origin, axisX, angleX);
-        target = mathUtils::rotateAboutAxis(target, origin, axisY, angleY);
-
-        auto dir = normalize(target - position);
-
-        auto upDot = dot(dir, vec3(0.0f, 1.0f, 0.0f));
-        if (upDot > 0.98f || upDot < -0.98f)
-        {
-            orbit(origin, axisX, axisY, angleX, 0.0f); // I hope this line never starts a stack overflow... well, it did!
-            return;
-        }
-
-        auto right = normalize(cross(dir, vec3(0.0f, -1.0f, 0.0f)));
-
-        auto q1 = mathUtils::rotationBetweenVectors(vec3(0.0f, 0.0f, 1.0f), dir);
-        auto angle = orientedAngle(q1 * vec3(1.0f, 0.0f, 0.0f), right, dir);
-        auto q2 = angleAxis(angle, dir);
-
+        auto position = getOrbitedPosition(origin, rotation);
         _transform->setLocalPosition(position);
-        _transform->setLocalOrientation(q2 * q1);
 
         updateViewMatrix();
+    }
+
+    quat camera::createOrbitRotation(float horizontalAngle, float verticalAngle)
+    {
+        verticalAngle = limitOrbitVerticalRotation(verticalAngle);
+
+        auto horizontalRotation = glm::angleAxis(horizontalAngle, vec3(0.0f, 1.0f, 0.0f));
+        auto verticalRotation = glm::angleAxis(verticalAngle, _transform->getRight());
+        auto rotation = verticalRotation * horizontalRotation;
+
+        auto rightAxisFixRotation = createOrbitRightAxisFixRotation(rotation);
+
+        return rightAxisFixRotation * rotation;
+    }
+
+    float camera::limitOrbitVerticalRotation(float angle)
+    {
+        float const LIMIT_ANGLE = PI / 18.0f;
+        auto direction = _transform->getDirection();
+        auto right = _transform->getRight();
+
+        auto remainingAngleToUp = glm::orientedAngle(direction, vec3(0.0f, 1.0f, 0.0f), right);
+        auto limitedAngleToUp = glm::min(remainingAngleToUp + LIMIT_ANGLE, 0.0f);
+        angle = glm::max(angle, limitedAngleToUp);
+
+        auto remainingAngleToDown = glm::orientedAngle(direction, vec3(0.0f, -1.0f, 0.0f), right);
+        auto limitedAngleToDown = glm::max(remainingAngleToDown - LIMIT_ANGLE, 0.0f);
+        angle = glm::min(angle, limitedAngleToDown);
+
+        return angle;
+    }
+
+    quat camera::createOrbitRightAxisFixRotation(quat rotation)
+    {
+        auto rotatedDirection = glm::normalize(rotation * _transform->getDirection());
+        auto rotatedRight = glm::normalize(rotation * _transform->getRight());
+
+        auto fixedRight = glm::normalize(glm::cross(vec3(0.0f, 1.0f, 0.0f), rotatedDirection));
+        auto rightFixRotation = mathUtils::rotationBetweenVectors(rotatedRight, fixedRight);
+
+        return rightFixRotation * rotation;
+    }
+
+    vec3 camera::getOrbitedPosition(vec3 origin, quat rotation)
+    {
+        auto originToPosition = _transform->getLocalPosition() - origin;
+        auto rotatedOriginToPosition = rotation * originToPosition;
+        auto rotatedPosition = origin + rotatedOriginToPosition;
+
+        return rotatedPosition;
     }
 
     vec3 camera::screenPointToView(int mouseX, int mouseY, float depth)
@@ -191,7 +222,7 @@ namespace phi
         auto vp = _projectionMatrix * _viewMatrix;
         auto ivp = glm::inverse(vp);
         
-        auto zBufferValue = framebuffer::defaultFramebuffer->getZBufferValue(screenX, static_cast<int>(_resolution.height) - screenY);
+        auto zBufferValue = defaultFramebuffer::getZBufferValue(screenX, static_cast<int>(_resolution.height) - screenY);
 
         float x = (2.0f * static_cast<float>(screenX)) / _resolution.width - 1.0f;
         float y = 1.0f - (2.0f * screenY) / _resolution.height;
@@ -227,6 +258,15 @@ namespace phi
 
         auto origin = _transform->getLocalPosition();
         return ray(origin, direction);
+    }
+
+    vec2 camera::worldPointToScreen(vec3 worldPosition)
+    {
+        auto vp = _projectionMatrix * _viewMatrix;
+        auto screenVec4 = vp * vec4(worldPosition, 1.0);
+        auto unitScreenPosition = vec2(screenVec4.x / screenVec4.w, screenVec4.y / screenVec4.w);
+        auto screenPosition = ((unitScreenPosition + 1.0f) / 2.0f) * _resolution.toVec2();
+        return screenPosition;
     }
 
     float camera::zBufferToDepth(float zBufferValue)

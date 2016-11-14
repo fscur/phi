@@ -9,7 +9,7 @@ struct glyphRenderData
     float shift;
     float page;
     int unit;
-    int pad2;
+    int parentModelMatrixIndex;
     int pad3;
     int pad4;
 };
@@ -38,6 +38,12 @@ layout (std140, binding = 1) buffer GlyphRenderData
     glyphRenderData items[];
 } glyphs;
 
+
+layout (std140, binding = 2) buffer ParentModelMatricesData
+{
+    mat4 items[];
+} parentModelMatrices;
+
 out vec2 fragTexCoord;
 out vec3 fragPosition;
 
@@ -49,8 +55,8 @@ flat out vec2 texelSize;
 
 void main()
 {
-    gl_Position = frameUniforms.p * frameUniforms.v * inModelMatrix * vec4(inPosition, 1.0);
     glyphRenderData renderData = glyphs.items[gl_InstanceID];
+    gl_Position = frameUniforms.p * frameUniforms.v * parentModelMatrices.items[renderData.parentModelMatrixIndex] * inModelMatrix * vec4(inPosition, 1.0);
     fragTexCoord = renderData.pos + inTexCoord * renderData.size; //TODO: ver se da pra melhorar matematicamente plausivel
     fragPosition = inPosition;
     unit = renderData.unit;

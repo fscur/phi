@@ -2,7 +2,8 @@
 
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec2 inTexCoord;
-layout (location = 2) in mat4 inModelMatrix;
+layout (location = 2) in vec4 inSelectionColor;
+layout (location = 3) in mat4 inModelMatrix;
 
 layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 {
@@ -21,6 +22,7 @@ layout (std140, binding = 0) uniform FrameUniformsDataBuffer
 
 out vec2 fragTexCoord;
 flat out uint instanceId;
+flat out vec4 selectionColor;
 
 void main()
 {
@@ -28,4 +30,5 @@ void main()
 
     fragTexCoord = inTexCoord;
     instanceId = gl_InstanceID;
+    selectionColor = inSelectionColor;
 }
