@@ -234,8 +234,9 @@ namespace demon
                 .withTextRenderer()
                 .build();
 
-            _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 600.0f));
+            _nandinhoCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+            _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
             _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withControlRenderer()
