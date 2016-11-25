@@ -40,7 +40,7 @@ void main(void)
     skyBoxRenderData data = renderData.items[instanceId];
     //fragColor = vec4(data.color.rgb * -fragPosCoord.yxz + 0.5f, 1.0);
     fragColor = fetch(fragPosCoord.xyz);
-    if (fragPosCoord.y < 0.0)
-    fragColor = vec4(1.0);
+    //if (fragPosCoord.y < 0.0)
+    //fragColor = vec4(1.0);
     //fragColor = vec4(1.0);
 }

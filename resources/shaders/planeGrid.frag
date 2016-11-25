@@ -206,7 +206,7 @@ void main()
 
     float border = createBorder();
 
-    grid += 0.3;
+    grid += 0.7;
 
     vec3 color = data.color.rgb;
     float opacity = grid * border * data.opacity;

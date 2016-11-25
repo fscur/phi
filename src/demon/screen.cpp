@@ -318,7 +318,16 @@ namespace demon
 
         _sceneLayer->add(skyBoxNode);
 
-        _sceneLayer->add(cube0);
+        for (size_t i = 0; i < 5; i++)
+        {
+            for (size_t j = 0; j < 5; j++)
+            {
+                auto chair = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
+                chair->getTransform()->setLocalPosition(vec3(i, 0.0f, j));
+                _sceneLayer->add(chair);
+            }
+        }
+
         _sceneLayer->add(cube1);
         
         /*

@@ -80,7 +80,7 @@ namespace phi
 
         for (auto i = 0; i < samples; i++)
         {
-            watch.resume();
+            watch.start();
             function();
             watch.stop();
             average += watch.getElapsedSeconds();
