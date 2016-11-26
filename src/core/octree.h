@@ -20,10 +20,10 @@ namespace phi
         octree(aabb aabb, uint maxLevels, uint totalItems);
         octree(octree* parent, uint index, uint maxItems);
         ~octree();
-        bool insert(vertex vertex, uint &index);
+        bool insert(vertex vertex, int &index);
 
     private:
-        bool insertIntoChildren(vertex vertex, uint &index);
+        bool insertIntoChildren(vertex vertex, int &index);
         void insertIntoChildren(vec3 position, vector<positionData> posDataList);
         aabb createAabb(aabb parentAabb, uint index);
         void subdivide();

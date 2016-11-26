@@ -66,14 +66,53 @@ namespace phi
         for (auto& pair : _ghostNodes)
         {
             auto ghostNode = pair.second;
-
-            ghostNode->traverse<phi::ghostMesh>([=](phi::ghostMesh* ghostMesh)
-            {
-                ghostMesh->setOffset(offset);
-            });
-
             auto nodePosition = pair.first->getTransform()->getLocalPosition();
             ghostNode->getTransform()->setLocalPosition(nodePosition + offset);
+        }
+    }
+
+    void ghostNodeTranslator::orbit(float angle, plane plane)
+    {
+        if (!_showingGhosts)
+            return;
+
+        auto rotation = glm::angleAxis(angle, plane.normal);
+
+        for (auto& pair : _ghostNodes)
+        {
+            auto ghostNode = pair.second;
+            auto transform = pair.first->getTransform();
+
+            auto position = transform->getLocalPosition();
+            auto projectedPosition = plane.projectPoint(position);
+            auto originToProjectedPosition = projectedPosition - plane.origin;
+            auto rotatedOriginToProjectedPosition = rotation * originToProjectedPosition;
+            auto offset = rotatedOriginToProjectedPosition - originToProjectedPosition;
+
+            auto orientation = transform->getLocalOrientation();
+
+            auto ghostTransform = ghostNode->getTransform();
+            ghostTransform->setLocalPosition(position + offset);
+            ghostTransform->setLocalOrientation(rotation * orientation);
+        }
+    }
+
+    void ghostNodeTranslator::rotate(float angle, plane plane)
+    {
+        if (!_showingGhosts)
+            return;
+
+        auto rotation = glm::angleAxis(angle, plane.normal);
+
+        for (auto& pair : _ghostNodes)
+        {
+            auto ghostNode = pair.second;
+            auto transform = pair.first->getTransform();
+
+            auto orientation = transform->getLocalOrientation();
+
+            auto ghostTransform = ghostNode->getTransform();
+            ghostTransform->setLocalOrientation(rotation * orientation);
         }
     }
 

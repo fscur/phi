@@ -19,11 +19,15 @@ namespace phi
         const vector<node*>* targetNodes,
         layer* layer,
         physicsWorld* physicsWorld) :
-        _commandsManager(commandsManager),
         inputController(),
-        _translationService(new translationService(targetNodes, layer, physicsWorld)),
+        _commandsManager(commandsManager),
         _targetNodes(targetNodes),
-        _isMouseHidden(false)
+        _translationService(new translationService(targetNodes, layer, physicsWorld)),
+        _isMouseHidden(false),
+        _isEnabled(true),
+        _isWaitingToStart(false),
+        _startTimer(0.0f),
+        _startMousePosition(ivec2())
     {
     }
 
@@ -32,8 +36,11 @@ namespace phi
         safeDelete(_translationService);
     }
 
-    bool translationInputController::canStartTranslation(mouseEventArgs* e)
+    bool translationInputController::canStartTranslation(mouseEventArgs* e, node*& clickedNode)
     {
+        if (!_isEnabled)
+            return false;
+
         if (!e->leftButtonPressed)
             return false;
 
@@ -47,10 +54,12 @@ namespace phi
             return false;
 
         auto node = clickComponent->getNode();
-        auto rootNode = node;
 
-        if (rootNode->isSelected())
+        if (node->isSelected())
+        {
+            clickedNode = node;
             return true;
+        }
 
         return false;
     }
@@ -72,47 +81,70 @@ namespace phi
 
     bool translationInputController::onMouseDown(mouseEventArgs* e)
     {
-        if (!canStartTranslation(e))
+        node* clickedNode;
+        if (!canStartTranslation(e, clickedNode))
             return false;
 
+        _startTimer = 0.5;
+        _isWaitingToStart = true;
+        _startMousePosition = ivec2(e->x, e->y);
+        _startClickedNode = clickedNode;
+        return false;
+    }
+
+    void translationInputController::startTranslation()
+    {
         for (auto& node : *_targetNodes)
             _originalPositions[node] = node->getTransform()->getLocalPosition();
 
-        _translationService->startTranslation(ivec2(e->x, e->y));
-
-        _requestControlEvent->raise(this);
+        _translationService->startTranslation(_startMousePosition, _startClickedNode);
 
         _isMouseHidden = true;
-        //window::hideCursor();
+        window::hideCursor();
 
-        return false;
+        _requestControlEvent->raise(this);
+        translationStarted.raise();
     }
 
     bool translationInputController::onMouseMove(mouseEventArgs* e)
     {
+        if (!_translationService->isTranslating())
+        {
+            if (!_isWaitingToStart)
+                return false;
+
+            startTranslation();
+        }
+
         _translationService->translate(ivec2(e->x, e->y));
         return true;
     }
 
     bool translationInputController::onMouseUp(mouseEventArgs* e)
     {
-        if (!e->leftButtonPressed || !_translationService->isTranslating())
+        if (!e->leftButtonPressed)
+            return false;
+
+        _isWaitingToStart = false;
+
+        if (!_translationService->isTranslating())
             return false;
 
         _translationService->endTranslation();
-
         pushTranslateCommands();
-
-        _resignControlEvent->raise(this);
-
         _isMouseHidden = false;
-        //window::showCursor();
+        window::showCursor();
+
+        translationEnded.raise();
+        _resignControlEvent->raise(this);
 
         return true;
     }
 
     bool translationInputController::onMouseClick(mouseEventArgs* e)
     {
+        _unused(e);
+
         if (_translationService->isTranslating())
             return true;
 
@@ -123,42 +155,51 @@ namespace phi
 
     bool translationInputController::onKeyDown(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_CTRL && _translationService->isTranslating())
+        if (e->key == PHIK_CTRL)
         {
             _translationService->disableCollisions();
             _translationService->disablePlaneChanges();
-            return true;
         }
+
+        if (e->key == PHIK_SHIFT)
+            _translationService->enableSnapToGrid();
 
         return false;
     }
 
     bool translationInputController::onKeyUp(keyboardEventArgs* e)
     {
-        if (e->key == PHIK_CTRL && _translationService->isTranslating())
+        if (e->key == PHIK_CTRL)
         {
             _translationService->enableCollisions();
             _translationService->enablePlaneChanges();
-            return true;
         }
+
+        if (e->key == PHIK_SHIFT)
+            _translationService->disableSnapToGrid();
 
         return false;
     }
 
     bool translationInputController::update()
     {
-        _translationService->update();
-
-        /*if (!_translationService->isTranslating() && _isMouseHidden)
+        if (_translationService->isTranslating())
         {
-            _isMouseHidden = false;
-            window::showCursor();
+            _translationService->update();
+            return true;
         }
-        else if (_translationService->isTranslating() && !_isMouseHidden)
+
+        if (!_isWaitingToStart)
+            return false;
+
+        _startTimer = glm::max(_startTimer - time::deltaSeconds, 0.0);
+        if (_startTimer <= 0.0)
         {
-            _isMouseHidden = true;
-            window::hideCursor();
-        }*/
+            startTranslation();
+            _isWaitingToStart = false;
+            return true;
+        }
+
         return false;
     }
 
@@ -169,6 +210,10 @@ namespace phi
         for (auto& node : *_targetNodes)
             node->getTransform()->setLocalPosition(_originalPositions[node]);
 
+        _isMouseHidden = false;
+        window::showCursor();
+
+        translationEnded.raise();
         _resignControlEvent->raise(this);
     }
 }

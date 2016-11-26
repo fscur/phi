@@ -4,10 +4,19 @@
 
 #include <core/multiCommand.h>
 #include <core/boxCollider.h>
-#include <core/planeGrid.h>
+
 #include <core/ghostMesh.h>
 
 #include <input/input.h>
+
+#include <data/abstractions/iModelDataService.h>
+#include <data/geometryRepository.h>
+#include <data/materialRepository.h>
+#include <data/textureRepository.h>
+#include <data/modelRepository.h>
+#include <data/modelDataService.h>
+
+#include <io/path.h>
 
 #include <loader/importer.h>
 #include <loader/exporter.h>
@@ -21,20 +30,27 @@
 
 #include <ui/labelBuilder.h>
 #include <ui/buttonBuilder.h>
+#include <ui/switchControlBuilder.h>
 #include <ui/control.h>
 #include <ui/text.h>
+#include <ui/relativeLayoutPosition.h>
 
 #include <application/application.h>
 #include <application/undoCommand.h>
 #include <application/redoCommand.h>
 
 #include <layers/layerBuilder.h>
-#include <layers/nodeCreation\deleteNodeCommand.h>
+#include <layers/nodeCreation/deleteNodeCommand.h>
 
 #include <context/invalidLayerConfigurationException.h>
 
+#include <ui/switchControl.h>
+
+#include <persistence/projectRepository.h>
+
 #include "screen.h"
 #include "changeContextCommand.h"
+#include "changeNodeTransformModeCommand.h"
 #include <core/skyBox.h>
 
 using namespace phi;
@@ -118,10 +134,18 @@ namespace demon
 
     void screen::initLibraries()
     {
-        _userLibrary = new library(application::libraryPath);
-        _userLibrary->load();
+        auto textureRepository = new phi::textureRepository(application::libraryPath);
+        auto materialRepository = new phi::materialRepository(application::libraryPath, textureRepository);
+        auto geometryRepository = new phi::geometryRepository(application::libraryPath);
+        auto modelRepository = new phi::modelRepository(application::libraryPath);
+        auto modelDataService = new phi::modelDataService(
+            geometryRepository,
+            materialRepository,
+            textureRepository,
+            modelRepository);
 
-        _projectLibrary = new library(application::path);
+        _userLibrary = new library(modelDataService);
+        _projectRepository = new projectRepository();
     }
 
     void screen::initContexts()
@@ -151,6 +175,7 @@ namespace demon
             .withControlColor(.5, .5, .2f, 1.f)
             .withAction([=](node* node)
         {
+            _unused(node);
             _commandsManager->executeCommand(new changeContextCommand());
         })
             .build();
@@ -162,43 +187,46 @@ namespace demon
             .withFont(font)
             .build();
 
-        _chair0 = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-        _chair0->getTransform()->setLocalPosition(vec3(4.f, 0.0f, -2.0f));
-
-        auto cube0 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        cube0->getTransform()->setLocalPosition(vec3(1.0f, 0.0f, 0.0f));
-
-        auto cube1 = _userLibrary->getObjectsRepository()->getAllResources()[7]->getClonedObject();
-        cube1->getTransform()->setLocalPosition(vec3(0.5f, 1.5f, 0.0f));
-
-        auto back_wall = _userLibrary->getObjectsRepository()->getAllResources()[21]->getClonedObject();
-        back_wall->getTransform()->setLocalPosition(vec3(0.0f, DECIMAL_TRUNCATION, -2.4f));
-        auto floor0 = _userLibrary->getObjectsRepository()->getAllResources()[24]->getClonedObject();
-
-        auto coffeTable = _userLibrary->getObjectsRepository()->getAllResources()[29]->getClonedObject();
-        coffeTable->getTransform()->translate(vec3(2.0f, 0.0f, 0.0f));
-        auto tableChair = _userLibrary->getObjectsRepository()->getAllResources()[5]->getClonedObject();
-        tableChair->getTransform()->translate(vec3(-2.0f, 0.0f, 0.0f));
-        auto table = _userLibrary->getObjectsRepository()->getAllResources()[28]->getClonedObject();
-        table->getTransform()->translate(vec3(4.0f, 0.0f, 0.0f));
+        auto obj = _userLibrary->getModelByIndex(0);
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.5f, 2.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, 4.0f));
         _sceneCamera->getTransform()->yaw(PI);
-        
+
+        _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
+        _rotationImage = importer::importImage(application::resourcesPath + "/images/rotation.png");
+
         try
         {
-            _sceneLayer = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            auto sceneLayerBuilder = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withMeshRenderer()
                 .withGhostMeshRenderer()
-                .withPlaneGridRenderer()
+                .withTranslationPlaneGridRenderer()
+                .withRotationPlaneGridRenderer()
                 .withPhysics()
                 .withAnimation()
                 .withCameraController()
                 .withSelectionController()
+                .withRotationController()
                 .withTranslationController()
                 .withSkyBoxRenderer()
                 .build();
+
+            _sceneLayer = sceneLayerBuilder.build();
+            _sceneLayer->addOnNodeSelectionChanged(std::bind(&screen::onNodeSelectionChanged, this, std::placeholders::_1));
+
+            _translationController = sceneLayerBuilder.translationInputController;
+            _translationController->translationStarted += std::bind(&screen::hideOnDemandUi, this);
+            _translationController->translationEnded += std::bind(&screen::showOnDemandUi, this);
+
+            _rotationController = sceneLayerBuilder.rotationInputController;
+            _rotationController->rotationStarted += std::bind(&screen::hideOnDemandUi, this);
+            _rotationController->rotationEnded += std::bind(&screen::showOnDemandUi, this);
+            _rotationController->disable();
+            _selectionBehaviour = sceneLayerBuilder.selectionLayerBehaviour;
+
+            _scene = new phi::scene(_sceneLayer, _sceneCamera);
+            _project = new project(_scene);
 
             _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
@@ -232,6 +260,7 @@ namespace demon
             .withControlColor(.3f, .9f, .2f, 1.f)
             .withAction([=](node* node)
         {
+            _unused(node);
             OPENFILENAME ofn;
 
             char szFileName[MAX_PATH] = "";
@@ -249,7 +278,7 @@ namespace demon
             GetSaveFileName(&ofn);
             auto path = ofn.lpstrFile;
 
-            exporter::exportScene(_sceneLayer->getRoot(), path);
+            _projectRepository->save(_project, path);
         })
             .build();
 
@@ -261,32 +290,33 @@ namespace demon
             .withControlColor(.7f, .1f, .2f, 1.f)
             .withAction([=](node* node)
         {
-            OPENFILENAME ofn;
-            char fileNameBuffer[260];
+            _unused(node);
+            //OPENFILENAME ofn;
+            //char fileNameBuffer[260];
 
-            ZeroMemory(&ofn, sizeof(ofn));
-            ofn.lStructSize = sizeof(ofn);
-            ofn.lpstrFile = fileNameBuffer;
+            //ZeroMemory(&ofn, sizeof(ofn));
+            //ofn.lStructSize = sizeof(ofn);
+            //ofn.lpstrFile = fileNameBuffer;
 
-            ofn.lpstrFile[0] = '\0';
-            ofn.nMaxFile = sizeof(fileNameBuffer);
-            ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-            ofn.nFilterIndex = 1;
-            ofn.lpstrFileTitle = NULL;
-            ofn.nMaxFileTitle = 0;
-            ofn.lpstrInitialDir = NULL;
-            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+            //ofn.lpstrFile[0] = '\0';
+            //ofn.nMaxFile = sizeof(fileNameBuffer);
+            //ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+            //ofn.nFilterIndex = 1;
+            //ofn.lpstrFileTitle = NULL;
+            //ofn.nMaxFileTitle = 0;
+            //ofn.lpstrInitialDir = NULL;
+            //ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
             // Display the Open dialog box.
 
-            if (GetOpenFileName(&ofn) == TRUE)
-            {
-                auto nodes = importer::loadPhiFile(ofn.lpstrFile, _userLibrary->getObjectsRepository());
-                for (auto& node : nodes)
-                {
-                    _sceneLayer->add(node);
-                }
-            }
+            //if (GetOpenFileName(&ofn) == TRUE)
+            //{
+            //    auto nodes = importer::loadPhiFile(ofn.lpstrFile, _userLibrary->getObjectsRepository());
+            //    for (auto& node : nodes)
+            //    {
+            //        _sceneLayer->add(node);
+            //    }
+            //}
         })
             .build();
 
@@ -318,7 +348,7 @@ namespace demon
 
         _sceneLayer->add(skyBoxNode);
 
-        for (size_t i = 0; i < 5; i++)
+        /*for (size_t i = 0; i < 5; i++)
         {
             for (size_t j = 0; j < 5; j++)
             {
@@ -326,9 +356,9 @@ namespace demon
                 chair->getTransform()->setLocalPosition(vec3(i, 0.0f, j));
                 _sceneLayer->add(chair);
             }
-        }
+        }*/
 
-        _sceneLayer->add(cube1);
+        //_sceneLayer->add(cube1);
         
         /*
         _sceneLayer->add(_chair0);
@@ -339,9 +369,13 @@ namespace demon
         _sceneLayer->add(coffeTable);
         */
 
-        //TODO: prevent components that are not dealt with it from being added to layer
+        _scene->add(obj);
 
-        _constructionLayer->add(_constructionLabel);
+        //_constructionLayer->add(_constructionLabel);
+
+        _onDemandUi = createOnDemandUiNode();
+        _onDemandUi->addComponent(new relativeLayoutPosition(_nandinhoCamera, _sceneLayer));
+
         _nandinhoLayer->add(_labelNandinho);
         _nandinhoLayer->add(_labelFps);
         _nandinhoLayer->add(changeContextButton);
@@ -365,6 +399,7 @@ namespace demon
         input::keyUp->assign(std::bind(&screen::onKeyUp, this, std::placeholders::_1));
 
         _commandsManager = new commandsManager();
+        _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_r }, [&]() { return new changeNodeTransformModeCommand(); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
@@ -461,14 +496,14 @@ namespace demon
         safeDelete(_commandsManager);
         safeDelete(_gl);
         safeDelete(_userLibrary);
-        safeDelete(_projectLibrary);
 
         safeDelete(_designContext);
         safeDelete(_constructionContext);
 
+        safeDelete(_projectRepository);
+        safeDelete(_project);
         safeDelete(_nandinhoLayer);
         safeDelete(_constructionLayer);
-        safeDelete(_sceneLayer);
 
         safeDelete(_sceneCamera);
         safeDelete(_nandinhoCamera);
@@ -494,5 +529,61 @@ namespace demon
 
         _framebufferAllocator->reallocate(resolution);
         _activeContext->resize(resolution);
+    }
+
+    node* screen::createOnDemandUiNode()
+    {
+        auto switchControl = switchControlBuilder::newSwitchControl()
+            .withSize(vec3(15.0f, 30.0f, 0.1f))
+            .withOptionAImage(_translationImage)
+            .withOptionBImage(_rotationImage)
+            .withOptionACallback([&]()
+        {
+            _translationController->enable();
+            _rotationController->disable();
+        })
+            .withOptionBCallback([&]()
+        {
+            _translationController->disable();
+            _rotationController->enable();
+        }).build();
+
+        return switchControl;
+    }
+
+    void screen::showOnDemandUi()
+    {
+        _nandinhoLayer->add(_onDemandUi);
+        _onDemandUi->getComponent<relativeLayoutPosition>()->updatePosition();
+    }
+
+    void screen::hideOnDemandUi()
+    {
+        _onDemandUi->getParent()->removeChild(_onDemandUi);
+    }
+
+    void screen::onNodeSelectionChanged(node* node)
+    {
+        _unused(node);
+        auto selectedNodes = _selectionBehaviour->getSelectedNodes();
+        auto selectedNodesCount = selectedNodes->size();
+
+        auto relativePositionComponent = _onDemandUi->getComponent<relativeLayoutPosition>();
+        auto previousTargetNode = relativePositionComponent->getTargetNode();
+
+        if (selectedNodesCount > 0)
+        {
+            auto lastNode = (*selectedNodes)[selectedNodesCount - 1];
+            relativePositionComponent->setTargetNode(lastNode);
+
+            if (!previousTargetNode)
+                showOnDemandUi();
+        }
+        else
+        {
+            relativePositionComponent->setTargetNode(nullptr);
+            if (previousTargetNode)
+                hideOnDemandUi();
+        }
     }
 }

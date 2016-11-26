@@ -1,13 +1,15 @@
 #include <precompiled.h>
 #include "assimpImporter.h"
 
-#include <core\nodeOptimizer.h>
-#include <core\random.h>
-#include <core\color.h>
-#include <core\vertex.h>
-#include <core\geometry.h>
-#include <core\mesh.h>
-#include <io\path.h>
+#include <core/nodeOptimizer.h>
+#include <core/random.h>
+#include <core/color.h>
+#include <core/vertex.h>
+#include <core/geometry.h>
+#include <core/mesh.h>
+#include <core/model.h>
+#include <core/modelNode.h>
+#include <io/path.h>
 
 #include "importResourceException.h"
 
@@ -23,7 +25,7 @@ namespace phi
     void assimpImporter::loadGeometries(
         const aiScene* scene,
         vector<geometry*>& geometries,
-        resourcesRepository<geometry>* geometriesRepo)
+        entityRepository<geometry>* geometriesRepo)
     {
         for (uint n = 0u; n < scene->mNumMeshes; ++n)
         {
@@ -64,18 +66,16 @@ namespace phi
                     indices.push_back(assimpFace.mIndices[j]);
             }
 
-            auto geometry = geometry::create(vertices, indices);
+            auto geometry = geometry::create(guid::newGuid(), vertices, indices);
             geometries.push_back(geometry);
-
-            auto geometryResource = new resource<phi::geometry>(guidGenerator::newGuid(), meshName, geometry);
-            geometriesRepo->addResource(geometryResource);
+            geometriesRepo->add(geometry);
         }
     }
 
     void assimpImporter::loadMaterials(
         const aiScene* scene,
         vector<material*>& materials,
-        resourcesRepository<material>* materialsRepo)
+        entityRepository<material>* materialsRepo)
     {
         for (uint i = 0; i < scene->mNumMaterials; ++i)
         {
@@ -91,6 +91,7 @@ namespace phi
                 auto albedoColor = color::fromHSL(hue, 0.83333f, 0.6667f);
 
                 auto material = new phi::material(
+                    guid::newGuid(),
                     image::defaultAlbedoImage,
                     image::defaultNormalImage,
                     image::defaultSpecularImage,
@@ -98,9 +99,7 @@ namespace phi
                     vec3(albedoColor.r, albedoColor.g, albedoColor.b));
 
                 materials.push_back(material);
-
-                auto materialResource = new resource<phi::material>(guidGenerator::newGuid(), materialName, material);
-                materialsRepo->addResource(materialResource);
+                materialsRepo->add(material);
             }
         }
     }
@@ -151,10 +150,10 @@ namespace phi
         //*transform = prev;
     }
 
-    resource<node>* assimpImporter::import(
+    model* assimpImporter::import(
         const string& fileName,
-        resourcesRepository<material>* materialsRepo,
-        resourcesRepository<geometry>* geometriesRepo)
+        entityRepository<material>* materialsRepo,
+        entityRepository<geometry>* geometriesRepo)
     {
 #ifdef _DEBUG
         auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT, NULL);
@@ -185,10 +184,14 @@ namespace phi
 
             auto modelName = phi::path::getFileNameWithoutExtension(fileName);
             auto modelNode = new node(modelName);
+            modelNode->addComponent(new phi::modelNode());
+
             loadScene(assimpScene, assimpScene->mRootNode, modelNode, materials, geometries);
             modelNode = nodeOptimizer::optimize(modelNode);
 
-            return new resource<node>(guidGenerator::newGuid(), modelName, modelNode);
+            auto model = new phi::model(guid::newGuid(), modelNode);
+
+            return model;
         }
 
         throw importResourceException("[AssimpImporter] Failed to load model: ", fileName);

@@ -34,6 +34,7 @@ namespace phi
         node* getSonOfFirstSelected(node* const node);
         node* findTargetNode(node* const node);
         void onSelectionBehaviourSelectedNodesChanged(selectionLayerBehaviour * selectionBehaviour);
+        void pushSelectCommand(node* node);
 
     public:
         LAYERS_API selectionInputController(commandsManager* commandsManager, selectionLayerBehaviour* selectionBehaviour);
@@ -42,10 +43,10 @@ namespace phi
         LAYERS_API virtual bool onKeyDown(keyboardEventArgs* e) override;
         LAYERS_API virtual bool onKeyUp(keyboardEventArgs* e) override;
         LAYERS_API virtual bool onMouseClick(mouseEventArgs* e) override;
-        LAYERS_API virtual bool onMouseDoubleClick(mouseEventArgs* e) override;
         LAYERS_API virtual void cancel() override;
 
         LAYERS_API void select(node* node);
+        LAYERS_API void deselect(node* node);
         LAYERS_API void deselectAll();
     };
 }

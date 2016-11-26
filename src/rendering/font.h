@@ -27,6 +27,8 @@ namespace phi
         bool _hinting;
         int _loadGlyphFlags;
         byte _lcdWeights[5];
+    private:
+        bool hasKerning();
 
     public:
         RENDERING_API font(const string& fileName, const uint size);

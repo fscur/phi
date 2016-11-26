@@ -23,7 +23,7 @@ namespace phi
         {
         }
 
-        size_t add(KEY key, const DATA& data)
+        size_t add(KEY key)
         {
             _keys.push_back(key);
 
@@ -116,7 +116,7 @@ namespace phi
 
             auto bucket = &_buckets[geometry];
             auto bucketIndex = getBucketIndex(bucket);
-            auto indexInBucket = bucket->add(key, data);
+            auto indexInBucket = bucket->add(key);
 
             auto instanceIndex = bucketIndex + indexInBucket;
             _bufferData.insert(_bufferData.begin() + instanceIndex, data);

@@ -16,12 +16,13 @@ namespace phi
 
     public:
         ghostNodeTranslator(layer* layer);
-
         ~ghostNodeTranslator();
 
         void enable();
         void disable();
         void translate(vec3 offset);
+        void orbit(float angle, plane plane);
+        void rotate(float angle, plane plane);
         void addRange(const vector<node*>& nodes);
         void clear();
         void deleteGhostNodes();

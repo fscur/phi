@@ -8,7 +8,7 @@
 #include <core\clippingPlane.h>
 #include <animation\transformAnimation.h>
 #include <animation\floatAnimation.h>
-#include <core\planeGrid.h>
+#include <core\translationPlaneGrid.h>
 
 namespace phi
 {
@@ -22,7 +22,7 @@ namespace phi
         plane _plane;
         clippingPlane* _clippingPlane;
         node* _planeGridNode;
-        planeGrid* _planeGrid;
+        translationPlaneGrid* _planeGrid;
         boxCollider* _collidee;
         boxCollider* _collider;
         transformAnimation* _draggingAnimation;
@@ -59,7 +59,7 @@ namespace phi
 
         LAYERS_API void setFadeOutAnimation(floatAnimation* value);
 
-        LAYERS_API planeGrid* getPlaneGrid() { return _planeGrid; }
+        LAYERS_API translationPlaneGrid* getPlaneGrid() { return _planeGrid; }
 
         LAYERS_API void showGrid();
         LAYERS_API void hideGrid();

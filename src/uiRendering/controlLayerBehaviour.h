@@ -30,7 +30,6 @@ namespace phi
         UI_RENDERING_API controlLayerBehaviour(
             const resolution& resolution, 
             const string& resourcesPath,
-            framebufferAllocator* framebufferAllocator,
             controlRenderAdapter* adapter,
             vector<renderPass*> renderPasses);
 
@@ -39,7 +38,6 @@ namespace phi
         UI_RENDERING_API void onNodeAdded(node* node);
         UI_RENDERING_API void onNodeRemoved(node* node);
         UI_RENDERING_API void onNodeTransformChanged(node* node);
-        UI_RENDERING_API void onNodeSelectionChanged(node* node);
 
         vector<renderPass*> getRenderPasses() { return _renderPasses; }
     };

@@ -7,8 +7,6 @@
 
 namespace phi
 {
-    using namespace phi;
-
     context::context(
         resolution& resolution,
         framebufferAllocator* framebufferAllocator,
@@ -52,31 +50,36 @@ namespace phi
     void context::onMouseDown(mouseEventArgs* e)
     {
         for (auto& layer : _layers)
-            layer->onMouseDown(e);
+            if (layer->onMouseDown(e))
+                break;
     }
 
     void context::onMouseDoubleClick(mouseEventArgs* e)
     {
         for (auto& layer : _layers)
-            layer->onMouseDoubleClick(e);
+            if (layer->onMouseDoubleClick(e))
+                break;
     }
 
     void context::onMouseMove(mouseEventArgs* e)
     {
         for (auto& layer : _layers)
-            layer->onMouseMove(e);
+            if (layer->onMouseMove(e))
+                break;
     }
 
     void context::onMouseUp(mouseEventArgs* e)
     {
         for (auto& layer : _layers)
-            layer->onMouseUp(e);
+            if (layer->onMouseUp(e))
+                break;
     }
 
     void context::onMouseClick(mouseEventArgs * e)
     {
         for (auto& layer : _layers)
-            layer->onMouseClick(e);
+            if (layer->onMouseClick(e))
+                break;
     }
 
     void context::onBeginMouseWheel(mouseEventArgs* e)
@@ -100,13 +103,15 @@ namespace phi
     void context::onKeyDown(keyboardEventArgs* e)
     {
         for (auto& layer : _layers)
-            layer->onKeyDown(e);
+            if (layer->onKeyDown(e))
+                break;
     }
 
     void context::onKeyUp(keyboardEventArgs* e)
     {
         for (auto& layer : _layers)
-            layer->onKeyUp(e);
+            if (layer->onKeyUp(e))
+                break;
     }
 
     void context::resize(const resolution& resolution)

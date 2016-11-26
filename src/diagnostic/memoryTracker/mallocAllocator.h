@@ -32,12 +32,12 @@ namespace phi
         {
         }
 
-        mallocAllocator(mallocAllocator const& allocator)
+        mallocAllocator(mallocAllocator const&)
         {
         }
 
         template<typename U>
-        mallocAllocator(mallocAllocator<U> const& allocator)
+        mallocAllocator(mallocAllocator<U> const&)
         {
         }
 
@@ -73,6 +73,7 @@ namespace phi
 
         void destroy(pointer p)
         {
+            _unused(p); //probably a vs bug that triggers C4100 warning here
             p->~T();
         }
 

@@ -81,17 +81,17 @@ namespace phi
             };
 
             float t;
-            if (intersects(finitePlane(lbb, lbf, ltb), t))
+            if (intersects(orientedPlane(lbb, lbf, ltb), t))
                 addIntersection(vec3(-1.0f, 0.0f, 0.0f), t);
-            if (intersects(finitePlane(rbf, rbb, rtf), t))
+            if (intersects(orientedPlane(rbf, rbb, rtf), t))
                 addIntersection(vec3(1.0f, 0.0f, 0.0f), t);
-            if (intersects(finitePlane(lbf, rbf, ltf), t))
+            if (intersects(orientedPlane(lbf, rbf, ltf), t))
                 addIntersection(vec3(0.0f, 0.0f, 1.0f), t);
-            if (intersects(finitePlane(rbb, lbb, rtb), t))
+            if (intersects(orientedPlane(rbb, lbb, rtb), t))
                 addIntersection(vec3(0.0f, 0.0f, -1.0f), t);
-            if (intersects(finitePlane(ltf, rtf, ltb), t))
+            if (intersects(orientedPlane(ltf, rtf, ltb), t))
                 addIntersection(vec3(0.0f, 1.0f, 0.0f), t);
-            if (intersects(finitePlane(lbb, rbb, lbf), t))
+            if (intersects(orientedPlane(lbb, rbb, lbf), t))
                 addIntersection(vec3(0.0f, -1.0f, 0.0f), t);
 
             return true;
@@ -107,15 +107,15 @@ namespace phi
 
     bool ray::intersects(obb& obb, vector<rayIntersection>& intersections)
     {
-        auto obbPlanes = obb.getFinitePlanes();
+        auto obbSides = obb.getSidesPlanes();
 
-        for (auto& finitePlane : obbPlanes)
+        for (auto& side : obbSides)
         {
             float t;
-            if (intersects(finitePlane, t))
+            if (intersects(side, t))
             {
                 rayIntersection intersection;
-                intersection.normal = finitePlane.getNormal();
+                intersection.normal = side.getNormal();
                 intersection.t = t;
                 intersection.position = _origin + _direction * t;
                 intersections.push_back(intersection);
@@ -143,7 +143,7 @@ namespace phi
         return !mathUtils::isClose(planeNormalOnDirection, 0.0f);
     }
 
-    bool ray::intersects(finitePlane& plane, float& t)
+    bool ray::intersects(const orientedPlane& plane, float& t)
     {
         auto planeNormal = plane.getNormal();
         auto planeOrigin = plane.getOrigin();

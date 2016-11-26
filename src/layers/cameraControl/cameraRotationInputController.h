@@ -11,18 +11,6 @@ namespace phi
     class cameraRotationInputController :
         public inputController
     {
-    private:
-        camera* _camera;
-        bool _rotating;
-        bool _doingInertia;
-        vec2 _delta;
-        vec3 _targetPos;
-        double _lastMouseMoveTime;
-        double _inertiaTime;
-        float _inertiaLastPercent;
-        int32_t _lastMousePosX;
-        int32_t _lastMousePosY;
-
     public:
         cameraRotationInputController(camera* camera);
 
@@ -31,5 +19,20 @@ namespace phi
         bool onMouseMove(mouseEventArgs* e) override;
         bool onMouseUp(mouseEventArgs* e) override;
         bool update() override;
+
+    private:
+        void orbitCamera(float horizontalAngle, float verticalAngle);
+
+    private:
+        camera* _camera;
+        bool _rotating;
+        bool _doingInertia;
+        vec2 _delta;
+        vec3 _origin;
+        double _lastMouseMoveTime;
+        double _inertiaTime;
+        float _inertiaLastPercent;
+        int32_t _lastMousePosX;
+        int32_t _lastMousePosY;
     };
 }

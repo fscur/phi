@@ -39,9 +39,9 @@ namespace phi
         multiDrawMappedBuffer<const meshInstance*, vec4>* _selectionBuffer;
 
     private:
-        void createBuffers(size_t vaoSize);
+        void createBuffers();
         void initializeVao();
-        void initialize(const meshInstance* instance);
+        void initialize();
         void addGeometry(geometry* geometry);
         void addInstance(const meshInstance* instance);
         void removeGeometry(geometry * geometry);

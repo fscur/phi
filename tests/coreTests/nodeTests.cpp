@@ -1,5 +1,6 @@
 #include <precompiled.h>
 #include <gtest\gtest.h>
+#pragma warning(disable : 4100)
 #include <fakeit\fakeit.hpp>
 
 #include <core\node.h>
@@ -260,7 +261,7 @@ TEST(node, equals_nodeWithOneComponentAndNodeWithNoComponent_shouldBeDifferent)
     auto node2 = new node("node");
 
     Mock<component> mock1;
-    When(Method(mock1, onNodeChanged)).AlwaysDo([] (node* node) {});
+    When(Method(mock1, onNodeChanged)).AlwaysDo([](node* node) {_unused(node); });
     When(Dtor(mock1)).AlwaysDo([] {});
 
     auto component1 = &mock1.get();
@@ -285,7 +286,7 @@ TEST(node, equals_twoNodesWithTheSameComponent_shouldBeEqual)
     Mock<component> mock1;
     When(Method(mock1, operator==)).AlwaysReturn(true);
     When(Method(mock1, operator!=)).AlwaysReturn(false);
-    When(Method(mock1, onNodeChanged)).AlwaysDo([](node* node) {});
+    When(Method(mock1, onNodeChanged)).AlwaysDo([](node* node) {_unused(node); });
     When(Dtor(mock1)).AlwaysDo([] {});
 
     auto component1 = &mock1.get();
@@ -294,7 +295,7 @@ TEST(node, equals_twoNodesWithTheSameComponent_shouldBeEqual)
     Mock<component> mock2;
     When(Method(mock2, operator==)).AlwaysReturn(true);
     When(Method(mock2, operator!=)).AlwaysReturn(false);
-    When(Method(mock2, onNodeChanged)).AlwaysDo([](node* node) {});
+    When(Method(mock2, onNodeChanged)).AlwaysDo([](node* node) {_unused(node);});
     When(Dtor(mock2)).AlwaysDo([] {});
 
     auto component2 = &mock2.get();
@@ -319,7 +320,7 @@ TEST(node, equals_twoNodesWithDifferentComponents_shouldBeDifferent)
     Mock<component> mock1;
     When(Method(mock1, operator==)).AlwaysReturn(false);
     When(Method(mock1, operator!=)).AlwaysReturn(true);
-    When(Method(mock1, onNodeChanged)).AlwaysDo([](node* node) {});
+    When(Method(mock1, onNodeChanged)).AlwaysDo([](node* node) {_unused(node);});
     When(Dtor(mock1)).AlwaysDo([] {});
 
     auto component1 = &mock1.get();
@@ -328,7 +329,7 @@ TEST(node, equals_twoNodesWithDifferentComponents_shouldBeDifferent)
     Mock<component> mock2;
     When(Method(mock2, operator==)).AlwaysReturn(false);
     When(Method(mock2, operator!=)).AlwaysReturn(true);
-    When(Method(mock2, onNodeChanged)).AlwaysDo([](node* node) {});
+    When(Method(mock2, onNodeChanged)).AlwaysDo([](node* node) {_unused(node);});
     When(Dtor(mock2)).AlwaysDo([] {});
 
     auto component2 = &mock2.get();
@@ -451,14 +452,14 @@ TEST(node, clone_originalWithComponentsAndUchangedCloned_clonedAndOriginalShould
     Mock<component> clonedMock;
     When(Method(clonedMock, operator==)).AlwaysReturn(true);
     When(Method(clonedMock, operator!=)).AlwaysReturn(false);
-    When(Method(clonedMock, onNodeChanged)).AlwaysDo([](node* node) {});
+    When(Method(clonedMock, onNodeChanged)).AlwaysDo([](node* node) {_unused(node);});
     When(Dtor(clonedMock)).AlwaysDo([] {});
-    
+
     Mock<component> mock1;
     When(Method(mock1, operator==)).AlwaysReturn(true);
     When(Method(mock1, operator!=)).AlwaysReturn(false);
     When(Method(mock1, clone)).AlwaysReturn(&clonedMock.get());
-    When(Method(mock1, onNodeChanged)).AlwaysDo([](node* node) {});
+    When(Method(mock1, onNodeChanged)).AlwaysDo([](node* node) {_unused(node);});
     When(Dtor(mock1)).AlwaysDo([] {});
 
     auto component1 = &mock1.get();

@@ -23,7 +23,6 @@ namespace phi
         UI_RENDERING_API static vector<renderPass*> configure(
             textRenderAdapter* renderAdapter,
             const resolution& resolution,
-            const string& resourcesPath,
-            framebufferAllocator* framebufferAllocator);
+            const string& resourcesPath);
     };
 }

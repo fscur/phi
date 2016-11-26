@@ -170,6 +170,11 @@ namespace phi
     {
 #if _DEBUG
         std::cout << message << std::endl;
+#else
+        //had to do the above to remove vc warning C4100
+        //https://msdn.microsoft.com/en-us/library/26kb9fy0.aspx
+
+        message;
 #endif
     }
 }

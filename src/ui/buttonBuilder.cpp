@@ -1,11 +1,13 @@
 #include <precompiled.h>
-#include "buttonBuilder.h"
 
 #include <animation/animator.h>
 #include <animation/floatAnimation.h>
 
 #include <common/mouseInteractionComponent.h>
 
+#include <ui/layoutTransform.h>
+
+#include "buttonBuilder.h"
 #include "controlMouseClickAnimatable.h"
 #include "controlMouseHoverAnimatable.h"
 #include "control.h"
@@ -16,6 +18,12 @@ namespace phi
     buttonBuilder buttonBuilder::withPosition(vec3 position)
     {
         _button->setPosition(position);
+        return *this;
+    }
+
+    buttonBuilder buttonBuilder::withOrientation(quat orientation)
+    {
+        _button->setOrientation(orientation);
         return *this;
     }
 
@@ -60,6 +68,13 @@ namespace phi
         return *this;
     }
 
+    buttonBuilder buttonBuilder::asBillboard()
+    {
+        _button->getComponent<control>()->setIsBillboard(true);
+        _button->getComponent<text>()->setIsBillboard(true);
+        return *this;
+    }
+
     buttonBuilder buttonBuilder::withAction(std::function<void(node*)> action)
     {
         _button->getComponent<mouseInteractionComponent>()->addOnMouseUp(action);
@@ -73,7 +88,7 @@ namespace phi
 
     buttonBuilder phi::buttonBuilder::newButton()
     {
-        auto node = new phi::node("button");
+        auto node = new phi::node("button", new layoutTransform());
         auto animator = new phi::animator();
         auto control = new phi::control();
         auto mouseInteraction = new phi::mouseInteractionComponent();

@@ -9,6 +9,9 @@ namespace phi
 {
     class animation
     {
+    public:
+        virtual ~animation();
+
     protected:
         bool _isRunning;
         double _duration;
@@ -18,7 +21,6 @@ namespace phi
 
     protected:
         virtual void update(double t) = 0;
-        virtual ~animation();
         
         void start(double duration, std::function<void(void)> animationEndedCallback);
         void start(double duration);

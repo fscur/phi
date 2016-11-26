@@ -56,6 +56,15 @@ namespace phi
         }
     }
 
+    void mouseInteractionComponent::onMouseMove(mouseEventArgs* e) const
+    {
+        auto node = getNode();
+        for (auto& mouseMoveFunction : _onMouseMove)
+        {
+            mouseMoveFunction(e, node);
+        }
+    }
+
     void mouseInteractionComponent::onMouseEnter()
     {
         _isMouseOver = true;
@@ -90,6 +99,11 @@ namespace phi
     void mouseInteractionComponent::addOnMouseUp(std::function<void(node*)> onMouseUp)
     {
         _onMouseUp.push_back(onMouseUp);
+    }
+
+    void mouseInteractionComponent::addOnMouseMove(std::function<void(mouseEventArgs*, node*)> onMouseMove)
+    {
+        _onMouseMove.push_back(onMouseMove);
     }
 
     void mouseInteractionComponent::addOnMouseEnter(std::function<void(node*)> onHover)

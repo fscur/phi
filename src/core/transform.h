@@ -8,7 +8,7 @@ namespace phi
 {
     class transform
     {
-    private:
+    protected:
         transform* _parent;
         mat4 _localModelMatrix;
         vec3 _localPosition;
@@ -25,7 +25,7 @@ namespace phi
         eventToken _parentTransformChangedEventToken;
 
     private:
-        void updateData();
+        void virtual updateData();
         void setChanged();
         void parentTransformChanged(transform* sender);
 
@@ -60,6 +60,7 @@ namespace phi
 
         CORE_API void translate(vec3 translation);
         CORE_API void rotate(float angle, vec3 axis);
+        CORE_API void rotate(quat rotation);
         CORE_API void pitch(float angle);
         CORE_API void yaw(float angle);
         CORE_API void roll(float angle);

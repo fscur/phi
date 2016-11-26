@@ -58,16 +58,16 @@ namespace phi
     public:
         buffer(const string& name, const bufferTarget::bufferTarget target) :
             _name(name),
-            _id(-1),
+            _id(0),
             _target(target)
         {
-            glCreateBuffers(1, &_id);
+            glCreateBuffers(1u, &_id);
             bind();
         }
 
         virtual ~buffer()
         {
-            glDeleteBuffers(1, &_id);
+            glDeleteBuffers(1u, &_id);
         }
 
         void bind()

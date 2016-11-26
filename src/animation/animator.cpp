@@ -12,6 +12,8 @@ namespace phi
     animator::animator(const animator& original) :
         component(componentType::ANIMATOR)
     {
+        _unused(original);
+
         for (auto animation : _animations)
             addAnimation(animation->clone());
     }

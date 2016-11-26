@@ -6,14 +6,14 @@
 namespace phi
 {
     textLayerBehaviour::textLayerBehaviour(
+        textRenderAdapter* adapter,
         const resolution & resolution, 
-        const string & resourcesPath,
-        framebufferAllocator* framebufferAllocator) :
-        _adapter(new textRenderAdapter()),
+        const string & resourcesPath):
+        _adapter(adapter),
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        _renderPasses = textRenderer::configure(_adapter, resolution, resourcesPath, framebufferAllocator);
+        _renderPasses = textRenderer::configure(_adapter, resolution, resourcesPath);
     }
 
     textLayerBehaviour::~textLayerBehaviour()
@@ -45,7 +45,7 @@ namespace phi
         auto text = node->getComponent<phi::text>();
 
         if (text)
-            _adapter->update(text);
+            _adapter->updateTransform(text);
     }
 
     void textLayerBehaviour::onNodeSelectionChanged(node* node)

@@ -52,6 +52,8 @@ namespace phi
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             const auto selectionRenderTargetNumber = 3;
             auto selectionClearColor = 0.0f;
 
@@ -79,6 +81,9 @@ namespace phi
 
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+            _unused(framebuffer);
+
             program->unbind();
 
             auto w = static_cast<GLint>(resolution.width);

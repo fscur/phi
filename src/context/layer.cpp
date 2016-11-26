@@ -1,10 +1,9 @@
 #include <precompiled.h>
-#include "layer.h"
-
 #include <common/mouseInteractionComponent.h>
 #include <core/time.h>
-
+#include "layer.h"
 #include "pickingId.h"
+
 namespace phi
 {
     layer::layer(camera* camera) :
@@ -56,13 +55,17 @@ namespace phi
         auto transformChangedToken = node->transformChanged.assign(std::bind(&layer::nodeTransformChanged, this, std::placeholders::_1));
         auto selectionChangedToken = node->selectionChanged.assign(std::bind(&layer::nodeSelectionChanged, this, std::placeholders::_1));
         auto obbChangedToken = node->obbChanged.assign(std::bind(&layer::nodeObbChanged, this, std::placeholders::_1));
+        auto componentAddedToken = node->componentAdded.assign(std::bind(&layer::nodeComponentAdded, this, std::placeholders::_1, std::placeholders::_2));
+        auto componentRemovedToken = node->componentRemoved.assign(std::bind(&layer::nodeComponentRemoved, this, std::placeholders::_1, std::placeholders::_2));
 
         _nodeTokens[node] = new nodeEventTokens(
             childAddedToken,
             childRemovedToken,
             transformChangedToken,
             selectionChangedToken,
-            obbChangedToken);
+            obbChangedToken,
+            componentAddedToken,
+            componentRemovedToken);
     }
 
     void layer::untrackNode(node* node)
@@ -72,6 +75,7 @@ namespace phi
         node->transformChanged.unassign(_nodeTokens[node]->transformChanged);
         node->selectionChanged.unassign(_nodeTokens[node]->selectionChanged);
         node->obbChanged.unassign(_nodeTokens[node]->obbChanged);
+        node->componentAdded.unassign(_nodeTokens[node]->componentAdded);
 
         safeDelete(_nodeTokens[node]);
     }
@@ -142,6 +146,20 @@ namespace phi
                 onNodeObbChangedFunction(changedNode);
     }
 
+    void layer::nodeComponentAdded(node* node, component* component)
+    {
+        for (auto onNodeComponentAddedFunction : _onNodeComponentAdded)
+            if (onNodeComponentAddedFunction)
+                onNodeComponentAddedFunction(node, component);
+    }
+
+    void layer::nodeComponentRemoved(node* node, component* component)
+    {
+        for (auto onNodeComponentRemovedFunction : _onNodeComponentRemoved)
+            if (onNodeComponentRemovedFunction)
+                onNodeComponentRemovedFunction(node, component);
+    }
+
     void layer::add(node* node)
     {
         _root->addChild(node);
@@ -172,95 +190,118 @@ namespace phi
             renderPass->render();
     }
 
-    void layer::onMouseDown(mouseEventArgs* e)
+    bool layer::onMouseDown(mouseEventArgs* e)
     {
         if (_currentController && _currentController->onMouseDown(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller != _currentController && controller->onMouseDown(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onMouseUp(mouseEventArgs* e)
+    bool layer::onMouseUp(mouseEventArgs* e)
     {
         if (_currentController && _currentController->onMouseUp(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller != _currentController && controller->onMouseUp(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onMouseClick(mouseEventArgs* e)
+    bool layer::onMouseClick(mouseEventArgs* e)
     {
         auto lastCurrentController = _currentController;
         if (lastCurrentController && lastCurrentController->onMouseClick(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
-            if (controller != lastCurrentController && controller->onMouseClick(e))
-                break;
+        {
+            if (controller == lastCurrentController)
+                continue;
+
+            if (controller->onMouseClick(e))
+                return true;
+        }
+
+        return false;
     }
 
-    void layer::onMouseDoubleClick(mouseEventArgs* e)
+    bool layer::onMouseDoubleClick(mouseEventArgs* e)
     {
         if (_currentController && _currentController->onMouseDoubleClick(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller != _currentController && controller->onMouseDoubleClick(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onMouseMove(mouseEventArgs* e)
+    bool layer::onMouseMove(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             if (controller->onMouseMove(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onBeginMouseWheel(mouseEventArgs* e)
+    bool layer::onBeginMouseWheel(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             controller->onBeginMouseWheel(e);
+
+        return false;
     }
 
-    void layer::onMouseWheel(mouseEventArgs* e)
+    bool layer::onMouseWheel(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             controller->onMouseWheel(e);
+
+        return false;
     }
 
-    void layer::onEndMouseWheel(mouseEventArgs* e)
+    bool layer::onEndMouseWheel(mouseEventArgs* e)
     {
         for (auto& controller : _controllers)
             controller->onEndMouseWheel(e);
+
+        return false;
     }
 
-    void layer::onKeyDown(keyboardEventArgs* e)
+    bool layer::onKeyDown(keyboardEventArgs* e)
     {
         if (_currentController && _currentController->onKeyDown(e))
-            return;
+            return true;
 
         for (auto& controller : _controllers)
             if (controller->onKeyDown(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::onKeyUp(keyboardEventArgs* e)
+    bool layer::onKeyUp(keyboardEventArgs* e)
     {
         if (e->key == PHIK_ESCAPE && _currentController)
-        {
             _currentController->cancel();
-        }
 
         for (auto& controller : _controllers)
             if (controller->onKeyUp(e))
-                break;
+                return true;
+
+        return false;
     }
 
-    void layer::addMouseController(inputController * controller)
+    void layer::addInputController(inputController * controller)
     {
         controller->getRequestControlEvent()->assign([&](inputController* controller) 
         {
@@ -273,6 +314,8 @@ namespace phi
 
         controller->getResignControlEvent()->assign([&](inputController* controller)
         {
+            _unused(controller);
+
             _controllersStack.pop();
 
             if (_controllersStack.size() > 0)

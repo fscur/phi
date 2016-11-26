@@ -8,7 +8,6 @@ namespace phi
     controlLayerBehaviour::controlLayerBehaviour(
         const resolution & resolution, 
         const string & resourcesPath,
-        framebufferAllocator* framebufferAllocator,
         controlRenderAdapter* adapter,
         vector<renderPass*> renderPasses) :
         _adapter(adapter),
@@ -50,12 +49,7 @@ namespace phi
         auto control = node->getComponent<phi::control>();
 
         if (control)
-            _adapter->update(control);
-    }
-
-    void controlLayerBehaviour::onNodeSelectionChanged(node* node)
-    {
-        throw notImplementedException();
+            _adapter->updateModelMatrix(control);
     }
 
     void controlLayerBehaviour::onControlColorChanged(control* control)

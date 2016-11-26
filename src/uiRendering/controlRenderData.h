@@ -9,7 +9,7 @@ namespace phi
     {
         color backgroundColor;
         int backgroundTextureUnit;
-        int pad0;
+        int isGlassy;
         int pad1;
         int pad2;
         float backgroundTexturePage;
@@ -19,7 +19,7 @@ namespace phi
 
         static controlRenderData from(const control* control)
         {
-            auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage());
+            auto texture = texturesManager::getTextureFromImage(control->getBackgroundImage(), false);
             textureAddress address;
 
             if (!texturesManager::contains(texture))
@@ -31,6 +31,7 @@ namespace phi
             renderData.backgroundColor = control->getColor();
             renderData.backgroundTextureUnit = address.index;
             renderData.backgroundTexturePage = address.page;
+            renderData.isGlassy = control->isGlassy();
 
             return renderData;
         }

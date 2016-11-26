@@ -24,10 +24,6 @@ namespace phi
         };
 
     private:
-        GLuint indicesOffset;
-        GLuint verticesOffset;
-        GLuint instancesOffset;
-
         vector<geometryInstance*> _geometries;
         map<const geometry*, geometryInstance*> _geometriesInstances;
 

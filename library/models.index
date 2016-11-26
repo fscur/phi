@@ -1,0 +1,124 @@
+{
+    "Entries": [
+        {
+            "Guid": "HechNrk7/0CIQKdTy8sgiQ==",
+            "Path": "models\\Cabinets\\cabinet.model"
+        },
+        {
+            "Guid": "Eh/l5M5kLkmGCAi4/cb4zA==",
+            "Path": "models\\Cabinets\\modulo_porta.model"
+        },
+        {
+            "Guid": "C4W6XUKMt06C+gW6ai8/3Q==",
+            "Path": "models\\Chairs\\black_chair.model"
+        },
+        {
+            "Guid": "ktJe2c3b/Ey1QGpSE0JBvQ==",
+            "Path": "models\\Chairs\\brown_chair.model"
+        },
+        {
+            "Guid": "Ia7oNEYJhUCDV7aQzy9J7Q==",
+            "Path": "models\\Chairs\\sofa.model"
+        },
+        {
+            "Guid": "L99CxcqgUUi2Cf3a8EWOLw==",
+            "Path": "models\\Chairs\\table_chair.model"
+        },
+        {
+            "Guid": "2hYhY6Gf30OzMsBc7e8Rkg==",
+            "Path": "models\\Decorations\\casket.model"
+        },
+        {
+            "Guid": "HEGS1++aX02Ci2MnPD7D+g==",
+            "Path": "models\\Decorations\\cube.model"
+        },
+        {
+            "Guid": "MI2wGz8PUEudxN6ozg6X2g==",
+            "Path": "models\\Decorations\\cube_1.model"
+        },
+        {
+            "Guid": "MVhYevzUC0Slsd3kThs9PQ==",
+            "Path": "models\\Decorations\\flower.model"
+        },
+        {
+            "Guid": "04m/rALmgkCixoIX8Rg9yw==",
+            "Path": "models\\Decorations\\flower_vase.model"
+        },
+        {
+            "Guid": "yfTggpOZz0KFOEl6PHcwuw==",
+            "Path": "models\\Decorations\\pair_vase.model"
+        },
+        {
+            "Guid": "4Lp7Ntz49ECwvmEs2XkOaw==",
+            "Path": "models\\Decorations\\persian_rug.model"
+        },
+        {
+            "Guid": "CEc+6KHnTU+o2UB7lMe4AA==",
+            "Path": "models\\Decorations\\persian_rug_1.model"
+        },
+        {
+            "Guid": "yXKVbvHS20SmyiJd02L6Vw==",
+            "Path": "models\\Decorations\\portrait.model"
+        },
+        {
+            "Guid": "KXs6e0shYkSxYj4uhSlskQ==",
+            "Path": "models\\Decorations\\sphere.model"
+        },
+        {
+            "Guid": "ZBE8zCPyFE661SsHobA7gw==",
+            "Path": "models\\Decorations\\telephone.model"
+        },
+        {
+            "Guid": "oEnJ4ARuO0ykLQzNVcapiA==",
+            "Path": "models\\Lamps\\ceiling_lamp.model"
+        },
+        {
+            "Guid": "KBrKQMyodEaGUd64ZGKg1g==",
+            "Path": "models\\Lamps\\floor_lamp.model"
+        },
+        {
+            "Guid": "YwsROBFUqUyBelw+0oCHLA==",
+            "Path": "models\\Lamps\\hanging_lamp.model"
+        },
+        {
+            "Guid": "a/zyS5PEPEaDqpdC5URQ6Q==",
+            "Path": "models\\Lamps\\spot_lamp.model"
+        },
+        {
+            "Guid": "FeAy5dh6t0i2NTXmffXuxg==",
+            "Path": "models\\Structures\\back_wall.model"
+        },
+        {
+            "Guid": "noStph3OG0Cpxewm8cq7GA==",
+            "Path": "models\\Structures\\ceiling.model"
+        },
+        {
+            "Guid": "8eujRosXEUCNUQJ8E6hI8Q==",
+            "Path": "models\\Structures\\door.model"
+        },
+        {
+            "Guid": "P+pZa0MNyU2TvmoA21s3zg==",
+            "Path": "models\\Structures\\floor.model"
+        },
+        {
+            "Guid": "fhJReCxsvUi5V25IyUatDA==",
+            "Path": "models\\Structures\\front_wall.model"
+        },
+        {
+            "Guid": "wUctob8BsEGRuBWVQbAi8A==",
+            "Path": "models\\Structures\\side_wall.model"
+        },
+        {
+            "Guid": "uUJ9VpQnYk2bAt4XhaXI7g==",
+            "Path": "models\\Structures\\window.model"
+        },
+        {
+            "Guid": "u8LlrQH47EqzCDJrqJrWMw==",
+            "Path": "models\\Tables\\table.model"
+        },
+        {
+            "Guid": "fpRWx1bkMEGk3KPkT6kuMg==",
+            "Path": "models\\Tables\\table2.model"
+        }
+    ]
+}

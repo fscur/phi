@@ -25,12 +25,16 @@ namespace phi
                 eventToken childRemoved,
                 eventToken transformChanged,
                 eventToken selectionChanged,
-                eventToken obbChanged) :
+                eventToken obbChanged,
+                eventToken componentAdded,
+                eventToken componentRemoved) :
                 childAdded(childAdded),
                 childRemoved(childRemoved),
                 transformChanged(transformChanged),
                 selectionChanged(selectionChanged),
-                obbChanged(obbChanged)
+                obbChanged(obbChanged),
+                componentAdded(componentAdded),
+                componentRemoved(componentRemoved)
             {
             }
 
@@ -39,6 +43,8 @@ namespace phi
             eventToken transformChanged;
             eventToken selectionChanged;
             eventToken obbChanged;
+            eventToken componentAdded;
+            eventToken componentRemoved;
         };
 
     private:
@@ -53,6 +59,8 @@ namespace phi
         vector<std::function<void(node*)>> _onNodeTransformChanged;
         vector<std::function<void(node*)>> _onNodeSelectionChanged;
         vector<std::function<void(node*)>> _onNodeObbChanged;
+        vector<std::function<void(node*, component*)>> _onNodeComponentAdded;
+        vector<std::function<void(node*, component*)>> _onNodeComponentRemoved;
         vector<std::function<void(void)>> _onDelete;
         vector<inputController*> _controllers;
         inputController* _currentController;
@@ -69,6 +77,8 @@ namespace phi
         void nodeTransformChanged(node* changedNode);
         void nodeSelectionChanged(node * changedNode);
         void nodeObbChanged(node * changedNode);
+        void nodeComponentAdded(node* node, component* component);
+        void nodeComponentRemoved(node* node, component* component);
 
     public:
         CONTEXT_API layer(camera* camera);
@@ -80,16 +90,16 @@ namespace phi
         CONTEXT_API void update();
         CONTEXT_API void render();
 
-        CONTEXT_API void onMouseDown(mouseEventArgs* e);
-        CONTEXT_API void onMouseUp(mouseEventArgs* e);
-        CONTEXT_API void onMouseClick(mouseEventArgs* e);
-        CONTEXT_API void onMouseDoubleClick(mouseEventArgs* e);
-        CONTEXT_API void onMouseMove(mouseEventArgs* e);
-        CONTEXT_API void onBeginMouseWheel(mouseEventArgs* e);
-        CONTEXT_API void onMouseWheel(mouseEventArgs* e);
-        CONTEXT_API void onEndMouseWheel(mouseEventArgs* e);
-        CONTEXT_API void onKeyDown(keyboardEventArgs* e);
-        CONTEXT_API void onKeyUp(keyboardEventArgs* e);
+        CONTEXT_API bool onMouseDown(mouseEventArgs* e);
+        CONTEXT_API bool onMouseUp(mouseEventArgs* e);
+        CONTEXT_API bool onMouseClick(mouseEventArgs* e);
+        CONTEXT_API bool onMouseDoubleClick(mouseEventArgs* e);
+        CONTEXT_API bool onMouseMove(mouseEventArgs* e);
+        CONTEXT_API bool onBeginMouseWheel(mouseEventArgs* e);
+        CONTEXT_API bool onMouseWheel(mouseEventArgs* e);
+        CONTEXT_API bool onEndMouseWheel(mouseEventArgs* e);
+        CONTEXT_API bool onKeyDown(keyboardEventArgs* e);
+        CONTEXT_API bool onKeyUp(keyboardEventArgs* e);
 
         void addOnUpdate(std::function<void(void)> onUpdate) { _onUpdate.push_back(onUpdate); }
         void addOnNodeAdded(std::function<void(node*)> onNodeAdded) { _onNodeAdded.push_back(onNodeAdded); }
@@ -97,8 +107,10 @@ namespace phi
         void addOnNodeTransformChanged(std::function<void(node*)> onNodeTransformChanged) { _onNodeTransformChanged.push_back(onNodeTransformChanged); }
         void addOnNodeSelectionChanged(std::function<void(node*)> onNodeSelectionChanged) { _onNodeSelectionChanged.push_back(onNodeSelectionChanged); }
         void addOnNodeObbChanged(std::function<void(node*)> onNodeObbChanged) { _onNodeObbChanged.push_back(onNodeObbChanged); }
+        void addOnNodeComponentAdded(std::function<void(node*, component*)> onNodeComponentAdded) { _onNodeComponentAdded.push_back(onNodeComponentAdded); }
+        void addOnNodeComponentRemoved(std::function<void(node*, component*)> onNodeComponentRemoved) { _onNodeComponentRemoved.push_back(onNodeComponentRemoved); }
 
-        CONTEXT_API void addMouseController(inputController* controller);
+        CONTEXT_API void addInputController(inputController* controller);
         void addRenderPass(renderPass* renderPass) { _renderPasses.push_back(renderPass); }
         void addRenderPasses(vector<renderPass*> renderPasses) { _renderPasses.insert(_renderPasses.end(), renderPasses.begin(), renderPasses.end()); }
         void addOnDelete(std::function<void(void)> onDelete) { _onDelete.push_back(onDelete); }

@@ -19,20 +19,19 @@
 #include <sceneRendering/ghostMeshLayerBehaviour.h>
 #include <sceneRendering/meshLayerBehaviour.h>
 #include <sceneRendering/meshRenderer.h>
-#include <sceneRendering/planeGridLayerBehaviour.h>
+#include <sceneRendering/translationPlaneGridLayerBehaviour.h>
+#include <sceneRendering/rotationPlaneGridLayerBehaviour.h>
 
 #include <uiRendering/controlLayerBehaviour.h>
-#include <uiRendering/controlRenderer.h>
-#include <uiRendering/glassyControlLayerBehaviour.h>
-#include <uiRendering/glassyControlRenderer.h>
 #include <uiRendering/textLayerBehaviour.h>
-#include <uiRendering/textRenderer.h>
 
 #include "layersApi.h"
 #include "nodeSelection/selectionInputController.h"
 #include "nodeSelection/selectionLayerBehaviour.h"
 #include "cameraControl/cameraInputController.h"
 #include "nodeTranslation/translationInputController.h"
+#include "nodeRotation/rotationInputController.h"
+#include "ui/uiInputController.h"
 
 namespace phi
 {
@@ -44,31 +43,43 @@ namespace phi
         string _resourcesPath;
         framebufferAllocator* _framebufferAllocator;
         commandsManager* _commandsManager;
-        meshLayerBehaviour* _meshBehaviour;
-        ghostMeshLayerBehaviour* _ghostMeshBehaviour;
-        physicsLayerBehaviour* _physicsBehaviour;
-        selectionLayerBehaviour* _selectionBehaviour;
 
-        vector<renderPass*> _meshRenderPasses;
-        vector<renderPass*> _controlRenderPasses;
-        vector<renderPass*> _glassyControlRenderPasses;
-        vector<renderPass*> _textRenderPasses;
+        layer* _onDemandUiTargetLayer;
 
         bool _withMeshRenderer;
         bool _withGhostMeshRenderer;
         bool _withObbRenderer;
         bool _withBoxColliderRenderer;
-        bool _withPlaneGridRenderer;
+        bool _withTranslationPlaneGridRenderer;
+        bool _withRotationPlaneGridRenderer;
         bool _withControlRenderer;
-        bool _withGlassyControlRenderer;
         bool _withTextRenderer;
         bool _withPhysics;
         bool _withAnimation;
         bool _withCameraController;
         bool _withSelectionController;
         bool _withTranslationController;
+        bool _withRotationController;
         bool _withUIMouseController;
         bool _withSkyBoxRenderer;
+
+    public:
+        meshLayerBehaviour* meshLayerBehaviour;
+        ghostMeshLayerBehaviour* ghostMeshLayerBehaviour;
+        obbLayerBehaviour* obbLayerBehaviour;
+        boxColliderLayerBehaviour* boxColliderLayerBehaviour;
+        translationPlaneGridLayerBehaviour* translationPlaneGridLayerBehaviour;
+        rotationPlaneGridLayerBehaviour* rotationPlaneGridLayerBehaviour;
+        controlLayerBehaviour* controlLayerBehaviour;
+        textLayerBehaviour* textLayerBehaviour;
+        physicsLayerBehaviour* physicsLayerBehaviour;
+        animatorLayerBehaviour* animatorLayerBehaviour;
+        cameraInputController* cameraInputController;
+        selectionLayerBehaviour* selectionLayerBehaviour;
+        selectionInputController* selectionInputController;
+        translationInputController* translationInputController;
+        rotationInputController* rotationInputController;
+        uiInputController* uiInputController;
 
     private:
         layerBuilder(layer* layer, resolution resolution, string resourcesPath, framebufferAllocator* framebufferAllocator, commandsManager* commandsManager);
@@ -77,15 +88,16 @@ namespace phi
         void buildGhostMeshRenderer();
         void buildObbRenderer();
         void buildBoxColliderRenderer();
-        void buildPlaneGridRenderer();
+        void buildTranslationPlaneGridRenderer();
+        void buildRotationPlaneGridRenderer();
         void buildControlRenderer();
-        void buildGlassyControlRenderer();
         void buildTextRenderer();
         void buildPhysics();
         void buildAnimation();
         void buildCameraController();
         void buildSelectionController();
         void buildTranslationController();
+        void buildRotationController();
         void buildUIMouseController();
         void buildSkyBoxRenderer();
 
@@ -95,15 +107,16 @@ namespace phi
         layerBuilder withGhostMeshRenderer() { _withGhostMeshRenderer = true; return *this; }
         layerBuilder withObbRenderer() { _withObbRenderer = true; return *this; }
         layerBuilder withBoxColliderRenderer() { _withBoxColliderRenderer = true; return *this; }
-        layerBuilder withPlaneGridRenderer() { _withPlaneGridRenderer = true; return *this; }
+        layerBuilder withTranslationPlaneGridRenderer() { _withTranslationPlaneGridRenderer = true; return *this; }
+        layerBuilder withRotationPlaneGridRenderer() { _withRotationPlaneGridRenderer = true; return *this; }
         layerBuilder withControlRenderer() { _withControlRenderer = true; return *this; }
-        layerBuilder withGlassyControlRenderer() { _withGlassyControlRenderer = true; return *this; }
         layerBuilder withTextRenderer() { _withTextRenderer = true; return *this; }
         layerBuilder withPhysics() { _withPhysics = true; return *this; }
         layerBuilder withAnimation() { _withAnimation = true; return *this; }
         layerBuilder withCameraController() { _withCameraController = true; return *this; }
         layerBuilder withSelectionController() { _withSelectionController = true; return *this; }
         layerBuilder withTranslationController() { _withTranslationController = true; return *this; }
+        layerBuilder withRotationController() { _withRotationController = true; return *this; }
         layerBuilder withUIMouseController() { _withUIMouseController = true; return *this; }
         layerBuilder withSkyBoxRenderer() { _withSkyBoxRenderer = true; return *this; }
 

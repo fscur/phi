@@ -3,10 +3,13 @@
 #include "coreApi.h"
 #include "vertex.h"
 #include "aabb.h"
+#include "entity.h"
+#include "guid.h"
 
 namespace phi
 {
-    struct geometry
+    struct geometry :
+        public entity
     {
     public:
         uint verticesCount;
@@ -21,10 +24,12 @@ namespace phi
         CORE_API static geometry* createQuad(float size);
         CORE_API static geometry* createBox(float size);
 
-        CORE_API ~geometry();
+        CORE_API geometry(guid guid);
+        CORE_API virtual ~geometry();
 
-        CORE_API static geometry* create(vector<vertex> vertices, vector<uint> indices);
+        CORE_API static geometry* create(guid guid, vector<vertex> vertices, vector<uint> indices);
         CORE_API static geometry* create(
+            guid guid,
             uint verticesCount,
             float* positionsBuffer,
             float* texCoordsBuffer,

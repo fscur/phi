@@ -1,11 +1,16 @@
 #include <precompiled.h>
 #include "geometry.h"
-#include <io\path.h>
-#include <core\octree.h>
-#include <iterator>
+
+#include <core/octree.h>
+#include <io/path.h>
 
 namespace phi
 {
+    geometry::geometry(guid guid) :
+        entity::entity(guid)
+    {
+    }
+
     geometry::~geometry()
     {
         safeDeleteArray(vboData);
@@ -13,11 +18,11 @@ namespace phi
         safeDelete(aabb);
     }
 
-    geometry* geometry::create(vector<vertex> vertices, vector<uint> indices)
+    geometry* geometry::create(guid guid, vector<vertex> vertices, vector<uint> indices)
     {
         calcTangents(vertices, indices);
 
-        auto geometry = new phi::geometry();
+        auto geometry = new phi::geometry(guid);
         auto verticesCount = vertices.size();
         auto indicesCount = indices.size();
 
@@ -38,6 +43,7 @@ namespace phi
     }
 
     geometry* geometry::create(
+        guid guid,
         uint verticesCount,
         float* positionsBuffer,
         float* texCoordsBuffer,
@@ -70,7 +76,7 @@ namespace phi
             vertices.push_back(vertex(position, texCoord, normal));
         }
 
-        return geometry::create(vertices, indices);
+        return geometry::create(guid, vertices, indices);
     }
 
     void geometry::calcNormals(vector<vertex>& vertices, vector<uint>& indices)
@@ -206,7 +212,7 @@ namespace phi
 
         vector<uint> indices{ 0, 1, 2, 2, 3, 0 };
 
-        return create(vertices, indices);
+        return create(guid::newGuid(), vertices, indices);
     }
 
     geometry* geometry::createBox(float size)
@@ -214,9 +220,9 @@ namespace phi
         auto octree = phi::octree(phi::aabb(glm::vec3(-0.7, -0.7, -0.7), glm::vec3(0.7, 0.7, 0.7)), 5, 50);
         auto vertices = std::vector<vertex>();
         auto indices = std::vector<uint>();
-        auto addVertex = [&](vertex& vertex)
+        auto addVertex = [&](const vertex& vertex)
         {
-            uint index = -1;
+            int index = -1;
 
             if (octree.insert(vertex, index))
                 vertices.push_back(vertex);
@@ -224,48 +230,48 @@ namespace phi
             indices.push_back(index);
         };
 
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, +0.5f), glm::vec2(0.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f), glm::vec2(1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, +0.5f), glm::vec2(1.0, 1.0), glm::vec3(0.0, 0.0, 1.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, +0.5f), glm::vec2(1.0, 1.0), glm::vec3(0.0, 0.0, 1.0)));
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f), glm::vec2(0.0, 1.0), glm::vec3(0.0, 0.0, 1.0)));
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, +0.5f), glm::vec2(0.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, +0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f) * size, glm::vec2(1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, +0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(0.0, 0.0, 1.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, +0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(0.0, 0.0, 1.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f) * size, glm::vec2(0.0, 1.0), glm::vec3(0.0, 0.0, 1.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, +0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
 
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f), glm::vec2(0.0, 0.0), glm::vec3(1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, -0.5f), glm::vec2(1.0, 0.0), glm::vec3(1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f), glm::vec2(1.0, 1.0), glm::vec3(1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f), glm::vec2(1.0, 1.0), glm::vec3(1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, +0.5f), glm::vec2(0.0, 1.0), glm::vec3(1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f), glm::vec2(0.0, 0.0), glm::vec3(1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, -0.5f) * size, glm::vec2(1.0, 0.0), glm::vec3(1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, +0.5f) * size, glm::vec2(0.0, 1.0), glm::vec3(1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(1.0, 0.0, 0.0)));
 
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, -0.5f), glm::vec2(0.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, -0.5f), glm::vec2(1.0, 1.0), glm::vec3(0.0, 0.0, -1.0)));
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, -0.5f), glm::vec2(1.0, 1.0), glm::vec3(0.0, 0.0, -1.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f), glm::vec2(0.0, 1.0), glm::vec3(0.0, 0.0, -1.0)));
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, -0.5f), glm::vec2(0.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, -0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f) * size, glm::vec2(1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, -0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(0.0, 0.0, -1.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, -0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(0.0, 0.0, -1.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f) * size, glm::vec2(0.0, 1.0), glm::vec3(0.0, 0.0, -1.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, -0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
         
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0, 0.0), glm::vec3(-1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, +0.5f), glm::vec2(1.0, 0.0), glm::vec3(-1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f), glm::vec2(1.0, 1.0), glm::vec3(-1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f), glm::vec2(1.0, 1.0), glm::vec3(-1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, -0.5f), glm::vec2(0.0, 1.0), glm::vec3(-1.0, 0.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0, 0.0), glm::vec3(-1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(-1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, +0.5f) * size, glm::vec2(1.0, 0.0), glm::vec3(-1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(-1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(-1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, -0.5f) * size, glm::vec2(0.0, 1.0), glm::vec3(-1.0, 0.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(-1.0, 0.0, 0.0)));
 
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, -0.5f), glm::vec2(1.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f), glm::vec2(1.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f), glm::vec2(1.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, +0.5f), glm::vec2(0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, -0.5f) * size, glm::vec2(1.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, -0.5f, +0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, +0.5f) * size, glm::vec2(0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, -0.5f, -0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
 
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f), glm::vec2(0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, +0.5f), glm::vec2(1.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f), glm::vec2(1.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
-        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f), glm::vec2(1.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, -0.5f), glm::vec2(0.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
-        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f), glm::vec2(0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, +0.5f) * size, glm::vec2(1.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
+        addVertex(vertex(glm::vec3(+0.5f, +0.5f, -0.5f) * size, glm::vec2(1.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, -0.5f) * size, glm::vec2(0.0, 1.0), glm::vec3(0.0, 1.0, 0.0)));
+        addVertex(vertex(glm::vec3(-0.5f, +0.5f, +0.5f) * size, glm::vec2(0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)));
 
-        return create(vertices, indices);
+        return create(guid::newGuid(), vertices, indices);
     }
 }

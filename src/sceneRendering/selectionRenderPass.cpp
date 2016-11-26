@@ -16,14 +16,12 @@
 namespace phi
 {
     renderPass* selectionRenderPass::configure(
-        const renderPass* lightingRenderPass, 
         const resolution& resolution, 
         const string& shadersPath,
         framebufferAllocator* framebufferAllocator)
     {
         auto pickingRenderTarget = framebufferAllocator->getRenderTarget("pickingRenderTarget");
         auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
-        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto quadVao = vertexArrayObject::createPostProcessVao();
         auto selectionProgram = programBuilder::buildProgram(shadersPath, "selection", "selection");
@@ -65,6 +63,9 @@ namespace phi
 
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+            _unused(framebuffer);
+
             program->unbind();
             glDisable(GL_BLEND);
         });

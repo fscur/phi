@@ -1,23 +1,29 @@
 #pragma once
 #include <phi.h>
 
-#include <core\resolution.h>
+#include <core/resolution.h>
 
 #ifdef _DEBUG
 #include <io/watcher.h>
 #endif
 
-#include <rendering\framebufferAllocator.h>
+#include <rendering/framebufferAllocator.h>
 
-#include <application\window.h>
-#include <application\commandsManager.h>
+#include <application/window.h>
+#include <application/commandsManager.h>
 
-#include <context\layer.h>
-#include <context\context.h>
+#include <context/layer.h>
+#include <context/context.h>
+#include <context/scene.h>
 
-#include <rendering\gl.h>
+#include <rendering/gl.h>
 
-#include "library.h"
+#include  <layers/nodeTranslation/translationInputController.h>
+#include <layers/nodeRotation/rotationInputController.h>
+#include <layers/nodeSelection/selectionLayerBehaviour.h>
+
+#include <domain/library.h>
+#include <domain/repositories/iProjectRepository.h>
 
 namespace demon
 {
@@ -25,14 +31,17 @@ namespace demon
         public phi::window
     {
     private:
-        phi::gl* _gl;
         library* _userLibrary;
-        library* _projectLibrary;
+        project* _project;
 
+        iProjectRepository* _projectRepository;
+
+        phi::gl* _gl;
         phi::context* _designContext;
         phi::context* _constructionContext;
         phi::context* _activeContext;
 
+        phi::scene* _scene;
         phi::layer* _sceneLayer;
         phi::layer* _onDemandLayer;
         phi::layer* _constructionLayer;
@@ -45,7 +54,6 @@ namespace demon
         phi::node* _labelFps;
         phi::node* _labelNandinho;
         phi::node* _constructionLabel;
-        phi::node* _chair0;
 
         phi::commandsManager* _commandsManager;
 #ifdef _DEBUG
@@ -55,14 +63,26 @@ namespace demon
 
         phi::framebufferAllocator* _framebufferAllocator;
 
+        phi::translationInputController* _translationController;
+        phi::rotationInputController* _rotationController;
+        phi::selectionLayerBehaviour* _selectionBehaviour;
+
+        phi::node* _onDemandUi;
+        phi::image* _translationImage;
+        phi::image* _rotationImage;
+
     private:
         void initGL();
         void initWatcher();
         void initFramebuffers();
         void initLibraries();
-        void openFileDialog();
         void initContexts();
         void initInput();
+
+        phi::node* createOnDemandUiNode();
+        void showOnDemandUi();
+        void hideOnDemandUi();
+        void onNodeSelectionChanged(phi::node* node);
 
         void onMouseDown(phi::mouseEventArgs* e);
         void onMouseUp(phi::mouseEventArgs* e);

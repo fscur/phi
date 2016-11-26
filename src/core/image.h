@@ -2,6 +2,9 @@
 #include <phi.h>
 #include "coreApi.h"
 
+#include "entity.h"
+#include "guid.h"
+
 namespace phi
 {
     namespace imageDataFormat
@@ -25,10 +28,12 @@ namespace phi
         };
     }
 
-    struct image
+    struct image :
+        public entity
     {
     public:
         CORE_API static image* defaultAlbedoImage;
+        CORE_API static image* defaultBlankImage;
         CORE_API static image* defaultNormalImage;
         CORE_API static image* defaultSpecularImage;
         CORE_API static image* defaultEmissiveImage;
@@ -41,11 +46,13 @@ namespace phi
         byte* data;
 
         image(
+            guid guid,
             uint w = 0u,
             uint h = 0u,
             imageDataFormat::imageDataFormat dataFormat = imageDataFormat::rgba8,
             imageDataType::imageDataType dataType = imageDataType::ubyte_dataType,
             byte* data = nullptr) :
+            entity::entity(guid),
             w(w),
             h(h),
             dataFormat(dataFormat),

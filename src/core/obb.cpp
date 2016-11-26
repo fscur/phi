@@ -50,31 +50,31 @@ namespace phi
         if (comp(a0 * abs(C[0][2]) + a1 * abs(C[1][2]) + a2 * abs(C[2][2]), b2, abs(dot(B2, D))))
             return false;
 
-        if (comp(a1 * abs(C[2][0]) + a2 * abs(C[1][0]), b1 * abs(C[0][2]) + b2 * abs(C[0][1]), dot(abs(C[1][0] * A2), D) - dot(C[2][0] * A1, D)))
+        if (comp(a1 * abs(C[2][0]) + a2 * abs(C[1][0]), b1 * abs(C[0][2]) + b2 * abs(C[0][1]), abs(dot(C[1][0] * A2, D) - dot(C[2][0] * A1, D))))
             return false;
 
-        if (comp(a1 * abs(C[2][1]) + a2 * abs(C[1][1]), b0 * abs(C[0][2]) + b2 * abs(C[0][0]), dot(abs(C[1][1] * A2), D) - dot(C[2][1] * A1, D)))
+        if (comp(a1 * abs(C[2][1]) + a2 * abs(C[1][1]), b0 * abs(C[0][2]) + b2 * abs(C[0][0]), abs(dot(C[1][1] * A2, D) - dot(C[2][1] * A1, D))))
             return false;
 
-        if (comp(a1 * abs(C[2][2]) + a2 * abs(C[1][2]), b0 * abs(C[0][1]) + b1 * abs(C[0][0]), dot(abs(C[1][2] * A2), D) - dot(C[2][2] * A1, D)))
+        if (comp(a1 * abs(C[2][2]) + a2 * abs(C[1][2]), b0 * abs(C[0][1]) + b1 * abs(C[0][0]), abs(dot(C[1][2] * A2, D) - dot(C[2][2] * A1, D))))
             return false;
 
-        if (comp(a0 * abs(C[2][0]) + a2 * abs(C[0][0]), b1 * abs(C[1][2]) + b2 * abs(C[1][1]), dot(abs(C[2][0] * A0), D) - dot(C[0][0] * A2, D)))
+        if (comp(a0 * abs(C[2][0]) + a2 * abs(C[0][0]), b1 * abs(C[1][2]) + b2 * abs(C[1][1]), abs(dot(C[2][0] * A0, D) - dot(C[0][0] * A2, D))))
             return false;
 
-        if (comp(a0 * abs(C[2][1]) + a2 * abs(C[0][1]), b0 * abs(C[1][2]) + b2 * abs(C[0][0]), dot(abs(C[2][1] * A0), D) - dot(C[0][1] * A2, D)))
+        if (comp(a0 * abs(C[2][1]) + a2 * abs(C[0][1]), b0 * abs(C[1][2]) + b2 * abs(C[0][0]), abs(dot(C[2][1] * A0, D) - dot(C[0][1] * A2, D))))
             return false;
 
-        if (comp(a0 * abs(C[2][2]) + a2 * abs(C[0][2]), b0 * abs(C[1][1]) + b1 * abs(C[0][0]), dot(abs(C[2][2] * A0), D) - dot(C[0][2] * A2, D)))
+        if (comp(a0 * abs(C[2][2]) + a2 * abs(C[0][2]), b0 * abs(C[1][1]) + b1 * abs(C[1][0]), abs(dot(C[2][2] * A0, D) - dot(C[0][2] * A2, D))))
             return false;
 
-        if (comp(a0 * abs(C[1][0]) + a1 * abs(C[0][0]), b1 * abs(C[2][2]) + b2 * abs(C[0][0]), dot(abs(C[0][0] * A1), D) - dot(C[1][0] * A0, D)))
+        if (comp(a0 * abs(C[1][0]) + a1 * abs(C[0][0]), b1 * abs(C[2][2]) + b2 * abs(C[2][1]), abs(dot(C[0][0] * A1, D) - dot(C[1][0] * A0, D))))
             return false;
 
-        if (comp(a0 * abs(C[1][1]) + a1 * abs(C[0][1]), b0 * abs(C[2][2]) + b2 * abs(C[0][0]), dot(abs(C[0][1] * A1), D) - dot(C[1][1] * A0, D)))
+        if (comp(a0 * abs(C[1][1]) + a1 * abs(C[0][1]), b0 * abs(C[2][2]) + b2 * abs(C[2][0]), abs(dot(C[0][1] * A1, D) - dot(C[1][1] * A0, D))))
             return false;
 
-        if (comp(a0 * abs(C[1][2]) + a1 * abs(C[0][2]), b0 * abs(C[2][1]) + b1 * abs(C[0][0]), dot(abs(C[0][2] * A1), D) - dot(C[1][2] * A0, D)))
+        if (comp(a0 * abs(C[1][2]) + a1 * abs(C[0][2]), b0 * abs(C[2][1]) + b1 * abs(C[2][0]), abs(dot(C[0][2] * A1, D) - dot(C[1][2] * A0, D))))
             return false;
 
         return true;
@@ -124,10 +124,16 @@ namespace phi
 
     vec3 obb::getPositionAt(vec3 direction) const
     {
-        return center + direction * (
-            glm::abs(glm::dot(axes[0] * halfSizes.x, direction)) +
-            glm::abs(glm::dot(axes[1] * halfSizes.y, direction)) +
-            glm::abs(glm::dot(axes[2] * halfSizes.z, direction)));
+        auto extendedDirection = glm::normalize(direction * halfSizes);
+
+        auto dotX = glm::dot(axes[0] * halfSizes.x, extendedDirection);
+        auto dotY = glm::dot(axes[1] * halfSizes.y, extendedDirection);
+        auto dotZ = glm::dot(axes[2] * halfSizes.z, extendedDirection);
+
+        return center + extendedDirection * (
+            glm::abs(dotX) +
+            glm::abs(dotY) +
+            glm::abs(dotZ));
     }
 
     vec3 obb::findClosestNormalTo(vec3 direction) const
@@ -208,7 +214,7 @@ namespace phi
         return planes;
     }
 
-    vector<finitePlane> obb::getFinitePlanes() const
+    vector<orientedPlane> obb::getSidesPlanes() const
     {
         auto corners = getCorners();
 
@@ -221,20 +227,20 @@ namespace phi
         auto rtf = corners[6];
         auto rtb = corners[7];
 
-        auto finitePlanes = vector<finitePlane>
+        auto sidesPlanes = vector<orientedPlane>
         {
-            finitePlane(lbb, lbf, ltb),
-            finitePlane(rbf, rbb, rtf),
-            finitePlane(lbf, rbf, ltf),
-            finitePlane(rbb, lbb, rtb),
-            finitePlane(ltf, rtf, ltb),
-            finitePlane(lbb, rbb, lbf)
+            orientedPlane(lbb, lbf, ltb),
+            orientedPlane(rbf, rbb, rtf),
+            orientedPlane(lbf, rbf, ltf),
+            orientedPlane(rbb, lbb, rtb),
+            orientedPlane(ltf, rtf, ltb),
+            orientedPlane(lbb, rbb, lbf)
         };
 
-        return finitePlanes;
+        return sidesPlanes;
     }
 
-    void obb::getLimits(vec3 & min, vec3 & max) const
+    void obb::getLimits(vec3& min, vec3& max) const
     {
         auto corners = obb::getCorners();
         min = corners[0];
@@ -259,7 +265,7 @@ namespace phi
         }
     }
 
-    void obb::set(obb obb)
+    void obb::set(const obb obb)
     {
         center = obb.center;
         axes[0] = obb.axes[0];

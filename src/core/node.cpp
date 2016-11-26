@@ -3,9 +3,9 @@
 
 namespace phi
 {
-    node::node(string name) :
+    node::node(string name, transform* transform) :
         _parent(nullptr),
-        _transform(new transform()),
+        _transform(transform),
         _components(vector<component*>()),
         _children(vector<node*>()),
         _name(name),
@@ -13,7 +13,8 @@ namespace phi
         _obb(nullptr),
         _worldLocalObb(nullptr),
         _isSelected(false),
-        _isTranslating(false)
+        _isTranslating(false),
+        _isObbDirty(false)
     {
         _transform->getChangedEvent()->assign(std::bind(&node::raiseTransformChanged, this, std::placeholders::_1));
     }
@@ -26,9 +27,10 @@ namespace phi
         _name(original._name),
         _localObb(nullptr),
         _obb(nullptr),
+        _worldLocalObb(nullptr),
         _isSelected(original._isSelected),
         _isTranslating(original._isTranslating),
-        resource(original.resource)
+        _isObbDirty(original._isObbDirty)
     {
         if (original._localObb)
             _localObb = new obb(*original._localObb);
@@ -79,6 +81,14 @@ namespace phi
     {
         _components.push_back(component);
         component->setNode(this);
+        componentAdded.raise(this, component);
+    }
+
+    inline void node::removeComponent(component* component)
+    {
+        component->setNode(nullptr);
+        removeIfContains(_components, component);
+        componentRemoved.raise(this, component);
     }
 
     inline void node::addChild(node* const child)
@@ -93,7 +103,7 @@ namespace phi
         _childrenEventTokens[child].obbChangedToken = obbChangedToken;
 
         childAdded.raise(child);
-        updateObb();
+        raiseObbChanged();
     }
 
     void node::removeChild(node* child)
@@ -109,7 +119,7 @@ namespace phi
             childRemoved.raise(child);
         }
 
-        updateObb();
+        raiseObbChanged();
     }
 
     void node::clearChildren()
@@ -185,6 +195,12 @@ namespace phi
         return true;
     }
 
+    void node::raiseObbChanged()
+    {
+        _isObbDirty = true;
+        obbChanged.raise(this);
+    }
+
     void node::updateObb()
     {
         obb obb;
@@ -209,24 +225,25 @@ namespace phi
             if (_worldLocalObb)
                 safeDelete(_worldLocalObb);
         }
-
-        obbChanged.raise(this);
     }
 
     inline void node::raiseTransformChanged(transform* transform)
     {
-        updateObb();
+        _unused(transform);
         transformChanged.raise(this);
+        raiseObbChanged();
     }
 
     void node::onChildTransformChanged(node* child)
     {
-        updateObb();
+        _unused(child);
+        raiseObbChanged();
     }
 
     void node::onChildObbChanged(node* child)
     {
-        updateObb();
+        _unused(child);
+        raiseObbChanged();
     }
 
     inline void node::select() 
@@ -246,6 +263,12 @@ namespace phi
         _isSelected = false;
         selectionChanged.raise(this);
     }
+
+    inline const obb * const node::getLocalObb() { if (_isObbDirty) updateObb(); return _localObb; }
+
+    inline const obb * const node::getObb() { if (_isObbDirty) updateObb(); return _obb; }
+
+    inline const obb * const node::getWorldLocalObb() { if (_isObbDirty) updateObb(); return _worldLocalObb; }
 
     inline void node::isTranslating(bool value)
     {
@@ -267,6 +290,11 @@ namespace phi
         _transform->setLocalPosition(value);
     }
 
+    inline void node::setOrientation(quat value)
+    {
+        _transform->setLocalOrientation(value);
+    }
+
     inline void node::setSize(vec3 value)
     {
         _transform->setLocalSize(value);
@@ -278,7 +306,7 @@ namespace phi
             safeDelete(_localObb);
 
         _localObb = value;
-        updateObb();
+        raiseObbChanged();
     }
 
     bool node::operator==(const node& other)

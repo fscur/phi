@@ -14,7 +14,6 @@ namespace phi
     public:
         lightingRenderPass() = delete;
         static renderPass* configure(
-            renderPass* gBufferRenderPass,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);

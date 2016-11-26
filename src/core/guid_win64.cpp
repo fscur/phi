@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 namespace phi
 {
-    guid guidGenerator::newGuid()
+    guid guid::newGuid()
     {
         GUID newId;
         CoCreateGuid(&newId);

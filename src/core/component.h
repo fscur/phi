@@ -1,5 +1,6 @@
 #pragma once
 #include <phi.h>
+
 #include "transform.h"
 
 namespace phi
@@ -9,9 +10,10 @@ namespace phi
     class component
     {
     public:
+
         enum componentType
         {
-            MODEL = 0,
+            MODEL_NODE = 0,
             MESH = 1,
             CAMERA = 2,
             DIRECTIONAL_LIGHT = 3,
@@ -25,7 +27,10 @@ namespace phi
             ANIMATOR = 11,
             GHOST_MESH = 12,
             ROTATION_PLANE_GRID = 13,
-            SKY_BOX = 14
+            SKY_BOX = 14,
+            LAYOUT_TRANSFORM = 15,
+            SWITCH_CONTROL = 16,
+            RELATIVE_LAYOUT_POSITION = 17
         };
 
     protected:
@@ -46,7 +51,7 @@ namespace phi
 
         int getType() const { return _type; }
 
-        void virtual onNodeChanged(node* previousValue) { }
+        void virtual onNodeChanged(node* previousValue) { _unused(previousValue); }
 
         node* getNode() const { return _node; }
 

@@ -12,6 +12,8 @@ namespace phi
         const GLchar* message,
         void* userParam)
     {
+        _unused(userParam);
+        _unused(length);
 
         if (severity == GL_DEBUG_SEVERITY_LOW)
             return;

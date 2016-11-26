@@ -4,9 +4,9 @@
 
 namespace phi
 {
-	class IO_API fileReader
-	{
-	public:
-		static string readFile(const string& filePath);
-	};
+    class IO_API fileReader
+    {
+    public:
+        static string readFile(const string& filePath);
+    };
 }

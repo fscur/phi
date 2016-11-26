@@ -94,7 +94,7 @@ TEST(ray, intersectsFinitePlane_rayWithNegativeYAxisDirectionOnXZAxisPlane_colli
     auto origin = vec3(-0.5f, 0.0f, -0.5f);
     auto rightPoint = vec3(0.5f, 0.0f, -0.5f);
     auto upPoint = vec3(-0.5f, 0.0f, 0.5f);
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
     auto r = ray(vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f));
     float t;
 
@@ -112,7 +112,7 @@ TEST(ray, intersectsFinitePlane_rayWithPositiveYAxisDirectionOnXZAxisPlane_colli
     auto origin = vec3(-0.5f, 0.0f, -0.5f);
     auto rightPoint = vec3(0.5f, 0.0f, -0.5f);
     auto upPoint = vec3(-0.5f, 0.0f, 0.5f);
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
     auto r = ray(vec3(0.0f, -1.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     float t;
 
@@ -130,7 +130,7 @@ TEST(ray, intersectsFinitePlane_rayWithPositiveXAxisDirectionOnXZAxisPlane_notCo
     auto origin = vec3(-0.5f, 0.0f, -0.5f);
     auto rightPoint = vec3(0.5f, 0.0f, -0.5f);
     auto upPoint = vec3(-0.5f, 0.0f, 0.5f);
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
     auto r = ray(vec3(0.0f, 1.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f));
     float t;
 
@@ -147,7 +147,7 @@ TEST(ray, intersectsFinitePlane_rayWithNegativeYAxisDirectionOnXZAxisPlane_notCo
     auto origin = vec3(-0.5f, 0.0f, -0.5f);
     auto rightPoint = vec3(0.5f, 0.0f, -0.5f);
     auto upPoint = vec3(-0.5f, 0.0f, 0.5f);
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
     auto r = ray(vec3(1.0f, 1.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f));
     float t;
 
@@ -165,7 +165,7 @@ TEST(ray, intersectsFinitePlane_rayWithNegativeYAxisDirectionOnRampPlane_collidi
     auto origin = vec3(-0.5f, 0.0f, 0.0f);
     auto rightPoint = vec3(-0.5f, 0.0f, 1.0f);
     auto upPoint = vec3(0.5f, 1.0f, 0.0f);
-    auto plane = finitePlane(origin, rightPoint, upPoint);
+    auto plane = orientedPlane(origin, rightPoint, upPoint);
     auto r = ray(vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, -1.0f, 0.0f));
     float t;
 

@@ -10,12 +10,12 @@ namespace phi
     renderPass * textRenderPass::configure(
         textRenderAdapter* renderAdapter, 
         const resolution& resolution,
-        const string& shadersPath,
-        framebufferAllocator* framebufferAllocator)
+        const string& shadersPath)
     {
         auto program = programBuilder::buildProgram(shadersPath, "text", "text");
         program->addBuffer(renderAdapter->getGlyphRenderDataBuffer());
-        
+        program->addBuffer(renderAdapter->getParentModelMatricesBuffer());
+
         auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
         pass->addVao(renderAdapter->getVao());
         
@@ -26,6 +26,8 @@ namespace phi
 
         pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             framebuffer->bindForDrawing();
 
             glDisable(GL_DEPTH_TEST);
@@ -50,6 +52,9 @@ namespace phi
 
         pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(framebuffer);
+            _unused(resolution);
+
             program->unbind();
 
             glBlendColor(0, 0, 0, 0);

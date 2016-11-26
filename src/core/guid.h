@@ -47,10 +47,8 @@ namespace phi
         CORE_API bool operator==(const guid& other) const;
         CORE_API bool operator!=(const guid& other) const;
         CORE_API string toStringBase64() const;
-    };
+        CORE_API vector<byte>& getBytes();
 
-    class guidGenerator
-    {
     public:
         CORE_API static guid newGuid();
     };

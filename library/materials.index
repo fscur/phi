@@ -1,0 +1,200 @@
+{
+    "Entries": [
+        {
+            "Guid": "H6wO6BTvw06iLZADcYTjyg==",
+            "Path": "materials\\Coverings\\brick_01.material"
+        },
+        {
+            "Guid": "9LURhJSgQUaE1Y/p/1/4jA==",
+            "Path": "materials\\Coverings\\ceramic_01.material"
+        },
+        {
+            "Guid": "/nfsbcRSo0WEQqJlFgTyhQ==",
+            "Path": "materials\\Coverings\\ceramic_02.material"
+        },
+        {
+            "Guid": "eN6C9j9n30KCJOQVDpmBcg==",
+            "Path": "materials\\Coverings\\ceramic_03.material"
+        },
+        {
+            "Guid": "C0sQV/5RtUaX321F4xzd5A==",
+            "Path": "materials\\Coverings\\concrete_01.material"
+        },
+        {
+            "Guid": "pQ7qDzrKo0yjmdOlOd34NA==",
+            "Path": "materials\\Coverings\\concrete_02.material"
+        },
+        {
+            "Guid": "MFybXKzjPUC/snxE+K11FQ==",
+            "Path": "materials\\Coverings\\dante.material"
+        },
+        {
+            "Guid": "hbZBmgyPGkGO3R8MJmW3WQ==",
+            "Path": "materials\\Coverings\\wallpaper_01.material"
+        },
+        {
+            "Guid": "YGLHF5M+WEqrP4tzzSPJbA==",
+            "Path": "materials\\Coverings\\wallpaper_02.material"
+        },
+        {
+            "Guid": "F4JIZ92bM0OuARLb0qO4+A==",
+            "Path": "materials\\Emissives\\bulb.material"
+        },
+        {
+            "Guid": "djIReWym4EC9680rimPrZA==",
+            "Path": "materials\\Emissives\\bulb_2.material"
+        },
+        {
+            "Guid": "gUw7zzykZUe27RBWZAhcKw==",
+            "Path": "materials\\Emissives\\white_light.material"
+        },
+        {
+            "Guid": "RPjz+9zWnEum7KOKkCJqNg==",
+            "Path": "materials\\Fabrics\\brown_leather.material"
+        },
+        {
+            "Guid": "V6KWDUfPlkqIDVNqc4ARvw==",
+            "Path": "materials\\Fabrics\\brown_leather_2.material"
+        },
+        {
+            "Guid": "7nkrIlt8gkWamgofL+G6cg==",
+            "Path": "materials\\Fabrics\\fabric_01.material"
+        },
+        {
+            "Guid": "mRCtLKSxskOUx4ntyRiJZQ==",
+            "Path": "materials\\Fabrics\\fabric_02.material"
+        },
+        {
+            "Guid": "IYhQnHJDI06gCGGomdnZgw==",
+            "Path": "materials\\Fabrics\\fabric_03.material"
+        },
+        {
+            "Guid": "iKKH67Y2HkyAOtJ8VZ+C9g==",
+            "Path": "materials\\Fabrics\\green_leather.material"
+        },
+        {
+            "Guid": "pIaguSnoo0eel3+kKwD6FQ==",
+            "Path": "materials\\Fabrics\\orange_pillow.material"
+        },
+        {
+            "Guid": "1i9M7IJZG0KN9YgwZe1E3A==",
+            "Path": "materials\\Fabrics\\plaid.material"
+        },
+        {
+            "Guid": "wYo5f7SAYkumjniY2Q37DA==",
+            "Path": "materials\\Fabrics\\red_leather.material"
+        },
+        {
+            "Guid": "UU7bah/tukuh2kKy84LeJA==",
+            "Path": "materials\\Fabrics\\red_pillow.material"
+        },
+        {
+            "Guid": "mz6p4fxpwUeV94vDTmKX6g==",
+            "Path": "materials\\Fabrics\\yellow_pillow.material"
+        },
+        {
+            "Guid": "0or7RdipKUWmdlk9UFnpyA==",
+            "Path": "materials\\Metals\\brushed.material"
+        },
+        {
+            "Guid": "kT9jxmP3ykifgdUFueIV6Q==",
+            "Path": "materials\\Metals\\metal_01.material"
+        },
+        {
+            "Guid": "rAGIeQLEv02DGJQ0fmR0qQ==",
+            "Path": "materials\\Metals\\metal_02.material"
+        },
+        {
+            "Guid": "pAGxKYD2aU+o4F4HbL/ZIw==",
+            "Path": "materials\\Metals\\metal_03.material"
+        },
+        {
+            "Guid": "nNL5r4Nn1UiJgvWkmgirYA==",
+            "Path": "materials\\Metals\\silver.material"
+        },
+        {
+            "Guid": "2UlxPIBT2kOJWTLjcoC+dQ==",
+            "Path": "materials\\Misc\\Default.material"
+        },
+        {
+            "Guid": "GGy9WG8XakmGVDjnxR5GlQ==",
+            "Path": "materials\\Misc\\persian_rug_01.material"
+        },
+        {
+            "Guid": "162yY76p/0mnQNcz00Gn5A==",
+            "Path": "materials\\Misc\\persian_rug_02.material"
+        },
+        {
+            "Guid": "TtxwG5yN1EGfuuAF3l85qQ==",
+            "Path": "materials\\Misc\\prim1L1_PRIM1L3.png.material"
+        },
+        {
+            "Guid": "ayP831cSc0mq/B++NFkzcA==",
+            "Path": "materials\\Misc\\prim1p2_PRIM1L2.png.001.material"
+        },
+        {
+            "Guid": "jaYlHfCx/E6EsuyfyXxmhQ==",
+            "Path": "materials\\Misc\\prim1p2_PRIM1L2.png.material"
+        },
+        {
+            "Guid": "mXYmdV4q+0WD7gtp4RhklA==",
+            "Path": "materials\\Misc\\prim1p_PRIM1P.png.material"
+        },
+        {
+            "Guid": "9d+BbPXqF0u3w49rCptgHw==",
+            "Path": "materials\\Misc\\prim1st_PRIM1ST.png.material"
+        },
+        {
+            "Guid": "629PsSHciUKTSv+dXL8QTg==",
+            "Path": "materials\\Misc\\soil_PRIMsoil.png.material"
+        },
+        {
+            "Guid": "+7SFeutAokm3iUGHXq2W4A==",
+            "Path": "materials\\Misc\\vase_vase.png.material"
+        },
+        {
+            "Guid": "E50kZd3lhUCww2MCnhdFcA==",
+            "Path": "materials\\Plastics\\black_matte.material"
+        },
+        {
+            "Guid": "y+zLxDdeOE65jKc5xB5eHw==",
+            "Path": "materials\\Plastics\\red.material"
+        },
+        {
+            "Guid": "Jib3ZknJPECQ5/yVm6sUbQ==",
+            "Path": "materials\\Rubbers\\rubber_01.material"
+        },
+        {
+            "Guid": "d+xL/zgQaEiXZ82yzJEQiw==",
+            "Path": "materials\\Woods\\maple.material"
+        },
+        {
+            "Guid": "F1cq9OwA9UKWLHM3NrRPpw==",
+            "Path": "materials\\Woods\\maple2.material"
+        },
+        {
+            "Guid": "m4FX2zYvc0C98ctwEBiu6g==",
+            "Path": "materials\\Woods\\marfin_01.material"
+        },
+        {
+            "Guid": "kU3fWKZyL06J7BdT8vk3pg==",
+            "Path": "materials\\Woods\\marfin_02.material"
+        },
+        {
+            "Guid": "iNA+Bv+hVU+k3FQq0qaQUQ==",
+            "Path": "materials\\Woods\\wood_01.material"
+        },
+        {
+            "Guid": "RmFIJP0J/kW/uyJIyWyGxQ==",
+            "Path": "materials\\Woods\\wood_01_r.material"
+        },
+        {
+            "Guid": "y64EHMnVNEiqHR+0IuZsHQ==",
+            "Path": "materials\\Woods\\wood_02.material"
+        },
+        {
+            "Guid": "7o+hNsfk1U+1D4a/UONENg==",
+            "Path": "materials\\Woods\\wood_03.material"
+        }
+    ]
+}

@@ -35,7 +35,7 @@ namespace phi
 
         FT_Set_Transform(_fontFace, &matrix, NULL);
 
-        _hasKerning = static_cast<bool>(FT_HAS_KERNING(_fontFace));
+        _hasKerning = hasKerning();
         _ascender = static_cast<float>(_fontFace->size->metrics.ascender >> 6) * _dpiRatio;
         _baseLine = static_cast<float>(_fontFace->size->metrics.descender >> 6) * _dpiRatio;
         _lineHeight = static_cast<float>((_fontFace->size->metrics.ascender - _fontFace->size->metrics.descender) >> 6) * _dpiRatio;
@@ -69,6 +69,11 @@ namespace phi
         FT_Done_Face(_fontFace);
     }
 
+    bool font::hasKerning()
+    {
+        return FT_HAS_KERNING(_fontFace) > 0;
+    }
+
     glyph* font::getGlyph(const ulong& glyphChar)
     {
         auto glyphIndex = FT_Get_Char_Index(_fontFace, glyphChar);
@@ -97,6 +102,7 @@ namespace phi
         w /= freetypeLcdScaleFactor;
 
         auto glyphImage = new image(
+            guid::newGuid(),
             w,
             h,
             imageDataFormat::rgb,

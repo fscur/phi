@@ -81,7 +81,7 @@ void main()
     inPos.xy *= planeSize;
     //inPos.xy *= 5.0;
     vec4 pos =  modelMatrix * inPos;
-    
+
     gl_Position = frameUniforms.p * frameUniforms.v * pos;
     fragViewPosition = -(frameUniforms.v * pos).xyz;
     fragViewNormal = normalize((frameUniforms.v * modelMatrix * vec4(0.0, 0.0, 1.0, 0.0)).xyz);

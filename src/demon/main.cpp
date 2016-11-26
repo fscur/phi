@@ -2,17 +2,17 @@
 
 //#include <vld.h>
 
-#include <input\input.h>
-#include <core\invalidInitializationException.h>
-#include <core\eventHandler.h>
+#include <input/input.h>
+#include <core/invalidInitializationException.h>
+#include <core/eventHandler.h>
 
-#include <diagnostic\stackTracer.h>
-#include <diagnostic\stopwatch.h>
-#include <diagnostic\platformProcLoader.h>
+#include <diagnostic/stackTracer.h>
+#include <diagnostic/stopwatch.h>
+#include <diagnostic/platformProcLoader.h>
 
-#include <io\path.h>
+#include <io/path.h>
 
-#include <application\application.h>
+#include <application/application.h>
 
 #include "screen.h"
 #include "demonApi.h"
@@ -134,9 +134,9 @@ int main(int argc, char* args[])
 
     try
     {
-        auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, "");
+        auto appStartInfo = applicationStartInfo(executableFileName, _resourcesPath, _libraryPath);
         auto application = phi::application(appStartInfo);
-        auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1920, 1080));
+        auto screen = demon::screen(L"‎(ﾉಥ益ಥ）ﾉ﻿ ┻━┻", resolution(1600, 900));
 
         application.run(&screen);
     }

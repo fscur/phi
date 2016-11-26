@@ -1,0 +1,308 @@
+{
+    "Entries": [
+        {
+            "Guid": "8A6zixeuFUuHynl1VnSraQ==",
+            "Path": "textures\\bricks\\diffuse_2.bmp"
+        },
+        {
+            "Guid": "kxuFAslxm06GOjaojs/WJQ==",
+            "Path": "textures\\bricks\\normal_1.bmp"
+        },
+        {
+            "Guid": "rpYV/3Y9lkSYG2y09Bhqcw==",
+            "Path": "textures\\bricks\\specular_1.jpg"
+        },
+        {
+            "Guid": "dZZbms8YfUqg6Wn1V30vdA==",
+            "Path": "textures\\ceramics\\jemina vase_df.png"
+        },
+        {
+            "Guid": "72IQYTGKdkeSsqmdwAgoKw==",
+            "Path": "textures\\ceramics\\jemina vase_df_NORMALS.png"
+        },
+        {
+            "Guid": "pDaHpavJf0m+8AVkaVxRYQ==",
+            "Path": "textures\\ceramics\\jemina vase_df_SPECULAR.png"
+        },
+        {
+            "Guid": "WRKXXSPrdE+ggNjhE9JvvA==",
+            "Path": "textures\\concrete\\concrete.png"
+        },
+        {
+            "Guid": "DBubIWQrgUq2iIhZY0gibQ==",
+            "Path": "textures\\concrete\\concrete_2.png"
+        },
+        {
+            "Guid": "TqpVeIqZQUWO1YUdzV8Q9g==",
+            "Path": "textures\\concrete\\concrete_2_NORMALS.png"
+        },
+        {
+            "Guid": "YW6lQb96Ekaam/6k43e1nA==",
+            "Path": "textures\\concrete\\concrete_2_SPECULAR.png"
+        },
+        {
+            "Guid": "tvjHFni2YUemKejM7JSCsg==",
+            "Path": "textures\\concrete\\concrete_NORMALS.png"
+        },
+        {
+            "Guid": "K89/ZA1mv02dA0nZJVwIRg==",
+            "Path": "textures\\concrete\\concrete_SPECULAR.png"
+        },
+        {
+            "Guid": "kAPJznUvIESZw20dRk9/zA==",
+            "Path": "textures\\fabrics\\black_leather.bmp"
+        },
+        {
+            "Guid": "YVozv1diakeKGueJf5JTcA==",
+            "Path": "textures\\fabrics\\black_leather_NORMALS.bmp"
+        },
+        {
+            "Guid": "KoS+iMKDAk+TMbZXS+nmow==",
+            "Path": "textures\\fabrics\\fabric_01.JPG"
+        },
+        {
+            "Guid": "AD+G87XCAkClTFfQnVXt0w==",
+            "Path": "textures\\fabrics\\leather.jpg"
+        },
+        {
+            "Guid": "YiJOldFEzUWTJEtiTgTJhg==",
+            "Path": "textures\\fabrics\\leather2.jpg"
+        },
+        {
+            "Guid": "dR22bXNcfk6gSvTniyrn/w==",
+            "Path": "textures\\fabrics\\leather2.png"
+        },
+        {
+            "Guid": "enF7aSPvpkOLx04berINsQ==",
+            "Path": "textures\\fabrics\\leather2_NORMALS.png"
+        },
+        {
+            "Guid": "BMYlpC7CoUKh+p/0xBEvsA==",
+            "Path": "textures\\fabrics\\leather2_SPECULAR.png"
+        },
+        {
+            "Guid": "T9WcnFQ59EeV1zt+n/0BBQ==",
+            "Path": "textures\\fabrics\\leather3.png"
+        },
+        {
+            "Guid": "b+OCD2GBU0eBfO4jhdABRg==",
+            "Path": "textures\\fabrics\\leather3_NORMALS.png"
+        },
+        {
+            "Guid": "GQdwyb/Xw0CCL75UACUcYA==",
+            "Path": "textures\\fabrics\\leather3_SPECULAR.png"
+        },
+        {
+            "Guid": "077MyShw/0WomfrCcP/lAA==",
+            "Path": "textures\\fabrics\\leather4_NORMALS.png"
+        },
+        {
+            "Guid": "HzljmWqWP0GFFW5Uq6LOZw==",
+            "Path": "textures\\fabrics\\Leather_1.jpg"
+        },
+        {
+            "Guid": "eA24ebf44kqMxjtp0jvuNA==",
+            "Path": "textures\\fabrics\\leather_gros_1_NORMALS.png"
+        },
+        {
+            "Guid": "nPUr6rkeX0GjX/2OT+a7fg==",
+            "Path": "textures\\fabrics\\leather_NORMALS.png"
+        },
+        {
+            "Guid": "9GUY/9w0lE+VuyMDJk0iNQ==",
+            "Path": "textures\\fabrics\\orange_pillow_low.png"
+        },
+        {
+            "Guid": "s/b28i2fw06uDAEmAKetPQ==",
+            "Path": "textures\\fabrics\\orange_pillow_low_NORMALS.png"
+        },
+        {
+            "Guid": "cWrM6uYlNU6mc+WmCVBQ1g==",
+            "Path": "textures\\fabrics\\plaid.jpg"
+        },
+        {
+            "Guid": "93d7sgCq+EG96UCeeRduGw==",
+            "Path": "textures\\fabrics\\red_leather.png"
+        },
+        {
+            "Guid": "FBmpzD2DRk+5arcjm7QApg==",
+            "Path": "textures\\fabrics\\red_leather2.png"
+        },
+        {
+            "Guid": "XqB31fjK/0Kfy9y0iQyS6A==",
+            "Path": "textures\\fabrics\\red_leather2_NORMALS.png"
+        },
+        {
+            "Guid": "E0BhapfddkuLBgnqCJvDuQ==",
+            "Path": "textures\\fabrics\\red_leather_1.png"
+        },
+        {
+            "Guid": "iw4hOCv+30SZJmN606aTFA==",
+            "Path": "textures\\fabrics\\red_leather_NORMALS.png"
+        },
+        {
+            "Guid": "jm6QJ8FPB0a897vat7MQbA==",
+            "Path": "textures\\fabrics\\red_leather_NORMALS_1.png"
+        },
+        {
+            "Guid": "68Vi8ylCekmUVrTuv71/Yw==",
+            "Path": "textures\\fabrics\\red_pillow_low.png"
+        },
+        {
+            "Guid": "m5BdwT7CrkuQbLuhXkGkJQ==",
+            "Path": "textures\\fabrics\\red_pillow_low_NORMALS.png"
+        },
+        {
+            "Guid": "FvsnsF+od0+C/5OFCfEP+Q==",
+            "Path": "textures\\fabrics\\yellow_pillow_low.png"
+        },
+        {
+            "Guid": "ubAGMf18Y0aSxIOAXBakoA==",
+            "Path": "textures\\fabrics\\yellow_pillow_low_NORMALS.png"
+        },
+        {
+            "Guid": "XJFz9kJWRkGBRcSKCAaoxA==",
+            "Path": "textures\\flower\\PRIM1L2.png"
+        },
+        {
+            "Guid": "QKLA0tZMw0atOKjkpluATg==",
+            "Path": "textures\\flower\\PRIM1L3.png"
+        },
+        {
+            "Guid": "qXp9I9SYwE6MMLdk/8FEmg==",
+            "Path": "textures\\flower\\PRIM1L3_NORMALS.png"
+        },
+        {
+            "Guid": "fTK8AqP+Y0uU7od5sOGYgg==",
+            "Path": "textures\\flower\\PRIM1P.png"
+        },
+        {
+            "Guid": "aGy67Mww7UisMnsqOzNnRw==",
+            "Path": "textures\\flower\\PRIM1ST.png"
+        },
+        {
+            "Guid": "tLNWnKCuBEagDoV++lMrgQ==",
+            "Path": "textures\\flower\\PRIMsoil.png"
+        },
+        {
+            "Guid": "HbU2SZVTr0OGZT2SS3l3fQ==",
+            "Path": "textures\\flower\\vase.png"
+        },
+        {
+            "Guid": "QvRTLZv60EyKmbs9FnlIQA==",
+            "Path": "textures\\metals\\brushed_steel.jpg"
+        },
+        {
+            "Guid": "UOLJKtI1AEi2pbSR4hlszg==",
+            "Path": "textures\\metals\\brushed_steel2.png"
+        },
+        {
+            "Guid": "XmQjU7TjNE24POPVIU5eHg==",
+            "Path": "textures\\metals\\brushed_steel2_NORMALS.png"
+        },
+        {
+            "Guid": "OTz+l8Wf+EabET0KiGdsLQ==",
+            "Path": "textures\\metals\\brushed_steel2_NORMALS_1.png"
+        },
+        {
+            "Guid": "JRNibvI1s02/Tg9UYYvUCA==",
+            "Path": "textures\\metals\\brushed_steel2_SPECULAR.png"
+        },
+        {
+            "Guid": "VQ48Wn/qaEuWlGBtaDZZFQ==",
+            "Path": "textures\\metals\\brushed_steel2_SPECULAR_1.png"
+        },
+        {
+            "Guid": "LtZA2AEzfkCz62ckHIX89Q==",
+            "Path": "textures\\metals\\brushed_steel_NORMALS.png"
+        },
+        {
+            "Guid": "z0fYQL0GvEOUCNQGlaVRKA==",
+            "Path": "textures\\metals\\brushed_steel_SPECULAR.png"
+        },
+        {
+            "Guid": "9v2IJPn98kS8f6mY/2XtdQ==",
+            "Path": "textures\\rugs\\persian_rug_01.jpg"
+        },
+        {
+            "Guid": "Yz4a885Ao0e77sx+w6ccVw==",
+            "Path": "textures\\rugs\\persian_rug_02.jpg"
+        },
+        {
+            "Guid": "7CJt00JUK0+uPWwyfNNu6g==",
+            "Path": "textures\\wallpapers\\0.jpg"
+        },
+        {
+            "Guid": "TdGbv18mUk+2ABwNwZwK1A==",
+            "Path": "textures\\wallpapers\\paolo-e-francesca.jpg"
+        },
+        {
+            "Guid": "C5g5+vqLzEq6VvB4kk1Baw==",
+            "Path": "textures\\wallpapers\\Tulips.jpg"
+        },
+        {
+            "Guid": "iiey/WcV706BJmm7uzbIWA==",
+            "Path": "textures\\wallpapers\\wallpaper0.png"
+        },
+        {
+            "Guid": "FcOCOoi7b0GNYqHZIVf7Ew==",
+            "Path": "textures\\wallpapers\\wallpaper0_NORMALS.png"
+        },
+        {
+            "Guid": "yOCbjsfjOU2jAOqrOKV8RQ==",
+            "Path": "textures\\wallpapers\\wallpaper0_SPECULAR.png"
+        },
+        {
+            "Guid": "22YhCNRuGE2X0XvzY1BIrA==",
+            "Path": "textures\\woods\\floor.bmp"
+        },
+        {
+            "Guid": "P2l0+9FSzUCnFl7HW5oKug==",
+            "Path": "textures\\woods\\floor_NORMALS.png"
+        },
+        {
+            "Guid": "FFLJ6DCEN0iS34Hjnbc1ug==",
+            "Path": "textures\\woods\\floor_SPECULAR.png"
+        },
+        {
+            "Guid": "wPLmgM+/wk6Bo+Jkokgk2w==",
+            "Path": "textures\\woods\\maple3.png"
+        },
+        {
+            "Guid": "U1RwIIGKPk27m5+pr9NNEg==",
+            "Path": "textures\\woods\\maple3_NORMALS.png"
+        },
+        {
+            "Guid": "CRD4MVKHUEGyvaDxUyieSA==",
+            "Path": "textures\\woods\\maple3_NORMALS_1.png"
+        },
+        {
+            "Guid": "iGPpS5FlXkCYqbtj03y1sA==",
+            "Path": "textures\\woods\\maple3_SPECULAR.png"
+        },
+        {
+            "Guid": "Pl5+PtTzb0SiZJdwPFFE8w==",
+            "Path": "textures\\woods\\marfin_01.jpg"
+        },
+        {
+            "Guid": "EDQKc2WzUU2EN8PjqpLElQ==",
+            "Path": "textures\\woods\\marfin_02.jpg"
+        },
+        {
+            "Guid": "3TpEowjj5k+2N9DkuwaCFQ==",
+            "Path": "textures\\woods\\marfin_NORMALS.png"
+        },
+        {
+            "Guid": "/yf2YPpbYEyU158pjWdhNQ==",
+            "Path": "textures\\woods\\marfin_SPECULAR.jpg"
+        },
+        {
+            "Guid": "nwuE8J6pXEKsm7dfZjREnw==",
+            "Path": "textures\\woods\\wood.bmp"
+        },
+        {
+            "Guid": "oOaaJUEsSkSCgUw4YL4zcg==",
+            "Path": "textures\\woods\\wood_2.jpg"
+        }
+    ]
+}

@@ -5,7 +5,6 @@
 #include <core/node.h>
 
 #include "../layersApi.h"
-#include "unselectNodeCommand.h"
 
 namespace phi
 {

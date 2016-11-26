@@ -1,7 +1,7 @@
 #include <precompiled.h>
 
 #include <core/mesh.h>
-#include <core/model.h>
+#include <core/modelNode.h>
 #include <core/multiCommand.h>
 
 #include <input/input.h>
@@ -12,7 +12,7 @@
 
 #include "selectionInputController.h"
 #include "selectNodeCommand.h"
-#include "unselectNodeCommand.h"
+#include "deselectNodeCommand.h"
 
 namespace phi
 {
@@ -70,7 +70,7 @@ namespace phi
                 return true;
         }
 
-        return node->getComponent<model>() != nullptr;
+        return node->getComponent<modelNode>() != nullptr;
     }
 
     node* selectionInputController::getSonOfFirstSelected(node* const node)
@@ -92,7 +92,8 @@ namespace phi
         while (node != nullptr && !hasModelComponentInItselfOrInDescendants(node))
             node = node->getParent();
 
-        assert(("Cannot select node tree without model component.", node));
+        if (!node)
+            return nullptr;
 
         while (!isSonOfRoot(node))
         {
@@ -113,10 +114,31 @@ namespace phi
 
     void selectionInputController::onSelectionBehaviourSelectedNodesChanged(selectionLayerBehaviour* selectionBehaviour)
     {
+        _unused(selectionBehaviour);
+
         if (_selectionBehaviour->getSelectedNodes()->size() > 0)
             _requestControlEvent->raise(this);
         else
             _resignControlEvent->raise(this);
+    }
+
+    void selectionInputController::pushSelectCommand(node* node)
+    {
+        auto selectCommand = new selectNodeCommand(node);
+
+        if (_isAdditiveSelection)
+        {
+            _commandsManager->executeCommand(selectCommand);
+            return;
+        }
+
+        auto commands = new multiCommand(
+        {
+            new deselectNodeCommand(*_selectionBehaviour->getSelectedNodes()),
+            selectCommand
+        });
+
+        _commandsManager->executeCommand(commands);
     }
 
     bool selectionInputController::onKeyDown(keyboardEventArgs* e)
@@ -143,27 +165,19 @@ namespace phi
             return false;
 
         auto idOnMousePosition = pickingFramebuffer::pick(e->x, e->y);
-
         auto clickComponent = pickingId::get(idOnMousePosition);
         if (!clickComponent)
         {
             if (_selectionBehaviour->getSelectedNodes()->size() > 0)
-                _commandsManager->executeCommand(new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
+                deselectAll();
 
-            return false;
+            return true;
         }
-
-        clickComponent->onMouseUp();
 
         auto clickedNode = clickComponent->getNode();
         select(clickedNode);
 
         return true;
-    }
-
-    bool selectionInputController::onMouseDoubleClick(phi::mouseEventArgs* e)
-    {
-        return false;
     }
 
     void selectionInputController::cancel()
@@ -174,26 +188,23 @@ namespace phi
     void selectionInputController::select(node* node)
     {
         auto targetNode = findTargetNode(node);
-
-        auto selectCommand = new selectNodeCommand(targetNode);
-
-        if (_isAdditiveSelection)
-        {
-            _commandsManager->executeCommand(selectCommand);
+        if (!targetNode)
             return;
-        }
 
-        auto commands = new multiCommand(
-        {
-            new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()),
-            selectCommand
-        });
+        if (!targetNode->isSelected())
+            pushSelectCommand(targetNode);
+        else if (_isAdditiveSelection)
+            deselect(targetNode);
+    }
 
-        _commandsManager->executeCommand(commands);
+    void selectionInputController::deselect(node* node)
+    {
+        auto deselectCommand = new deselectNodeCommand({ node });
+        _commandsManager->executeCommand(deselectCommand);
     }
 
     void selectionInputController::deselectAll()
     {
-        _commandsManager->executeCommand(new unselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
+        _commandsManager->executeCommand(new deselectNodeCommand(*_selectionBehaviour->getSelectedNodes()));
     }
 }

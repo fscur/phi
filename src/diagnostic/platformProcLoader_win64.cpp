@@ -28,6 +28,8 @@ namespace phi
 
     void platformProcLoader::loadKernel32Procs(const char* executableFileName)
     {
+        _unused(executableFileName);
+
         auto kernel32Library = LoadLibrary(_kernelLibraryName);
 
         win64ProcLibrary::createToolhelp32Snapshot = (win64ProcLibrary::kernel32CreateToolhelp32SnapshotFunction)GetProcAddress(kernel32Library, "CreateToolhelp32Snapshot");
