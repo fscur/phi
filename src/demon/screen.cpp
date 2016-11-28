@@ -216,6 +216,7 @@ namespace demon
             _translationController = sceneLayerBuilder.translationInputController;
             _translationController->translationStarted += std::bind(&screen::hideOnDemandUi, this);
             _translationController->translationEnded += std::bind(&screen::showOnDemandUi, this);
+
             _rotationController = sceneLayerBuilder.rotationInputController;
             _rotationController->rotationStarted += std::bind(&screen::hideOnDemandUi, this);
             _rotationController->rotationEnded += std::bind(&screen::showOnDemandUi, this);
@@ -234,7 +235,7 @@ namespace demon
                 .withTextRenderer()
                 .build();
 
-            _nandinhoCamera = new camera(_resolution, 0.1f, 10000.0f, PI_OVER_4);
+            _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
             _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
