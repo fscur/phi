@@ -55,4 +55,28 @@ namespace phi
         if (boxCollider)
             _adapter->update(boxCollider);
     }
+
+    void boxColliderLayerBehaviour::onNodeComponentAdded(node* node, component* component)
+    {
+        _unused(node);
+
+        if (component->getType() == component::componentType::BOX_COLLIDER)
+        {
+            auto collider = static_cast<phi::boxCollider*>(component);
+
+            if (!_adapter->contains(collider))
+                _adapter->add(collider);
+        }
+    }
+
+    void boxColliderLayerBehaviour::onNodeComponentRemoved(node* node, component* component)
+    {
+        _unused(node);
+
+        if (component->getType() == component::componentType::BOX_COLLIDER)
+        {
+            auto animator = static_cast<phi::boxCollider*>(component);
+            _adapter->remove(animator);
+        }
+    }
 }

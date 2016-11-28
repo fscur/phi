@@ -35,15 +35,24 @@ namespace phi
     void animatorLayerBehaviour::onNodeComponentAdded(node* node, component* component)
     {
         _unused(node);
-        auto animator = static_cast<phi::animator*>(component);
-        if (animator && !contains(_animators, animator))
-            _animators.push_back(animator);
+
+        if (component->getType() == component::componentType::ANIMATOR)
+        {
+            auto animator = static_cast<phi::animator*>(component);
+
+            if (!contains(_animators, animator))
+                _animators.push_back(animator);
+        }
     }
 
     void animatorLayerBehaviour::onNodeComponentRemoved(node* node, component* component)
     {
         _unused(node);
-        auto animator = static_cast<phi::animator*>(component);
-        removeIfContains(_animators, animator);
+
+        if (component->getType() == component::componentType::ANIMATOR)
+        {
+            auto animator = static_cast<phi::animator*>(component);
+            removeIfContains(_animators, animator);
+        }
     }
 }

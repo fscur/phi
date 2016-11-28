@@ -103,6 +103,11 @@ namespace phi
 
         size_t getInstanceCount() const { return _instanceCount; }
 
+        bool contains(KEY key)
+        {
+            return _instances.find(key) != _instances.end();
+        }
+
     private:
         void uploadData(size_t index, size_t size)
         {

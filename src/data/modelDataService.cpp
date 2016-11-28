@@ -43,42 +43,6 @@ namespace phi
     void modelDataService::addDefaultComponents(node* node)
     {
         node->addComponent(new phi::mouseInteractionComponent());
-
-        aabb rootAabb;
-        // TODO: remove this code when the nodes have obb information
-        auto rootBoxCollider = new phi::boxCollider(rootAabb.center, vec3(rootAabb.width, rootAabb.height, rootAabb.depth));
-        bool foundAabb;
-        rootBoxCollider->disable();
-        node->addComponent(rootBoxCollider);
-        node->traverse<phi::mesh>([&rootAabb, &foundAabb](mesh* mesh)
-        {
-            rootAabb = aabb::add(rootAabb, *mesh->getGeometry()->aabb);
-            foundAabb = true;
-        });
-
-        if (foundAabb)
-        {
-            auto boxCollider = new phi::boxCollider(rootAabb.center, rootAabb.getSize());
-            boxCollider->disable();
-            node->addComponent(boxCollider);
-        }
-
-        node->traverseNodesContaining<mesh>([](phi::node* n, phi::mesh* mesh)
-        {
-            n->addComponent(new phi::animator());
-            auto aabb = mesh->getGeometry()->aabb;
-
-            n->addComponent(new phi::boxCollider(
-                aabb->center,
-                vec3(aabb->width, aabb->height, aabb->depth)));
-
-            n->setLocalObb(new obb(
-                aabb->center,
-                vec3(1.0f, 0.0f, 0.0f),
-                vec3(0.0f, 1.0f, 0.0f),
-                vec3(0.0f, 0.0f, 1.0f),
-                vec3(aabb->halfWidth, aabb->halfHeight, aabb->halfDepth)));
-        });
     }
 
     node* modelDataService::assembleNode(nodeDTO nodeDTO)
