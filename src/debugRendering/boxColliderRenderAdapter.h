@@ -29,6 +29,7 @@ namespace phi
         DEBUG_RENDERING_API void add(boxCollider* node);
         DEBUG_RENDERING_API void remove(boxCollider* node);
         DEBUG_RENDERING_API void update(boxCollider* node);
+        DEBUG_RENDERING_API bool contains(boxCollider* node);
 
         vertexArrayObject* getVao() const { return _vao; };
 

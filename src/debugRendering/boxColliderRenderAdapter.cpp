@@ -146,4 +146,9 @@ namespace phi
     {
         updateModelMatrix(boxCollider);
     }
+
+    bool boxColliderRenderAdapter::contains(boxCollider* node)
+    {
+        return _modelMatricesBuffer->contains(node);
+    }
 }

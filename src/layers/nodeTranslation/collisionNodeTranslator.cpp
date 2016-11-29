@@ -294,6 +294,9 @@ namespace phi
             {
                 _unused(collider);
 
+                if (node == traversedNode)
+                    return;
+
                 auto destination = _nodesDestinationPositions[traversedNode];
                 destination += offset;
                 _nodesDestinationPositions[traversedNode] = destination;

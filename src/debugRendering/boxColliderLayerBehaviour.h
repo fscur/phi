@@ -31,6 +31,8 @@ namespace phi
         DEBUG_RENDERING_API void onNodeAdded(node* node);
         DEBUG_RENDERING_API void onNodeRemoved(node* node);
         DEBUG_RENDERING_API void onNodeTransformChanged(node* node);
+        DEBUG_RENDERING_API void onNodeComponentAdded(node* node, component* component);
+        DEBUG_RENDERING_API void onNodeComponentRemoved(node* node, component* component);
 
         vector<renderPass*> getRenderPasses() { return _renderPasses; }
     };

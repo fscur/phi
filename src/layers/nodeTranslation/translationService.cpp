@@ -217,7 +217,6 @@ namespace phi
         offset += _collidedDelta + _snappedDelta;
         offset += getSnapOffset(offset);
         offset += tryChangeToAttachedPlane(offset);
-
         translateTargetNodes(offset);
 
         _offsetPlane.origin = targetPosition;
@@ -226,7 +225,6 @@ namespace phi
         tryChangeToPlanesFromCollisions();
         addClippingPlanes();
         updateClippingPlanes();
-
         _lastMousePosition = mousePosition;
     }
 

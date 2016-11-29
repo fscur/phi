@@ -121,6 +121,8 @@ namespace phi
         _layer->addOnNodeAdded(std::bind(&boxColliderLayerBehaviour::onNodeAdded, boxColliderBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&boxColliderLayerBehaviour::onNodeRemoved, boxColliderBehaviour, std::placeholders::_1));
         _layer->addOnNodeTransformChanged(std::bind(&boxColliderLayerBehaviour::onNodeTransformChanged, boxColliderBehaviour, std::placeholders::_1));
+        _layer->addOnNodeComponentAdded(std::bind(&boxColliderLayerBehaviour::onNodeComponentAdded, boxColliderBehaviour, std::placeholders::_1, std::placeholders::_2));
+        _layer->addOnNodeComponentRemoved(std::bind(&boxColliderLayerBehaviour::onNodeComponentRemoved, boxColliderBehaviour, std::placeholders::_1, std::placeholders::_2));
 
         _layer->addRenderPasses(boxColliderBehaviour->getRenderPasses());
 
