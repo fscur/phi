@@ -81,9 +81,9 @@ namespace phi
             program->bind();
 
             if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::handles);
+                program->setUniform(0, texturesManager::textureArraysHandles);
             else
-                program->setUniform(0, textureUnits::units);
+                program->setUniform(0, texturesManager::textureArraysUnits);
         });
 
         pass->setOnRender([](const vector<vertexArrayObject*>& vaos)

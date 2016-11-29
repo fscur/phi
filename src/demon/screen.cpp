@@ -187,7 +187,6 @@ namespace demon
             .withFont(font)
             .build();
 
-        auto obj = _userLibrary->getModelByIndex(0);
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
         _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, 4.0f));
@@ -209,8 +208,7 @@ namespace demon
                 .withSelectionController()
                 .withRotationController()
                 .withTranslationController()
-                .withSkyBoxRenderer()
-                .build();
+                .withSkyBoxRenderer();
 
             _sceneLayer = sceneLayerBuilder.build();
             _sceneLayer->addOnNodeSelectionChanged(std::bind(&screen::onNodeSelectionChanged, this, std::placeholders::_1));
@@ -369,6 +367,7 @@ namespace demon
         _sceneLayer->add(coffeTable);
         */
 
+        auto obj = _userLibrary->getModelByIndex(0);
         _scene->add(obj);
 
         //_constructionLayer->add(_constructionLabel);

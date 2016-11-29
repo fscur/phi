@@ -147,7 +147,7 @@ namespace phi
 
             if (added)
             {
-                auto index = static_cast<int>(phi::indexOf(textureArraysUnits, textureAddress.unit));
+                index = static_cast<int>(phi::indexOf(textureArraysUnits, textureAddress.unit));
                 textureAddress.index = index;
                 _textures[texture] = textureAddress;
                 return textureAddress;
@@ -187,7 +187,7 @@ namespace phi
 
             if (added)
             {
-                auto index = static_cast<int>(phi::indexOf(textureArraysUnits, textureAddress.unit));
+                index = static_cast<int>(phi::indexOf(textureArraysUnits, textureAddress.unit));
                 textureAddress.index = index;
                 _textures[texture] = textureAddress;
                 return textureAddress;

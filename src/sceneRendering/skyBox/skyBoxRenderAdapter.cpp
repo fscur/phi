@@ -50,7 +50,7 @@ namespace phi
             1, 5, 6, 6, 2, 1
         };
 
-        auto skyBoxQuad = geometry::create(vertices, indices);
+        auto skyBoxQuad = geometry::create(guid::newGuid(), vertices, indices);
 
         auto renderFunction = [&]
         {

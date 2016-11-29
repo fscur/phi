@@ -24,7 +24,7 @@ namespace phi
         framebufferAllocator* framebufferAllocator)
     {
         auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
-        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
+        //auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto skyBoxProgram = programBuilder::buildProgram(shadersPath, "skyBox", "skyBox");
         skyBoxProgram->addBuffer(renderAdapter->getSkyBoxDataBuffer());
@@ -39,6 +39,8 @@ namespace phi
 
         pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             framebuffer->bindForDrawing();
 
             program->bind();
@@ -60,13 +62,13 @@ namespace phi
 
         pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
         {
+            _unused(resolution);
+
             program->unbind();
 
             glDisable(GL_DEPTH_TEST);
             
             framebuffer->unbind(GL_FRAMEBUFFER);
-
-            
         });
 
         return pass;

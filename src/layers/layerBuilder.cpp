@@ -9,7 +9,7 @@
 #include <ui/control.h>
 #include <ui/text.h>
 
-#include "ui/uiMouseController.h"
+#include "ui/uiInputController.h"
 #include "layerBuilder.h"
 
 
