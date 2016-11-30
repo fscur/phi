@@ -154,8 +154,9 @@ namespace demon
         auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
 
         _labelFps = labelBuilder::newLabel(L"Fps: 0")
-            .withPosition(vec3(-280.f, 100.f, 0.f))
-            .withControlColor(1.0f, 0.0f, 1.0f, 1.f)
+            .withPosition(vec3(-280.f, 120.f, 0.f))
+            .withGlassyLook()
+            .withControlColor(1.0f, 0.0f, 1.0f, 0.3f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
             .withFont(fontFps)
             .build();
@@ -189,8 +190,8 @@ namespace demon
 
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, 4.0f));
-        _sceneCamera->getTransform()->yaw(PI);
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, -5.0f));
+        _sceneCamera->getTransform()->pitch(0.3f);
 
         _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
         _rotationImage = importer::importImage(application::resourcesPath + "/images/rotation.png");
@@ -346,29 +347,12 @@ namespace demon
 
         _sceneLayer->add(skyBoxNode);
 
-        /*for (size_t i = 0; i < 5; i++)
-        {
-            for (size_t j = 0; j < 5; j++)
-            {
-                auto chair = _userLibrary->getObjectsRepository()->getAllResources()[2]->getClonedObject();
-                chair->getTransform()->setLocalPosition(vec3(i, 0.0f, j));
-                _sceneLayer->add(chair);
-            }
-        }*/
-
-        //_sceneLayer->add(cube1);
+        auto obj0 = _userLibrary->getModelByIndex(3); //chair
+        obj0->getTransform()->yaw(phi::PI_OVER_2);
+        //auto obj1 = _userLibrary->getModelByIndex(24); // floor
         
-        /*
-        _sceneLayer->add(_chair0);
-        _sceneLayer->add(floor0);
-        _sceneLayer->add(back_wall);
-        _sceneLayer->add(table);
-        _sceneLayer->add(tableChair);
-        _sceneLayer->add(coffeTable);
-        */
-
-        auto obj = _userLibrary->getModelByIndex(0);
-        _scene->add(obj);
+        _scene->add(obj0);
+        //_scene->add(obj1);
 
         //_constructionLayer->add(_constructionLabel);
 

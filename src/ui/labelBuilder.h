@@ -17,6 +17,7 @@ namespace phi
     public:
         UI_API labelBuilder withPosition(vec3 position);
         UI_API labelBuilder withFont(phi::font* font);
+        UI_API labelBuilder withGlassyLook();
         UI_API labelBuilder withControlColor(float r, float g, float b, float a);
         UI_API labelBuilder withTextColor(float r, float g, float b, float a);
         UI_API node* build();

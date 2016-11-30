@@ -42,6 +42,12 @@ namespace phi
         return *this;
     }
 
+    labelBuilder labelBuilder::withGlassyLook()
+    {
+        _label->getComponent<control>()->setIsGlassy(true);
+        return *this;
+    }
+
     labelBuilder labelBuilder::withControlColor(float r, float g, float b, float a)
     {
         _label->getComponent<control>()->setColor(color::fromRGBA(r, g, b, a));
