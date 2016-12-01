@@ -1,9 +1,6 @@
 #version 450
 
-const float ambientIntensity = 0.5;
-const vec3 lightDirection = vec3(0.0, -1.0, -1.0);
-const float lightIntensity = 1.0;
-const vec4 lightColor = vec4(1.0);
+
 
 in vec2 fragTexCoord;
 
@@ -104,8 +101,24 @@ vec3 decodeNormal (vec2 enc)
 //    return vec4(c, c, c, 1.0);
 //}
 
+vec2 blinn_phong(vec3 eyeDir, vec3 lightDir, vec3 normal, float specularPower)
+{
+    vec3 h = normalize(-eyeDir+lightDir);
+    
+    float diffuse = clamp(dot(normal, lightDir)/3.141592, 0.0, 1.0);
+    float specular = pow(clamp(dot(normal, h), 0.0, 1.0), specularPower);
+
+    return vec2(diffuse, specular);
+}
+
 void main()
 {
+    float gamma = 2.2;
+    vec3 lightDirection = vec3(0.0, 6.0, 5.0);
+    vec3 lightColor = vec3(0.9, 0.9, 0.9);
+    float ambientIntensity = 0.2;
+    float lightIntensity = 1.0;
+
     vec4 c0 = fetchRt0();
     vec4 c1 = fetchRt1();
     vec4 c2 = fetchRt2();
@@ -115,30 +128,21 @@ void main()
     vec3 fragNormal = decodeNormal(vec2(c0.w, c1.w));
     float shininess = c2.x;
 
-    vec4 diffuseColor = vec4(c0.xyz, 1.0);
-    vec4 specularColor = vec4(c1.xyz, 1.0);
+    vec3 diffuseColor = c0.xyz;
+    vec3 specularColor = c1.xyz;
 
     vec3 lightDir = mat3(frameUniforms.v) * normalize(lightDirection);
-    vec3 s = normalize(-lightDir);
-    vec3 fp = normalize(-fragPosition);
-    vec3 h = normalize(fp+s);
+    vec3 eyeDir = normalize(fragPosition);
+
+    vec2 blinnPhong = blinn_phong(eyeDir, lightDir, fragNormal, shininess);
+
+    float diffuse = blinnPhong.x;
+    float specular = blinnPhong.y;
     
-    float diffuse = lightIntensity * max(0.0, dot(fragNormal, s));
-    float spec = pow(max(0.0, dot(fragNormal, h)), shininess);
-
-    vec4 ambientComponent = diffuseColor * ambientIntensity;
-    vec4 diffuseComponent = lightColor * diffuseColor * diffuse;
-    vec4 specularComponent = lightColor * diffuseColor * spec;
-
-    int picking = fetchPicking(fragTexCoord);
-    bool isTranslating = (picking & 2) == 2;
-
-    fragColor = ambientComponent + diffuseComponent + specularComponent;
-    
-    //if (isTranslating)
-    //    fragColor = vec4(0.0, 0.0, 1.0, 1.0);
-
-    //fragColor = diffuseComponent + ambientComponent;
-    //fragColor = vec4(fragTexCoord, 0.0, 1.0);
-    //fragColor = c0;
+    vec3 color = vec3(ambientIntensity);
+    color += diffuse;
+    color += diffuse * specular * specularColor;
+    color *= diffuseColor * lightColor * lightIntensity;
+    fragColor = vec4(color, 1.0);
+    fragColor = vec4(pow(color, vec3(1.0/gamma)), 1.0);
 }

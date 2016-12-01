@@ -2,6 +2,7 @@
 #include <phi.h>
 
 #include <core/guid.h>
+#include <core/material.h>
 
 #include "vec3DTO.h"
 
@@ -9,18 +10,52 @@ namespace phi
 {
     struct materialDTO
     {
-        phi::guid guid;
-        phi::guid albedoTextureGuid;
-        phi::guid normalTextureGuid;
-        phi::guid specularTextureGuid;
-        phi::guid emissiveTextureGuid;
-        vec3DTO albedoColor;
-        vec3DTO specularColor;
-        vec3DTO emissiveColor;
-        float shininess;
-        float reflectivity;
-        float emission;
-        float opacity;
+
+    public:
+        materialDTO(){}
+    
+        materialDTO(phi::guid guid,
+            phi::guid albedoTextureGuid,
+            phi::guid normalTextureGuid,
+            phi::guid specularTextureGuid,
+            phi::guid emissiveTextureGuid,
+            vec3 albedoColor,
+            vec3 specularColor,
+            vec3 emissiveColor,
+            float shininess,
+            float reflectivity,
+            float emission,
+            float opacity) :
+            albedoTextureGuid(albedoTextureGuid),
+            normalTextureGuid(normalTextureGuid),
+            specularTextureGuid(specularTextureGuid),
+            emissiveTextureGuid(emissiveTextureGuid),
+            albedoColor(albedoColor),
+            specularColor(specularColor),
+            emissiveColor(emissiveColor),
+            shininess(shininess),
+            reflectivity(reflectivity),
+            emission(emission),
+            opacity(opacity)
+        {
+        }
+
+        static materialDTO from(phi::material* material)
+        {
+            return materialDTO(
+                material->getGuid(),
+                material->albedoImage->getGuid(),
+                material->normalImage->getGuid(),
+                material->specularImage->getGuid(),
+                material->emissiveImage->getGuid(),
+                material->albedoColor,
+                material->specularColor,
+                material->emissiveColor,
+                material->shininess,
+                material->reflectivity,
+                material->emission,
+                material->opacity);
+        }
 
         template <typename Archive>
         void serialize(Archive& archive)
@@ -40,5 +75,19 @@ namespace phi
                 cereal::make_nvp("Opacity", opacity)
             );
         }
+
+    public:
+        phi::guid guid;
+        phi::guid albedoTextureGuid;
+        phi::guid normalTextureGuid;
+        phi::guid specularTextureGuid;
+        phi::guid emissiveTextureGuid;
+        vec3DTO albedoColor;
+        vec3DTO specularColor;
+        vec3DTO emissiveColor;
+        float shininess;
+        float reflectivity;
+        float emission;
+        float opacity;
     };
 }

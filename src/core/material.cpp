@@ -5,7 +5,7 @@ namespace phi
 {
     material* material::defaultMaterial = material::createDefaultMaterial();
 
-    inline material * material::createDefaultMaterial()
+    inline material* material::createDefaultMaterial()
     {
         return new material(
             guid::newGuid(),

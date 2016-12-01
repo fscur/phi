@@ -199,6 +199,12 @@ namespace phi
         setChanged();
     }
 
+    void transform::setLocalPosition(float x, float y, float z)
+    {
+        _localPosition = vec3(x, y, z);
+        setChanged();
+    }
+
     void transform::setLocalOrientation(quat value)
     {
         _localOrientation = value;

@@ -11,9 +11,9 @@ namespace phi
 
         vec3DTO(vec3 vec)
         {
-            vector[0] = vec.x;
-            vector[1] = vec.y;
-            vector[2] = vec.z;
+            vector.push_back(vec.x);
+            vector.push_back(vec.y);
+            vector.push_back(vec.z);
         }
 
         vec3 toVec3()

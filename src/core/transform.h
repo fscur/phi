@@ -47,7 +47,10 @@ namespace phi
         CORE_API vec3 getDirection();
 
         CORE_API void setParent(transform* value);
+        
         CORE_API void setLocalPosition(vec3 value);
+        CORE_API void setLocalPosition(float x, float y, float z);
+
         CORE_API void setLocalOrientation(quat value);
         CORE_API void setLocalSize(vec3 value);
         CORE_API void setDirection(vec3 direction);

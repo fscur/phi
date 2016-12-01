@@ -24,13 +24,21 @@ namespace phi
 
     material* materialRepository::getById(const guid& guid)
     {
-        auto entry = _index.getEntryById(guid);
-        auto materialPath = path::combine(_libraryPath, entry.path);
-        std::ifstream inputFileStream(materialPath);
-        JSONInputArchive archive(inputFileStream);
-
         materialDTO materialDTO;
-        materialDTO.serialize(archive);
+
+        if (!_index.contains(guid))
+        {
+            materialDTO = materialDTO::from(material::defaultMaterial);
+        }
+        else
+        {
+            auto entry = _index.getEntryById(guid);
+            auto materialPath = path::combine(_libraryPath, entry.path);
+            std::ifstream inputFileStream(materialPath);
+            JSONInputArchive archive(inputFileStream);
+
+            materialDTO.serialize(archive);
+        }
 
         auto albedoImage = _imageRepository->getById(materialDTO.albedoTextureGuid);
         auto normalImage = _imageRepository->getById(materialDTO.normalTextureGuid);

@@ -77,6 +77,7 @@ namespace demon
         void initFramebuffers();
         void initLibraries();
         void initContexts();
+        void initScene();
         void initInput();
 
         phi::node* createOnDemandUiNode();

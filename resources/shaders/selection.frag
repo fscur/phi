@@ -99,13 +99,13 @@ void main()
 {
     vec3 edgeColor = vec3(1.0, 1.0, 1.0);
     vec3 innerEdgeColor = vec3(1.0, 0.5, 0.0);
-    vec3 fillColor = vec3(0.2, 0.5, 0.8);
+    vec3 fillColor = vec3(0.75, 0.9, 0.0);
     float g = gradient(1.0);
     float g2 = gradient2(0.75);
 
     fragColor = 
         vec4(edgeColor, 1.0) * g + 
-        vec4(fillColor, 0.5) * fetchAlpha(0.0, 0.0) + 
+        vec4(fillColor, 0.3) * fetchAlpha(0.0, 0.0) + 
         vec4(edgeColor, 1.0) * fetchAlpha(0.0, 0.0) * g2;
     
     //fragColor = vec4(vec3(fetchSelection(1.0, 1.0)), 1.0); 

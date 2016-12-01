@@ -190,8 +190,11 @@ namespace demon
 
 
         _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, -5.0f));
-        _sceneCamera->getTransform()->pitch(0.3f);
+        //_sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, -15.0f));
+        //_sceneCamera->getTransform()->pitch(0.3f);
+
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
+        _sceneCamera->getTransform()->yaw(PI);
 
         _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
         _rotationImage = importer::importImage(application::resourcesPath + "/images/rotation.png");
@@ -347,12 +350,7 @@ namespace demon
 
         _sceneLayer->add(skyBoxNode);
 
-        auto obj0 = _userLibrary->getModelByIndex(3); //chair
-        obj0->getTransform()->yaw(phi::PI_OVER_2);
-        //auto obj1 = _userLibrary->getModelByIndex(24); // floor
-        
-        _scene->add(obj0);
-        //_scene->add(obj1);
+        initScene();
 
         //_constructionLayer->add(_constructionLabel);
 
@@ -366,6 +364,39 @@ namespace demon
         _nandinhoLayer->add(saveProjectButton);
 
         _activeContext = _designContext;
+    }
+
+    void screen::initScene()
+    {
+        auto floor = _userLibrary->getModelByIndex(24);
+        auto wall_front = _userLibrary->getModelByIndex(21);
+        wall_front->getTransform()->setLocalPosition(0.0f, 0.0f, -2.0f);
+
+        auto wall_left = _userLibrary->getModelByIndex(26);
+        wall_left->getTransform()->setLocalPosition(-5.0f, 0.0f, 0.0f);
+
+        _scene->add(floor);
+        //_scene->add(wall_front);
+        //_scene->add(wall_left);
+        
+        auto chair_brown = _userLibrary->getModelByIndex(3);
+        chair_brown->getTransform()->setLocalPosition(-1.0f, 0.0f, 0.0f);
+        chair_brown->getTransform()->yaw(phi::PI_OVER_2);
+
+        auto chair_black = _userLibrary->getModelByIndex(4);
+        chair_black->getTransform()->setLocalPosition(1.0f, 0.0f, 0.0f);
+        chair_black->getTransform()->yaw(phi::PI_OVER_2);
+
+        _scene->add(chair_brown);
+        _scene->add(chair_black);
+
+        //auto sun = _userLibrary->getModelByIndex(15);
+        //sun->getTransform()->setLocalPosition(0.0f, 5.0f, 5.0f);
+        //_scene->add(sun);
+
+        /*auto sphere = _userLibrary->getModelByIndex(15);
+        sphere->getTransform()->setLocalPosition(0.0f, 0.0f, -10.0f);
+        _scene->add(sphere);*/
     }
 
     void screen::initInput()
