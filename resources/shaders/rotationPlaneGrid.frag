@@ -150,6 +150,22 @@ float circlesSdf(vec2 uv, float thickness, float size)
     return axisSdf(r, thickness, size);
 }
 
+float lineSdf(in vec2 uv, in float thickness, in float angle)
+{
+    vec2 end = vec2(cos(angle), sin(angle));
+    float line = lineSegment(vec2(0.0), end * planeDist * 100.0, uv);
+
+    if (line <= thickness * 0.5)
+        line = expNorm(line / thickness);
+    else
+        line = 0.0;
+    
+    return line;
+
+   // float width = fwidth(line);
+   // return contour(line, width);
+}
+
 float contour(in float dist, in float w) 
 {
     return smoothstep(0.5 - w, 0.5 + w, dist);
@@ -198,6 +214,25 @@ float applyRadiiAA(
     return (alpha + 0.5 * asum) / 3.0;
 }
 
+float applyLineAA(
+    in vec2 uv, 
+    in float alpha, 
+    in float width, 
+    in float thickness,
+    in float angle)
+{
+    float dscale = 0.354;
+    vec2 duv = dscale * (dFdx(uv) + dFdy(uv));
+    vec4 box = vec4(uv-duv, uv+duv);
+
+    float asum = samp(lineSdf(box.xy, thickness, angle), width)
+               + samp(lineSdf(box.zw, thickness, angle), width)
+               + samp(lineSdf(box.xw, thickness, angle), width)
+               + samp(lineSdf(box.zy, thickness, angle), width);
+
+    return (alpha + 0.5 * asum) / 3.0;
+}
+
 float addRadii(in vec2 uv, in float thickness, in float angle)
 {
     float dist = radiiSdf(uv, thickness, angle);
@@ -213,6 +248,15 @@ float addCircles(in vec2 uv, in float thickness, in float size)
     float width = fwidth(dist);
     float grid = contour(dist, width);
     grid = applyCirclesAA(uv, grid, width, thickness, size);
+    return grid;
+}
+
+float addLine(in vec2 uv, in float thickness, in float angle)
+{
+    float dist = lineSdf(uv, thickness, angle);
+    float width = fwidth(dist);
+    float grid = contour(dist, width);
+    grid = applyLineAA(uv, grid, width, thickness, angle);
     return grid;
 }
 
@@ -238,28 +282,17 @@ float twoWayInvLerp(float lowerBound, float upperBound, float value)
     return factor * (1 - factor) * 4;
 }
 
-float addCurrentAngle(in vec2 uv, in float thicknessInPixels, in float angle)
+float getCurrentAngle(in vec2 uv, in float angle)
 {
 	vec2 rotatedPolarPos0 = toPolar(uv);
     float detectionEdgeDist0 = (mod(rotatedPolarPos0.y, 2.0 * PI) - angle) / PI;
     float currentAngle = 1.0 - smoothstep(0.0, 0.001, detectionEdgeDist0);
-    
-    float thickness = screenToWorld(thicknessInPixels);
-    vec2 end = vec2(cos(angle), sin(angle));
-    float line = lineSegment(vec2(0.0), end * planeDist * 100.0, uv);
 
-    if (line <= thickness * 0.5)
-        line = expNorm(line / thickness);
-    else
-        line = 0.0;
-    
-    return (currentAngle * 0.4) + (line * 1.2);
+    return currentAngle;
 }
 
-float addRadii(in vec2 uv, in float thicknessInPixels)
+float addRadii(in vec2 uv, in float thickness)
 {
-    float thickness = screenToWorld(thicknessInPixels);
-
     int innerRadiiIndex = getRadiiDistIndex(planeDist);
     float innerRadiiDist = radiiDistances[innerRadiiIndex];
     float innerRadiiAngle = radiiAngles[innerRadiiIndex];
@@ -279,62 +312,82 @@ float addRadii(in vec2 uv, in float thicknessInPixels)
     return innerRadii * clamp(innerFactor - 0.25, 0.0, 1.0) + outerRadii * clamp(outerFactor + 0.25, 0.0, 1.0);
 }
 
-float addCircles(in vec2 uv, in float thicknessInPixels)
+float addAngleLine(in vec2 uv, in float thickness, in float angle)
 {
-    float thickness = screenToWorld(thicknessInPixels);
+    vec2 end = vec2(cos(angle), sin(angle));
+    float line = lineSegment(vec2(0.0), end * planeDist * 100.0, uv);
 
-    int innerCirclesIndex = getCirclesDistIndex(planeDist);
-    float innerCirclesDist = circlesDistances[innerCirclesIndex];
-    float innerCirclesSize = circlesRadii[innerCirclesIndex];
+    if (line <= thickness * 0.5)
+        line = expNorm(line / thickness);
+    else
+        line = 0.0;
 
-    int outerCirclesIndex = innerCirclesIndex + 1;
-    float outerCirclesDist = circlesDistances[outerCirclesIndex];
-    float outerCirclesSize = circlesRadii[outerCirclesIndex];
-    
-    float distFactor = invLerp(innerCirclesDist, outerCirclesDist, planeDist);
-
-    float outerFactor = -exp(-10.0 * distFactor) + 1.0;
-    float innerFactor = pow(distFactor, 2) - (2.0 * distFactor) + 1.0;
-    
-    float innerCircles = addCircles(uv, thickness, innerCirclesSize);
-    float outerCircles = addCircles(uv, thickness, outerCirclesSize);
-    
-    return innerCircles * clamp(innerFactor - 0.25, 0.0, 1.0) + outerCircles * clamp(outerFactor + 0.25, 0.0, 1.0);
+    float width = fwidth(line);
+    return contour(line, width);
 }
 
-float addNinetyDegreesMark(vec2 uv)
+float addCurrentAnglePie(in float dist, in float currentAngle, in float radius)
+{   
+    return currentAngle * (1.0 - smoothstep(radius-0.01, radius+0.01, dist));
+}
+
+float addCurrentAngleCircle(in vec2 uv, in float dist, in float thickness, in float currentAngle, in float radius)
 {
-    vec2 polarUv = toPolar(uv);
-    float theta = polarUv.y;
-    float angle = 90.0;
-    float alpha = angle * ONE_DEGREE_IN_RADIAN;
-    float edge = floor(theta/alpha);
-    
-    return mod(edge, 2.0) == 0.0 ? 0.0 : 0.3;
+    float circle = addCircles(uv, thickness, radius);
+    return currentAngle * circle * (1.0 - smoothstep(radius+0.05, radius+0.11, dist));
 }
 
 float fadeBorder()
 {
     float d = length(fragTexCoord);
-    float maxBorderDist = (planeSize * 0.5);
+    float maxBorderDist = (planeSize * 0.25);
     return 1.0 - smoothstep(0.0, maxBorderDist, d);
+}
+
+vec4 blend(vec4 s, vec4 d)
+{
+    float r = (s.r * s.a) + (d.r * (1 - s.a));
+    float g = (s.g * s.a) + (d.g * (1 - s.a));
+    float b = (s.b * s.a) + (d.b * (1 - s.a));
+    float a = (s.a * s.a) + (d.a * (1 - s.a));
+    
+    return vec4(r, g, b, a);
 }
 
 void main()
 {
     rotationPlaneGridRenderData data = renderData.items[instanceId];
     vec2 uv = fragTexCoord;
-    vec3 color = data.color.rgb;
+    //vec3 color = data.color.rgb;
+    vec3 color = vec3(1.0);
 
-    float circles = addCircles(uv, data.lineThickness);
-    float radii = addRadii(uv, data.lineThickness);
-    float ninetyDegrees = addNinetyDegreesMark(uv);
-    float currentAngle = addCurrentAngle(uv, data.lineThickness, data.angle);
+    float thickness = screenToWorld(data.lineThickness);
+    float radius = planeDist * 0.25;
+    float dist = length(uv);
+    float radiusMask = 1.0 - smoothstep(radius-0.01, radius+0.01, dist);
+    float currentAngle = getCurrentAngle(uv, data.angle);
+    
+    float pie = addCurrentAnglePie(dist, currentAngle, radius);
+    float circle = addCurrentAngleCircle(uv, dist, thickness, currentAngle, radius);
+    float currentAngleLine = addLine(uv, thickness, data.angle) * radiusMask;
+    float zeroAngleLine = addLine(uv, thickness, 0) * radiusMask;
+    float radii = addRadii(uv, thickness);
     //float currentAngle = addCurrentAngle(uv, data.lineThickness, 2.0 * PI - 0.2);
-    float border = fadeBorder();
+    //float border = fadeBorder();
 
-    float opacity = (circles + radii + currentAngle + ninetyDegrees) * border;
+    //float opacity = (circles + radii + currentAngle + ninetyDegrees) * border;
+    float opacity =  
+        radii * radiusMask * currentAngle + 
+        currentAngleLine + 
+        zeroAngleLine + 
+        circle * 3.0 + 
+        pie * 0.2;
+
+    float background = 
+        radiusMask * 0.1 + 
+        radii * radiusMask * 0.1;
 
     vec3 finalColor = mix(color, vec3(1.0, 0.0, 0.0), data.visibility);
-    fragColor = vec4(finalColor, opacity * data.opacity);
+
+    fragColor = vec4(finalColor, (background + opacity) * data.opacity);
 }

@@ -161,7 +161,7 @@ namespace demon
             .withFont(fontFps)
             .build();
 
-        _labelNandinho = labelBuilder::newLabel(L"nanddiinho")
+        _labelNandinho = labelBuilder::newLabel(L"nandinhooooo")
             .withPosition(vec3(-280.f, 80.f, 0.f))
             .withControlColor(1.0f, 0.0f, 0.0f, 1.0f)
             .withTextColor(1.f, 1.f, 1.f, 1.f)
@@ -383,7 +383,7 @@ namespace demon
         chair_brown->getTransform()->setLocalPosition(-1.0f, 0.0f, 0.0f);
         chair_brown->getTransform()->yaw(phi::PI_OVER_2);
 
-        auto chair_black = _userLibrary->getModelByIndex(4);
+        auto chair_black = _userLibrary->getModelByIndex(2);
         chair_black->getTransform()->setLocalPosition(1.0f, 0.0f, 0.0f);
         chair_black->getTransform()->yaw(phi::PI_OVER_2);
 

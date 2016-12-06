@@ -208,7 +208,7 @@ void main()
 
     grid += 0.4;
 
-    vec3 color = data.color.rgb;
+    vec3 color = vec3(1.0);
     float opacity = grid * border * data.opacity;
 
     if (dot(data.clipPlane0, fragWorldPosition) < 0.0)

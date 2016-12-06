@@ -112,10 +112,10 @@ void main()
     bool isTranslating = (picking & 2) == 2;
 
     vec3 color = vec3(1.0);
-    float a = 0.4;
+    float a = 0.8;
 
     if (!(myDepth < bufferDepth || isTranslating))
-        a = 0.8 * max(dot(normal, -lightDir), 0.8);
+        a = 0.4 * max(dot(normal, -lightDir), 0.4);
 
     fragColor = vec4(color, a);
 }
