@@ -36,7 +36,7 @@ namespace phi
         const string& resourcesPath)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto textRenderPass = textRenderPass::configure(renderAdapter, resolution, shadersPath);
-        return { textRenderPass };
+        auto renderPass = new textRenderPass(renderAdapter, resolution, shadersPath);
+        return { renderPass };
     }
 }

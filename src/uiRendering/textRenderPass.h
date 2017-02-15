@@ -10,13 +10,18 @@
 
 namespace phi
 {
-    class textRenderPass
+    class textRenderPass :
+        public renderPass
     {
     public:
-        textRenderPass() = delete;
-        static renderPass * configure(
+        textRenderPass(
             textRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath);
+
+        ~textRenderPass();
+
+        void onBeginRender() override;
+        void onEndRender() override;
     };
 }

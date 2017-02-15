@@ -7,62 +7,50 @@
 
 namespace phi
 {
-    renderPass * textRenderPass::configure(
+    textRenderPass::textRenderPass(
         textRenderAdapter* renderAdapter, 
-        const resolution& resolution,
-        const string& shadersPath)
+        const resolution& resolution, 
+        const string& shadersPath) :
+        renderPass(resolution)
     {
-        auto program = programBuilder::buildProgram(shadersPath, "text", "text");
-        program->addBuffer(renderAdapter->getGlyphRenderDataBuffer());
-        program->addBuffer(renderAdapter->getParentModelMatricesBuffer());
-
-        auto pass = new renderPass(program, framebuffer::defaultFramebuffer, resolution);
-        pass->addVao(renderAdapter->getVao());
+        _program = programBuilder::buildProgram(shadersPath, "text", "text");
+        _program->addBuffer(renderAdapter->getGlyphRenderDataBuffer());
+        _program->addBuffer(renderAdapter->getParentModelMatricesBuffer());
         
-        pass->setOnCanRender([=]()
-        {
-            return true;
-        });
+        _framebuffer = framebuffer::defaultFramebuffer;
 
-        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            _unused(resolution);
+        addVao(renderAdapter->getVao());
+    }
 
-            framebuffer->bindForDrawing();
+    textRenderPass::~textRenderPass()
+    {
+    }
 
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glBlendColor(1, 1, 1, 1);
+    void textRenderPass::onBeginRender()
+    {
+        _framebuffer->bindForDrawing();
 
-            program->bind();
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendColor(1, 1, 1, 1);
 
-            if (texturesManager::getIsBindless())//TODO: AAAAAAAAAAAAA ARRUMA LAMBDAS SOMETHING
-                program->setUniform(0, texturesManager::textureArraysHandles);
-            else
-                program->setUniform(0, texturesManager::textureArraysUnits);
-        });
+        _program->bind();
 
-        pass->setOnRender([](const vector<vertexArrayObject*>& vaos)
-        {
-            for (auto vao : vaos)
-                vao->render();
-        });
+        if (texturesManager::getIsBindless())
+            _program->setUniform(0, texturesManager::textureArraysHandles);
+        else
+            _program->setUniform(0, texturesManager::textureArraysUnits);
+    }
 
-        pass->setOnEndRender([](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            _unused(framebuffer);
-            _unused(resolution);
+    void textRenderPass::onEndRender()
+    {
+        _program->unbind();
 
-            program->unbind();
-
-            glBlendColor(0, 0, 0, 0);
-            glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-        });
-
-        return pass;
+        glBlendColor(0, 0, 0, 0);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
     }
 }

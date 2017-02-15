@@ -18,9 +18,9 @@ namespace phi
         _resourcesPath(resourcesPath)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto boxRenderPass = translationPlaneGridRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+        auto renderPass = new translationPlaneGridRenderPass(_adapter, resolution, shadersPath, framebufferAllocator);
 
-        _renderPasses = { boxRenderPass };
+        _renderPasses = { renderPass };
     }
 
     translationPlaneGridLayerBehaviour::~translationPlaneGridLayerBehaviour()

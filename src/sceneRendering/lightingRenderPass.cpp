@@ -15,96 +15,83 @@
 
 namespace phi
 {
-    renderPass* lightingRenderPass::configure(
+    lightingRenderPass::lightingRenderPass(
         const resolution& resolution,
         const string& shadersPath,
-        framebufferAllocator* framebufferAllocator)
+        framebufferAllocator* framebufferAllocator) :
+        renderPass(resolution),
+        _shadersPath(shadersPath),
+        _framebufferAllocator(framebufferAllocator)
     {
-        auto rt0 = framebufferAllocator->getRenderTarget("gBuffer_rt0");
-        auto rt1 = framebufferAllocator->getRenderTarget("gBuffer_rt1");
-        auto rt2 = framebufferAllocator->getRenderTarget("gBuffer_rt2");
-        auto rtDepth = framebufferAllocator->getRenderTarget("depthRenderTarget");
-        auto rtPicking = framebufferAllocator->getRenderTarget("pickingRenderTarget");
+        _rt0 = _framebufferAllocator->getRenderTarget("gBuffer_rt0");
+        _rt1 = _framebufferAllocator->getRenderTarget("gBuffer_rt1");
+        _rt2 = _framebufferAllocator->getRenderTarget("gBuffer_rt2");
+        _rtDepth = _framebufferAllocator->getRenderTarget("depthRenderTarget");
+        _rtPicking = _framebufferAllocator->getRenderTarget("pickingRenderTarget");
+        
 
-        auto quadVao = vertexArrayObject::createPostProcessVao();
+        _rtsBuffer = new buffer("gBufferRTAddresses", bufferTarget::uniform);
 
-        auto rtsBuffer = new buffer("gBufferRTAddresses", bufferTarget::uniform);
+        _program = programBuilder::buildProgram(_shadersPath, "lighting", "lighting");
+        _program->addBuffer(_rtsBuffer);
 
-        auto program = programBuilder::buildProgram(shadersPath, "lighting", "lighting");
-        program->addBuffer(rtsBuffer);
+        _framebuffer = _framebufferAllocator->getFramebuffer("defaultFramebuffer");
 
-        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        _quadVao = vertexArrayObject::createPostProcessVao();
+        addVao(_quadVao);
+    }
 
-        auto pass = new renderPass(program, defaultFramebuffer, resolution);
-        pass->addVao(quadVao);
+    lightingRenderPass::~lightingRenderPass()
+    {
+        safeDelete(_quadVao);
+        safeDelete(_rtsBuffer);
+    }
 
-        pass->setOnInitialize([=]()
-        {
-            updateGBufferRTsBuffer(
-                rtsBuffer,
-                rt0->texture,
-                rt1->texture,
-                rt2->texture,
-                rtDepth->texture,
-                rtPicking->texture);
-        });
+    void lightingRenderPass::onInitialize()
+    {
+        updateGBufferRTsBuffer(
+            _rtsBuffer,
+            _rt0->texture,
+            _rt1->texture,
+            _rt2->texture,
+            _rtDepth->texture,
+            _rtPicking->texture);
+    }
 
-        pass->setOnCanRender([=]()
-        {
-            return true;
-        });
+    void lightingRenderPass::onBeginRender()
+    {
+        _framebuffer->bindForDrawing();
 
-        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            _unused(resolution);
+        //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-            framebuffer->bindForDrawing();
-            glDisable(GL_DEPTH_TEST);
-            glDepthMask(GL_FALSE);
-            glClear(GL_COLOR_BUFFER_BIT);
+        glDisable(GL_DEPTH_TEST);
+        glDepthMask(GL_FALSE);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-            program->bind();
+        _program->bind();
 
-            if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::textureArraysHandles);
-            else
-                program->setUniform(0, texturesManager::textureArraysUnits);
-        });
+        if (texturesManager::getIsBindless())
+            _program->setUniform(0, texturesManager::textureArraysHandles);
+        else
+            _program->setUniform(0, texturesManager::textureArraysUnits);
+    }
 
-        pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
-        {
-            for (auto vao : vaos)
-                vao->render();
-        });
+    void lightingRenderPass::onEndRender()
+    {
+        _program->unbind();
+    }
 
-        pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            _unused(resolution);
-            _unused(framebuffer);
+    void lightingRenderPass::onResize(const resolution& resolution)
+    {
+        _unused(resolution);
 
-            program->unbind();
-        });
-
-        pass->setOnResize([=](const phi::resolution& resolution)
-        {
-            _unused(resolution);
-
-            updateGBufferRTsBuffer(
-                rtsBuffer,
-                rt0->texture,
-                rt1->texture,
-                rt2->texture,
-                rtDepth->texture,
-                rtPicking->texture);
-        });
-
-        pass->setOnDelete([rtsBuffer, quadVao]() mutable
-        {
-            safeDelete(rtsBuffer);
-            safeDelete(quadVao);
-        });
-
-        return pass;
+        updateGBufferRTsBuffer(
+            _rtsBuffer,
+            _rt0->texture,
+            _rt1->texture,
+            _rt2->texture,
+            _rtDepth->texture,
+            _rtPicking->texture);
     }
 
     void lightingRenderPass::updateGBufferRTsBuffer(

@@ -14,11 +14,11 @@ namespace phi
     class obbRenderPass
     {
     public:
-        obbRenderPass() = delete;
+        /*obbRenderPass() = delete;
         DEBUG_RENDERING_API static renderPass* configure(
             const obbRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
-            framebufferAllocator* framebufferAllocator);
+            framebufferAllocator* framebufferAllocator);*/
     };
 }

@@ -3,9 +3,9 @@
 
 namespace phi
 {
-    renderPass::renderPass(program* program, framebuffer* framebuffer, const resolution& resolution) :
-        _program(program),
-        _framebuffer(framebuffer),
+    renderPass::renderPass(const resolution& resolution) :
+        _program(nullptr),
+        _framebuffer(nullptr),
         _resolution(resolution)
     {
     }
@@ -13,36 +13,34 @@ namespace phi
     renderPass::~renderPass()
     {
         safeDelete(_program);
-
-        if(_onDelete)
-            _onDelete();
     }
 
     void renderPass::initialize()
     {
-        if (_onInitialize)
-            _onInitialize();
+        onInitialize();
     }
 
     void renderPass::update()
     {
+        onUpdate();
     }
 
     void renderPass::render()
     {
-        //if (_onCanRender && _onCanRender())
-        //{
-            _onBeginRender(_program, _framebuffer, _resolution);
-            _onRender(_vaos);
-            _onEndRender(_program, _framebuffer, _resolution);
-        //}
+        onBeginRender();
+        onRender();
+        onEndRender();
     }
 
     void renderPass::resize(const resolution& resolution)
     {
         _resolution = resolution;
+        onResize(resolution);
+    }
 
-        if (_onResize)
-            _onResize(resolution);
+    void renderPass::onRender()
+    {
+        for (auto vao : _vaos)
+            vao->render();
     }
 }

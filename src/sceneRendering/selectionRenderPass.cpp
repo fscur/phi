@@ -15,66 +15,65 @@
 
 namespace phi
 {
-    renderPass* selectionRenderPass::configure(
+    selectionRenderPass::selectionRenderPass(
         const resolution& resolution, 
-        const string& shadersPath,
-        framebufferAllocator* framebufferAllocator)
+        const string& shadersPath, 
+        framebufferAllocator* framebufferAllocator) :
+        renderPass(resolution)
     {
-        auto pickingRenderTarget = framebufferAllocator->getRenderTarget("pickingRenderTarget");
-        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        _framebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        _defaultRenderTarget = _framebuffer->getRenderTarget("defaultRenderTarget");
 
-        auto quadVao = vertexArrayObject::createPostProcessVao();
-        auto selectionProgram = programBuilder::buildProgram(shadersPath, "selection", "selection");
-        
-        auto pass = new renderPass(selectionProgram, defaultFramebuffer, resolution);
-        pass->addVao(quadVao);
+        _pickingRenderTarget = framebufferAllocator->getRenderTarget("pickingRenderTarget");
+        _program = programBuilder::buildProgram(shadersPath, "selection", "selection");
 
-        pass->setOnCanRender([=]()
-        {
-            return true;
-        });
+        _quadVao = vertexArrayObject::createPostProcessVao();
+        addVao(_quadVao);
+    }
 
-        pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            framebuffer->bindForDrawing();
+    selectionRenderPass::~selectionRenderPass()
+    {
+        safeDelete(_quadVao);
+    }
 
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    void selectionRenderPass::onBeginRender()
+    {
+        _framebuffer->bindForDrawing();
 
-            program->bind();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            auto pickingRenderTargetAddress = texturesManager::getTextureAddress(pickingRenderTarget->texture);
+        _program->bind();
 
-            program->setUniform(0, resolution.toVec2());
-            program->setUniform(1, pickingRenderTargetAddress.unit);
-            program->setUniform(2, pickingRenderTargetAddress.page);
+        auto pickingRenderTargetAddress = texturesManager::getTextureAddress(_pickingRenderTarget->texture);
 
-            if (texturesManager::getIsBindless())
-                program->setUniform(3, texturesManager::textureArraysHandles);
-            else
-                program->setUniform(3, texturesManager::textureArraysUnits);
-        });
+        _program->setUniform(0, _resolution.toVec2());
+        _program->setUniform(1, pickingRenderTargetAddress.unit);
+        _program->setUniform(2, pickingRenderTargetAddress.page);
 
-        pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
-        {
-            for (auto vao : vaos)
-                vao->render();
-        });
+        if (texturesManager::getIsBindless())
+            _program->setUniform(3, texturesManager::textureArraysHandles);
+        else
+            _program->setUniform(3, texturesManager::textureArraysUnits);
+    }
 
-        pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            _unused(resolution);
-            _unused(framebuffer);
+    void selectionRenderPass::onEndRender()
+    {
+        _program->unbind();
+        glDisable(GL_BLEND);
 
-            program->unbind();
-            glDisable(GL_BLEND);
-        });
+        /*auto w = static_cast<GLint>(_resolution.width);
+        auto h = static_cast<GLint>(_resolution.height);
 
-        pass->setOnDelete([quadVao] () mutable
-        {
-            safeDelete(quadVao);
-        });
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-        return pass;
+        _framebuffer->bindForReading(_defaultRenderTarget);
+
+        glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);*/
+
+        /*auto address = texturesManager::getTextureAddress(_defaultRenderTarget->texture);
+        glActiveTexture(GL_TEXTURE0 + address.unit);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, address.arrayId);
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);*/
     }
 }

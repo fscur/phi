@@ -17,7 +17,7 @@
 
 namespace phi
 {
-    renderPass* obbRenderPass::configure(
+    /*renderPass* obbRenderPass::configure(
         const obbRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,
@@ -74,5 +74,5 @@ namespace phi
         });
 
         return pass;
-    }
+    }*/
 }

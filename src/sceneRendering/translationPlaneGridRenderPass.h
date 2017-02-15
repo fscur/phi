@@ -9,14 +9,19 @@
 
 namespace phi
 {
-    class translationPlaneGridRenderPass
+    class translationPlaneGridRenderPass :
+        public renderPass
     {
     public:
-        translationPlaneGridRenderPass() = delete;
-        SCENE_RENDERING_API static renderPass* configure(
-            const translationPlaneGridRenderAdapter* renderAdapter,
+        translationPlaneGridRenderPass(
+            translationPlaneGridRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);
+
+        ~translationPlaneGridRenderPass();
+
+        void onBeginRender() override;
+        void onEndRender() override;
     };
 }

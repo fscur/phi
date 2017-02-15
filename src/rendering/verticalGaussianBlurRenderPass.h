@@ -8,15 +8,23 @@
 
 namespace phi
 {
-    class verticalGaussianBlurRenderPass
+    class verticalGaussianBlurRenderPass :
+        public renderPass
     {
     public:
-        verticalGaussianBlurRenderPass() = delete;
-        ~verticalGaussianBlurRenderPass() = delete;
-
-        RENDERING_API static renderPass* configure(
+        verticalGaussianBlurRenderPass(
             const resolution& resolution,
-            const string & shadersPath,
-            framebufferAllocator * framebufferAllocator);
+            const string& shadersPath,
+            framebufferAllocator* framebufferAllocator);
+
+        ~verticalGaussianBlurRenderPass();
+
+        void onBeginRender() override;
+        void onEndRender() override;
+
+    private:
+        renderTarget* _defaultRenderTarget;
+        renderTarget* _blurHRenderTarget;
+        vertexArrayObject* _quadVao;
     };
 }

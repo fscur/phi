@@ -12,6 +12,7 @@ namespace phi
         const GLchar* message,
         void* userParam)
     {
+
         _unused(userParam);
         _unused(length);
 
@@ -59,7 +60,7 @@ namespace phi
         std::cout << std::endl;
         std::cout << std::endl;
 
-        __debugbreak();
+        //__debugbreak();
     }
 
     void glDebugger::enable()

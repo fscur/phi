@@ -9,14 +9,22 @@
 
 namespace phi
 {
-    class skyBoxRenderPass
+    class skyBoxRenderPass :
+        public renderPass
     {
     public:
-        skyBoxRenderPass() = delete;
-        SCENE_RENDERING_API static renderPass* configure(
-            const skyBoxRenderAdapter* renderAdapter,
+        skyBoxRenderPass(
+            skyBoxRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);
+
+        ~skyBoxRenderPass();
+
+        void onBeginRender() override;
+        void onEndRender() override;
+
+    private:
+        renderTarget* _defaultRenderTarget;
     };
 }

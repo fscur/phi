@@ -17,7 +17,7 @@
 
 namespace phi
 {
-    renderPass* boxColliderRenderPass::configure(
+    /*renderPass* boxColliderRenderPass::configure(
         const boxColliderRenderAdapter* renderAdapter,
         const resolution& resolution,
         const string& shadersPath,
@@ -73,5 +73,5 @@ namespace phi
         });
 
         return pass;
-    }
+    }*/
 }

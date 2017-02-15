@@ -138,8 +138,8 @@ namespace phi
 
         auto planeGrid = new phi::translationPlaneGrid();
         //planeGrid->setColor(color::fromRGBA(0.7f, 0.8f, 0.9f, 1.0f));
-        planeGrid->setColor(color::fromRGBA(0.3f, 0.5f, 0.8f, 1.0f));
-        planeGrid->setLineThickness(8.5f);
+        planeGrid->setColor(color::white);
+        planeGrid->setLineThickness(6.5f);
         planeGridNode->addComponent(planeGrid);
         planeGridNode->addComponent(animator);
 
@@ -253,7 +253,7 @@ namespace phi
         getObbLimitsOnOrientedOffsetPlane(offset, minimum, maximum);
         vec2 projectedOffsetedLimits[2] = { minimum, maximum };
 
-        float const SNAP_MARGIN_GRID_SIZE_PERCENT = 0.15f;
+        float const SNAP_MARGIN_GRID_SIZE_PERCENT = 0.63f;
 
         auto snapMargin = _snapGridSize * SNAP_MARGIN_GRID_SIZE_PERCENT;
         auto highSnapMargin = _snapGridSize - snapMargin;
@@ -560,9 +560,11 @@ namespace phi
 
     void translationService::updateSnapGridSize()
     {
-        const float planeDistances[] = { 0.0f, 0.23f, 1.5f, 30.0f, 200.0f, 5000.0f };
-        const float gridSizes[] = { 0.01f, 0.1f, 1.0f, 10.0f, 100.0f, 1000.0f };
-
+//        const float planeDistances[] = { 0.0f, 0.60f, 1.5f, 30.0f, 200.0f, 5000.0f };
+ //       const float gridSizes[] = { 0.01f, 0.1f, 1.0f, 10.0f, 100.0f, 1000.0f };
+        const float planeDistances[] = {  0.0f, 1.00f, 4.0f, 30.0f, 200.0f, 2000.0f };
+        const float gridSizes[] =      { 0.01f, 0.1f, 1.0f, 10.0f, 100.0f, 1000.0f };
+        
         auto planeNodePosition = _currentTranslationPlane->getPlaneGridNode()->getTransform()->getPosition();
         auto planeNodePositionRelativeToCamera = mathUtils::multiply(_camera->getViewMatrix(), planeNodePosition);
         auto distance = glm::abs(planeNodePositionRelativeToCamera.z);

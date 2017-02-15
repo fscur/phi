@@ -8,7 +8,8 @@
 
 namespace phi
 {
-    class controlRenderPass
+    class controlRenderPass :
+        public renderPass
     {
     public:
         struct glassyControlUniformBlockData
@@ -21,16 +22,25 @@ namespace phi
             int pad1;
             int pad2;
         };
-
     public:
-        controlRenderPass() = delete;
-        static renderPass* configure(
-            controlRenderAdapter* renderAdapter, 
+        controlRenderPass(
+            controlRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);
 
+        ~controlRenderPass();
+
+        void onInitialize() override;
+        void onBeginRender() override;
+        void onEndRender() override;
+        void onResize(const resolution& resolution) override;
+
     private:
         static void updateGlassyUniformBlock(buffer* buffer, renderTarget* finalImageRenderTarget, const resolution& resolution);
+
+    private:
+        buffer* _glassyUniformBlockBuffer;
+        renderTarget* _defaultRenderTarget;
     };
 }

@@ -9,24 +9,25 @@
 
 namespace phi
 {
-    renderPass* controlRenderPass::configure(
-        controlRenderAdapter* renderAdapter,
-        const resolution& resolution,
-        const string& shadersPath,
-        framebufferAllocator* framebufferAllocator)
+    controlRenderPass::controlRenderPass(
+        controlRenderAdapter* renderAdapter, 
+        const resolution& resolution, 
+        const string& shadersPath, 
+        framebufferAllocator* framebufferAllocator) :
+        renderPass(resolution)
     {
-        auto glassyUniformBlockBuffer = new buffer("GlassyControlUniformBlock", bufferTarget::uniform);
-        glassyUniformBlockBuffer->data(
+        _glassyUniformBlockBuffer = new buffer("GlassyControlUniformBlock", bufferTarget::uniform);
+        _glassyUniformBlockBuffer->data(
             sizeof(glassyControlUniformBlockData),
             nullptr,
             bufferDataUsage::dynamicDraw);
 
-        auto program = programBuilder::buildProgram(shadersPath, "control", "control");
-        program->addBuffer(renderAdapter->getControlRenderDataBuffer());
-        program->addBuffer(glassyUniformBlockBuffer);
+        _program = programBuilder::buildProgram(shadersPath, "control", "control");
+        _program->addBuffer(renderAdapter->getControlRenderDataBuffer());
+        _program->addBuffer(_glassyUniformBlockBuffer);
 
         auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
-        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
+        _defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
 
         auto pickingRenderTarget = framebufferAllocator->getRenderTarget("pickingRenderTarget");
 
@@ -47,76 +48,61 @@ namespace phi
         auto depthRenderTarget = new renderTarget("controlDepthRenderTarget", depthRenderTargetTexture);
 
         auto controlFramebufferLayout = framebufferLayoutBuilder::newFramebufferLayout("controlFrameBuffer")
-            .with(defaultRenderTarget, GL_COLOR_ATTACHMENT0)
+            .with(_defaultRenderTarget, GL_COLOR_ATTACHMENT0)
             .with(pickingRenderTarget, GL_COLOR_ATTACHMENT1)
             .with(depthRenderTarget, GL_DEPTH_ATTACHMENT)
             .build();
 
-        auto controlFramebuffer = framebufferAllocator->newFramebuffer(controlFramebufferLayout, resolution);
+        _framebuffer = framebufferAllocator->newFramebuffer(controlFramebufferLayout, resolution);
         safeDelete(controlFramebufferLayout);
 
-        auto pass = new renderPass(program, controlFramebuffer, resolution);
-        pass->addVao(renderAdapter->getVao());
+        addVao(renderAdapter->getVao());
+    }
 
-        pass->setOnInitialize([=]
-        {
-            updateGlassyUniformBlock(glassyUniformBlockBuffer, defaultRenderTarget, resolution);
-        });
+    controlRenderPass::~controlRenderPass()
+    {
+        safeDelete(_glassyUniformBlockBuffer);
+    }
+    
+    void controlRenderPass::onInitialize()
+    {
+        updateGlassyUniformBlock(_glassyUniformBlockBuffer, _defaultRenderTarget, _resolution);
+    }
 
-        pass->setOnBeginRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            _unused(framebuffer);
-            _unused(resolution);
+    void controlRenderPass::onBeginRender()
+    {
+        _framebuffer->bindForDrawing();
 
-            controlFramebuffer->bindForDrawing();
+        auto one = 1.0f;
+        glClearBufferfv(GL_DEPTH, 0, &one);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendColor(1, 1, 1, 1);
 
-            auto one = 1.0f;
-            glClearBufferfv(GL_DEPTH, 0, &one);
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glBlendColor(1, 1, 1, 1);
+        _program->bind();
 
-            program->bind();
+        if (texturesManager::getIsBindless())
+            _program->setUniform(0, texturesManager::textureArraysHandles);
+        else
+            _program->setUniform(0, texturesManager::textureArraysUnits);
+    }
 
-            if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::textureArraysHandles);
-            else
-                program->setUniform(0, texturesManager::textureArraysUnits);
-        });
+    void controlRenderPass::onEndRender()
+    {
+        _program->unbind();
+        _framebuffer->blitToDefault(_defaultRenderTarget, 0, 0, _defaultRenderTarget->texture->w, _defaultRenderTarget->texture->h);
 
-        pass->setOnRender([](const vector<vertexArrayObject*>& vaos)
-        {
-            for (auto vao : vaos)
-                vao->render();
-        });
+        glBlendColor(0, 0, 0, 0);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+    }
 
-        pass->setOnResize([=](const phi::resolution& resolution)
-        {
-            updateGlassyUniformBlock(glassyUniformBlockBuffer, defaultRenderTarget, resolution);
-        });
-
-        pass->setOnEndRender([controlFramebuffer, defaultRenderTarget](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            _unused(framebuffer);
-            _unused(resolution);
-
-            program->unbind();
-            controlFramebuffer->blitToDefault(defaultRenderTarget, 0, 0, defaultRenderTarget->texture->w, defaultRenderTarget->texture->h);
-
-            glBlendColor(0, 0, 0, 0);
-            glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-        });
-
-        pass->setOnDelete([glassyUniformBlockBuffer]() mutable
-        {
-            safeDelete(glassyUniformBlockBuffer);
-        });
-
-        return pass;
+    void controlRenderPass::onResize(const resolution & resolution)
+    {
+        updateGlassyUniformBlock(_glassyUniformBlockBuffer, _defaultRenderTarget, resolution);
     }
 
     void controlRenderPass::updateGlassyUniformBlock(buffer* buffer, renderTarget* finalImageRenderTarget, const resolution& resolution)

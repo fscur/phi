@@ -38,7 +38,7 @@ namespace phi
         framebufferAllocator* framebufferAllocator)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto controlRenderPass = controlRenderPass::configure(renderAdapter, resolution, shadersPath, framebufferAllocator);
-        return { controlRenderPass };
+        auto renderPass = new controlRenderPass(renderAdapter, resolution, shadersPath, framebufferAllocator);
+        return { renderPass };
     }
 }

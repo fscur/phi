@@ -9,14 +9,22 @@
 
 namespace phi
 {
-    class rotationPlaneGridRenderPass
+    class rotationPlaneGridRenderPass :
+        public renderPass
     {
     public:
-        rotationPlaneGridRenderPass() = delete;
-        SCENE_RENDERING_API static renderPass* configure(
-            const rotationPlaneGridRenderAdapter* renderAdapter,
+        rotationPlaneGridRenderPass(
+            rotationPlaneGridRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);
+
+        ~rotationPlaneGridRenderPass();
+
+        void onBeginRender() override;
+        void onEndRender() override;
+
+    private:
+        renderTarget* _defaultRenderTarget;
     };
 }

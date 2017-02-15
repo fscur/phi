@@ -14,13 +14,13 @@ namespace phi
     class boxColliderRenderer
     {
     public:
-        boxColliderRenderer() = delete;
+        /*boxColliderRenderer() = delete;
         ~boxColliderRenderer() = delete;
 
         static DEBUG_RENDERING_API vector<renderPass*> configure(
             const resolution& resolution,
             const string& resourcesPath,
             boxColliderRenderAdapter* meshAdapter,
-            framebufferAllocator* framebufferAllocator);
+            framebufferAllocator* framebufferAllocator);*/
     };
 }

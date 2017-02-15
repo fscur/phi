@@ -7,13 +7,23 @@
 
 namespace phi
 {
-    class selectionRenderPass
+    class selectionRenderPass :
+        public renderPass
     {
     public:
-        selectionRenderPass() = delete;
-        static renderPass* configure(
-            const resolution& resolution, 
+        selectionRenderPass(
+            const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);
+
+        ~selectionRenderPass();
+
+        void onBeginRender() override;
+        void onEndRender() override;
+
+    private:
+        renderTarget* _pickingRenderTarget;
+        renderTarget* _defaultRenderTarget;
+        vertexArrayObject* _quadVao;
     };
 }

@@ -17,10 +17,13 @@ namespace phi
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        auto shadersPath = path::combine(resourcesPath, "shaders");
+        _unused(framebufferAllocator);
+        _unused(resolution);
+        _unused(resourcesPath);
+        /*auto shadersPath = path::combine(resourcesPath, "shaders");
         auto renderPass = obbRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
 
-        _renderPasses = { renderPass };
+        _renderPasses = { renderPass };*/
     }
 
     obbLayerBehaviour::~obbLayerBehaviour()

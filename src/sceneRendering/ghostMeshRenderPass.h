@@ -11,15 +11,20 @@
 
 namespace phi
 {
-    class ghostMeshRenderPass
+    class ghostMeshRenderPass :
+        public renderPass
     {
     public:
-        ghostMeshRenderPass() = delete;
-        SCENE_RENDERING_API static renderPass* configure(
-            ghostMeshRenderAdapter* meshAdapter,
+        ghostMeshRenderPass(
+            ghostMeshRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
             framebufferAllocator* framebufferAllocator);
+
+        ~ghostMeshRenderPass();
+        void onInitialize() override;
+        void onBeginRender() override;
+        void onEndRender() override;
 
     private:
         static void ghostMeshRenderPass::createRTsBuffer(
@@ -29,5 +34,14 @@ namespace phi
             const texture* rt2Texture,
             const texture* rtDepthTexture,
             const texture* rtPickingTexture);
+
+    private:
+        renderTarget* _defaultRenderTarget;
+        renderTarget* _rt0;
+        renderTarget* _rt1;
+        renderTarget* _rt2;
+        renderTarget* _rtDepth;
+        renderTarget* _rtPicking;
+        buffer* _rtsBuffer;
     };
 }

@@ -17,11 +17,15 @@ namespace phi
         _resolution(resolution),
         _resourcesPath(resourcesPath)
     {
-        auto shadersPath = path::combine(resourcesPath, "shaders");
-        //auto linesRenderPass = obbLinesRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
-        auto boxRenderPass = boxColliderRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+        _unused(framebufferAllocator);
+        _unused(resolution);
+        _unused(resourcesPath);
 
-        _renderPasses = { boxRenderPass };
+        //auto shadersPath = path::combine(resourcesPath, "shaders");
+        ////auto linesRenderPass = obbLinesRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+        //auto boxRenderPass = boxColliderRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+
+        //_renderPasses = { boxRenderPass };
     }
 
     boxColliderLayerBehaviour::~boxColliderLayerBehaviour()

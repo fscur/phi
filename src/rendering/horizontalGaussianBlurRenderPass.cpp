@@ -8,14 +8,15 @@
 
 namespace phi
 {
-    renderPass* horizontalGaussianBlurRenderPass::configure(
-        const resolution& resolution,
-        const string & shadersPath,
-        framebufferAllocator * framebufferAllocator)
+    horizontalGaussianBlurRenderPass::horizontalGaussianBlurRenderPass(
+        const resolution& resolution, 
+        const string& shadersPath, 
+        framebufferAllocator* framebufferAllocator) :
+        renderPass(resolution)
     {
-        auto finalImageRenderTarget = framebufferAllocator->getRenderTarget("finalImageRenderTarget");
+        _finalImageRenderTarget = framebufferAllocator->getRenderTarget("finalImageRenderTarget");
 
-        auto blurHProgram = programBuilder::buildProgram(shadersPath, "blurH", "blurH");
+        _program = programBuilder::buildProgram(shadersPath, "blurH", "blurH");
 
         auto imageLayout = textureLayout();
         imageLayout.dataFormat = GL_RGBA;
@@ -29,46 +30,38 @@ namespace phi
             .with("blurHRenderTarget", GL_COLOR_ATTACHMENT0, imageLayout)
             .build();
 
-        auto blurHFramebuffer = framebufferAllocator->newFramebuffer(framebufferLayout, resolution);
+        _framebuffer = framebufferAllocator->newFramebuffer(framebufferLayout, resolution);
         safeDelete(framebufferLayout);
 
-        auto pass = new renderPass(blurHProgram, blurHFramebuffer, resolution);
+        _quadVao = vertexArrayObject::createPostProcessVao();
+        addVao(_quadVao);
+    }
 
-        auto quadVao = vertexArrayObject::createPostProcessVao();
+    horizontalGaussianBlurRenderPass::~horizontalGaussianBlurRenderPass()
+    {
+        safeDelete(_quadVao);
+    }
 
-        pass->addVao(quadVao);
+    void horizontalGaussianBlurRenderPass::onBeginRender()
+    {
+        _framebuffer->bindForDrawing();
 
-        pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            framebuffer->bindForDrawing();
+        _program->bind();
 
-            program->bind();
+        auto address = texturesManager::getTextureAddress(_finalImageRenderTarget->texture);
+        _program->setUniform(0, address.unit);
+        _program->setUniform(1, address.page);
+        _program->setUniform(2, _resolution.toVec2());
 
-            auto address = texturesManager::getTextureAddress(finalImageRenderTarget->texture);
-            program->setUniform(0, address.unit);
-            program->setUniform(1, address.page);
-            program->setUniform(2, resolution.toVec2());
+        if (texturesManager::getIsBindless())
+            _program->setUniform(3, texturesManager::textureArraysHandles);
+        else
+            _program->setUniform(3, texturesManager::textureArraysUnits);
+    }
 
-            if (texturesManager::getIsBindless())
-                program->setUniform(3, texturesManager::textureArraysHandles);
-            else
-                program->setUniform(3, texturesManager::textureArraysUnits);
-        });
-
-        pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
-        {
-            for (auto vao : vaos)
-                vao->render();
-        });
-
-        pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution resolution)
-        {
-            _unused(resolution);
-
-            program->unbind();
-            framebuffer->unbind(GL_FRAMEBUFFER);
-        });
-
-        return pass;
+    void horizontalGaussianBlurRenderPass::onEndRender()
+    {
+        _program->unbind();
+        _framebuffer->unbind(GL_FRAMEBUFFER);
     }
 }

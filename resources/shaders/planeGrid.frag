@@ -56,8 +56,10 @@ const float PI = 3.1415926535897932384626433832795;
 const float INV_PI = 0.31830988618379067153776752674503;
 const float MIN_RIPPLE_SPEED = 10.0;
 
-const float[] planeDistances = { 0.0, 1.0, 5.0, 100.0, 500.0, 5000.0};
-const float[] gridSizes      = { 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0 };
+//const float[] planeDistances = { 0.0, 1.0, 5.0, 100.0, 500.0, 5000.0};
+//const float[] gridSizes      = { 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0 };
+const float[] planeDistances = { 0.0, 1.00, 4.0, 30.0, 100.0, 5000.0 };
+const float[] gridSizes = { 0.01, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0 };
 
 int getGridIndex(float dist)
 {

@@ -12,11 +12,11 @@ namespace phi
     class boxColliderRenderPass
     {
     public:
-        boxColliderRenderPass() = delete;
+        /*boxColliderRenderPass() = delete;
         DEBUG_RENDERING_API static renderPass* configure(
             const boxColliderRenderAdapter* renderAdapter,
             const resolution& resolution,
             const string& shadersPath,
-            framebufferAllocator* framebufferAllocator);
+            framebufferAllocator* framebufferAllocator);*/
     };
 }

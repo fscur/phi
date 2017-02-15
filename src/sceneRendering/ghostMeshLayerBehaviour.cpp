@@ -19,9 +19,9 @@ namespace phi
         _resourcesPath(resourcesPath)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto ghostMeshRenderPass = ghostMeshRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+        auto ghostMesh = new ghostMeshRenderPass(_adapter, resolution, shadersPath, framebufferAllocator);
 
-        _renderPasses = { ghostMeshRenderPass };
+        _renderPasses = { ghostMesh };
     }
 
     ghostMeshLayerBehaviour::~ghostMeshLayerBehaviour()

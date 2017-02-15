@@ -193,7 +193,7 @@ namespace demon
         //_sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, -15.0f));
         //_sceneCamera->getTransform()->pitch(0.3f);
 
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 0.0f));
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 3.0f));
         _sceneCamera->getTransform()->yaw(PI);
 
         _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
@@ -212,6 +212,7 @@ namespace demon
                 .withSelectionController()
                 .withRotationController()
                 .withTranslationController()
+                //.withBoxColliderRenderer()
                 .withSkyBoxRenderer();
 
             _sceneLayer = sceneLayerBuilder.build();
@@ -230,14 +231,14 @@ namespace demon
             _scene = new phi::scene(_sceneLayer, _sceneCamera);
             _project = new project(_scene);
 
-            _constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+            /*_constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
             _constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
 
             _constructionLayer = layerBuilder::newLayer(_constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
                 .withControlRenderer()
                 .withTextRenderer()
-                .build();
+                .build();*/
 
             _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
             _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
@@ -330,11 +331,11 @@ namespace demon
             _commandsManager,
             { _sceneLayer, _nandinhoLayer });
 
-        _constructionContext = new context(
+        /*_constructionContext = new context(
             _resolution,
             _framebufferAllocator,
             _commandsManager,
-            { _sceneLayer, _constructionLayer });
+            { _sceneLayer, _constructionLayer });*/
 
         node* skyBoxNode = new node();
         skyBoxImages images;
@@ -382,14 +383,25 @@ namespace demon
         auto chair_brown = _userLibrary->getModelByIndex(3);
         chair_brown->getTransform()->setLocalPosition(-1.0f, 0.0f, 0.0f);
         chair_brown->getTransform()->yaw(phi::PI_OVER_2);
-
-        auto chair_black = _userLibrary->getModelByIndex(2);
-        chair_black->getTransform()->setLocalPosition(1.0f, 0.0f, 0.0f);
-        chair_black->getTransform()->yaw(phi::PI_OVER_2);
-
         _scene->add(chair_brown);
-        _scene->add(chair_black);
 
+        //auto chair_black = _userLibrary->getModelByIndex(2);
+
+        //for (auto i = 0; i < 1; i++)
+        //    for (auto j = 0; j < 10; j++)
+        //        for (auto k = 0; k < 10; k++)
+        //    {
+        //        auto obj = chair_black->clone();
+
+        //        obj->getTransform()->setLocalPosition(float(i), float(j), float(k));
+        //        //chair_black->getTransform()->yaw(phi::PI_OVER_2);
+
+        //        _scene->add(obj);
+        //    }
+
+        
+        //auto cube = _userLibrary->getModelByIndex(7);
+        //_scene->add(cube);
         //auto sun = _userLibrary->getModelByIndex(15);
         //sun->getTransform()->setLocalPosition(0.0f, 5.0f, 5.0f);
         //_scene->add(sun);

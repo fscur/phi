@@ -10,103 +10,68 @@
 
 namespace phi
 {
-    renderPass* ghostMeshRenderPass::configure(
+    ghostMeshRenderPass::ghostMeshRenderPass(
         ghostMeshRenderAdapter* renderAdapter,
-        const resolution& resolution,
-        const string& shadersPath,
-        framebufferAllocator* framebufferAllocator)
+        const resolution& resolution, 
+        const string& shadersPath, 
+        framebufferAllocator* framebufferAllocator) :
+        renderPass(resolution)
     {
-        auto defaultFramebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
-        auto defaultRenderTarget = defaultFramebuffer->getRenderTarget("defaultRenderTarget");
+        _framebuffer = framebufferAllocator->getFramebuffer("defaultFramebuffer");
+        _defaultRenderTarget = _framebuffer->getRenderTarget("defaultRenderTarget");
 
-        auto rt0 = framebufferAllocator->getRenderTarget("gBuffer_rt0");
-        auto rt1 = framebufferAllocator->getRenderTarget("gBuffer_rt1");
-        auto rt2 = framebufferAllocator->getRenderTarget("gBuffer_rt2");
-        auto pickingRenderTarget = framebufferAllocator->getRenderTarget("pickingRenderTarget");
-        auto rtDepth = framebufferAllocator->getRenderTarget("depthRenderTarget");
-        auto rtsBuffer = new buffer("gBufferRTAddresses", bufferTarget::uniform);
+        _rt0 = framebufferAllocator->getRenderTarget("gBuffer_rt0");
+        _rt1 = framebufferAllocator->getRenderTarget("gBuffer_rt1");
+        _rt2 = framebufferAllocator->getRenderTarget("gBuffer_rt2");
+        _rtPicking = framebufferAllocator->getRenderTarget("pickingRenderTarget");
+        _rtDepth = framebufferAllocator->getRenderTarget("depthRenderTarget");
+        _rtsBuffer = new buffer("gBufferRTAddresses", bufferTarget::uniform);
 
-        /*rtsBuffer->data(
-        sizeof(gBufferRTAddresses),
-        nullptr,
-        bufferDataUsage::dynamicDraw);*/
-        auto ghostMeshProgram = programBuilder::buildProgram(shadersPath, "ghostMesh", "ghostMesh");
-        ghostMeshProgram->addBuffer(rtsBuffer);
+        _program = programBuilder::buildProgram(shadersPath, "ghostMesh", "ghostMesh");
+        _program->addBuffer(_rtsBuffer);
 
-        auto pass = new renderPass(ghostMeshProgram, defaultFramebuffer, resolution);
-        pass->addVao(renderAdapter->getVao());
+        addVao(renderAdapter->getVao());
+    }
 
-        pass->setOnInitialize([=]()
-        {
-            createRTsBuffer(
-                rtsBuffer,
-                rt0->texture,
-                rt1->texture,
-                rt2->texture,
-                rtDepth->texture,
-                pickingRenderTarget->texture);
-        });
+    ghostMeshRenderPass::~ghostMeshRenderPass()
+    {
+        safeDelete(_rtsBuffer);
+    }
 
-        pass->setOnCanRender([=]()
-        {
-            return !renderAdapter->isEmpty();
-        });
+    void ghostMeshRenderPass::onInitialize()
+    {
+        createRTsBuffer(
+            _rtsBuffer,
+            _rt0->texture,
+            _rt1->texture,
+            _rt2->texture,
+            _rtDepth->texture,
+            _rtPicking->texture);
+    }
 
-        pass->setOnBeginRender([=](program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            _unused(resolution);
+    void ghostMeshRenderPass::onBeginRender()
+    {
+        _framebuffer->bindForDrawing();
+        glDepthMask(GL_FALSE);
+        glEnable(GL_BLEND);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(-1.0f, 0.0f);
 
-            framebuffer->bindForDrawing();
-            glDepthMask(GL_FALSE);
-            glEnable(GL_BLEND);
-            //glCullFace(GL_FRONT);
-            glEnable(GL_POLYGON_OFFSET_FILL);
-            glPolygonOffset(-1.0f, 0.0f);
+        _program->bind();
 
-            program->bind();
+        if (texturesManager::getIsBindless())
+            _program->setUniform(0, texturesManager::textureArraysHandles);
+        else
+            _program->setUniform(0, texturesManager::textureArraysUnits);
+    }
 
-            if (texturesManager::getIsBindless())
-                program->setUniform(0, texturesManager::textureArraysHandles);
-            else
-                program->setUniform(0, texturesManager::textureArraysUnits);
-        });
+    void ghostMeshRenderPass::onEndRender()
+    {
+        _program->unbind();
 
-        pass->setOnRender([=](const vector<vertexArrayObject*>& vaos)
-        {
-            for (auto vao : vaos)
-                vao->render();
-        });
-
-        pass->setOnEndRender([=](phi::program* program, framebuffer* framebuffer, const phi::resolution& resolution)
-        {
-            program->unbind();
-            glDisable(GL_BLEND);
-            //glCullFace(GL_BACK);
-            glDepthMask(GL_TRUE);
-            glDisable(GL_POLYGON_OFFSET_FILL);
-            framebuffer->unbind(GL_FRAMEBUFFER);
-
-            auto w = static_cast<GLint>(resolution.width);
-            auto h = static_cast<GLint>(resolution.height);
-
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-            framebuffer->bindForReading(defaultRenderTarget);
-
-            glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-            auto address = texturesManager::getTextureAddress(defaultRenderTarget->texture);
-            glActiveTexture(GL_TEXTURE0 + address.unit);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, address.arrayId);
-            glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-        });
-
-        pass->setOnDelete([rtsBuffer]() mutable
-        {
-            safeDelete(rtsBuffer);
-        });
-
-        return pass;
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
+        glDisable(GL_POLYGON_OFFSET_FILL);
     }
 
     void ghostMeshRenderPass::createRTsBuffer(

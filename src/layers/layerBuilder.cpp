@@ -191,10 +191,7 @@ namespace phi
     void layerBuilder::buildTextRenderer()
     {
         auto adapter = new textRenderAdapter(_layer->getCamera());
-        auto textBehaviour = new phi::textLayerBehaviour(
-            adapter,
-            _resolution,
-            _resourcesPath);
+        auto textBehaviour = new phi::textLayerBehaviour(adapter, _resolution, _resourcesPath);
 
         _layer->addOnNodeAdded(std::bind(&textLayerBehaviour::onNodeAdded, textBehaviour, std::placeholders::_1));
         _layer->addOnNodeRemoved(std::bind(&textLayerBehaviour::onNodeRemoved, textBehaviour, std::placeholders::_1));

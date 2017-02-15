@@ -10,40 +10,29 @@ namespace phi
 {
     class renderPass
     {
-    private:
-        program* _program;
+    protected:
         vector<vertexArrayObject*> _vaos;
+        program* _program;
         framebuffer* _framebuffer;
         resolution _resolution;
 
-        std::function<void()> _onInitialize;
-        std::function<void(program*)> _onUpdate;
-        std::function<bool(void)> _onCanRender;
-        std::function<void(program*, framebuffer*, const resolution&)> _onBeginRender;
-        std::function<void(const vector<vertexArrayObject*>&)> _onRender;
-        std::function<void(program*, framebuffer*, const resolution&)> _onEndRender;
-        std::function<void(const resolution& resolution)> _onResize;
-        std::function<void(void)> _onDelete;
-
     public:
-        RENDERING_API renderPass(program* program, framebuffer* framebuffer, const resolution& resolution);
+        RENDERING_API renderPass(const resolution& resolution);
         RENDERING_API ~renderPass();
 
         RENDERING_API void initialize();
         RENDERING_API void update();
         RENDERING_API void render();
 
-        void setOnInitialize(std::function<void()> onInitialize) { _onInitialize = onInitialize; }
-        void setOnUpdate(std::function<void(program*)> onUpdate) { _onUpdate = onUpdate; }
-        void setOnCanRender(std::function<bool(void)> onCanRender) { _onCanRender = onCanRender; }
-        void setOnBeginRender(std::function<void(program*, framebuffer*, const resolution&)> onRender) { _onBeginRender = onRender; }
-        void setOnRender(std::function<void(const vector<vertexArrayObject*>&)> onRender) { _onRender = onRender; }
-        void setOnEndRender(std::function<void(program*, framebuffer*, const resolution&)> onRender) { _onEndRender = onRender; }
-        void setOnResize(std::function<void(const resolution&)> onResize) { _onResize = onResize; }
-        void setOnDelete(std::function<void(void)> onDelete) { _onDelete = onDelete; }
+        RENDERING_API void resize(const resolution& resolution);
 
         void addVao(vertexArrayObject* vao) { _vaos.push_back(vao); }
 
-        RENDERING_API void resize(const resolution& resolution);
+        virtual void onInitialize() {}
+        virtual void onUpdate() {}
+        virtual void onBeginRender() {}
+        RENDERING_API virtual void onRender();
+        virtual void onEndRender() {}
+        virtual void onResize(const resolution& resolution) { _unused(resolution); }
     };
 }

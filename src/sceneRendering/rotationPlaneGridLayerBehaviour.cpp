@@ -18,9 +18,9 @@ namespace phi
         _resourcesPath(resourcesPath)
     {
         auto shadersPath = path::combine(resourcesPath, "shaders");
-        auto boxRenderPass = rotationPlaneGridRenderPass::configure(_adapter, resolution, shadersPath, framebufferAllocator);
+        auto renderPass = new rotationPlaneGridRenderPass(_adapter, resolution, shadersPath, framebufferAllocator);
 
-        _renderPasses = { boxRenderPass };
+        _renderPasses = { renderPass };
     }
 
     rotationPlaneGridLayerBehaviour::~rotationPlaneGridLayerBehaviour()
