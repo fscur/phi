@@ -1,0 +1,37 @@
+{
+    "Guid": "HechNrk7/0CIQKdTy8sgiQ==",
+    "Node": {
+        "Components": [
+            {
+                "Name": "cabinet.model",
+                "ThumbnailFileName": "cabinet.th",
+                "AnimatedThumbnailFileName": "cabinet.ath",
+                "Type": 0
+            }
+        ],
+        "Children": [
+            {
+                "Components": [
+                    {
+                        "Name": "cabinet_mesh_0",
+                        "MaterialResourceGuid": "d+xL/zgQaEiXZ82yzJEQiw==",
+                        "GeometryResourceGuid": "DEfayg9UB02TdngHUIYXyQ==",
+                        "Type": 1
+                    }
+                ],
+                "Children": []
+            },
+            {
+                "Components": [
+                    {
+                        "Name": "cabinet_mesh_1",
+                        "MaterialResourceGuid": "kU3fWKZyL06J7BdT8vk3pg==",
+                        "GeometryResourceGuid": "dNaOFP1bqU2pm7BG3ElwBQ==",
+                        "Type": 1
+                    }
+                ],
+                "Children": []
+            }
+        ]
+    }
+}

@@ -1,227 +1,174 @@
-#include <phi/rendering/frameBuffer.h>
+#include <precompiled.h>
+#include "framebuffer.h"
+
+#include <core\invalidInitializationException.h>
+
+#include "texturesManager.h"
+#include "framebufferLayoutBuilder.h"
 
 namespace phi
 {
-    frameBuffer::frameBuffer(std::string name, size<GLuint> size, color clearColor)
+    framebuffer* framebuffer::defaultFramebuffer = new framebuffer(true);
+
+    framebuffer::framebuffer(bool isDefaultFramebuffer) :
+        _name("defaultFramebuffer"),
+        _id(0),
+        _maxColorAttachments(0),
+        _currentAttachment(0),
+        _drawBuffers(vector<GLenum>()),
+        _isDefaultFramebuffer(isDefaultFramebuffer)
     {
-        _name = name;
-        _size = size;
-        _clearColor = clearColor;
-        _x = 0;
-        _y = 0;
-        _isBound = false;
-        _isInitialized = false;
-        _id = 0;
-        _renderTargets = new std::map<std::string, renderTarget*>();
     }
 
-    frameBuffer::~frameBuffer()
+    framebuffer::framebuffer(const string& name) :
+        _name(name),
+        _id(0),
+        _maxColorAttachments(0),
+        _currentAttachment(0),
+        _drawBuffers(vector<GLenum>()),
+        _isDefaultFramebuffer(false)
     {
-        if (_renderTargets)
+        glCreateFramebuffers(1, &_id);
+        glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_maxColorAttachments);
+    }
+
+    framebuffer::~framebuffer()
+    {
+        if (!_isDefaultFramebuffer)
+            glDeleteFramebuffers(1, &_id);
+    }
+
+    void framebuffer::add(renderTarget* renderTarget, GLenum attachment)
+    {
+        _renderTargets.push_back(renderTarget);
+        _renderTargetsAttachments[renderTarget] = attachment;
+
+        if (!(attachment == GL_DEPTH_ATTACHMENT ||
+            attachment == GL_STENCIL_ATTACHMENT ||
+            attachment == GL_DEPTH_STENCIL_ATTACHMENT))
+            _drawBuffers.push_back(attachment);
+    }
+
+    void framebuffer::attachRenderTargets()
+    {
+        for (auto& pair : _renderTargetsAttachments)
         {
-            for(std::map<std::string, renderTarget*>::iterator i = _renderTargets->begin(); i != _renderTargets->end(); i++) 
-            {
-                safeDelete(i->second);
-            }
+            auto renderTarget = pair.first;
+            auto attachment = pair.second;
 
-            safeDelete(_renderTargets);
+            if (_isDefaultFramebuffer)
+                throw argumentException("Trying to add renderTarget to default framebuffer !?");
+
+            glBindFramebuffer(GL_FRAMEBUFFER, _id);
+
+            auto address = texturesManager::getTextureAddress(renderTarget->texture);
+
+            glNamedFramebufferTextureLayer(
+                _id,
+                attachment,
+                address.arrayId,
+                0,
+                static_cast<GLint>(address.page));
         }
-
-        glDeleteFramebuffers(1, &_id);
     }
 
-    void frameBuffer::init()
+    vec4 framebuffer::readPixels(const renderTarget* const renderTarget, GLint x, GLint y, GLsizei w, GLsizei h)
     {
-        glGenFramebuffers(1, &_id);
-        glBindFramebuffer(GL_FRAMEBUFFER, _id);
+        unsigned char pixels[4];
 
-        glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
+        bindForReading(renderTarget);
+        glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        return vec4(pixels[0], pixels[1], pixels[2], pixels[3]);
     }
 
-    bool frameBuffer::isComplete(GLenum target)
+    void framebuffer::bind(GLenum target)
     {
-        GLenum status = glCheckFramebufferStatus(target);
+        glBindFramebuffer(target, _id);
 
-        if (status != GL_FRAMEBUFFER_COMPLETE)
-        {
-            std::string msg = "FB error, status: " + std::to_string(status);
-            LOG(msg);
-            return false;
-        }
-
-        return true;
     }
 
-    void frameBuffer::bind()
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, _id);
-    }
-
-    void frameBuffer::bindForDrawing()
+    void framebuffer::bindForDrawing()
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
+
+        if (!_isDefaultFramebuffer)
+            glDrawBuffers((GLsizei)_drawBuffers.size(), &_drawBuffers[0]);
     }
 
-    void frameBuffer::bindForDrawing(renderTarget* renderTarget)
+    void framebuffer::bindForDrawing(GLenum* buffers, GLsizei buffersCount)
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        glDrawBuffer(renderTarget->getAttachment());
+        glDrawBuffers(buffersCount, buffers);
+
     }
 
-    void frameBuffer::bindForDrawing(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace)
-    {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _id);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->getId(), 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFace, cubeMapRenderTarget->getTexture()->getId() +1, 0);
-        glDrawBuffer(cubeMapRenderTarget->getAttachment());
-    }
-
-    void frameBuffer::bindForReading()
+    void framebuffer::bindForReading()
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
     }
 
-    void frameBuffer::bindForReading(renderTarget* cubeMapRenderTarget, GLuint cubeMapFace)
+    void framebuffer::bindForReading(const renderTarget* const sourceRenderTarget)
     {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, _id);
-        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, cubeMapRenderTarget->getAttachment(), cubeMapFace, cubeMapRenderTarget->getTexture()->getId(), 0);
-        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFace, cubeMapRenderTarget->getTexture()->getId() +1, 0);
-        glReadBuffer(cubeMapRenderTarget->getAttachment());
+        glReadBuffer(_renderTargetsAttachments[sourceRenderTarget]);
     }
 
-    void frameBuffer::unbind()
+    void framebuffer::unbind(GLenum target)
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(target, 0);
     }
 
-    void frameBuffer::setSize(size<GLuint> value)
+    void framebuffer::blitToDefault(renderTarget * renderTarget, int x, int y, int w, int h)
     {
-        _size = value;
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        bindForReading(renderTarget);
+
+        glBlitFramebuffer(0, 0, renderTarget->texture->w, renderTarget->texture->h, x, y, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
 
-    void frameBuffer::setClearColor(color value)
+    void framebuffer::blit(renderTarget * sourceRenderTarget, renderTarget * targetRenderTarget)
     {
-        _clearColor = value; 
-        glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
-    }
-
-    void frameBuffer::setViewport(GLuint x, GLuint y, size<GLuint> size)
-    {	
-        _x = x;
-        _y = y;
-        _size = size;
-    }
-
-    void frameBuffer::clear()
-    {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    }
-
-    void frameBuffer::enable(GLenum value)
-    {
-        glEnable(value);
-    }
-
-    void frameBuffer::blit(std::string renderTargetName, GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask, GLenum filter)
-    {
-        renderTarget* renderTarget = (*_renderTargets)[renderTargetName];
-
-        glReadBuffer(renderTarget->getAttachment());
+        bindForReading(sourceRenderTarget);
 
         glBlitFramebuffer(
             0,
             0,
-            _size.width,
-            _size.height,
-            x, 
-            y, 
-            x + width, 
-            y + height, 
-            mask, 
-            filter);
-    }
-
-    void frameBuffer::blita(GLuint x, GLuint y, GLsizei width, GLsizei height, GLbitfield mask, GLenum filter)
-    {
-        glBlitFramebuffer(
+            sourceRenderTarget->texture->w,
+            sourceRenderTarget->texture->h,
             0,
             0,
-            _size.width,
-            _size.height,
-            x, 
-            y, 
-            x + width, 
-            y + height, 
-            mask, 
-            filter);
+            targetRenderTarget->texture->w,
+            targetRenderTarget->texture->h,
+            GL_COLOR_BUFFER_BIT,
+            GL_LINEAR);
     }
 
-    bool frameBuffer::addRenderTarget(renderTarget* renderTarget)
+    renderTarget* framebuffer::getRenderTarget(string name)
     {
-        if (_renderTargets->find(renderTarget->getName()) != _renderTargets->end())
-            return false;
-
-        (*_renderTargets)[renderTarget->getName()] = renderTarget;
-
-        if (renderTarget->getTexture()->getTextureType() == GL_TEXTURE_2D)
+        for (auto& renderTarget : _renderTargets)
         {
-            glFramebufferTexture2D(
-                renderTarget->getTarget(), 
-                renderTarget->getAttachment(), 
-                renderTarget->getTexTarget(),
-                renderTarget->getTexture()->getId(),
-                renderTarget->getLevel());
-        }
-        else  if (renderTarget->getTexture()->getTextureType() == GL_TEXTURE_CUBE_MAP)
-        {
-            for (GLuint i = 0; i < 6; i++)
-            {
-                //glFramebufferTextureARB(GL_FRAMEBUFFER, renderTarget->getAttachment(), renderTarget->getTexture()->getId(), 0);
-                //glFramebufferTextureARB(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, tColorCubeMap, 0);
-                
-                glFramebufferTexture2D(GL_FRAMEBUFFER, renderTarget->getAttachment(), GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, renderTarget->getTexture()->getId(), renderTarget->getLevel());
-            }
+            if (renderTarget->name == name)
+                return renderTarget;
         }
 
-        if (!isComplete())
-            return false;
-
-        return true;
+        throw exception("renderTarget " + name + " not found.");
     }
 
-    renderTarget* frameBuffer::getRenderTarget(std::string name)
+    GLfloat framebuffer::getZBufferValue(int x, int y)
     {
-        if (_renderTargets->find(name) == _renderTargets->end())
-            return NULL;
-        else
-            return (*_renderTargets)[name];
-    }
+        bindForReading();
+        GLfloat zBufferValue = -1.0f;
+        glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
 
-    renderTarget* frameBuffer::newRenderTarget(
-        std::string name, 
-        texture* texture, 
-        GLenum target,
-        GLenum attachment,
-        GLenum texTarget,
-        GLuint level)
-    {
-        renderTarget* r = new renderTarget(name, texture);
-
-        r->setTarget(target);
-        r->setAttachment(attachment);
-        r->setTexTarget(texTarget);
-        r->setLevel(level);
-
-        return r;
-    }
-
-    GLfloat frameBuffer::getZBufferValue(glm::vec2 mousePos)
-    {
-        GLfloat zBufferValue;
-        glReadPixels((GLint)mousePos.x, (GLint)(_size.height - mousePos.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &zBufferValue);
+        
+        //debug(std::to_string(zBufferValue));
 
         return zBufferValue;
+    }
+
+    void framebuffer::release()
+    {
+        safeDelete(defaultFramebuffer);
     }
 }

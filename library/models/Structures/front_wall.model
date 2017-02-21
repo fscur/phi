@@ -1,0 +1,48 @@
+{
+    "Guid": "fhJReCxsvUi5V25IyUatDA==",
+    "Node": {
+        "Components": [
+            {
+                "Name": "front_wall.model",
+                "ThumbnailFileName": "front_wall.th",
+                "AnimatedThumbnailFileName": "front_wall.ath",
+                "Type": 0
+            }
+        ],
+        "Children": [
+            {
+                "Components": [
+                    {
+                        "Name": "front_wall_mesh_0",
+                        "MaterialResourceGuid": "pQ7qDzrKo0yjmdOlOd34NA==",
+                        "GeometryResourceGuid": "fDiYqBH/X0eDcegjZpSMZA==",
+                        "Type": 1
+                    }
+                ],
+                "Children": []
+            },
+            {
+                "Components": [
+                    {
+                        "Name": "front_wall_mesh_1",
+                        "MaterialResourceGuid": "H6wO6BTvw06iLZADcYTjyg==",
+                        "GeometryResourceGuid": "Km5BLV2Pc0yKrNtZ3OnwhQ==",
+                        "Type": 1
+                    }
+                ],
+                "Children": []
+            },
+            {
+                "Components": [
+                    {
+                        "Name": "front_wall_mesh_2",
+                        "MaterialResourceGuid": "pQ7qDzrKo0yjmdOlOd34NA==",
+                        "GeometryResourceGuid": "G8pgEUEN4k+DjAmFimW7qw==",
+                        "Type": 1
+                    }
+                ],
+                "Children": []
+            }
+        ]
+    }
+}

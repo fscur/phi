@@ -1,0 +1,26 @@
+{
+    "Guid": "IYhQnHJDI06gCGGomdnZgw==",
+    "AlbedoTextureGuid": "HzljmWqWP0GFFW5Uq6LOZw==",
+    "NormalTextureGuid": "eA24ebf44kqMxjtp0jvuNA==",
+    "SpecularTextureGuid": "AAAAAAAAAAAAAAAAAAAAAA==",
+    "EmissiveTextureGuid": "AAAAAAAAAAAAAAAAAAAAAA==",
+    "AlbedoColor": [
+        1.0,
+        1.0,
+        1.0
+    ],
+    "SpecularColor": [
+        0.4,
+        0.4,
+        0.4
+    ],
+    "EmissiveColor": [
+        0.0,
+        0.0,
+        0.0
+    ],
+    "Shininess": 8.0,
+    "Reflectivity": 0.0,
+    "Emission": 0.0,
+    "Opacity": 1.0
+}

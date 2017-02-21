@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>for</Title>
+			<Shortcut>for</Shortcut>
+			<Description>Code snippet for 'for auto' loop</Description>
+			<Author>Sr. Badanha</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+				<SnippetType>SurroundsWith</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>item</ID>
+					<Default>item</Default>
+				</Literal>
+				<Literal>
+					<ID>items</ID>
+					<Default>items</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="cpp"><![CDATA[for (auto& $item$ : $items$)
+		{
+			$selected$$end$
+		}]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

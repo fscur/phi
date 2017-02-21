@@ -1,26 +1,26 @@
-#include "phi/io/path.h"
+#include <precompiled.h>
+#include "path.h"
 
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <windows.h>
+#include <core\exception.h>
 
 namespace phi
 {
-    bool path::exists(std::string path)
+    bool path::exists(const string& path)
     {
-        FILE *file;
-        fopen_s(&file, path.c_str(), "r");
-        if (file)
+        struct stat s;
+        int err = stat(path.c_str(), &s);
+        if (err == -1) 
         {
-            fclose(file);
-            return true;
+            if (ENOENT == errno)
+                return false;
+
+            throw exception("[path::exists] unknown error.");
         }
 
-        return false;
+        return true;
     }
 
-    std::string path::getDirectoryFullName(std::string path)
+    string path::getDirectoryFullName(string path)
     {
         std::replace(path.begin(), path.end(), '/', '\\');
         auto slashIndex = path.find_last_of('\\');
@@ -28,7 +28,7 @@ namespace phi
         return path.substr(0, path.size() - (path.size() - slashIndex));
     }
 
-    std::string path::getFileName(std::string path)
+    string path::getFileName(string path)
     {
         std::replace(path.begin(), path.end(), '/', '\\');
         auto slashIndex = path.find_last_of('\\');
@@ -36,21 +36,21 @@ namespace phi
         return path.substr(slashIndex + 1, path.size() - slashIndex - 1);
     }
 
-    std::string path::getFileNameWithoutExtension(std::string path)
+    string path::getFileNameWithoutExtension(string path)
     {
         std::replace(path.begin(), path.end(), '/', '\\');
         auto slashIndex = path.find_last_of('\\');
         auto dotIndex = path.find_last_of('.');
 
         if (dotIndex < slashIndex)
-            return "";
+            return path.substr(0, dotIndex);
 
         return path.substr(slashIndex + 1, dotIndex - slashIndex - 1);
     }
 
-    std::string path::getExtension(std::string path)
+    string path::getExtension(string path)
     {
-        auto dotIndex = path.find_last_of('.');
+        int dotIndex = static_cast<int>(path.find_last_of('.'));
 
         if (dotIndex < 0)
             return "";
@@ -58,21 +58,30 @@ namespace phi
         return path.substr(dotIndex, path.length() - dotIndex);
     }
 
-    std::vector<fileInfo> path::getFiles(const std::string directory)
+    vector<fileInfo> path::getFiles(
+        const string& directory, 
+        vector<string> filters)
     {
-#ifdef WIN32
-        std::vector<fileInfo> out;
+#ifdef _WIN32
+        vector<fileInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
 
         if ((dir = FindFirstFile((directory + "/*").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
             return out; /* No files found */
 
+        bool filterByExtension = filters.size() > 0;
+
         do 
         {
-            const std::string file_name = file_data.cFileName;
-            const std::string full_file_name = directory + "\\" + file_name;
+            const string file_name = file_data.cFileName;
+            const string full_file_name = directory + "\\" + file_name;
             const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+            auto fileExtension = getExtension(file_name);
+
+            if (filterByExtension && !phi::contains(filters, fileExtension))
+                continue;
 
             fileInfo info;
             info.name = file_name;
@@ -91,36 +100,14 @@ namespace phi
 
         return out;
 #else
-        DIR *dir;
-        class dirent *ent;
-        class stat st;
-
-        dir = opendir(directory);
-        while ((ent = readdir(dir)) != NULL) {
-            const std::string file_name = ent->d_name;
-            const std::string full_file_name = directory + "/" + file_name;
-
-            if (file_name[0] == '.')
-                continue;
-
-            if (stat(full_file_name.c_str(), &st) == -1)
-                continue;
-
-            const bool is_directory = (st.st_mode & S_IFDIR) != 0;
-
-            if (is_directory)
-                continue;
-
-            out.push_back(full_file_name);
-        }
-        closedir(dir);
+        return vector<fileInfo>();
 #endif
     }
 
-    std::vector<directoryInfo> path::getDirectories(const std::string directory)
+    vector<directoryInfo> path::getDirectories(const string& directory)
     {
-#ifdef WIN32
-        std::vector<directoryInfo> out;
+#ifdef _WIN32
+        vector<directoryInfo> out;
         HANDLE dir;
         WIN32_FIND_DATA file_data;
 
@@ -130,8 +117,8 @@ namespace phi
         do 
         {
 
-            const std::string file_name = file_data.cFileName;
-            const std::string full_file_name = directory + "\\" + file_name;
+            const string file_name = file_data.cFileName;
+            const string full_file_name = directory + "\\" + file_name;
             const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
             directoryInfo info;
@@ -152,34 +139,28 @@ namespace phi
 
         return out;
 #else
-        DIR *dir;
-        class dirent *ent;
-        class stat st;
-
-        dir = opendir(directory);
-        while ((ent = readdir(dir)) != NULL) {
-            const std::string file_name = ent->d_name;
-            const std::string full_file_name = directory + "/" + file_name;
-
-            if (file_name[0] == '.')
-                continue;
-
-            if (stat(full_file_name.c_str(), &st) == -1)
-                continue;
-
-            const bool is_directory = (st.st_mode & S_IFDIR) != 0;
-
-            if (is_directory)
-                continue;
-
-            out.push_back(full_file_name);
-        }
-        closedir(dir);
+        return vector<directoryInfo>();
 #endif
     }
 
-    std::string path::combine(const std::string path0, const std::string path1)
+    string path::combine(const string& path0, const string& path1, const string& extension)
+    {   
+        auto combined = path0 + "\\" + path1 + extension;
+        std::replace(combined.begin(), combined.end(), '/', '\\');
+        return combined;
+    }
+
+    string path::combine(std::initializer_list<string> args)
     {
-        return path0 + "/" + path1; 
+        auto combined = string();
+
+        for(auto arg : args)
+        {
+            combined += "\\" + arg;
+        }
+
+        std::replace(combined.begin(), combined.end(), '/', '\\');
+
+        return combined;
     }
 }

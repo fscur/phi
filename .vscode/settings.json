@@ -1,0 +1,13 @@
+// Place your settings in this file to overwrite the default settings
+{
+    "clang.executable": "C:/LLVM/bin/clang.exe",
+    "clang.cxxflags": 
+    [
+        "-I${workspaceRoot}/src",
+        "-I${workspaceRoot}/src/phi",
+        "-I${workspaceRoot}/inc"
+    ],
+    "clang.diagnosticDelay": 200,
+    "clang.enableDiagnostic": true,
+    "clang.enableCompletion": true
+}

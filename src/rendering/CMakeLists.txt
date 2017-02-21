@@ -1,75 +1,85 @@
 cmake_minimum_required(VERSION 3.0.2)
+if (MSVC)
+    add_definitions(-Drendering_EXPORTS)
+endif (MSVC)
 
-#project settings
-project(rendering)
-
-add_definitions(-DRENDERING_EXPORTS)
-
-#includes
 include_directories(${INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS})
+include_directories(${PHI_INCLUDE_DIRS}/phi)
 
-#libs
 link_directories(${LIBS_DIRS})
 
-#packages
-find_package(SDL REQUIRED)
-find_package(SDL_TTF REQUIRED)
-find_package(SDL_IMAGE REQUIRED)
-find_package(OPENGL REQUIRED)
 find_package(FREETYPE REQUIRED)
-
-if(NOT SDL_FOUND)
-    message(SDL not found!)
-endif(NOT SDL_FOUND)
-
-if(NOT SDL_TTF_FOUND)
-    message(SDLTTF not found!)
-endif(NOT SDL_TTF_FOUND)
-
-if(NOT SDL_IMAGE_FOUND)
-    message(SDL_IMAGE not found!)
-endif(NOT SDL_IMAGE_FOUND)
-
-if(NOT OPENGL_FOUND)
-    message(OPENGL not found!)
-endif(NOT OPENGL_FOUND)
-
 include_directories(${FREETYPE_INCLUDE_DIRS})
+#link_directories(${FREETYPE_LIBRARY})
 
-if (WIN32)
-    find_package(GLEW REQUIRED)
-    include_directories(${GLEW_INCLUDE_DIR})
-    link_directories(${GLEW_LIBRARY})
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
+#link_directories(${GLEW_LIBRARY})
 
-    if(NOT GLEW_FOUND)
-        message(GLEW not found!)
-    endif(NOT GLEW_FOUND)
-endif(WIN32)
+if(NOT GLEW_FOUND)
+    message(GLEW not found!)
+endif(NOT GLEW_FOUND)
 
-file(GLOB header_files ../../inc/phi/rendering/*.h)
+file(GLOB header_files *.h)
 file(GLOB source_files *.cpp)
+file(GLOB natvis_files *.natvis)
+file(GLOB shader_files ../../resources/shaders/*)
 
-add_library(rendering SHARED ${source_files} ${header_files})
-
-add_dependencies(rendering core)
-add_dependencies(rendering io)
-add_dependencies(rendering loader)
-
-target_link_libraries(rendering ${SDL_LIBRARY})
-target_link_libraries(rendering ${SDL_TTF_LIBRARY})
-target_link_libraries(rendering ${SDL_IMAGE_LIBRARY})
-target_link_libraries(rendering ${OPENGL_LIBRARY})
-target_link_libraries(rendering ${FREETYPE_LIBRARY})
-
-if (WIN32)
-    target_link_libraries(rendering ${GLEW_LIBRARY})
-endif (WIN32)
-
+add_library(rendering SHARED ${source_files} ${header_files} ${shader_files} ${natvis_files})
+source_group(Shaders FILES ${shader_files})
 target_link_libraries(rendering core)
 target_link_libraries(rendering io)
-target_link_libraries(rendering loader)
 
-install(TARGETS rendering 
-    RUNTIME 
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${os} 
-    CONFIGURATIONS ${CMAKE_BUILD_TYPE})
+#opengl
+if (WIN32)
+    find_package(OPENGL REQUIRED)
+    if(NOT OPENGL_FOUND)
+        message(OPENGL not found!)
+    endif(NOT OPENGL_FOUND)
+    target_link_libraries(rendering ${OPENGL_LIBRARY})
+endif(WIN32)
+
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
+target_link_libraries(rendering ${GLEW_LIBRARY})
+target_link_libraries(rendering ${FREETYPE_LIBRARY})
+
+# target_link_libraries(rendering ${GLSLANG_LIBRARY})
+# target_link_libraries(rendering ${GLSLANG_OSDEPENDENT_LIBRARY})
+# target_link_libraries(rendering ${GLSLANG_OGLCOMPILER_LIBRARY})
+# target_link_libraries(rendering ${GLSLANG_HLSL_LIBRARY})
+    
+if (MINGW)
+    set(install_folder ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${BIN_FOLDER})
+    install(TARGETS rendering RUNTIME DESTINATION ${install_folder})
+endif(MINGW)    
+    
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yuprecompiled.h")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fp$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pch")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Fd$(IntDir)precompiled.pdb")
+    
+    add_custom_command(
+        TARGET rendering
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.pdb\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET rendering
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.idb\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET rendering
+        PRE_BUILD
+        COMMAND ../../../../scripts/pre_build_vc++/xcopy_n.bat \"$(SolutionDir)src\\phi\\phi.dir\\$(Configuration)\\precompiled.sbr\" \".\\$(IntDir)\")
+        
+    add_custom_command(
+        TARGET rendering
+        POST_BUILD
+        COMMAND ../../../../scripts/post_build_vc++/project.bat $(Configuration) rendering)
+        
+endif(MSVC)
+
+set_target_properties(rendering PROPERTIES FOLDER Engine)
