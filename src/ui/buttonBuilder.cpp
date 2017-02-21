@@ -45,6 +45,12 @@ namespace phi
         return *this;
     }
 
+    buttonBuilder buttonBuilder::withGlassyLook()
+    {
+        _button->getComponent<control>()->setIsGlassy(true);
+        return *this;
+    }
+
     buttonBuilder buttonBuilder::withText(wstring text)
     {
         auto control = _button->getComponent<phi::control>();

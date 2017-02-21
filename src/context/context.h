@@ -10,24 +10,12 @@
 
 #include <application\commandsManager.h>
 
-#include "layer.h"
+#include <layers/layer.h>
 
 namespace phi
 {
     class context
     {
-    private:
-        vector<layer*> _layers;
-        framebufferAllocator* _framebufferAllocator;
-        resolution _resolution;
-        framebuffer* _pickingFramebuffer;
-        renderTarget* _pickingRenderTarget;
-
-        commandsManager* _commandsManager;
-
-    private:
-        void initialize();
-
     public:
         CONTEXT_API context(
             resolution& resolution,
@@ -37,6 +25,7 @@ namespace phi
 
         CONTEXT_API ~context();
 
+        CONTEXT_API void initialize();
         CONTEXT_API void update();
         CONTEXT_API void render();
 
@@ -52,5 +41,14 @@ namespace phi
         CONTEXT_API void onKeyUp(keyboardEventArgs* e);
 
         CONTEXT_API void resize(const resolution& resolution);
+
+    private:
+        vector<layer*> _layers;
+        framebufferAllocator* _framebufferAllocator;
+        resolution _resolution;
+        framebuffer* _pickingFramebuffer;
+        renderTarget* _pickingRenderTarget;
+
+        commandsManager* _commandsManager;
     };
 }

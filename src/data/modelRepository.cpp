@@ -33,4 +33,17 @@ namespace phi
 
         return model;
     }
+
+    modelDTO modelRepository::getModelById(const phi::guid& id)
+    {
+        auto entry = _index.getEntryById(id);
+        auto modelPath = path::combine(_libraryPath, entry.path);
+        std::ifstream inputFileStream(modelPath);
+        JSONInputArchive archive(inputFileStream);
+
+        auto model = modelDTO();
+        model.serialize(archive);
+
+        return model;
+    }
 }

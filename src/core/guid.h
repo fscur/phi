@@ -51,5 +51,30 @@ namespace phi
 
     public:
         CORE_API static guid newGuid();
+
+
+    };
+}
+
+namespace std
+{
+    //http://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
+    template <>
+    struct hash<phi::guid>
+    {
+        std::size_t operator()(phi::guid& guid) const
+        {
+            using std::size_t;
+            using std::hash;
+
+            std::size_t seed = 0;
+
+            for (auto& item : guid.getBytes())
+            {
+                std::hash_combine<GLenum>(seed, item);
+            }
+
+            return seed;
+        }
     };
 }

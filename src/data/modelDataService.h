@@ -19,7 +19,8 @@ namespace phi
                          iModelRepository* modelRepository);
         DATA_API ~modelDataService();
 
-        DATA_API virtual model* getModelByIndex(int index) override;
+        DATA_API virtual model* getModelByIndex(const int index) override;
+        DATA_API virtual model* getModelById(const phi::guid& id) override;
 
 
     private:

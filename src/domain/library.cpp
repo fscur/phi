@@ -16,8 +16,13 @@ namespace demon
     {
     }
 
-    model* library::getModelByIndex(int index)
+    model* library::getModelByIndex(const int index)
     {
         return _modelDataService->getModelByIndex(index);
+    }
+
+    model* library::getModelById(const phi::guid& id)
+    {
+        return _modelDataService->getModelById(id);
     }
 }

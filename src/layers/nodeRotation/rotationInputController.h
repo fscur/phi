@@ -6,7 +6,7 @@
 #include <physics/physicsWorld.h>
 #include <rendering/camera.h>
 #include <application/commandsManager.h>
-#include <context/layer.h>
+#include "../pickingId.h"
 #include "rotationService.h"
 #include "rotationPlane.h"
 

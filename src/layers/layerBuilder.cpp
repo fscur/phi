@@ -48,6 +48,7 @@ namespace phi
         _withControlRenderer(false),
         _withTextRenderer(false),
         _withPhysics(false),
+        _withAnimation(false),
         _withCameraController(false),
         _withSelectionController(false),
         _withTranslationController(false),

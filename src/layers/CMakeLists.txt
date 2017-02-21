@@ -57,7 +57,7 @@ source_group("Header Files\\nodeRotation" FILES ${node_rotation_header_files})
 source_group("Source Files\\ui" FILES ${ui_source_files})
 source_group("Header Files\\ui" FILES ${ui_header_files})
 
-target_link_libraries(layers context)
+target_link_libraries(layers application)
 target_link_libraries(layers animation)
 target_link_libraries(layers physics)
 target_link_libraries(layers uiRendering)

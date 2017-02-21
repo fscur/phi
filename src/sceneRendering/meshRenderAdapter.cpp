@@ -8,7 +8,8 @@
 namespace phi
 {
     meshRenderAdapter::meshRenderAdapter() :
-        onBatchAdded(new eventHandler<batch*>())
+        onBatchAdded(new eventHandler<batch*>()),
+        onBatchRemoved(new eventHandler<batch*>())
     {
         createBuffers();
     }
@@ -22,6 +23,7 @@ namespace phi
 
         _onDelete();
         safeDelete(onBatchAdded);
+        safeDelete(onBatchRemoved);
     }
 
     void meshRenderAdapter::createBuffers()
@@ -132,6 +134,7 @@ namespace phi
         if (batch->isEmpty())
         {
             phi::removeIfContains(_batches, batch);
+            onBatchRemoved->raise(batch);
             safeDelete(batch);
         }
 

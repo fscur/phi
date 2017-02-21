@@ -74,7 +74,9 @@ namespace demon
         initFramebuffers();
         initLibraries();
         initInput();
+        initSceneLayer();
         initContexts();
+        initScene();
         initWatcher();
     }
 
@@ -145,270 +147,9 @@ namespace demon
             modelRepository);
 
         _userLibrary = new library(modelDataService);
-        _projectRepository = new projectRepository();
-    }
 
-    void screen::initContexts()
-    {
-        auto font = fontsManager::load("Roboto-Thin.ttf", 10);
-        auto fontFps = fontsManager::load("Roboto-Thin.ttf", 12);
-
-        _labelFps = labelBuilder::newLabel(L"Fps: 0")
-            .withPosition(vec3(-280.f, 120.f, 0.f))
-            .withGlassyLook()
-            .withControlColor(1.0f, 0.0f, 1.0f, 0.3f)
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(fontFps)
-            .build();
-
-        _labelNandinho = labelBuilder::newLabel(L"nandinhooooo")
-            .withPosition(vec3(-280.f, 80.f, 0.f))
-            .withControlColor(1.0f, 0.0f, 0.0f, 1.0f)
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(font)
-            .build();
-
-        auto changeContextButton = buttonBuilder::newButton()
-            .withPosition(vec3(-280.f, 60.f, 0.f))
-            .withText(L"Change context")
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(font)
-            .withControlColor(.5, .5, .2f, 1.f)
-            .withAction([=](node* node)
-        {
-            _unused(node);
-            _commandsManager->executeCommand(new changeContextCommand());
-        })
-            .build();
-
-        _constructionLabel = labelBuilder::newLabel(L"construction")
-            .withPosition(vec3(-280.f, 100.f, 0.f))
-            .withControlColor(0.0f, 1.0f, 0.5, 1.f)
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(font)
-            .build();
-
-
-        _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        //_sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 2.0f, -15.0f));
-        //_sceneCamera->getTransform()->pitch(0.3f);
-
-        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 1.0f, 3.0f));
-        _sceneCamera->getTransform()->yaw(PI);
-
-        _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
-        _rotationImage = importer::importImage(application::resourcesPath + "/images/rotation.png");
-
-        try
-        {
-            auto sceneLayerBuilder = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-                .withMeshRenderer()
-                .withGhostMeshRenderer()
-                .withTranslationPlaneGridRenderer()
-                .withRotationPlaneGridRenderer()
-                .withPhysics()
-                .withAnimation()
-                .withCameraController()
-                .withSelectionController()
-                .withRotationController()
-                .withTranslationController()
-                //.withBoxColliderRenderer()
-                .withSkyBoxRenderer();
-
-            _sceneLayer = sceneLayerBuilder.build();
-            _sceneLayer->addOnNodeSelectionChanged(std::bind(&screen::onNodeSelectionChanged, this, std::placeholders::_1));
-
-            _translationController = sceneLayerBuilder.translationInputController;
-            _translationController->translationStarted += std::bind(&screen::hideOnDemandUi, this);
-            _translationController->translationEnded += std::bind(&screen::showOnDemandUi, this);
-
-            _rotationController = sceneLayerBuilder.rotationInputController;
-            _rotationController->rotationStarted += std::bind(&screen::hideOnDemandUi, this);
-            _rotationController->rotationEnded += std::bind(&screen::showOnDemandUi, this);
-            _rotationController->disable();
-            _selectionBehaviour = sceneLayerBuilder.selectionLayerBehaviour;
-
-            _scene = new phi::scene(_sceneLayer, _sceneCamera);
-            _project = new project(_scene);
-
-            /*_constructionCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-            _constructionCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-            _constructionCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
-
-            _constructionLayer = layerBuilder::newLayer(_constructionCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-                .withControlRenderer()
-                .withTextRenderer()
-                .build();*/
-
-            _nandinhoCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-            _nandinhoCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-            _nandinhoCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
-
-            _nandinhoLayer = layerBuilder::newLayer(_nandinhoCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-                .withControlRenderer()
-                .withTextRenderer()
-                .withUIMouseController()
-                .build();
-        }
-        catch (const phi::invalidLayerConfigurationException& ex)
-        {
-            phi::application::logError(ex.what());
-        }
-
-        auto saveProjectButton = buttonBuilder::newButton()
-            .withPosition(vec3(-280.f, 20.f, 0.f))
-            .withText(L"Save project")
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(font)
-            .withControlColor(.3f, .9f, .2f, 1.f)
-            .withAction([=](node* node)
-        {
-            _unused(node);
-            OPENFILENAME ofn;
-
-            char szFileName[MAX_PATH] = "";
-
-            ZeroMemory(&ofn, sizeof(ofn));
-
-            ofn.lStructSize = sizeof(ofn);
-            ofn.hwndOwner = NULL;
-            ofn.lpstrFilter = (LPCSTR)"Phi Files (*.phi)\0";
-            ofn.lpstrFile = (LPSTR)szFileName;
-            ofn.nMaxFile = MAX_PATH;
-            ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-            ofn.lpstrDefExt = (LPCSTR)"phi";
-
-            GetSaveFileName(&ofn);
-            auto path = ofn.lpstrFile;
-
-            _projectRepository->save(_project, path);
-        })
-            .build();
-
-        auto loadProjectButton = buttonBuilder::newButton()
-            .withPosition(vec3(-280.f, 40.f, 0.f))
-            .withText(L"Load project")
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(font)
-            .withControlColor(.7f, .1f, .2f, 1.f)
-            .withAction([=](node* node)
-        {
-            _unused(node);
-            //OPENFILENAME ofn;
-            //char fileNameBuffer[260];
-
-            //ZeroMemory(&ofn, sizeof(ofn));
-            //ofn.lStructSize = sizeof(ofn);
-            //ofn.lpstrFile = fileNameBuffer;
-
-            //ofn.lpstrFile[0] = '\0';
-            //ofn.nMaxFile = sizeof(fileNameBuffer);
-            //ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-            //ofn.nFilterIndex = 1;
-            //ofn.lpstrFileTitle = NULL;
-            //ofn.nMaxFileTitle = 0;
-            //ofn.lpstrInitialDir = NULL;
-            //ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-            // Display the Open dialog box.
-
-            //if (GetOpenFileName(&ofn) == TRUE)
-            //{
-            //    auto nodes = importer::loadPhiFile(ofn.lpstrFile, _userLibrary->getObjectsRepository());
-            //    for (auto& node : nodes)
-            //    {
-            //        _sceneLayer->add(node);
-            //    }
-            //}
-        })
-            .build();
-
-        _framebufferAllocator->allocate(_resolution);
-
-        _designContext = new context(
-            _resolution,
-            _framebufferAllocator,
-            _commandsManager,
-            { _sceneLayer, _nandinhoLayer });
-
-        /*_constructionContext = new context(
-            _resolution,
-            _framebufferAllocator,
-            _commandsManager,
-            { _sceneLayer, _constructionLayer });*/
-
-        node* skyBoxNode = new node();
-        skyBoxImages images;
-        images.PositiveX = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\PositiveX.png");
-        images.NegativeX = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\NegativeX.png");
-        images.PositiveY = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\PositiveY.png");
-        images.NegativeY = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\NegativeY.png");
-        images.PositiveZ = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\PositiveZ.png");
-        images.NegativeZ = importer::importImage("D:\\Phi\\resources\\images\\skyboxes\\SunnyDay\\NegativeZ.png");
-        
-        skyBox* skyBoxComp = new skyBox(images);
-        skyBoxNode->addComponent(skyBoxComp);
-
-        _sceneLayer->add(skyBoxNode);
-
-        initScene();
-
-        //_constructionLayer->add(_constructionLabel);
-
-        _onDemandUi = createOnDemandUiNode();
-        _onDemandUi->addComponent(new relativeLayoutPosition(_nandinhoCamera, _sceneLayer));
-
-        _nandinhoLayer->add(_labelNandinho);
-        _nandinhoLayer->add(_labelFps);
-        _nandinhoLayer->add(changeContextButton);
-        _nandinhoLayer->add(loadProjectButton);
-        _nandinhoLayer->add(saveProjectButton);
-
-        _activeContext = _designContext;
-    }
-
-    void screen::initScene()
-    {
-        auto floor = _userLibrary->getModelByIndex(24);
-        auto wall_front = _userLibrary->getModelByIndex(21);
-        wall_front->getTransform()->setLocalPosition(0.0f, 0.0f, -2.0f);
-
-        auto wall_left = _userLibrary->getModelByIndex(26);
-        wall_left->getTransform()->setLocalPosition(-5.0f, 0.0f, 0.0f);
-
-        _scene->add(floor);
-        //_scene->add(wall_front);
-        //_scene->add(wall_left);
-        
-        auto chair_brown = _userLibrary->getModelByIndex(3);
-        chair_brown->getTransform()->setLocalPosition(-1.0f, 0.0f, 0.0f);
-        chair_brown->getTransform()->yaw(phi::PI_OVER_2);
-        _scene->add(chair_brown);
-
-        //auto chair_black = _userLibrary->getModelByIndex(2);
-
-        //for (auto i = 0; i < 1; i++)
-        //    for (auto j = 0; j < 10; j++)
-        //        for (auto k = 0; k < 10; k++)
-        //    {
-        //        auto obj = chair_black->clone();
-
-        //        obj->getTransform()->setLocalPosition(float(i), float(j), float(k));
-        //        //chair_black->getTransform()->yaw(phi::PI_OVER_2);
-
-        //        _scene->add(obj);
-        //    }
-
-        
-        //auto cube = _userLibrary->getModelByIndex(7);
-        //_scene->add(cube);
-        //auto sun = _userLibrary->getModelByIndex(15);
-        //sun->getTransform()->setLocalPosition(0.0f, 5.0f, 5.0f);
-        //_scene->add(sun);
-
-        /*auto sphere = _userLibrary->getModelByIndex(15);
-        sphere->getTransform()->setLocalPosition(0.0f, 0.0f, -10.0f);
-        _scene->add(sphere);*/
+        _projectLibrary = new library(modelDataService);
+        _projectRepository = new projectRepository(_projectLibrary);
     }
 
     void screen::initInput()
@@ -429,6 +170,313 @@ namespace demon
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_z }, [&]() { return new undoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_y }, [&]() { return new redoCommand(_commandsManager); }));
         _commandsManager->addShortcut(shortcut({ PHIK_CTRL, PHIK_SPACE }, [&]() { return new changeContextCommand(); }));
+    }
+
+    void screen::initSceneLayer()
+    {
+        _sceneCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _sceneCamera->getTransform()->setLocalPosition(vec3(0.0f, 1.3f, 3.0f));
+        _sceneCamera->getTransform()->yaw(PI);
+        _sceneCamera->getTransform()->pitch(-0.2f);
+
+        auto sceneLayerBuilder = layerBuilder::newLayer(_sceneCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            .withMeshRenderer()
+            .withGhostMeshRenderer()
+            .withTranslationPlaneGridRenderer()
+            .withRotationPlaneGridRenderer()
+            .withPhysics()
+            .withAnimation()
+            .withCameraController()
+            .withSelectionController()
+            .withRotationController()
+            .withTranslationController()
+            //.withBoxColliderRenderer()
+            .withSkyBoxRenderer();
+
+        _sceneLayer = sceneLayerBuilder.build();
+        _sceneLayer->addOnNodeSelectionChanged(std::bind(&screen::onNodeSelectionChanged, this, std::placeholders::_1));
+
+        _translationController = sceneLayerBuilder.translationInputController;
+        _translationController->translationStarted += std::bind(&screen::hideOnDemandUi, this);
+        _translationController->translationEnded += std::bind(&screen::showOnDemandUi, this);
+
+        _rotationController = sceneLayerBuilder.rotationInputController;
+        _rotationController->rotationStarted += std::bind(&screen::hideOnDemandUi, this);
+        _rotationController->rotationEnded += std::bind(&screen::showOnDemandUi, this);
+        _rotationController->disable();
+        _selectionBehaviour = sceneLayerBuilder.selectionLayerBehaviour;
+    }
+
+    void screen::initDesignLayer()
+    {
+        _designLayerCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _designLayerCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        _designLayerCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+
+        _designLayer = layerBuilder::newLayer(_designLayerCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            .withControlRenderer()
+            .withTextRenderer()
+            .withAnimation()
+            .withUIMouseController()
+            .build();
+
+        _labelFps = labelBuilder::newLabel(L"Fps: 0")
+            .withPosition(vec3(240.f, 160.f, 0.f))
+            .withGlassyLook()
+            .withControlColor(0.5f, 0.5f, 0.5f, 0.7f)
+            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
+            .withFont(_font)
+            .build();
+
+        /*_changeContextButton = buttonBuilder::newButton()
+            .withPosition(vec3(-290.f, 60.f, 0.f))
+            .withText(L"Change context")
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withControlColor(.5, .5, .2f, 1.f)
+            .withFont(_font)
+            .withAction([=](node* node)
+        {
+            _unused(node);
+            _commandsManager->executeCommand(new changeContextCommand());
+        })
+            .build();*/
+
+        auto saveProjectButton = buttonBuilder::newButton()
+            .withPosition(vec3(-290.f, 160.f, 0.f))
+            .withText(L"Save")
+            .withGlassyLook()
+            .withControlColor(0.5f, 0.5f, 0.5f, 0.7f)
+            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
+            .withFont(_font)
+            .withAction([=](node* node)
+        {
+            _unused(node);
+            saveProject();
+        })
+            .build();
+
+        auto loadProjectButton = buttonBuilder::newButton()
+            .withPosition(vec3(-290.f, 140.f, 0.f))
+            .withText(L"Load")
+            .withGlassyLook()
+            .withControlColor(0.5f, 0.5f, 0.5f, 0.7f)
+            .withTextColor(1.0f, 1.0f, 1.0f, 1.0f)
+            .withFont(_font)
+            .withAction([=](node* node)
+        {
+            _unused(node);
+            loadProject();
+        })
+            .build();
+
+        _designLayer->add(_labelFps);
+        //_designLayer->add(_changeContextButton);
+        _designLayer->add(loadProjectButton);
+        _designLayer->add(saveProjectButton);
+    }
+
+    void screen::initBuildingLayer()
+    {
+        _buildingLayerCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
+        _buildingLayerCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
+        _buildingLayerCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
+
+        _buildingLayer = layerBuilder::newLayer(_buildingLayerCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
+            .withControlRenderer()
+            .withTextRenderer()
+            .withAnimation()
+            .withUIMouseController()
+            .build();
+
+        auto buildingLabel = labelBuilder::newLabel(L"Opaque Look Label")
+            .withPosition(vec3(-300.f, 100.f, 0.f))
+            .withControlColor(0.0f, 1.0f, 0.5, 1.f)
+            .withTextColor(1.f, 1.f, 1.f, 1.f)
+            .withFont(_font)
+            .build();
+
+        _buildingLayer->add(buildingLabel);
+        _buildingLayer->add(_changeContextButton);
+    }
+
+    void screen::initContexts()
+    {
+        _font = fontsManager::load("Roboto-Thin.ttf", 10);
+
+        initDesignLayer();
+        //initBuildingLayer();
+
+        _framebufferAllocator->allocate(_resolution);
+
+        _designContext = new context(
+            _resolution,
+            _framebufferAllocator,
+            _commandsManager,
+            { _sceneLayer, _designLayer });
+
+        _designContext->initialize();
+
+        /*_buildingContext = new context(
+            _resolution,
+            _framebufferAllocator,
+            _commandsManager,
+            { _sceneLayer, _buildingLayer });
+
+        _buildingContext->initialize();*/
+
+        _onDemandUi = createOnDemandUiNode();
+        _onDemandUi->addComponent(new relativeLayoutPosition(_designLayerCamera, _sceneLayer));
+        _activeContext = _designContext;
+    }
+
+    void screen::initScene()
+    {
+        _scene = new phi::scene(_sceneCamera);
+        _project = new project(_scene);
+
+        node* skyBoxNode = new node();
+        skyBoxImages images;
+        
+        images.PositiveX = importer::importImage(application::resourcesPath + "\\images\\skyboxes\\SunnyDay\\PositiveX.png");
+        images.NegativeX = importer::importImage(application::resourcesPath + "\\images\\skyboxes\\SunnyDay\\NegativeX.png");
+        images.PositiveY = importer::importImage(application::resourcesPath + "\\images\\skyboxes\\SunnyDay\\PositiveY.png");
+        images.NegativeY = importer::importImage(application::resourcesPath + "\\images\\skyboxes\\SunnyDay\\NegativeY.png");
+        images.PositiveZ = importer::importImage(application::resourcesPath + "\\images\\skyboxes\\SunnyDay\\PositiveZ.png");
+        images.NegativeZ = importer::importImage(application::resourcesPath + "\\images\\skyboxes\\SunnyDay\\NegativeZ.png");
+
+        skyBox* skyBoxComp = new skyBox(images);
+        skyBoxNode->addComponent(skyBoxComp);
+
+        _sceneLayer->add(skyBoxNode);
+
+        auto floor = _userLibrary->getModelByIndex(24);
+        _sceneLayer->add(floor->getNode());
+        _scene->add(floor);
+
+        auto rug = _userLibrary->getModelByIndex(13);
+        rug->getTransform()->setLocalPosition(0.1f, 0.0f, 0.0f);
+        _sceneLayer->add(rug->getNode());
+        _scene->add(rug);
+
+        auto chair_brown = _userLibrary->getModelByIndex(3);
+        chair_brown->getTransform()->setLocalPosition(-1.0f, 0.0f, -1.3f);
+        chair_brown->getTransform()->yaw(-phi::PI_OVER_2 + 0.3f);
+        _sceneLayer->add(chair_brown->getNode());
+        _scene->add(chair_brown);
+
+        auto chair_black = _userLibrary->getModelByIndex(2);
+        chair_black->getTransform()->setLocalPosition(1.0f, 0.0f, -1.3f);
+        chair_black->getTransform()->yaw(-phi::PI_OVER_2 - 0.3f);
+        _sceneLayer->add(chair_black->getNode());
+        _scene->add(chair_black);
+
+        auto sofa = _userLibrary->getModelByIndex(4);
+        sofa->getTransform()->setLocalPosition(0.0f, 0.0f, 1.3f);
+        sofa->getTransform()->yaw(phi::PI);
+        _sceneLayer->add(sofa->getNode());
+        _scene->add(sofa);
+
+        auto small_table = _userLibrary->getModelByIndex(28);
+        small_table->getTransform()->setLocalPosition(0.0f, 0.0f, -1.3f);
+        //sofa->getTransform()->yaw(-phi::PI_OVER_2 - 0.3f);
+        _sceneLayer->add(small_table->getNode());
+        _scene->add(small_table);
+
+        //auto chair_black = _userLibrary->getModelByIndex(2);
+
+        //for (auto i = 0; i < 1; i++)
+        //    for (auto j = 0; j < 10; j++)
+        //        for (auto k = 0; k < 10; k++)
+        //    {
+        //        auto obj = chair_black->clone();
+
+        //        obj->getTransform()->setLocalPosition(float(i), float(j), float(k));
+        //        //chair_black->getTransform()->yaw(phi::PI_OVER_2);
+
+        //        _scene->add(obj);
+        //    }
+
+
+        //auto cube = _userLibrary->getModelByIndex(7);
+        //_scene->add(cube);
+        //auto sun = _userLibrary->getModelByIndex(15);
+        //sun->getTransform()->setLocalPosition(0.0f, 5.0f, 5.0f);
+        //_scene->add(sun);
+
+        /*auto sphere = _userLibrary->getModelByIndex(15);
+        sphere->getTransform()->setLocalPosition(0.0f, 0.0f, -10.0f);
+        _scene->add(sphere);*/
+    }
+
+    void screen::loadProject()
+    {
+        OPENFILENAME ofn;
+        char fileNameBuffer[260];
+
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        ofn.lpstrFile = fileNameBuffer;
+
+        ofn.lpstrFile[0] = '\0';
+        ofn.nMaxFile = sizeof(fileNameBuffer);
+        ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+        ofn.nFilterIndex = 1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir = NULL;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+        if (GetOpenFileName(&ofn) == TRUE)
+        {
+            auto currentModels = _scene->getModels();
+            auto rootNode = _sceneLayer->getRoot();
+
+            for (auto& model : currentModels)
+                rootNode->removeChild(model->getNode());
+
+            auto path = ofn.lpstrFile;
+            _project = _projectRepository->load(path);
+
+            _scene = _project->getScene();
+
+            auto models = _scene->getModels();
+
+            for (auto& item : models)
+                _sceneLayer->add(item->getNode());
+
+            auto camera = _scene->getCamera();
+            _sceneLayer->getCamera()->getTransform()->setLocalPosition(camera->getTransform()->getLocalPosition());
+            _sceneLayer->getCamera()->getTransform()->setLocalOrientation(camera->getTransform()->getLocalOrientation());
+            _sceneLayer->getCamera()->getTransform()->setLocalSize(camera->getTransform()->getLocalSize());
+            _scene->setCamera(_sceneLayer->getCamera());
+
+            safeDelete(camera);
+        }
+    }
+
+    void screen::saveProject()
+    {
+        OPENFILENAME ofn;
+
+        char szFileName[MAX_PATH] = "";
+
+        ZeroMemory(&ofn, sizeof(ofn));
+
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = NULL;
+        ofn.lpstrFilter = (LPCSTR)"Phi Files (*.phi)\0";
+        ofn.lpstrFile = (LPSTR)szFileName;
+        ofn.nMaxFile = MAX_PATH;
+        ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+        ofn.lpstrDefExt = (LPCSTR)"phi";
+        
+        if (GetSaveFileName(&ofn) == TRUE)
+        {
+            auto path = ofn.lpstrFile;
+
+            _scene->setCamera(_sceneCamera);
+            _projectRepository->save(_project, path);
+        }
     }
 
     void screen::onMouseDown(phi::mouseEventArgs* e)
@@ -486,7 +534,7 @@ namespace demon
         if (_design)
             _activeContext = _designContext;
         else
-            _activeContext = _constructionContext;
+            _activeContext = _buildingContext;
 
         _activeContext->update();
     }
@@ -499,7 +547,7 @@ namespace demon
     void screen::onTick()
     {
         auto label = _labelFps->getComponent<phi::text>();
-        auto str = "Fps: " + std::to_string(application::framesPerSecond);
+        auto str = "FPS: " + std::to_string(application::framesPerSecond);
         label->setText(wstring(str.begin(), str.end()));
 
 #ifdef _DEBUG
@@ -524,16 +572,16 @@ namespace demon
         safeDelete(_userLibrary);
 
         safeDelete(_designContext);
-        safeDelete(_constructionContext);
+        safeDelete(_buildingContext);
 
         safeDelete(_projectRepository);
         safeDelete(_project);
-        safeDelete(_nandinhoLayer);
-        safeDelete(_constructionLayer);
+        safeDelete(_designLayer);
+        safeDelete(_buildingLayer);
 
         safeDelete(_sceneCamera);
-        safeDelete(_nandinhoCamera);
-        safeDelete(_constructionCamera);
+        safeDelete(_designLayerCamera);
+        safeDelete(_buildingLayerCamera);
 
 #ifdef _DEBUG
         _watcher->endWatch();
@@ -559,6 +607,9 @@ namespace demon
 
     node* screen::createOnDemandUiNode()
     {
+        _translationImage = importer::importImage(application::resourcesPath + "/images/translation.png");
+        _rotationImage = importer::importImage(application::resourcesPath + "/images/rotation.png");
+
         auto switchControl = switchControlBuilder::newSwitchControl()
             .withSize(vec3(15.0f, 30.0f, 0.1f))
             .withOptionAImage(_translationImage)
@@ -572,14 +623,15 @@ namespace demon
         {
             _translationController->disable();
             _rotationController->enable();
-        }).build();
+        })
+            .build();
 
         return switchControl;
     }
 
     void screen::showOnDemandUi()
     {
-        _nandinhoLayer->add(_onDemandUi);
+        _designLayer->add(_onDemandUi);
         _onDemandUi->getComponent<relativeLayoutPosition>()->updatePosition();
     }
 

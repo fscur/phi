@@ -3,7 +3,7 @@
 
 #include <core\node.h>
 #include <core\modelNode.h>
-#include <context\layer.h>
+#include <layers\layer.h>
 #include <layers\nodeSelection\selectionInputController.h>
 
 using namespace phi;

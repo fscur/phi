@@ -10,7 +10,8 @@ namespace demon
 {
     using namespace cereal;
 
-    projectRepository::projectRepository()
+    projectRepository::projectRepository(library* library) :
+        _library(library)
     {
     }
 
@@ -20,32 +21,39 @@ namespace demon
 
     project* projectRepository::load(phi::string path)
     {
-        //std::ifstream inputFileStream(path);
-        //JSONInputArchive archive(inputFileStream);
+        std::ifstream inputFileStream(path);
+        JSONInputArchive archive(inputFileStream);
 
-        //projectDTO projectDto;
-        //projectDto.serialize(archive);
-        return nullptr;
+        projectDTO projectDto;
+        projectDto.serialize(archive);
+
+        auto sceneDto = projectDto.scene;
+        auto camera = cameraDTO::to(sceneDto.camera);
+        auto scene = new phi::scene(camera);
+
+        for (auto& modelDto : sceneDto.nodes)
+        {
+            for (auto& node : projectDto.nodes)
+            {
+                if (node.guid.guid != modelDto.guid)
+                    continue;
+
+                auto model = _library->getModelById(modelDto.guid);
+                model->getTransform()->setLocalPosition(node.translation.toVec3());
+                model->getTransform()->setLocalSize(node.scale.toVec3());
+                model->getTransform()->setLocalOrientation(node.rotation.toQuaternion());
+
+                scene->add(model);
+
+            }
+        }
+
+        return new project(scene);;
     }
 
     void projectRepository::save(project* project, phi::string path)
     {
-        auto scene = project->getScene();
-
-        auto nodesIds = phi::vector<guidDTO>();
-        auto nodes = phi::vector<nodeDTO>();
-        auto models = scene->getModels();
-
-        for (auto& model : models)
-        {
-            auto nodeDto = nodeDTO::from(model);
-            nodes.push_back(nodeDto);
-            nodesIds.push_back(nodeDto.guid);
-        }
-
-        auto cameraDto = cameraDTO::from(scene->getCamera());
-        auto sceneDto = sceneDTO(nodesIds, cameraDto);
-        auto projectDto = projectDTO(sceneDto, nodes);
+        auto projectDto = projectDTO::from(project);
 
         std::ofstream outputFileStream(path);
         JSONOutputArchive archive(outputFileStream);

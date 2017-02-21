@@ -82,6 +82,7 @@ namespace phi
         CORE_API void select();
         CORE_API void deselect();
         CORE_API void traverse(std::function<void(node*)> func);
+        CORE_API void removeParent();
 
         template<typename T>
         T* getComponent() const

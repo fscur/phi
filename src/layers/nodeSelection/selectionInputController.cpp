@@ -8,7 +8,7 @@
 
 #include <rendering/pickingFramebuffer.h>
 
-#include <context/pickingId.h>
+#include "..\pickingId.h"
 
 #include "selectionInputController.h"
 #include "selectNodeCommand.h"

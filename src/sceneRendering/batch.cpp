@@ -235,8 +235,14 @@ namespace phi
     {
         auto node = instance->mesh->getNode();
         auto rootNode = node;
-        while (rootNode->getParent()->getParent()) rootNode = rootNode->getParent();
+
+        while (rootNode->getParent()->getParent()) 
+            rootNode = rootNode->getParent();
+
         auto clickComponent = rootNode->getComponent<phi::mouseInteractionComponent>();
+
+        if (!clickComponent)
+            return;
 
         int flags = 0;
         if (isSelected)

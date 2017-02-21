@@ -5,7 +5,7 @@
 #include <application/commandsManager.h>
 
 #include <context/invalidLayerConfigurationException.h>
-#include <context/layer.h>
+#include <layers/layer.h>
 
 #include <physics/physicsLayerBehaviour.h>
 

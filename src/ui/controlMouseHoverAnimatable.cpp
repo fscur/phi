@@ -7,7 +7,7 @@ namespace phi
     controlMouseHoverAnimatable::controlMouseHoverAnimatable(control* control, animator* animator) :
         _control(control),
         _animator(animator),
-        _hoverColor(color::orange)
+        _hoverColor(color::gray)
     {
         assert(control);
         assert(animator);

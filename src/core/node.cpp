@@ -112,10 +112,14 @@ namespace phi
         if (iterator != _children.end())
         {
             _children.erase(iterator);
+            
             child->setParent(nullptr);
             child->transformChanged.unassign(_childrenEventTokens[child].transformChangedToken);
             child->obbChanged.unassign(_childrenEventTokens[child].obbChangedToken);
+
             _childrenEventTokens.erase(child);
+
+
             childRemoved.raise(child);
         }
 
@@ -275,7 +279,13 @@ namespace phi
         _isTranslating = value;
     }
 
-    inline void node::setParent(node * const value)
+    inline void node::removeParent()
+    {
+        _parent = nullptr;
+        _transform->setParent(nullptr);
+    }
+
+    inline void node::setParent(node* const value)
     {
         _parent = value;
 

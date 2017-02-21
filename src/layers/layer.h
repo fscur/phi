@@ -1,6 +1,6 @@
 #pragma once
 #include <phi.h>
-#include "contextApi.h"
+#include "layersApi.h"
 
 #include <core\node.h>
 
@@ -81,25 +81,25 @@ namespace phi
         void nodeComponentRemoved(node* node, component* component);
 
     public:
-        CONTEXT_API layer(camera* camera);
-        CONTEXT_API ~layer();
+        LAYERS_API layer(camera* camera);
+        LAYERS_API ~layer();
 
-        CONTEXT_API void add(node* node);
+        LAYERS_API virtual void add(node* node);
 
-        CONTEXT_API void initialize();
-        CONTEXT_API void update();
-        CONTEXT_API void render();
+        LAYERS_API void initialize();
+        LAYERS_API void update();
+        LAYERS_API void render();
 
-        CONTEXT_API bool onMouseDown(mouseEventArgs* e);
-        CONTEXT_API bool onMouseUp(mouseEventArgs* e);
-        CONTEXT_API bool onMouseClick(mouseEventArgs* e);
-        CONTEXT_API bool onMouseDoubleClick(mouseEventArgs* e);
-        CONTEXT_API bool onMouseMove(mouseEventArgs* e);
-        CONTEXT_API bool onBeginMouseWheel(mouseEventArgs* e);
-        CONTEXT_API bool onMouseWheel(mouseEventArgs* e);
-        CONTEXT_API bool onEndMouseWheel(mouseEventArgs* e);
-        CONTEXT_API bool onKeyDown(keyboardEventArgs* e);
-        CONTEXT_API bool onKeyUp(keyboardEventArgs* e);
+        LAYERS_API bool onMouseDown(mouseEventArgs* e);
+        LAYERS_API bool onMouseUp(mouseEventArgs* e);
+        LAYERS_API bool onMouseClick(mouseEventArgs* e);
+        LAYERS_API bool onMouseDoubleClick(mouseEventArgs* e);
+        LAYERS_API bool onMouseMove(mouseEventArgs* e);
+        LAYERS_API bool onBeginMouseWheel(mouseEventArgs* e);
+        LAYERS_API bool onMouseWheel(mouseEventArgs* e);
+        LAYERS_API bool onEndMouseWheel(mouseEventArgs* e);
+        LAYERS_API bool onKeyDown(keyboardEventArgs* e);
+        LAYERS_API bool onKeyUp(keyboardEventArgs* e);
 
         void addOnUpdate(std::function<void(void)> onUpdate) { _onUpdate.push_back(onUpdate); }
         void addOnNodeAdded(std::function<void(node*)> onNodeAdded) { _onNodeAdded.push_back(onNodeAdded); }
@@ -110,14 +110,15 @@ namespace phi
         void addOnNodeComponentAdded(std::function<void(node*, component*)> onNodeComponentAdded) { _onNodeComponentAdded.push_back(onNodeComponentAdded); }
         void addOnNodeComponentRemoved(std::function<void(node*, component*)> onNodeComponentRemoved) { _onNodeComponentRemoved.push_back(onNodeComponentRemoved); }
 
-        CONTEXT_API void addInputController(inputController* controller);
+        LAYERS_API void addInputController(inputController* controller);
+
         void addRenderPass(renderPass* renderPass) { _renderPasses.push_back(renderPass); }
         void addRenderPasses(vector<renderPass*> renderPasses) { _renderPasses.insert(_renderPasses.end(), renderPasses.begin(), renderPasses.end()); }
         void addOnDelete(std::function<void(void)> onDelete) { _onDelete.push_back(onDelete); }
 
-        camera* getCamera() { return _camera; }
+        camera* getCamera() const { return _camera; }
 
-        void resize(const resolution& resolution);
+        LAYERS_API void resize(const resolution& resolution);
         node* getRoot() { return _root; }
     };
 }

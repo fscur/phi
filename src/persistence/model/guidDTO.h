@@ -9,6 +9,7 @@ namespace demon
     struct guidDTO
     {
     public:
+        guidDTO() {}
         guidDTO(phi::guid guid) :
             guid(guid)
         {
@@ -24,8 +25,9 @@ namespace demon
         template <typename Archive>
         void load_minimal(const Archive& archive, const phi::string& value)
         {
-            auto bytes = base64::decode(value);
-            guid = guid(bytes);
+            _unused(archive);
+            auto bytes = phi::base64::decode(value);
+            guid = phi::guid(bytes);
         }
 
         phi::guid guid;

@@ -17,6 +17,8 @@ namespace phi
     {
         for (auto& buffer : _buffers)
             safeDelete(buffer);
+
+        glDeleteVertexArrays(1, &_id);
     }
 
     void vertexArrayObject::addBuffer(iVertexBuffer* buffer)

@@ -39,12 +39,18 @@ namespace phi
 
         auto batchAddedToken = _meshAdapter->onBatchAdded->assign([=](batch* batch)
         {
-            addVao(batch->getVao());
+            _vaos.push_back(batch->getVao());
+        });
+
+        auto batchRemovedToken = _meshAdapter->onBatchRemoved->assign([=](batch* batch)
+        {
+            _vaosToRemove.push_back(batch->getVao());
         });
 
         _meshAdapter->onDelete([&]()
         {
             _meshAdapter->onBatchAdded->unassign(batchAddedToken);
+            _meshAdapter->onBatchRemoved->unassign(batchRemovedToken);
         });
     }
 
@@ -56,8 +62,16 @@ namespace phi
     {
     }
 
-    void gBufferRenderPass::onBeginRender() 
+    void gBufferRenderPass::onBeginRender()
     {
+        if (_vaosToRemove.size() > 0)
+        {
+            for (auto& item : _vaosToRemove)
+                phi::removeIfContains(_vaos, item);
+
+            _vaosToRemove.clear();
+        }
+
         const auto selectionRenderTargetNumber = 3;
         auto selectionClearColor = 0.0f;
 

@@ -27,6 +27,7 @@ namespace phi
         UI_API buttonBuilder withFont(phi::font* font);
         UI_API buttonBuilder withControlColor(float r, float g, float b, float a);
         UI_API buttonBuilder withTextColor(float r, float g, float b, float a);
+        UI_API buttonBuilder withGlassyLook();
         UI_API buttonBuilder withText(wstring text);
         UI_API buttonBuilder asBillboard();
         UI_API buttonBuilder withAction(std::function<void(node*)> action);

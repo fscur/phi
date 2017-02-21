@@ -37,5 +37,6 @@ namespace phi
         meshRenderAdapter* _meshAdapter;
         framebufferAllocator* _framebufferAllocator;
         const string _shadersPath;
+        vector<vertexArrayObject*> _vaosToRemove;
     };
 }

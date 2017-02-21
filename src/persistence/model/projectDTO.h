@@ -28,6 +28,27 @@ namespace demon
             );
         }
 
+        static projectDTO from(project* project)
+        {
+            auto scene = project->getScene();
+
+            auto nodesIds = phi::vector<guidDTO>();
+            auto nodes = phi::vector<nodeDTO>();
+            auto models = scene->getModels();
+
+            for (auto& model : models)
+            {
+                auto nodeDto = nodeDTO::from(model);
+                nodes.push_back(nodeDto);
+                nodesIds.push_back(nodeDto.guid);
+            }
+
+            auto cameraDto = cameraDTO::from(scene->getCamera());
+            auto sceneDto = sceneDTO(nodesIds, cameraDto);
+
+            return projectDTO(sceneDto, nodes);
+        }
+
         sceneDTO scene;
         phi::vector<nodeDTO> nodes;
     };

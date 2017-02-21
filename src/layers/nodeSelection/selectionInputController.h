@@ -1,14 +1,10 @@
 #pragma once
 #include <phi.h>
-
 #include <core/node.h>
-
-#include <context\layer.h>
-
-#include <input\inputController.h>
-
+#include <input/inputController.h>
 #include <application/commandsManager.h>
 
+#include "../layer.h"
 #include "../layersApi.h"
 #include "selectionLayerBehaviour.h"
 

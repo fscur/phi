@@ -1,7 +1,7 @@
 #include <precompiled.h>
 #include <common/mouseInteractionComponent.h>
 #include <rendering/pickingFramebuffer.h>
-#include <context/pickingId.h>
+#include "../pickingId.h"
 #include <ui/control.h>
 #include "uiInputController.h"
 

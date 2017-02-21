@@ -40,6 +40,17 @@ namespace phi
         return new phi::model(model.guid, node);
     }
 
+    model* modelDataService::getModelById(const phi::guid& id)
+    {
+        //implement cache
+        auto model = _modelRepository->getModelById(id);
+
+        auto node = assembleNode(model.node);
+        addDefaultComponents(node);
+
+        return new phi::model(model.guid, node);
+    }
+
     void modelDataService::addDefaultComponents(node* node)
     {
         node->addComponent(new phi::mouseInteractionComponent());

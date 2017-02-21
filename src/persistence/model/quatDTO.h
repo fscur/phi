@@ -15,13 +15,13 @@ namespace demon
             vector[3] = quaternion.w;
         }
 
-        phi::quat toQuaternion()
+        phi::quat toQuaternion() const
         {
             return phi::quat(
+                vector[3],
                 vector[0],
                 vector[1],
-                vector[2],
-                vector[3]);
+                vector[2]);
         }
 
         phi::vector<float> vector = phi::vector<float>(4);

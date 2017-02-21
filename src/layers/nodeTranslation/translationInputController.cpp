@@ -6,7 +6,7 @@
 
 #include <rendering\pickingFramebuffer.h>
 
-#include <context\pickingId.h>
+#include "../pickingId.h"
 
 #include "translationInputController.h"
 #include "translateNodeCommand.h"

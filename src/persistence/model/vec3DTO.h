@@ -15,7 +15,7 @@ namespace demon
             vector[2] = vec.z;
         }
 
-        phi::vec3 toVec3()
+        phi::vec3 toVec3() const
         {
             return phi::vec3(
                 vector[0],

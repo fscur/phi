@@ -12,7 +12,7 @@
 #include <application/window.h>
 #include <application/commandsManager.h>
 
-#include <context/layer.h>
+#include <layers/layer.h>
 #include <context/context.h>
 #include <context/scene.h>
 
@@ -32,34 +32,33 @@ namespace demon
     {
     private:
         library* _userLibrary;
+        library* _projectLibrary;
         project* _project;
+        
+        phi::scene* _scene;
+        phi::gl* _gl;
+
+        phi::font* _font;
 
         iProjectRepository* _projectRepository;
 
-        phi::gl* _gl;
         phi::context* _designContext;
-        phi::context* _constructionContext;
+        phi::context* _buildingContext;
         phi::context* _activeContext;
 
-        phi::scene* _scene;
         phi::layer* _sceneLayer;
-        phi::layer* _onDemandLayer;
-        phi::layer* _constructionLayer;
-        phi::layer* _nandinhoLayer;
+        //phi::layer* _onDemandLayer;
+        phi::layer* _buildingLayer;
+        phi::layer* _designLayer;
 
         phi::camera* _sceneCamera;
-        phi::camera* _nandinhoCamera;
-        phi::camera* _constructionCamera;
+        phi::camera* _designLayerCamera;
+        phi::camera* _buildingLayerCamera;
 
         phi::node* _labelFps;
-        phi::node* _labelNandinho;
-        phi::node* _constructionLabel;
+        phi::node* _changeContextButton;
 
         phi::commandsManager* _commandsManager;
-#ifdef _DEBUG
-        phi::watcher* _watcher;
-        phi::blockingQueue<phi::watcherMessage>* _messageQueue;
-#endif
 
         phi::framebufferAllocator* _framebufferAllocator;
 
@@ -71,14 +70,26 @@ namespace demon
         phi::image* _translationImage;
         phi::image* _rotationImage;
 
+#ifdef _DEBUG
+        phi::watcher* _watcher;
+        phi::blockingQueue<phi::watcherMessage>* _messageQueue;
+#endif
+
     private:
         void initGL();
         void initWatcher();
         void initFramebuffers();
         void initLibraries();
-        void initContexts();
-        void initScene();
         void initInput();
+
+        void initSceneLayer();
+        void initDesignLayer();
+        void initBuildingLayer();
+        void initContexts();
+        
+        void initScene();
+        void loadProject();
+        void saveProject();
 
         phi::node* createOnDemandUiNode();
         void showOnDemandUi();

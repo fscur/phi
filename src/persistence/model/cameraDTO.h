@@ -13,13 +13,18 @@ namespace demon
     {
     public:
         cameraDTO() {}
+
         cameraDTO(
+            float width,
+            float height,
             float fov,
             float near,
             float far,
             vec3DTO translation,
             vec3DTO scale,
             quatDTO rotation) :
+            width(width),
+            height(height),
             fov(fov),
             near(near),
             far(far),
@@ -37,6 +42,8 @@ namespace demon
         void serialize(Archive& archive)
         {
             archive(
+                make_nvp("width", width),
+                make_nvp("height", height),
                 make_nvp("fov", fov),
                 make_nvp("near", near),
                 make_nvp("far", far),
@@ -51,6 +58,8 @@ namespace demon
             auto transform = camera->getTransform();
 
             return cameraDTO(
+                camera->getResolution().width,
+                camera->getResolution().height,
                 camera->getFov(),
                 camera->getNear(),
                 camera->getFar(),
@@ -59,6 +68,23 @@ namespace demon
                 transform->getLocalOrientation());
         }
 
+        static phi::camera* to(const cameraDTO& cameraDto)
+        {
+            auto transform = new phi::transform();
+            transform->setLocalPosition(cameraDto.translation.toVec3());
+            transform->setLocalSize(cameraDto.scale.toVec3());
+            transform->setLocalOrientation(cameraDto.rotation.toQuaternion());
+
+            return new phi::camera(
+                phi::resolution(cameraDto.width, cameraDto.height),
+                transform,
+                cameraDto.near,
+                cameraDto.far,
+                cameraDto.fov);
+        }
+
+        float width;
+        float height;
         float fov;
         float near;
         float far;

@@ -18,6 +18,7 @@ namespace demon
         DOMAIN_API library(phi::iModelDataService* modelDataService);
         DOMAIN_API ~library();
 
-        DOMAIN_API phi::model* getModelByIndex(int index);
+        DOMAIN_API phi::model* getModelByIndex(const int index);
+        DOMAIN_API phi::model* library::getModelById(const phi::guid& guid);
     };
 }

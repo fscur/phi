@@ -27,6 +27,7 @@ namespace phi
 
     public:
         eventHandler<batch*>* onBatchAdded;
+        eventHandler<batch*>* onBatchRemoved;
 
     private:
         void createBuffers();

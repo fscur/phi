@@ -13,6 +13,7 @@ namespace demon
     struct nodeDTO
     {
     public:
+        nodeDTO(){}
         nodeDTO(
             phi::string name,
             guidDTO guid,
