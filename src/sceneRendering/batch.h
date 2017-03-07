@@ -48,7 +48,7 @@ namespace phi
         void removeInstance(const meshInstance* instance);
         void updateMultiDrawCommands();
 
-        bool doesGeometryFitInVao(const meshInstance * instance);
+        bool geometryFitsInVao(const meshInstance * instance);
 
     public:
         SCENE_RENDERING_API batch();

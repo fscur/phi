@@ -25,5 +25,6 @@ namespace phi
     private:
         string _libraryPath;
         index _index;
+        unordered_map<guid, geometry*, guidComparer> _cache;
     };
 }

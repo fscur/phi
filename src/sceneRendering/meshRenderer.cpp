@@ -19,7 +19,7 @@ namespace phi
         auto gBuffer = new gBufferRenderPass(resolution, meshAdapter, shadersPath, framebufferAllocator);
         auto lighting = new lightingRenderPass(resolution, shadersPath, framebufferAllocator);
         auto selection = new selectionRenderPass(resolution, shadersPath, framebufferAllocator);
-
+        
         return{ gBuffer, lighting, selection };
         //return{ gBufferRenderPass };
     }

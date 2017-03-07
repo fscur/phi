@@ -830,8 +830,11 @@ namespace phi
 
     void window::swapBuffers()
     {
-        SwapBuffers(_deviceContext);
-        onSwapBuffers();
+        if (_deviceContext)
+        {
+            SwapBuffers(_deviceContext);
+            onSwapBuffers();
+        }
     }
 
     void window::close()
@@ -839,7 +842,6 @@ namespace phi
         window::resize.unassign(_resizeToken);
 
         onClosing();
-
         deleteMouseButtonDispatchers();
         releaseGLContext();
         ReleaseDC(_windowHandle, _deviceContext);

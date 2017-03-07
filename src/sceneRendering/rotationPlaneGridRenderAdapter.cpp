@@ -30,7 +30,9 @@ namespace phi
         auto renderFunction = [&]
         {
             auto instanceCount = _modelMatricesBuffer->getInstanceCount();
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(instanceCount));
+
+            if (instanceCount != 0)
+                glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(instanceCount));
         };
 
         auto quad = createPlaneQuad();

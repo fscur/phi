@@ -47,6 +47,9 @@ namespace phi
 
         _vao->setOnRender([&]
         {
+            if (_objectsCount == 0)
+                return;
+
             _multiDrawCommandsBuffer->bind();
             glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, _objectsCount, 0);
             _multiDrawCommandsBuffer->unbind();

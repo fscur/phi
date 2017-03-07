@@ -37,7 +37,7 @@ namespace phi
         auto controlQuad = createControlQuad();
         auto renderFunction = [&]
         {
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_modelMatricesBuffer->getInstanceCount()));
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(_modelMatricesBuffer->getInstanceCount()));
         };
 
         _vao = vertexArrayObject::createQuadVao(controlQuad, renderFunction);

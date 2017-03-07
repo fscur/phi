@@ -148,7 +148,7 @@ namespace phi
         return base64::encode(&_bytes[0], _bytes.size());
     }
 
-    vector<byte>& guid::getBytes()
+    vector<byte> guid::getBytes() const
     {
         return _bytes;
     }

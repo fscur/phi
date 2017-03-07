@@ -24,6 +24,9 @@ namespace phi
 
     material* materialRepository::getById(const guid& guid)
     {
+        if (phi::contains(_cache, guid))
+            return _cache[guid];
+
         materialDTO materialDTO;
 
         if (!_index.contains(guid))
@@ -57,7 +60,7 @@ namespace phi
         if (!emissiveImage)
             emissiveImage = image::defaultEmissiveImage;
 
-        return new material(
+        auto material = new phi::material(
             materialDTO.guid,
             albedoImage,
             normalImage,
@@ -70,5 +73,8 @@ namespace phi
             materialDTO.reflectivity,
             materialDTO.emission,
             materialDTO.opacity);
+
+        _cache[guid] = material;
+        return material;
     }
 }

@@ -22,10 +22,15 @@ namespace phi
 
     geometry* geometryRepository::getById(const guid& guid)
     {
+        if (phi::contains(_cache, guid))
+            return _cache[guid];
+
         auto entry = _index.getEntryById(guid);
         auto geometryPath = path::combine(_libraryPath, entry.path);
 
-        return loadGeometry(geometryPath);
+        auto geometry = loadGeometry(geometryPath);
+        _cache[guid] = geometry;
+        return geometry;
     }
 
     geometry* geometryRepository::loadGeometry(string fileName)

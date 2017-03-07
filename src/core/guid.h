@@ -47,22 +47,15 @@ namespace phi
         CORE_API bool operator==(const guid& other) const;
         CORE_API bool operator!=(const guid& other) const;
         CORE_API string toStringBase64() const;
-        CORE_API vector<byte>& getBytes();
+        CORE_API vector<byte> getBytes() const;
 
     public:
         CORE_API static guid newGuid();
-
-
     };
-}
 
-namespace std
-{
-    //http://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
-    template <>
-    struct hash<phi::guid>
+    struct guidComparer
     {
-        std::size_t operator()(phi::guid& guid) const
+        std::size_t operator()(const phi::guid& guid) const
         {
             using std::size_t;
             using std::hash;
@@ -70,9 +63,7 @@ namespace std
             std::size_t seed = 0;
 
             for (auto& item : guid.getBytes())
-            {
                 std::hash_combine<GLenum>(seed, item);
-            }
 
             return seed;
         }

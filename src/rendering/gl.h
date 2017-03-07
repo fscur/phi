@@ -76,7 +76,7 @@ namespace phi
         const string BINDLESS_TEXTURE_EXTENSION = "GL_ARB_bindless_texture";
         const string SPARSE_TEXTURE_EXTENSION = "GL_ARB_sparse_texture";
         const string SWAP_CONTROL_EXTENSION = "WGL_EXT_swap_control";
-
+        
         static bool _initialized;
 
     private:

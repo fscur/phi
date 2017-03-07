@@ -66,7 +66,7 @@ namespace phi
         {
             BINDLESS_TEXTURE_EXTENSION,
             SPARSE_TEXTURE_EXTENSION,
-            SWAP_CONTROL_EXTENSION,
+            SWAP_CONTROL_EXTENSION
         };
 
         for (auto phiExtension : phiExtensions)

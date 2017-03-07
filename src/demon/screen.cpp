@@ -275,30 +275,6 @@ namespace demon
         _designLayer->add(saveProjectButton);
     }
 
-    void screen::initBuildingLayer()
-    {
-        _buildingLayerCamera = new camera(_resolution, 0.1f, 1000.0f, PI_OVER_4);
-        _buildingLayerCamera->getTransform()->setLocalPosition(vec3(0.0f, 0.0f, 400.0f));
-        _buildingLayerCamera->getTransform()->setDirection(vec3(0.0f, 0.0f, -1.0f));
-
-        _buildingLayer = layerBuilder::newLayer(_buildingLayerCamera, application::resourcesPath, _framebufferAllocator, _commandsManager)
-            .withControlRenderer()
-            .withTextRenderer()
-            .withAnimation()
-            .withUIMouseController()
-            .build();
-
-        auto buildingLabel = labelBuilder::newLabel(L"Opaque Look Label")
-            .withPosition(vec3(-300.f, 100.f, 0.f))
-            .withControlColor(0.0f, 1.0f, 0.5, 1.f)
-            .withTextColor(1.f, 1.f, 1.f, 1.f)
-            .withFont(_font)
-            .build();
-
-        _buildingLayer->add(buildingLabel);
-        _buildingLayer->add(_changeContextButton);
-    }
-
     void screen::initContexts()
     {
         _font = fontsManager::load("Roboto-Thin.ttf", 10);
@@ -349,7 +325,7 @@ namespace demon
 
         _sceneLayer->add(skyBoxNode);
 
-        auto floor = _userLibrary->getModelByIndex(24);
+        /*auto floor = _userLibrary->getModelByIndex(24);
         _sceneLayer->add(floor->getNode());
         _scene->add(floor);
 
@@ -364,7 +340,7 @@ namespace demon
         _sceneLayer->add(chair_brown->getNode());
         _scene->add(chair_brown);
 
-        auto chair_black = _userLibrary->getModelByIndex(2);
+        auto chair_black = _userLibrary->getModelByIndex(3);
         chair_black->getTransform()->setLocalPosition(1.0f, 0.0f, -1.3f);
         chair_black->getTransform()->yaw(-phi::PI_OVER_2 - 0.3f);
         _sceneLayer->add(chair_black->getNode());
@@ -378,34 +354,28 @@ namespace demon
 
         auto small_table = _userLibrary->getModelByIndex(28);
         small_table->getTransform()->setLocalPosition(0.0f, 0.0f, -1.3f);
-        //sofa->getTransform()->yaw(-phi::PI_OVER_2 - 0.3f);
         _sceneLayer->add(small_table->getNode());
-        _scene->add(small_table);
+        _scene->add(small_table);*/
 
         //auto chair_black = _userLibrary->getModelByIndex(2);
 
-        //for (auto i = 0; i < 1; i++)
+        //for (auto i = 0; i < 10; i++)
         //    for (auto j = 0; j < 10; j++)
         //        for (auto k = 0; k < 10; k++)
         //    {
         //        auto obj = chair_black->clone();
-
         //        obj->getTransform()->setLocalPosition(float(i), float(j), float(k));
-        //        //chair_black->getTransform()->yaw(phi::PI_OVER_2);
-
+        //        _sceneLayer->add(obj->getNode());
         //        _scene->add(obj);
         //    }
 
+        auto cube = _userLibrary->getModelByIndex(7);
+        _sceneLayer->add(cube->getNode());
+        _scene->add(cube);
 
-        //auto cube = _userLibrary->getModelByIndex(7);
-        //_scene->add(cube);
-        //auto sun = _userLibrary->getModelByIndex(15);
-        //sun->getTransform()->setLocalPosition(0.0f, 5.0f, 5.0f);
-        //_scene->add(sun);
-
-        /*auto sphere = _userLibrary->getModelByIndex(15);
-        sphere->getTransform()->setLocalPosition(0.0f, 0.0f, -10.0f);
-        _scene->add(sphere);*/
+        auto cube0 = _userLibrary->getModelByIndex(7);
+        _sceneLayer->add(cube0->getNode());
+        _scene->add(cube0);
     }
 
     void screen::loadProject()
@@ -531,11 +501,6 @@ namespace demon
 
     void screen::onUpdate()
     {
-        if (_design)
-            _activeContext = _designContext;
-        else
-            _activeContext = _buildingContext;
-
         _activeContext->update();
     }
 
@@ -572,16 +537,13 @@ namespace demon
         safeDelete(_userLibrary);
 
         safeDelete(_designContext);
-        safeDelete(_buildingContext);
 
         safeDelete(_projectRepository);
         safeDelete(_project);
         safeDelete(_designLayer);
-        safeDelete(_buildingLayer);
 
         safeDelete(_sceneCamera);
         safeDelete(_designLayerCamera);
-        safeDelete(_buildingLayerCamera);
 
 #ifdef _DEBUG
         _watcher->endWatch();

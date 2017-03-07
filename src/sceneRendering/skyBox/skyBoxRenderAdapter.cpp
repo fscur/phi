@@ -54,7 +54,7 @@ namespace phi
 
         auto renderFunction = [&]
         {
-            glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(_skyBoxRenderDataBuffer->getInstanceCount()));
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         };
 
         _vao = vertexArrayObject::createQuadVao(skyBoxQuad, renderFunction);

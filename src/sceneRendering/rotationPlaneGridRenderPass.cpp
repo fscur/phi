@@ -52,10 +52,10 @@ namespace phi
 
         _program->bind();
 
-        if (texturesManager::getIsBindless())
+        /*if (texturesManager::getIsBindless())
             _program->setUniform(0, texturesManager::textureArraysHandles);
         else
-            _program->setUniform(0, texturesManager::textureArraysUnits);
+            _program->setUniform(0, texturesManager::textureArraysUnits);*/
     }
 
     void rotationPlaneGridRenderPass::onEndRender()

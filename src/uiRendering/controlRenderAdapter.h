@@ -6,6 +6,8 @@
 
 #include <rendering/buffer.h>
 #include <rendering/camera.h>
+#include <rendering/vertexBuffer.h>
+#include <rendering/indexBuffer.h>
 #include <rendering/mappedBuffer.h>
 #include <rendering/mappedVertexBuffer.h>
 #include <rendering/vertexArrayObject.h>

@@ -23,5 +23,6 @@ namespace phi
         string _libraryPath;
         iTextureRepository* _imageRepository;
         index _index;
+        unordered_map<guid, material*, guidComparer> _cache;
     };
 }

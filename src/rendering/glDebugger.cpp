@@ -13,15 +13,21 @@ namespace phi
         void* userParam)
     {
 
+        /*_unused(source);
+        _unused(type);
+        _unused(id);
+        _unused(severity);
+        _unused(message);
+        */
         _unused(userParam);
         _unused(length);
-
-        if (severity == GL_DEBUG_SEVERITY_LOW)
-            return;
+        
+        /*if (severity == GL_DEBUG_SEVERITY_LOW)
+            return;*/
 
         // ignore non-significant error/warning codes
-        if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
-        
+        //if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
         std::cout << "---------------" << std::endl;
         std::cout << "Debug message (" << id << "): " << message << std::endl;
 
@@ -60,7 +66,7 @@ namespace phi
         std::cout << std::endl;
         std::cout << std::endl;
 
-        //__debugbreak();
+        // __debugbreak();
     }
 
     void glDebugger::enable()

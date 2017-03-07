@@ -24,12 +24,25 @@ namespace phi
 
     image* textureRepository::getById(guid guid)
     {
+        if (phi::contains(_cache, guid))
+            return _cache[guid];
+
+        for (auto& item : _cache)
+            if (item.first == guid)
+            {
+                auto t = item.second;
+                return t;
+            }
+
         if (!_index.contains(guid))
             return nullptr;
 
         auto entry = _index.getEntryById(guid);
         auto texturePath = path::combine(_libraryPath, entry.path);
-        return loadImage(texturePath, guid);
+        auto image = loadImage(texturePath, guid);
+
+        _cache[guid] = image;
+        return image;
 
         //std::ifstream inputFileStream(texturePath);
         //JSONInputArchive archive(inputFileStream);

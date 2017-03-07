@@ -24,5 +24,7 @@ namespace phi
         const string TEXTURES_INDEX_FILE_NAME = "textures.index";
         string _libraryPath;
         index _index;
+
+        unordered_map<guid, image*, guidComparer> _cache;
     };
 }

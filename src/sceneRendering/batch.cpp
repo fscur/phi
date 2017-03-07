@@ -42,7 +42,6 @@ namespace phi
     {
         createBuffers();
         initializeVao();
-        _empty = false;
     }
 
     void batch::createBuffers()
@@ -77,9 +76,12 @@ namespace phi
         _vao->addBuffer(_selectionBuffer);
         _vao->addBuffer(_materialsIdsBuffer);
         _vao->addBuffer(_modelMatricesBuffer);
-
+        
         _vao->setOnRender([&]
         {
+            if (_objectsCount == 0)
+                return;
+
             _multiDrawCommandsBuffer->bind();
             glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, _objectsCount, 0);
             _multiDrawCommandsBuffer->unbind();
@@ -173,7 +175,7 @@ namespace phi
         _multiDrawCommandsBuffer->create();
     }
 
-    bool batch::doesGeometryFitInVao(const meshInstance* instance)
+    bool batch::geometryFitsInVao(const meshInstance* instance)
     {
         return instance->getVaoSize() < _freeSpace;
     }
@@ -183,7 +185,8 @@ namespace phi
         auto geometry = instance->getGeometry();
         auto containsGeometry = phi::contains(_geometries, geometry);
 
-        return _empty || containsGeometry || doesGeometryFitInVao(instance);
+        /*return (!containsGeometry && geometryFitsInVao(instance)) || _empty;*/
+        return _empty || containsGeometry || geometryFitsInVao(instance);
     }
 
     void batch::add(const meshInstance* instance)
@@ -201,6 +204,7 @@ namespace phi
 
         addInstance(instance);
         updateMultiDrawCommands();
+        _empty = false;
     }
 
     void batch::remove(const meshInstance* instance)

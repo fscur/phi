@@ -45,25 +45,20 @@ namespace phi
         glEnable(GL_BLEND);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-1.0f, 0.0f);
-        glEnable(GL_CLIP_DISTANCE0);
-        glEnable(GL_CLIP_DISTANCE1);
-        glEnable(GL_CLIP_DISTANCE2);
+        //glEnable(GL_CLIP_DISTANCE0);
+        //glEnable(GL_CLIP_DISTANCE1);
+        //glEnable(GL_CLIP_DISTANCE2);
 
         _program->bind();
-
-        if (texturesManager::getIsBindless())
-            _program->setUniform(0, texturesManager::textureArraysHandles);
-        else
-            _program->setUniform(0, texturesManager::textureArraysUnits);
     }
 
     void translationPlaneGridRenderPass::onEndRender()
     {
         _program->unbind();
 
-        glDisable(GL_CLIP_DISTANCE2);
-        glDisable(GL_CLIP_DISTANCE1);
-        glDisable(GL_CLIP_DISTANCE0);
+        //glDisable(GL_CLIP_DISTANCE2);
+        //glDisable(GL_CLIP_DISTANCE1);
+        //glDisable(GL_CLIP_DISTANCE0);
 
         glPolygonOffset(0.0f, 0.0f);
         glDisable(GL_POLYGON_OFFSET_FILL);

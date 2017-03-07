@@ -21,7 +21,7 @@ namespace phi
 
         void initialize() override
         {
-            bind();
+            buffer::bind();
         }
     };
 }

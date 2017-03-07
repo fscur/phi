@@ -43,17 +43,14 @@ namespace demon
         iProjectRepository* _projectRepository;
 
         phi::context* _designContext;
-        phi::context* _buildingContext;
         phi::context* _activeContext;
 
         phi::layer* _sceneLayer;
         //phi::layer* _onDemandLayer;
-        phi::layer* _buildingLayer;
         phi::layer* _designLayer;
 
         phi::camera* _sceneCamera;
         phi::camera* _designLayerCamera;
-        phi::camera* _buildingLayerCamera;
 
         phi::node* _labelFps;
         phi::node* _changeContextButton;
@@ -84,7 +81,6 @@ namespace demon
 
         void initSceneLayer();
         void initDesignLayer();
-        void initBuildingLayer();
         void initContexts();
         
         void initScene();
